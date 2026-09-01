@@ -88,12 +88,30 @@ const LoginForm = ({user, setUser, setError}) => {
       }
       const data = await response.json();
       localStorage.setItem('token', data.accessToken);
-      navigate("/");
+
+      // Fetch user info to get role
+      const userResponse = await fetcher('user/me', {});
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user info");
+      }
+      const userData = await userResponse.json();
+
+      // Navigate to role-specific page
+      const role = userData.role;
+      if (role === "ROLE_EMPRUNTEUR") {
+        navigate("/emprunteur");
+      } else if (role === "ROLE_PREPOSE") {
+        navigate("/prepose");
+      } else if (role === "ROLE_GESTIONNAIRE") {
+        navigate("/gestionnaire");
+      } else {
+        navigate("/");
+      }
     } catch(error) {
       setError(error)
       navigate('/error')
     }
-    
+
 
   }
 
@@ -132,7 +150,7 @@ const LoginForm = ({user, setUser, setError}) => {
       {user?.isLoggedIn ? (
         user.role === "ROLE_EMPRUNTEUR" ? navigate("/emprunteur") :
           user.role === "ROLE_PREPOSE" ? navigate("/prepose") :
-            user.role === "ROLE_GESTIONNAIRE" ? navigate("/manager") :
+            user.role === "ROLE_GESTIONNAIRE" ? navigate("/gestionnaire") :
               navigate("/")
       ) : (
         <div className="container mt-5">

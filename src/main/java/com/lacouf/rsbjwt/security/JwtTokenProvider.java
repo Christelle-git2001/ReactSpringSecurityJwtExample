@@ -17,7 +17,23 @@ public class JwtTokenProvider{
 	@Value("${application.security.jwt.expiration}")
 	private int expirationInMs;
 	@Value("${application.security.jwt.secret-key}")
-	private final String jwtSecret = "2B7E151628AED2A6ABF7158809CF4F3C2B7E151628AED2A6ABF7158809CF4F3C";
+	private String jwtSecret = "2B7E151628AED2A6ABF7158809CF4F3C2B7E151628AED2A6ABF7158809CF4F3C";
+
+	private Key getSigningKey() {
+		// jwtSecret is a hex string, convert to bytes
+		byte[] keyBytes = hexStringToByteArray(jwtSecret);
+		return Keys.hmacShaKeyFor(keyBytes);
+	}
+
+	private byte[] hexStringToByteArray(String s) {
+		int len = s.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+					+ Character.digit(s.charAt(i+1), 16));
+		}
+		return data;
+	}
 
 	public String generateToken(Authentication authentication){
 		long nowMillis = System.currentTimeMillis();
@@ -26,17 +42,14 @@ public class JwtTokenProvider{
 			.issuedAt(new Date(nowMillis))
 			.expiration(new Date(nowMillis + expirationInMs))
 			.claim("authorities", authentication.getAuthorities())
-			.signWith(key())
+			.signWith(getSigningKey(), SignatureAlgorithm.HS256)
 			.compact();
 	}
 
-	private Key key(){
-		return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-	}
 
 	public String getEmailFromJWT(String token){
 		return Jwts.parser()
-			.verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
+			.verifyWith((javax.crypto.SecretKey) getSigningKey())
 			.build()
 			.parseSignedClaims(token)
 			.getPayload()
@@ -46,7 +59,7 @@ public class JwtTokenProvider{
 	public void validateToken(String token){
 		try{
 			Jwts.parser()
-				.verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
+				.verifyWith((javax.crypto.SecretKey) getSigningKey())
 				.build()
 				.parseSignedClaims(token);
 		}catch(SecurityException ex){
