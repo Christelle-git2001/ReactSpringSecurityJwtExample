@@ -21,13 +21,13 @@ public class JwtTokenProvider{
 
 	public String generateToken(Authentication authentication){
 		long nowMillis = System.currentTimeMillis();
-		JwtBuilder builder = Jwts.builder()
-			.setSubject(authentication.getName())
-			.setIssuedAt(new Date(nowMillis))
-			.setExpiration(new Date(nowMillis + expirationInMs))
+		return Jwts.builder()
+			.subject(authentication.getName())
+			.issuedAt(new Date(nowMillis))
+			.expiration(new Date(nowMillis + expirationInMs))
 			.claim("authorities", authentication.getAuthorities())
-			.signWith(key());
-		return builder.compact();
+			.signWith(key())
+			.compact();
 	}
 
 	private Key key(){
@@ -35,17 +35,20 @@ public class JwtTokenProvider{
 	}
 
 	public String getEmailFromJWT(String token){
-		return Jwts.parserBuilder()
-			.setSigningKey(key())
+		return Jwts.parser()
+			.verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
 			.build()
-			.parseClaimsJws(token)
-			.getBody()
+			.parseSignedClaims(token)
+			.getPayload()
 			.getSubject();
 	}
 
 	public void validateToken(String token){
 		try{
-			Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token);
+			Jwts.parser()
+				.verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
+				.build()
+				.parseSignedClaims(token);
 		}catch(SecurityException ex){
 			throw new InvalidJwtTokenException(HttpStatus.BAD_REQUEST, "Invalid JWT signature");
 		}catch(MalformedJwtException ex){

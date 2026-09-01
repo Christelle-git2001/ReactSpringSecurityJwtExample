@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,7 +28,6 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -62,7 +60,7 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, USER_LOGIN_PATH).permitAll()
                         .requestMatchers(POST, EMPRUNTEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, PREPOSE_REGISTER_PATH).permitAll()
-                        .requestMatchers(toH2Console()).permitAll() // Allow H2 console access
+                        .requestMatchers(H2_CONSOLE_PATH).permitAll() // Allow H2 console access
 
                         // Use Role enum names for authorities
                         .requestMatchers(GET, USER_PATH).hasAnyAuthority(Role.EMPRUNTEUR.name(), Role.PREPOSE.name(), Role.GESTIONNAIRE.name())
