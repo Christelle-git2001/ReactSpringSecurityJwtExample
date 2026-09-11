@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.repository.EmprunteurRepository;
-import com.lacouf.rsbjwt.repository.GestionnaireRepository;
-import com.lacouf.rsbjwt.repository.PreposeRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
@@ -19,12 +16,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserAppService {
+    // TODO Remplacer les classe biblio par les classe appropriee
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserAppRepository userAppRepository;
-    private final EmprunteurRepository emprunteurRepository;
+    /*private final EmprunteurRepository emprunteurRepository;
     private final PreposeRepository preposeRepository;
-    private final GestionnaireRepository gestionnaireRepository;
+    private final GestionnaireRepository gestionnaireRepository;*/
 
     public String authenticateUser(LoginDTO loginDto) {
         Authentication authentication = authenticationManager.authenticate(
@@ -34,7 +32,7 @@ public class UserAppService {
         return token;
     }
 
-    public UserDTO getMe(String token) {
+    /*public UserDTO getMe(String token) {
         token = token.startsWith("Bearer") ? token.substring(7) : token;
         String email = jwtTokenProvider.getEmailFromJWT(token);
         UserApp user = userAppRepository.findUserAppByEmail(email).orElseThrow(UserNotFoundException::new);
@@ -64,5 +62,5 @@ public class UserAppService {
         return emprunteurOptional.isPresent() ?
                 EmprunteurDto.create(emprunteurOptional.get()) :
                 EmprunteurDto.empty();
-    }
+    }*/
 }
