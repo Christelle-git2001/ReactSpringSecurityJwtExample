@@ -6,8 +6,8 @@ import java.util.Set;
 public enum Role{
 	// TODO Remplacer les classe biblio par les classe appropriee
 	GESTIONNAIRE("ROLE_GESTIONNAIRE"),
-	/*PREPOSE("ROLE_PREPOSE"),
-	EMPRUNTEUR("ROLE_EMPRUNTEUR"),*/
+	ETUDIANT("ROLE_ETUDIANT"),
+	//EMPRUNTEUR("ROLE_EMPRUNTEUR"),*/
 	;
 
 	private final String string;
