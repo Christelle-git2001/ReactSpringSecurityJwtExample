@@ -20,9 +20,9 @@ public abstract class UserApp  {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String firstName;
-
     private String lastName;
-
+    private String ville;
+    private String telephone;
     @Embedded
     private Credentials credentials;
 
