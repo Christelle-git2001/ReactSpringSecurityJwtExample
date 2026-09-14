@@ -13,7 +13,6 @@ import lombok.*;
 @Setter
 @ToString
 @DiscriminatorValue("E")
-@NoArgsConstructor
 public class Employeur extends UserApp{
 
     @Column(nullable = false)

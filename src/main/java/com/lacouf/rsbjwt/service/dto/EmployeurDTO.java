@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.service.dto;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -25,6 +26,6 @@ public class EmployeurDTO {
     private String nomEntreprise;
     @NotBlank(message = "validation.typeEntreprise.required")
     private String typeEntreprise;
-    @NotBlank(message = "validation.secteurActivite.required")
+    @NotNull(message = "validation.secteurActivite.required")
     private SecteurActivite secteurActivite;
 }

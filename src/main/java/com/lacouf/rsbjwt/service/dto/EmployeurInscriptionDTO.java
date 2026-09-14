@@ -13,4 +13,6 @@ import lombok.Setter;
 public class EmployeurInscriptionDTO extends EmployeurDTO {
     @NotBlank(message = "validation.password.required")
     private String password;
+    @NotBlank(message = "validation.passwordConfirmation.required")
+    private String passwordConfirmation;
 }
