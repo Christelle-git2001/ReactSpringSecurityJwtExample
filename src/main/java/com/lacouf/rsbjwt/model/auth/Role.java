@@ -14,8 +14,7 @@ public enum Role{
 	private final Set<Role> managedRoles = new HashSet<>();
 
 	static{
-		/*GESTIONNAIRE.managedRoles.add(PREPOSE);
-		GESTIONNAIRE.managedRoles.add(EMPRUNTEUR);*/
+		/*GESTIONNAIRE.managedRoles.add(PREPOSE);*/
 		GESTIONNAIRE.managedRoles.add(GESTIONNAIRE);
 	}
 
