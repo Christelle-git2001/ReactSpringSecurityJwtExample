@@ -4,10 +4,14 @@ import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Exceptions.ConfirmationMotDePasseEchouer;
 import com.lacouf.rsbjwt.model.Exceptions.EmployeurExistant;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
+import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
+import static com.lacouf.rsbjwt.service.mapper.EmployeurMapper.convertisseurEmployeurToEmployeurDTO;
 import static com.lacouf.rsbjwt.service.mapper.EmployeurMapper.convertisseurInscriptionEmployeurDTOToEmployeur;
 
 @Service
@@ -20,10 +24,11 @@ public class EmployeurService {
     }
 
     @Transactional //TODO Renvoyer l'object
-    public void inscription(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmployeurExistant, ConfirmationMotDePasseEchouer {
+    public EmployeurDTO inscription(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmployeurExistant, ConfirmationMotDePasseEchouer {
        verificationEmployeurInscriptionDTO(employeurInscriptionDTO);
        Employeur employeur = convertisseurInscriptionEmployeurDTOToEmployeur(employeurInscriptionDTO);
-       employeurRepository.save(employeur);
+       Employeur employeurCreer =  employeurRepository.save(employeur);
+       return convertisseurEmployeurToEmployeurDTO(employeurCreer);
     }
 
 
