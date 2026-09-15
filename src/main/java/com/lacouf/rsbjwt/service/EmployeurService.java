@@ -23,7 +23,7 @@ public class EmployeurService {
         this.employeurRepository = employeurRepository;
     }
 
-    @Transactional //TODO Renvoyer l'object
+    @Transactional
     public EmployeurDTO inscription(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmployeurExistant, ConfirmationMotDePasseEchouer {
        verificationEmployeurInscriptionDTO(employeurInscriptionDTO);
        Employeur employeur = convertisseurInscriptionEmployeurDTOToEmployeur(employeurInscriptionDTO);
