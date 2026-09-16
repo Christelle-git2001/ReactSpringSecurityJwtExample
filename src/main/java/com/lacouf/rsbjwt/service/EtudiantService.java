@@ -1,6 +1,9 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.security.exception.EmailDejaUtiliseException;
+import com.lacouf.rsbjwt.security.exception.MatriculeDejaUtiliseException;
+import com.lacouf.rsbjwt.security.exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.dto.EtudiantDto;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDto;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,7 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public EtudiantDto inscrire(InscriptionEtudiantDto inscriptionEtudiantDto){
+    public EtudiantDto inscrire (InscriptionEtudiantDto inscriptionEtudiantDto) throws EmailDejaUtiliseException, MatriculeDejaUtiliseException, MotDePasseNonCorrespondantException {
 
         if (!inscriptionEtudiantDto.getPassword()
                 .equals(inscriptionEtudiantDto.getConfirmPassword())) {
@@ -31,8 +34,8 @@ public class EtudiantService {
 
         if (userAppRepository.findUserAppByEmail(
                 inscriptionEtudiantDto.getEmail()).isPresent()) {
-            //TODO : Exception personnalisée (EmailDejaUtiliseException)//
-            throw new IllegalArgumentException("Cette adresse courriel est déjà utilisée.");
+            throw new EmailDejaUtiliseException(
+                    "Cette adresse courriel est déjà utilisée.");
         }
 
         if (etudiantRepository.findByMatricule(
