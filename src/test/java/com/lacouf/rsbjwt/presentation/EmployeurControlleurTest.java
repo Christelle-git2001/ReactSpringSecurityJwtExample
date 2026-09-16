@@ -50,8 +50,8 @@ public class EmployeurControlleurTest {
                 .nomEntreprise("Gerard inc")
                 .typeEntreprise("Startup")
                 .secteurActivite(SecteurActivite.AEROSPATIAL)
-                .password("Losange12")
-                .passwordConfirmation("Losange12")
+                .password("Losange12%")
+                .passwordConfirmation("Losange12%")
                 .build();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
@@ -112,6 +112,17 @@ public class EmployeurControlleurTest {
     @Test
     void inscriptionEmailInvalide() throws Exception{
         employeurDTO.setEmail("HAHA");
+
+        mockMvc.perform(post("/inscription/employeur")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(employeurDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void inscriptionMDPInvalide() throws Exception{
+        employeurDTO.setPassword("HAHA");
+        employeurDTO.setPasswordConfirmation("HAHA");
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
