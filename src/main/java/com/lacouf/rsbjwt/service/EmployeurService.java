@@ -32,7 +32,6 @@ public class EmployeurService {
     }
 
 
-    //TODO : Verification Format Password
     private void verificationEmployeurInscriptionDTO(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmployeurExistant, ConfirmationMotDePasseEchouer {
         if (!employeurInscriptionDTO.getPassword().equals(employeurInscriptionDTO.getPasswordConfirmation()))
             throw new ConfirmationMotDePasseEchouer("Les mot de passe ne sont pas identique");
