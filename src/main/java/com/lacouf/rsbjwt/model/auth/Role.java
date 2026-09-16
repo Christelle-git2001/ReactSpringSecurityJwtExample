@@ -8,7 +8,7 @@ public enum Role{
 	GESTIONNAIRE("ROLE_GESTIONNAIRE"),
 	/*PREPOSE("ROLE_PREPOSE"),
 	EMPRUNTEUR("ROLE_EMPRUNTEUR"),*/
-	;
+	PROFESSEUR("ROLE_PROFESSEUR");
 
 	private final String string;
 	private final Set<Role> managedRoles = new HashSet<>();
@@ -17,6 +17,7 @@ public enum Role{
 		/*GESTIONNAIRE.managedRoles.add(PREPOSE);
 		GESTIONNAIRE.managedRoles.add(EMPRUNTEUR);*/
 		GESTIONNAIRE.managedRoles.add(GESTIONNAIRE);
+		GESTIONNAIRE.managedRoles.add(PROFESSEUR);
 	}
 
 	Role(String string){
