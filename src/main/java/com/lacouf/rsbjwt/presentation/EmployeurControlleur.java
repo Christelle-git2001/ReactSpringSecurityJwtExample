@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.model.Exceptions.EmployeurExistant;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,7 +23,7 @@ public class EmployeurControlleur {
     }
 
     @PostMapping("/inscription/employeur")
-    public ResponseEntity<EmployeurDTO> inscription(@RequestBody EmployeurInscriptionDTO employeurInscriptionDTO){
+    public ResponseEntity<EmployeurDTO> inscription(@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO){
         EmployeurDTO employeurDTO;
         try{
             employeurDTO = employeurService.inscription(employeurInscriptionDTO);
