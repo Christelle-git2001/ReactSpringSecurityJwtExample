@@ -1,4 +1,4 @@
-package com.lacouf.rsbjwt.model;
+package com.lacouf.rsbjwt.model.Enum;
 
 public enum Departement {
     INFORMATIQUE("Techniques de l'informatique"),

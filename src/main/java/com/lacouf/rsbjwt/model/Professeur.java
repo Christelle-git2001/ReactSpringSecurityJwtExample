@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.model;
 
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.auth.Role;
 import jakarta.persistence.Column;

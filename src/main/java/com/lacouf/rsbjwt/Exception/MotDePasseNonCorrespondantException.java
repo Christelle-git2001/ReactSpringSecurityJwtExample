@@ -1,4 +1,4 @@
-package com.lacouf.rsbjwt.model.Exceptions;
+package com.lacouf.rsbjwt.Exception;
 
 public class MotDePasseNonCorrespondantException extends Exception {
     public MotDePasseNonCorrespondantException() {

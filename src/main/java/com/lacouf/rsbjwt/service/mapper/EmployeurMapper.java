@@ -1,8 +1,5 @@
 package com.lacouf.rsbjwt.service.mapper;
 
-import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
 import org.springframework.stereotype.Component;
 
 @Component
