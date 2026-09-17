@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Exceptions.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.model.Exceptions.CourrielExistantException;
+import com.lacouf.rsbjwt.model.Exceptions.EmailExistantException;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
@@ -25,7 +25,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public EmployeurDTO creeCompteEmployeur(EmployeurInscriptionDTO employeurInscriptionDTO) throws CourrielExistantException, MotDePasseNonCorrespondantException {
+    public EmployeurDTO creeCompteEmployeur(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmailExistantException, MotDePasseNonCorrespondantException {
        verificationInscriptionEmployeurDTO(employeurInscriptionDTO);
        Employeur employeur = convertisseurInscriptionEmployeurDTOToEmployeur(employeurInscriptionDTO);
        Employeur employeurCreer =  employeurRepository.save(employeur);
@@ -33,11 +33,11 @@ public class EmployeurService {
     }
 
 
-    private void verificationInscriptionEmployeurDTO(EmployeurInscriptionDTO employeurInscriptionDTO) throws CourrielExistantException, MotDePasseNonCorrespondantException {
+    private void verificationInscriptionEmployeurDTO(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmailExistantException, MotDePasseNonCorrespondantException {
         if (!employeurInscriptionDTO.password().equals(employeurInscriptionDTO.passwordConfirmation()))
-            throw new MotDePasseNonCorrespondantException("Les mots de passe ne sont pas identiques");
+            throw new MotDePasseNonCorrespondantException();
         if (employeurExiste(employeurInscriptionDTO.email()))
-            throw new CourrielExistantException("Employeur existe déjà");
+            throw new EmailExistantException();
     }
 
     private boolean employeurExiste(String email) {

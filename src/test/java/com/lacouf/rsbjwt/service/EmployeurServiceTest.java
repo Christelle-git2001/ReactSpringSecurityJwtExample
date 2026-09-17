@@ -3,7 +3,7 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Exceptions.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.model.Exceptions.CourrielExistantException;
+import com.lacouf.rsbjwt.model.Exceptions.EmailExistantException;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
@@ -58,7 +58,6 @@ public class EmployeurServiceTest {
                 "Losange12%"
         );
         employeur = Employeur.builder()
-                .id(1L)
                 .firstName("Gerard")
                 .lastName("Robert")
                 .town("Mercier")
@@ -91,7 +90,7 @@ public class EmployeurServiceTest {
         when(userAppRepository.findUserAppByEmail(anyString())).thenReturn(Optional.of(employeur));
 
         assertThatThrownBy(() -> employeurService.creeCompteEmployeur(employeurInscriptionDTO))
-                .isInstanceOf(CourrielExistantException.class);
+                .isInstanceOf(EmailExistantException.class);
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }

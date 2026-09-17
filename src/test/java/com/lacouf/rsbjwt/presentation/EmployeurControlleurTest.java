@@ -3,7 +3,7 @@ package com.lacouf.rsbjwt.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Exceptions.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.model.Exceptions.CourrielExistantException;
+import com.lacouf.rsbjwt.model.Exceptions.EmailExistantException;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
@@ -62,7 +62,6 @@ public class EmployeurControlleurTest {
     @Test
     void inscriptionEmployeurCreated() throws Exception {
       EmployeurDTO employeurDTO = new EmployeurDTO(
-                1,
               "Gerard",
               "Robert",
               "165-685-4569",
@@ -85,7 +84,7 @@ public class EmployeurControlleurTest {
     @Test
     void inscriptionEmployeurMotDePasseDiffereException() throws Exception {
         when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
-                .thenThrow(new MotDePasseNonCorrespondantException("Les mots de passe ne sont pas identiques"));
+                .thenThrow(new MotDePasseNonCorrespondantException());
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +95,7 @@ public class EmployeurControlleurTest {
     @Test
     void inscriptionEmployeurExisteDeja() throws Exception{
         when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
-                .thenThrow(new CourrielExistantException("L'utilisateur existe deja"));
+                .thenThrow(new EmailExistantException());
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)

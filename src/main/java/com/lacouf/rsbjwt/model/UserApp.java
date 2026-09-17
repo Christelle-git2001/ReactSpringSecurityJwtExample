@@ -28,6 +28,13 @@ public abstract class UserApp  {
     @Embedded
     private Credentials credentials;
 
+    public UserApp(String firstName, String lastName, String phone, Credentials credentials) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.credentials = credentials;
+    }
+
     public String getEmail(){
         return credentials.getEmail();
     }

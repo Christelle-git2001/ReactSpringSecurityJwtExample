@@ -1,7 +1,7 @@
 package com.lacouf.rsbjwt.model.Exceptions;
 
 public class MotDePasseNonCorrespondantException extends Exception {
-    public MotDePasseNonCorrespondantException(String message) {
-        super(message);
+    public MotDePasseNonCorrespondantException() {
+        super("Les mots de passe ne correspondent pas");
     }
 }

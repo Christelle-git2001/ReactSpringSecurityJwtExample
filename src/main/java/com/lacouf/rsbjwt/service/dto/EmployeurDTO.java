@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record EmployeurDTO(long id,
+public record EmployeurDTO(
                            @NotBlank(message = "validation.prenom.required")
                            String firstName,
                            @NotBlank(message = "validation.nom.required")
@@ -27,7 +27,6 @@ public record EmployeurDTO(long id,
 {
     public static EmployeurDTO fromEntity(Employeur employeur){
         return new EmployeurDTO(
-                employeur.getId(),
                 employeur.getFirstName(),
                 employeur.getLastName(),
                 employeur.getPhone(),

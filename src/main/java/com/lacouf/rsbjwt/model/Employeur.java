@@ -21,15 +21,14 @@ public class Employeur extends UserApp{
     @Column(nullable = false)
     private String businessName;
     @Column(nullable = false)
-    private String businessType;
+    private String businessType;//TODO Remove
     @Column(nullable = false)
     private SecteurActivite businessSector;
     //TODO : Liste de personne responsable ?
 
     @Builder
-    public Employeur(Long id, String firstName, String lastName, String town, String phone, String email, String password, String businessName, String businessType, SecteurActivite businessSector){
+    public Employeur( String firstName, String lastName, String town, String phone, String email, String password, String businessName, String businessType, SecteurActivite businessSector){
         super(
-                id,
                 firstName,
                 lastName,
                 phone,
