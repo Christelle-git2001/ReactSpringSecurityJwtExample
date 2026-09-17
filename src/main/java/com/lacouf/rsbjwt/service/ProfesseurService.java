@@ -57,7 +57,9 @@ public class ProfesseurService {
             throw new DepartementInvalideException(value);
         }
 
-        String normalized = value.trim().toUpperCase().replace(" ", "_");
+        String normalized = value.trim()
+                .toUpperCase()
+                .replaceAll("\\s+", "_");
 
         for (Departement departement : Departement.values()) {
             if (departement.name().equals(normalized)) {

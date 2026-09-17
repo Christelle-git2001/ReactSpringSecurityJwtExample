@@ -35,17 +35,14 @@ public class ProfesseurController {
             logger.info("{}", newProfesseur);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProfesseur);
 
-        // TODO Exception Courriel Existant
         } catch (EmailExistantException e) {
             logger.info("{}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        // TODO Exception Matricule Existant
          catch (MatriculeExistantException e){
             logger.info("{}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        // TODO Exception le mot de passe et sa confirmation ne matchent pas
         catch (MotDePasseNonCorrespondantException e){
             logger.info("{}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
