@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDto;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDto;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Service;
 public class ProfesseurService {
 
     private final ProfesseurRepository professeurRepository ;
+    private final UserAppRepository userAppRepository ;
     private final PasswordEncoder passwordEncoder ;
 
     public ProfesseurDto creerCompte(InscriptionProfesseurDto inscriptionProfesseurDto) throws Exception /*EmailDejaUtiliseException, MatriculeDejaUtiliseException, MotDePasseNonCorrespondantException */
     {
-        if(professeurRepository.findByEmail(inscriptionProfesseurDto.email()).isPresent()){
+        if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
             // TODO Exception courriel Existant
             throw new Exception() ;
         }
