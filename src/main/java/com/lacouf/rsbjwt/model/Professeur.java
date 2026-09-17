@@ -19,10 +19,10 @@ public class Professeur extends UserApp{
     private String matricule ;
     private String email;
     private String phoneNumber ;
-    private String department ;
+    private Departement department ;
 
     @Builder
-    public Professeur(String firstName, String lastName, String email, String password, String matricule, String phoneNumber, String department) {
+    public Professeur(String firstName, String lastName, String email, String password, String matricule, String phoneNumber, Departement department) {
         super(firstName, lastName, Credentials.builder().email(email).password(password).role(Role.PROFESSEUR).build());
         this.matricule = matricule;
         this.email = email;
