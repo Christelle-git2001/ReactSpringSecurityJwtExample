@@ -14,6 +14,6 @@ public interface EmployeurRepository extends JpaRepository<Employeur, Long> {
     @Query("SELECT e FROM Employeur e WHERE e.credentials.email = :email")
     Optional<Employeur> rechercheParEmail(String email);
 
-    @Query("SELECT COUNT(e) > 0 FROM Employeur e WHERE e.credentials.email = :email")
-    boolean existeParEmail(@Param("email") String email);
+   /* @Query("SELECT COUNT(e) > 0 FROM Employeur e WHERE e.credentials.email = :email")
+    boolean existeParEmail(@Param("email") String email);*/
 }

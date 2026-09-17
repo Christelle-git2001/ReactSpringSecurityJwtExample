@@ -9,28 +9,19 @@ import org.springframework.stereotype.Component;
 public class EmployeurMapper {
     public static Employeur convertisseurInscriptionEmployeurDTOToEmployeur(EmployeurInscriptionDTO employeurInscriptionDTO){
         return Employeur.builder()
-                .prenom(employeurInscriptionDTO.getPrenom())
-                .nom(employeurInscriptionDTO.getNom())
-                .ville(employeurInscriptionDTO.getVille())
-                .telephone(employeurInscriptionDTO.getTelephone())
-                .email(employeurInscriptionDTO.getEmail())
-                .password(employeurInscriptionDTO.getPassword())
-                .nomEntreprise(employeurInscriptionDTO.getNomEntreprise())
-                .typeEntreprise(employeurInscriptionDTO.getTypeEntreprise())
-                .secteurActivite(employeurInscriptionDTO.getSecteurActivite())
+                .firstName(employeurInscriptionDTO.firstName())
+                .lastName(employeurInscriptionDTO.lastName())
+                .town(employeurInscriptionDTO.town())
+                .phone(employeurInscriptionDTO.phone())
+                .email(employeurInscriptionDTO.email())
+                .password(employeurInscriptionDTO.password())
+                .businessName(employeurInscriptionDTO.businessName())
+                .businessType(employeurInscriptionDTO.businesstype())
+                .businessSector(employeurInscriptionDTO.businessSector())
                 .build();
     }
 
     public static EmployeurDTO convertisseurEmployeurToEmployeurDTO(Employeur employeur){
-        EmployeurDTO employeurDTO = new EmployeurDTO();
-        employeurDTO.setPrenom(employeur.getFirstName());
-        employeurDTO.setNom(employeur.getLastName());
-        employeurDTO.setVille(employeur.getVille());
-        employeurDTO.setTelephone(employeur.getTelephone());
-        employeurDTO.setEmail(employeur.getEmail());
-        employeurDTO.setNomEntreprise(employeur.getNomEntreprise());
-        employeurDTO.setSecteurActivite(employeur.getSecteurActivite());
-        employeurDTO.setTypeEntreprise(employeur.getTypeEntreprise());
-        return employeurDTO;
+        return EmployeurDTO.fromEntity(employeur);
     }
 }

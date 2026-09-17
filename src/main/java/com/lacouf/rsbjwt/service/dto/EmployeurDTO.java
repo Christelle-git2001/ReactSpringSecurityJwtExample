@@ -1,33 +1,43 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class EmployeurDTO {
-    @NotBlank(message = "validation.nom.required")
-    private String nom;
-    @NotBlank(message = "validation.prenom.required")
-    private String prenom;
-    @NotBlank(message = "validation.ville.required")
-    private String ville;
-    @NotBlank(message = "validation.telephone.required")
-    private String telephone;
-    @NotBlank(message = "validation.email.required")
-    @Email
-    private String email;
-    @NotBlank(message = "validation.nomEntreprise.required")
-    private String nomEntreprise;
-    @NotBlank(message = "validation.typeEntreprise.required")
-    private String typeEntreprise;
-    @NotNull(message = "validation.secteurActivite.required")
-    private SecteurActivite secteurActivite;
+public record EmployeurDTO(long id,
+                           @NotBlank(message = "validation.prenom.required")
+                           String firstName,
+                           @NotBlank(message = "validation.nom.required")
+                           String lastName,
+                           @NotBlank(message = "validation.telephone.required")
+                           String phone,
+                           @NotBlank(message = "validation.email.required")
+                           @Email
+                           String email,
+                           @NotBlank(message = "validation.ville.required")
+                           String town,
+                           @NotBlank(message = "validation.nomEntreprise.required")
+                           String businessName,
+                           @NotNull(message = "validation.secteurActivite.required")
+                           SecteurActivite businessSector,
+                           @NotBlank(message = "validation.typeEntreprise.required")
+                           String businessType )
+{
+    public static EmployeurDTO fromEntity(Employeur employeur){
+        return new EmployeurDTO(
+                employeur.getId(),
+                employeur.getFirstName(),
+                employeur.getLastName(),
+                employeur.getPhone(),
+                employeur.getEmail(),
+                employeur.getTown(),
+                employeur.getBusinessName(),
+                employeur.getBusinessSector(),
+                employeur.getBusinessType()
+        );
+    }
+
+
 }

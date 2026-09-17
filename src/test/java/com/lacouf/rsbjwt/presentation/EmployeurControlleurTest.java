@@ -2,9 +2,10 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Exceptions.ConfirmationMotDePasseEchouer;
-import com.lacouf.rsbjwt.model.Exceptions.EmployeurExistant;
+import com.lacouf.rsbjwt.model.Exceptions.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.model.Exceptions.CourrielExistantException;
 import com.lacouf.rsbjwt.service.EmployeurService;
+import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,25 +35,25 @@ public class EmployeurControlleurTest {
 
     private ObjectMapper objectMapper;
 
-    EmployeurInscriptionDTO employeurDTO;
+    EmployeurInscriptionDTO employeurInscriptionDTO;
 
     private MockMvc mockMvc;
 
 
     @BeforeEach
     void init(){
-        employeurDTO = EmployeurInscriptionDTO.builder()
-                .prenom("Gerard")
-                .nom("Robert")
-                .ville("Mercier")
-                .telephone("165-685-4569")
-                .email("Gerard.Robert@hotmail.com")
-                .nomEntreprise("Gerard inc")
-                .typeEntreprise("Startup")
-                .secteurActivite(SecteurActivite.AEROSPATIAL)
-                .password("Losange12%")
-                .passwordConfirmation("Losange12%")
-                .build();
+        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "Gerard.Robert@hotmail.com",
+                "Mercier",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
+                "Startup",
+                "Losange12%",
+                "Losange12%"
+        );
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
         objectMapper = new ObjectMapper();
@@ -60,73 +61,108 @@ public class EmployeurControlleurTest {
 
     @Test
     void inscriptionEmployeurCreated() throws Exception {
-        when(employeurService.inscription(any(EmployeurInscriptionDTO.class))).thenReturn(employeurDTO);
+      EmployeurDTO employeurDTO = new EmployeurDTO(
+                1,
+              "Gerard",
+              "Robert",
+              "165-685-4569",
+              "Gerard.Robert@hotmail.com",
+              "Mercier",
+              "Gerard inc",
+              SecteurActivite.AEROSPATIAL,
+              "Startup"
+
+        );
+        when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class))).thenReturn(employeurDTO);
 
 
         mockMvc.perform(post("/inscription/employeur")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(employeurDTO)))
+                .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     void inscriptionEmployeurMotDePasseDiffereException() throws Exception {
-        when(employeurService.inscription(any(EmployeurInscriptionDTO.class)))
-                .thenThrow(new ConfirmationMotDePasseEchouer("Les mots de passe ne sont pas identiques"));
+        when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
+                .thenThrow(new MotDePasseNonCorrespondantException("Les mots de passe ne sont pas identiques"));
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurDTO)))
+                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionEmployeurExisteDeja() throws Exception{
-        when(employeurService.inscription(any(EmployeurInscriptionDTO.class)))
-                .thenThrow(new EmployeurExistant("L'utilisateur existe deja"));
+        when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
+                .thenThrow(new CourrielExistantException("L'utilisateur existe deja"));
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurDTO)))
+                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionChampsObligatoireManquant() throws Exception{
-        employeurDTO = EmployeurInscriptionDTO.builder()
-                .nom("Robert")
-                .telephone("165-685-4569")
-                .email("Gerard.Robert@hotmail.com")
-                .nomEntreprise("Gerard inc")
-                .typeEntreprise("Startup")
-                .secteurActivite(SecteurActivite.AEROSPATIAL)
-                .password("Losange12")
-                .passwordConfirmation("Losange12")
-                .build();
+        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "Gerard.Robert@hotmail.com",
+                "",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
+                "Startup",
+                "Losange12%",
+                "Losange12%"
+        );
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurDTO)))
+                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionEmailInvalide() throws Exception{
-        employeurDTO.setEmail("HAHA");
+        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "HAHA",
+                "Mercier",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
+                "Startup",
+                "Losange12%",
+                "Losange12%"
+        );
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurDTO)))
+                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionMDPInvalide() throws Exception{
-        employeurDTO.setPassword("HAHA");
-        employeurDTO.setPasswordConfirmation("HAHA");
+        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "Gerard.Robert@hotmail.com",
+                "Mercier",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
+                "Startup",
+                "HAHA",
+                "HAHA"
+        );
 
         mockMvc.perform(post("/inscription/employeur")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurDTO)))
+                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
     }
 

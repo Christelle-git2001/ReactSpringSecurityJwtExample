@@ -2,9 +2,10 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Exceptions.ConfirmationMotDePasseEchouer;
-import com.lacouf.rsbjwt.model.Exceptions.EmployeurExistant;
+import com.lacouf.rsbjwt.model.Exceptions.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.model.Exceptions.CourrielExistantException;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +32,9 @@ public class EmployeurServiceTest {
     @MockitoBean
     private EmployeurRepository employeurRepository;
 
+    @MockitoBean
+    private UserAppRepository userAppRepository;
+
     @InjectMocks
     private EmployeurService employeurService;
 
@@ -39,27 +45,28 @@ public class EmployeurServiceTest {
 
     @BeforeEach
     void init(){
-        employeurInscriptionDTO = EmployeurInscriptionDTO.builder()
-                .prenom("Gerard")
-                .nom("Robert")
-                .ville("Mercier")
-                .telephone("165-685-4569")
-                .email("Gerard.Robert@hotmail.com")
-                .nomEntreprise("Gerard inc")
-                .typeEntreprise("Startup")
-                .secteurActivite(SecteurActivite.AEROSPATIAL)
-                .password("Losange12%")
-                .passwordConfirmation("Losange12%")
-                .build();
+        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "Gerard.Robert@hotmail.com",
+                "Mercier",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
+                "Startup",
+                "Losange12%",
+                "Losange12%"
+        );
         employeur = Employeur.builder()
-                .prenom("Gerard")
-                .nom("Robert")
-                .ville("Mercier")
-                .telephone("165-685-4569")
+                .id(1L)
+                .firstName("Gerard")
+                .lastName("Robert")
+                .town("Mercier")
+                .phone("165-685-4569")
                 .email("Gerard.Robert@hotmail.com")
-                .nomEntreprise("Gerard inc")
-                .typeEntreprise("Startup")
-                .secteurActivite(SecteurActivite.AEROSPATIAL)
+                .businessName("Gerard inc")
+                .businessType("Startup")
+                .businessSector(SecteurActivite.AEROSPATIAL)
                 .password("Losange12%")
                 .build();
     }
@@ -68,33 +75,44 @@ public class EmployeurServiceTest {
     void employeurInscritCorrectement() throws Exception {
         when(employeurRepository.save(any(Employeur.class))).thenReturn(employeur);
 
-        EmployeurDTO result = employeurService.inscription(employeurInscriptionDTO);
+        EmployeurDTO result = employeurService.creeCompteEmployeur(employeurInscriptionDTO);
 
         verify(employeurRepository, times(1)).save(any(Employeur.class));
         assertThat(result)
                 .isNotNull()
-                .returns(employeur.getFirstName(), EmployeurDTO::getPrenom)
-                .returns(employeur.getEmail(), EmployeurDTO::getEmail)
-                .returns(employeur.getNomEntreprise(), EmployeurDTO::getNomEntreprise)
-                .returns(employeur.getSecteurActivite(), EmployeurDTO::getSecteurActivite);
+                .returns(employeur.getFirstName(), EmployeurDTO::firstName)
+                .returns(employeur.getEmail(), EmployeurDTO::email)
+                .returns(employeur.getBusinessName(), EmployeurDTO::businessName)
+                .returns(employeur.getBusinessSector(), EmployeurDTO::businessSector);
     }
 
     @Test
     void employeurInscriptionEmailExistant() {
-        when(employeurRepository.existeParEmail(anyString())).thenReturn(true);
+        when(userAppRepository.findUserAppByEmail(anyString())).thenReturn(Optional.of(employeur));
 
-        assertThatThrownBy(() -> employeurService.inscription(employeurInscriptionDTO))
-                .isInstanceOf(EmployeurExistant.class);
+        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(employeurInscriptionDTO))
+                .isInstanceOf(CourrielExistantException.class);
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }
 
     @Test
     void employeurInscriptionMotDePasseDifferent() {
-        employeurInscriptionDTO.setPasswordConfirmation("carre12&");
+        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "Gerard.Robert@hotmail.com",
+                "Mercier",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
+                "Startup",
+                "Losange12%",
+                "Carre12%"
+        );
 
-        assertThatThrownBy(() -> employeurService.inscription(employeurInscriptionDTO))
-                .isInstanceOf(ConfirmationMotDePasseEchouer.class);
+        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(employeurInscriptionDTO))
+                .isInstanceOf(MotDePasseNonCorrespondantException.class);
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }
