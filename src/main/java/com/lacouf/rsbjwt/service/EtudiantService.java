@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
@@ -20,26 +23,21 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public EtudiantDTO inscrireEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws CourrielExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
+    public EtudiantDTO inscrireEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
 
         if (!inscriptionEtudiantDto.password()
                 .equals(inscriptionEtudiantDto.passwordConfirmation())) {
-            //TODO : Exception personnalisée
-            throw new IllegalArgumentException(
-                    "Les mots de passe ne correspondent pas.");
+            throw new MotDePasseNonCorrespondantException();
         }
 
         if (userAppRepository.findUserAppByEmail(
                 inscriptionEtudiantDto.email()).isPresent()) {
-            throw new EmailExistantException(
-                    "Cette adresse courriel est déjà utilisée.");
+            throw new EmailExistantException();
         }
 
         if (etudiantRepository.findByMatricule(
                 inscriptionEtudiantDto.matricule()).isPresent()) {
-            //TODO : Exception personnalisée (MatriculeDejaUtiliseException)//
-            throw new IllegalArgumentException(
-                    "Ce matricule est déjà utilisé.");
+            throw new MatriculeExistantException();
         }
 
         Etudiant etudiant = Etudiant.builder()
@@ -54,9 +52,5 @@ public class EtudiantService {
 
         return EtudiantDTO.of(etudiantRepository.save(etudiant));
     }
-
-
-
-
 
 }

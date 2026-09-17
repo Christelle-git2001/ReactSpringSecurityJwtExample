@@ -1,6 +1,9 @@
-package com.lacouf.rsbjwt.controller;
+package com.lacouf.rsbjwt.presentation;
 
 
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -27,7 +30,7 @@ public class EtudiantController {
         try {
             EtudiantDTO etudiantDto = etudiantService.inscrireEtudiant(inscriptionEtudiantDto);
             return ResponseEntity.ok(etudiantDto);
-        } catch (CourrielExistantException |
+        } catch (EmailExistantException |
                  MatriculeExistantException e) {
 
             return ResponseEntity
