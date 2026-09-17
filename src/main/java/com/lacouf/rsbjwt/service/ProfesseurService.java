@@ -48,7 +48,7 @@ public class ProfesseurService {
                 .department(departement)
                 .build();
 
-        return ProfesseurDto.of(professeur);
+        return ProfesseurDto.of(professeurRepository.save(professeur));
 
     }
 
