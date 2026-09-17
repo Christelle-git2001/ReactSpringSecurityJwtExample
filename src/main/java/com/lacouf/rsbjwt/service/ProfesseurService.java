@@ -30,7 +30,7 @@ public class ProfesseurService {
         }
 
         if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.confirmPassword())){
-            // TODO Exception Mot de passe incorrect ??
+            // TODO Exception le mot de passe et sa confirmation ne matchent pas
             throw new Exception() ;
         }
 
