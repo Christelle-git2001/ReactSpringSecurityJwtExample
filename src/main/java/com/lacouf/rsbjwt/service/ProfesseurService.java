@@ -1,8 +1,13 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.model.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.exception.DepartementInvalideException;
+import com.lacouf.rsbjwt.exception.EmailExistantException;
+import com.lacouf.rsbjwt.exception.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDto;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDto;
 import lombok.RequiredArgsConstructor;
@@ -17,22 +22,21 @@ public class ProfesseurService {
     private final UserAppRepository userAppRepository ;
     private final PasswordEncoder passwordEncoder ;
 
-    public ProfesseurDto creerCompte(InscriptionProfesseurDto inscriptionProfesseurDto) throws Exception /*EmailDejaUtiliseException, MatriculeDejaUtiliseException, MotDePasseNonCorrespondantException */
+    public ProfesseurDto creerCompte(InscriptionProfesseurDto inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
     {
         if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
-            // TODO Exception courriel Existant
-            throw new Exception() ;
+            throw new EmailExistantException();
         }
 
         if(professeurRepository.findByMatricule(inscriptionProfesseurDto.matricule()).isPresent()){
-            // TODO Exception matricule Existant
-            throw new Exception() ;
+            throw new MatriculeExistantException() ;
         }
 
         if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.confirmPassword())){
-            // TODO Exception le mot de passe et sa confirmation ne matchent pas
-            throw new Exception() ;
+            throw new MotDePasseNonCorrespondantException() ;
         }
+
+        Departement departement = validerDepartement(inscriptionProfesseurDto.department()) ;
 
         Professeur professeur = Professeur.builder()
                 .firstName(inscriptionProfesseurDto.firstName())
@@ -41,10 +45,26 @@ public class ProfesseurService {
                 .password(passwordEncoder.encode(inscriptionProfesseurDto.password()))
                 .matricule(inscriptionProfesseurDto.matricule())
                 .phoneNumber(inscriptionProfesseurDto.phoneNumber())
-                .department(inscriptionProfesseurDto.department())
+                .department(departement)
                 .build();
 
         return ProfesseurDto.of(professeur);
 
+    }
+
+    private Departement validerDepartement(String value) throws DepartementInvalideException {
+        if(value == null){
+            throw new DepartementInvalideException(value);
+        }
+
+        String normalized = value.trim().toUpperCase().replace(" ", "_");
+
+        for (Departement departement : Departement.values()) {
+            if (departement.name().equals(normalized)) {
+                return departement;
+            }
+        }
+
+        throw new DepartementInvalideException(value);
     }
 }

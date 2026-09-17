@@ -6,6 +6,6 @@ public record ProfesseurDto(long id, String firstName, String lastName, String e
 
     public  static ProfesseurDto of(Professeur professeur){
         return new ProfesseurDto(professeur.getId(), professeur.getFirstName(),professeur.getLastName(),
-                professeur.getEmail(),professeur.getMatricule(),professeur.getPhoneNumber(),professeur.getDepartment());
+                professeur.getEmail(),professeur.getMatricule(),professeur.getPhoneNumber(),professeur.getDepartment().getLabel());
     }
 }
