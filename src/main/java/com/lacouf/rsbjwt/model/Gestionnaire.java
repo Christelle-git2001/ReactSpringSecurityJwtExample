@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,15 +15,17 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue("G")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Gestionnaire extends UserApp {
 	@Column(unique = true, nullable = false)
 	private String matricule;
 	private String phoneNumber;
 
 	@Builder
-	public Gestionnaire(String firstName, String lastName, String email, String password,
+	public Gestionnaire(
+		Long id, String firstName, String lastName, String email, String password,
 		String matricule, String phoneNumber){
-		super(firstName, lastName, Credentials.builder().email(email).password(password).role(Role.GESTIONNAIRE).build());
+		super(firstName, lastName ,phoneNumber, Credentials.builder().email(email).password(password).role(Role.GESTIONNAIRE).build());
 		this.matricule = matricule;
 		this.phoneNumber = phoneNumber;
 	}

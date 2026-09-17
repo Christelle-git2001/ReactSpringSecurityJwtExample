@@ -11,6 +11,7 @@ import java.util.Collection;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -18,15 +19,19 @@ public abstract class UserApp  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(nullable = false)
     private String firstName;
+    @Column(nullable = false)
     private String lastName;
-
+    @Column(unique = true, nullable = false)
+    private String phone;
     @Embedded
     private Credentials credentials;
 
-    public UserApp(String firstName, String lastName, Credentials credentials) {
+    public UserApp(String firstName, String lastName, String phone, Credentials credentials) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.phone = phone;
         this.credentials = credentials;
     }
 
