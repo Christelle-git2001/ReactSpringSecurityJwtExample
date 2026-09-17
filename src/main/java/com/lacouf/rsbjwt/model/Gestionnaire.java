@@ -20,10 +20,9 @@ public class Gestionnaire extends UserApp {
 	private String phoneNumber;
 
 	@Builder
-	public Gestionnaire(
-		Long id, String firstName, String lastName, String email, String password,
+	public Gestionnaire(String firstName, String lastName, String email, String password,
 		String matricule, String phoneNumber){
-		super(id, firstName, lastName, Credentials.builder().email(email).password(password).role(Role.GESTIONNAIRE).build());
+		super(firstName, lastName, Credentials.builder().email(email).password(password).role(Role.GESTIONNAIRE).build());
 		this.matricule = matricule;
 		this.phoneNumber = phoneNumber;
 	}

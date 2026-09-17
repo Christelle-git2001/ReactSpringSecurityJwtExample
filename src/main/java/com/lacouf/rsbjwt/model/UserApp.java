@@ -11,7 +11,6 @@ import java.util.Collection;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -20,11 +19,16 @@ public abstract class UserApp  {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String firstName;
-
     private String lastName;
 
     @Embedded
     private Credentials credentials;
+
+    public UserApp(String firstName, String lastName, Credentials credentials) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.credentials = credentials;
+    }
 
     public String getEmail(){
         return credentials.getEmail();

@@ -22,8 +22,8 @@ public class Professeur extends UserApp{
     private String department ;
 
     @Builder
-    public Professeur(Long id, String firstName, String lastName, String email, String password, String matricule, String phoneNumber, String department) {
-        super(id, firstName, lastName, Credentials.builder().email(email).password(password).role(Role.PROFESSEUR).build());
+    public Professeur(String firstName, String lastName, String email, String password, String matricule, String phoneNumber, String department) {
+        super(firstName, lastName, Credentials.builder().email(email).password(password).role(Role.PROFESSEUR).build());
         this.matricule = matricule;
         this.email = email;
         this.phoneNumber = phoneNumber;
