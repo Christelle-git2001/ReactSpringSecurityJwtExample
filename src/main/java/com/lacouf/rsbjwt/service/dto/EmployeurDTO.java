@@ -38,5 +38,4 @@ public record EmployeurDTO(
         );
     }
 
-
 }

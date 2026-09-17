@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,4 +33,17 @@ public record EmployeurInscriptionDTO(
                                       @NotBlank(message = "validation.passwordConfirmation.required")
                                       String passwordConfirmation)
 {
+    public Employeur toEntity(){
+        return new Employeur(
+                this.firstName(),
+                this.lastName(),
+                this.town(),
+                this.phone(),
+                this.email(),
+                this.password(),
+                this.businessName(),
+                this.businesstype(),
+                this.businessSector()
+        );
+    }
 }
