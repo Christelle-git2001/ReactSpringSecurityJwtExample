@@ -2,29 +2,33 @@ package com.lacouf.rsbjwt.service.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class InscriptionEtudiantDTO {
-        @NotBlank
-        private String firstName;
-        @NotBlank
-        private String lastName;
 
+public record InscriptionEtudiantDTO {
+        @NotBlank
+        String firstName,
+        @NotBlank
+        String lastName,
+        @NotBlank
+        String phone,
+        @NotBlank
         @Email
+        String email,
         @NotBlank
-        private String email;
+        @Pattern(
+                regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\w\\s]).+$",
+                message = "validation.password.invalid"
+        )
+        String password,
         @NotBlank
-        private String password;
-        @NotBlank
-        private String confirmPassword;
-        @NotBlank
-        private String matricule;
+        String passwordConfirmation;
 }
+
 
 
 
