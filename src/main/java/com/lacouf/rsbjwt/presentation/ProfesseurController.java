@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.exception.EmailExistantException;
-import com.lacouf.rsbjwt.exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDto;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDto;
