@@ -4,12 +4,13 @@ import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.auth.Role;
 import lombok.Builder;
 
-public class EtudiantDto extends UserDTO {
+public class EtudiantDTO extends UserDTO {
 
     private String matricule;
 
     @Builder
-    public EtudiantDto(
+    public EtudiantDTO(
+            //int ou LOng
             Long id,
             String firstName,
             String lastName,
@@ -21,11 +22,11 @@ public class EtudiantDto extends UserDTO {
         this.matricule = matricule;
     }
 
-    public EtudiantDto() {
+    public EtudiantDTO() {
     }
 
-    public static EtudiantDto create(Etudiant etudiant) {
-        return EtudiantDto.builder()
+    public static EtudiantDTO create(Etudiant etudiant) {
+        return EtudiantDTO.builder()
                 .id(etudiant.getId())
                 .firstName(etudiant.getFirstName())
                 .lastName(etudiant.getLastName())
@@ -35,7 +36,7 @@ public class EtudiantDto extends UserDTO {
                 .build();
     }
 
-    public static EtudiantDto empty() {
-        return new EtudiantDto();
+    public static EtudiantDTO empty() {
+        return new EtudiantDTO();
     }
 }

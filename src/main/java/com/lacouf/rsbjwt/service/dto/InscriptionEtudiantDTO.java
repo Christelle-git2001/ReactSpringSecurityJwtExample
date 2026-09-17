@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InscriptionEtudiantDto {
+public class InscriptionEtudiantDTO {
         @NotBlank
         private String firstName;
         @NotBlank

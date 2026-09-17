@@ -1,11 +1,11 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.security.exception.EmailDejaUtiliseException;
-import com.lacouf.rsbjwt.security.exception.MatriculeDejaUtiliseException;
+import com.lacouf.rsbjwt.security.exception.CourrielExistantException;
+import com.lacouf.rsbjwt.security.exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.security.exception.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.service.dto.EtudiantDto;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDto;
+import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -23,7 +23,7 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public EtudiantDto inscrire (InscriptionEtudiantDto inscriptionEtudiantDto) throws EmailDejaUtiliseException, MatriculeDejaUtiliseException, MotDePasseNonCorrespondantException {
+    public EtudiantDTO inscrireEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws CourrielExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
 
         if (!inscriptionEtudiantDto.getPassword()
                 .equals(inscriptionEtudiantDto.getConfirmPassword())) {
@@ -34,7 +34,7 @@ public class EtudiantService {
 
         if (userAppRepository.findUserAppByEmail(
                 inscriptionEtudiantDto.getEmail()).isPresent()) {
-            throw new EmailDejaUtiliseException(
+            throw new CourrielExistantException(
                     "Cette adresse courriel est déjà utilisée.");
         }
 
@@ -54,7 +54,7 @@ public class EtudiantService {
                 .matricule(inscriptionEtudiantDto.getMatricule())
                 .build();
 
-        return EtudiantDto.create(etudiantRepository.save(etudiant));
+        return EtudiantDTO.create(etudiantRepository.save(etudiant));
     }
 
 

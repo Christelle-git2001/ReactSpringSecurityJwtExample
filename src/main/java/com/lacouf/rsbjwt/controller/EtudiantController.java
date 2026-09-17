@@ -1,13 +1,13 @@
 package com.lacouf.rsbjwt.controller;
 
 
-import com.lacouf.rsbjwt.security.exception.EmailDejaUtiliseException;
-import com.lacouf.rsbjwt.security.exception.MatriculeDejaUtiliseException;
+import com.lacouf.rsbjwt.security.exception.CourrielExistantException;
+import com.lacouf.rsbjwt.security.exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.security.exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.ErreurDto;
-import com.lacouf.rsbjwt.service.dto.EtudiantDto;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDto;
+import com.lacouf.rsbjwt.service.dto.ErreurDTO;
+import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,22 +26,22 @@ public class EtudiantController {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<?> inscription(@Valid @RequestBody InscriptionEtudiantDto inscriptionEtudiantDto) {
+    public ResponseEntity<?> inscription(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) {
         try {
-            EtudiantDto etudiantDto = etudiantService.inscrire(inscriptionEtudiantDto);
+            EtudiantDTO etudiantDto = etudiantService.inscrireEtudiant(inscriptionEtudiantDto);
             return ResponseEntity.ok(etudiantDto);
-        } catch (EmailDejaUtiliseException |
-                 MatriculeDejaUtiliseException e) {
+        } catch (CourrielExistantException |
+                 MatriculeExistantException e) {
 
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
-                    .body(new ErreurDto(e.getMessage()));
+                    .body(new ErreurDTO(e.getMessage()));
 
         } catch (MotDePasseNonCorrespondantException e) {
 
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(new ErreurDto(e.getMessage()));
+                    .body(new ErreurDTO(e.getMessage()));
 
         }
     }
