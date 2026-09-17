@@ -21,10 +21,10 @@ public class Etudiant extends UserApp {
     private String matricule;
 
     @Builder
-    public Etudiant(String firstName, String lastName, String email, String password, String matricule){
+    public Etudiant(String firstName, String lastName, String email, String phoneNumber, String matricule,String password){
         super(
                 firstName,
-                lastName,
+                lastName, phoneNumber,
                 Credentials.builder()
                         .email(email)
                         .password(password)

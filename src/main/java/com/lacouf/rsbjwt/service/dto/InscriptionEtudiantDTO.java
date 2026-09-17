@@ -26,3 +26,5 @@ public class InscriptionEtudiantDTO {
         private String matricule;
 }
 
+
+

@@ -4,39 +4,10 @@ import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.auth.Role;
 import lombok.Builder;
 
-public class EtudiantDTO extends UserDTO {
+public record EtudiantDTO(long id, String firstName, String lastName, String email, String matricule, String phoneNumber) {
 
-    private String matricule;
-
-    @Builder
-    public EtudiantDTO(
-            //int ou LOng
-            Long id,
-            String firstName,
-            String lastName,
-            String email,
-            Role role,
-            String matricule) {
-
-        super(id, firstName, lastName, email, role);
-        this.matricule = matricule;
-    }
-
-    public EtudiantDTO() {
-    }
-
-    public static EtudiantDTO create(Etudiant etudiant) {
-        return EtudiantDTO.builder()
-                .id(etudiant.getId())
-                .firstName(etudiant.getFirstName())
-                .lastName(etudiant.getLastName())
-                .email(etudiant.getEmail())
-                .role(etudiant.getRole())
-                .matricule(etudiant.getMatricule())
-                .build();
-    }
-
-    public static EtudiantDTO empty() {
-        return new EtudiantDTO();
+    public static EtudiantDTO of(Etudiant etudiant) {
+        return new EtudiantDTO(etudiant.getId(), etudiant.getFirstName(), etudiant.getLastName(),
+                etudiant.getEmail(), etudiant.getMatricule(), etudiant.getPhoneNumber());
     }
 }
