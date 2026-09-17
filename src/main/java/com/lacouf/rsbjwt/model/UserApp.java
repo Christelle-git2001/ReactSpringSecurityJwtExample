@@ -19,20 +19,20 @@ public abstract class UserApp  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(nullable = false)
     private String firstName;
-
+    @Column(nullable = false)
     private String lastName;
-    private String phoneNumber;
-
+    @Column(unique = true, nullable = false)
+    private String phone;
     @Embedded
     private Credentials credentials;
 
-    public UserApp(String firstName, String lastName, String phoneNumber, Credentials credentials){
+    public UserApp(String firstName, String lastName, String phone, Credentials credentials) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
+        this.phone = phone;
         this.credentials = credentials;
-
     }
 
     public String getEmail(){

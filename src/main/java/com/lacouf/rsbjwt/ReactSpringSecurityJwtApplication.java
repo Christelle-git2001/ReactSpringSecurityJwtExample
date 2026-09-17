@@ -35,7 +35,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        gestionnaireRepository.save(
+      /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
                         .firstName("Gerard")
                         .lastName("Biblio")
@@ -44,7 +44,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                         .matricule("0000001")
                         .phoneNumber("123-456-7890")
                         .build()
-        );
+        );*/
         /*
         emprunteurRepository.save(
                 Emprunteur.builder()

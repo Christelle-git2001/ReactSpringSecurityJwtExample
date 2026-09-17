@@ -37,7 +37,7 @@ class UserControllerWebMvcTest {
     @MockitoBean
     private GestionnaireRepository gestionnaireRepository;
 
-    @MockitoBean
+    /*@MockitoBean
     private EmprunteurRepository emprunteurRepository;
 
     @MockitoBean
@@ -45,7 +45,7 @@ class UserControllerWebMvcTest {
 
     @MockitoBean
     private ManagerRepository managerRepository;
-
+*/
     @MockitoBean
     private UserAppRepository userAppRepository;
 
