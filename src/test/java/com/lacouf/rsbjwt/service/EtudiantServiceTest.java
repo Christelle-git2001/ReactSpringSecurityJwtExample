@@ -68,7 +68,7 @@ public class EtudiantServiceTest {
     }
 
         @Test
-        void EtudiantInscriptionValide() throws Exception{
+        void InscriptionEtudiantValide() throws Exception{
 
             when(passwordEncoder.encode("111111"))
                     .thenReturn("motDePasseEncode");

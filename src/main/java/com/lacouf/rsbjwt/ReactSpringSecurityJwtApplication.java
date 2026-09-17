@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt;
 
-import com.lacouf.rsbjwt.model.*;
+/*import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
@@ -69,5 +69,5 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         final Optional<UserApp> userAppByEmail = userAppRepository.findUserAppByEmail("l@l.com");
         userAppByEmail.ifPresent(userApp -> System.out.println("user " + userAppByEmail));*/
 
-    }
-}
+    //}
+//}

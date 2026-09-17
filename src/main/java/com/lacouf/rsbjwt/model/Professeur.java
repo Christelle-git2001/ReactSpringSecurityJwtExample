@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.model;
 
-import com.lacouf.rsbjwt.model.Enum.Departement;
+/*import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.auth.Role;
 import jakarta.persistence.Column;
@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Professeur extends UserApp{
-
     @Column(unique = true, nullable = false)
     private String matricule ;
     private String email;
@@ -30,4 +29,4 @@ public class Professeur extends UserApp{
         this.phoneNumber = phoneNumber;
         this.department = department;
     }
-}
+}*/

@@ -25,7 +25,7 @@ public class EtudiantController {
         this.etudiantService = etudiantService;
     }
 
-    @PostMapping("/inscription")
+    @PostMapping("/register")
     public ResponseEntity<?> inscription(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) {
         try {
             EtudiantDTO etudiantDto = etudiantService.inscrireEtudiant(inscriptionEtudiantDto);
