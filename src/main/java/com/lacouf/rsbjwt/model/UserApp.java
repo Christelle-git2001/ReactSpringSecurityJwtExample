@@ -26,6 +26,12 @@ public abstract class UserApp  {
     @Embedded
     private Credentials credentials;
 
+    public UserApp(String firstName, String lastName, Credentials credentials){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.credentials = credentials;
+    }
+
     public String getEmail(){
         return credentials.getEmail();
     }

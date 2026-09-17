@@ -21,8 +21,8 @@ public class Etudiant extends UserApp {
     private String matricule;
 
     @Builder
-    public Etudiant(Long id, String firstName, String lastName, String email, String password, String matricule){
-        super(id,
+    public Etudiant(String firstName, String lastName, String email, String password, String matricule){
+        super(
                 firstName,
                 lastName,
                 Credentials.builder()
