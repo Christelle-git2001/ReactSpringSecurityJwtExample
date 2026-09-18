@@ -21,13 +21,9 @@ public class EmployeurControlleur {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<EmployeurDTO> inscription(@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO){
+    public ResponseEntity<EmployeurDTO> inscription(@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO) throws Exception{
         EmployeurDTO employeurDTO;
-        try{
-            employeurDTO = employeurService.creeCompteEmployeur(employeurInscriptionDTO);
-        } catch (EmailExistantException | MotDePasseNonCorrespondantException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(employeurDTO,HttpStatus.CREATED);
+        employeurDTO = employeurService.creeCompteEmployeur(employeurInscriptionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeurDTO);
     }
 }

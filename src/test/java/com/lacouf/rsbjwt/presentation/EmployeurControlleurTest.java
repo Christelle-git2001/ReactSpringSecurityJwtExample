@@ -98,7 +98,7 @@ public class EmployeurControlleurTest {
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     @Test
