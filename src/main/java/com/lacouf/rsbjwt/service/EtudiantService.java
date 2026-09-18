@@ -40,15 +40,7 @@ public class EtudiantService {
             throw new MatriculeExistantException();
         }
 
-        Etudiant etudiant = Etudiant.builder()
-                .firstName(inscriptionEtudiantDto.firstName())
-                .lastName(inscriptionEtudiantDto.lastName())
-                .email(inscriptionEtudiantDto.email())
-                .password(passwordEncoder.encode(
-                        inscriptionEtudiantDto.password()))
-                .matricule(inscriptionEtudiantDto.matricule())
-                .phoneNumber(inscriptionEtudiantDto.phone())
-                .build();
+        Etudiant etudiant = new Etudiant();
 
         return EtudiantDTO.of(etudiantRepository.save(etudiant));
     }

@@ -25,4 +25,5 @@ public record InscriptionEtudiantDTO(
         @NotBlank
         String passwordConfirmation
 ) {
+
 }

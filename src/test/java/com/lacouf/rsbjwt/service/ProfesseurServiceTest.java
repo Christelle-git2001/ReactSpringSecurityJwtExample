@@ -1,9 +1,9 @@
 package com.lacouf.rsbjwt.service;
 
-/*import com.lacouf.rsbjwt.model.Professeur;
+import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDto;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDto;
+import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,14 +36,14 @@ public class ProfesseurServiceTest {
                 .department("TestDepartment")
                 .build();
 
-        InscriptionProfesseurDto inscriptionProfesseurDto = new InscriptionProfesseurDto(
+        InscriptionProfesseurDTO inscriptionProfesseurDto = new InscriptionProfesseurDTO(
         "Test", "TestName","test@test.com", "Test123",
         "Test123", "00001", "123-123-1234", "TestDepartment");
 
-        ProfesseurDto result = professeurService.creerCompte(inscriptionProfesseurDto);
+        ProfesseurDTO result = professeurService.creerCompte(inscriptionProfesseurDto);
 
         
 
     }
 
-}*/
+}
