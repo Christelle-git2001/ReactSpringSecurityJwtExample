@@ -1,7 +1,9 @@
 package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
+//import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,16 +17,16 @@ import java.util.Optional;
 public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     // TODO Remplacer les classe biblio par les classe appropriee
     private final GestionnaireRepository gestionnaireRepository;
-    /*private final EmprunteurRepository emprunteurRepository;
-    private final PreposeRepository preposeRepository;*/
+    private final EtudiantRepository etudiantRepository;
+   // private final ProfesseurRepository professeurRepository;
     private final UserAppRepository userAppRepository;
 
     private final PasswordEncoder passwordEncoder;
 
-    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder) {
+    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,  UserAppRepository userAppRepository, PasswordEncoder passwordEncoder) {
         this.gestionnaireRepository = gestionnaireRepository;
-        /*this.emprunteurRepository = emprunteurRepository;
-        this.preposeRepository = preposeRepository;*/
+        this.etudiantRepository = etudiantRepository;
+       // this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -67,5 +69,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         final Optional<UserApp> userAppByEmail = userAppRepository.findUserAppByEmail("l@l.com");
         userAppByEmail.ifPresent(userApp -> System.out.println("user " + userAppByEmail));*/
 
-    }
+        //}
+}
 }
