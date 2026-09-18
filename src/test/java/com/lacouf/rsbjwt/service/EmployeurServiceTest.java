@@ -2,8 +2,8 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.Exceptions.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exceptions.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;

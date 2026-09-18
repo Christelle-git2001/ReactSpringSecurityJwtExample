@@ -1,5 +1,7 @@
-package com.lacouf.rsbjwt.Exceptions;
+package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

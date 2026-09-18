@@ -1,7 +1,5 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exceptions.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exceptions.EmailExistantException;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
