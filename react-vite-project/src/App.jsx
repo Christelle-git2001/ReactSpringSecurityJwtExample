@@ -19,9 +19,21 @@ function App() {
 
   let token = localStorage.getItem('token')
 
+  async function addEtudiant(etudiant) {
+    try {
+      console.log(etudiant);
+      setMessage("Étudiant ajouté avec succès.");
+      setError(null);
+      return true;
+    } catch (error) {
+      setError(error.message || "Une erreur inattendue s'est produite.");
+      setMessage("");
+      return false;
+    }
+  }
+
   useEffect(() => {
       if (token) {
-
         try {
           fetcher('user/me', {})
             .then(async (res) => {
