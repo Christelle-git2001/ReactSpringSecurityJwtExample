@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
-/*import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -8,8 +8,8 @@ import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDto;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDto;
+import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class ProfesseurService {
     private final UserAppRepository userAppRepository ;
     private final PasswordEncoder passwordEncoder ;
 
-    public ProfesseurDto creerCompte(InscriptionProfesseurDto inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
+    public ProfesseurDTO creerCompte(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
     {
         if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
             throw new EmailExistantException();
@@ -48,7 +48,7 @@ public class ProfesseurService {
                 .department(departement)
                 .build();
 
-        return ProfesseurDto.of(professeurRepository.save(professeur));
+        return ProfesseurDTO.of(professeurRepository.save(professeur));
 
     }
 
@@ -69,4 +69,4 @@ public class ProfesseurService {
 
         throw new DepartementInvalideException(value);
     }
-}*/
+}

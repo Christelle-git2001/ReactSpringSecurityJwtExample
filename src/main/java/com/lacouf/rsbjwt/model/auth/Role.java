@@ -7,6 +7,7 @@ public enum Role{
 	// TODO Remplacer les classe biblio par les classe appropriee
 	GESTIONNAIRE("ROLE_GESTIONNAIRE"),
 	ETUDIANT("ROLE_ETUDIANT"),
+	PROFESSEUR("ROLE_PROFESSEUR")
 	//EMPRUNTEUR("ROLE_EMPRUNTEUR"),*/
 	;
 

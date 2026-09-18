@@ -1,9 +1,12 @@
 package com.lacouf.rsbjwt.presentation;
 
-/*import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDto;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDto;
+import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,9 +28,9 @@ public class ProfesseurController {
     }
 
     @PostMapping("inscription")
-    public ResponseEntity<ProfesseurDto> creerCompte(@RequestBody InscriptionProfesseurDto newProfesseur){
+    public ResponseEntity<ProfesseurDTO> creerCompte(@RequestBody InscriptionProfesseurDTO newProfesseur){
         try {
-            ProfesseurDto createdProfesseur = professeurService.creerCompte(newProfesseur);
+            ProfesseurDTO createdProfesseur = professeurService.creerCompte(newProfesseur);
 
             logger.info("{}", newProfesseur);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProfesseur);
@@ -51,4 +54,4 @@ public class ProfesseurController {
     }
 
 
-}*/
+}
