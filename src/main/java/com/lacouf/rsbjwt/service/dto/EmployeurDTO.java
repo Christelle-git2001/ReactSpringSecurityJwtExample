@@ -29,7 +29,7 @@ public record EmployeurDTO(
         return new EmployeurDTO(
                 employeur.getFirstName(),
                 employeur.getLastName(),
-                employeur.getPhone(),
+                employeur.getPhoneNumber(),
                 employeur.getEmail(),
                 employeur.getTown(),
                 employeur.getBusinessName(),

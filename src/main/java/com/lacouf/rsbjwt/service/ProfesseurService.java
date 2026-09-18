@@ -32,7 +32,7 @@ public class ProfesseurService {
             throw new MatriculeExistantException() ;
         }
 
-        if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.confirmPassword())){
+        if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.passwordConfirmation())){
             throw new MotDePasseNonCorrespondantException() ;
         }
 
