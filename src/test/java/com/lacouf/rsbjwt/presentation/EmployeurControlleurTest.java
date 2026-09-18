@@ -39,7 +39,6 @@ public class EmployeurControlleurTest {
 
     private MockMvc mockMvc;
 
-
     @BeforeEach
     void init(){
         employeurInscriptionDTO = new EmployeurInscriptionDTO(
@@ -74,8 +73,7 @@ public class EmployeurControlleurTest {
         );
         when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class))).thenReturn(employeurDTO);
 
-
-        mockMvc.perform(post("/inscription/employeur")
+        mockMvc.perform(post("/employeur/inscription")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isCreated());
@@ -86,7 +84,7 @@ public class EmployeurControlleurTest {
         when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
-        mockMvc.perform(post("/inscription/employeur")
+        mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
@@ -97,7 +95,7 @@ public class EmployeurControlleurTest {
         when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
                 .thenThrow(new EmailExistantException());
 
-        mockMvc.perform(post("/inscription/employeur")
+        mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
@@ -117,7 +115,7 @@ public class EmployeurControlleurTest {
                 "Losange12%",
                 "Losange12%"
         );
-        mockMvc.perform(post("/inscription/employeur")
+        mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
@@ -138,7 +136,7 @@ public class EmployeurControlleurTest {
                 "Losange12%"
         );
 
-        mockMvc.perform(post("/inscription/employeur")
+        mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
@@ -159,11 +157,9 @@ public class EmployeurControlleurTest {
                 "HAHA"
         );
 
-        mockMvc.perform(post("/inscription/employeur")
+        mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
                 .andExpect(status().isBadRequest());
     }
-
-
 }

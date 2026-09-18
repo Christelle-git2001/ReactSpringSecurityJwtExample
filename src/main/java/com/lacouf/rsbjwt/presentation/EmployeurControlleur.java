@@ -8,12 +8,10 @@ import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/employeur")
 @CrossOrigin
 public class EmployeurControlleur {
     private final EmployeurService employeurService;
@@ -22,7 +20,7 @@ public class EmployeurControlleur {
         this.employeurService = employeurService;
     }
 
-    @PostMapping("/inscription/employeur")
+    @PostMapping("/inscription")
     public ResponseEntity<EmployeurDTO> inscription(@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO){
         EmployeurDTO employeurDTO;
         try{
