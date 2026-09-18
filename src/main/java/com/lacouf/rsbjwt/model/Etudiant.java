@@ -19,6 +19,7 @@ public class Etudiant extends UserApp {
 
     @Column(unique = true, nullable = false)
     private String matricule;
+    private String phoneNumber;
 
     @Builder
     public Etudiant(String firstName, String lastName, String email, String phoneNumber, String matricule,String password){
