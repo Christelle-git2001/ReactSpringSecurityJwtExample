@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -146,6 +147,27 @@ public class ProfesseurServiceTest {
                 professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
                 .isInstanceOf(MatriculeExistantException.class);
 
+        verify(professeurRepository, never())
+                .save(any(Professeur.class));
+    }
+
+    @Test
+    void doitLancerExceptionDepartementInvalide() {
+
+        inscriptionProfesseurDTO = new InscriptionProfesseurDTO(
+                "Carole",
+                "Test",
+                "test@gmail.com",
+                "111111",
+                "111111",
+                "1234567",
+                "123-123-1234",
+                "DEPARTEMENT_INEXISTANT"
+        );
+
+        assertThatThrownBy(() ->
+                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+                .isInstanceOf(DepartementInvalideException.class);
         verify(professeurRepository, never())
                 .save(any(Professeur.class));
     }
