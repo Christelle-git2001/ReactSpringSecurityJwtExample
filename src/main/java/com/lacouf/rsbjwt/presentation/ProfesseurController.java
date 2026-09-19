@@ -30,7 +30,7 @@ public class ProfesseurController {
     @PostMapping("inscription")
     public ResponseEntity<ProfesseurDTO> creerCompte(@RequestBody InscriptionProfesseurDTO newProfesseur){
         try {
-            ProfesseurDTO createdProfesseur = professeurService.creerCompte(newProfesseur);
+            ProfesseurDTO createdProfesseur = professeurService.inscrireProfesseur(newProfesseur);
 
             logger.info("{}", newProfesseur);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProfesseur);

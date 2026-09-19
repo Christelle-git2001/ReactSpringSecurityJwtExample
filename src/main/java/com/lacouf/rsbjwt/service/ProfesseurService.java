@@ -22,7 +22,7 @@ public class ProfesseurService {
     private final UserAppRepository userAppRepository ;
     private final PasswordEncoder passwordEncoder ;
 
-    public ProfesseurDTO creerCompte(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
+    public ProfesseurDTO inscrireProfesseur(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
     {
         if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
             throw new EmailExistantException();
