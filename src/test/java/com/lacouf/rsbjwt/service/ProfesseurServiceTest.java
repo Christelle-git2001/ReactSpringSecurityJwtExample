@@ -29,8 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class ProfesseurServiceTest {
 
@@ -63,14 +61,15 @@ public class ProfesseurServiceTest {
         );
 
         professeur = Professeur.builder()
-                .firstName("Steve")
-                .lastName("Jean")
-                .email("steveJean@gmail.com")
-                .password("Password123")
-                .matricule("214578")
-                .phoneNumber("514-327-9021")
+                .firstName("Carole")
+                .lastName("Test")
+                .email("carole.test@gmail.com")
+                .password("motDePasseEncode")
+                .matricule("1234567")
+                .phoneNumber("123-123-1234")
                 .department(Departement.INFORMATIQUE)
                 .build();
+        professeur.setId(1L);
 
         professeur.setId(1L);
     }
@@ -115,23 +114,20 @@ public class ProfesseurServiceTest {
     @Test
     void doitLancerExceptionMotDePasseNonCorrespondant() {
 
-        inscriptionProfesseurDTO = new InscriptionProfesseurDTO(
+        InscriptionProfesseurDTO dtoMdpIncorrect = new InscriptionProfesseurDTO(
                 "Carole",
                 "Test",
-                "test@gmail.com",
+                "carole.test@gmail.com",
                 "111111",
-                "222222",
+                "222222", // Mot de passe de confirmation différent
                 "1234567",
                 "123-123-1234",
                 "INFORMATIQUE"
         );
-
-        assertThatThrownBy(() ->
-                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+        assertThatThrownBy(() -> professeurService.inscrireProfesseur(dtoMdpIncorrect))
                 .isInstanceOf(MotDePasseNonCorrespondantException.class);
 
-        verify(professeurRepository, never())
-                .save(any(Professeur.class));
+        verify(professeurRepository, never()).save(any(Professeur.class));
     }
 
     @Test
@@ -154,10 +150,10 @@ public class ProfesseurServiceTest {
     @Test
     void doitLancerExceptionDepartementInvalide() {
 
-        inscriptionProfesseurDTO = new InscriptionProfesseurDTO(
+        InscriptionProfesseurDTO dtoDepartementInvalide = new InscriptionProfesseurDTO(
                 "Carole",
                 "Test",
-                "test@gmail.com",
+                "carole.test@gmail.com",
                 "111111",
                 "111111",
                 "1234567",
@@ -165,11 +161,10 @@ public class ProfesseurServiceTest {
                 "DEPARTEMENT_INEXISTANT"
         );
 
-        assertThatThrownBy(() ->
-                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+        assertThatThrownBy(() -> professeurService.inscrireProfesseur(dtoDepartementInvalide))
                 .isInstanceOf(DepartementInvalideException.class);
-        verify(professeurRepository, never())
-                .save(any(Professeur.class));
+
+        verify(professeurRepository, never()).save(any(Professeur.class));
     }
         
 
