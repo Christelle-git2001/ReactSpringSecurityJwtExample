@@ -70,9 +70,6 @@ public class EtudiantServiceTest {
         @Test
         void InscriptionEtudiantValide() throws Exception{
 
-            when(passwordEncoder.encode("111111"))
-                    .thenReturn("motDePasseEncode");
-
             when(etudiantRepository.save(any(Etudiant.class)))
                     .thenReturn(etudiant);
 
