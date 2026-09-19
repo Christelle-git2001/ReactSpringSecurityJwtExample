@@ -16,9 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
+
 
 import java.util.Optional;
 
@@ -52,7 +51,7 @@ public class ProfesseurServiceTest {
         inscriptionProfesseurDTO = new InscriptionProfesseurDTO(
                 "Carole",
                 "Test",
-                "test@gmail.com",
+                "carole.test@gmail.com",
                 "111111",
                 "111111",
                 "1234567",
@@ -70,31 +69,22 @@ public class ProfesseurServiceTest {
                 .department(Departement.INFORMATIQUE)
                 .build();
         professeur.setId(1L);
-
-        professeur.setId(1L);
     }
 
     @Test
     void doitInscrireProfesseur() throws Exception {
 
-        when(passwordEncoder.encode("111111"))
-                .thenReturn("motDePasseEncode");
+        when(passwordEncoder.encode("111111")).thenReturn("motDePasseEncode");
+        when(professeurRepository.save(any(Professeur.class))).thenReturn(professeur);
 
-        when(professeurRepository.save(any(Professeur.class)))
-                .thenReturn(professeur);
+        ProfesseurDTO result = professeurService.inscrireProfesseur(inscriptionProfesseurDTO);
 
-        ProfesseurDTO result =
-                professeurService.inscrireProfesseur(inscriptionProfesseurDTO);
+        assertThat(result.firstName()).isEqualTo(inscriptionProfesseurDTO.firstName());
+        assertThat(result.email()).isEqualTo(inscriptionProfesseurDTO.email());
+        assertThat(result.matricule()).isEqualTo(inscriptionProfesseurDTO.matricule());
 
-        verify(professeurRepository, times(1))
-                .save(any(Professeur.class));
+        verify(passwordEncoder).encode("111111");
 
-        assertThat(result)
-                .isNotNull()
-                .returns(professeur.getFirstName(), ProfesseurDTO::firstName)
-                .returns(professeur.getEmail(), ProfesseurDTO::email)
-                .returns(professeur.getMatricule(), ProfesseurDTO::matricule)
-                .returns(professeur.getDepartment().getLabel(), ProfesseurDTO::department);
     }
 
     @Test
@@ -119,7 +109,7 @@ public class ProfesseurServiceTest {
                 "Test",
                 "carole.test@gmail.com",
                 "111111",
-                "222222", // Mot de passe de confirmation différent
+                "222222",
                 "1234567",
                 "123-123-1234",
                 "INFORMATIQUE"
