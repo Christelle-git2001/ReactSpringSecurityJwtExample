@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
@@ -16,6 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,6 +93,20 @@ public class ProfesseurServiceTest {
                 .returns(professeur.getEmail(), ProfesseurDTO::email)
                 .returns(professeur.getMatricule(), ProfesseurDTO::matricule)
                 .returns(professeur.getDepartment().getLabel(), ProfesseurDTO::department);
+    }
+
+    @Test
+    void doitLancerExceptionEmailExistant() {
+
+        when(userAppRepository.findUserAppByEmail(anyString()))
+                .thenReturn(Optional.of(professeur));
+
+        assertThatThrownBy(() ->
+                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+                .isInstanceOf(EmailExistantException.class);
+
+        verify(professeurRepository, never())
+                .save(any(Professeur.class));
     }
         
 
