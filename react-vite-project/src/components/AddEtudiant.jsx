@@ -63,7 +63,9 @@ function AddEtudiant({ onAdd, error, message }) {
               <div className="add-etudiant-row">
                 <div>
                   <label htmlFor="telephone" className="add-etudiant-label">Téléphone</label>
-                  <input type="tel" placeholder="450-111-2222" required minLength="1" maxLength="12" id="telephone" name="telephone" className="add-etudiant-input" />
+                  <input type="tel" placeholder="450-111-2222" required minLength="10"
+                         maxLength="12" id="telephone" name="telephone"
+                         pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" className="add-etudiant-input" />
                 </div>
 
                 <div>
