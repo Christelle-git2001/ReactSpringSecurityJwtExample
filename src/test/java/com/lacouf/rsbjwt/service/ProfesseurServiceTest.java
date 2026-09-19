@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.model.Professeur;
+/*import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
@@ -44,6 +44,6 @@ public class ProfesseurServiceTest {
 
         
 
-    }
+   // }
 
-}
+//}

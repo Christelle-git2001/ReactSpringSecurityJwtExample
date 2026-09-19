@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
+/*import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -54,4 +54,4 @@ public class ProfesseurController {
     }
 
 
-}
+}*/
