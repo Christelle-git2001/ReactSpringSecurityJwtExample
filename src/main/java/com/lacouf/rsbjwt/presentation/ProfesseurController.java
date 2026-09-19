@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-/*import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -30,7 +30,7 @@ public class ProfesseurController {
     @PostMapping("inscription")
     public ResponseEntity<ProfesseurDTO> creerCompte(@RequestBody InscriptionProfesseurDTO newProfesseur){
         try {
-            ProfesseurDTO createdProfesseur = professeurService.creerCompte(newProfesseur);
+            ProfesseurDTO createdProfesseur = professeurService.inscrireProfesseur(newProfesseur);
 
             logger.info("{}", newProfesseur);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProfesseur);
@@ -54,4 +54,4 @@ public class ProfesseurController {
     }
 
 
-}*/
+}

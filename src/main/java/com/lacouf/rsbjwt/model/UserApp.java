@@ -24,14 +24,14 @@ public abstract class UserApp  {
     @Column(nullable = false)
     private String lastName;
     @Column(unique = true, nullable = false)
-    private String phone;
+    private String phoneNumber;
     @Embedded
     private Credentials credentials;
 
-    public UserApp(String firstName, String lastName, String phone, Credentials credentials) {
+    public UserApp(String firstName, String lastName, String phoneNumber, Credentials credentials) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.phone = phone;
+        this.phoneNumber = phoneNumber;
         this.credentials = credentials;
     }
 
