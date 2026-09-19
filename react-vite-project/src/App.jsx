@@ -12,18 +12,22 @@ import EmprunteurHome from "./components/page/EmprunteurHome.jsx";
 import PreposeHome from "./components/page/PreposeHome.jsx";
 import GestionnaireHome from "./components/page/GestionnaireHome.jsx";
 import AddEtudiant from "./components/AddEtudiant.jsx";
+import { inscrireEtudiant } from "./api.jsx";
 function App() {
   const [user, setUser] = useState({})
   const [error, setError] = useState(null)
+  const [message, setMessage] = useState("")
   const navigate = useNavigate();
 
   let token = localStorage.getItem('token')
 
   async function addEtudiant(etudiant) {
     try {
-      console.log(etudiant);
+      await inscrireEtudiant(etudiant);
       setMessage("Étudiant ajouté avec succès.");
       setError(null);
+      setMessage("");
+      navigate('/login');
       return true;
     } catch (error) {
       setError(error.message || "Une erreur inattendue s'est produite.");
@@ -74,7 +78,7 @@ function App() {
           <Route index element={<MainContainer setError={setError}/>}/>
           <Route path='about' element={<About/>}/>
           <Route path='login' element={<LoginForm setError={setError}/>}/>
-          <Route path='addetudiant' element={<AddEtudiant/>}/>
+          <Route path='addetudiant' element={<AddEtudiant onAdd={addEtudiant} error={error} message={message}/>}/>
           <Route path='logout' element={<Logout setUser={setUser}/>}/>
           <Route path='emprunteur' element={<EmprunteurHome/>}/>
           <Route path='prepose' element={<PreposeHome/>}/>

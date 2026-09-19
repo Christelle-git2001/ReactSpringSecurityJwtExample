@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./css/AddEtudiant.css";
 
-function AddEtudiant({ onAdd }) {
+function AddEtudiant({ onAdd, error, message }) {
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -11,9 +11,10 @@ function AddEtudiant({ onAdd }) {
       firstName: formData.get("firstName"),
       lastName: formData.get("lastName"),
       email: formData.get("email"),
-      telephone: formData.get("telephone"),
+      phone: formData.get("telephone"),
       matricule: formData.get("matricule"),
-      password: formData.get("password")
+      password: formData.get("password"),
+      passwordConfirmation: formData.get("confirmPassword")
     };
 
     const ajoutReussi = await onAdd(nouvelEtudiant);
@@ -67,7 +68,7 @@ function AddEtudiant({ onAdd }) {
 
                 <div>
                   <label htmlFor="matricule" className="add-etudiant-label">Matricule</label>
-                  <input type="text" placeholder="Matricule" required minLength="1" maxLength="8" id="matricule" name="matricule" className="add-etudiant-input" />
+                  <input type="text" placeholder="Matricule" required minLength="7" maxLength="7" id="matricule" name="matricule" className="add-etudiant-input" />
                 </div>
               </div>
 
@@ -81,6 +82,9 @@ function AddEtudiant({ onAdd }) {
                 <input type="password" placeholder="Confirmer le mot de passe" required minLength="4" id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
               </div>
             </div>
+
+            {error && <p className="error-message">{error}</p>}
+            {message && <p className="success-message">{message}</p>}
 
             <input type="submit" value="S'inscrire" className="primary-submit" />
 
