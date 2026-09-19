@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
@@ -127,6 +128,23 @@ public class ProfesseurServiceTest {
         assertThatThrownBy(() ->
                 professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
                 .isInstanceOf(MotDePasseNonCorrespondantException.class);
+
+        verify(professeurRepository, never())
+                .save(any(Professeur.class));
+    }
+
+    @Test
+    void doitLancerExceptionMatriculeExistant() {
+
+        when(userAppRepository.findUserAppByEmail(anyString()))
+                .thenReturn(Optional.empty());
+
+        when(professeurRepository.findByMatricule(anyString()))
+                .thenReturn(Optional.of(professeur));
+
+        assertThatThrownBy(() ->
+                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+                .isInstanceOf(MatriculeExistantException.class);
 
         verify(professeurRepository, never())
                 .save(any(Professeur.class));
