@@ -68,7 +68,7 @@ public class EtudiantServiceTest {
     }
 
         @Test
-        void InscriptionEtudiantValide() throws Exception{
+        void doitCreerCompteEtudiant() throws Exception{
 
             when(passwordEncoder.encode("111111"))
                     .thenReturn("motDePasseEncode");
@@ -77,7 +77,7 @@ public class EtudiantServiceTest {
                     .thenReturn(etudiant);
 
             EtudiantDTO result =
-                    etudiantService.inscrireEtudiant(inscriptionEtudiantDTO);
+                    etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
 
             verify(etudiantRepository, times(1))
                     .save(any(Etudiant.class));
@@ -94,13 +94,13 @@ public class EtudiantServiceTest {
         }
 
     @Test
-    void etudiantInscriptionEmailExistant() {
+    void doitLancerExceptionEmailExistant() {
 
         when(userAppRepository.findUserAppByEmail(anyString()))
                 .thenReturn(Optional.of(etudiant));
 
         assertThatThrownBy(() ->
-                etudiantService.inscrireEtudiant(inscriptionEtudiantDTO))
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO))
                 .isInstanceOf(EmailExistantException.class);
 
         verify(etudiantRepository, never())
@@ -108,7 +108,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void etudiantInscriptionMotDePasseDifferent() {
+    void doitLancerExceptionMotDePasseDifferent() {
 
         inscriptionEtudiantDTO = new InscriptionEtudiantDTO(
                 "Christelle",
@@ -121,7 +121,7 @@ public class EtudiantServiceTest {
         );
 
         assertThatThrownBy(() ->
-                etudiantService.inscrireEtudiant(inscriptionEtudiantDTO))
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO))
                 .isInstanceOf(MotDePasseNonCorrespondantException.class);
 
         verify(etudiantRepository, never())
@@ -129,7 +129,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void etudiantInscriptionMatriculeExistant() {
+    void doitLancerExceptionMatriculeExistant() {
 
         when(userAppRepository.findUserAppByEmail(anyString()))
                 .thenReturn(Optional.empty());
@@ -138,7 +138,7 @@ public class EtudiantServiceTest {
                 .thenReturn(Optional.of(etudiant));
 
         assertThatThrownBy(() ->
-                etudiantService.inscrireEtudiant(inscriptionEtudiantDTO))
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO))
                 .isInstanceOf(MatriculeExistantException.class);
 
         verify(etudiantRepository, never())
