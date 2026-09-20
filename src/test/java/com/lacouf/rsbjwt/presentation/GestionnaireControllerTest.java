@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class ReferenceControlleurTest {
+public class GestionnaireControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
