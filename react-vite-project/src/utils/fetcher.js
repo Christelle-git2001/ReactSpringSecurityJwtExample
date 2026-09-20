@@ -1,5 +1,5 @@
 import mergeHeaders from "./mergeheader";
-import BASE_URL from "../components/config/Config.jsx";
+import BASE_URL from "../config/Config.jsx";
 async function fetcher(input, options) {
   // your headers
   const token = localStorage.getItem("token");

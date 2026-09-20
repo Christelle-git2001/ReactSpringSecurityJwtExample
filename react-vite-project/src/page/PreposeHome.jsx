@@ -1,5 +1,5 @@
 import { useState } from "react";
-import fetcher from "../../utils/fetcher.js";
+import fetcher from "../utils/fetcher.js";
 
 const PreposeHome = () => {
   const [message, setMessage] = useState("");
