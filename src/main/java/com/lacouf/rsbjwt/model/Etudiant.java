@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@DiscriminatorValue("E")
+@DiscriminatorValue("ETUDIANT")
 @Getter
 @Setter
 @NoArgsConstructor
