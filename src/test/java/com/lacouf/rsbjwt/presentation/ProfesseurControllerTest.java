@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -110,6 +111,17 @@ public class ProfesseurControllerTest {
     void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
         when(professeurService.inscrireProfesseur(any()))
                 .thenThrow(new MotDePasseNonCorrespondantException());
+
+        mockMvc.perform(post("/professeurs/inscription")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRetournerBadRequestDepartementInvalide() throws Exception {
+        when(professeurService.inscrireProfesseur(any()))
+                .thenThrow(new DepartementInvalideException(inscriptionProfesseurDTO.department()));
 
         mockMvc.perform(post("/professeurs/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
