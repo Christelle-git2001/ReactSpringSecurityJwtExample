@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "./css/AddEtudiant.css";
+import "../../../css/AddEtudiant.css";
 
 function AddEtudiant({ onAdd, error, message }) {
   const onSubmit = async (e) => {
