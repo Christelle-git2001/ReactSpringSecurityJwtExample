@@ -23,7 +23,22 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public EtudiantDTO inscrireEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
+    public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
+        validerInscriptionEtudiant(inscriptionEtudiantDto);
+
+        Etudiant etudiant = Etudiant.builder()
+                .firstName(inscriptionEtudiantDto.firstName())
+                .lastName(inscriptionEtudiantDto.lastName())
+                .email(inscriptionEtudiantDto.email())
+                .phoneNumber(inscriptionEtudiantDto.phone())
+                .matricule(inscriptionEtudiantDto.matricule())
+                .password(passwordEncoder.encode(inscriptionEtudiantDto.password()))
+                .build();
+
+        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+    }
+
+    private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto)  throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
 
         if (!inscriptionEtudiantDto.password()
                 .equals(inscriptionEtudiantDto.passwordConfirmation())) {
@@ -39,10 +54,6 @@ public class EtudiantService {
                 inscriptionEtudiantDto.matricule()).isPresent()) {
             throw new MatriculeExistantException();
         }
-
-        Etudiant etudiant = new Etudiant();
-
-        return EtudiantDTO.of(etudiantRepository.save(etudiant));
     }
 
 }
