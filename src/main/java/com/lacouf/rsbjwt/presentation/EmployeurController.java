@@ -21,7 +21,7 @@ public class EmployeurController {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<EmployeurDTO> inscription(@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO) throws EmailExistantException, MotDePasseNonCorrespondantException {
+    public ResponseEntity<EmployeurDTO> creerCompteEmployeur (@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO) throws EmailExistantException, MotDePasseNonCorrespondantException {
         EmployeurDTO employeurDTO;
         employeurDTO = employeurService.creeCompteEmployeur(employeurInscriptionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(employeurDTO);
