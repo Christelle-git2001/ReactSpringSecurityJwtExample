@@ -14,7 +14,7 @@ function AddEtudiant({ onAdd, error, message }) {
       phone: formData.get("telephone"),
       matricule: formData.get("matricule"),
       password: formData.get("password"),
-        confirmPassword: formData.get("confirmPassword")
+      passwordConfirmation: formData.get("confirmPassword")
     };
 
     const ajoutReussi = await onAdd(nouvelEtudiant);
@@ -63,7 +63,8 @@ function AddEtudiant({ onAdd, error, message }) {
               <div className="add-etudiant-row">
                 <div>
                   <label htmlFor="telephone" className="add-etudiant-label">Téléphone</label>
-                  <input type="tel" placeholder="450-111-2222" required minLength="10" maxLength="12" id="telephone" name="telephone"
+                  <input type="tel" placeholder="450-111-2222" required minLength="10"
+                         maxLength="12" id="telephone" name="telephone"
                          pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" className="add-etudiant-input" />
                 </div>
 
