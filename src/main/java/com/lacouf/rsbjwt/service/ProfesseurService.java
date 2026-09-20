@@ -10,33 +10,30 @@ import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProfesseurService {
 
     private final ProfesseurRepository professeurRepository ;
     private final UserAppRepository userAppRepository ;
     private final PasswordEncoder passwordEncoder ;
 
-    public ProfesseurDTO inscrireProfesseur(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
+    public ProfesseurService(ProfesseurRepository professeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder) {
+        this.professeurRepository = professeurRepository;
+        this.userAppRepository = userAppRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
+    public ProfesseurDTO creerCompteProfesseur(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
     {
-        if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
-            throw new EmailExistantException();
-        }
+        validerInscription(inscriptionProfesseurDto);
 
-        if(professeurRepository.findByMatricule(inscriptionProfesseurDto.matricule()).isPresent()){
-            throw new MatriculeExistantException() ;
-        }
-
-        if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.passwordConfirmation())){
-            throw new MotDePasseNonCorrespondantException() ;
-        }
-
-        Departement departement = validerDepartement(inscriptionProfesseurDto.department()) ;
+        Departement departement = normaliserDepartement(inscriptionProfesseurDto.department()) ;
 
         Professeur professeur = Professeur.builder()
                 .firstName(inscriptionProfesseurDto.firstName())
@@ -52,7 +49,22 @@ public class ProfesseurService {
 
     }
 
-    private Departement validerDepartement(String value) throws DepartementInvalideException {
+    private void validerInscription(InscriptionProfesseurDTO inscriptionProfesseurDto) throws  EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException{
+        if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
+            throw new EmailExistantException();
+        }
+
+        if(professeurRepository.findByMatricule(inscriptionProfesseurDto.matricule()).isPresent()){
+            throw new MatriculeExistantException() ;
+        }
+
+        if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.passwordConfirmation())){
+            throw new MotDePasseNonCorrespondantException() ;
+        }
+
+    }
+
+    private Departement normaliserDepartement(String value) throws DepartementInvalideException {
         if(value == null){
             throw new DepartementInvalideException(value);
         }

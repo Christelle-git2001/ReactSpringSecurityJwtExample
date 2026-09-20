@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class EtudiantControllerWebMvcTest {
+public class EtudiantControllerTest {
     @Test
     void contexteCharge() {
         System.out.println("LE TEST ETUDIANT EST LANCE");
@@ -59,13 +59,14 @@ public class EtudiantControllerWebMvcTest {
                 "438-297-8191",
                 "christelle@gmail.com",
                 "2226252",
+                "INFORMATIQUE",
                 "111111",
                 "111111"
         );
     }
 
     @Test
-    void inscriptionEtudiantOk() throws Exception {
+    void doitCreerCompteEtudiant() throws Exception {
 
         EtudiantDTO etudiantDTO = new EtudiantDTO(
                 1L,
@@ -73,20 +74,21 @@ public class EtudiantControllerWebMvcTest {
                 "Altineus",
                 "christelle@gmail.com",
                 "2226252",
-                "438-297-8191"
+                "438-297-8191",
+                "INFORMATIQUE"
         );
 
-        when(etudiantService.inscrireEtudiant(any(InscriptionEtudiantDTO.class)))
+        when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
                 .thenReturn(etudiantDTO);
 
-        mockMvc.perform(post("/etudiant/register")
+        mockMvc.perform(post("/etudiant/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
     }
     @Test
-    void inscriptionEtudiantMotDePasseDifferent() throws Exception {
+    void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
 
         inscriptionEtudiantDTO = new InscriptionEtudiantDTO(
                 "Christelle",
@@ -94,38 +96,39 @@ public class EtudiantControllerWebMvcTest {
                 "438-297-8191",
                 "christelle@gmail.com",
                 "2226252",
+                "INFORMATIQUE",
                 "111111",
                 "222222"
         );
 
-        when(etudiantService.inscrireEtudiant(any(InscriptionEtudiantDTO.class)))
+        when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
-        mockMvc.perform(post("/etudiant/register")
+        mockMvc.perform(post("/etudiant/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void inscriptionEtudiantEmailExisteDeja() throws Exception {
+    void doitRetournerConflictEmailExistant() throws Exception {
 
-        when(etudiantService.inscrireEtudiant(any(InscriptionEtudiantDTO.class)))
+        when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
                 .thenThrow(new EmailExistantException());
 
-        mockMvc.perform(post("/etudiant/register")
+        mockMvc.perform(post("/etudiant/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
                 .andExpect(status().isConflict());
     }
 
     @Test
-    void inscriptionEtudiantMatriculeExisteDeja() throws Exception {
+    void doitRetournerConflictMatriculeExistant() throws Exception {
 
-        when(etudiantService.inscrireEtudiant(any(InscriptionEtudiantDTO.class)))
+        when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
                 .thenThrow(new MatriculeExistantException());
 
-        mockMvc.perform(post("/etudiant/register")
+        mockMvc.perform(post("/etudiant/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
                 .andExpect(status().isConflict());

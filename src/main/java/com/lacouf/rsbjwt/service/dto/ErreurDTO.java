@@ -1,13 +1,4 @@
 package com.lacouf.rsbjwt.service.dto;
 
-public class ErreurDTO {
-    private final String message;
+public record ErreurDTO(String messageFr, String messageEn) {}
 
-    public ErreurDTO(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-}

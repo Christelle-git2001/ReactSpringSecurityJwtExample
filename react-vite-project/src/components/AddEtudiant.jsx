@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./css/AddEtudiant.css";
 
-function AddEtudiant({ onAdd }) {
+function AddEtudiant({ onAdd, error, message }) {
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -11,9 +11,10 @@ function AddEtudiant({ onAdd }) {
       firstName: formData.get("firstName"),
       lastName: formData.get("lastName"),
       email: formData.get("email"),
-      telephone: formData.get("telephone"),
+      phone: formData.get("telephone"),
       matricule: formData.get("matricule"),
-      password: formData.get("password")
+      password: formData.get("password"),
+      passwordConfirmation: formData.get("confirmPassword")
     };
 
     const ajoutReussi = await onAdd(nouvelEtudiant);
@@ -62,12 +63,14 @@ function AddEtudiant({ onAdd }) {
               <div className="add-etudiant-row">
                 <div>
                   <label htmlFor="telephone" className="add-etudiant-label">Téléphone</label>
-                  <input type="tel" placeholder="450-111-2222" required minLength="1" maxLength="12" id="telephone" name="telephone" className="add-etudiant-input" />
+                  <input type="tel" placeholder="450-111-2222" required minLength="10"
+                         maxLength="12" id="telephone" name="telephone"
+                         pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" className="add-etudiant-input" />
                 </div>
 
                 <div>
                   <label htmlFor="matricule" className="add-etudiant-label">Matricule</label>
-                  <input type="text" placeholder="Matricule" required minLength="1" maxLength="8" id="matricule" name="matricule" className="add-etudiant-input" />
+                  <input type="text" placeholder="Matricule" required minLength="7" maxLength="7" id="matricule" name="matricule" className="add-etudiant-input" />
                 </div>
               </div>
 
@@ -81,6 +84,9 @@ function AddEtudiant({ onAdd }) {
                 <input type="password" placeholder="Confirmer le mot de passe" required minLength="4" id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
               </div>
             </div>
+
+            {error && <p className="error-message">{error}</p>}
+            {message && <p className="success-message">{message}</p>}
 
             <input type="submit" value="S'inscrire" className="primary-submit" />
 

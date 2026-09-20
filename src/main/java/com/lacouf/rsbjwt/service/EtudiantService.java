@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 
 @Service
 public class EtudiantService {
@@ -23,7 +25,24 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public EtudiantDTO inscrireEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
+    public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException {
+        validerInscriptionEtudiant(inscriptionEtudiantDto);
+        Departement departement = normaliserDepartement(inscriptionEtudiantDto.department()) ;
+
+        Etudiant etudiant = Etudiant.builder()
+                .firstName(inscriptionEtudiantDto.firstName())
+                .lastName(inscriptionEtudiantDto.lastName())
+                .email(inscriptionEtudiantDto.email())
+                .phoneNumber(inscriptionEtudiantDto.phone())
+                .matricule(inscriptionEtudiantDto.matricule())
+                .department(departement)
+                .password(passwordEncoder.encode(inscriptionEtudiantDto.password()))
+                .build();
+
+        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+    }
+
+    private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto)  throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException {
 
         if (!inscriptionEtudiantDto.password()
                 .equals(inscriptionEtudiantDto.passwordConfirmation())) {
@@ -39,10 +58,24 @@ public class EtudiantService {
                 inscriptionEtudiantDto.matricule()).isPresent()) {
             throw new MatriculeExistantException();
         }
+    }
 
-        Etudiant etudiant = new Etudiant();
+    private Departement normaliserDepartement(String value) throws DepartementInvalideException {
+        if(value == null){
+            throw new DepartementInvalideException(value);
+        }
 
-        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+        String normalized = value.trim()
+                .toUpperCase()
+                .replaceAll("\\s+", "_");
+
+        for (Departement departement : Departement.values()) {
+            if (departement.name().equals(normalized)) {
+                return departement;
+            }
+        }
+
+        throw new DepartementInvalideException(value);
     }
 
 }

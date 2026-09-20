@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 
+import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -25,25 +26,10 @@ public class EtudiantController {
         this.etudiantService = etudiantService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> inscription(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) {
-        try {
-            EtudiantDTO etudiantDto = etudiantService.inscrireEtudiant(inscriptionEtudiantDto);
-            return ResponseEntity.ok(etudiantDto);
-        } catch (EmailExistantException |
-                 MatriculeExistantException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(new ErreurDTO(e.getMessage()));
-
-        } catch (MotDePasseNonCorrespondantException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new ErreurDTO(e.getMessage()));
-
-        }
+    @PostMapping("/inscription")
+    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException,MatriculeExistantException, DepartementInvalideException {
+            EtudiantDTO etudiantDto = etudiantService.creerCompteEtudiant(inscriptionEtudiantDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(etudiantDto);
     }
 
 }
