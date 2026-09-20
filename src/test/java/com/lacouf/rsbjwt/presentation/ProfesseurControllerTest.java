@@ -86,25 +86,25 @@ public class ProfesseurControllerTest {
     }
 
     @Test
-    void doitRetournerBadRequestEmailExistant() throws Exception {
+    void doitRetournerConflictEmailExistant() throws Exception {
         when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new EmailExistantException());
 
         mockMvc.perform(post("/professeurs/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     @Test
-    void doitRetournerBadRequestMatriculeExistant() throws Exception {
+    void doitRetournerConflictMatriculeExistant() throws Exception {
         when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new MatriculeExistantException());
 
         mockMvc.perform(post("/professeurs/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     @Test

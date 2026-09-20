@@ -28,7 +28,7 @@ public class ProfesseurController {
     }
 
     @PostMapping("inscription")
-    public ResponseEntity<ProfesseurDTO> creerCompte(@RequestBody InscriptionProfesseurDTO newProfesseur)
+    public ResponseEntity<ProfesseurDTO> creerCompteProfesseur(@RequestBody InscriptionProfesseurDTO newProfesseur)
             throws DepartementInvalideException,
             EmailExistantException,
             MatriculeExistantException,
