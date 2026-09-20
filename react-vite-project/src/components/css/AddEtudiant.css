@@ -17,15 +17,11 @@
 }
 
 .add-etudiant-subtitle-line {
-  display: block;
-  width: 500px;
-  height: 1.2px;
-  margin: 10px auto 0;
-  background: #043462;
+  @apply mx-auto mt-2 block h-px w-full max-w-[500px] bg-[#043462];
 }
 
 .add-etudiant-section {
-  @apply grid gap-6 md:grid-cols-2;
+  @apply grid gap-6 lg:grid-cols-[0.8fr_1.2fr];
 }
 
 .add-etudiant-slogan {
@@ -34,7 +30,7 @@
 }
 
 .add-etudiant-slogan-title {
-  @apply relative z-10 text-6xl font-bold leading-tight;
+  @apply relative z-10 text-6xl  lg:text-5xl font-bold leading-tight;
   color: white;
 }
 
@@ -79,31 +75,25 @@
 }
 
 .circleDesign {
-  position: absolute;
-  border-radius: 50%;
-  background-color: #0FFFDF;
+  @apply absolute rounded-full bg-[#0FFFDF];
 }
 
 .circleDesign-top-right {
-  width: 190px;
-  height: 190px;
-  top: -90px;
-  right: -60px;
-  opacity: 0.45;
+  @apply h-[190px] w-[190px] top-[-90px] right-[-60px] opacity-[0.45];
 }
 
 .circleDesign-bottom-left-1 {
-  width: 260px;
-  height: 260px;
-  bottom: -130px;
-  left: -70px;
-  opacity: 0.65;
+  @apply h-[260px] w-[260px] bottom-[-130px] left-[-70px] opacity-[0.65];
 }
 
 .circleDesign-bottom-left-2 {
-  width: 230px;
-  height: 230px;
-  bottom: -130px;
-  left: 70px;
-  opacity: 0.35;
+  @apply h-[230px] w-[230px] bottom-[-130px] left-[70px] opacity-[0.35];
+}
+
+.error-message {
+  @apply mt-4 mb-3 font-semibold text-red-600;
+}
+
+.success-message {
+  @apply mt-4 mb-3 font-semibold text-green-600;
 }
