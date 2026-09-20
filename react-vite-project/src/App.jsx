@@ -1,9 +1,9 @@
 import "./App.css";
-import React, {useEffect, useState} from "react";
-import { useNavigate} from "react-router-dom";;
-import fetcher from "./utils/fetcher.js";
+import React, {useState} from "react";
+import { useNavigate} from "react-router-dom";
 import { inscrireEtudiant } from "./api/api.jsx";
 import AppRoutes from "./Component/route/AppRoute.jsx";
+import useAuth from "./utils/useAuth.js";
 function App() {
 
   const { user, setUser, error, setError } = useAuth();
@@ -32,6 +32,7 @@ function App() {
             message={message}
             setError={setError}
             setUser={setUser}
+            addEtudiant={addEtudiant}
         />
     );
 }

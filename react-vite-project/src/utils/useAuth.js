@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import fetcher from "../utils/fetcher";
+import fetcher from "./fetcher";
 
 export default function useAuth() {
     const [user, setUser] = useState({});

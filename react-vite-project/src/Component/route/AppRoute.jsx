@@ -1,16 +1,16 @@
 import { Routes, Route } from "react-router-dom";
-import PageLayout from "../Component/Design/PageLayout";
-import MainContainer from "../Component/Design/MainContainer";
-import About from "../Component/Design/About";
-import LoginForm from "../Component/auth/LoginForm";
-import AddEtudiant from "../Component/Profil/Etudiant/AddEtudiant";
-import Logout from "../Component/auth/Logout";
-import ErrorPage from "../Component/Design/ErrorPage";
-import EmprunteurHome from "../page/EmprunteurHome";
-import PreposeHome from "../page/PreposeHome";
-import GestionnaireHome from "../page/GestionnaireHome";
+import PageLayout from "../Design/PageLayout.jsx";
+import MainContainer from "../Design/MainContainer";
+import About from "../Design/About";
+import LoginForm from "../auth/LoginForm";
+import AddEtudiant from "../Profil/Etudiant/AddEtudiant.jsx";
+import Logout from "../auth/Logout";
+import ErrorPage from "../Design/ErrorPage";
+import EmprunteurHome from "../../page/EmprunteurHome.jsx";
+import PreposeHome from "../../page/PreposeHome";
+import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 
-export default function AppRoutes({ user, error, message, setError, setUser }) {
+export default function AppRoutes({ user, error, message, setError, setUser,addEtudiant }) {
     return (
             <Routes>
                 <Route path="/" element={<PageLayout user={user}/>}>
