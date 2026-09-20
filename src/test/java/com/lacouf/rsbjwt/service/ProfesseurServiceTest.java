@@ -72,12 +72,12 @@ public class ProfesseurServiceTest {
     }
 
     @Test
-    void doitInscrireProfesseur() throws Exception {
+    void doitCreerCompteProfesseur() throws Exception {
 
         when(passwordEncoder.encode("111111")).thenReturn("motDePasseEncode");
         when(professeurRepository.save(any(Professeur.class))).thenReturn(professeur);
 
-        ProfesseurDTO result = professeurService.inscrireProfesseur(inscriptionProfesseurDTO);
+        ProfesseurDTO result = professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
 
         assertThat(result.firstName()).isEqualTo(inscriptionProfesseurDTO.firstName());
         assertThat(result.email()).isEqualTo(inscriptionProfesseurDTO.email());
@@ -94,7 +94,7 @@ public class ProfesseurServiceTest {
                 .thenReturn(Optional.of(professeur));
 
         assertThatThrownBy(() ->
-                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+                professeurService.creerCompteProfesseur(inscriptionProfesseurDTO))
                 .isInstanceOf(EmailExistantException.class);
 
         verify(professeurRepository, never())
@@ -114,7 +114,7 @@ public class ProfesseurServiceTest {
                 "123-123-1234",
                 "INFORMATIQUE"
         );
-        assertThatThrownBy(() -> professeurService.inscrireProfesseur(dtoMdpIncorrect))
+        assertThatThrownBy(() -> professeurService.creerCompteProfesseur(dtoMdpIncorrect))
                 .isInstanceOf(MotDePasseNonCorrespondantException.class);
 
         verify(professeurRepository, never()).save(any(Professeur.class));
@@ -130,7 +130,7 @@ public class ProfesseurServiceTest {
                 .thenReturn(Optional.of(professeur));
 
         assertThatThrownBy(() ->
-                professeurService.inscrireProfesseur(inscriptionProfesseurDTO))
+                professeurService.creerCompteProfesseur(inscriptionProfesseurDTO))
                 .isInstanceOf(MatriculeExistantException.class);
 
         verify(professeurRepository, never())
@@ -151,7 +151,7 @@ public class ProfesseurServiceTest {
                 "DEPARTEMENT_INEXISTANT"
         );
 
-        assertThatThrownBy(() -> professeurService.inscrireProfesseur(dtoDepartementInvalide))
+        assertThatThrownBy(() -> professeurService.creerCompteProfesseur(dtoDepartementInvalide))
                 .isInstanceOf(DepartementInvalideException.class);
 
         verify(professeurRepository, never()).save(any(Professeur.class));

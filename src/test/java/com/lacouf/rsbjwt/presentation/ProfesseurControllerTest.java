@@ -76,7 +76,7 @@ public class ProfesseurControllerTest {
 
     @Test
     void doitInscrireProfesseur() throws Exception {
-        when(professeurService.inscrireProfesseur(any(InscriptionProfesseurDTO.class)))
+        when(professeurService.creerCompteProfesseur(any(InscriptionProfesseurDTO.class)))
                 .thenReturn(professeurDTO);
 
         mockMvc.perform(post("/professeurs/inscription")
@@ -87,7 +87,7 @@ public class ProfesseurControllerTest {
 
     @Test
     void doitRetournerBadRequestEmailExistant() throws Exception {
-        when(professeurService.inscrireProfesseur(any()))
+        when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new EmailExistantException());
 
         mockMvc.perform(post("/professeurs/inscription")
@@ -98,7 +98,7 @@ public class ProfesseurControllerTest {
 
     @Test
     void doitRetournerBadRequestMatriculeExistant() throws Exception {
-        when(professeurService.inscrireProfesseur(any()))
+        when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new MatriculeExistantException());
 
         mockMvc.perform(post("/professeurs/inscription")
@@ -109,7 +109,7 @@ public class ProfesseurControllerTest {
 
     @Test
     void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
-        when(professeurService.inscrireProfesseur(any()))
+        when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
         mockMvc.perform(post("/professeurs/inscription")
@@ -120,7 +120,7 @@ public class ProfesseurControllerTest {
 
     @Test
     void doitRetournerBadRequestDepartementInvalide() throws Exception {
-        when(professeurService.inscrireProfesseur(any()))
+        when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new DepartementInvalideException(inscriptionProfesseurDTO.department()));
 
         mockMvc.perform(post("/professeurs/inscription")
