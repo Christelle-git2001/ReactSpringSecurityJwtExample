@@ -1,8 +1,8 @@
 import "./App.css";
 import React, {useState} from "react";
 import { useNavigate} from "react-router-dom";
-import { inscrireEtudiant } from "./api/api.jsx";
-import AppRoutes from "./Component/route/AppRoute.jsx";
+import { inscrireEtudiant } from "./api/etudiant.jsx";
+import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 function App() {
 
