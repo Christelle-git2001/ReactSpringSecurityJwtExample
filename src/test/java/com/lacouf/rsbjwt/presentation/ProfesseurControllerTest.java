@@ -75,7 +75,7 @@ public class ProfesseurControllerTest {
     }
 
     @Test
-    void doitInscrireProfesseur() throws Exception {
+    void doitCreerCompteProfesseur() throws Exception {
         when(professeurService.creerCompteProfesseur(any(InscriptionProfesseurDTO.class)))
                 .thenReturn(professeurDTO);
 
