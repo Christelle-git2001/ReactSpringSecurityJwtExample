@@ -1,18 +1,18 @@
 import "./App.css";
-import PageLayout from "./components/PageLayout.jsx";
+import PageLayout from "./Component/Design/PageLayout.jsx";
 import React, {useEffect, useState} from "react";
 import {Route, Routes, useNavigate} from "react-router-dom";
-import MainContainer from "./components/MainContainer.jsx";
-import About from "./components/About.jsx";
-import LoginForm from "./components/auth/LoginForm.jsx";
+import MainContainer from "./Component/Design/MainContainer.jsx";
+import About from "./Component/Design/About.jsx";
+import LoginForm from "./Component/auth/LoginForm.jsx";
 import fetcher from "./utils/fetcher.js";
-import ErrorPage from "./components/ErrorPage.jsx";
-import Logout from "./components/auth/Logout.jsx";
-import EmprunteurHome from "./components/page/EmprunteurHome.jsx";
-import PreposeHome from "./components/page/PreposeHome.jsx";
-import GestionnaireHome from "./components/page/GestionnaireHome.jsx";
-import AddEtudiant from "./components/AddEtudiant.jsx";
-import { inscrireEtudiant } from "./api.jsx";
+import ErrorPage from "./Component/Design/ErrorPage.jsx";
+import Logout from "./Component/auth/Logout.jsx";
+import EmprunteurHome from "./page/EmprunteurHome.jsx";
+import PreposeHome from "./page/PreposeHome.jsx";
+import GestionnaireHome from "./page/GestionnaireHome.jsx";
+import AddEtudiant from "./Component/Profil/Etudiant/AddEtudiant.jsx";
+import { inscrireEtudiant } from "./api/api.jsx";
 function App() {
   const [user, setUser] = useState({})
   const [error, setError] = useState(null)

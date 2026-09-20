@@ -1,5 +1,5 @@
 import { useState } from "react";
-import fetcher from "../../utils/fetcher.js";
+import fetcher from "../utils/fetcher.js";
 
 const GestionnaireHome = () => {
   const [message, setMessage] = useState("");
