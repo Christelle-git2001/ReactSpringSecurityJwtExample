@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
@@ -80,6 +81,17 @@ public class ProfesseurControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void doitRetournerBadRequestSiEmailExistant() throws Exception {
+        when(professeurService.inscrireProfesseur(any()))
+                .thenThrow(new EmailExistantException());
+
+        mockMvc.perform(post("/professeurs/inscription")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
+                .andExpect(status().isBadRequest());
     }
 
 }
