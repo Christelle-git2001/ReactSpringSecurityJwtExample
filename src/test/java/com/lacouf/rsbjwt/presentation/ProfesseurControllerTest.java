@@ -3,8 +3,8 @@ package com.lacouf.rsbjwt.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,7 +85,7 @@ public class ProfesseurControllerTest {
     }
 
     @Test
-    void doitRetournerBadRequestSiEmailExistant() throws Exception {
+    void doitRetournerBadRequestEmailExistant() throws Exception {
         when(professeurService.inscrireProfesseur(any()))
                 .thenThrow(new EmailExistantException());
 
@@ -96,9 +96,20 @@ public class ProfesseurControllerTest {
     }
 
     @Test
-    void doitRetournerBadRequestSiMatriculeExistant() throws Exception {
+    void doitRetournerBadRequestMatriculeExistant() throws Exception {
         when(professeurService.inscrireProfesseur(any()))
                 .thenThrow(new MatriculeExistantException());
+
+        mockMvc.perform(post("/professeurs/inscription")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
+        when(professeurService.inscrireProfesseur(any()))
+                .thenThrow(new MotDePasseNonCorrespondantException());
 
         mockMvc.perform(post("/professeurs/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
