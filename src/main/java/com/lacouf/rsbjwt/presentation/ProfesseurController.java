@@ -28,29 +28,15 @@ public class ProfesseurController {
     }
 
     @PostMapping("inscription")
-    public ResponseEntity<ProfesseurDTO> creerCompte(@RequestBody InscriptionProfesseurDTO newProfesseur){
-        try {
-            ProfesseurDTO createdProfesseur = professeurService.inscrireProfesseur(newProfesseur);
+    public ResponseEntity<ProfesseurDTO> creerCompte(@RequestBody InscriptionProfesseurDTO newProfesseur)
+            throws DepartementInvalideException,
+            EmailExistantException,
+            MatriculeExistantException,
+            MotDePasseNonCorrespondantException{
 
+            ProfesseurDTO createdProfesseur = professeurService.creerCompteProfesseur(newProfesseur);
             logger.info("{}", newProfesseur);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProfesseur);
-
-        } catch (EmailExistantException e) {
-            logger.info("{}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-         catch (MatriculeExistantException e){
-            logger.info("{}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        catch (MotDePasseNonCorrespondantException e){
-            logger.info("{}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        catch (DepartementInvalideException e){
-            logger.info("{}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
     }
 
 
