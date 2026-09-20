@@ -12,7 +12,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-@DiscriminatorValue("Employeur")
+@DiscriminatorValue("EMPLOYEUR")
 @NoArgsConstructor
 public class Employeur extends UserApp{
 
