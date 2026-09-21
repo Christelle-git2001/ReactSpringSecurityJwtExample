@@ -20,6 +20,9 @@ public record InscriptionEtudiantDTO(
         String matricule,
 
         @NotBlank
+        String department,
+
+        @NotBlank
         String password,
 
         @NotBlank
