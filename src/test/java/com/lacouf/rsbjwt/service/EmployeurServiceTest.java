@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
@@ -118,6 +119,16 @@ public class EmployeurServiceTest {
 
         assertThatThrownBy(() -> employeurService.creeCompteEmployeur(inscriptionEmployeurDTO))
                 .isInstanceOf(MotDePasseNonCorrespondantException.class);
+
+        verify(employeurRepository, never()).save(any(Employeur.class));
+    }
+
+    @Test
+    void doitLancerExceptionTelephoneExistant() {
+        when(userAppRepository.findByPhoneNumber(anyString())).thenReturn(Optional.of(employeur));
+
+        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(inscriptionEmployeurDTO))
+                .isInstanceOf(NumeroTelephoneExistantException.class);
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }

@@ -59,7 +59,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void inscriptionEmployeurCreated() throws Exception {
+    void doitCreerCompteEmployeur() throws Exception {
       EmployeurDTO employeurDTO = new EmployeurDTO(
               1L,
               "Gerard",
@@ -68,9 +68,7 @@ public class EmployeurControllerTest {
               "Gerard.Robert@hotmail.com",
               "Mercier",
               "Gerard inc",
-              SecteurActivite.AEROSPATIAL,
-              "Startup"
-
+              SecteurActivite.AEROSPATIAL
         );
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class))).thenReturn(employeurDTO);
 
@@ -81,7 +79,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void inscriptionEmployeurMotDePasseDiffereException() throws Exception {
+    void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
@@ -92,7 +90,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void inscriptionEmployeurExisteDeja() throws Exception{
+    void doitRetournerConflictEmailExistant() throws Exception{
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new EmailExistantException());
 
@@ -103,7 +101,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void inscriptionChampsObligatoireManquant() throws Exception{
+    void doitRetournerBadRequestQuandChampObligatoireManquant() throws Exception{
         inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
@@ -123,7 +121,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void inscriptionEmailInvalide() throws Exception{
+    void doitRetournerBadRequestQuandEmailInvalide() throws Exception{
         inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
@@ -144,7 +142,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void inscriptionMDPInvalide() throws Exception{
+    void doitRetournerBadRequestQuandMotDePasseInvalide() throws Exception{
         inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
