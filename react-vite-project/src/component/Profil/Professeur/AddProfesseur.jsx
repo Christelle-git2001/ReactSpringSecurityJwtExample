@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import {getDepartements} from "../../../api/http.jsx"
+import { useState, useEffect } from "react";
+
 
 function AddProfesseur({ onAdd, error, message }) {
 

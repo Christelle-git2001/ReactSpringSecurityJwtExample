@@ -7,6 +7,7 @@ import About from "../Design/About";
 import LoginForm from "../auth/LoginForm";
 import AddEtudiant from "../Profil/Etudiant/AddEtudiant.jsx";
 import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
+import AddProfesseur from "../Profil/Professeur/AddProfesseur.jsx";
 import InscriptionHome from "../../page/InscriptionHome.jsx";
 
 import Logout from "../auth/Logout";
@@ -20,15 +21,9 @@ export default function AppRoutes({ user, error, message, setError, setUser, add
         <Routes>
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<LoginForm setError={setError} />} />
-                <Route path="/inscription">
-                    <Route index element={<InscriptionHome />} />
-                    <Route path="addetudiant" element={<AddEtudiant onAdd={addEtudiant} error={error} message={message} />} />
-                    <Route path="addemployeur" element={<AddEmployeur />} />
-                </Route>
-
+                <Route path="/inscription" element={<InscriptionHome />} />
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
-
             <Route element={<PageLayout user={user} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
