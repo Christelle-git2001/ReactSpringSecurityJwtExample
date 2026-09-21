@@ -1,0 +1,31 @@
+@reference "../index.css";
+
+
+.inscription-page {
+    @apply min-h-screen flex items-center justify-center bg-gray-50 px-4;
+}
+
+.inscription-card {
+    @apply max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center;
+}
+
+.inscription-title {
+    @apply text-2xl font-bold text-gray-800 mb-8;
+}
+
+.inscription-buttons {
+    @apply flex flex-col gap-4;
+}
+
+.inscription-btn {
+    @apply w-full py-3 px-6 text-white font-semibold rounded-lg
+    transition-colors duration-200 shadow-sm hover:shadow-md;
+}
+
+.inscription-btn-etudiant {
+    @apply bg-blue-600 hover:bg-blue-700 active:bg-blue-800;
+}
+
+.inscription-btn-employeur {
+    @apply bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800;
+}
