@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +55,18 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(
                         "Le département fourni est invalide.",
                         "The provided department is invalid."
+                ));
+    }
+
+    @ExceptionHandler(NumeroTelephoneExistantException.class)
+    public ResponseEntity<ErreurDTO> handleNumeroTelephoneExistant(
+            NumeroTelephoneExistantException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(
+                        e.getMessage(),
+                        "Phone number already exists."
                 ));
     }
 }
