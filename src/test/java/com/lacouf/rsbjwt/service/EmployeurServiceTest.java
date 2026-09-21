@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,14 +42,14 @@ public class EmployeurServiceTest {
     @InjectMocks
     private EmployeurService employeurService;
 
-    EmployeurInscriptionDTO employeurInscriptionDTO;
+    InscriptionEmployeurDTO inscriptionEmployeurDTO;
     Employeur employeur;
 
 
 
     @BeforeEach
     void init(){
-        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
                 "165-685-4569",
@@ -72,13 +72,15 @@ public class EmployeurServiceTest {
                 .businessSector(SecteurActivite.AEROSPATIAL)
                 .password("Losange12%")
                 .build();
+
+        employeur.setId(1L);
     }
 
     @Test
-    void employeurInscritCorrectement() throws Exception {
+    void doitCreerCompteEmployeur() throws Exception {
         when(employeurRepository.save(any(Employeur.class))).thenReturn(employeur);
 
-        EmployeurDTO result = employeurService.creeCompteEmployeur(employeurInscriptionDTO);
+        EmployeurDTO result = employeurService.creeCompteEmployeur(inscriptionEmployeurDTO);
 
         verify(employeurRepository, times(1)).save(any(Employeur.class));
         assertThat(result)
@@ -90,18 +92,18 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void employeurInscriptionEmailExistant() {
+    void doitLancerExceptionEmailExistant() {
         when(userAppRepository.findUserAppByEmail(anyString())).thenReturn(Optional.of(employeur));
 
-        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(employeurInscriptionDTO))
+        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(inscriptionEmployeurDTO))
                 .isInstanceOf(EmailExistantException.class);
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }
 
     @Test
-    void employeurInscriptionMotDePasseDifferent() {
-        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+    void doitLancerExceptionMotDePasseDifferent() {
+        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
                 "165-685-4569",
@@ -114,7 +116,7 @@ public class EmployeurServiceTest {
                 "Carre12%"
         );
 
-        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(employeurInscriptionDTO))
+        assertThatThrownBy(() -> employeurService.creeCompteEmployeur(inscriptionEmployeurDTO))
                 .isInstanceOf(MotDePasseNonCorrespondantException.class);
 
         verify(employeurRepository, never()).save(any(Employeur.class));
