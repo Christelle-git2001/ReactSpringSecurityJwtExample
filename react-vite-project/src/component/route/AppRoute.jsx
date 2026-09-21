@@ -1,13 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import PageLayout from "../Design/PageLayout.jsx";
 import PublicLayout from "../Design/PublicLayout.jsx";
 
 import MainContainer from "../Design/MainContainer";
 import About from "../Design/About";
 import LoginForm from "../auth/LoginForm";
-import AddEtudiant from "../Profil/Etudiant/AddEtudiant.jsx";
-import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
-import AddProfesseur from "../Profil/Professeur/AddProfesseur.jsx";
+
 import InscriptionHome from "../../page/InscriptionHome.jsx";
 
 import Logout from "../auth/Logout";
@@ -16,14 +15,38 @@ import EmprunteurHome from "../../page/EmprunteurHome.jsx";
 import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 
-export default function AppRoutes({ user, error, message, setError, setUser, addEtudiant }) {
+export default function AppRoutes({
+                                      user,
+                                      error,
+                                      message,
+                                      setError,
+                                      setUser,
+                                      addEtudiant,
+                                      addProfesseur
+                                  }) {
     return (
         <Routes>
+
+            {/* Pages publiques */}
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<LoginForm setError={setError} />} />
-                <Route path="/inscription" element={<InscriptionHome />} />
+
+                <Route
+                    path="/inscription"
+                    element={
+                        <InscriptionHome
+                            addEtudiant={addEtudiant}
+                            addProfesseur={addProfesseur}
+                            error={error}
+                            message={message}
+                        />
+                    }
+                />
+
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
+
+            {/* Pages protégées */}
             <Route element={<PageLayout user={user} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />

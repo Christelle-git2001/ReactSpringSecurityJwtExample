@@ -2,6 +2,7 @@ import "./App.css";
 import React, {useState} from "react";
 import { useNavigate} from "react-router-dom";
 import { inscrireEtudiant } from "./api/etudiant.jsx";
+import { inscrireProfesseur } from "./api/professeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 function App() {
@@ -25,6 +26,20 @@ function App() {
     }
   }
 
+  async function addProfesseur(professeur) {
+    try {
+      await inscrireProfesseur(professeur);
+      setMessage("Professeur ajouté avec succès.");
+      setError(null);
+      navigate("/login");
+      return true;
+    } catch (error) {
+      setError(error.message || "Une erreur inattendue s'est produite.");
+      setMessage("");
+      return false;
+    }
+  }
+
     return (
         <AppRoutes
             user={user}
@@ -33,6 +48,7 @@ function App() {
             setError={setError}
             setUser={setUser}
             addEtudiant={addEtudiant}
+            addProfesseur={addProfesseur}
         />
     );
 }

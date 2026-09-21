@@ -1,9 +1,11 @@
 import { useState } from "react";
+
 import AddEtudiant from "../component/Profil/Etudiant/AddEtudiant.jsx";
 import AddProfesseur from "../component/Profil/Professeur/AddProfesseur.jsx";
 import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
 
-function InscriptionHome() {
+function InscriptionHome({ addEtudiant, addProfesseur, error, message }) {
+
     const [profil, setProfil] = useState("ETUDIANT");
 
     return (
@@ -17,9 +19,28 @@ function InscriptionHome() {
 
             {/* Formulaire dynamique */}
             <div className="signup-form">
-                {profil === "ETUDIANT" && <AddEtudiant />}
-                {profil === "PROFESSEUR" && <AddProfesseur onAdd={() => {}} />}
-                {profil === "EMPLOYEUR" && <AddEmployeur />}
+
+                {profil === "ETUDIANT" && (
+                    <AddEtudiant
+                        onAdd={addEtudiant}
+                        error={error}
+                        message={message}
+                    />
+                )}
+
+                {profil === "PROFESSEUR" && (
+                    <AddProfesseur
+                        onAdd={addProfesseur}
+                        error={error}
+                        message={message}
+                    />
+                )}
+
+                {profil === "EMPLOYEUR" && (
+                    <AddEmployeur
+                        onAdd={() => {}}   // Employeur n’a pas de backend pour l’instant
+                    />
+                )}
             </div>
 
             {/* Boutons de sélection */}
