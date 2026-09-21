@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
 
-public record SecteurEmployeurDTO(String code, String label) {
+public record SecteurEmployeurDTO(String name, String label) {
 
 }
