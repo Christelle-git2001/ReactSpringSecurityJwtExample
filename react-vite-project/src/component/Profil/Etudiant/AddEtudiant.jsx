@@ -13,6 +13,7 @@ function AddEtudiant({ onAdd, error, message }) {
       email: formData.get("email"),
       phone: formData.get("telephone"),
       matricule: formData.get("matricule"),
+      department: formData.get("department"),
       password: formData.get("password"),
       passwordConfirmation: formData.get("confirmPassword")
     };
@@ -72,6 +73,23 @@ function AddEtudiant({ onAdd, error, message }) {
                   <label htmlFor="matricule" className="add-etudiant-label">Matricule</label>
                   <input type="text" placeholder="Matricule" required minLength="7" maxLength="7" id="matricule" name="matricule" className="add-etudiant-input" />
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="department" className="add-etudiant-label">Département</label>
+                <select required id="department" name="department" className="add-etudiant-input" defaultValue="">
+                  <option value="" disabled>Choisir un département</option>
+                  <option value="INFORMATIQUE">Techniques de l'informatique</option>
+                  <option value="GESTION">Techniques de la gestion</option>
+                  <option value="TRAVAIL_SOCIAL">Techniques de travail social</option>
+                  <option value="EDUCATION_ENFANCE">Techniques d'éducation à l'enfance</option>
+                  <option value="SOINS_INFIRMIERS">Techniques de soins infirmiers</option>
+                  <option value="GENIE_CIVIL">Technologie du génie civil</option>
+                  <option value="GENIE_ELECTRIQUE">Technologie du génie électrique</option>
+                  <option value="GENIE_PHYSIQUE">Technologie du génie physique</option>
+                  <option value="ARCHITECTURE">Technologie de l'architecture</option>
+                  <option value="ESTIMATION_EVALUATION">Technologie de l'estimation et de l'évaluation en bâtiment</option>
+                </select>
               </div>
 
               <div>
