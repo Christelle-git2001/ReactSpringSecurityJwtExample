@@ -77,7 +77,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void employeurInscritCorrectement() throws Exception {
+    void doitCreerCompteEmployeur() throws Exception {
         when(employeurRepository.save(any(Employeur.class))).thenReturn(employeur);
 
         EmployeurDTO result = employeurService.creeCompteEmployeur(inscriptionEmployeurDTO);
@@ -92,7 +92,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void employeurInscriptionEmailExistant() {
+    void doitLancerExceptionEmailExistant() {
         when(userAppRepository.findUserAppByEmail(anyString())).thenReturn(Optional.of(employeur));
 
         assertThatThrownBy(() -> employeurService.creeCompteEmployeur(inscriptionEmployeurDTO))
@@ -102,7 +102,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void employeurInscriptionMotDePasseDifferent() {
+    void doitLancerExceptionMotDePasseDifferent() {
         inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",

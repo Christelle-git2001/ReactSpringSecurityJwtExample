@@ -59,7 +59,7 @@ public class EmployeurControlleurTest {
     }
 
     @Test
-    void inscriptionEmployeurCreated() throws Exception {
+    void doitCreerCompteEmployeur() throws Exception {
       EmployeurDTO employeurDTO = new EmployeurDTO(
               1L,
               "Gerard",
@@ -81,7 +81,7 @@ public class EmployeurControlleurTest {
     }
 
     @Test
-    void inscriptionEmployeurMotDePasseDiffereException() throws Exception {
+    void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
@@ -92,7 +92,7 @@ public class EmployeurControlleurTest {
     }
 
     @Test
-    void inscriptionEmployeurExisteDeja() throws Exception{
+    void doitRetournerConflictEmailExistant() throws Exception{
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new EmailExistantException());
 
