@@ -14,4 +14,6 @@ public interface UserAppRepository extends JpaRepository<UserApp, Long> {
     """)
     Optional<UserApp> findUserAppByEmail(@Param("email") String email);
 
+    Optional<UserApp> findByPhoneNumber(String phoneNumber);
+
 }

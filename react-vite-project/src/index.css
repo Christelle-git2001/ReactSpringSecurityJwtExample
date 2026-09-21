@@ -1,1 +1,24 @@
-body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+@import "tailwindcss";
+
+@theme {
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    color: #043462;
+}
+
+.primary-submit {
+    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors;
+    background: #0ee1cc;
+    cursor : pointer;
+}
+
+.primary-submit:hover {
+    background: #043462;
+}

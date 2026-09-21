@@ -1,5 +1,5 @@
 import React from "react";
-import './Header.css';
+import '../../css/Header.css';
 import { Link } from 'react-router-dom';
 
 function Header({user}) {
@@ -38,6 +38,7 @@ function Header({user}) {
                     {isEmprunteur() && <li><Link to="/emprunteur">Emprunteur</Link></li>}
                     {isPrepose() && <li><Link to="/prepose">Prepose</Link></li>}
                     {isGestionnaire() && <li><Link to="/gestionnaire">Gestionnaire</Link></li>}
+                    {!user?.isLoggedIn && <li><Link to="/addetudiant">Inscription</Link></li>}
                     <li>{user?.isLoggedIn ? <Link to="/logout">Logout</Link> : <Link to="/login">Login</Link>}</li>
                 </ul>
                 {user?.isLoggedIn && (
