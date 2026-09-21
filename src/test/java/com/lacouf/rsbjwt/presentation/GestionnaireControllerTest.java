@@ -1,9 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,16 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.assertj.core.api.Assertions.assertThat;
+
 
 
 @SpringBootTest
@@ -30,32 +30,37 @@ public class GestionnaireControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    private ObjectMapper objectMapper;
-
-    private SecteurActivite[] secteurActivite;
+    @MockitoBean
+    private GestionnaireService gestionnaireService;
 
     private MockMvc mockMvc;
     @BeforeEach
     void init(){
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
-        objectMapper = new ObjectMapper();
-        secteurActivite = SecteurActivite.values();
     }
 
+
     @Test
-    public void recoisTousSecteursActivites() throws Exception {
-         MvcResult mvcResult =  mockMvc.perform(get("/employeur/secteur")
+    void doitRetournerListeSecteurs() throws Exception {
+
+        List<SecteurEmployeurDTO> secteurs = List.of(
+                new SecteurEmployeurDTO("INFORMATIQUE", "Informatique"),
+                new SecteurEmployeurDTO("PHARMACEUTIQUE", "Pharmaceutique"),
+                new SecteurEmployeurDTO("FINANCE", "Finance")
+        );
+
+        when(gestionnaireService.getAllSecteurs()).thenReturn(secteurs);
+
+        mockMvc.perform(get("/gestionnaire/secteurEmployeur")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andReturn();
-        System.out.println(mvcResult.getResponse());
-        String jsonContent = mvcResult.getResponse().getContentAsString();
-        List<SecteurEmployeurDTO> resultList = objectMapper.readValue(
-                jsonContent,
-                new TypeReference<>() {
-                }
-        );
-        assertThat(secteurActivite.length).isEqualTo(resultList.size());
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].name").value("INFORMATIQUE"))
+                .andExpect(jsonPath("$[0].label").value("Informatique"))
+                .andExpect(jsonPath("$[1].name").value("PHARMACEUTIQUE"))
+                .andExpect(jsonPath("$[1].label").value("Pharmaceutique"))
+                .andExpect(jsonPath("$[2].name").value("FINANCE"))
+                .andExpect(jsonPath("$[2].label").value("Finance"));
     }
 }
