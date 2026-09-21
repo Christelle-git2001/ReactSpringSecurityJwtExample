@@ -59,7 +59,7 @@ public class EmployeurService {
                 .build();
 
         Employeur employeurCreer =  employeurRepository.save(employeur);
-       return EmployeurDTO.fromEntity(employeurCreer);
+       return EmployeurDTO.of(employeurCreer);
     }
 
 

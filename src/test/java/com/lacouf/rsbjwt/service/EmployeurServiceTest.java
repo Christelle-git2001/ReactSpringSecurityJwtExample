@@ -72,6 +72,8 @@ public class EmployeurServiceTest {
                 .businessSector(SecteurActivite.AEROSPATIAL)
                 .password("Losange12%")
                 .build();
+
+        employeur.setId(1L);
     }
 
     @Test

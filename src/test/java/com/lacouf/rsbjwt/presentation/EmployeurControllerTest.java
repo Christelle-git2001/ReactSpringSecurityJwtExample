@@ -61,6 +61,7 @@ public class EmployeurControllerTest {
     @Test
     void inscriptionEmployeurCreated() throws Exception {
       EmployeurDTO employeurDTO = new EmployeurDTO(
+              1L,
               "Gerard",
               "Robert",
               "165-685-4569",

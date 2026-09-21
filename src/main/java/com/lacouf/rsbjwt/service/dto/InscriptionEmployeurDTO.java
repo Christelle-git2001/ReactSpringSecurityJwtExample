@@ -33,7 +33,7 @@ public record InscriptionEmployeurDTO(
                                       @NotBlank(message = "validation.passwordConfirmation.required")
                                       String passwordConfirmation)
 {
-    public Employeur toEntity(){
+   /* public Employeur toEntity(){
         return new Employeur(
                 this.firstName(),
                 this.lastName(),
@@ -45,5 +45,5 @@ public record InscriptionEmployeurDTO(
                 this.businesstype(),
                 this.businessSector()
         );
-    }
+    } */
 }
