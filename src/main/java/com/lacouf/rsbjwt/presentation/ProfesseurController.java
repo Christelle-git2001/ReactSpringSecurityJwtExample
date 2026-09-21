@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:5173")
 public class ProfesseurController {
 
-    private static  final Logger logger = LoggerFactory.getLogger(ProfesseurController.class);
-
     private final ProfesseurService professeurService ;
 
     public ProfesseurController(ProfesseurService professeurService) {
@@ -33,7 +31,6 @@ public class ProfesseurController {
             MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
 
             ProfesseurDTO createdProfesseur = professeurService.creerCompteProfesseur(newProfesseur);
-            logger.info("{}", newProfesseur);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProfesseur);
     }
 
