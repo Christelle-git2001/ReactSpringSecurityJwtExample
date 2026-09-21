@@ -5,6 +5,8 @@
     "employeur": "Employeur"
   },
   "add_employeur": {
+    "message-bienvenue": "BIENVENUE SUR",
+    "nom-app": "OSE",
     "titre": "S'inscrire sur OSE",
     "type-utilisateur": "Compte employeur",
     "nom": "Nom de l'entreprise",

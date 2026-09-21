@@ -4,7 +4,9 @@
     "etudiant": "Student",
     "employeur": "Employer"
   },
-    "addemployeur": {
+    "add_employeur": {
+        "message-bienvenue": "WELCOME TO",
+        "nom-app": "OSE",
         "titre": "Sign up on OSE",
         "type-utilisateur": "Employer account",
         "nom": "Company name",

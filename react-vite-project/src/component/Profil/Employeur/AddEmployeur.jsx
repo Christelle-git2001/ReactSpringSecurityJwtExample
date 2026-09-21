@@ -39,8 +39,8 @@ function AddEmployeur({ onAdd }) {
                     <div className="circleDesign circleDesign-top-right" />
                     <div className="circleDesign circleDesign-bottom-left-1" />
                     <div className="circleDesign circleDesign-bottom-left-2" />
-                    <h1 className="add-etudiant-slogan-title">BIENVENUE<br />SUR<br /><span
-                        className="add-etudiant-slogan-name">-OSE-</span><span className="add-etudiant-slogan-line" /></h1>
+                    <h1 className="add-etudiant-slogan-title">{t('add_employeur.message-bienvenue')}<br /><span
+                        className="add-etudiant-slogan-name">-{t('add_employeur.nom-app')}-</span><span className="add-etudiant-slogan-line" /></h1>
                 </div>
 
                 <form onSubmit={onSubmit} className="add-etudiant-form">
