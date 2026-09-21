@@ -10,7 +10,7 @@ import EmprunteurHome from "../../page/EmprunteurHome.jsx";
 import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
-import InscriptionHome from "../Profil/InscriptionHome.jsx";
+import InscriptionHome from "../../page/InscriptionHome.jsx";
 
 export default function AppRoutes({ user, error, message, setError, setUser,addEtudiant }) {
     return (
