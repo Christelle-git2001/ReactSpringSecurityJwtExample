@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
+import {useTranslation} from "react-i18next";
 
 function AddEmployeur({ onAdd }) {
     const onSubmit = async (e) => {
@@ -22,12 +23,14 @@ function AddEmployeur({ onAdd }) {
             e.target.reset();
         }
     };
+    const { t } = useTranslation();
+
 
     return (
         <div className="add-etudiant-page">
             <div className="add-etudiant-page-header">
-                <h1 className="add-etudiant-title">S'inscrire sur OSE</h1>
-                <p className="add-etudiant-subtitle">Compte employeur</p>
+                <h1 className="add-etudiant-title">{t('addemployeur.titre')}</h1>
+                <p className="add-etudiant-subtitle">{t('addemployeur.type-utilisateur')}</p>
                 <span className="add-etudiant-subtitle-line" />
             </div>
 
@@ -44,8 +47,8 @@ function AddEmployeur({ onAdd }) {
                     <div className="add-etudiant-fields">
                         <div className="add-etudiant-row">
                             <div>
-                                <label htmlFor="companyName" className="add-etudiant-label">Nom de l'entreprise</label>
-                                <input type="text" placeholder="Nom de l'entreprise" required minLength="2" maxLength="50" id="companyName" name="companyName" className="add-etudiant-input" />
+                                <label htmlFor="companyName" className="add-etudiant-label">{t('addemployeur.nom')}</label>
+                                <input type="text" placeholder={t('addemployeur.nom')} required minLength="2" maxLength="50" id="companyName" name="companyName" className="add-etudiant-input" />
                             </div>
                         </div>
 
@@ -53,50 +56,50 @@ function AddEmployeur({ onAdd }) {
                             text-gray-700 bg-white
                             focus:outline-none focus:ring-2 focus:ring-blue-500
                             cursor-pointer">
-                            <option value="">Secteur d'activité</option>
+                            <option value="">{t('addemployeur.secteur')}</option>
                             <option value="etudiant">Étudiant</option>
                             <option value="employeur">Employeur</option>
                         </select>
 
                         <div>
-                            <label htmlFor="email" className="add-etudiant-label">Courriel</label>
-                            <input type="email" placeholder="nom@email.com" required id="email" name="email" className="add-etudiant-input" />
+                            <label htmlFor="email" className="add-etudiant-label">{t('addemployeur.adresse')}</label>
+                            <input type="email" placeholder={t('addemployeur.adresse')} required id="email" name="email" className="add-etudiant-input" />
                         </div>
 
                         <div className="add-etudiant-row">
                             <div>
-                                <label htmlFor="idNumber" className="add-etudiant-label">Numéro d'identification légal</label>
-                                <input type="text" placeholder="Matricule" required minLength="10" maxLength="10" id="idNumber" name="idNumber" className="add-etudiant-input" />
+                                <label htmlFor="idNumber" className="add-etudiant-label">{t('addemployeur.numero-ID')}</label>
+                                <input type="text" placeholder={t('addemployeur.numero-ID')} required minLength="10" maxLength="10" id="idNumber" name="idNumber" className="add-etudiant-input" />
                             </div>
                         </div>
 
                         <div className="add-etudiant-row">
                             <div>
-                                <label htmlFor="contactName" className="add-etudiant-label">Nom complet de la personne à contacter</label>
-                                <input type="text" placeholder="Nom complet de la personne à contacter" required minLength="2" maxLength="50" id="contactName" name="contactName" className="add-etudiant-input" />
+                                <label htmlFor="contactName" className="add-etudiant-label">{t('addemployeur.nom-personne-contact')}</label>
+                                <input type="text" placeholder={t('addemployeur.nom-personne-contact')} required minLength="2" maxLength="50" id="contactName" name="contactName" className="add-etudiant-input" />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="telephone" className="add-etudiant-label">Téléphone de la personne à contacter</label>
+                            <label htmlFor="telephone" className="add-etudiant-label">{t('addemployeur.telephone-personne-contact')}</label>
                             <input type="tel" placeholder="450-111-2222" required minLength="12" maxLength="12" id="telephone" name="telephone" className="add-etudiant-input" />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="add-etudiant-label">Mot de passe</label>
-                            <input type="password" placeholder="Mot de passe" required minLength="4" id="password" name="password" className="add-etudiant-input" />
+                            <label htmlFor="password" className="add-etudiant-label">{t('addemployeur.mdp')}</label>
+                            <input type="password" placeholder={t('addemployeur.mdp')} required minLength="4" id="password" name="password" className="add-etudiant-input" />
                         </div>
 
                         <div>
-                            <label htmlFor="confirmPassword" className="add-etudiant-label">Confirmer le mot de passe</label>
-                            <input type="password" placeholder="Confirmer le mot de passe" required minLength="4" id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
+                            <label htmlFor="confirmPassword" className="add-etudiant-label">{t('addemployeur.confirmation-mdp')}</label>
+                            <input type="password" placeholder={t('addemployeur.confirmation-mdp')} required minLength="4" id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
                         </div>
                     </div>
 
-                    <input type="submit" value="S'inscrire" className="primary-submit" />
+                    <input type="submit" value={t('addemployeur.bouton-inscrire')} className="primary-submit" />
 
                     <p className="add-etudiant-login-text">
-                        Déjà inscrit? <Link to="/login" className="add-etudiant-login-link">Se connecter</Link>
+                        {t('addemployeur.deja-inscrit')} <Link to="/login" className="add-etudiant-login-link">{t('addemployeur.bouton-connecter')}</Link>
                     </p>
                 </form>
             </div>
