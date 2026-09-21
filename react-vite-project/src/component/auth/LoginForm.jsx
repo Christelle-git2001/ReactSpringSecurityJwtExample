@@ -90,7 +90,7 @@ const LoginForm = ({user, setUser, setError}) => {
       localStorage.setItem('token', data.accessToken);
 
       // Fetch user info to get role
-      const userResponse = await fetcher('user/me', {});
+      const userResponse = await fetcher('/user/me', {});
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user info");
       }

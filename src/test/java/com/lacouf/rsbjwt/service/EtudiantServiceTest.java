@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
@@ -144,6 +145,18 @@ public class EtudiantServiceTest {
 
         verify(etudiantRepository, never())
                 .save(any(Etudiant.class));
+    }
+
+    @Test
+    void doitLancerExceptionNumeroTelephoneExistant() {
+        when(userAppRepository.findByPhoneNumber("438-297-8191"))
+                .thenReturn(Optional.of(etudiant));
+
+        assertThatThrownBy(() ->
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO)
+        ).isInstanceOf(NumeroTelephoneExistantException.class);
+
+        verify(etudiantRepository, never()).save(any(Etudiant.class));
     }
 
 

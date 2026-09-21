@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
-
-import com.lacouf.rsbjwt.security.exception.APIException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -64,13 +58,16 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(NumeroTelephoneExistantException.class)
+    public ResponseEntity<ErreurDTO> handleNumeroTelephoneExistant(
+            NumeroTelephoneExistantException e) {
 
-
-    @ExceptionHandler(APIException.class)
-    public ResponseEntity<ErreurDTO> handleAPIException(APIException e) {
         return ResponseEntity
-                .status(e.getStatus())
-                .body(new ErreurDTO(e.getMessage()));
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(
+                        e.getMessage(),
+                        "Phone number already exists."
+                ));
     }
 }
 
