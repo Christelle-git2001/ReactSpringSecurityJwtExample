@@ -9,6 +9,8 @@ import ErrorPage from "../Design/ErrorPage";
 import EmprunteurHome from "../../page/EmprunteurHome.jsx";
 import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
+import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
+import InscriptionHome from "../Profil/InscriptionHome.jsx";
 
 export default function AppRoutes({ user, error, message, setError, setUser,addEtudiant }) {
     return (
@@ -17,7 +19,11 @@ export default function AppRoutes({ user, error, message, setError, setUser,addE
                     <Route index element={<MainContainer setError={setError}/>}/>
                     <Route path='about' element={<About/>}/>
                     <Route path='login' element={<LoginForm setError={setError}/>}/>
-                    <Route path='addetudiant' element={<AddEtudiant onAdd={addEtudiant} error={error} message={message}/>}/>
+                    <Route path='inscription'>
+                        <Route index element={<InscriptionHome/>}/>
+                        <Route path='addetudiant' element={<AddEtudiant onAdd={addEtudiant} error={error} message={message}/>}/>
+                        <Route path='addemployeur' element={<AddEmployeur/>}/>
+                    </Route>
                     <Route path='logout' element={<Logout setUser={setUser}/>}/>
                     <Route path='emprunteur' element={<EmprunteurHome/>}/>
                     <Route path='prepose' element={<PreposeHome/>}/>
