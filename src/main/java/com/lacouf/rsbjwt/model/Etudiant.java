@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.model;
 
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.auth.Role;
 import jakarta.persistence.Column;
@@ -20,9 +21,10 @@ public class Etudiant extends UserApp {
     @Column(unique = true, nullable = false)
     private String matricule;
     private String phoneNumber;
+    private Departement department ;
 
     @Builder
-    public Etudiant(String firstName, String lastName, String email, String phoneNumber, String matricule,String password){
+    public Etudiant(String firstName, String lastName, String email, String phoneNumber,Departement department, String matricule,String password){
         super(
                 firstName,
                 lastName, phoneNumber,
@@ -32,6 +34,7 @@ public class Etudiant extends UserApp {
                         .role(Role.ETUDIANT)
                         .build());
         this.matricule = matricule;
+        this.department = department;
 
     }
 

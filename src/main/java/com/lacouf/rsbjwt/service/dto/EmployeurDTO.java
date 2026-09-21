@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record EmployeurDTO(
+                            // Je ne pense pas que la validation est nécessaire pour un DTO de sortie
+                            long id,
                            @NotBlank(message = "validation.prenom.required")
                            String firstName,
                            @NotBlank(message = "validation.nom.required")
@@ -25,8 +27,9 @@ public record EmployeurDTO(
                            @NotBlank(message = "validation.typeEntreprise.required")
                            String businessType )
 {
-    public static EmployeurDTO fromEntity(Employeur employeur){
+    public static EmployeurDTO of(Employeur employeur){
         return new EmployeurDTO(
+                employeur.getId(),
                 employeur.getFirstName(),
                 employeur.getLastName(),
                 employeur.getPhoneNumber(),

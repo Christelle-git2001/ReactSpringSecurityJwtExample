@@ -3,6 +3,8 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -52,6 +54,7 @@ public class EtudiantServiceTest {
                 "438-297-8191",
                 "christelle@gmail.com",
                 "2226252",
+                "INFORMATIQUE",
                 "111111",
                 "111111"
         );
@@ -61,6 +64,7 @@ public class EtudiantServiceTest {
                 .lastName("Jean")
                 .phoneNumber("514-327-9021")
                 .matricule("214578")
+                .department(Departement.INFORMATIQUE)
                 .email("steveJean@gmail.com")
                 .password("Passewod123")
                 .build();
@@ -69,9 +73,6 @@ public class EtudiantServiceTest {
 
         @Test
         void doitCreerCompteEtudiant() throws Exception{
-
-            when(passwordEncoder.encode("111111"))
-                    .thenReturn("motDePasseEncode");
 
             when(etudiantRepository.save(any(Etudiant.class)))
                     .thenReturn(etudiant);
@@ -116,6 +117,7 @@ public class EtudiantServiceTest {
                 "438-297-8191",
                 "christelle@gmail.com",
                 "2226252",
+                "INFORMATIQUE",
                 "111111",
                 "222222"
         );
@@ -143,6 +145,18 @@ public class EtudiantServiceTest {
 
         verify(etudiantRepository, never())
                 .save(any(Etudiant.class));
+    }
+
+    @Test
+    void doitLancerExceptionNumeroTelephoneExistant() {
+        when(userAppRepository.findByPhoneNumber("438-297-8191"))
+                .thenReturn(Optional.of(etudiant));
+
+        assertThatThrownBy(() ->
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO)
+        ).isInstanceOf(NumeroTelephoneExistantException.class);
+
+        verify(etudiantRepository, never()).save(any(Etudiant.class));
     }
 
 

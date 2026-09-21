@@ -2,9 +2,10 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,9 @@ public class EmployeurController {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<EmployeurDTO> creerCompteEmployeur (@Valid @RequestBody EmployeurInscriptionDTO employeurInscriptionDTO) throws EmailExistantException, MotDePasseNonCorrespondantException {
+    public ResponseEntity<EmployeurDTO> creerCompteEmployeur (@Valid @RequestBody InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
         EmployeurDTO employeurDTO;
-        employeurDTO = employeurService.creeCompteEmployeur(employeurInscriptionDTO);
+        employeurDTO = employeurService.creeCompteEmployeur(inscriptionEmployeurDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(employeurDTO);
     }
 }

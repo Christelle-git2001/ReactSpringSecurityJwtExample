@@ -59,6 +59,7 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "christelle@gmail.com",
                 "2226252",
+                "INFORMATIQUE",
                 "111111",
                 "111111"
         );
@@ -73,7 +74,8 @@ public class EtudiantControllerTest {
                 "Altineus",
                 "christelle@gmail.com",
                 "2226252",
-                "438-297-8191"
+                "438-297-8191",
+                "INFORMATIQUE"
         );
 
         when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
@@ -94,6 +96,7 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "christelle@gmail.com",
                 "2226252",
+                "INFORMATIQUE",
                 "111111",
                 "222222"
         );

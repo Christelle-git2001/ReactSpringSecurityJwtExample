@@ -6,7 +6,7 @@ import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +35,13 @@ public class EmployeurControllerTest {
 
     private ObjectMapper objectMapper;
 
-    EmployeurInscriptionDTO employeurInscriptionDTO;
+    InscriptionEmployeurDTO inscriptionEmployeurDTO;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void init(){
-        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
                 "165-685-4569",
@@ -61,6 +61,7 @@ public class EmployeurControllerTest {
     @Test
     void inscriptionEmployeurCreated() throws Exception {
       EmployeurDTO employeurDTO = new EmployeurDTO(
+              1L,
               "Gerard",
               "Robert",
               "165-685-4569",
@@ -71,39 +72,39 @@ public class EmployeurControllerTest {
               "Startup"
 
         );
-        when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class))).thenReturn(employeurDTO);
+        when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class))).thenReturn(employeurDTO);
 
         mockMvc.perform(post("/employeur/inscription")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
+                .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     void inscriptionEmployeurMotDePasseDiffereException() throws Exception {
-        when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
+        when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
+                        .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionEmployeurExisteDeja() throws Exception{
-        when(employeurService.creeCompteEmployeur(any(EmployeurInscriptionDTO.class)))
+        when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new EmailExistantException());
 
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
+                        .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
                 .andExpect(status().isConflict());
     }
 
     @Test
     void inscriptionChampsObligatoireManquant() throws Exception{
-        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
                 "165-685-4569",
@@ -117,13 +118,13 @@ public class EmployeurControllerTest {
         );
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
+                        .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionEmailInvalide() throws Exception{
-        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
                 "165-685-4569",
@@ -138,13 +139,13 @@ public class EmployeurControllerTest {
 
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
+                        .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void inscriptionMDPInvalide() throws Exception{
-        employeurInscriptionDTO = new EmployeurInscriptionDTO(
+        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
                 "165-685-4569",
@@ -159,7 +160,7 @@ public class EmployeurControllerTest {
 
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(employeurInscriptionDTO)))
+                        .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
                 .andExpect(status().isBadRequest());
     }
 }
