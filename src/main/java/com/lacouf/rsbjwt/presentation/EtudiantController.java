@@ -1,9 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -26,7 +24,7 @@ public class EtudiantController {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException,MatriculeExistantException {
+    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException,MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException {
             EtudiantDTO etudiantDto = etudiantService.creerCompteEtudiant(inscriptionEtudiantDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(etudiantDto);
     }
