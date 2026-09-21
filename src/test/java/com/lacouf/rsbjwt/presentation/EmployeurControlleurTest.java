@@ -68,9 +68,7 @@ public class EmployeurControlleurTest {
               "Gerard.Robert@hotmail.com",
               "Mercier",
               "Gerard inc",
-              SecteurActivite.AEROSPATIAL,
-              "Startup"
-
+              SecteurActivite.AEROSPATIAL
         );
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class))).thenReturn(employeurDTO);
 
