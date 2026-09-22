@@ -15,7 +15,7 @@ import EmprunteurHome from "../../page/EmprunteurHome.jsx";
 import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 
-export default function AppRoutes({ user, error, message, setError, setUser, addEtudiant }) {
+export default function AppRoutes({ user, error, message, setError, setUser, addEtudiant, addEmployeur }) {
     return (
         <Routes>
             <Route element={<PublicLayout />}>
@@ -23,7 +23,7 @@ export default function AppRoutes({ user, error, message, setError, setUser, add
                 <Route path="/inscription">
                     <Route index element={<InscriptionHome />} />
                     <Route path="addetudiant" element={<AddEtudiant onAdd={addEtudiant} error={error} message={message} />} />
-                    <Route path="addemployeur" element={<AddEmployeur />} />
+                    <Route path="addemployeur" element={<AddEmployeur onAdd={addEmployeur} error={error} message={message} />} />
                 </Route>
 
                 <Route path="/" element={<Navigate to="/login" />} />
