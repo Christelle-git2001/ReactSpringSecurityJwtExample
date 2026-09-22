@@ -69,7 +69,6 @@ public class EmployeurServiceTest {
                 .phone("165-685-4569")
                 .email("Gerard.Robert@hotmail.com")
                 .businessName("Gerard inc")
-                .businessType("Startup")
                 .businessSector(SecteurActivite.AEROSPATIAL)
                 .password("Losange12%")
                 .build();
