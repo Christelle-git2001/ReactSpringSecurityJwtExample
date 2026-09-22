@@ -65,6 +65,8 @@
     "motDePasse": "Password",
     "motDePasse_placeholder": "Enter your password",
     "password.invalide": "Your password is required.",
-    "submit": "Log in"
+    "submit": "Log in",
+    "noAccount" : "No account ?",
+    "inscription" : "Sign up !"
   }
 }

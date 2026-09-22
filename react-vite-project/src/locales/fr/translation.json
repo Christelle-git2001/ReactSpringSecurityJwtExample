@@ -65,7 +65,9 @@
     "motDePasse": "Mot de passe",
     "motDePasse_placeholder": "Entrez votre mot de passe",
     "password.invalide" : "Votre mot de passe est requis.",
-    "submit": "Se connecter"
+    "submit": "Se connecter",
+    "noAccount" : "Vous n'avez pas de compte ?",
+    "inscription" : "Inscrivez-vous !"
   }
 }
 

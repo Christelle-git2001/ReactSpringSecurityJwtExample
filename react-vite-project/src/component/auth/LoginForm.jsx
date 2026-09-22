@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import fetcher from "../../utils/fetcher";
 import "../../css/Login.css"
 import {useTranslation} from "react-i18next";
@@ -161,6 +161,9 @@ const LoginForm = ({user, setUser, setError}) => {
                     <button type="submit" className="login-button-submit">
                       {t('login.submit')}
                     </button>
+                    <div className="mt-10">
+                      <p>{t("login.noAccount")} : <Link to="/inscription" className="add-etudiant-login-link">{t("login.inscription")}</Link></p>
+                    </div>
                   </div>
                 </form>
               </div>
