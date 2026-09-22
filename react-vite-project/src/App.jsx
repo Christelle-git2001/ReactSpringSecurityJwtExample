@@ -2,11 +2,12 @@ import "./App.css";
 import React, {useState} from "react";
 import { useNavigate} from "react-router-dom";
 import { inscrireEtudiant } from "./api/etudiant.jsx";
+import { inscrireEmployeur } from "./api/employeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 function App() {
 
-  const { user, setUser, error, setError } = useAuth();
+  const {user, setUser, error, setError} = useAuth();
   const [message, setMessage] = useState("")
   const navigate = useNavigate();
 
@@ -25,6 +26,20 @@ function App() {
     }
   }
 
+  async function addEmployeur(employeur) {
+    try {
+      await inscrireEmployeur(employeur);
+      setMessage("Employeur ajouté avec succès.");
+      setError(null);
+      setMessage("");
+      navigate('/login');
+      return true;
+    } catch (error) {
+      setError(error.message || "Une erreur inattendue s'est produite.");
+      setMessage("");
+      return false;
+    }
+  }
     return (
         <AppRoutes
             user={user}
@@ -33,8 +48,8 @@ function App() {
             setError={setError}
             setUser={setUser}
             addEtudiant={addEtudiant}
+            addEmployeur={addEmployeur}
         />
     );
 }
-
 export default App;

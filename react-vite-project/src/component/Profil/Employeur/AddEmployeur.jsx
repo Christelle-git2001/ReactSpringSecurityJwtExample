@@ -2,22 +2,24 @@ import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import {useTranslation} from "react-i18next";
 
-function AddEmployeur({ onAdd }) {
+function AddEmployeur({ onAdd, error, message }) {
     const onSubmit = async (e) => {
         e.preventDefault();
 
         const formData = new FormData(e.target);
 
-        const nouvelEtudiant = {
-            firstName: formData.get("firstName"),
-            lastName: formData.get("lastName"),
+        const nouvelEmployeur = {
+            company_name: formData.get("company_name"),
+            company_type: formData.get("company_type"),
             email: formData.get("email"),
             telephone: formData.get("telephone"),
-            matricule: formData.get("matricule"),
-            password: formData.get("password")
+            id_number: formData.get("id_number"),
+            contact_name: formData.get("contact_name"),
+            password: formData.get("password"),
+            confirm_password: formData.get("confirm_password"),
         };
 
-        const ajoutReussi = await onAdd(nouvelEtudiant);
+        const ajoutReussi = await onAdd(nouvelEmployeur);
 
         if (ajoutReussi) {
             e.target.reset();
@@ -47,8 +49,8 @@ function AddEmployeur({ onAdd }) {
                     <div className="add-etudiant-fields">
                         <div className="add-etudiant-row">
                             <div>
-                                <label htmlFor="companyName" className="add-etudiant-label">{t('add_employeur.nom')}</label>
-                                <input type="text" placeholder={t('add_employeur.nom')} required minLength="2" maxLength="50" id="companyName" name="companyName" className="add-etudiant-input" />
+                                <label htmlFor="company_name" className="add-etudiant-label">{t('add_employeur.nom')}</label>
+                                <input type="text" placeholder={t('add_employeur.nom')} required minLength="2" maxLength="50" id="company_name" name="company_name" className="add-etudiant-input" />
                             </div>
                         </div>
 
@@ -57,8 +59,8 @@ function AddEmployeur({ onAdd }) {
                             focus:outline-none focus:ring-2 focus:ring-blue-500
                             cursor-pointer">
                             <option value="">{t('add_employeur.secteur')}</option>
-                            <option value="etudiant">Étudiant</option>
-                            <option value="employeur">Employeur</option>
+                            <option value="PME">Étudiant</option>
+                            <option value="GAFAM">Employeur</option>
                         </select>
 
                         <div>
@@ -68,15 +70,15 @@ function AddEmployeur({ onAdd }) {
 
                         <div className="add-etudiant-row">
                             <div>
-                                <label htmlFor="idNumber" className="add-etudiant-label">{t('add_employeur.numero-ID')}</label>
-                                <input type="text" placeholder={t('add_employeur.numero-ID')} required minLength="10" maxLength="10" id="idNumber" name="idNumber" className="add-etudiant-input" />
+                                <label htmlFor="id_number" className="add-etudiant-label">{t('add_employeur.numero-ID')}</label>
+                                <input type="text" placeholder={t('add_employeur.numero-ID')} required minLength="10" maxLength="10" id="id_number" name="id_number" className="add-etudiant-input" />
                             </div>
                         </div>
 
                         <div className="add-etudiant-row">
                             <div>
-                                <label htmlFor="contactName" className="add-etudiant-label">{t('add_employeur.nom-personne-contact')}</label>
-                                <input type="text" placeholder={t('add_employeur.nom-personne-contact')} required minLength="2" maxLength="50" id="contactName" name="contactName" className="add-etudiant-input" />
+                                <label htmlFor="contact_name" className="add-etudiant-label">{t('add_employeur.nom-personne-contact')}</label>
+                                <input type="text" placeholder={t('add_employeur.nom-personne-contact')} required minLength="2" maxLength="50" id="contact_name" name="contact_name" className="add-etudiant-input" />
                             </div>
                         </div>
 
@@ -91,8 +93,8 @@ function AddEmployeur({ onAdd }) {
                         </div>
 
                         <div>
-                            <label htmlFor="confirmPassword" className="add-etudiant-label">{t('add_employeur.confirmation-mdp')}</label>
-                            <input type="password" placeholder={t('add_employeur.confirmation-mdp')} required minLength="4" id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
+                            <label htmlFor="confirm_password" className="add-etudiant-label">{t('add_employeur.confirmation-mdp')}</label>
+                            <input type="password" placeholder={t('add_employeur.confirmation-mdp')} required minLength="4" id="confirm_password" name="confirm_password" className="add-etudiant-input" />
                         </div>
                     </div>
 
