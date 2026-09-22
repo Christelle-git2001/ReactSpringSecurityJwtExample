@@ -98,6 +98,9 @@ function AddEmployeur({ onAdd, error, message }) {
                         </div>
                     </div>
 
+                    {error && <p className="error-message">{error}</p>}
+                    {message && <p className="success-message">{message}</p>}
+
                     <input type="submit" value={t('add_employeur.bouton-inscrire')} className="primary-submit" />
 
                     <p className="add-etudiant-login-text">

@@ -18,7 +18,7 @@ import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 export default function AppRoutes({ user, error, message, setError, setUser, addEtudiant, addEmployeur }) {
     return (
         <Routes>
-            <Route element={<PublicLayout />}>
+            <Route element={<PageLayout />}>
                 <Route path="/login" element={<LoginForm setError={setError} />} />
                 <Route path="/inscription">
                     <Route index element={<InscriptionHome />} />
