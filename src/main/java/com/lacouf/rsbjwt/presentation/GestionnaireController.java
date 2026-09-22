@@ -23,8 +23,7 @@ public class GestionnaireController {
         this.gestionnaireService = gestionnaireService;
     }
 
-    // La règle c'est un controlleur par Acteur pour garantir la sécurité.
-    // Peut être le mettre dans employeur controlleur ?? Je ne sais pas vraiment, mais je vais probablement get La liste des départements aussi
+
     @GetMapping("/secteurEmployeur")
     public ResponseEntity<List<SecteurEmployeurDTO>> getSecteurs() {
         List<SecteurEmployeurDTO> secteurs = gestionnaireService.getAllSecteurs();

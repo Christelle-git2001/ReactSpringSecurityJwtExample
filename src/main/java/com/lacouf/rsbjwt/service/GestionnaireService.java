@@ -9,7 +9,6 @@ import java.util.List;
 
 @Service
 public class GestionnaireService {
-    // J'ai crée le service parce qu'avant la couche présentation accédait directement à modèle avec l'enum secteur d'activité
     public List<SecteurEmployeurDTO> getAllSecteurs() {
         return Arrays.stream(SecteurActivite.values())
                 .map(secteur -> new SecteurEmployeurDTO(
