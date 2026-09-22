@@ -9,8 +9,10 @@ import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class EtudiantService {
     private final EtudiantRepository etudiantRepository;
     private final UserAppRepository userAppRepository;
@@ -22,6 +24,7 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException, NumeroTelephoneExistantException {
         validerInscriptionEtudiant(inscriptionEtudiantDto);
         Departement departement = normaliserDepartement(inscriptionEtudiantDto.department()) ;
