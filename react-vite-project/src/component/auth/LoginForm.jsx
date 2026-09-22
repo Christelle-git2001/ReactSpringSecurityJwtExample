@@ -42,7 +42,6 @@ const LoginForm = ({user, setUser, setError}) => {
 
   const validateEmail = () => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    console.log(formData.email)
     return emailRegex.test(formData.email.trim());
   }
 
