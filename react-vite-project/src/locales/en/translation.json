@@ -67,6 +67,7 @@
     "password.invalide": "Your password is required.",
     "submit": "Log in",
     "noAccount" : "No account ?",
-    "inscription" : "Sign up !"
+    "inscription" : "Sign up !",
+    "credentialsWrong" : "Email or Password are not correct, please try again !"
   }
 }

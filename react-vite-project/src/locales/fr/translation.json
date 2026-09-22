@@ -67,7 +67,8 @@
     "password.invalide" : "Votre mot de passe est requis.",
     "submit": "Se connecter",
     "noAccount" : "Vous n'avez pas de compte ?",
-    "inscription" : "Inscrivez-vous !"
+    "inscription" : "Inscrivez-vous !",
+    "credentialsWrong" : "Le courriel ou le mot de passe sont incorrect, veuillez retenter !"
   }
 }
 

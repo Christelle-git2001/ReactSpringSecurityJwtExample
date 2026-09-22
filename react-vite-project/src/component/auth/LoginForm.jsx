@@ -16,6 +16,11 @@ const LoginForm = ({user, setUser, setError}) => {
     email: '',
     password: '',
   });
+
+  const [erreurHTTP, setErreurHTTP] = useState({
+        message: '',
+      }
+  )
   const { t } = useTranslation();
 
   const validateUser = () => {
@@ -76,13 +81,11 @@ const LoginForm = ({user, setUser, setError}) => {
         }),
       });
       if (!response.ok) {
-        console.log("DSHFHSHDFHSDFHSDFH")
         switch (response.status) {
           case 401:
-            throw new Error("Not authorized");
-            break;
           case 404:
-            throw new Error("No server available");
+            setErreurHTTP({message: t("login.credentialsWrong") })
+            throw new Error("AUTH_FAILED")
           default:
             throw new Error("Not ok")
         }
@@ -112,8 +115,10 @@ const LoginForm = ({user, setUser, setError}) => {
         navigate("/");
       }
     } catch(error) {
-      setError(error)
-      navigate('/error')
+      if (error.message !== "AUTH_FAILED") {
+        setError(error)
+        navigate('/error')
+      }
     }
   }
 
@@ -142,6 +147,11 @@ const LoginForm = ({user, setUser, setError}) => {
               <div className={"form-login-section "}>
                 <form className={"form-login"} noValidate onSubmit={handleSubmit}>
                   <div className={"input-login-section"}>
+                    {erreurHTTP.message !== "" && (
+                        <div className={"form-login-error"}>
+                          {erreurHTTP.message}
+                        </div>
+                    )}
                     <div className={"login-input-field"}>
                       <label htmlFor="courrielLogin">{t("login.courriel")}</label>
                       <input type="email" placeholder={t("login.courriel_placeholder")} value={formData.email} onChange={handleChanges}  id="courrielLogin" name="email" className="w-full rounded-md border border-gray-300 px-3 py-2"/>
