@@ -6,26 +6,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record EmployeurDTO(
-                            // Je ne pense pas que la validation est nécessaire pour un DTO de sortie
+public record EmployeurDTO (
                             long id,
-                           @NotBlank(message = "validation.prenom.required")
                            String firstName,
-                           @NotBlank(message = "validation.nom.required")
                            String lastName,
-                           @NotBlank(message = "validation.telephone.required")
                            String phone,
-                           @NotBlank(message = "validation.email.required")
-                           @Email
                            String email,
-                           @NotBlank(message = "validation.ville.required")
                            String town,
-                           @NotBlank(message = "validation.nomEntreprise.required")
                            String businessName,
-                           @NotNull(message = "validation.secteurActivite.required")
-                           SecteurActivite businessSector,
-                           @NotBlank(message = "validation.typeEntreprise.required")
-                           String businessType )
+                           SecteurActivite businessSector) implements UserDTO
 {
     public static EmployeurDTO of(Employeur employeur){
         return new EmployeurDTO(
@@ -36,9 +25,16 @@ public record EmployeurDTO(
                 employeur.getEmail(),
                 employeur.getTown(),
                 employeur.getBusinessName(),
-                employeur.getBusinessSector(),
-                employeur.getBusinessType()
+                employeur.getBusinessSector()
         );
     }
 
+    @Override
+    public RoleDTO role() {
+        return RoleDTO.EMPLOYEUR;
+    }
+
+    public static EmployeurDTO empty() {
+        return new EmployeurDTO(-1,null,null,null,null,null,null,null);
+    }
 }

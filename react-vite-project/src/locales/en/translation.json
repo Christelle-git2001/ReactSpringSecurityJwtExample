@@ -4,7 +4,7 @@
     "etudiant": "Student",
     "employeur": "Employer"
   },
-    "addemployeur": {
+    "add_employeur": {
         "titre": "Sign up on OSE",
         "type-utilisateur": "Employer account",
         "nom": "Company name",

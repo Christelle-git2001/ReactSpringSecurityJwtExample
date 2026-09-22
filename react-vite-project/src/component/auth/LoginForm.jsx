@@ -57,9 +57,8 @@ const LoginForm = ({user, setUser, setError}) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(e.target.email);
     if (validateUser()) {
-      //fetchFunc();
+      fetchFunc();
     }
   }
 
@@ -77,6 +76,7 @@ const LoginForm = ({user, setUser, setError}) => {
         }),
       });
       if (!response.ok) {
+        console.log("DSHFHSHDFHSDFHSDFH")
         switch (response.status) {
           case 401:
             throw new Error("Not authorized");
@@ -87,13 +87,13 @@ const LoginForm = ({user, setUser, setError}) => {
             throw new Error("Not ok")
         }
       }
-      const data = await response.json();
-      localStorage.setItem('token', data.accessToken);
-
+      const token = await response.text();
+      console.log("Token reçu :", token);
+      localStorage.setItem('token', token);
       // Fetch user info to get role
       const userResponse = await fetcher('/user/me', {});
       if (!userResponse.ok) {
-        throw new Error("Failed to fetch user info");
+        throw new Error("Failed to fetch user info ");
       }
       const userData = await userResponse.json();
 
@@ -110,6 +110,7 @@ const LoginForm = ({user, setUser, setError}) => {
       }
     } catch(error) {
       setError(error)
+      console.error("Erreur attrapée dans fetchFunc :", error); // 👈 Ajoutez ceci
       navigate('/error')
     }
   }

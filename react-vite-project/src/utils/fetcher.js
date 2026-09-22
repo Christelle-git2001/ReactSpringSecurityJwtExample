@@ -14,9 +14,9 @@ async function fetcher(input, options) {
   // fetch
   try {
     input = input.replace(/^\//, '');
-    const url = BASE_URL + input;
+    const url = BASE_URL + "/" + input;
     console.log("Fetching:", url, "with options:", fetchOptions);
-    const response = await fetch(`${BASE_URL}${input}`, fetchOptions);
+    const response = await fetch(url, fetchOptions);
     console.log("Response status:", response.status);
     return response;
   } catch(e) {
