@@ -82,10 +82,11 @@ const LoginForm = ({user, setUser, setError}) => {
       });
       if (!response.ok) {
         switch (response.status) {
-          case 401:
           case 404:
+            throw new Error("Server not Found")
+          case 401:
             setErreurHTTP({message: t("login.credentialsWrong") })
-            throw new Error("AUTH_FAILED")
+            throw new Error("AUTH_FAILED");
           default:
             throw new Error("Not ok")
         }
