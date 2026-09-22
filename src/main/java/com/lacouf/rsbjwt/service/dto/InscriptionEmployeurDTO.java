@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 public record InscriptionEmployeurDTO(
                                       @NotBlank(message = "validation.prenom.required")
@@ -35,7 +34,7 @@ public record InscriptionEmployeurDTO(
                                       @NotBlank(message = "validation.passwordConfirmation.required")
                                       String passwordConfirmation)
 {
-    public Employeur toEntity(PasswordEncoder passwordEncoder) {
+    public Employeur toEntity(String passwordEncode) {
         return Employeur.builder()
                 .firstName(firstName)
                 .lastName(lastName)
@@ -45,7 +44,7 @@ public record InscriptionEmployeurDTO(
                 .businessName(businessName)
                 .businessType(businesstype)
                 .businessSector(businessSector)
-                .password(passwordEncoder.encode(password))
+                .password(passwordEncode)
                 .build();
     }
 }

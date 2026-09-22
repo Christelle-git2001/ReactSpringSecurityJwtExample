@@ -29,7 +29,8 @@ public class EmployeurService {
     @Transactional
     public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
        validerInscriptionEmployeur(inscriptionEmployeurDTO);
-        Employeur employeur = inscriptionEmployeurDTO.toEntity(passwordEncoder);
+        String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
+        Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
         Employeur employeurCreer =  employeurRepository.save(employeur);
        return EmployeurDTO.of(employeurCreer);
     }

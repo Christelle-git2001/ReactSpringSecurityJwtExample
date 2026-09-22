@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.service.GestionnaireService;
+import com.lacouf.rsbjwt.service.dto.DepartementDTO;
 import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,11 +24,16 @@ public class GestionnaireController {
         this.gestionnaireService = gestionnaireService;
     }
 
-    // La règle c'est un controlleur par Acteur pour garantir la sécurité.
-    // Peut être le mettre dans employeur controlleur ?? Je ne sais pas vraiment, mais je vais probablement get La liste des départements aussi
+
     @GetMapping("/secteurEmployeur")
     public ResponseEntity<List<SecteurEmployeurDTO>> getSecteurs() {
         List<SecteurEmployeurDTO> secteurs = gestionnaireService.getAllSecteurs();
         return ResponseEntity.ok(secteurs);
+    }
+
+    @GetMapping("/departement")
+    public ResponseEntity<List<DepartementDTO>> getDepartements() {
+        List<DepartementDTO> departements = gestionnaireService.getAllDepartements();
+        return ResponseEntity.ok(departements);
     }
 }

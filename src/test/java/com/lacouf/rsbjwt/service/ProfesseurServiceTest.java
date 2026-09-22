@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
@@ -155,6 +152,19 @@ public class ProfesseurServiceTest {
                 .isInstanceOf(DepartementInvalideException.class);
 
         verify(professeurRepository, never()).save(any(Professeur.class));
+    }
+
+    @Test
+    void doitLancerExceptionNumeroTelephoneExistant() {
+        when(userAppRepository.findByPhoneNumber(anyString()))
+                .thenReturn(Optional.of(professeur));
+
+        assertThatThrownBy(() ->
+                professeurService.creerCompteProfesseur(inscriptionProfesseurDTO))
+                .isInstanceOf(NumeroTelephoneExistantException.class);
+
+        verify(professeurRepository, never())
+                .save(any(Professeur.class));
     }
         
 
