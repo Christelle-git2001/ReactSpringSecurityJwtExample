@@ -23,12 +23,17 @@ public abstract class UserApp  {
     private String firstName;
     @Column(nullable = false)
     private String lastName;
-    @Column(nullable = false)
-    private String ville;
     @Column(unique = true, nullable = false)
-    private String telephone;
+    private String phoneNumber;
     @Embedded
     private Credentials credentials;
+
+    public UserApp(String firstName, String lastName, String phoneNumber, Credentials credentials) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.credentials = credentials;
+    }
 
     public String getEmail(){
         return credentials.getEmail();

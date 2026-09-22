@@ -1,46 +1,51 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Exceptions.ConfirmationMotDePasseEchouer;
-import com.lacouf.rsbjwt.model.Exceptions.EmployeurExistant;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurInscriptionDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
-import static com.lacouf.rsbjwt.service.mapper.EmployeurMapper.convertisseurEmployeurToEmployeurDTO;
-import static com.lacouf.rsbjwt.service.mapper.EmployeurMapper.convertisseurInscriptionEmployeurDTOToEmployeur;
 
 @Service
 @Transactional(readOnly = true)
 public class EmployeurService {
     private final EmployeurRepository employeurRepository;
+    private final UserAppRepository userAppRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public EmployeurService(EmployeurRepository employeurRepository) {
+    public EmployeurService(EmployeurRepository employeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder) {
         this.employeurRepository = employeurRepository;
+        this.userAppRepository = userAppRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public EmployeurDTO inscription(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmployeurExistant, ConfirmationMotDePasseEchouer {
-       verificationEmployeurInscriptionDTO(employeurInscriptionDTO);
-       Employeur employeur = convertisseurInscriptionEmployeurDTOToEmployeur(employeurInscriptionDTO);
-       Employeur employeurCreer =  employeurRepository.save(employeur);
-       return convertisseurEmployeurToEmployeurDTO(employeurCreer);
+    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+       validerInscriptionEmployeur(inscriptionEmployeurDTO);
+        String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
+        Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
+        Employeur employeurCreer =  employeurRepository.save(employeur);
+       return EmployeurDTO.of(employeurCreer);
     }
 
 
-
-    private void verificationEmployeurInscriptionDTO(EmployeurInscriptionDTO employeurInscriptionDTO) throws EmployeurExistant, ConfirmationMotDePasseEchouer {
-        if (!employeurInscriptionDTO.getPassword().equals(employeurInscriptionDTO.getPasswordConfirmation()))
-            throw new ConfirmationMotDePasseEchouer("Les mot de passe ne sont pas identique");
-        if (employeurExiste(employeurInscriptionDTO.getEmail()))
-            throw new EmployeurExistant("Employeur existe déjà");
+    private void validerInscriptionEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+        if (!inscriptionEmployeurDTO.password().equals(inscriptionEmployeurDTO.passwordConfirmation()))
+            throw new MotDePasseNonCorrespondantException();
+        if (employeurExiste(inscriptionEmployeurDTO.email()))
+            throw new EmailExistantException();
+        if (userAppRepository.findByPhoneNumber(inscriptionEmployeurDTO.phone()).isPresent())
+            throw new NumeroTelephoneExistantException();
     }
 
     private boolean employeurExiste(String email) {
-        return employeurRepository.existeParEmail(email.toLowerCase());
+        return userAppRepository.findUserAppByEmail(email.toLowerCase()).isPresent();
     }
 }

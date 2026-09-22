@@ -12,33 +12,31 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-@DiscriminatorValue("E")
+@DiscriminatorValue("EMPLOYEUR")
+@NoArgsConstructor
 public class Employeur extends UserApp{
 
     @Column(nullable = false)
-    private String nomEntreprise;
+    private String town;
     @Column(nullable = false)
-    private String typeEntreprise;
+    private String businessName;
     @Column(nullable = false)
-    private SecteurActivite secteurActivite;
-    //TODO : Liste de personne responsable ?
+    private SecteurActivite businessSector;
 
     @Builder
-    public Employeur(Long id,String prenom, String nom, String ville, String telephone, String email, String password, String nomEntreprise, String typeEntreprise, SecteurActivite secteurActivite){
+    public Employeur( String firstName, String lastName, String town, String phone, String email, String password, String businessName, String businessType, SecteurActivite businessSector){
         super(
-                id,
-                prenom,
-                nom,
-                ville,
-                telephone,
+                firstName,
+                lastName,
+                phone,
                 Credentials.builder()
                         .email(email)
                         .password(password)
                         .role(Role.EMPLOYEUR)
                         .build()
         );
-        this.nomEntreprise = nomEntreprise;
-        this.secteurActivite = secteurActivite;
-        this.typeEntreprise = typeEntreprise;
+        this.town = town;
+        this.businessName = businessName;
+        this.businessSector = businessSector;
     }
 }

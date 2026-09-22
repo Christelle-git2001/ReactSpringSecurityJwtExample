@@ -1,0 +1,137 @@
+import { Link } from "react-router-dom";
+import "../../../css/AddEtudiant.css";
+import {getDepartements} from "../../../api/http.jsx"
+import { useState, useEffect } from "react";
+
+
+function AddProfesseur({ onAdd, error, message }) {
+
+    const [departements, setDepartements] = useState([]);
+
+    useEffect(() => {
+        getDepartements()
+            .then(setDepartements)
+            .catch(() => setDepartements([]));
+    }, []);
+
+    const onSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+
+        const nouveauProfesseur = {
+            firstName: formData.get("firstName"),
+            lastName: formData.get("lastName"),
+            email: formData.get("email"),
+            phoneNumber: formData.get("telephone"),
+            matricule: formData.get("matricule"),
+            password: formData.get("password"),
+            confirmPassword: formData.get("confirmPassword"),
+            department: formData.get("department")
+        };
+
+        const ajoutReussi = await onAdd(nouveauProfesseur);
+
+        if (ajoutReussi) {
+            e.target.reset();
+        }
+    };
+
+    return (
+        <div className="add-etudiant-page">
+            <div className="add-etudiant-page-header">
+                <h1 className="add-etudiant-title">S'inscrire sur OSE</h1>
+                <p className="add-etudiant-subtitle">Compte professeur</p>
+                <span className="add-etudiant-subtitle-line" />
+            </div>
+
+            <div className="add-etudiant-section">
+                <div className="add-etudiant-slogan">
+                    <div className="circleDesign circleDesign-top-right" />
+                    <div className="circleDesign circleDesign-bottom-left-1" />
+                    <div className="circleDesign circleDesign-bottom-left-2" />
+                    <h1 className="add-etudiant-slogan-title">
+                        BIENVENUE<br />SUR<br />
+                        <span className="add-etudiant-slogan-name">-OSE-</span>
+                        <span className="add-etudiant-slogan-line" />
+                    </h1>
+                </div>
+
+                <form onSubmit={onSubmit} className="add-etudiant-form">
+                    <div className="add-etudiant-fields">
+
+                        <div className="add-etudiant-row">
+                            <div>
+                                <label htmlFor="firstName" className="add-etudiant-label">Prénom</label>
+                                <input type="text" required minLength="2" maxLength="50"
+                                       id="firstName" name="firstName" className="add-etudiant-input" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="lastName" className="add-etudiant-label">Nom</label>
+                                <input type="text" required minLength="2" maxLength="50"
+                                       id="lastName" name="lastName" className="add-etudiant-input" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="email" className="add-etudiant-label">Courriel</label>
+                            <input type="email" required id="email" name="email" className="add-etudiant-input" />
+                        </div>
+
+                        <div className="add-etudiant-row">
+                            <div>
+                                <label htmlFor="telephone" className="add-etudiant-label">Téléphone</label>
+                                <input type="tel" required minLength="10" maxLength="12"
+                                       id="telephone" name="telephone"
+                                       pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}"
+                                       className="add-etudiant-input" />
+                            </div>
+
+                            <div>
+                                <label htmlFor="matricule" className="add-etudiant-label">Matricule</label>
+                                <input type="text" required minLength="7" maxLength="7"
+                                       id="matricule" name="matricule" className="add-etudiant-input" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="department" className="add-etudiant-label">Département</label>
+                            <select id="department" name="department" required className="add-etudiant-input">
+                                <option value="">-- Choisir un département --</option>
+                                {departements.map(dep => (
+                                    <option key={dep.name} value={dep.name}>
+                                        {dep.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="password" className="add-etudiant-label">Mot de passe</label>
+                            <input type="password" required minLength="4"
+                                   id="password" name="password" className="add-etudiant-input" />
+                        </div>
+
+                        <div>
+                            <label htmlFor="confirmPassword" className="add-etudiant-label">Confirmer le mot de passe</label>
+                            <input type="password" required minLength="4"
+                                   id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
+                        </div>
+                    </div>
+
+                    {error && <p className="error-message">{error}</p>}
+                    {message && <p className="success-message">{message}</p>}
+
+                    <input type="submit" value="S'inscrire" className="primary-submit" />
+
+                    <p className="add-etudiant-login-text">
+                        Déjà inscrit? <Link to="/login" className="add-etudiant-login-link">Se connecter</Link>
+                    </p>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+export default AddProfesseur;

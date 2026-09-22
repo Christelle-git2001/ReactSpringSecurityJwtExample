@@ -1,31 +1,33 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class EmployeurDTO {
-    @NotBlank(message = "validation.nom.required")
-    private String nom;
-    @NotBlank(message = "validation.prenom.required")
-    private String prenom;
-    @NotBlank(message = "validation.ville.required")
-    private String ville;
-    @NotBlank(message = "validation.telephone.required")
-    private String telephone;
-    @NotBlank(message = "validation.email.required")
-    @Email
-    private String email;
-    @NotBlank(message = "validation.nomEntreprise.required")
-    private String nomEntreprise;
-    @NotBlank(message = "validation.typeEntreprise.required")
-    private String typeEntreprise;
-    @NotNull(message = "validation.secteurActivite.required")
-    private SecteurActivite secteurActivite;
+public record EmployeurDTO(
+                            long id,
+                           String firstName,
+                           String lastName,
+                           String phone,
+                           String email,
+                           String town,
+                           String businessName,
+                           SecteurActivite businessSector
+)
+{
+    public static EmployeurDTO of(Employeur employeur){
+        return new EmployeurDTO(
+                employeur.getId(),
+                employeur.getFirstName(),
+                employeur.getLastName(),
+                employeur.getPhoneNumber(),
+                employeur.getEmail(),
+                employeur.getTown(),
+                employeur.getBusinessName(),
+                employeur.getBusinessSector()
+        );
+    }
+
 }
