@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Professeur;
 
 public record ProfesseurDTO(long id, String firstName, String lastName, String email, String matricule, String phoneNumber, String department) implements UserDTO {
@@ -12,6 +13,7 @@ public record ProfesseurDTO(long id, String firstName, String lastName, String e
 
 
     @Override
+    @JsonProperty("role")
     public RoleDTO role() {
         return RoleDTO.PROFESSEUR;
     }

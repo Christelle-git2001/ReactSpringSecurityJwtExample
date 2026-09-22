@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Etudiant;
 import lombok.Builder;
 
@@ -16,6 +17,7 @@ public record EtudiantDTO(long id, String firstName, String lastName, String ema
     }
 
     @Override
+    @JsonProperty("role")
     public RoleDTO role() {
         return RoleDTO.ETUDIANT;
     }

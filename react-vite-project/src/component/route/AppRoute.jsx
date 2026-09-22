@@ -6,11 +6,12 @@ import LoginForm from "../auth/LoginForm";
 import AddEtudiant from "../Profil/Etudiant/AddEtudiant.jsx";
 import Logout from "../auth/Logout";
 import ErrorPage from "../Design/ErrorPage";
-import EmprunteurHome from "../../page/EmprunteurHome.jsx";
-import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
 import InscriptionHome from "../Profil/InscriptionHome.jsx";
+import EmployeurHome from "../../page/EmployeurHome.jsx";
+import EtudiantHome from "../../page/EtudiantHome.jsx";
+import ProfesseurHome from "../../page/ProfesseurHome.jsx";
 
 export default function AppRoutes({ user, error, message, setError, setUser,addEtudiant }) {
     return (
@@ -25,9 +26,10 @@ export default function AppRoutes({ user, error, message, setError, setUser,addE
                         <Route path='addemployeur' element={<AddEmployeur/>}/>
                     </Route>
                     <Route path='logout' element={<Logout setUser={setUser}/>}/>
-                    <Route path='emprunteur' element={<EmprunteurHome/>}/>
-                    <Route path='prepose' element={<PreposeHome/>}/>
                     <Route path='gestionnaire' element={<GestionnaireHome/>}/>
+                    <Route path='employeur' element={<EmployeurHome/>}/>
+                    <Route path='etudiant' element={<EtudiantHome/>}/>
+                    <Route path='professeur' element={<ProfesseurHome/>}/>
                     <Route path='error' element={<ErrorPage error={error}/>}/>
                 </Route>
             </Routes>

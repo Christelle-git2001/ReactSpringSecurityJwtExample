@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import lombok.Builder;
 
@@ -33,6 +34,7 @@ public record GestionnaireDto(
     }
 
     @Override
+    @JsonProperty("role")
     public RoleDTO role() {
         return RoleDTO.GESTIONNAIRE;
     }

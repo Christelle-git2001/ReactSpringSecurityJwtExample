@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import jakarta.validation.constraints.Email;
@@ -30,6 +31,7 @@ public record EmployeurDTO (
     }
 
     @Override
+    @JsonProperty("role")
     public RoleDTO role() {
         return RoleDTO.EMPLOYEUR;
     }

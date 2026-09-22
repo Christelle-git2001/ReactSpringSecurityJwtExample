@@ -98,19 +98,21 @@ const LoginForm = ({user, setUser, setError}) => {
       const userData = await userResponse.json();
 
       // Navigate to role-specific page
-      const role = userData.role;
-      if (role === "ROLE_EMPRUNTEUR") {
-        navigate("/emprunteur");
-      } else if (role === "ROLE_PREPOSE") {
-        navigate("/prepose");
-      } else if (role === "ROLE_GESTIONNAIRE") {
+      const role = userData.role.name;
+      console.log(role)
+      if (role === "GESTIONNAIRE") {
         navigate("/gestionnaire");
+      } else if (role === "EMPLOYEUR") {
+        navigate("/employeur");
+      }else if (role === "ETUDIANT") {
+        navigate("/etudiant");
+      }else if (role === "PROFESSEUR") {
+        navigate("/professeur");
       } else {
         navigate("/");
       }
     } catch(error) {
       setError(error)
-      console.error("Erreur attrapée dans fetchFunc :", error); // 👈 Ajoutez ceci
       navigate('/error')
     }
   }
