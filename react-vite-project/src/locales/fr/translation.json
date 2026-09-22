@@ -10,7 +10,7 @@
     "nom": "Nom de l'entreprise",
     "adresse": "Courriel",
     "telephone": "Numéro de téléphone",
-    "numero-ID" : "Numéro d'identification légal",
+    "numero-ID": "Numéro d'identification légal",
     "nom-personne-contact": "Nom de la personne à contacter",
     "telephone-personne-contact": "Numéro de téléphone de la personne à contacter",
     "mdp": "Mot de passe",
@@ -18,7 +18,7 @@
     "bouton-inscrire": "S'inscrire",
     "deja-inscrit": "Déjà inscrit ?",
     "bouton-connecter": "Se connecter",
-    "secteur" : "Secteur d'activité"
+    "secteur": "Secteur d'activité"
   },
   "add_etudiant": {
     "page_title": "S'inscrire sur OSE",
@@ -55,5 +55,17 @@
     "submit": "S'inscrire",
     "already_registered": "Déjà inscrit?",
     "login": "Se connecter"
+  },
+  "login": {
+    "page_title": "Connexion",
+    "page_subtitle": "Accédez à votre espace utilisateur",
+    "courriel": "Adresse courriel",
+    "courriel_placeholder": "exemple@domaine.com",
+    "courriel.invalide": "Veuillez entrer une adresse courriel valide. | Ex : Exemple@domaine.com",
+    "motDePasse": "Mot de passe",
+    "motDePasse_placeholder": "Entrez votre mot de passe",
+    "password.invalide" : "Votre mot de passe est requis.",
+    "submit": "Se connecter"
   }
 }
+
