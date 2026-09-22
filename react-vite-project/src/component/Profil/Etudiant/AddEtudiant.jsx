@@ -1,8 +1,18 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import {useTranslation} from "react-i18next";
+import { getDepartements } from "../../../api/http.jsx";
+import { useState, useEffect } from "react";
 
 function AddEtudiant({ onAdd, error, message }) {
+  const { t } = useTranslation();
+  const [departements, setDepartements] = useState([]);
+
+  useEffect(() => {
+    getDepartements()
+        .then(setDepartements)
+        .catch(() => setDepartements([]));
+  }, []);
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -25,8 +35,6 @@ function AddEtudiant({ onAdd, error, message }) {
       e.target.reset();
     }
   };
-  const { t } = useTranslation();
-
   return (
       <div className="add-etudiant-page">
         <div className="add-etudiant-page-header">
@@ -78,19 +86,14 @@ function AddEtudiant({ onAdd, error, message }) {
               </div>
 
               <div>
-                <label htmlFor="department" className="add-etudiant-label">{t('add_etudiant.department')}</label>
-                <select required id="department" name="department" className="add-etudiant-input" defaultValue="">
-                  <option value="" disabled>{t('add_etudiant.department_placeholder')}</option>
-                  <option value="INFORMATIQUE">{t('add_etudiant.department_informatique')}</option>
-                  <option value="GESTION">{t('add_etudiant.department_gestion')}</option>
-                  <option value="TRAVAIL_SOCIAL">{t('add_etudiant.department_travail_social')}</option>
-                  <option value="EDUCATION_ENFANCE">{t('add_etudiant.department_education_enfance')}</option>
-                  <option value="SOINS_INFIRMIERS">{t('add_etudiant.department_soins_infirmiers')}</option>
-                  <option value="GENIE_CIVIL">{t('add_etudiant.department_genie_civil')}</option>
-                  <option value="GENIE_ELECTRIQUE">{t('add_etudiant.department_genie_electrique')}</option>
-                  <option value="GENIE_PHYSIQUE">{t('add_etudiant.department_genie_physique')}</option>
-                  <option value="ARCHITECTURE">{t('add_etudiant.department_architecture')}</option>
-                  <option value="ESTIMATION_EVALUATION">{t('add_etudiant.department_estimation_evaluation')}</option>
+                <label htmlFor="department" className="add-etudiant-label">Département</label>
+                <select id="department" name="department" required className="add-etudiant-input">
+                  <option value="">-- Choisir un département --</option>
+                  {departements.map(dep => (
+                      <option key={dep.name} value={dep.name}>
+                        {dep.label}
+                      </option>
+                  ))}
                 </select>
               </div>
 
