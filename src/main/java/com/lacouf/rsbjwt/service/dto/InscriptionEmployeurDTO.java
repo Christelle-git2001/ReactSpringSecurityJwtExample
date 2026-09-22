@@ -42,7 +42,6 @@ public record InscriptionEmployeurDTO(
                 .phone(phone)
                 .town(town)
                 .businessName(businessName)
-                .businessType(businesstype)
                 .businessSector(businessSector)
                 .password(passwordEncode)
                 .build();

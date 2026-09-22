@@ -24,7 +24,7 @@ public class Employeur extends UserApp{
     private SecteurActivite businessSector;
 
     @Builder
-    public Employeur( String firstName, String lastName, String town, String phone, String email, String password, String businessName, String businessType, SecteurActivite businessSector){
+    public Employeur( String firstName, String lastName, String town, String phone, String email, String password, String businessName, SecteurActivite businessSector){
         super(
                 firstName,
                 lastName,
