@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.service.GestionnaireService;
+import com.lacouf.rsbjwt.service.dto.DepartementDTO;
 import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,5 +29,11 @@ public class GestionnaireController {
     public ResponseEntity<List<SecteurEmployeurDTO>> getSecteurs() {
         List<SecteurEmployeurDTO> secteurs = gestionnaireService.getAllSecteurs();
         return ResponseEntity.ok(secteurs);
+    }
+
+    @GetMapping("/departement")
+    public ResponseEntity<List<DepartementDTO>> getDepartements() {
+        List<DepartementDTO> departements = gestionnaireService.getAllDepartements();
+        return ResponseEntity.ok(departements);
     }
 }

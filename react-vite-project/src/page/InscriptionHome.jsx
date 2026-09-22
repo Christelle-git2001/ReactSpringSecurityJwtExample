@@ -1,5 +1,5 @@
 import {Route, Routes, useNavigate} from "react-router-dom";
-import "../../css/InscriptionHome.css";
+import "../css/InscriptionHome.css";
 import {useTranslation} from "react-i18next";
 
 function InscriptionHome(){

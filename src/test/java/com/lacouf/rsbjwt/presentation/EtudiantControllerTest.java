@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
@@ -127,6 +128,18 @@ public class EtudiantControllerTest {
 
         when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
                 .thenThrow(new MatriculeExistantException());
+
+        mockMvc.perform(post("/etudiant/inscription")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void doitRetournerConflictNumeroTelephoneExistant() throws Exception {
+
+        when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
+                .thenThrow(new NumeroTelephoneExistantException());
 
         mockMvc.perform(post("/etudiant/inscription")
                         .contentType(MediaType.APPLICATION_JSON)

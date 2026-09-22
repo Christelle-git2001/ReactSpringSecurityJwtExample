@@ -1,6 +1,8 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import fetcher from "../../utils/fetcher";
+import { Link } from "react-router-dom";
+
 
 
 const LoginForm = ({user, setUser, setError}) => {
@@ -90,7 +92,7 @@ const LoginForm = ({user, setUser, setError}) => {
       localStorage.setItem('token', data.accessToken);
 
       // Fetch user info to get role
-      const userResponse = await fetcher('user/me', {});
+      const userResponse = await fetcher('/user/me', {});
       if (!userResponse.ok) {
         throw new Error("Failed to fetch user info");
       }
@@ -171,6 +173,9 @@ const LoginForm = ({user, setUser, setError}) => {
                   <div className="text-danger">{warnings.password}</div>
                   <div className="row col-6 mx-auto">
                     <button type="submit" className="btn btn-outline-ose my-5 mx-auto">loginSubmit</button>
+                  </div>
+                  <div className="text-center mt-3">
+                    <Link to="/inscription">Créer un compte</Link>
                   </div>
                 </form>
               </div>
