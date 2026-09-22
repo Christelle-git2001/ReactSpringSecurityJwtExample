@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+
 public record InscriptionEmployeurDTO(
                                       @NotBlank(message = "validation.prenom.required")
                                       String firstName,
@@ -33,17 +34,16 @@ public record InscriptionEmployeurDTO(
                                       @NotBlank(message = "validation.passwordConfirmation.required")
                                       String passwordConfirmation)
 {
-   /* public Employeur toEntity(){
-        return new Employeur(
-                this.firstName(),
-                this.lastName(),
-                this.town(),
-                this.phone(),
-                this.email(),
-                this.password(),
-                this.businessName(),
-                this.businesstype(),
-                this.businessSector()
-        );
-    } */
+    public Employeur toEntity(String passwordEncode) {
+        return Employeur.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .phone(phone)
+                .town(town)
+                .businessName(businessName)
+                .businessSector(businessSector)
+                .password(passwordEncode)
+                .build();
+    }
 }

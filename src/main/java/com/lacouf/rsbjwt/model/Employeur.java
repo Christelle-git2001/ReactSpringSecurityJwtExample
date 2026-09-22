@@ -21,13 +21,10 @@ public class Employeur extends UserApp{
     @Column(nullable = false)
     private String businessName;
     @Column(nullable = false)
-    private String businessType;//TODO Remove
-    @Column(nullable = false)
     private SecteurActivite businessSector;
-    //TODO : Liste de personne responsable ?
 
     @Builder
-    public Employeur( String firstName, String lastName, String town, String phone, String email, String password, String businessName, String businessType, SecteurActivite businessSector){
+    public Employeur( String firstName, String lastName, String town, String phone, String email, String password, String businessName, SecteurActivite businessSector){
         super(
                 firstName,
                 lastName,
@@ -41,6 +38,5 @@ public class Employeur extends UserApp{
         this.town = town;
         this.businessName = businessName;
         this.businessSector = businessSector;
-        this.businessType = businessType;
     }
 }

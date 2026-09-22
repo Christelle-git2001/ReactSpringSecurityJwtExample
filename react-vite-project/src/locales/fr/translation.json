@@ -5,12 +5,14 @@
     "employeur": "Employeur"
   },
   "add_employeur": {
+    "message-bienvenue": "BIENVENUE SUR",
+    "nom-app": "OSE",
     "titre": "S'inscrire sur OSE",
     "type-utilisateur": "Compte employeur",
     "nom": "Nom de l'entreprise",
     "adresse": "Courriel",
     "telephone": "Numéro de téléphone",
-    "numero-ID": "Numéro d'identification légal",
+    "numero-ID" : "Numéro d'identification légal",
     "nom-personne-contact": "Nom de la personne à contacter",
     "telephone-personne-contact": "Numéro de téléphone de la personne à contacter",
     "mdp": "Mot de passe",
@@ -18,7 +20,7 @@
     "bouton-inscrire": "S'inscrire",
     "deja-inscrit": "Déjà inscrit ?",
     "bouton-connecter": "Se connecter",
-    "secteur": "Secteur d'activité"
+    "secteur" : "Secteur d'activité"
   },
   "add_etudiant": {
     "page_title": "S'inscrire sur OSE",
@@ -71,4 +73,3 @@
     "credentialsWrong" : "Le courriel ou le mot de passe sont incorrect, veuillez retenter !"
   }
 }
-
