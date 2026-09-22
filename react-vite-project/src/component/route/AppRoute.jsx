@@ -1,29 +1,44 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import PageLayout from "../Design/PageLayout.jsx";
+import PublicLayout from "../Design/PublicLayout.jsx";
+
 import MainContainer from "../Design/MainContainer";
 import About from "../Design/About";
 import LoginForm from "../auth/LoginForm";
 import AddEtudiant from "../Profil/Etudiant/AddEtudiant.jsx";
+import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
+import InscriptionHome from "../../page/InscriptionHome.jsx";
+
 import Logout from "../auth/Logout";
 import ErrorPage from "../Design/ErrorPage";
 import EmprunteurHome from "../../page/EmprunteurHome.jsx";
 import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 
-export default function AppRoutes({ user, error, message, setError, setUser,addEtudiant }) {
+export default function AppRoutes({ user, error, message, setError, setUser, addEtudiant }) {
     return (
-            <Routes>
-                <Route path="/" element={<PageLayout user={user}/>}>
-                    <Route index element={<MainContainer setError={setError}/>}/>
-                    <Route path='about' element={<About/>}/>
-                    <Route path='login' element={<LoginForm setError={setError}/>}/>
-                    <Route path='addetudiant' element={<AddEtudiant onAdd={addEtudiant} error={error} message={message}/>}/>
-                    <Route path='logout' element={<Logout setUser={setUser}/>}/>
-                    <Route path='emprunteur' element={<EmprunteurHome/>}/>
-                    <Route path='prepose' element={<PreposeHome/>}/>
-                    <Route path='gestionnaire' element={<GestionnaireHome/>}/>
-                    <Route path='error' element={<ErrorPage error={error}/>}/>
+        <Routes>
+            <Route element={<PublicLayout />}>
+                <Route path="/login" element={<LoginForm setError={setError} />} />
+                <Route path="/inscription">
+                    <Route index element={<InscriptionHome />} />
+                    <Route path="addetudiant" element={<AddEtudiant onAdd={addEtudiant} error={error} message={message} />} />
+                    <Route path="addemployeur" element={<AddEmployeur />} />
                 </Route>
-            </Routes>
+
+                <Route path="/" element={<Navigate to="/login" />} />
+            </Route>
+
+            <Route element={<PageLayout user={user} />}>
+                <Route path="/home" element={<MainContainer setError={setError} />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/logout" element={<Logout setUser={setUser} />} />
+                <Route path="/emprunteur" element={<EmprunteurHome />} />
+                <Route path="/prepose" element={<PreposeHome />} />
+                <Route path="/gestionnaire" element={<GestionnaireHome />} />
+                <Route path="/error" element={<ErrorPage error={error} />} />
+            </Route>
+
+        </Routes>
     );
 }

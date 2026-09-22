@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class EmployeurControlleurTest {
+public class EmployeurControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -59,7 +59,7 @@ public class EmployeurControlleurTest {
     }
 
     @Test
-    void doitCreerCompteEmployeur() throws Exception {
+    void inscriptionEmployeurCreated() throws Exception {
       EmployeurDTO employeurDTO = new EmployeurDTO(
               1L,
               "Gerard",
@@ -81,7 +81,7 @@ public class EmployeurControlleurTest {
     }
 
     @Test
-    void doitRetournerBadRequestMotDePasseNonCorrespondant() throws Exception {
+    void inscriptionEmployeurMotDePasseDiffereException() throws Exception {
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
@@ -92,7 +92,7 @@ public class EmployeurControlleurTest {
     }
 
     @Test
-    void doitRetournerConflictEmailExistant() throws Exception{
+    void inscriptionEmployeurExisteDeja() throws Exception{
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class)))
                 .thenThrow(new EmailExistantException());
 

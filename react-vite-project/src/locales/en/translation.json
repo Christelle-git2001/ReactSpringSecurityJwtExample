@@ -1,0 +1,23 @@
+{
+  "inscription": {
+    "titre": "You are?",
+    "etudiant": "Student",
+    "employeur": "Employer"
+  },
+    "addemployeur": {
+        "titre": "Sign up on OSE",
+        "type-utilisateur": "Employer account",
+        "nom": "Company name",
+        "adresse": "Email",
+        "telephone": "Phone number",
+        "numero-ID" : "Legal identification number",
+        "nom-personne-contact": "Contact person's name",
+        "telephone-personne-contact": "Contact person's phone number",
+        "mdp": "Password",
+        "confirmation-mdp": "Confirm password",
+        "bouton-inscrire": "Sign up",
+        "deja-inscrit": "Already registered?",
+        "bouton-connecter": "Log in",
+        "secteur" : "Business sector"
+    }
+}

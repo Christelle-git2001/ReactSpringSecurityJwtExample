@@ -1,0 +1,23 @@
+{
+  "inscription": {
+    "titre": "Vous êtes ?",
+    "etudiant": "Étudiant",
+    "employeur": "Employeur"
+  },
+  "addemployeur": {
+    "titre": "S'inscrire sur OSE",
+    "type-utilisateur": "Compte employeur",
+    "nom": "Nom de l'entreprise",
+    "adresse": "Courriel",
+    "telephone": "Numéro de téléphone",
+    "numero-ID" : "Numéro d'identification légal",
+    "nom-personne-contact": "Nom de la personne à contacter",
+    "telephone-personne-contact": "Numéro de téléphone de la personne à contacter",
+    "mdp": "Mot de passe",
+    "confirmation-mdp": "Confirmer le mot de passe",
+    "bouton-inscrire": "S'inscrire",
+    "deja-inscrit": "Déjà inscrit ?",
+    "bouton-connecter": "Se connecter",
+    "secteur" : "Secteur d'activité"
+  }
+}

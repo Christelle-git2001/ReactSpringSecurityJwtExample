@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +22,7 @@ public class GlobalExceptionHandler {
         logger.warn("Email déjà existant : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErreurDTO(
-                        "Cet email est déjà utilisé.",
-                        "This email is already in use."
-                ));
+                .body(new ErreurDTO(e.getMessage())) ;
     }
 
     @ExceptionHandler(MatriculeExistantException.class)
@@ -36,10 +30,7 @@ public class GlobalExceptionHandler {
         logger.warn("Matricule déjà existant : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body( new ErreurDTO(
-                        "Ce matricule est déjà utilisé.",
-                        "This registration number is already in use."
-                ));
+                .body(new ErreurDTO(e.getMessage()));
     }
 
     @ExceptionHandler(MotDePasseNonCorrespondantException.class)
@@ -47,10 +38,7 @@ public class GlobalExceptionHandler {
         logger.warn("Mot de passe non correspondant : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErreurDTO(
-                        "Les mots de passe ne correspondent pas.",
-                        "Passwords do not match."
-                ));
+                .body(new ErreurDTO(e.getMessage()));
     }
 
     @ExceptionHandler(DepartementInvalideException.class)
@@ -58,10 +46,17 @@ public class GlobalExceptionHandler {
         logger.warn("Département invalide : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(NumeroTelephoneExistantException.class)
+    public ResponseEntity<ErreurDTO> handleNumeroTelephoneExistant(
+            NumeroTelephoneExistantException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(new ErreurDTO(
-                        "Le département fourni est invalide.",
-                        "The provided department is invalid."
-                ));
+                        e.getMessage()));
     }
 
 
