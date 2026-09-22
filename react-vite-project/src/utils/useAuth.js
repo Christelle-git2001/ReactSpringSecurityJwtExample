@@ -13,7 +13,7 @@ export default function useAuth() {
         if (!token) return;
 
         try {
-            fetcher("user/me", {})
+            fetcher("/user/me", {})
                 .then(async (res) => {
                     if (!res.ok) {
                         switch (res.status) {
