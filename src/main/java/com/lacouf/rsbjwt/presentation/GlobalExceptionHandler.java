@@ -9,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
-
-import com.lacouf.rsbjwt.security.exception.APIException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -57,15 +54,6 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErreurDTO(
                         e.getMessage()));
-    }
-
-
-
-    @ExceptionHandler(APIException.class)
-    public ResponseEntity<ErreurDTO> handleAPIException(APIException e) {
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(new ErreurDTO(e.getMessage()));
     }
 }
 

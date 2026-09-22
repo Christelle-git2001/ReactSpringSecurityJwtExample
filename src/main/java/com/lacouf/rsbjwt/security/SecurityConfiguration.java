@@ -43,7 +43,7 @@ public class SecurityConfiguration {
     private static final String H2_CONSOLE_PATH = "/h2-console/**";
     private static final String USER_LOGIN_PATH = "/user/login";
     private static final String EMPRUNTEUR_REGISTER_PATH = "/emprunteur/register";
-    private static final String ETUDIANT_REGISTER_PATH = "/etudiant/inscription";
+    private static final String ETUDIANT_REGISTER_PATH = "/etudiant/register";
     private static final String USER_PATH = "/user/**";
     private static final String EMPRUNTEUR_PATH = "/emprunteur/**";
     private static final String PREPOSE_PATH = "/etudiant/**";

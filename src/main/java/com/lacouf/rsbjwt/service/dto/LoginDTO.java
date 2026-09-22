@@ -1,8 +1,13 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-
-public record LoginDTO(
-	 String email,
-	 String password
-){}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginDTO{
+	private String email;
+	private String password;
+}
