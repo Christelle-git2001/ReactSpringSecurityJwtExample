@@ -1,10 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
@@ -20,10 +17,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -79,7 +74,7 @@ public class ProfesseurControllerTest {
         when(professeurService.creerCompteProfesseur(any(InscriptionProfesseurDTO.class)))
                 .thenReturn(professeurDTO);
 
-        mockMvc.perform(post("/professeurs/inscription")
+        mockMvc.perform(post("/professeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isCreated());
@@ -90,7 +85,18 @@ public class ProfesseurControllerTest {
         when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new EmailExistantException());
 
-        mockMvc.perform(post("/professeurs/inscription")
+        mockMvc.perform(post("/professeur/inscription")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void doitRetournerConflictNumeroTelephoneExistant() throws Exception {
+        when(professeurService.creerCompteProfesseur(any()))
+                .thenThrow(new NumeroTelephoneExistantException());
+
+        mockMvc.perform(post("/professeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isConflict());
@@ -101,7 +107,7 @@ public class ProfesseurControllerTest {
         when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new MatriculeExistantException());
 
-        mockMvc.perform(post("/professeurs/inscription")
+        mockMvc.perform(post("/professeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isConflict());
@@ -112,7 +118,7 @@ public class ProfesseurControllerTest {
         when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new MotDePasseNonCorrespondantException());
 
-        mockMvc.perform(post("/professeurs/inscription")
+        mockMvc.perform(post("/professeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isBadRequest());
@@ -123,7 +129,7 @@ public class ProfesseurControllerTest {
         when(professeurService.creerCompteProfesseur(any()))
                 .thenThrow(new DepartementInvalideException(inscriptionProfesseurDTO.department()));
 
-        mockMvc.perform(post("/professeurs/inscription")
+        mockMvc.perform(post("/professeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isBadRequest());
