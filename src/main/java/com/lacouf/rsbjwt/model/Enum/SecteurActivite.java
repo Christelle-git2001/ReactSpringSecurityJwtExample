@@ -30,4 +30,7 @@ public enum SecteurActivite {
         this.label = label;
     }
 
+    public String getLabel() {
+        return label;
+    }
 }

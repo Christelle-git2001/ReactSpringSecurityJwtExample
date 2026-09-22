@@ -1,13 +1,10 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.Exception.DepartementInvalideException;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,8 +26,7 @@ public class ProfesseurService {
     }
 
     @Transactional
-    public ProfesseurDTO creerCompteProfesseur(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException
-    {
+    public ProfesseurDTO creerCompteProfesseur(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
         validerInscription(inscriptionProfesseurDto);
 
         Departement departement = normaliserDepartement(inscriptionProfesseurDto.department()) ;
@@ -49,7 +45,7 @@ public class ProfesseurService {
 
     }
 
-    private void validerInscription(InscriptionProfesseurDTO inscriptionProfesseurDto) throws  EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException{
+    private void validerInscription(InscriptionProfesseurDTO inscriptionProfesseurDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
         if(userAppRepository.findUserAppByEmail(inscriptionProfesseurDto.email()).isPresent()){
             throw new EmailExistantException();
         }
@@ -60,6 +56,11 @@ public class ProfesseurService {
 
         if(! inscriptionProfesseurDto.password().equals(inscriptionProfesseurDto.passwordConfirmation())){
             throw new MotDePasseNonCorrespondantException() ;
+        }
+
+        if (userAppRepository.findByPhoneNumber(
+                inscriptionProfesseurDto.phoneNumber()).isPresent()) {
+            throw new NumeroTelephoneExistantException();
         }
 
     }
