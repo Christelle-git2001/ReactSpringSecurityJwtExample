@@ -1,34 +1,71 @@
-import {Route, Routes, useNavigate} from "react-router-dom";
-import "../css/InscriptionHome.css";
-import {useTranslation} from "react-i18next";
+import { useState } from "react";
 
-function InscriptionHome(){
-    const navigate = useNavigate();
-    const { t } = useTranslation();
+import AddEtudiant from "../component/Profil/Etudiant/AddEtudiant.jsx";
+import AddProfesseur from "../component/Profil/Professeur/AddProfesseur.jsx";
+import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
+
+function InscriptionHome({ addEtudiant, addProfesseur, error, message }) {
+
+    const [profil, setProfil] = useState("ETUDIANT");
 
     return (
-        <div className="inscription-page">
-            <div className="inscription-card">
-                <h1 className="inscription-title">
-                    {t('inscription.titre')}
-                </h1>
+        <div className="signup-container">
+
+            {/* Titre */}
+            <div className="signup-header">
+                <h1>Créer un compte</h1>
+                <p>Choisissez votre type de profil</p>
             </div>
-            <div className="inscription-buttons">
-                <button
-                    className="inscription-btn inscription-btn-etudiant"
-                    onClick={() => navigate('/inscription/addetudiant')}>
-                    {t('inscription.etudiant')}
+
+            {/* Formulaire dynamique */}
+            <div className="signup-form">
+
+                {profil === "ETUDIANT" && (
+                    <AddEtudiant
+                        onAdd={addEtudiant}
+                        error={error}
+                        message={message}
+                    />
+                )}
+
+                {profil === "PROFESSEUR" && (
+                    <AddProfesseur
+                        onAdd={addProfesseur}
+                        error={error}
+                        message={message}
+                    />
+                )}
+
+                {profil === "EMPLOYEUR" && (
+                    <AddEmployeur
+                        onAdd={() => {}}   // Employeur n’a pas de backend pour l’instant
+                    />
+                )}
+            </div>
+
+            {/* Boutons de sélection */}
+            <div className="signup-profile-selector">
+                <button onClick={() => setProfil("ETUDIANT")}>
+                    Étudiant
+                </button>
+
+                <button onClick={() => setProfil("PROFESSEUR")}>
+                    Professeur
+                </button>
+
+                <button onClick={() => setProfil("EMPLOYEUR")}>
+                    Employeur
                 </button>
             </div>
-            <div>
-                <button
-                    className="inscription-btn inscription-btn-employeur"
-                    onClick={() => navigate('/inscription/addemployeur')}>
-                    {t('inscription.employeur')}
-                </button>
+
+            {/* Lien vers login */}
+            <div className="signup-login-link">
+                <p>Déjà inscrit ?</p>
+                <a href="/login">Se connecter</a>
             </div>
+
         </div>
-    )
+    );
 }
 
 export default InscriptionHome;
