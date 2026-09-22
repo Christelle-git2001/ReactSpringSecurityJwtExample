@@ -26,7 +26,7 @@ function AddProfesseur({ onAdd, error, message }) {
             phoneNumber: formData.get("telephone"),
             matricule: formData.get("matricule"),
             password: formData.get("password"),
-            confirmPassword: formData.get("confirmPassword"),
+            passwordConfirmation: formData.get("confirmPassword"),
             department: formData.get("department")
         };
 

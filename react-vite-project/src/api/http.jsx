@@ -34,10 +34,5 @@ async function manageError(res) {
 }
 
 export async function getDepartements() {
-    const response = await fetch(`${BASE_URL}/gestionnaire/departement`);
-    if (!response.ok) {
-        throw new Error("Impossible de charger les départements");
-    }
-
-    return await response.json();
+    return await fetchJson("/gestionnaire/departement");
 }
