@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
 import com.lacouf.rsbjwt.service.dto.LoginDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,9 @@ class UserAppServiceTest {
 
     private UserAppService userAppService;
 
+    @Mock
+    private UserAppRepository userAppRepository;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -33,6 +37,10 @@ class UserAppServiceTest {
         userAppService = new UserAppService(
                 authenticationManager,
                 jwtTokenProvider,
+                userAppRepository,
+                null,
+                null,
+                null,
                 null
         );
     }

@@ -2,8 +2,7 @@
   "inscription": {
     "titre": "Vous êtes ?",
     "etudiant": "Étudiant",
-    "employeur": "Employeur",
-    "professeur" : "Professeur"
+    "employeur": "Employeur"
   },
   "add_employeur": {
     "message-bienvenue": "BIENVENUE SUR",
@@ -78,5 +77,19 @@
     "submit": "S'inscrire",
     "already_registered": "Déjà inscrit ?",
     "login": "Se connecter"
+  },
+  "login": {
+    "page_title": "Connexion",
+    "page_subtitle": "Accédez à votre espace utilisateur",
+    "courriel": "Adresse courriel",
+    "courriel_placeholder": "exemple@domaine.com",
+    "courriel.invalide": "Veuillez entrer une adresse courriel valide. | Ex : Exemple@domaine.com",
+    "motDePasse": "Mot de passe",
+    "motDePasse_placeholder": "Entrez votre mot de passe",
+    "password.invalide" : "Votre mot de passe est requis.",
+    "submit": "Se connecter",
+    "noAccount" : "Vous n'avez pas de compte ?",
+    "inscription" : "Inscrivez-vous !",
+    "credentialsWrong" : "Le courriel ou le mot de passe sont incorrect, veuillez retenter !"
   }
 }
