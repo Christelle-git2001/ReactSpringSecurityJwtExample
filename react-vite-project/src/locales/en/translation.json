@@ -92,5 +92,17 @@
     "noAccount" : "No account ?",
     "inscription" : "Sign up !",
     "credentialsWrong" : "Email or Password are not correct, please try again !"
+  },
+  "departement": {
+    "INFORMATIQUE": "Computer Science",
+    "GESTION": "Business Management",
+    "TRAVAIL_SOCIAL": "Social Work",
+    "EDUCATION_ENFANCE": "Early Childhood Education",
+    "SOINS_INFIRMIERS": "Nursing",
+    "GENIE_CIVIL": "Civil Engineering",
+    "GENIE_ELECTRIQUE": "Electrical Engineering",
+    "GENIE_PHYSIQUE": "Physical Engineering",
+    "ARCHITECTURE": "Architecture",
+    "ESTIMATION_EVALUATION": "Building Estimation and Evaluation"
   }
 }
