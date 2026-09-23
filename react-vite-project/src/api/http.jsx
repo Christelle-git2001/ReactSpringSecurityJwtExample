@@ -38,5 +38,5 @@ export async function getDepartements() {
 }
 
 export async function getSecteursEmployeur() {
-    return fetchJson("/gestionnaire/secteurEmployeur", { method: "GET" });
+    return fetchJson("/gestionnaire/secteurEmployeur");
 }

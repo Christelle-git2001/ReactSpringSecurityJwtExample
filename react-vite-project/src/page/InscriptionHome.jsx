@@ -7,7 +7,7 @@ import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
 
 import "../css/InscriptionHome.css";
 
-function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError, setMessage }) {
+function InscriptionHome({ addEtudiant, addProfesseur,addEmployeur, error, message, setError, setMessage }) {
     const { t } = useTranslation();
     const [profil, setProfil] = useState("ETUDIANT");
     const profiles = [
@@ -66,7 +66,7 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
 
                     {profil === "EMPLOYEUR" && (
                         <AddEmployeur
-                            onAdd={() => {}}
+                            onAdd={addEmployeur}
                             error={error}
                             message={message}
                         />

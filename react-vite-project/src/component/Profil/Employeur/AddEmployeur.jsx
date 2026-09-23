@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
 import {getSecteursEmployeur} from "../../../api/http.jsx";
 
 function AddEmployeur({ onAdd, error, message }) {
