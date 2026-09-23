@@ -57,5 +57,19 @@
       "department_genie_physique": "Engineering Physics Technology",
       "department_architecture": "Architectural Technology",
       "department_estimation_evaluation": "Building Estimation and Appraisal Technology"
-    }
+    },
+  "login" : {
+    "page_title": "Login",
+    "page_subtitle": "Access to your user account",
+    "courriel": "Email address",
+    "courriel_placeholder": "example@domain.com",
+    "courriel.invalide": "Please enter a valid email address | Ex : example@domain.com",
+    "motDePasse": "Password",
+    "motDePasse_placeholder": "Enter your password",
+    "password.invalide": "Your password is required.",
+    "submit": "Log in",
+    "noAccount" : "No account ?",
+    "inscription" : "Sign up !",
+    "credentialsWrong" : "Email or Password are not correct, please try again !"
+  }
 }
