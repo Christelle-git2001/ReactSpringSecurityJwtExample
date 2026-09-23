@@ -26,15 +26,11 @@ function AddEmployeur({ onAdd, error, message }) {
 
     return (
         <div className="add-etudiant-page">
-
-            {/* En-tête */}
             <div className="add-etudiant-page-header">
                 <h1 className="add-etudiant-title">{t('add_employeur.titre')}</h1>
                 <p className="add-etudiant-subtitle">{t('add_employeur.type-utilisateur')}</p>
                 <span className="add-etudiant-subtitle-line" />
             </div>
-
-            {/* Formulaire */}
             <form onSubmit={onSubmit} className="add-etudiant-form">
 
                 <div className="add-etudiant-fields">

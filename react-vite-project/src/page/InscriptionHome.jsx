@@ -24,18 +24,12 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
 
     return (
         <div className="inscription-wrapper">
-
-            {/* Fond bleu pleine page */}
             <div className="inscription-background">
                 <div className="circleDesign circleDesign-top-right" />
                 <div className="circleDesign circleDesign-bottom-left-1" />
                 <div className="circleDesign circleDesign-bottom-left-2" />
             </div>
-
-            {/* Contenu centré */}
             <div className="inscription-page">
-
-                {/* Onglets */}
                 <div className="inscription-buttons">
                     {profiles.map((p) => {
                         const active = profil === p.id;
@@ -53,8 +47,6 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                         );
                     })}
                 </div>
-
-                {/* Formulaire */}
                 <div className="inscription-form-container">
                     {profil === "ETUDIANT" && (
                         <AddEtudiant

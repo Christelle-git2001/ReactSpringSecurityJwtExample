@@ -28,7 +28,6 @@ export default function AppRoutes({
     return (
         <Routes>
 
-            {/* Pages publiques */}
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<LoginForm setError={setError} />} />
 
@@ -50,7 +49,6 @@ export default function AppRoutes({
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
 
-            {/* Pages protégées */}
             <Route element={<PageLayout user={user} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
