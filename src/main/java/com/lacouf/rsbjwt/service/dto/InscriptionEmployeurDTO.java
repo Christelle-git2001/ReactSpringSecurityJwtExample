@@ -30,18 +30,4 @@ public record InscriptionEmployeurDTO(
                                       )
                                       String password,
                                       @NotBlank(message = "validation.passwordConfirmation.required")
-                                      String passwordConfirmation)
-{
-    public Employeur toEntity(String passwordEncode, String formatedPhoneNumber) {
-        return Employeur.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .email(email)
-                .phone(formatedPhoneNumber)
-                .town(town)
-                .businessName(businessName)
-                .businessSector(businessSector)
-                .password(passwordEncode)
-                .build();
-    }
-}
+                                      String passwordConfirmation){}
