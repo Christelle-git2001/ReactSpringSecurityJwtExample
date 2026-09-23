@@ -58,7 +58,6 @@ public class EmployeurServiceTest {
                 "Mercier",
                 "Gerard inc",
                 SecteurActivite.AEROSPATIAL,
-                "Startup",
                 "Losange12%",
                 "Losange12%"
         );
@@ -111,7 +110,6 @@ public class EmployeurServiceTest {
                 "Mercier",
                 "Gerard inc",
                 SecteurActivite.AEROSPATIAL,
-                "Startup",
                 "Losange12%",
                 "Carre12%"
         );

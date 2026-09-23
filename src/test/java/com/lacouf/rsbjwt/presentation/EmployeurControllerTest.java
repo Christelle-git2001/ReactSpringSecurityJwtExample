@@ -49,7 +49,6 @@ public class EmployeurControllerTest {
                 "Mercier",
                 "Gerard inc",
                 SecteurActivite.AEROSPATIAL,
-                "Startup",
                 "Losange12%",
                 "Losange12%"
         );
@@ -110,7 +109,6 @@ public class EmployeurControllerTest {
                 "",
                 "Gerard inc",
                 SecteurActivite.AEROSPATIAL,
-                "Startup",
                 "Losange12%",
                 "Losange12%"
         );
@@ -130,7 +128,6 @@ public class EmployeurControllerTest {
                 "Mercier",
                 "Gerard inc",
                 SecteurActivite.AEROSPATIAL,
-                "Startup",
                 "Losange12%",
                 "Losange12%"
         );
@@ -151,7 +148,6 @@ public class EmployeurControllerTest {
                 "Mercier",
                 "Gerard inc",
                 SecteurActivite.AEROSPATIAL,
-                "Startup",
                 "HAHA",
                 "HAHA"
         );
