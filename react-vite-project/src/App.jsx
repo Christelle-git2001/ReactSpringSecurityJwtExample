@@ -2,12 +2,12 @@ import "./App.css";
 import React, {useState} from "react";
 import { useNavigate} from "react-router-dom";
 import { inscrireEtudiant } from "./api/etudiant.jsx";
-import { inscrireEmployeur } from "./api/employeur.jsx";
+import { inscrireProfesseur } from "./api/professeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 function App() {
 
-  const {user, setUser, error, setError} = useAuth();
+  const { user, setUser, error, setError } = useAuth();
   const [message, setMessage] = useState("")
   const navigate = useNavigate();
 
@@ -26,13 +26,12 @@ function App() {
     }
   }
 
-  async function addEmployeur(employeur) {
+  async function addProfesseur(professeur) {
     try {
-      await inscrireEmployeur(employeur);
-      setMessage("Employeur ajouté avec succès.");
+      await inscrireProfesseur(professeur);
+      setMessage("Professeur ajouté avec succès.");
       setError(null);
-      setMessage("");
-      navigate('/login');
+      navigate("/login");
       return true;
     } catch (error) {
       setError(error.message || "Une erreur inattendue s'est produite.");
@@ -40,7 +39,9 @@ function App() {
       return false;
     }
   }
-    return (
+
+  return (
+      <div className="App">
         <AppRoutes
             user={user}
             error={error}
@@ -48,8 +49,12 @@ function App() {
             setError={setError}
             setUser={setUser}
             addEtudiant={addEtudiant}
-            addEmployeur={addEmployeur}
+            addProfesseur={addProfesseur}
+            setMessage={setMessage}
         />
-    );
+      </div>
+  );
+
 }
+
 export default App;

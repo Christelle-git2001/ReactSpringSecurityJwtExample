@@ -32,3 +32,7 @@ async function manageError(res) {
 
     throw error;
 }
+
+export async function getDepartements() {
+    return await fetchJson("/gestionnaire/departement");
+}
