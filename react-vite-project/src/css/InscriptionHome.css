@@ -1,31 +1,56 @@
 @reference "../index.css";
 
+/* WRAPPER QUI PERMET AU FOND BLEU DE PRENDRE TOUTE LA PAGE */
+.inscription-wrapper {
+    @apply relative min-h-screen w-full;
+}
 
+/* FOND BLEU PLEINE PAGE */
+.inscription-background {
+    @apply fixed inset-0 -z-10 overflow-hidden;
+    background: #043462;
+}
+
+/* Cercles décoratifs */
+.circleDesign {
+    @apply absolute rounded-full bg-[#0FFFDF];
+}
+
+.circleDesign-top-right {
+    @apply h-[190px] w-[190px] top-[-90px] right-[-60px] opacity-[0.45];
+}
+
+.circleDesign-bottom-left-1 {
+    @apply h-[260px] w-[260px] bottom-[-130px] left-[-70px] opacity-[0.65];
+}
+
+.circleDesign-bottom-left-2 {
+    @apply h-[230px] w-[230px] bottom-[-130px] left-[70px] opacity-[0.35];
+}
+
+/* CONTENU CENTRÉ */
 .inscription-page {
-    @apply min-h-screen flex items-center justify-center bg-gray-50 px-4;
+    @apply relative mx-auto max-w-3xl px-4 py-12;
 }
 
-.inscription-card {
-    @apply max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center;
-}
-
-.inscription-title {
-    @apply text-2xl font-bold text-gray-800 mb-8;
-}
-
+/* ONGLET BOUTONS */
 .inscription-buttons {
-    @apply flex flex-col gap-4;
+    @apply flex gap-4 justify-center mb-8;
 }
 
 .inscription-btn {
-    @apply w-full py-3 px-6 text-white font-semibold rounded-lg
-    transition-colors duration-200 shadow-sm hover:shadow-md;
+    @apply px-6 py-3 rounded-lg font-semibold transition-all duration-200;
 }
 
-.inscription-btn-etudiant {
-    @apply bg-blue-600 hover:bg-blue-700 active:bg-blue-800;
+.inscription-btn-active {
+    @apply bg-white text-[#043462] shadow-lg;
 }
 
-.inscription-btn-employeur {
-    @apply bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800;
+.inscription-btn-inactive {
+    @apply bg-[#0654A0] text-white opacity-80 hover:opacity-100;
+}
+
+/* CONTENEUR DU FORMULAIRE */
+.inscription-form-container {
+    @apply relative;
 }

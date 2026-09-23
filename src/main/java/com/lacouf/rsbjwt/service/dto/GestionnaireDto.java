@@ -1,36 +1,41 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Gestionnaire;
-import com.lacouf.rsbjwt.model.auth.Role;
 import lombok.Builder;
 
-public class GestionnaireDto extends UserDTO {
-    private String matricule;
-    private String phoneNumber;;
-
-    @Builder
-    public GestionnaireDto(Long id, String firstName, String lastname,
-                           String email, Role role, String matricule, String phoneNumber) {
-        super(id, firstName, lastname, email, role);
-        this.matricule = matricule;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public GestionnaireDto() {}
+@Builder
+public record GestionnaireDto(
+        long id,
+        String firstName,
+        String lastName,
+        String email,
+        String matricule,
+        String phoneNumber
+) implements UserDTO {
 
     public static GestionnaireDto create(Gestionnaire gestionnaire) {
+        if (gestionnaire == null) {
+            return empty();
+        }
+
         return GestionnaireDto.builder()
                 .id(gestionnaire.getId())
                 .firstName(gestionnaire.getFirstName())
-                .lastname(gestionnaire.getLastName())
+                .lastName(gestionnaire.getLastName())
                 .email(gestionnaire.getEmail())
-                .role(gestionnaire.getRole())
                 .matricule(gestionnaire.getMatricule())
                 .phoneNumber(gestionnaire.getPhoneNumber())
                 .build();
     }
 
     public static GestionnaireDto empty() {
-        return new GestionnaireDto();
+        return new GestionnaireDto(0L, "", "", "", "", "");
+    }
+
+    @Override
+    @JsonProperty("role")
+    public RoleDTO role() {
+        return RoleDTO.GESTIONNAIRE;
     }
 }

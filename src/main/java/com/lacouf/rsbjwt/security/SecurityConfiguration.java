@@ -43,8 +43,11 @@ public class SecurityConfiguration {
     private static final String H2_CONSOLE_PATH = "/h2-console/**";
     private static final String USER_LOGIN_PATH = "/user/login";
     private static final String EMPRUNTEUR_REGISTER_PATH = "/emprunteur/register";
-    private static final String EMPLOYEUR_REGISTER_PATH = "/employeur/inscription";
     private static final String ETUDIANT_REGISTER_PATH = "/etudiant/inscription";
+    private static final String EMPLOYEUR_REGISTER_PATH = "/employeur/inscription";
+    private static final String GESTIONNAIRE_DEPARTEMENTS_PATH = "/gestionnaire/departement";
+    private static final String GESTIONNAIRE_SECTEURS_PATH = "/gestionnaire/secteurEmployeur";
+    private static final String PROFESSEUR_REGISTER_PATH = "/professeur/inscription";
     private static final String USER_PATH = "/user/**";
     private static final String EMPRUNTEUR_PATH = "/emprunteur/**";
     private static final String PREPOSE_PATH = "/etudiant/**";
@@ -62,6 +65,9 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, EMPRUNTEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, ETUDIANT_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, EMPLOYEUR_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST, PROFESSEUR_REGISTER_PATH).permitAll()
+                        .requestMatchers(GET, GESTIONNAIRE_DEPARTEMENTS_PATH).permitAll()
+                        .requestMatchers(GET, GESTIONNAIRE_SECTEURS_PATH).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight requests
                         .requestMatchers(H2_CONSOLE_PATH).permitAll() // Allow H2 console access
 
@@ -89,7 +95,10 @@ public class SecurityConfiguration {
         // 1. Specify allowed origins (VERY IMPORTANT!)
         //    Must match your React app's URL exactly (e.g., http://localhost:3000)
         //    Do NOT use "*" if you need credentials (like sending Authorization headers)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Adjust if your frontend runs elsewhere
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:3000"
+        )); // Adjust if your frontend runs elsewhere
 
         // 2. Specify allowed HTTP methods
         configuration.setAllowedMethods(Arrays.asList(

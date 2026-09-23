@@ -1,8 +1,27 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import { useTranslation } from "react-i18next";
+import {getSecteursEmployeur} from "../../../api/http.jsx";
 
 function AddEmployeur({ onAdd, error, message }) {
+    const { t } = useTranslation();
+    const [secteurs, setSecteurs] = useState([]);
+    const [loadingSecteurs, setLoadingSecteurs] = useState(true);
+
+    useEffect(() => {
+        async function fetchSecteurs() {
+            try {
+                const data = await getSecteursEmployeur();
+                setSecteurs(data);
+            } catch (err) {
+                console.error("Erreur lors du chargement des secteurs :", err);
+            } finally {
+                setLoadingSecteurs(false);
+            }
+        }
+        fetchSecteurs();
+    }, []);
+
     const onSubmit = async (e) => {
         e.preventDefault();
 
@@ -27,7 +46,6 @@ function AddEmployeur({ onAdd, error, message }) {
             e.target.reset();
         }
     };
-    const { t } = useTranslation();
 
     return (
         <div className="add-etudiant-page">
@@ -77,31 +95,20 @@ function AddEmployeur({ onAdd, error, message }) {
                                 name="businessSector"
                                 id="businessSector"
                                 defaultValue=""
+                                disabled={loadingSecteurs}
                                 className="w-full py-3 px-4 border border-gray-300 rounded-lg
                                     text-gray-700 bg-white
                                     focus:outline-none focus:ring-2 focus:ring-blue-500
                                     cursor-pointer"
                             >
-                                <option value="" disabled>{t('add_employeur.secteur')}</option>
-                                <option value="INFORMATIQUE">{t('add_employeur.INFORMATIQUE')}</option>
-                                <option value="PHARMACEUTIQUE">{t('add_employeur.PHARMACEUTIQUE')}</option>
-                                <option value="FINANCE">{t('add_employeur.FINANCE')}</option>
-                                <option value="SANTE">{t('add_employeur.SANTE')}</option>
-                                <option value="EDUCATION">{t('add_employeur.EDUCATION')}</option>
-                                <option value="COMMERCE_DETAIL">{t('add_employeur.COMMERCE_DETAIL')}</option>
-                                <option value="COMMERCE_GROS">{t('add_employeur.COMMERCE_GROS')}</option>
-                                <option value="RESTAURATION_HOTELLERIE">{t('add_employeur.RESTAURATION_HOTELLERIE')}</option>
-                                <option value="CONSTRUCTION">{t('add_employeur.CONSTRUCTION')}</option>
-                                <option value="IMMOBILIER">{t('add_employeur.IMMOBILIER')}</option>
-                                <option value="TRANSPORT_LOGISTIQUE">{t('add_employeur.TRANSPORT_LOGISTIQUE')}</option>
-                                <option value="MANUFACTURE_INDUSTRIE">{t('add_employeur.MANUFACTURE_INDUSTRIE')}</option>
-                                <option value="AGRICULTURE">{t('add_employeur.AGRICULTURE')}</option>
-                                <option value="MEDIAS_COMMUNICATION">{t('add_employeur.MEDIAS_COMMUNICATION')}</option>
-                                <option value="AEROSPATIAL">{t('add_employeur.AEROSPATIAL')}</option>
-                                <option value="ENERGIE">{t('add_employeur.ENERGIE')}</option>
-                                <option value="SERVICES_CONSEIL">{t('add_employeur.SERVICES_CONSEIL')}</option>
-                                <option value="ARTS_DIVERTISSEMENT">{t('add_employeur.ARTS_DIVERTISSEMENT')}</option>
-                                <option value="ADMINISTRATION_PUBLIQUE">{t('add_employeur.ADMINISTRATION_PUBLIQUE')}</option>
+                                <option value="" disabled>
+                                    {loadingSecteurs ? "..." : t('add_employeur.secteur')}
+                                </option>
+                                {secteurs.map((secteur) => (
+                                    <option key={secteur.name} value={secteur.name}>
+                                        {t(`add_employeur.${secteur.name}`)}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 

@@ -1,77 +1,12 @@
 @reference "../index.css";
 
 .add-etudiant-page {
-  @apply mx-auto max-w-5xl px-4 py-8;
+  @apply relative mx-auto max-w-3xl px-4 py-12;
 }
 
-.add-etudiant-page-header {
-  @apply mb-6 text-center;
-}
-
-.add-etudiant-title {
-  @apply text-2xl font-bold;
-}
-
-.add-etudiant-subtitle {
-  @apply mt-1 text-gray-600;
-}
-
-.add-etudiant-subtitle-line {
-  @apply mx-auto mt-2 block h-px w-full max-w-[500px] bg-[#043462];
-}
-
-.add-etudiant-section {
-  @apply grid gap-6 lg:grid-cols-[0.8fr_1.2fr];
-}
-
-.add-etudiant-slogan {
-  @apply relative flex min-h-80 items-center overflow-hidden rounded-lg p-8 text-white shadow-md;
+.add-etudiant-background {
+  @apply absolute inset-0 -z-10 overflow-hidden;
   background: #043462;
-}
-
-.add-etudiant-slogan-title {
-  @apply relative z-10 text-6xl lg:text-5xl font-bold leading-tight;
-  color: white;
-}
-
-.add-etudiant-slogan-name {
-  color: #0FFFDF;
-}
-
-.add-etudiant-slogan-line {
-  display: block;
-  width: 72px;
-  height: 6px;
-  margin-top: 14px;
-  background: #0FFFDF;
-}
-
-.add-etudiant-form {
-  @apply rounded-lg bg-white p-6 shadow-md;
-}
-
-.add-etudiant-fields {
-  @apply space-y-5;
-}
-
-.add-etudiant-row {
-  @apply grid gap-5 lg:grid-cols-2;
-}
-
-.add-etudiant-label {
-  @apply mb-1 block text-sm font-medium text-gray-700;
-}
-
-.add-etudiant-input {
-  @apply w-full rounded-md border border-gray-300 px-3 py-2;
-}
-
-.add-etudiant-login-text {
-  @apply mt-5 text-center text-sm text-gray-600;
-}
-
-.add-etudiant-login-link {
-  @apply font-medium text-blue-600 hover:text-blue-700;
 }
 
 .circleDesign {
@@ -90,6 +25,42 @@
   @apply h-[230px] w-[230px] bottom-[-130px] left-[70px] opacity-[0.35];
 }
 
+.add-etudiant-page-header {
+  @apply mb-6 text-center;
+}
+
+.add-etudiant-title {
+  @apply text-2xl font-bold text-white;
+}
+
+.add-etudiant-subtitle {
+  @apply mt-1 text-gray-200;
+}
+
+.add-etudiant-subtitle-line {
+  @apply mx-auto mt-2 block h-px w-full max-w-[500px] bg-[#0FFFDF];
+}
+
+.add-etudiant-form {
+  @apply relative bg-white rounded-xl p-8 shadow-xl;
+}
+
+.add-etudiant-fields {
+  @apply space-y-5;
+}
+
+.add-etudiant-row {
+  @apply grid gap-5 lg:grid-cols-2;
+}
+
+.add-etudiant-label {
+  @apply mb-1 block text-sm font-medium text-gray-700;
+}
+
+.add-etudiant-input {
+  @apply w-full rounded-md border border-gray-300 px-3 py-2;
+}
+
 .error-message {
   @apply mt-4 mb-3 font-semibold text-red-600;
 }
@@ -97,3 +68,17 @@
 .success-message {
   @apply mt-4 mb-3 font-semibold text-green-600;
 }
+
+.add-etudiant-login-text {
+  @apply mt-5 text-center text-sm text-gray-600;
+}
+
+.add-etudiant-login-link {
+  @apply font-medium text-blue-600 hover:text-blue-700;
+}
+
+.primary-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

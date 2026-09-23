@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import PageLayout from "../Design/PageLayout.jsx";
 import PublicLayout from "../Design/PublicLayout.jsx";
 
 import MainContainer from "../Design/MainContainer";
 import About from "../Design/About";
 import LoginForm from "../auth/LoginForm";
-import AddEtudiant from "../Profil/Etudiant/AddEtudiant.jsx";
-import AddEmployeur from "../Profil/Employeur/AddEmployeur.jsx";
+
 import InscriptionHome from "../../page/InscriptionHome.jsx";
 
 import Logout from "../auth/Logout";
@@ -15,16 +15,38 @@ import EmprunteurHome from "../../page/EmprunteurHome.jsx";
 import PreposeHome from "../../page/PreposeHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 
-export default function AppRoutes({ user, error, message, setError, setUser, addEtudiant, addEmployeur }) {
+export default function AppRoutes({
+                                      user,
+                                      error,
+                                      message,
+                                      setError,
+                                      setUser,
+                                      addEtudiant,
+                                      addProfesseur,
+                                      addEmployeur,
+                                      setMessage
+                                  }) {
     return (
         <Routes>
-            <Route element={<PageLayout />}>
+
+            <Route element={<PublicLayout />}>
                 <Route path="/login" element={<LoginForm setError={setError} />} />
-                <Route path="/inscription">
-                    <Route index element={<InscriptionHome />} />
-                    <Route path="addetudiant" element={<AddEtudiant onAdd={addEtudiant} error={error} message={message} />} />
-                    <Route path="addemployeur" element={<AddEmployeur onAdd={addEmployeur} error={error} message={message} />} />
-                </Route>
+
+                <Route
+                    path="/inscription"
+                    element={
+                        <InscriptionHome
+                            addEtudiant={addEtudiant}
+                            addEmployeur={addEmployeur}
+                            addProfesseur={addProfesseur}
+                            error={error}
+                            message={message}
+                            setError={setError}
+                            setMessage={setMessage}
+                        />
+
+                    }
+                />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>

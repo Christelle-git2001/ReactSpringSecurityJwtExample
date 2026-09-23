@@ -1,8 +1,8 @@
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import fetcher from "../../utils/fetcher";
-import { Link } from "react-router-dom";
-
+import "../../css/Login.css"
+import {useTranslation} from "react-i18next";
 
 
 const LoginForm = ({user, setUser, setError}) => {
@@ -14,8 +14,14 @@ const LoginForm = ({user, setUser, setError}) => {
   });
   const [warnings, setWarnings] = useState({
     email: '',
-    password: ''
+    password: '',
   });
+
+  const [erreurHTTP, setErreurHTTP] = useState({
+        message: '',
+      }
+  )
+  const { t } = useTranslation();
 
   const validateUser = () => {
     let isValid = true;
@@ -41,13 +47,11 @@ const LoginForm = ({user, setUser, setError}) => {
 
   const validateEmail = () => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    return emailRegex.test(formData.email);
+    return emailRegex.test(formData.email.trim());
   }
 
   const validatePassword = () => {
-    // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    // return passwordRegex.test(formData.password);
-    return true;
+    return formData.password.trim().length > 0;
   }
 
   const handleChanges = (e) => {
@@ -58,7 +62,6 @@ const LoginForm = ({user, setUser, setError}) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (validateUser()) {
       fetchFunc();
     }
@@ -79,109 +82,106 @@ const LoginForm = ({user, setUser, setError}) => {
       });
       if (!response.ok) {
         switch (response.status) {
-          case 401:
-            throw new Error("Not authorized");
-            break;
           case 404:
-            throw new Error("No server available");
+            throw new Error("Server not Found")
+          case 401:
+            setErreurHTTP({message: t("login.credentialsWrong") })
+            throw new Error("AUTH_FAILED");
           default:
             throw new Error("Not ok")
         }
       }
-      const data = await response.json();
-      localStorage.setItem('token', data.accessToken);
-
+      const token = await response.text();
+      console.log("Token reçu :", token);
+      localStorage.setItem('token', token);
       // Fetch user info to get role
       const userResponse = await fetcher('/user/me', {});
       if (!userResponse.ok) {
-        throw new Error("Failed to fetch user info");
+        throw new Error("Failed to fetch user info ");
       }
       const userData = await userResponse.json();
 
       // Navigate to role-specific page
-      const role = userData.role;
-      if (role === "ROLE_EMPRUNTEUR") {
-        navigate("/emprunteur");
-      } else if (role === "ROLE_PREPOSE") {
-        navigate("/prepose");
-      } else if (role === "ROLE_GESTIONNAIRE") {
+      const role = userData.role.name;
+      console.log(role)
+      if (role === "GESTIONNAIRE") {
         navigate("/gestionnaire");
+      } else if (role === "EMPLOYEUR") {
+        navigate("/employeur");
+      }else if (role === "ETUDIANT") {
+        navigate("/etudiant");
+      }else if (role === "PROFESSEUR") {
+        navigate("/professeur");
       } else {
         navigate("/");
       }
     } catch(error) {
-      setError(error)
-      navigate('/error')
+      if (error.message !== "AUTH_FAILED") {
+        setError(error)
+        navigate('/error')
+      }
     }
-
-
   }
-
-  // const axiosFetch = () => {
-  //   axiosInstance.post("/user/login", {
-  //     email: formData.email.toLowerCase(),
-  //     password: formData.password
-  //   }).then((response) => {
-  //
-  //     axiosInstance.defaults.headers.common['Authorization'] = response.data.accessToken;
-  //     sessionStorage.setItem('token', response.data.accessToken);
-  //
-  //     axiosInstance.get('/user/me')
-  //       .then(res => {
-  //         let newUser = {...res.data, isLoggedin: true}
-  //         setUser(newUser)
-  //       })
-  //       .catch(err => {
-  //         setWarnings({...warnings, email: err.response?.data.message})
-  //       })
-  //   }).catch((error) => {
-  //     if (error.response) {
-  //       if (error.response?.status === 406) {
-  //         setWarnings({...warnings, email: "wrongEmail"});
-  //         setWarnings({...warnings, password: "wrongPassword"});
-  //       }
-  //     } else {
-  //       //toast.error(t('fetchError') + t(error.response?.data.message));
-  //       setWarnings({...warnings, email: "wrongEmail", password: "wrongPassword"});
-  //     }
-  //   });
-  // }
 
   return (
     <>
       {user?.isLoggedIn ? (
-        user.role === "ROLE_EMPRUNTEUR" ? navigate("/emprunteur") :
-          user.role === "ROLE_PREPOSE" ? navigate("/prepose") :
             user.role === "ROLE_GESTIONNAIRE" ? navigate("/gestionnaire") :
               navigate("/")
       ) : (
-        <div className="container mt-5">
-          <h1 className="display-6 text-center mb-3">Projet Etudiant</h1>
-
-            <div className="row">
-              <div className="col-9 mx-auto">
-                <form id="login-form" className="form-group" onSubmit={handleSubmit}>
-                  <label htmlFor="email" className="mt-3">email</label>
-                  <input id="email" type="email"
-                         className={`form-control ${warnings.email ? "is-invalid" : ""} `}
-                         placeholder="placeHolderEmail" name="email" onChange={handleChanges} required/>
-                  <div className="text-danger">{warnings.email}</div>
-                  <label htmlFor="password" className="mt-3">password</label>
-                  <input id="password" type="password"
-                         className={`form-control ${warnings.password ? "is-invalid" : ""} `}
-                         placeholder="placeHolderPassword" name="password" onChange={handleChanges} required/>
-                  <div className="text-danger">{warnings.password}</div>
-                  <div className="row col-6 mx-auto">
-                    <button type="submit" className="btn btn-outline-ose my-5 mx-auto">loginSubmit</button>
-                  </div>
-                  <div className="text-center mt-3">
-                    <Link to="/inscription">Créer un compte</Link>
+          <div>
+            <div className="add-etudiant-page-header mt-10">
+              <h1 className="add-etudiant-title">{t('login.page_title')}</h1>
+              <p className="add-etudiant-subtitle">{t('login.page_subtitle')}</p>
+              <span className="add-etudiant-subtitle-line" />
+            </div>
+            <div className="add-etudiant-page grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] ">
+              <div className="title-login-section" >
+                <div className="add-etudiant-slogan">
+                  <div className="circleDesign circleDesign-top-right" />
+                  <div className="circleDesign circleDesign-bottom-left-1" />
+                  <div className="circleDesign circleDesign-bottom-left-2" />
+                  <h1 className="add-etudiant-slogan-title">{t('add_etudiant.slogan_message_1')}<br />{t('add_etudiant.slogan_message_2')}<br /><span
+                      className="add-etudiant-slogan-name">{t('add_etudiant.slogan_message_3')}</span><span className="add-etudiant-slogan-line" /></h1>
+                </div>
+              </div>
+              <div className={"form-login-section "}>
+                <form className={"form-login"} noValidate onSubmit={handleSubmit}>
+                  <div className={"input-login-section"}>
+                    {erreurHTTP.message !== "" && (
+                        <div className={"form-login-error"}>
+                          {erreurHTTP.message}
+                        </div>
+                    )}
+                    <div className={"login-input-field"}>
+                      <label htmlFor="courrielLogin">{t("login.courriel")}</label>
+                      <input type="email" placeholder={t("login.courriel_placeholder")} value={formData.email} onChange={handleChanges}  id="courrielLogin" name="email" className="w-full rounded-md border border-gray-300 px-3 py-2"/>
+                    </div>
+                    {warnings.email !== "" && (
+                        <div className={"form-login-error"}>
+                          {t("login.courriel.invalide")}
+                        </div>
+                    )}
+                    <div className={"login-input-field"}>
+                      <label htmlFor="motDePasseLogin">{t("login.motDePasse")}</label>
+                      <input type="password" placeholder={t("login.motDePasse_placeholder")} value={formData.password} onChange={handleChanges} id="motDePasseLogin" name="password" className="w-full rounded-md border border-gray-300 px-3 py-2"/>
+                    </div>
+                    {warnings.password !== "" && (
+                        <div className={"form-login-error"}>
+                          {t("login.password.invalide")}
+                        </div>
+                    )}
+                    <button type="submit" className="login-button-submit">
+                      {t('login.submit')}
+                    </button>
+                    <div className="mt-10">
+                      <p>{t("login.noAccount")} : <Link to="/inscription" className="add-etudiant-login-link">{t("login.inscription")}</Link></p>
+                    </div>
                   </div>
                 </form>
               </div>
             </div>
-
-        </div>
+          </div>
       )}
     </>
   )
