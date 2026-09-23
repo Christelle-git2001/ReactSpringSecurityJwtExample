@@ -2,7 +2,8 @@
   "inscription": {
     "titre": "You are?",
     "etudiant": "Student",
-    "employeur": "Employer"
+    "employeur": "Employer",
+    "professeur" : "Teacher"
   },
     "add_employeur": {
         "message-bienvenue": "WELCOME TO",
