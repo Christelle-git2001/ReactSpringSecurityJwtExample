@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "../../../css/AddEtudiant.css"; // On réutilise les mêmes styles
+import "../../../css/AddEtudiant.css";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { getDepartements } from "../../../api/http.jsx";
