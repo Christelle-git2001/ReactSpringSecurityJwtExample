@@ -1,8 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -11,6 +9,8 @@ import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.lacouf.rsbjwt.util.phoneNumberUtil.formatePhoneNumber;
 
 
 @Service
@@ -27,10 +27,11 @@ public class EmployeurService {
     }
 
     @Transactional
-    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException, ChampsObligatoiresManquants, FormatTelephoneNonValide {
        validerInscriptionEmployeur(inscriptionEmployeurDTO);
-        String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
-        Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
+       String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
+       String formatedPhoneNumber = formatePhoneNumber(inscriptionEmployeurDTO.phone());
+        Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword,formatedPhoneNumber);
         Employeur employeurCreer =  employeurRepository.save(employeur);
        return EmployeurDTO.of(employeurCreer);
     }

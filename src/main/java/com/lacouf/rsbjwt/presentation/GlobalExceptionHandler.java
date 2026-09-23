@@ -76,5 +76,21 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(
                         e.getMessage()));
     }
+
+    @ExceptionHandler(ChampsObligatoiresManquants.class)
+    public ResponseEntity<ErreurDTO> handleChampsObligatoiresManquants(ChampsObligatoiresManquants e){
+        logger.warn("Champs obligatoires manquants : {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(FormatTelephoneNonValide.class)
+    public ResponseEntity<ErreurDTO> handleFormatTelephoneNonValide(FormatTelephoneNonValide e){
+        logger.warn("Format du numero de telephone non valide : {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
 }
 
