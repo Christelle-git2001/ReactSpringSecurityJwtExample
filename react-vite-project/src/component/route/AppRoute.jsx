@@ -22,7 +22,8 @@ export default function AppRoutes({
                                       setError,
                                       setUser,
                                       addEtudiant,
-                                      addProfesseur
+                                      addProfesseur,
+                                      setMessage
                                   }) {
     return (
         <Routes>
@@ -39,7 +40,10 @@ export default function AppRoutes({
                             addProfesseur={addProfesseur}
                             error={error}
                             message={message}
+                            setError={setError}
+                            setMessage={setMessage}
                         />
+
                     }
                 />
 

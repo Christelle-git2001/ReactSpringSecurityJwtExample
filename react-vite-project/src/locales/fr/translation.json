@@ -2,7 +2,8 @@
   "inscription": {
     "titre": "Vous êtes ?",
     "etudiant": "Étudiant",
-    "employeur": "Employeur"
+    "employeur": "Employeur",
+    "professeur" : "Professeur"
   },
   "add_employeur": {
     "message-bienvenue": "BIENVENUE SUR",
@@ -56,6 +57,26 @@
     "confirm_password_placeholder": "Confirmer le mot de passe",
     "submit": "S'inscrire",
     "already_registered": "Déjà inscrit?",
+    "login": "Se connecter"
+  },
+  "add_professeur": {
+    "page_title": "S'inscrire sur OSE",
+    "page_subtitle": "Compte professeur",
+
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Courriel",
+    "phone": "Téléphone",
+    "matricule": "Matricule",
+
+    "department": "Département",
+    "department_placeholder": "-- Choisir un département --",
+
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+
+    "submit": "S'inscrire",
+    "already_registered": "Déjà inscrit ?",
     "login": "Se connecter"
   }
 }

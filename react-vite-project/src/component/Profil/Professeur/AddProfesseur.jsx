@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
-import "../../../css/AddEtudiant.css";
-import {getDepartements} from "../../../api/http.jsx"
+import "../../../css/AddEtudiant.css"; // On réutilise les mêmes styles
+import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
-
+import { getDepartements } from "../../../api/http.jsx";
 
 function AddProfesseur({ onAdd, error, message }) {
-
+    const { t } = useTranslation();
     const [departements, setDepartements] = useState([]);
+
+    const [isValid, setIsValid] = useState(false);
+
+    const validateForm = (e) => {
+        const form = e.target.form || e.target.closest("form");
+        setIsValid(form.checkValidity());
+    };
+
 
     useEffect(() => {
         getDepartements()
@@ -16,7 +24,6 @@ function AddProfesseur({ onAdd, error, message }) {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-
         const formData = new FormData(e.target);
 
         const nouveauProfesseur = {
@@ -31,105 +38,93 @@ function AddProfesseur({ onAdd, error, message }) {
         };
 
         const ajoutReussi = await onAdd(nouveauProfesseur);
-
-        if (ajoutReussi) {
-            e.target.reset();
-        }
+        if (ajoutReussi) e.target.reset();
     };
 
     return (
         <div className="add-etudiant-page">
+
             <div className="add-etudiant-page-header">
-                <h1 className="add-etudiant-title">S'inscrire sur OSE</h1>
-                <p className="add-etudiant-subtitle">Compte professeur</p>
+                <h1 className="add-etudiant-title">{t('add_professeur.page_title')}</h1>
+                <p className="add-etudiant-subtitle">{t('add_professeur.page_subtitle')}</p>
                 <span className="add-etudiant-subtitle-line" />
             </div>
 
-            <div className="add-etudiant-section">
-                <div className="add-etudiant-slogan">
-                    <div className="circleDesign circleDesign-top-right" />
-                    <div className="circleDesign circleDesign-bottom-left-1" />
-                    <div className="circleDesign circleDesign-bottom-left-2" />
-                    <h1 className="add-etudiant-slogan-title">
-                        BIENVENUE<br />SUR<br />
-                        <span className="add-etudiant-slogan-name">-OSE-</span>
-                        <span className="add-etudiant-slogan-line" />
-                    </h1>
-                </div>
+            <form onSubmit={onSubmit} className="add-etudiant-form" onChange={validateForm}>
 
-                <form onSubmit={onSubmit} className="add-etudiant-form">
-                    <div className="add-etudiant-fields">
+            <div className="add-etudiant-fields">
 
-                        <div className="add-etudiant-row">
-                            <div>
-                                <label htmlFor="firstName" className="add-etudiant-label">Prénom</label>
-                                <input type="text" required minLength="2" maxLength="50"
-                                       id="firstName" name="firstName" className="add-etudiant-input" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="lastName" className="add-etudiant-label">Nom</label>
-                                <input type="text" required minLength="2" maxLength="50"
-                                       id="lastName" name="lastName" className="add-etudiant-input" />
-                            </div>
+                    <div className="add-etudiant-row">
+                        <div>
+                            <label className="add-etudiant-label">{t('add_professeur.first_name')}</label>
+                            <input type="text" name="firstName" required className="add-etudiant-input" />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="add-etudiant-label">Courriel</label>
-                            <input type="email" required id="email" name="email" className="add-etudiant-input" />
-                        </div>
-
-                        <div className="add-etudiant-row">
-                            <div>
-                                <label htmlFor="telephone" className="add-etudiant-label">Téléphone</label>
-                                <input type="tel" required minLength="10" maxLength="12"
-                                       id="telephone" name="telephone"
-                                       pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}"
-                                       className="add-etudiant-input" />
-                            </div>
-
-                            <div>
-                                <label htmlFor="matricule" className="add-etudiant-label">Matricule</label>
-                                <input type="text" required minLength="7" maxLength="7"
-                                       id="matricule" name="matricule" className="add-etudiant-input" />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="department" className="add-etudiant-label">Département</label>
-                            <select id="department" name="department" required className="add-etudiant-input">
-                                <option value="">-- Choisir un département --</option>
-                                {departements.map(dep => (
-                                    <option key={dep.name} value={dep.name}>
-                                        {dep.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="add-etudiant-label">Mot de passe</label>
-                            <input type="password" required minLength="4"
-                                   id="password" name="password" className="add-etudiant-input" />
-                        </div>
-
-                        <div>
-                            <label htmlFor="confirmPassword" className="add-etudiant-label">Confirmer le mot de passe</label>
-                            <input type="password" required minLength="4"
-                                   id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
+                            <label className="add-etudiant-label">{t('add_professeur.last_name')}</label>
+                            <input type="text" name="lastName" required className="add-etudiant-input" />
                         </div>
                     </div>
 
-                    {error && <p className="error-message">{error}</p>}
-                    {message && <p className="success-message">{message}</p>}
+                    <div>
+                        <label className="add-etudiant-label">{t('add_professeur.email')}</label>
+                        <input type="email" name="email" required className="add-etudiant-input" />
+                    </div>
 
-                    <input type="submit" value="S'inscrire" className="primary-submit" />
+                    <div className="add-etudiant-row">
+                        <div>
+                            <label className="add-etudiant-label">{t('add_professeur.phone')}</label>
+                            <input type="tel" name="telephone" required className="add-etudiant-input" />
+                        </div>
 
-                    <p className="add-etudiant-login-text">
-                        Déjà inscrit? <Link to="/login" className="add-etudiant-login-link">Se connecter</Link>
-                    </p>
-                </form>
-            </div>
+                        <div>
+                            <label className="add-etudiant-label">{t('add_professeur.matricule')}</label>
+                            <input type="text" name="matricule" required minLength="7" maxLength="7" className="add-etudiant-input" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="add-etudiant-label">{t('add_professeur.department')}</label>
+                        <select name="department" required className="add-etudiant-input">
+                            <option value="">{t('add_professeur.department_placeholder')}</option>
+                            {departements.map(dep => (
+                                <option key={dep.name} value={dep.name}>
+                                    {dep.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="add-etudiant-label">{t('add_professeur.password')}</label>
+                        <input type="password" name="password" required className="add-etudiant-input" />
+                    </div>
+
+                    <div>
+                        <label className="add-etudiant-label">{t('add_professeur.confirm_password')}</label>
+                        <input type="password" name="confirmPassword" required className="add-etudiant-input" />
+                    </div>
+
+                </div>
+
+                {error && <p className="error-message">{error}</p>}
+                {message && <p className="success-message">{message}</p>}
+
+                <input
+                    type="submit"
+                    value={t('add_professeur.submit')}
+                    className="primary-submit"
+                    disabled={!isValid}
+                />
+
+                <p className="add-etudiant-login-text">
+                    {t('add_professeur.already_registered')}{" "}
+                    <Link to="/login" className="add-etudiant-login-link">
+                        {t('add_professeur.login')}
+                    </Link>
+                </p>
+
+            </form>
         </div>
     );
 }
