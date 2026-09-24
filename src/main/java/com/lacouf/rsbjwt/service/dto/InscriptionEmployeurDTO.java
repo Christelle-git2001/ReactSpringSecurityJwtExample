@@ -24,10 +24,6 @@ public record InscriptionEmployeurDTO(
                                       @NotNull(message = "validation.secteurActivite.required")
                                       SecteurActivite businessSector,
                                       @NotBlank(message = "validation.password.required")
-                                      @Pattern(
-                                              regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\w\\s]).+$",
-                                              message = "validation.password.invalid"
-                                      )
                                       String password,
                                       @NotBlank(message = "validation.passwordConfirmation.required")
                                       String passwordConfirmation)
