@@ -47,6 +47,7 @@ public class SecurityConfiguration {
     private static final String GESTIONNAIRE_DEPARTEMENTS_PATH = "/gestionnaire/departement";
     private static final String GESTIONNAIRE_SECTEURS_PATH = "/gestionnaire/secteurEmployeur";
     private static final String PROFESSEUR_REGISTER_PATH = "/professeur/inscription";
+    private static final String EMPLOYEUR_REGISTER_PATH = "/employeur/inscription";
     private static final String USER_PATH = "/user/**";
     private static final String EMPRUNTEUR_PATH = "/emprunteur/**";
     private static final String PREPOSE_PATH = "/etudiant/**";
@@ -64,6 +65,7 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, EMPRUNTEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, ETUDIANT_REGISTER_PATH).permitAll()
                         .requestMatchers(POST, PROFESSEUR_REGISTER_PATH).permitAll()
+                        .requestMatchers(POST, EMPLOYEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(GET, GESTIONNAIRE_DEPARTEMENTS_PATH).permitAll()
                         .requestMatchers(GET, GESTIONNAIRE_SECTEURS_PATH).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight requests

@@ -69,7 +69,7 @@ function AddEtudiant({ onAdd, error, message, isValid, validateForm }) {
               <div className="add-etudiant-row">
                 <div>
                   <label className="add-etudiant-label">{t('add_etudiant.phone')}</label>
-                  <input type="tel" name="telephone" required className="add-etudiant-input" />
+                  <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" required className="add-etudiant-input" />
                 </div>
 
                 <div>
@@ -84,7 +84,7 @@ function AddEtudiant({ onAdd, error, message, isValid, validateForm }) {
                     <option value="">{t('add_professeur.department_placeholder')}</option>
                     {departements.map(dep => (
                         <option key={dep.name} value={dep.name}>
-                          {dep.label}
+                          {t(`departement.${dep.name}`)}
                         </option>
                     ))}
                   </select>

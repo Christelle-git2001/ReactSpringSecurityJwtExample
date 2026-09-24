@@ -79,7 +79,28 @@
     "already_registered": "Déjà inscrit ?",
     "login": "Se connecter"
   },
-  "login": {
+  "add_employeur": {
+    "page_title": "S'inscrire sur OSE",
+    "page_subtitle": "Compte employeur",
+
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Adresse courriel",
+    "phone": "Téléphone",
+    "town": "Ville",
+    "business_name": "Nom de l'entreprise",
+    "business_sector": "Secteur d'activité",
+    "business_sector_placeholder": "-- Choisir un secteur --",
+    "loading_sectors": "Chargement des secteurs...",
+
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+
+    "submit": "Créer le compte",
+    "already_registered": "Déjà inscrit ?",
+    "login": "Se connecter"
+  },
+"login": {
     "page_title": "Connexion",
     "page_subtitle": "Accédez à votre espace utilisateur",
     "courriel": "Adresse courriel",
@@ -104,5 +125,26 @@
     "GENIE_PHYSIQUE": "Technologie du génie physique",
     "ARCHITECTURE": "Technologie de l'architecture",
     "ESTIMATION_EVALUATION": "Technologie de l'estimation et de l'évaluation en bâtiment"
+  },
+  "secteur": {
+    "INFORMATIQUE": "Informatique",
+    "PHARMACEUTIQUE": "Pharmaceutique",
+    "FINANCE": "Finance",
+    "SANTE": "Santé",
+    "EDUCATION": "Éducation",
+    "COMMERCE_DETAIL": "Commerce de détail",
+    "COMMERCE_GROS": "Commerce en gros",
+    "RESTAURATION_HOTELLERIE": "Restauration et hôtellerie",
+    "CONSTRUCTION": "Construction",
+    "IMMOBILIER": "Immobilier",
+    "TRANSPORT_LOGISTIQUE": "Transport et logistique",
+    "MANUFACTURE_INDUSTRIE": "Industrie manufacturière",
+    "AGRICULTURE": "Agriculture",
+    "MEDIAS_COMMUNICATION": "Médias et communication",
+    "AEROSPATIAL": "Aérospatial",
+    "ENERGIE": "Énergie",
+    "SERVICES_CONSEIL": "Services et conseil",
+    "ARTS_DIVERTISSEMENT": "Arts et divertissement",
+    "ADMINISTRATION_PUBLIQUE": "Administration publique"
   }
 }

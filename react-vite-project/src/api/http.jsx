@@ -7,7 +7,11 @@ export async function fetchJson(path, options = {}) {
 
 export async function fetchApi(path, options = {}) {
     try {
-        const res = await fetch(`${BASE_URL}${path}`, options);
+
+        const cleanPath = path.startsWith('/') ? path : `/${path}`;
+        const cleanBaseUrl = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+
+        const res = await fetch(`${cleanBaseUrl}${cleanPath}`, options);
 
         if (!res.ok) {
             await manageError(res);
@@ -35,4 +39,8 @@ async function manageError(res) {
 
 export async function getDepartements() {
     return await fetchJson("/gestionnaire/departement");
+}
+
+export async function getSecteursEmployeur() {
+    return fetchJson("/gestionnaire/secteurEmployeur");
 }

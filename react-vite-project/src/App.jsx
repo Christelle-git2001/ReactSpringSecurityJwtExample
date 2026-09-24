@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import { useNavigate} from "react-router-dom";
 import { inscrireEtudiant } from "./api/etudiant.jsx";
 import { inscrireProfesseur } from "./api/professeur.jsx";
+import { inscrireEmployeur } from "./api/employeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 function App() {
@@ -40,6 +41,20 @@ function App() {
     }
   }
 
+  async function addEmployeur(employeur) {
+    try {
+      await inscrireEmployeur(employeur);
+      setMessage("Employeur ajouté avec succès.");
+      setError(null);
+      navigate("/login");
+      return true;
+    } catch (error) {
+      setError(error.message || "Une erreur inattendue s'est produite.");
+      setMessage("");
+      return false;
+    }
+  }
+
   return (
       <div className="App">
         <AppRoutes
@@ -50,6 +65,7 @@ function App() {
             setUser={setUser}
             addEtudiant={addEtudiant}
             addProfesseur={addProfesseur}
+            addEmployeur={addEmployeur}
             setMessage={setMessage}
         />
       </div>
