@@ -23,8 +23,6 @@ public record InscriptionEmployeurDTO(
                                       String businessName,
                                       @NotNull(message = "validation.secteurActivite.required")
                                       SecteurActivite businessSector,
-                                      @NotBlank(message = "validation.typeEntreprise.required")
-                                      String businesstype,
                                       @NotBlank(message = "validation.password.required")
                                       @Pattern(
                                               regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\w\\s]).+$",
@@ -38,8 +36,8 @@ public record InscriptionEmployeurDTO(
         return Employeur.builder()
                 .firstName(firstName)
                 .lastName(lastName)
-                .email(email)
                 .phone(phone)
+                .email(email)
                 .town(town)
                 .businessName(businessName)
                 .businessSector(businessSector)
