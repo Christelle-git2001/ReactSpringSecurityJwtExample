@@ -1,10 +1,13 @@
 package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 //import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.EtudiantService;
+import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,13 +25,15 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final UserAppRepository userAppRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final EtudiantService etudiantService;
 
-    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,  UserAppRepository userAppRepository, PasswordEncoder passwordEncoder) {
+    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder, EtudiantService etudiantService) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
        // this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
+        this.etudiantService = etudiantService;
     }
 
     public static void main(String[] args) {
@@ -37,7 +42,9 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-      /*  gestionnaireRepository.save(
+        InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
+        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+        /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
                         .firstName("Gerard")
                         .lastName("Biblio")

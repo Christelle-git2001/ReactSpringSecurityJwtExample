@@ -22,12 +22,12 @@ export default function AppRoutes({
                                       setError,
                                       setUser,
                                       addEtudiant,
-                                      addProfesseur
+                                      addProfesseur,
+                                      setMessage
                                   }) {
     return (
         <Routes>
 
-            {/* Pages publiques */}
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<LoginForm setError={setError} />} />
 
@@ -39,14 +39,16 @@ export default function AppRoutes({
                             addProfesseur={addProfesseur}
                             error={error}
                             message={message}
+                            setError={setError}
+                            setMessage={setMessage}
                         />
+
                     }
                 />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
 
-            {/* Pages protégées */}
             <Route element={<PageLayout user={user} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />

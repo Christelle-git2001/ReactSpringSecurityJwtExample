@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 
 function AddEtudiant({ onAdd, error, message }) {
   const { t } = useTranslation();
+
   const [departements, setDepartements] = useState([]);
 
   useEffect(() => {
@@ -53,59 +54,60 @@ function AddEtudiant({ onAdd, error, message }) {
           </div>
 
           <form onSubmit={onSubmit} className="add-etudiant-form">
+
             <div className="add-etudiant-fields">
-              <div className="add-etudiant-row">
-                <div>
-                  <label htmlFor="firstName" className="add-etudiant-label">{t('add_etudiant.first_name')}</label>
-                  <input type="text" placeholder={t('add_etudiant.first_name_placeholder')} required minLength="2" maxLength="50" id="firstName" name="firstName" className="add-etudiant-input" />
-                </div>
-
-                <div>
-                  <label htmlFor="lastName" className="add-etudiant-label">{t('add_etudiant.last_name')}</label>
-                  <input type="text" placeholder={t('add_etudiant.last_name_placeholder')} required minLength="2" maxLength="50" id="lastName" name="lastName" className="add-etudiant-input" />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="email" className="add-etudiant-label">{t('add_etudiant.email')}</label>
-                <input type="email" placeholder={t('add_etudiant.email_placeholder')} required id="email" name="email" className="add-etudiant-input" />
-              </div>
 
               <div className="add-etudiant-row">
                 <div>
-                  <label htmlFor="telephone" className="add-etudiant-label">{t('add_etudiant.phone')}</label>
-                  <input type="tel" placeholder={t('add_etudiant.phone_placeholder')} required minLength="10"
-                         maxLength="12" id="telephone" name="telephone"
-                         pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" className="add-etudiant-input" />
+                  <label className="add-etudiant-label">{t('add_etudiant.first_name')}</label>
+                  <input type="text" name="firstName" required className="add-etudiant-input" />
                 </div>
 
                 <div>
-                  <label htmlFor="matricule" className="add-etudiant-label">{t('add_etudiant.matricule')}</label>
-                  <input type="text" placeholder={t('add_etudiant.matricule_placeholder')} required minLength="7" maxLength="7" id="matricule" name="matricule" className="add-etudiant-input" />
+                  <label className="add-etudiant-label">{t('add_etudiant.last_name')}</label>
+                  <input type="text" name="lastName" required className="add-etudiant-input" />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="department" className="add-etudiant-label">Département</label>
-                <select id="department" name="department" required className="add-etudiant-input">
-                  <option value="">-- Choisir un département --</option>
-                  {departements.map(dep => (
-                      <option key={dep.name} value={dep.name}>
-                        {dep.label}
-                      </option>
-                  ))}
-                </select>
+                <label className="add-etudiant-label">{t('add_etudiant.email')}</label>
+                <input type="email" name="email" required className="add-etudiant-input" />
+              </div>
+
+              <div className="add-etudiant-row">
+                <div>
+                  <label className="add-etudiant-label">{t('add_etudiant.phone')}</label>
+                  <input type="tel" name="telephone" required className="add-etudiant-input" />
+                </div>
+
+                <div>
+                  <label className="add-etudiant-label">{t('add_etudiant.matricule')}</label>
+                  <input type="text" name="matricule" required className="add-etudiant-input" />
+                </div>
+              </div>
+
+                <div>
+                  <label htmlFor="department" className="add-etudiant-label">Département</label>
+                  <select id="department" name="department" required className="add-etudiant-input">
+                    <option value="">-- Choisir un département --</option>
+                    {departements.map(dep => (
+                        <option key={dep.name} value={dep.name}>
+                          {dep.label}
+                        </option>
+                    ))}
+                  </select>
+                </div>
+
+              <div>
+                <label className="add-etudiant-label">{t('add_etudiant.password')}</label>
+                <input type="password" name="password" required className="add-etudiant-input" />
               </div>
 
               <div>
-                <label htmlFor="password" className="add-etudiant-label">{t('add_etudiant.password')}</label>
-                <input type="password" placeholder={t('add_etudiant.password_placeholder')} required minLength="4" id="password" name="password" className="add-etudiant-input" />
+                <label className="add-etudiant-label">{t('add_etudiant.confirm_password')}</label>
+                <input type="password" name="confirmPassword" required className="add-etudiant-input" />
               </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="add-etudiant-label">{t('add_etudiant.confirm_password')}</label>
-                <input type="password" placeholder={t('add_etudiant.confirm_password_placeholder')} required minLength="4" id="confirmPassword" name="confirmPassword" className="add-etudiant-input" />
-              </div>
             </div>
 
             {error && <p className="error-message">{error}</p>}
@@ -114,8 +116,12 @@ function AddEtudiant({ onAdd, error, message }) {
             <input type="submit" value={t('add_etudiant.submit')} className="primary-submit" />
 
             <p className="add-etudiant-login-text">
-              {t('add_etudiant.already_registered')} <Link to="/login" className="add-etudiant-login-link">{t('add_etudiant.login')}</Link>
+              {t('add_etudiant.already_registered')}{" "}
+              <Link to="/login" className="add-etudiant-login-link">
+                {t('add_etudiant.login')}
+              </Link>
             </p>
+
           </form>
         </div>
       </div>

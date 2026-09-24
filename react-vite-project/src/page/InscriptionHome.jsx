@@ -1,69 +1,79 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import AddEtudiant from "../component/Profil/Etudiant/AddEtudiant.jsx";
 import AddProfesseur from "../component/Profil/Professeur/AddProfesseur.jsx";
 import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
 
-function InscriptionHome({ addEtudiant, addProfesseur, error, message }) {
+import "../css/InscriptionHome.css";
 
+function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError, setMessage }) {
+    const { t } = useTranslation();
     const [profil, setProfil] = useState("ETUDIANT");
+    const profiles = [
+        { id: "ETUDIANT", label: t("inscription.etudiant") },
+        { id: "PROFESSEUR", label: t("inscription.professeur") },
+        { id: "EMPLOYEUR", label: t("inscription.employeur") }
+    ];
+
+    useEffect(() => {
+        setError(null);
+        setMessage("");
+    }, [profil]);
+
 
     return (
-        <div className="signup-container">
-
-            {/* Titre */}
-            <div className="signup-header">
-                <h1>Créer un compte</h1>
-                <p>Choisissez votre type de profil</p>
+        <div className="inscription-wrapper">
+            <div className="inscription-background">
+                <div className="circleDesign circleDesign-top-right" />
+                <div className="circleDesign circleDesign-bottom-left-1" />
+                <div className="circleDesign circleDesign-bottom-left-2" />
             </div>
+            <div className="inscription-page">
+                <div className="inscription-buttons">
+                    {profiles.map((p) => {
+                        const active = profil === p.id;
+                        return (
+                            <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => setProfil(p.id)}
+                                className={`inscription-btn ${
+                                    active ? "inscription-btn-active" : "inscription-btn-inactive"
+                                }`}
+                            >
+                                {p.label}
+                            </button>
+                        );
+                    })}
+                </div>
+                <div className="inscription-form-container">
+                    {profil === "ETUDIANT" && (
+                        <AddEtudiant
+                            onAdd={addEtudiant}
+                            error={error}
+                            message={message}
+                        />
+                    )}
 
-            {/* Formulaire dynamique */}
-            <div className="signup-form">
+                    {profil === "PROFESSEUR" && (
+                        <AddProfesseur
+                            onAdd={addProfesseur}
+                            error={error}
+                            message={message}
+                        />
+                    )}
 
-                {profil === "ETUDIANT" && (
-                    <AddEtudiant
-                        onAdd={addEtudiant}
-                        error={error}
-                        message={message}
-                    />
-                )}
+                    {profil === "EMPLOYEUR" && (
+                        <AddEmployeur
+                            onAdd={() => {}}
+                            error={error}
+                            message={message}
+                        />
+                    )}
+                </div>
 
-                {profil === "PROFESSEUR" && (
-                    <AddProfesseur
-                        onAdd={addProfesseur}
-                        error={error}
-                        message={message}
-                    />
-                )}
-
-                {profil === "EMPLOYEUR" && (
-                    <AddEmployeur
-                        onAdd={() => {}}   // Employeur n’a pas de backend pour l’instant
-                    />
-                )}
             </div>
-
-            {/* Boutons de sélection */}
-            <div className="signup-profile-selector">
-                <button onClick={() => setProfil("ETUDIANT")}>
-                    Étudiant
-                </button>
-
-                <button onClick={() => setProfil("PROFESSEUR")}>
-                    Professeur
-                </button>
-
-                <button onClick={() => setProfil("EMPLOYEUR")}>
-                    Employeur
-                </button>
-            </div>
-
-            {/* Lien vers login */}
-            <div className="signup-login-link">
-                <p>Déjà inscrit ?</p>
-                <a href="/login">Se connecter</a>
-            </div>
-
         </div>
     );
 }

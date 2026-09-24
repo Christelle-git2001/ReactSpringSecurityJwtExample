@@ -1,64 +1,84 @@
 @reference "../index.css";
 
-/* Conteneur principal plus compact */
 .add-etudiant-page {
-  @apply w-full mx-auto;
+  @apply relative mx-auto max-w-3xl px-4 py-12;
+}
+
+.add-etudiant-background {
+  @apply absolute inset-0 -z-10 overflow-hidden;
+  background: #043462;
+}
+
+.circleDesign {
+  @apply absolute rounded-full bg-[#0FFFDF];
+}
+
+.circleDesign-top-right {
+  @apply h-[190px] w-[190px] top-[-90px] right-[-60px] opacity-[0.45];
+}
+
+.circleDesign-bottom-left-1 {
+  @apply h-[260px] w-[260px] bottom-[-130px] left-[-70px] opacity-[0.65];
+}
+
+.circleDesign-bottom-left-2 {
+  @apply h-[230px] w-[230px] bottom-[-130px] left-[70px] opacity-[0.35];
 }
 
 .add-etudiant-page-header {
-  @apply mb-4 text-center;
+  @apply mb-6 text-center;
 }
 
 .add-etudiant-title {
-  @apply text-xl font-bold text-[#043462];
+  @apply text-2xl font-bold text-white;
 }
 
 .add-etudiant-subtitle {
-  @apply text-sm text-gray-500;
+  @apply mt-1 text-gray-200;
 }
 
-/* On retire le grid côte-à-côte si présent pour garder un formulaire centré et fluide */
-.add-etudiant-section {
-  @apply flex flex-col gap-4;
-}
-
-/* Le slogan/banner devient un petit bandeau décoratif discret au sommet du formulaire si conservé */
-.add-etudiant-slogan {
-  @apply hidden; /* Masqué pour réduire la taille globale de la carte, ou ajustable */
+.add-etudiant-subtitle-line {
+  @apply mx-auto mt-2 block h-px w-full max-w-[500px] bg-[#0FFFDF];
 }
 
 .add-etudiant-form {
-  @apply bg-white rounded-md;
+  @apply relative bg-white rounded-xl p-8 shadow-xl;
 }
 
 .add-etudiant-fields {
-  @apply space-y-4;
+  @apply space-y-5;
 }
 
 .add-etudiant-row {
-  @apply grid gap-4 sm:grid-cols-2;
+  @apply grid gap-5 lg:grid-cols-2;
 }
 
 .add-etudiant-label {
-  @apply mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600;
+  @apply mb-1 block text-sm font-medium text-gray-700;
 }
 
 .add-etudiant-input {
-  @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#043462] focus:outline-none focus:ring-1 focus:ring-[#043462];
-}
-
-.add-etudiant-login-text {
-  @apply mt-4 text-center text-sm text-gray-600;
-}
-
-.add-etudiant-login-link {
-  @apply font-medium text-[#043462] hover:underline;
+  @apply w-full rounded-md border border-gray-300 px-3 py-2;
 }
 
 .error-message {
-  @apply mt-3 text-sm font-medium text-red-600;
+  @apply mt-4 mb-3 font-semibold text-red-600;
 }
 
 .success-message {
-  @apply mt-3 text-sm font-medium text-green-600;
+  @apply mt-4 mb-3 font-semibold text-green-600;
 }
+
+.add-etudiant-login-text {
+  @apply mt-5 text-center text-sm text-gray-600;
+}
+
+.add-etudiant-login-link {
+  @apply font-medium text-blue-600 hover:text-blue-700;
+}
+
+.primary-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

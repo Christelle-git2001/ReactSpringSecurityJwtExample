@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErreurDTO> handleUserNotFound(Exception e){
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErreurDTO(
+                        e.getMessage()));
     }
 }
 

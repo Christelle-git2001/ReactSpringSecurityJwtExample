@@ -2,7 +2,8 @@
   "inscription": {
     "titre": "You are?",
     "etudiant": "Student",
-    "employeur": "Employer"
+    "employeur": "Employer",
+    "professeur" : "Teacher"
   },
     "add_employeur": {
         "message-bienvenue": "WELCOME TO",
@@ -57,5 +58,51 @@
       "department_genie_physique": "Engineering Physics Technology",
       "department_architecture": "Architectural Technology",
       "department_estimation_evaluation": "Building Estimation and Appraisal Technology"
-    }
+    },
+  "add_professeur": {
+    "page_title": "Register on OSE",
+    "page_subtitle": "Professor account",
+
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email",
+    "phone": "Phone number",
+    "matricule": "ID number",
+
+    "department": "Department",
+    "department_placeholder": "-- Select a department --",
+
+    "password": "Password",
+    "confirm_password": "Confirm password",
+
+    "submit": "Register",
+    "already_registered": "Already registered?",
+    "login": "Log in"
+  },
+  "login" : {
+    "page_title": "Login",
+    "page_subtitle": "Access to your user account",
+    "courriel": "Email address",
+    "courriel_placeholder": "example@domain.com",
+    "courriel.invalide": "Please enter a valid email address | Ex : example@domain.com",
+    "motDePasse": "Password",
+    "motDePasse_placeholder": "Enter your password",
+    "password.invalide": "Your password is required.",
+    "submit": "Log in",
+    "noAccount" : "No account ?",
+    "inscription" : "Sign up !",
+    "credentialsWrong" : "Email or Password are not correct, please try again !"
+  },
+  "departement": {
+    "INFORMATIQUE": "Computer Science",
+    "GESTION": "Business Management",
+    "TRAVAIL_SOCIAL": "Social Work",
+    "EDUCATION_ENFANCE": "Early Childhood Education",
+    "SOINS_INFIRMIERS": "Nursing",
+    "GENIE_CIVIL": "Civil Engineering",
+    "GENIE_ELECTRIQUE": "Electrical Engineering",
+    "GENIE_PHYSIQUE": "Physical Engineering",
+    "ARCHITECTURE": "Architecture",
+    "ESTIMATION_EVALUATION": "Building Estimation and Evaluation"
+  }
 }

@@ -40,7 +40,8 @@ function App() {
     }
   }
 
-    return (
+  return (
+      <div className="App">
         <AppRoutes
             user={user}
             error={error}
@@ -49,8 +50,11 @@ function App() {
             setUser={setUser}
             addEtudiant={addEtudiant}
             addProfesseur={addProfesseur}
+            setMessage={setMessage}
         />
-    );
+      </div>
+  );
+
 }
 
 export default App;
