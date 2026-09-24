@@ -89,7 +89,7 @@ function AddProfesseur({ onAdd, error, message }) {
                             <option value="">{t('add_professeur.department_placeholder')}</option>
                             {departements.map(dep => (
                                 <option key={dep.name} value={dep.name}>
-                                    {dep.label}
+                                    {t(`departement.${dep.name}`)}
                                 </option>
                             ))}
                         </select>
