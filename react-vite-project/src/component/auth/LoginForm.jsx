@@ -1,6 +1,8 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import fetcher from "../../utils/fetcher";
+import "../../css/AddEtudiant.css";
+import "../../css/InscriptionHome.css";
 import "../../css/Login.css"
 import {useTranslation} from "react-i18next";
 
@@ -129,59 +131,61 @@ const LoginForm = ({user, setUser, setError}) => {
             user.role === "ROLE_GESTIONNAIRE" ? navigate("/gestionnaire") :
               navigate("/")
       ) : (
-          <div>
-            <div className="add-etudiant-page-header mt-10">
-              <h1 className="add-etudiant-title">{t('login.page_title')}</h1>
-              <p className="add-etudiant-subtitle">{t('login.page_subtitle')}</p>
-              <span className="add-etudiant-subtitle-line" />
+          <div className="inscription-wrapper">
+            <div className="inscription-background">
+              <div className="circleDesign circleDesign-top-right" />
+              <div className="circleDesign circleDesign-bottom-left-1" />
+              <div className="circleDesign circleDesign-bottom-left-2" />
             </div>
-            <div className="add-etudiant-page grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] ">
-              <div className="title-login-section" >
-                <div className="add-etudiant-slogan">
-                  <div className="circleDesign circleDesign-top-right" />
-                  <div className="circleDesign circleDesign-bottom-left-1" />
-                  <div className="circleDesign circleDesign-bottom-left-2" />
-                  <h1 className="add-etudiant-slogan-title">{t('add_etudiant.slogan_message_1')}<br />{t('add_etudiant.slogan_message_2')}<br /><span
-                      className="add-etudiant-slogan-name">{t('add_etudiant.slogan_message_3')}</span><span className="add-etudiant-slogan-line" /></h1>
-                </div>
+
+            <div className="inscription-page">
+              <div className="add-etudiant-page-header mt-10">
+                <h1 className="add-etudiant-title">{t('login.page_title')}</h1>
+                <p className="add-etudiant-subtitle">{t('login.page_subtitle')}</p>
+                <span className="add-etudiant-subtitle-line" />
               </div>
-              <div className={"form-login-section "}>
-                <form className={"form-login"} noValidate onSubmit={handleSubmit}>
-                  <div className={"input-login-section"}>
+                <form className={"add-etudiant-form login-form"} noValidate onSubmit={handleSubmit}>
+                  <div className={"add-etudiant-fields"}>
                     {erreurHTTP.message !== "" && (
                         <div className={"form-login-error"}>
                           {erreurHTTP.message}
                         </div>
                     )}
+
                     <div className={"login-input-field"}>
                       <label htmlFor="courrielLogin">{t("login.courriel")}</label>
-                      <input type="email" placeholder={t("login.courriel_placeholder")} value={formData.email} onChange={handleChanges}  id="courrielLogin" name="email" className="w-full rounded-md border border-gray-300 px-3 py-2"/>
+                      <input type="email" placeholder={t("login.courriel_placeholder")} value={formData.email} onChange={handleChanges}  id="courrielLogin" name="email" className="add-etudiant-input"/>
                     </div>
+
                     {warnings.email !== "" && (
                         <div className={"form-login-error"}>
                           {t("login.courriel.invalide")}
                         </div>
                     )}
+
                     <div className={"login-input-field"}>
                       <label htmlFor="motDePasseLogin">{t("login.motDePasse")}</label>
-                      <input type="password" placeholder={t("login.motDePasse_placeholder")} value={formData.password} onChange={handleChanges} id="motDePasseLogin" name="password" className="w-full rounded-md border border-gray-300 px-3 py-2"/>
+                      <input type="password" placeholder={t("login.motDePasse_placeholder")} value={formData.password} onChange={handleChanges} id="motDePasseLogin" name="password" className="add-etudiant-input"/>
                     </div>
                     {warnings.password !== "" && (
                         <div className={"form-login-error"}>
                           {t("login.password.invalide")}
                         </div>
                     )}
-                    <button type="submit" className="login-button-submit">
+                    <button type="submit" className="primary-submit">
                       {t('login.submit')}
                     </button>
                     <div className="mt-10">
-                      <p>{t("login.noAccount")} : <Link to="/inscription" className="add-etudiant-login-link">{t("login.inscription")}</Link></p>
+                      <p className="add-etudiant-login-text">
+                        {t("login.noAccount")} : <Link to="/inscription"
+                        className="add-etudiant-login-link">
+                        {t("login.inscription")}</Link>
+                      </p>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
-          </div>
       )}
     </>
   )

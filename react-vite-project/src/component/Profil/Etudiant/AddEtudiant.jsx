@@ -45,14 +45,6 @@ function AddEtudiant({ onAdd, error, message }) {
         </div>
 
         <div className="add-etudiant-section">
-          <div className="add-etudiant-slogan">
-            <div className="circleDesign circleDesign-top-right" />
-            <div className="circleDesign circleDesign-bottom-left-1" />
-            <div className="circleDesign circleDesign-bottom-left-2" />
-            <h1 className="add-etudiant-slogan-title">{t('add_etudiant.slogan_message_1')}<br />{t('add_etudiant.slogan_message_2')}<br /><span
-                className="add-etudiant-slogan-name">{t('add_etudiant.slogan_message_3')}</span><span className="add-etudiant-slogan-line" /></h1>
-          </div>
-
           <form onSubmit={onSubmit} className="add-etudiant-form">
 
             <div className="add-etudiant-fields">
