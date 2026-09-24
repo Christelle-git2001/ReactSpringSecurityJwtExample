@@ -79,9 +79,9 @@ function AddEtudiant({ onAdd, error, message }) {
               </div>
 
                 <div>
-                  <label htmlFor="department" className="add-etudiant-label">Département</label>
+                  <label htmlFor="department" className="add-professeur-label">{t('add_professeur.department')}</label>
                   <select id="department" name="department" required className="add-etudiant-input">
-                    <option value="">-- Choisir un département --</option>
+                    <option value="">{t('add_professeur.department_placeholder')}</option>
                     {departements.map(dep => (
                         <option key={dep.name} value={dep.name}>
                           {dep.label}

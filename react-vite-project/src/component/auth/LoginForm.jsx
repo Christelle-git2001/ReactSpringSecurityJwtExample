@@ -5,6 +5,7 @@ import "../../css/AddEtudiant.css";
 import "../../css/InscriptionHome.css";
 import "../../css/Login.css"
 import {useTranslation} from "react-i18next";
+import LanguageSwitche from "../../locales/LanguageSwitch.jsx";
 
 
 const LoginForm = ({user, setUser, setError}) => {
@@ -132,6 +133,9 @@ const LoginForm = ({user, setUser, setError}) => {
               navigate("/")
       ) : (
           <div className="inscription-wrapper">
+            <div className="fixed bottom-4 left-4 z-50">
+              <LanguageSwitche />
+            </div>
             <div className="inscription-background">
               <div className="circleDesign circleDesign-top-right" />
               <div className="circleDesign circleDesign-bottom-left-1" />
