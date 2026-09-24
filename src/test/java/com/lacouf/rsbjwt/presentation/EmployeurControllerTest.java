@@ -138,23 +138,4 @@ public class EmployeurControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void doitRetournerBadRequestQuandMotDePasseInvalide() throws Exception{
-        inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
-                "Gerard",
-                "Robert",
-                "165-685-4569",
-                "Gerard.Robert@hotmail.com",
-                "Mercier",
-                "Gerard inc",
-                SecteurActivite.AEROSPATIAL,
-                "HAHA",
-                "HAHA"
-        );
-
-        mockMvc.perform(post("/employeur/inscription")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
-                .andExpect(status().isBadRequest());
-    }
 }

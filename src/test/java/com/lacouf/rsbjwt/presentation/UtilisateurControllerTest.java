@@ -20,7 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -52,39 +52,38 @@ public class UtilisateurControllerTest {
 
     @Test
     void connexionOk() throws Exception {
-
         when(userAppService.authenticateUser(any(LoginDTO.class)))
                 .thenReturn("fake-jwt-token");
 
         mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk()); // Si votre contrôleur renvoie 200 (sinon isAccepted())
     }
 
     @Test
     void connexionMotDePasseIncorrect() throws Exception {
-
         when(userAppService.authenticateUser(any(LoginDTO.class)))
                 .thenThrow(new AuthenticationException(
-                HttpStatus.FORBIDDEN,
-                "Incorrect username or password"));
+                        HttpStatus.UNAUTHORIZED,
+                        "login.credentialsWrong"));
 
         mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized()) // 401 au lieu de 403
+                .andExpect(jsonPath("$.message").value("login.credentialsWrong"));
     }
 
     @Test
     void connexionUtilisateurInexistant() throws Exception {
-
         when(userAppService.authenticateUser(any(LoginDTO.class)))
                 .thenThrow(new UserNotFoundException());
 
         mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized()) // 401 au lieu de 404 selon votre ExceptionHandler
+                .andExpect(jsonPath("$.message").value("error.user_not_found"));
     }
 }
