@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { getDepartements } from "../../../api/http.jsx";
 
-function AddProfesseur({ onAdd, error, message, isValid, validateForm }) {
+function AddProfesseur({ onAdd, error, message }) {
     const { t } = useTranslation();
     const [departements, setDepartements] = useState([]);
 
@@ -43,7 +43,7 @@ function AddProfesseur({ onAdd, error, message, isValid, validateForm }) {
                 <span className="add-etudiant-subtitle-line" />
             </div>
 
-            <form onSubmit={onSubmit} className="add-etudiant-form" onChange={validateForm}>
+            <form onSubmit={onSubmit} className="add-etudiant-form">
 
             <div className="add-etudiant-fields">
 
@@ -61,13 +61,18 @@ function AddProfesseur({ onAdd, error, message, isValid, validateForm }) {
 
                     <div>
                         <label className="add-etudiant-label">{t('add_professeur.email')}</label>
-                        <input type="email" name="email" required className="add-etudiant-input" />
+                        <input
+                            type="email"
+                            name="email" required
+                            className="add-etudiant-input"
+                            pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+                        />
                     </div>
 
                     <div className="add-etudiant-row">
                         <div>
                             <label className="add-etudiant-label">{t('add_professeur.phone')}</label>
-                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" required className="add-etudiant-input" />
+                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxlength={"12"} required className="add-etudiant-input" />
                         </div>
 
                         <div>
@@ -107,7 +112,6 @@ function AddProfesseur({ onAdd, error, message, isValid, validateForm }) {
                     type="submit"
                     value={t('add_professeur.submit')}
                     className="primary-submit"
-                    disabled={!isValid}
                 />
 
                 <p className="add-etudiant-login-text">
