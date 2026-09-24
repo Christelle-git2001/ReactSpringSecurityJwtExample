@@ -47,7 +47,7 @@ function Header({user}) {
                         <p className="para-align">
                             Bonjour <span className="user-name">{user.firstName} {user.lastName}</span>
                             {user.role && (
-                                <span className="user-role"> - {formatRole(user.role.toString())}</span>
+                                <span className="user-role"> - {user.role.label}</span>
                             )}
                         </p>
                     </div>
