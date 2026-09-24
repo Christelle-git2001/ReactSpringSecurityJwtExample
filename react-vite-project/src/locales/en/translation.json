@@ -79,7 +79,29 @@
     "already_registered": "Already registered?",
     "login": "Log in"
   },
-  "login" : {
+  "add_employeur": {
+    "page_title": "Employer Registration",
+    "page_subtitle": "Create an employer account",
+
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email address",
+    "phone": "Phone number",
+    "town": "City",
+    "business_name": "Company name",
+    "business_sector": "Business sector",
+    "business_sector_placeholder": "Select a sector",
+    "loading_sectors": "Loading sectors...",
+
+    "password": "Password",
+    "confirm_password": "Confirm password",
+
+    "submit": "Create account",
+    "already_registered": "Already registered?",
+    "login": "Log in"
+  }
+,
+"login" : {
     "page_title": "Login",
     "page_subtitle": "Access to your user account",
     "courriel": "Email address",
@@ -104,5 +126,26 @@
     "GENIE_PHYSIQUE": "Physical Engineering",
     "ARCHITECTURE": "Architecture",
     "ESTIMATION_EVALUATION": "Building Estimation and Evaluation"
+  },
+  "secteur": {
+    "INFORMATIQUE": "Information Technology",
+    "PHARMACEUTIQUE": "Pharmaceutical",
+    "FINANCE": "Finance",
+    "SANTE": "Health",
+    "EDUCATION": "Education",
+    "COMMERCE_DETAIL": "Retail",
+    "COMMERCE_GROS": "Wholesale",
+    "RESTAURATION_HOTELLERIE": "Hospitality",
+    "CONSTRUCTION": "Construction",
+    "IMMOBILIER": "Real estate",
+    "TRANSPORT_LOGISTIQUE": "Transport & logistics",
+    "MANUFACTURE_INDUSTRIE": "Manufacturing",
+    "AGRICULTURE": "Agriculture",
+    "MEDIAS_COMMUNICATION": "Media & communication",
+    "AEROSPATIAL": "Aerospace",
+    "ENERGIE": "Energy",
+    "SERVICES_CONSEIL": "Consulting services",
+    "ARTS_DIVERTISSEMENT": "Arts & entertainment",
+    "ADMINISTRATION_PUBLIQUE": "Public administration"
   }
 }
