@@ -11,9 +11,10 @@ import InscriptionHome from "../../page/InscriptionHome.jsx";
 
 import Logout from "../auth/Logout";
 import ErrorPage from "../Design/ErrorPage";
-import EmprunteurHome from "../../page/EmprunteurHome.jsx";
-import PreposeHome from "../../page/PreposeHome";
+import EmployeurHome from "../../page/EmployeurHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
+import EtudiantHome from "../../page/EtudiantHome.jsx";
+import ProfesseurHome from "../../page/ProfesseurHome.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -29,7 +30,7 @@ export default function AppRoutes({
         <Routes>
 
             <Route element={<PublicLayout />}>
-                <Route path="/login" element={<LoginForm setError={setError} />} />
+                <Route path="/login" element={<LoginForm user={user} setError={setError} />} />
 
                 <Route
                     path="/inscription"
@@ -53,8 +54,9 @@ export default function AppRoutes({
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
-                <Route path="/emprunteur" element={<EmprunteurHome />} />
-                <Route path="/prepose" element={<PreposeHome />} />
+                <Route  path="/etudiant" element={<EtudiantHome />} />
+                <Route path="/employeur" element={<EmployeurHome />} />
+                <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome />} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>

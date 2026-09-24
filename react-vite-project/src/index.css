@@ -19,6 +19,6 @@ h1 {
     cursor : pointer;
 }
 
-.primary-submit:hover {
+.primary-submit:not(:disabled):hover {
     background: #043462;
 }
