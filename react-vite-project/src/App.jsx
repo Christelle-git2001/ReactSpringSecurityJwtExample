@@ -1,27 +1,26 @@
 import "./App.css";
-import React, {useState} from "react";
-import { useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { inscrireEtudiant } from "./api/etudiant.jsx";
 import { inscrireProfesseur } from "./api/professeur.jsx";
 import { inscrireEmployeur } from "./api/employeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
-function App() {
 
+function App() {
   const { user, setUser, error, setError } = useAuth();
-  const [message, setMessage] = useState("")
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   async function addEtudiant(etudiant) {
     try {
       await inscrireEtudiant(etudiant);
-      setMessage("Étudiant ajouté avec succès.");
+      setMessage("success.student_added");
       setError(null);
-      setMessage("");
-      navigate('/login');
+      navigate("/login");
       return true;
     } catch (error) {
-      setError(error.message || "Une erreur inattendue s'est produite.");
+      setError(error.message || "error.generic");
       setMessage("");
       return false;
     }
@@ -30,12 +29,12 @@ function App() {
   async function addProfesseur(professeur) {
     try {
       await inscrireProfesseur(professeur);
-      setMessage("Professeur ajouté avec succès.");
+      setMessage("success.professor_added");
       setError(null);
       navigate("/login");
       return true;
     } catch (error) {
-      setError(error.message || "Une erreur inattendue s'est produite.");
+      setError(error.message || "error.generic");
       setMessage("");
       return false;
     }
@@ -44,12 +43,12 @@ function App() {
   async function addEmployeur(employeur) {
     try {
       await inscrireEmployeur(employeur);
-      setMessage("Employeur ajouté avec succès.");
+      setMessage("success.employer_added");
       setError(null);
       navigate("/login");
       return true;
     } catch (error) {
-      setError(error.message || "Une erreur inattendue s'est produite.");
+      setError(error.message || "error.generic");
       setMessage("");
       return false;
     }
@@ -70,7 +69,6 @@ function App() {
         />
       </div>
   );
-
 }
 
 export default App;

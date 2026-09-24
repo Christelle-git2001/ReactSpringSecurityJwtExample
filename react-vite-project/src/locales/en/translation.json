@@ -156,5 +156,10 @@
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again."
+  },
+  "success": {
+    "student_added": "Student added successfully.",
+    "professor_added": "Professor added successfully.",
+    "employer_added": "Employer added successfully."
   }
 }

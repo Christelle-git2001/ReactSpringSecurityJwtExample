@@ -8,7 +8,6 @@ function AddProfesseur({ onAdd, error, message }) {
     const { t } = useTranslation();
     const [departements, setDepartements] = useState([]);
 
-
     useEffect(() => {
         getDepartements()
             .then(setDepartements)
@@ -45,7 +44,7 @@ function AddProfesseur({ onAdd, error, message }) {
 
             <form onSubmit={onSubmit} className="add-etudiant-form">
 
-            <div className="add-etudiant-fields">
+                <div className="add-etudiant-fields">
 
                     <div className="add-etudiant-row">
                         <div>
@@ -63,7 +62,8 @@ function AddProfesseur({ onAdd, error, message }) {
                         <label className="add-etudiant-label">{t('add_professeur.email')}</label>
                         <input
                             type="email"
-                            name="email" required
+                            name="email"
+                            required
                             className="add-etudiant-input"
                             pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
                         />
@@ -72,12 +72,26 @@ function AddProfesseur({ onAdd, error, message }) {
                     <div className="add-etudiant-row">
                         <div>
                             <label className="add-etudiant-label">{t('add_professeur.phone')}</label>
-                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxlength={"12"} required className="add-etudiant-input" />
+                            <input
+                                type="tel"
+                                name="telephone"
+                                pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}"
+                                maxLength="12"
+                                required
+                                className="add-etudiant-input"
+                            />
                         </div>
 
                         <div>
                             <label className="add-etudiant-label">{t('add_professeur.matricule')}</label>
-                            <input type="text" name="matricule" required minLength="7" maxLength="7" className="add-etudiant-input" />
+                            <input
+                                type="text"
+                                name="matricule"
+                                required
+                                minLength="7"
+                                maxLength="7"
+                                className="add-etudiant-input"
+                            />
                         </div>
                     </div>
 
@@ -105,8 +119,9 @@ function AddProfesseur({ onAdd, error, message }) {
 
                 </div>
 
-                {error && <p className="error-message">{error}</p>}
-                {message && <p className="success-message">{message}</p>}
+                {/* Traduction des messages avec la fonction t() */}
+                {error && <p className="error-message">{t(error)}</p>}
+                {message && <p className="success-message">{t(message)}</p>}
 
                 <input
                     type="submit"
