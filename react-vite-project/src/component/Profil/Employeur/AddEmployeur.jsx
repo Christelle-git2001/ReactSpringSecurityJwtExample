@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import { useTranslation } from "react-i18next";
 
-function AddEmployeur({ onAdd, error, message }) {
+function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
     const { t } = useTranslation();
 
     const onSubmit = async (e) => {
@@ -31,7 +31,7 @@ function AddEmployeur({ onAdd, error, message }) {
                 <p className="add-etudiant-subtitle">{t('add_employeur.type-utilisateur')}</p>
                 <span className="add-etudiant-subtitle-line" />
             </div>
-            <form onSubmit={onSubmit} className="add-etudiant-form">
+            <form onSubmit={onSubmit} className="add-etudiant-form" onChange={validateForm}>
 
                 <div className="add-etudiant-fields">
 
@@ -146,6 +146,7 @@ function AddEmployeur({ onAdd, error, message }) {
                     type="submit"
                     value={t('add_employeur.bouton-inscrire')}
                     className="primary-submit"
+                    disabled={!isValid}
                 />
 
                 <p className="add-etudiant-login-text">

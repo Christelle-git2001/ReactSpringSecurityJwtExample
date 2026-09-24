@@ -4,7 +4,7 @@ import {useTranslation} from "react-i18next";
 import { getDepartements } from "../../../api/http.jsx";
 import { useState, useEffect } from "react";
 
-function AddEtudiant({ onAdd, error, message }) {
+function AddEtudiant({ onAdd, error, message, isValid, validateForm }) {
   const { t } = useTranslation();
 
   const [departements, setDepartements] = useState([]);
@@ -45,7 +45,7 @@ function AddEtudiant({ onAdd, error, message }) {
         </div>
 
         <div className="add-etudiant-section">
-          <form onSubmit={onSubmit} className="add-etudiant-form">
+          <form onSubmit={onSubmit} className="add-etudiant-form" onChange={validateForm}>
 
             <div className="add-etudiant-fields">
 
@@ -105,7 +105,7 @@ function AddEtudiant({ onAdd, error, message }) {
             {error && <p className="error-message">{error}</p>}
             {message && <p className="success-message">{message}</p>}
 
-            <input type="submit" value={t('add_etudiant.submit')} className="primary-submit" />
+            <input type="submit" value={t('add_etudiant.submit')} className="primary-submit" disabled={!isValid} />
 
             <p className="add-etudiant-login-text">
               {t('add_etudiant.already_registered')}{" "}

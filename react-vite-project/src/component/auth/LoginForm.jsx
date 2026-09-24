@@ -24,6 +24,14 @@ const LoginForm = ({user, setUser, setError}) => {
         message: '',
       }
   )
+
+  const [isValid, setIsValid] = useState(false);
+
+  const validateForm = (e) => {
+    const form = e.target.form || e.target.closest("form");
+    setIsValid(form.checkValidity());
+  };
+
   const { t } = useTranslation();
 
   const validateUser = () => {
@@ -148,7 +156,12 @@ const LoginForm = ({user, setUser, setError}) => {
                 <p className="add-etudiant-subtitle">{t('login.page_subtitle')}</p>
                 <span className="add-etudiant-subtitle-line" />
               </div>
-                <form className={"add-etudiant-form login-form"} noValidate onSubmit={handleSubmit}>
+                <form
+                  className={"add-etudiant-form login-form"}
+                  noValidate
+                  onSubmit={handleSubmit}
+                  onChange={validateForm}
+                >
                   <div className={"add-etudiant-fields"}>
                     {erreurHTTP.message !== "" && (
                         <div className={"form-login-error"}>
@@ -158,7 +171,7 @@ const LoginForm = ({user, setUser, setError}) => {
 
                     <div className={"login-input-field"}>
                       <label htmlFor="courrielLogin">{t("login.courriel")}</label>
-                      <input type="email" placeholder={t("login.courriel_placeholder")} value={formData.email} onChange={handleChanges}  id="courrielLogin" name="email" className="add-etudiant-input"/>
+                      <input type="email" required placeholder={t("login.courriel_placeholder")} value={formData.email} onChange={handleChanges}  id="courrielLogin" name="email" className="add-etudiant-input"/>
                     </div>
 
                     {warnings.email !== "" && (
@@ -169,14 +182,14 @@ const LoginForm = ({user, setUser, setError}) => {
 
                     <div className={"login-input-field"}>
                       <label htmlFor="motDePasseLogin">{t("login.motDePasse")}</label>
-                      <input type="password" placeholder={t("login.motDePasse_placeholder")} value={formData.password} onChange={handleChanges} id="motDePasseLogin" name="password" className="add-etudiant-input"/>
+                      <input type="password" required placeholder={t("login.motDePasse_placeholder")} value={formData.password} onChange={handleChanges} id="motDePasseLogin" name="password" className="add-etudiant-input"/>
                     </div>
                     {warnings.password !== "" && (
                         <div className={"form-login-error"}>
                           {t("login.password.invalide")}
                         </div>
                     )}
-                    <button type="submit" className="primary-submit">
+                    <button type="submit" className="primary-submit" disabled={!isValid}>
                       {t('login.submit')}
                     </button>
                     <div className="mt-10">

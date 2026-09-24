@@ -17,9 +17,18 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
         { id: "EMPLOYEUR", label: t("inscription.employeur") }
     ];
 
+    const [isValid, setIsValid] = useState(false);
+
+    const validateForm = (e) => {
+        const form = e.target.form || e.target.closest("form");
+        setIsValid(form.checkValidity());
+    };
+
+
     useEffect(() => {
         setError(null);
         setMessage("");
+        setIsValid(false);
     }, [profil]);
 
 
@@ -57,6 +66,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                             onAdd={addEtudiant}
                             error={error}
                             message={message}
+                            isValid={isValid}
+                            validateForm={validateForm}
                         />
                     )}
 
@@ -65,6 +76,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                             onAdd={addProfesseur}
                             error={error}
                             message={message}
+                            isValid={isValid}
+                            validateForm={validateForm}
                         />
                     )}
 
@@ -73,6 +86,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                             onAdd={() => {}}
                             error={error}
                             message={message}
+                            isValid={isValid}
+                            validateForm={validateForm}
                         />
                     )}
                 </div>
