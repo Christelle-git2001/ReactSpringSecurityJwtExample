@@ -147,5 +147,14 @@
     "SERVICES_CONSEIL": "Consulting services",
     "ARTS_DIVERTISSEMENT": "Arts & entertainment",
     "ADMINISTRATION_PUBLIQUE": "Public administration"
+  },
+  "error": {
+    "email_exists": "This email address is already in use.",
+    "matricule_exists": "This ID number is already in use.",
+    "phone_exists": "This phone number is already in use.",
+    "password_mismatch": "Passwords do not match.",
+    "department_invalid": "The selected department is invalid.",
+    "user_not_found": "User not found.",
+    "generic": "An error occurred. Please try again."
   }
 }

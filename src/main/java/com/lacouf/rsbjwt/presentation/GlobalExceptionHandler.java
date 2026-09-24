@@ -18,13 +18,12 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErreurDTO> handleAuthenticationException(Exception e) {
         logger.warn("Échec d'authentification : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new ErreurDTO(e.getMessage()));
+                .body(new ErreurDTO("login.credentialsWrong"));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -32,12 +31,11 @@ public class GlobalExceptionHandler {
         logger.warn("Utilisateur non trouvé : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new ErreurDTO(e.getMessage()));
+                .body(new ErreurDTO("error.user_not_found"));
     }
 
     @ExceptionHandler(EmailExistantException.class)
     public ResponseEntity<ErreurDTO> handleEmailExistantException(EmailExistantException e) {
-        logger.warn("Email déjà existant : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErreurDTO(e.getMessage()));
@@ -45,7 +43,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MatriculeExistantException.class)
     public ResponseEntity<ErreurDTO> handleMatriculeExistantException(MatriculeExistantException e) {
-        logger.warn("Matricule déjà existant : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErreurDTO(e.getMessage()));
@@ -53,7 +50,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MotDePasseNonCorrespondantException.class)
     public ResponseEntity<ErreurDTO> handleMotDePasseNonCorrespondantException(MotDePasseNonCorrespondantException e) {
-        logger.warn("Mot de passe non correspondant : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErreurDTO(e.getMessage()));
@@ -61,7 +57,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DepartementInvalideException.class)
     public ResponseEntity<ErreurDTO> handleDepartementInvalideException(DepartementInvalideException e) {
-        logger.warn("Département invalide : {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErreurDTO(e.getMessage()));
