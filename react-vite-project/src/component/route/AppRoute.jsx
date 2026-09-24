@@ -24,6 +24,7 @@ export default function AppRoutes({
                                       setUser,
                                       addEtudiant,
                                       addProfesseur,
+                                      addEmployeur,
                                       setMessage
                                   }) {
     return (
@@ -38,6 +39,7 @@ export default function AppRoutes({
                         <InscriptionHome
                             addEtudiant={addEtudiant}
                             addProfesseur={addProfesseur}
+                            addEmployeur={addEmployeur}
                             error={error}
                             message={message}
                             setError={setError}

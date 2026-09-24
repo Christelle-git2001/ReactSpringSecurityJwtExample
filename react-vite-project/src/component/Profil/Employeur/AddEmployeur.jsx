@@ -1,23 +1,43 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+import { getSecteursEmployeur } from "../../../api/http.jsx";
 
 function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
     const { t } = useTranslation();
+
+    const [secteurs, setSecteurs] = useState([]);
+    const [loadingSecteurs, setLoadingSecteurs] = useState(true);
+
+    useEffect(() => {
+        async function fetchSecteurs() {
+            try {
+                const data = await getSecteursEmployeur();
+                setSecteurs(data);
+            } catch (err) {
+                console.error("Erreur lors du chargement des secteurs :", err);
+            } finally {
+                setLoadingSecteurs(false);
+            }
+        }
+        fetchSecteurs();
+    }, []);
 
     const onSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
 
         const nouvelEmployeur = {
-            company_name: formData.get("company_name"),
-            company_type: formData.get("company_type"),
+            firstName: formData.get("firstName"),
+            lastName: formData.get("lastName"),
             email: formData.get("email"),
-            telephone: formData.get("telephone"),
-            id_number: formData.get("id_number"),
-            contact_name: formData.get("contact_name"),
+            phone: formData.get("telephone"),
+            town: formData.get("town"),
+            businessName: formData.get("businessName"),
+            businessSector: formData.get("businessSector"),
             password: formData.get("password"),
-            confirm_password: formData.get("confirm_password"),
+            passwordConfirmation: formData.get("confirmPassword")
         };
 
         const ajoutReussi = await onAdd(nouvelEmployeur);
@@ -26,115 +46,73 @@ function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
 
     return (
         <div className="add-etudiant-page">
+
             <div className="add-etudiant-page-header">
-                <h1 className="add-etudiant-title">{t('add_employeur.titre')}</h1>
-                <p className="add-etudiant-subtitle">{t('add_employeur.type-utilisateur')}</p>
+                <h1 className="add-etudiant-title">{t('add_employeur.page_title')}</h1>
+                <p className="add-etudiant-subtitle">{t('add_employeur.page_subtitle')}</p>
                 <span className="add-etudiant-subtitle-line" />
             </div>
+
             <form onSubmit={onSubmit} className="add-etudiant-form" onChange={validateForm}>
 
                 <div className="add-etudiant-fields">
-
                     <div className="add-etudiant-row">
                         <div>
-                            <label className="add-etudiant-label">{t('add_employeur.nom')}</label>
-                            <input
-                                type="text"
-                                name="company_name"
-                                required
-                                minLength="2"
-                                maxLength="50"
-                                className="add-etudiant-input"
-                            />
+                            <label className="add-etudiant-label">{t('add_employeur.first_name')}</label>
+                            <input type="text" name="firstName" required className="add-etudiant-input" />
+                        </div>
+
+                        <div>
+                            <label className="add-etudiant-label">{t('add_employeur.last_name')}</label>
+                            <input type="text" name="lastName" required className="add-etudiant-input" />
                         </div>
                     </div>
 
                     <div>
-                        <label className="add-etudiant-label">{t('add_employeur.secteur')}</label>
-                        <select
-                            name="company_type"
-                            required
-                            className="add-etudiant-input"
-                        >
-                            <option value="">{t('add_employeur.secteur')}</option>
-                            <option value="PME">{t('add_employeur.type_pme')}</option>
-                            <option value="GAFAM">{t('add_employeur.type_gafam')}</option>
-                            <option value="STARTUP">{t('add_employeur.type_startup')}</option>
-                            <option value="ORGANISME">{t('add_employeur.type_organisme')}</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="add-etudiant-label">{t('add_employeur.adresse')}</label>
-                        <input
-                            type="email"
-                            name="email"
-                            required
-                            className="add-etudiant-input"
-                        />
+                        <label className="add-etudiant-label">{t('add_employeur.email')}</label>
+                        <input type="email" name="email" required className="add-etudiant-input" />
                     </div>
 
                     <div className="add-etudiant-row">
                         <div>
-                            <label className="add-etudiant-label">{t('add_employeur.numero-ID')}</label>
-                            <input
-                                type="text"
-                                name="id_number"
-                                required
-                                minLength="10"
-                                maxLength="10"
-                                className="add-etudiant-input"
-                            />
+                            <label className="add-etudiant-label">{t('add_employeur.phone')}</label>
+                            <input type="tel" name="telephone" required className="add-etudiant-input" />
                         </div>
-                    </div>
 
-                    <div className="add-etudiant-row">
                         <div>
-                            <label className="add-etudiant-label">{t('add_employeur.nom-personne-contact')}</label>
-                            <input
-                                type="text"
-                                name="contact_name"
-                                required
-                                minLength="2"
-                                maxLength="50"
-                                className="add-etudiant-input"
-                            />
+                            <label className="add-etudiant-label">{t('add_employeur.town')}</label>
+                            <input type="text" name="town" required className="add-etudiant-input" />
                         </div>
                     </div>
-
                     <div>
-                        <label className="add-etudiant-label">{t('add_employeur.telephone-personne-contact')}</label>
-                        <input
-                            type="tel"
-                            name="telephone"
-                            required
-                            placeholder="450-111-2222"
-                            minLength="12"
-                            maxLength="12"
-                            className="add-etudiant-input"
-                        />
+                        <label className="add-etudiant-label">{t('add_employeur.business_name')}</label>
+                        <input type="text" name="businessName" required className="add-etudiant-input" />
+                    </div>
+                    <div>
+                        <label className="add-etudiant-label">{t('add_employeur.business_sector')}</label>
+
+                        {loadingSecteurs ? (
+                            <p>{t('add_employeur.loading_sectors')}</p>
+                        ) : (
+                            <select name="businessSector" required className="add-etudiant-input">
+                                <option value="">{t('add_employeur.business_sector_placeholder')}</option>
+
+                                {secteurs.map(secteur => (
+                                    <option key={secteur.name} value={secteur.name}>
+                                        {secteur.label}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+                    <div>
+                        <label className="add-etudiant-label">{t('add_employeur.password')}</label>
+                        <input type="password" name="password" required className="add-etudiant-input" />
                     </div>
 
                     <div>
-                        <label className="add-etudiant-label">{t('add_employeur.mdp')}</label>
-                        <input
-                            type="password"
-                            name="password"
-                            required
-                            minLength="4"
-                            className="add-etudiant-input"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="add-etudiant-label">{t('add_employeur.confirmation-mdp')}</label>
-                        <input
-                            type="password"
-                            name="confirm_password"
-                            required
-                            minLength="4"
-                            className="add-etudiant-input"
-                        />
+                        <label className="add-etudiant-label">{t('add_employeur.confirm_password')}</label>
+                        <input type="password" name="confirmPassword" required className="add-etudiant-input" />
                     </div>
 
                 </div>
@@ -144,15 +122,15 @@ function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
 
                 <input
                     type="submit"
-                    value={t('add_employeur.bouton-inscrire')}
+                    value={t('add_employeur.submit')}
                     className="primary-submit"
                     disabled={!isValid}
                 />
 
                 <p className="add-etudiant-login-text">
-                    {t('add_employeur.deja-inscrit')}{" "}
+                    {t('add_employeur.already_registered')}{" "}
                     <Link to="/login" className="add-etudiant-login-link">
-                        {t('add_employeur.bouton-connecter')}
+                        {t('add_employeur.login')}
                     </Link>
                 </p>
 
