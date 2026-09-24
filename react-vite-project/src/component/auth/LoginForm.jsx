@@ -98,19 +98,25 @@ const LoginForm = ({ user, setError }) => {
         }
 
         if (response.status === 404) {
-          setErreurHTTP({ message: "Service d'authentification introuvable (404)." });
+          setErreurHTTP({ message: "Service d'authentification introuvable." });
           return;
         }
 
-        throw new Error(`Erreur serveur HTTP ${response.status}`);
+        setErreurHTTP({ message: "Une erreur serveur est survenue." });
+        return;
       }
 
       const token = await response.text();
+      if (!token) {
+        setErreurHTTP({ message: t("login.credentialsWrong") });
+        return;
+      }
       localStorage.setItem("token", token);
 
       const userResponse = await fetcher("/user/me", {});
       if (!userResponse.ok) {
-        throw new Error("Impossible de récupérer les informations de l'utilisateur.");
+        setErreurHTTP({ message: "Impossible de récupérer votre profil." });
+        return;
       }
 
       const userData = await userResponse.json();
