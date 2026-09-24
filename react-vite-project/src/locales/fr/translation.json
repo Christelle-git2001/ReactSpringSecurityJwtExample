@@ -80,8 +80,8 @@
     "login": "Se connecter"
   },
   "add_employeur": {
-    "page_title": "Inscription Employeur",
-    "page_subtitle": "Créer un compte employeur",
+    "page_title": "S'inscrire sur OSE",
+    "page_subtitle": "Compte employeur",
 
     "first_name": "Prénom",
     "last_name": "Nom",
@@ -90,7 +90,7 @@
     "town": "Ville",
     "business_name": "Nom de l'entreprise",
     "business_sector": "Secteur d'activité",
-    "business_sector_placeholder": "Sélectionner un secteur",
+    "business_sector_placeholder": "-- Choisir un secteur --",
     "loading_sectors": "Chargement des secteurs...",
 
     "password": "Mot de passe",

@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import { useNavigate} from "react-router-dom";
 import { inscrireEtudiant } from "./api/etudiant.jsx";
 import { inscrireProfesseur } from "./api/professeur.jsx";
+import { inscrireEmployeur } from "./api/employeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 function App() {

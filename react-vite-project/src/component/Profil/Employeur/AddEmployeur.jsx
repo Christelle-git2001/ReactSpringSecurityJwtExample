@@ -99,7 +99,7 @@ function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
 
                                 {secteurs.map(secteur => (
                                     <option key={secteur.name} value={secteur.name}>
-                                        {secteur.label}
+                                        {t(`secteur.${secteur.name}`)}
                                     </option>
                                 ))}
                             </select>
