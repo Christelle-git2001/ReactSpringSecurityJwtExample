@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import "../../../css/AddEtudiant.css";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { getDepartements } from "../../../api/http.jsx";
 import { useState, useEffect } from "react";
 
@@ -14,6 +14,7 @@ function AddEtudiant({ onAdd, error, message }) {
         .then(setDepartements)
         .catch(() => setDepartements([]));
   }, []);
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -36,6 +37,7 @@ function AddEtudiant({ onAdd, error, message }) {
       e.target.reset();
     }
   };
+
   return (
       <div className="add-etudiant-page">
         <div className="add-etudiant-page-header">
@@ -75,7 +77,7 @@ function AddEtudiant({ onAdd, error, message }) {
               <div className="add-etudiant-row">
                 <div>
                   <label className="add-etudiant-label">{t('add_etudiant.phone')}</label>
-                  <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxlength={"12"} required className="add-etudiant-input" />
+                  <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxLength={"12"} required className="add-etudiant-input" />
                 </div>
 
                 <div>
@@ -84,17 +86,17 @@ function AddEtudiant({ onAdd, error, message }) {
                 </div>
               </div>
 
-                <div>
-                  <label htmlFor="department" className="add-professeur-label">{t('add_professeur.department')}</label>
-                  <select id="department" name="department" required className="add-etudiant-input">
-                    <option value="">{t('add_professeur.department_placeholder')}</option>
-                    {departements.map(dep => (
-                        <option key={dep.name} value={dep.name}>
-                          {t(`departement.${dep.name}`)}
-                        </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label htmlFor="department" className="add-etudiant-label">{t('add_etudiant.department')}</label>
+                <select id="department" name="department" required className="add-etudiant-input">
+                  <option value="">{t('add_etudiant.department_placeholder')}</option>
+                  {departements.map(dep => (
+                      <option key={dep.name} value={dep.name}>
+                        {t(`departement.${dep.name}`)}
+                      </option>
+                  ))}
+                </select>
+              </div>
 
               <div>
                 <label className="add-etudiant-label">{t('add_etudiant.password')}</label>
@@ -108,8 +110,9 @@ function AddEtudiant({ onAdd, error, message }) {
 
             </div>
 
-            {error && <p className="error-message">{error}</p>}
-            {message && <p className="success-message">{message}</p>}
+            {/* Traduction dynamique des clés i18n d'erreur et de succès */}
+            {error && <p className="error-message">{t(error)}</p>}
+            {message && <p className="success-message">{t(message)}</p>}
 
             <input type="submit" value={t('add_etudiant.submit')} className="primary-submit" />
 

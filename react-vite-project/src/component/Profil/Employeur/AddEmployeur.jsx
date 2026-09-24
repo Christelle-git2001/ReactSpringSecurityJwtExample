@@ -82,7 +82,7 @@ function AddEmployeur({ onAdd, error, message }) {
                     <div className="add-etudiant-row">
                         <div>
                             <label className="add-etudiant-label">{t('add_employeur.phone')}</label>
-                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxlength={"12"} required className="add-etudiant-input" />
+                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxLength={"12"} required className="add-etudiant-input" />
                         </div>
 
                         <div>
@@ -123,8 +123,9 @@ function AddEmployeur({ onAdd, error, message }) {
 
                 </div>
 
-                {error && <p className="error-message">{error}</p>}
-                {message && <p className="success-message">{message}</p>}
+                {/* Utilisation de t(error) pour traduire la clé d'erreur envoyée par le serveur */}
+                {error && <p className="error-message">{t(error)}</p>}
+                {message && <p className="success-message">{t(message)}</p>}
 
                 <input
                     type="submit"
