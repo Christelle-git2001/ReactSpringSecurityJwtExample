@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import LanguageSwitche from "../locales/LanguageSwitch.jsx";
 
 import AddEtudiant from "../component/Profil/Etudiant/AddEtudiant.jsx";
 import AddProfesseur from "../component/Profil/Professeur/AddProfesseur.jsx";
@@ -16,14 +17,26 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
         { id: "EMPLOYEUR", label: t("inscription.employeur") }
     ];
 
+    const [isValid, setIsValid] = useState(false);
+
+    const validateForm = (e) => {
+        const form = e.target.form || e.target.closest("form");
+        setIsValid(form.checkValidity());
+    };
+
+
     useEffect(() => {
         setError(null);
         setMessage("");
+        setIsValid(false);
     }, [profil]);
 
 
     return (
         <div className="inscription-wrapper">
+            <div className="fixed bottom-4 left-4 z-50">
+                <LanguageSwitche />
+            </div>
             <div className="inscription-background">
                 <div className="circleDesign circleDesign-top-right" />
                 <div className="circleDesign circleDesign-bottom-left-1" />
@@ -53,6 +66,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                             onAdd={addEtudiant}
                             error={error}
                             message={message}
+                            isValid={isValid}
+                            validateForm={validateForm}
                         />
                     )}
 
@@ -61,6 +76,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                             onAdd={addProfesseur}
                             error={error}
                             message={message}
+                            isValid={isValid}
+                            validateForm={validateForm}
                         />
                     )}
 
@@ -69,6 +86,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                             onAdd={() => {}}
                             error={error}
                             message={message}
+                            isValid={isValid}
+                            validateForm={validateForm}
                         />
                     )}
                 </div>
