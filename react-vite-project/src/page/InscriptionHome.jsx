@@ -8,9 +8,10 @@ import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
 
 import "../css/InscriptionHome.css";
 
-function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError, setMessage }) {
+function InscriptionHome({ addEtudiant, addProfesseur, addEmployeur, error, message, setError, setMessage }) {
     const { t } = useTranslation();
     const [profil, setProfil] = useState("ETUDIANT");
+
     const profiles = [
         { id: "ETUDIANT", label: t("inscription.etudiant") },
         { id: "PROFESSEUR", label: t("inscription.professeur") },
@@ -24,25 +25,27 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
         setIsValid(form.checkValidity());
     };
 
-
     useEffect(() => {
         setError(null);
         setMessage("");
         setIsValid(false);
     }, [profil]);
 
-
     return (
         <div className="inscription-wrapper">
+
             <div className="fixed bottom-4 left-4 z-50">
                 <LanguageSwitche />
             </div>
+
             <div className="inscription-background">
                 <div className="circleDesign circleDesign-top-right" />
                 <div className="circleDesign circleDesign-bottom-left-1" />
                 <div className="circleDesign circleDesign-bottom-left-2" />
             </div>
+
             <div className="inscription-page">
+
                 <div className="inscription-buttons">
                     {profiles.map((p) => {
                         const active = profil === p.id;
@@ -60,7 +63,9 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
                         );
                     })}
                 </div>
+
                 <div className="inscription-form-container">
+
                     {profil === "ETUDIANT" && (
                         <AddEtudiant
                             onAdd={addEtudiant}
@@ -83,13 +88,14 @@ function InscriptionHome({ addEtudiant, addProfesseur, error, message, setError,
 
                     {profil === "EMPLOYEUR" && (
                         <AddEmployeur
-                            onAdd={() => {}}
+                            onAdd={addEmployeur}
                             error={error}
                             message={message}
                             isValid={isValid}
                             validateForm={validateForm}
                         />
                     )}
+
                 </div>
 
             </div>

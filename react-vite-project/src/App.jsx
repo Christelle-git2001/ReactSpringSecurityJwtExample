@@ -40,6 +40,20 @@ function App() {
     }
   }
 
+  async function addEmployeur(employeur) {
+    try {
+      await inscrireEmployeur(employeur);
+      setMessage("Employeur ajouté avec succès.");
+      setError(null);
+      navigate("/login");
+      return true;
+    } catch (error) {
+      setError(error.message || "Une erreur inattendue s'est produite.");
+      setMessage("");
+      return false;
+    }
+  }
+
   return (
       <div className="App">
         <AppRoutes
@@ -50,6 +64,7 @@ function App() {
             setUser={setUser}
             addEtudiant={addEtudiant}
             addProfesseur={addProfesseur}
+            addEmployeur={addEmployeur}
             setMessage={setMessage}
         />
       </div>
