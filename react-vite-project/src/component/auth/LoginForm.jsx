@@ -25,8 +25,6 @@ const LoginForm = ({ user, setError }) => {
     message: ""
   });
 
-  const [isValid, setIsValid] = useState(false);
-
   const validateEmail = (email) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     return emailRegex.test(email.trim());
@@ -34,11 +32,6 @@ const LoginForm = ({ user, setError }) => {
 
   const validatePassword = (password) => {
     return password.trim().length > 0;
-  };
-
-  const validateForm = (e) => {
-    const form = e.target.form || e.target.closest("form");
-    setIsValid(form.checkValidity());
   };
 
   const validateUser = () => {
@@ -182,7 +175,7 @@ const LoginForm = ({ user, setError }) => {
                     className="add-etudiant-form login-form"
                     noValidate
                     onSubmit={handleSubmit}
-                    onChange={validateForm}
+
                 >
                   <div className="add-etudiant-fields">
                     {erreurHTTP.message !== "" && (
@@ -234,7 +227,6 @@ const LoginForm = ({ user, setError }) => {
                     <button
                         type="submit"
                         className="primary-submit"
-                        disabled={!isValid}
                     >
                       {t("login.submit")}
                     </button>

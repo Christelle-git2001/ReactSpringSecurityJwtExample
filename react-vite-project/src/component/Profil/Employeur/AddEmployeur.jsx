@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { getSecteursEmployeur } from "../../../api/http.jsx";
 
-function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
+function AddEmployeur({ onAdd, error, message }) {
     const { t } = useTranslation();
 
     const [secteurs, setSecteurs] = useState([]);
@@ -53,7 +53,7 @@ function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
                 <span className="add-etudiant-subtitle-line" />
             </div>
 
-            <form onSubmit={onSubmit} className="add-etudiant-form" onChange={validateForm}>
+            <form onSubmit={onSubmit} className="add-etudiant-form">
 
                 <div className="add-etudiant-fields">
                     <div className="add-etudiant-row">
@@ -70,13 +70,19 @@ function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
 
                     <div>
                         <label className="add-etudiant-label">{t('add_employeur.email')}</label>
-                        <input type="email" name="email" required className="add-etudiant-input" />
+                        <input
+                            type="email"
+                            name="email"
+                            required
+                            pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+                            className="add-etudiant-input"
+                        />
                     </div>
 
                     <div className="add-etudiant-row">
                         <div>
                             <label className="add-etudiant-label">{t('add_employeur.phone')}</label>
-                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" required className="add-etudiant-input" />
+                            <input type="tel" name="telephone" pattern="[0-9]{3}-?[0-9]{3}-?[0-9]{4}" maxlength={"12"} required className="add-etudiant-input" />
                         </div>
 
                         <div>
@@ -124,7 +130,6 @@ function AddEmployeur({ onAdd, error, message, isValid, validateForm }) {
                     type="submit"
                     value={t('add_employeur.submit')}
                     className="primary-submit"
-                    disabled={!isValid}
                 />
 
                 <p className="add-etudiant-login-text">
