@@ -4,16 +4,9 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { getDepartements } from "../../../api/http.jsx";
 
-function AddProfesseur({ onAdd, error, message }) {
+function AddProfesseur({ onAdd, error, message, isValid, validateForm }) {
     const { t } = useTranslation();
     const [departements, setDepartements] = useState([]);
-
-    const [isValid, setIsValid] = useState(false);
-
-    const validateForm = (e) => {
-        const form = e.target.form || e.target.closest("form");
-        setIsValid(form.checkValidity());
-    };
 
 
     useEffect(() => {
