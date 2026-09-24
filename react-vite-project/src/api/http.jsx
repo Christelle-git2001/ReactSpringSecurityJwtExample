@@ -36,3 +36,7 @@ async function manageError(res) {
 export async function getDepartements() {
     return await fetchJson("/gestionnaire/departement");
 }
+
+export async function getSecteursEmployeur() {
+    return fetchJson("/gestionnaire/secteurEmployeur");
+}
