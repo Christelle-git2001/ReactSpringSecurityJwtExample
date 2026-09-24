@@ -31,8 +31,19 @@ public class EmployeurService {
        validerInscriptionEmployeur(inscriptionEmployeurDTO);
        String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
        String formatedPhoneNumber = formatePhoneNumber(inscriptionEmployeurDTO.phone());
-        Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword,formatedPhoneNumber);
-        Employeur employeurCreer =  employeurRepository.save(employeur);
+
+       Employeur employeur = Employeur.builder()
+                .firstName(inscriptionEmployeurDTO.firstName())
+                .lastName(inscriptionEmployeurDTO.lastName())
+                .email(inscriptionEmployeurDTO.email())
+                .phone(formatedPhoneNumber)
+                .town(inscriptionEmployeurDTO.town())
+                .businessName(inscriptionEmployeurDTO.businessName())
+                .businessSector(inscriptionEmployeurDTO.businessSector())
+                .password(encodedPassword)
+                .build();
+
+       Employeur employeurCreer =  employeurRepository.save(employeur);
        return EmployeurDTO.of(employeurCreer);
     }
 
