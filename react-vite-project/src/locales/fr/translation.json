@@ -146,5 +146,14 @@
     "SERVICES_CONSEIL": "Services et conseil",
     "ARTS_DIVERTISSEMENT": "Arts et divertissement",
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
+  },
+  "error": {
+    "email_exists": "Ce courriel existe déjà.",
+    "matricule_exists": "Ce matricule existe déjà.",
+    "phone_exists": "Le numéro de téléphone existe déjà.",
+    "password_mismatch": "Les mots de passe ne correspondent pas.",
+    "department_invalid": "Le département sélectionné est invalide.",
+    "user_not_found": "Utilisateur non trouvé.",
+    "generic": "Une erreur survenue. Veuillez réessayer."
   }
 }
