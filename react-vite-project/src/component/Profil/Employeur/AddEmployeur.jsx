@@ -114,11 +114,6 @@ function AddEmployeur({ onAdd, error, message }) {
                         </div>
 
                         <div>
-                            <label htmlFor="businesstype" className="add-etudiant-label">{t('add_employeur.type-entreprise')}</label>
-                            <input type="text" placeholder={t('add_employeur.type-entreprise')} required id="businesstype" name="businesstype" className="add-etudiant-input" />
-                        </div>
-
-                        <div>
                             <label htmlFor="email" className="add-etudiant-label">{t('add_employeur.adresse')}</label>
                             <input type="email" placeholder={t('add_employeur.adresse')} required id="email" name="email" className="add-etudiant-input" />
                         </div>
