@@ -6,53 +6,16 @@ import { inscrireProfesseur } from "./api/professeur.jsx";
 import { inscrireEmployeur } from "./api/employeur.jsx";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
+import {addEtudiant, addProfesseur, addEmployeur} from "./utils/userService.js";
 
 function App() {
   const { user, setUser, error, setError } = useAuth();
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const handleEtudiant = (etudiant) => addEtudiant(etudiant, setMessage, setError, navigate); ;
+  const handleProfesseur = (professeur) => addProfesseur(professeur, setMessage, setError, navigate); ;
+  const handleEmployeur = (employeur) => addEmployeur(employeur, setMessage, setError, navigate); ;
 
-  async function addEtudiant(etudiant) {
-    try {
-      await inscrireEtudiant(etudiant);
-      setMessage("success.student_added");
-      setError(null);
-      navigate("/login");
-      return true;
-    } catch (error) {
-      setError(error.message || "error.generic");
-      setMessage("");
-      return false;
-    }
-  }
-
-  async function addProfesseur(professeur) {
-    try {
-      await inscrireProfesseur(professeur);
-      setMessage("success.professor_added");
-      setError(null);
-      navigate("/login");
-      return true;
-    } catch (error) {
-      setError(error.message || "error.generic");
-      setMessage("");
-      return false;
-    }
-  }
-
-  async function addEmployeur(employeur) {
-    try {
-      await inscrireEmployeur(employeur);
-      setMessage("success.employer_added");
-      setError(null);
-      navigate("/login");
-      return true;
-    } catch (error) {
-      setError(error.message || "error.generic");
-      setMessage("");
-      return false;
-    }
-  }
 
   return (
       <div className="App">
@@ -62,9 +25,9 @@ function App() {
             message={message}
             setError={setError}
             setUser={setUser}
-            addEtudiant={addEtudiant}
-            addProfesseur={addProfesseur}
-            addEmployeur={addEmployeur}
+            addEtudiant={handleEtudiant}
+            addProfesseur={handleProfesseur}
+            addEmployeur={handleEmployeur}
             setMessage={setMessage}
         />
       </div>

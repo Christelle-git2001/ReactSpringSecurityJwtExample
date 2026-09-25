@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitche from "../locales/LanguageSwitch.jsx";
 
-import AddEtudiant from "../component/Profil/Etudiant/AddEtudiant.jsx";
-import AddProfesseur from "../component/Profil/Professeur/AddProfesseur.jsx";
-import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
+import AddEtudiant from "../component/registration/AddEtudiant.jsx";
+import AddProfesseur from "../component/registration/AddProfesseur.jsx";
+import AddEmployeur from "../component/registration/AddEmployeur.jsx";
 
 import "../css/InscriptionHome.css";
 
