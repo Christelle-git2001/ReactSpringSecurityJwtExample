@@ -37,7 +37,7 @@ public class ProfesseurService {
                 .email(inscriptionProfesseurDto.email())
                 .password(passwordEncoder.encode(inscriptionProfesseurDto.password()))
                 .matricule(inscriptionProfesseurDto.matricule())
-                .phoneNumber(inscriptionProfesseurDto.phoneNumber())
+                .phoneNumber(inscriptionProfesseurDto.phone())
                 .department(departement)
                 .build();
 
@@ -59,7 +59,7 @@ public class ProfesseurService {
         }
 
         if (userAppRepository.findByPhoneNumber(
-                inscriptionProfesseurDto.phoneNumber()).isPresent()) {
+                inscriptionProfesseurDto.phone()).isPresent()) {
             throw new NumeroTelephoneExistantException();
         }
 

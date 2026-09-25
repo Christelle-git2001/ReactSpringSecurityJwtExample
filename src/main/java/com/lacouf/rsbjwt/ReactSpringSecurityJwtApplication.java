@@ -51,7 +51,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                         .email("l@l.com")
                         .password(passwordEncoder.encode("bib"))
                         .matricule("0000001")
-                        .phoneNumber("123-456-7890")
+                        .phone("123-456-7890")
                         .build()
         );*/
         /*
