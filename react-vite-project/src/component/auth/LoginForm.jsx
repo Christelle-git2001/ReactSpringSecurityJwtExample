@@ -6,6 +6,7 @@ import LanguageSwitche from "../../locales/LanguageSwitch.jsx";
 import "../../css/AddEtudiant.css";
 import "../../css/InscriptionHome.css";
 import "../../css/Login.css";
+import ConnexionRapideStudent from "../../config/ConnexionRapideStudent.jsx";
 
 const LoginForm = ({ user, setError }) => {
   const navigate = useNavigate();
@@ -230,7 +231,7 @@ const LoginForm = ({ user, setError }) => {
                     >
                       {t("login.submit")}
                     </button>
-
+                    <ConnexionRapideStudent/>
                     <div className="mt-10">
                       <p className="add-etudiant-login-text">
                         {t("login.noAccount")} :{" "}

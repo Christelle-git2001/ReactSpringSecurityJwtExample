@@ -42,6 +42,7 @@ public class SecurityConfiguration {
 
     private static final String H2_CONSOLE_PATH = "/h2-console/**";
     private static final String USER_LOGIN_PATH = "/user/login";
+    private static final String DEV_LOGIN = "/api/auth/**";
     private static final String EMPRUNTEUR_REGISTER_PATH = "/emprunteur/register";
     private static final String ETUDIANT_REGISTER_PATH = "/etudiant/inscription";
     private static final String GESTIONNAIRE_DEPARTEMENTS_PATH = "/gestionnaire/departement";
@@ -68,6 +69,7 @@ public class SecurityConfiguration {
                         .requestMatchers(POST, EMPLOYEUR_REGISTER_PATH).permitAll()
                         .requestMatchers(GET, GESTIONNAIRE_DEPARTEMENTS_PATH).permitAll()
                         .requestMatchers(GET, GESTIONNAIRE_SECTEURS_PATH).permitAll()
+                        .requestMatchers(POST, DEV_LOGIN).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight requests
                         .requestMatchers(H2_CONSOLE_PATH).permitAll() // Allow H2 console access
 
