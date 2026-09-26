@@ -24,7 +24,7 @@ public class OffreDeStage {
     @Column(nullable = false)
     private String statut; // "en attente", "acceptée", "refusée"
     @Column(nullable = false)
-    private String salary;
+    private Double salary;
     @Column(nullable = false)
     private String description;
     @Column(nullable = false)
@@ -34,7 +34,7 @@ public class OffreDeStage {
     private String filePath; // Optionnel
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
-    public OffreDeStage(String title, String salary, String description, LocalDate firstDate, LocalDate lastDate) {
+    public OffreDeStage(String title, Double salary, String description, LocalDate firstDate, LocalDate lastDate) {
         this.title = title;
         this.salary = salary;
         this.description = description;
