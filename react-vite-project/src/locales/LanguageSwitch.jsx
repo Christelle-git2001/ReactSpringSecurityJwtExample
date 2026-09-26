@@ -30,7 +30,7 @@ function LanguageSwitch() {
                 />
             </svg>
 
-            <span>{currentLang === "fr" ? "FR" : "EN"}</span>
+            <span>{currentLang === "fr" ? "EN" : "FR"}</span>
         </button>
     );
 }

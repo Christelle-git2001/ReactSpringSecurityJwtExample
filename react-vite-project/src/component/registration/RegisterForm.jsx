@@ -29,25 +29,22 @@ function RegisterForm({
             const value = (formData[field.name] || "").trim();
 
             if (field.required !== false && !value) {
-                newWarnings[field.name] = t(`error.${field.name}_required`, {
-                    defaultValue: t("error.required")
-                });
+                newWarnings[field.name] = `error.${field.name}_required`;
                 isValid = false;
             }
 
             else if (field.pattern && value) {
                 const regex = new RegExp(field.pattern);
                 if (!regex.test(value)) {
-                    newWarnings[field.name] = t(`error.${field.name}_invalid`, {
-                        defaultValue: t("error.generic")
-                    });
+                    newWarnings[field.name] = `error.${field.name}_invalid`;
+
                     isValid = false;
                 }
             }
 
             if (field.name === "passwordConfirmation" && value) {
                 if (value !== (formData["password"] || "").trim()) {
-                    newWarnings[field.name] = t("error.password_mismatch");
+                    newWarnings[field.name] = "error.password_mismatch";
                     isValid = false;
                 }
             }
@@ -132,7 +129,9 @@ function RegisterForm({
 
                             {warnings[field.name] && (
                                 <div className="form-login-error">
-                                    {warnings[field.name]}
+                                    {t(warnings[field.name], {
+                                        defaultValue: t("error.required")
+                                    })}
                                 </div>
                             )}
                         </div>
