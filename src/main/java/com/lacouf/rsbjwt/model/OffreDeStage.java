@@ -20,9 +20,9 @@ public class OffreDeStage {
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
-    private String domain;
+    private String poste;
     @Column(nullable = false)
-    private String address;
+    private String statut; // "en attente", "acceptée", "refusée"
     @Column(nullable = false)
     private String salary;
     @Column(nullable = false)
@@ -34,10 +34,8 @@ public class OffreDeStage {
     private String filePath; // Optionnel
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
-    public OffreDeStage(String title, String domain, String address, String salary, String description, LocalDate firstDate, LocalDate lastDate) {
+    public OffreDeStage(String title, String salary, String description, LocalDate firstDate, LocalDate lastDate) {
         this.title = title;
-        this.domain = domain;
-        this.address = address;
         this.salary = salary;
         this.description = description;
         this.firstDate = firstDate;
@@ -45,7 +43,7 @@ public class OffreDeStage {
     }
 
     @ManyToOne
-    @JoinColumn(name = "entreprise_id")
+    @JoinColumn(name = "employeur_id")
     private Employeur employeur;
 
 }
