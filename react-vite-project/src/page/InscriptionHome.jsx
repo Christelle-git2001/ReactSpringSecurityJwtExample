@@ -26,7 +26,7 @@ function InscriptionHome({ addEtudiant, addProfesseur, addEmployeur, error, mess
     return (
         <div className="inscription-wrapper">
 
-            <div className="fixed bottom-4 left-4 z-50">
+            <div className="fixed top-4 right-4 z-50">
                 <LanguageSwitche />
             </div>
 
