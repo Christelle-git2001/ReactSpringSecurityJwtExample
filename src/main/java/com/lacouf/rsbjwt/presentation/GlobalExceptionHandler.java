@@ -75,4 +75,33 @@ public class GlobalExceptionHandler {
                 .status(e.getStatus())
                 .body(new ErreurDTO(e.getMessage()));
     }
+
+    @ExceptionHandler(FichierCorrompuException.class)
+    public ResponseEntity<ErreurDTO> handleFichierCorrompuException(FichierCorrompuException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(FichierTropVolumineuxException.class)
+    public ResponseEntity<ErreurDTO> handleFichierTropVolumineuxException(FichierTropVolumineuxException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONTENT_TOO_LARGE)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(FichierTypeInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleFichierTypeInvalideException(FichierTypeInvalideException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(DateFinAvantDateDebutException.class)
+    public ResponseEntity<ErreurDTO> handleDateFinAvantDateDebutException(DateFinAvantDateDebutException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }
