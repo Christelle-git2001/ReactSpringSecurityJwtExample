@@ -74,10 +74,15 @@ function RegisterForm({
     };
 
     const renderInput = (field) => {
+        const placeholderText = field.placeholderKey
+            ? t([`${translationPrefix}.${field.placeholderKey}`, `register.${field.placeholderKey}`])
+            : "";
+
         const commonProps = {
             name: field.name,
             value: formData[field.name] || "",
             onChange: handleChange,
+            placeholder: placeholderText,
             className: `add-etudiant-input ${warnings[field.name] ? "input-error" : ""}`,
             minLength: field.minLength,
             maxLength: field.maxLength

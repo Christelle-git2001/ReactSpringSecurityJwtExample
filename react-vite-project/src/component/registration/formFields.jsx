@@ -5,14 +5,16 @@ export const COMMON_USER_FIELDS = [
         name: "email",
         labelKey: "email",
         type: "email",
-        pattern: "^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}$",
+        placeholderKey: "email_placeholder",
+        pattern: "^[a-zA-Z0-9]+([._%+-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
         fullWidth: true
     },
     {
         name: "phone",
         labelKey: "phone",
         type: "tel",
-        pattern: "[0-9]{3}-?[0-9]{3}-?[0-9]{4}",
+        placeholderKey: "phone_placeholder",
+        pattern: "^[0-9]{3}-[0-9]{3}-[0-9]{4}$",
         maxLength: "12"
     },
     { name: "password", labelKey: "password", type: "password", fullWidth: true },
