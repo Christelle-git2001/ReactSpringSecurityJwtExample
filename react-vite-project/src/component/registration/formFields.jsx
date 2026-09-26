@@ -16,5 +16,5 @@ export const COMMON_USER_FIELDS = [
         maxLength: "12"
     },
     { name: "password", labelKey: "password", type: "password", fullWidth: true },
-    { name: "passwordConfirmation", labelKey: "confirm_password", type: "password", fullWidth: true }, // 👈 Changé de "confirmPassword" à "passwordConfirmation"
+    { name: "passwordConfirmation", labelKey: "confirm_password", type: "password", fullWidth: true },
 ];
