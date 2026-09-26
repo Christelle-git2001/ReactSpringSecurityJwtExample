@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Offre {
+public class OffreDeStage {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -35,7 +34,7 @@ public class Offre {
     private String filePath; // Optionnel
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
-    public Offre(String title, String domain, String address, String salary, String description, LocalDate firstDate, LocalDate lastDate) {
+    public OffreDeStage(String title, String domain, String address, String salary, String description, LocalDate firstDate, LocalDate lastDate) {
         this.title = title;
         this.domain = domain;
         this.address = address;
