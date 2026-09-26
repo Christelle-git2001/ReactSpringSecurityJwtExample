@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.model;
 
+import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +23,7 @@ public class OffreDeStage {
     @Column(nullable = false)
     private String poste;
     @Column(nullable = false)
-    private String statut; // "en attente", "acceptée", "refusée"
+    private StatutOffre statut; // "en attente", "acceptée", "refusée"
     @Column(nullable = false)
     private Double salary;
     @Column(nullable = false)
