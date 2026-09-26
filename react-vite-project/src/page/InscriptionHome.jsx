@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import LanguageSwitche from "../locales/LanguageSwitch.jsx";
+import LanguageSwitch from "../locales/LanguageSwitch.jsx";
 
-import AddEtudiant from "../component/Profil/Etudiant/AddEtudiant.jsx";
-import AddProfesseur from "../component/Profil/Professeur/AddProfesseur.jsx";
-import AddEmployeur from "../component/Profil/Employeur/AddEmployeur.jsx";
+import AddEtudiant from "../component/registration/AddEtudiant.jsx";
+import AddProfesseur from "../component/registration/AddProfesseur.jsx";
+import AddEmployeur from "../component/registration/AddEmployeur.jsx";
 
 import "../css/InscriptionHome.css";
 
@@ -26,8 +26,8 @@ function InscriptionHome({ addEtudiant, addProfesseur, addEmployeur, error, mess
     return (
         <div className="inscription-wrapper">
 
-            <div className="fixed bottom-4 left-4 z-50">
-                <LanguageSwitche />
+            <div className="fixed top-4 right-4 z-50">
+                <LanguageSwitch />
             </div>
 
             <div className="inscription-background">

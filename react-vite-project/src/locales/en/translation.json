@@ -3,105 +3,46 @@
     "titre": "You are?",
     "etudiant": "Student",
     "employeur": "Employer",
-    "professeur" : "Teacher"
+    "professeur": "Teacher"
   },
-    "add_employeur": {
-        "message-bienvenue": "WELCOME TO",
-        "nom-app": "OSE",
-        "titre": "Sign up on OSE",
-        "type-utilisateur": "Employer account",
-        "nom": "Company name",
-        "adresse": "Email",
-        "telephone": "Phone number",
-        "numero-ID" : "Legal identification number",
-        "nom-personne-contact": "Contact person's name",
-        "telephone-personne-contact": "Contact person's phone number",
-        "mdp": "Password",
-        "confirmation-mdp": "Confirm password",
-        "bouton-inscrire": "Sign up",
-        "deja-inscrit": "Already registered?",
-        "bouton-connecter": "Log in",
-        "secteur" : "Business sector"
-    },
-    "add_etudiant": {
-      "page_title": "Sign up for OSE",
-      "page_subtitle": "Student account",
-      "slogan_message_1": "WELCOME",
-      "slogan_message_2": "TO",
-      "slogan_message_3": "-OSE-",
-      "first_name": "First name",
-      "first_name_placeholder": "First name",
-      "last_name": "Last name",
-      "last_name_placeholder": "Last name",
-      "email": "Email",
-      "email_placeholder": "name@email.com",
-      "phone": "Phone",
-      "phone_placeholder": "450-111-2222",
-      "matricule": "Student ID",
-      "matricule_placeholder": "Student ID",
-      "password": "Password",
-      "password_placeholder": "Password",
-      "confirm_password": "Confirm password",
-      "confirm_password_placeholder": "Confirm password",
-      "submit": "Sign up",
-      "already_registered": "Already registered?",
-      "login": "Log in",
-      "department": "Department",
-      "department_placeholder": "Choose a department",
-      "department_informatique": "Computer Science Technology",
-      "department_gestion": "Business Management Technology",
-      "department_travail_social": "Social Work Technology",
-      "department_education_enfance": "Early Childhood Education Technology",
-      "department_soins_infirmiers": "Nursing",
-      "department_genie_civil": "Civil Engineering Technology",
-      "department_genie_electrique": "Electrical Engineering Technology",
-      "department_genie_physique": "Engineering Physics Technology",
-      "department_architecture": "Architectural Technology",
-      "department_estimation_evaluation": "Building Estimation and Appraisal Technology"
-    },
+  "register": {
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email address",
+    "email_placeholder": "example@domain.com",
+    "phone": "Phone number",
+    "phone_placeholder": "123-123-1234",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "already_registered": "Already registered?",
+    "login": "Log in",
+    "submit": "Register"
+  },
+  "add_etudiant": {
+    "page_title": "Sign up for OSE",
+    "page_subtitle": "Student account",
+    "matricule": "Student ID",
+    "department": "Department",
+    "department_placeholder": "Choose a department"
+  },
   "add_professeur": {
     "page_title": "Register on OSE",
     "page_subtitle": "Professor account",
-
-    "first_name": "First name",
-    "last_name": "Last name",
-    "email": "Email",
-    "phone": "Phone number",
     "matricule": "ID number",
-
     "department": "Department",
-    "department_placeholder": "-- Select a department --",
-
-    "password": "Password",
-    "confirm_password": "Confirm password",
-
-    "submit": "Register",
-    "already_registered": "Already registered?",
-    "login": "Log in"
+    "department_placeholder": "-- Select a department --"
   },
   "add_employeur": {
     "page_title": "Register on OSE",
     "page_subtitle": "Employer account",
-
-    "first_name": "First name",
-    "last_name": "Last name",
-    "email": "Email address",
-    "phone": "Phone number",
     "town": "City",
     "business_name": "Company name",
     "business_sector": "Business sector",
     "business_sector_placeholder": "-- Select a sector --",
     "loading_sectors": "Loading sectors...",
-
-    "password": "Password",
-    "confirm_password": "Confirm password",
-
-    "submit": "Create account",
-    "already_registered": "Already registered?",
-    "login": "Log in"
-  }
-,
-"login" : {
+    "submit": "Create account"
+  },
+  "login": {
     "page_title": "Login",
     "page_subtitle": "Access to your user account",
     "courriel": "Email address",
@@ -111,9 +52,9 @@
     "motDePasse_placeholder": "Enter your password",
     "password.invalide": "Your password is required.",
     "submit": "Log in",
-    "noAccount" : "No account ?",
-    "inscription" : "Sign up !",
-    "credentialsWrong" : "Email or Password are not correct, please try again !"
+    "noAccount": "No account ?",
+    "inscription": "Sign up !",
+    "credentialsWrong": "Email or Password are not correct, please try again !"
   },
   "departement": {
     "INFORMATIQUE": "Computer Science",
@@ -149,10 +90,13 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "required": "This field is required.",
+    "email_invalid": "Please enter a valid email address  | Ex : example@domain.com",
+    "phone_invalid": "Please enter a valid phone number | Ex: 123-123-1234",
+    "password_mismatch": "Passwords do not match.",
     "email_exists": "This email address is already in use.",
     "matricule_exists": "This ID number is already in use.",
     "phone_exists": "This phone number is already in use.",
-    "password_mismatch": "Passwords do not match.",
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again."

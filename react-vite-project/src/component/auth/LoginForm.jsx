@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import fetcher from "../../utils/fetcher";
-import LanguageSwitche from "../../locales/LanguageSwitch.jsx";
+import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import "../../css/AddEtudiant.css";
 import "../../css/InscriptionHome.css";
 import "../../css/Login.css";
@@ -155,8 +155,8 @@ const LoginForm = ({ user, setError }) => {
             )
         ) : (
             <div className="inscription-wrapper">
-              <div className="fixed bottom-4 left-4 z-50">
-                <LanguageSwitche />
+              <div className="fixed top-4 right-4 z-50">
+                <LanguageSwitch />
               </div>
               <div className="inscription-background">
                 <div className="circleDesign circleDesign-top-right" />
