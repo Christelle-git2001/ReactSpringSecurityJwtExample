@@ -1,6 +1,12 @@
-import { Link } from "react-router-dom";
 import Card from "../component/ui/Card.jsx";
 import Sidebar from "../component/ui/Sidebar.jsx";
+
+const employeurLinks = [
+    { label: "Accueil", path: "/employeur" },
+    { label: "Mes offres", path: "/employeur/offres" },
+    { label: "Mes entrevues", path: "/employeur/entrevues" },
+    { label: "Mon compte", path: "/employeur/compte" }
+];
 
 
 const EmployeurHome = () => {
@@ -9,7 +15,11 @@ const EmployeurHome = () => {
 
             <div className="mx-auto flex max-w-6xl gap-6">
 
-                    <Sidebar />
+                    <Sidebar
+                        title="Espace employeur"
+                        name="Christelle Altineus"
+                        links={employeurLinks}
+                    />
 
                 {/* =========================
                     CONTENU PRINCIPAL
