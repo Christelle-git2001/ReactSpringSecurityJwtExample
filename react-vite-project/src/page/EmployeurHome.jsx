@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import Card from "../component/ui/Card.jsx";
 import Sidebar from "../component/ui/Sidebar.jsx";
+import Button from "../component/ui/Button.jsx";
 
 const employeurLinks = [
     { label: "Accueil", path: "/employeur" },
@@ -10,6 +12,8 @@ const employeurLinks = [
 
 
 const EmployeurHome = () => {
+    const navigate = useNavigate();
+
     return (
         <main className="min-h-screen bg-gray-100 px-6 py-8">
 
@@ -53,9 +57,10 @@ const EmployeurHome = () => {
                                    Mes offres
                                </h2>
 
-                               <button className="rounded-md bg-[#0ee1cc] px-4 py-2 font-medium text-white transition-colors hover:bg-[#043462]">
-                                   + Ajouter une offre
-                               </button>
+                              <Button onClick={() => navigate("/employeur/offres/nouvelle")}>
+                                  + Ajouter une offre
+                              </Button>
+
                            </div>
 
                            <Card className="mb-4">
