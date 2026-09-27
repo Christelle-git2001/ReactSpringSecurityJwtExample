@@ -17,6 +17,7 @@ import EtudiantHome from "../../page/EtudiantHome.jsx";
 import ProfesseurHome from "../../page/ProfesseurHome.jsx";
 
 import AddOffer from "../../page/AddOffer.jsx";
+import SideBarLayout from "../Design/SideBarLayout.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -54,11 +55,11 @@ export default function AppRoutes({
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
 
-            <Route element={<PageLayout user={user} />}>
+            <Route element={<SideBarLayout user={user} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
-                <Route  path="/etudiant" element={<EtudiantHome />} />
+                <Route path="/etudiant" element={<EtudiantHome />} />
                 <Route path="/employeur" element={<EmployeurHome />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
