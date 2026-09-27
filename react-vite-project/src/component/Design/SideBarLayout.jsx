@@ -1,17 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
+import { FiHome } from "react-icons/fi";
 
 const NAV_ITEMS = [
-    { path: "/", label: "Accueil", roles: null },
-    { path: "/about", label: "À propos", roles: null },
-    { path: "/etudiant", label: "Etudiant", roles: ["GESTIONNAIRE", "ETUDIANT"] },
-    { path: "/employeur", label: "Employeur", roles: ["GESTIONNAIRE", "EMPLOYEUR"] },
-    { path: "/professeur", label: "Professeur", roles: ["GESTIONNAIRE", "PROFESSEUR"] },
-    { path: "/gestionnaire", label: "Gestionnaire", roles: ["GESTIONNAIRE"] },
+    {
+        path: "/",
+        label: "Accueil",
+        roles: null,
+        icon: <FiHome className="size-4 my-1.5" />
+    }
 ];
 
-function SideBar({ user }){
+function SideBarLayout({ user }){
 
     const role = user?.role?.toString() || user?.role;
 
@@ -37,7 +38,9 @@ function SideBar({ user }){
                     <div className="px-4">Navbar Title</div>
                 </nav>
                 {/* Page content here */}
-                <div className="p-4">Page Content</div>
+                <div className="p-4">
+                    <Outlet></Outlet>
+                </div>
             </div>
 
             <div className="drawer-side is-drawer-close:overflow-visible">
@@ -46,13 +49,16 @@ function SideBar({ user }){
                     {/* Sidebar content here */}
                     <ul className="menu w-full grow">
                         {/* List item */}
-                        <li>
-                            <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                                {/* Home icon */}
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                <span className="is-drawer-close:hidden">Homepage</span>
-                            </button>
-                        </li>
+
+                        {visibleItems.map(item => (
+                            <li key={item.path}>
+                                <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip={item.label}>
+                                    {item.icon}
+                                    <span className="is-drawer-close:hidden">{item.label}</span>
+                                </button>
+                            </li>
+                        ))}
+
 
                         {/* List item */}
                         <li>
@@ -69,4 +75,4 @@ function SideBar({ user }){
     )
 }
 
-export default SideBar;
+export default SideBarLayout;
