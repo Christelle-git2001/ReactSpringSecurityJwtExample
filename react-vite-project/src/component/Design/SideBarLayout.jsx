@@ -3,18 +3,21 @@ import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import { FiHome, FiLogOut, FiLogIn } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import Drawer from "./Drawer.jsx";
 
 
 function SideBarLayout({ user }){
 
     const { t } = useTranslation();
 
+    const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
+    const role = rawRole?.toString().replace("ROLE_", "");
+
     const NAV_ITEMS = [
-        { path: "/home", label: t("nav.home"), roles: null, icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         {path: user?.isLoggedIn ? "/logout" : "/login", label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"), roles: null, icon: user?.isLoggedIn ? <FiLogOut className="size-4 my-1.5" /> : <FiLogIn className="size-4 my-1.5" />},
     ];
-
-    const role = user?.role?.toString() || user?.role;
 
     const getVisibleNavItems = () => {
         return NAV_ITEMS.filter((item) => {
@@ -24,6 +27,12 @@ function SideBarLayout({ user }){
     };
 
     const visibleItems = getVisibleNavItems();
+
+    const drawerContent = (
+        <div>
+            <p className="text-sm">Contenu drawer</p>
+        </div>
+    );
 
     return (
         <div className="drawer lg:drawer-open">
@@ -41,9 +50,13 @@ function SideBarLayout({ user }){
                     </div>
                 </nav>
                 {/* Page content here */}
-                <div className="p-4 bg-base-200">
-                    <Outlet></Outlet>
-                </div>
+
+                <Drawer id="my-drawer-5" content={drawerContent}>
+                    <div className="p-4 bg-base-200">
+                        <Outlet />
+                    </div>
+                </Drawer>
+
             </div>
 
             <div className="drawer-side is-drawer-close:overflow-visible">
