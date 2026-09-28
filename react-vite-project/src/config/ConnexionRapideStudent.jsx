@@ -15,7 +15,7 @@ const ConnexionRapideStudent = () => {
             const token = await response.text();
             localStorage.setItem('token', token);
 
-            navigate('/etudiant/dashboard');
+            navigate('/etudiant');
         } catch (error) {
             console.error(error);
         }
