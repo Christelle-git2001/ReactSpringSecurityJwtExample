@@ -135,13 +135,13 @@ function AddOffer() {
                             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
                     </div>
-                    {/* Document complémentaire */}
+                    {/* Document complémentaire Obligatoire */}
                     <div className="mb-5">
                         <label
                             htmlFor="file"
                             className="mb-2 block font-medium text-[#043462]"
                         >
-                            Document complémentaire (PDF, optionnel)
+                            Document complémentaire (PDF)
                         </label>
 
                         <input
