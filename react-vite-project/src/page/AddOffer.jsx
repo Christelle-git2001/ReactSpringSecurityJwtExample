@@ -1,6 +1,30 @@
+import { useState } from "react";
 import Button from "../component/ui/Button.jsx";
+import Card from "../component/ui/Card.jsx";
+
 function AddOffer() {
+    const [offer, setOffer] = useState(null);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const file = formData.get("file");
+
+        const newOffer = {
+            title: formData.get("title"),
+            domain: formData.get("domain"),
+            salary: formData.get("salary"),
+            startDate: formData.get("startDate"),
+            endDate: formData.get("endDate"),
+            fileName: file.name
+        };
+
+        setOffer(newOffer);
+    };
+
     return (
+
         <main className="min-h-screen bg-gray-100 px-6 py-8">
             <div className="mx-auto max-w-3xl">
 
@@ -16,7 +40,10 @@ function AddOffer() {
                     <div className="mt-3 h-px w-full bg-[#0FFFDF]"></div>
                 </div>
 
-                <form className="rounded-xl bg-white p-6 shadow">
+                <form
+                    onSubmit={handleSubmit}
+                    className="rounded-xl bg-white p-6 shadow"
+                >
 
                     {/* Titre */}
                     <div className="mb-5">
@@ -47,40 +74,6 @@ function AddOffer() {
                         <input
                             id="domain"
                             name="domain"
-                            type="text"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
-                        />
-                    </div>
-
-                    {/* Lieu */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="location"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Lieu
-                        </label>
-
-                        <input
-                            id="location"
-                            name="location"
-                            type="text"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
-                        />
-                    </div>
-
-                    {/* Entreprise */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="company"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Entreprise
-                        </label>
-
-                        <input
-                            id="company"
-                            name="company"
                             type="text"
                             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
@@ -149,6 +142,7 @@ function AddOffer() {
                             name="file"
                             type="file"
                             accept=".pdf,application/pdf"
+                            required
                             className="w-full rounded-md border border-gray-300 px-4 py-2"
                         />
                     </div>
@@ -169,6 +163,27 @@ function AddOffer() {
                     </div>
 
                 </form>
+                {offer && (
+                    <Card className="mt-6">
+                        <div className="flex justify-between">
+                            <h2 className="text-2xl font-bold text-[#043462]">
+                                {offer.title}
+                            </h2>
+
+                            <span className="badge badge-warning">
+                                En attente
+                            </span>
+                        </div>
+
+                        <div className="mt-4 flex flex-col gap-2">
+                            <p>💻 Domaine : {offer.domain}</p>
+                            <p>💰 Salaire : {offer.salary} $</p>
+                            <p>📅 Date de début : {offer.startDate}</p>
+                            <p>📅 Date de fin : {offer.endDate}</p>
+                            <p>📄 Document : {offer.fileName}</p>
+                        </div>
+                    </Card>
+                )}
             </div>
         </main>
     );

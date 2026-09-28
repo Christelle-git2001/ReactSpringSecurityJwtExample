@@ -1,9 +1,9 @@
 function Card({ children, className = "" }) {
     return (
-        <div
-            className={`rounded-xl bg-white p-6 shadow ${className}`}
-        >
-            {children}
+        <div className={`card bg-base-100 shadow-sm ${className}`}>
+            <div className="card-body">
+                {children}
+            </div>
         </div>
     );
 }
