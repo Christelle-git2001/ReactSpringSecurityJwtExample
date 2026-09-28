@@ -1,9 +1,8 @@
-import { useState } from "react";
 import Button from "../component/ui/Button.jsx";
-import Card from "../component/ui/Card.jsx";
+import { useNavigate } from "react-router-dom";
 
 function AddOffer() {
-    const [offer, setOffer] = useState(null);
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -19,10 +18,13 @@ function AddOffer() {
             endDate: formData.get("endDate"),
             fileName: file.name
         };
-
-        setOffer(newOffer);
+//TODO avec Backend (enregistrer plusieurs offres)
+        navigate("/employeur", {
+            state: {
+                offer: newOffer
+            }
+        });
     };
-
     return (
 
         <main className="min-h-screen bg-gray-100 px-6 py-8">
@@ -149,7 +151,7 @@ function AddOffer() {
                     <div className="mt-8 flex justify-end gap-4">
                         <Button
                             type="button"
-                            onClick={() => {}}
+                            onClick={() => navigate("/employeur")}
                             className="bg-gray-400 hover:bg-gray-500"
                         >
                             Annuler
@@ -163,27 +165,6 @@ function AddOffer() {
                     </div>
 
                 </form>
-                {offer && (
-                    <Card className="mt-6">
-                        <div className="flex justify-between">
-                            <h2 className="text-2xl font-bold text-[#043462]">
-                                {offer.title}
-                            </h2>
-
-                            <span className="badge badge-warning">
-                                En attente
-                            </span>
-                        </div>
-
-                        <div className="mt-4 flex flex-col gap-2">
-                            <p>💻 Domaine : {offer.domain}</p>
-                            <p>💰 Salaire : {offer.salary} $</p>
-                            <p>📅 Date de début : {offer.startDate}</p>
-                            <p>📅 Date de fin : {offer.endDate}</p>
-                            <p>📄 Document : {offer.fileName}</p>
-                        </div>
-                    </Card>
-                )}
             </div>
         </main>
     );
