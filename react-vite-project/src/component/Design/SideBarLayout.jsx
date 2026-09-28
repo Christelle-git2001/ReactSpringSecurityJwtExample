@@ -1,4 +1,4 @@
-import React from "react";
+import React,{ useState }  from "react";
 import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import {FiHome, FiLogOut, FiLogIn, FiUser} from "react-icons/fi";
@@ -9,6 +9,19 @@ import Drawer from "./Drawer.jsx";
 function SideBarLayout({ user }){
 
     const { t } = useTranslation();
+
+    const [drawerContent, setDrawerContent] = useState(null);
+
+    const openDrawer = (content) => {
+        setDrawerContent(content);
+        const checkbox = document.getElementById("my-drawer-5");
+        if (checkbox) checkbox.checked = true;
+    };
+
+    const closeDrawer = () => {
+        const checkbox = document.getElementById("my-drawer-5");
+        if (checkbox) checkbox.checked = false;
+    };
 
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
     const role = rawRole?.toString().replace("ROLE_", "");
@@ -29,12 +42,6 @@ function SideBarLayout({ user }){
 
     const visibleItems = getVisibleNavItems();
 
-    const drawerContent = (
-        <div>
-            <p className="text-sm">Contenu drawer</p>
-        </div>
-    );
-
     return (
         <div className="drawer lg:drawer-open">
             <input id="my-drawer-4" type="checkbox" className="drawer-toggle inline" />
@@ -53,8 +60,8 @@ function SideBarLayout({ user }){
                 {/* Page content here */}
 
                 <Drawer id="my-drawer-5" content={drawerContent}>
-                    <div className="p-4 bg-base-200">
-                        <Outlet />
+                    <div className="p-4 bg-base-200 flex flex-col items-center w-full">
+                        <Outlet context={{ openDrawer, closeDrawer }} />
                     </div>
                 </Drawer>
 
