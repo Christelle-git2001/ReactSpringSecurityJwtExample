@@ -2,13 +2,16 @@ import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import { FiHome, FiLogOut, FiLogIn } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 
 function SideBarLayout({ user }){
 
+    const { t } = useTranslation();
+
     const NAV_ITEMS = [
-        {path: "/", label: "Accueil", roles: null, icon: <FiHome className="size-4 my-1.5" />},
-        {path:user?.isLoggedIn ? "/logout" : "/login", label:user?.isLoggedIn ? "logout" : "login", roles: null, icon: user?.isLoggedIn ? <FiLogOut className="size-4 my-1.5" /> : <FiLogIn className="size-4 my-1.5" />},
+        { path: "/home", label: t("nav.home"), roles: null, icon: <FiHome className="size-4 my-1.5" /> },
+        {path: user?.isLoggedIn ? "/logout" : "/login", label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"), roles: null, icon: user?.isLoggedIn ? <FiLogOut className="size-4 my-1.5" /> : <FiLogIn className="size-4 my-1.5" />},
     ];
 
     const role = user?.role?.toString() || user?.role;

@@ -105,5 +105,10 @@
     "student_added": "Student added successfully.",
     "professor_added": "Professor added successfully.",
     "employer_added": "Employer added successfully."
+  },
+  "nav": {
+    "home": "Home",
+    "login": "Login",
+    "logout": "Logout"
   }
 }
