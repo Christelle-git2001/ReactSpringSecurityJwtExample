@@ -1,13 +1,14 @@
 import { useTranslation } from "react-i18next";
 import ProfileField from "../../component/ui/ProfileField.jsx";
 import {getDepartmentKey} from "../../utils/departementConverter.js";
+import PDFVisioneuseTest from "../../component/PDF/PDFVisioneuseTest.jsx";
 const AccountEtudiant = ({user}) => {
     const { t } = useTranslation();
     return (
        <div className={"bg-teal-200/30 p-10"}>
            <div className="max-w-4xl mx-auto p-6 bg-base-100 rounded-2xl shadow-sm border border-base-200">
                <h2 className="text-2xl font-bold text-[#043462] border-b pb-4 mb-6">
-                   Renseignements personnels
+                   {t("account.info.personal")}
                </h2>
                <div className="grid grid-cols-12">
                    <div className={"col-span-5"}>
@@ -33,7 +34,7 @@ const AccountEtudiant = ({user}) => {
                    </div>
                </div>
                <h2 className="text-2xl font-bold text-[#043462] border-b p-4 mb-6">
-                   Renseignements Scolaire
+                   {t("account.info.educational")}
                </h2>
                <div className="grid grid-cols-12">
                    <div className={"col-span-5"}>
@@ -44,6 +45,14 @@ const AccountEtudiant = ({user}) => {
                    </div>
                    <div className={"col-span-5"}>
                        <ProfileField label={t("add_etudiant.department")} result={t("departement." + getDepartmentKey(user.department))}/>
+                   </div>
+               </div>
+               <h2 className="text-2xl font-bold text-[#043462] border-b p-4 mb-6">
+                   {t("account.info.professional")}
+               </h2>
+               <div className="grid grid-cols-12">
+                   <div className={"col-span-12"}>
+                       <ProfileField label={"Curriculum Vitae"} result=<PDFVisioneuseTest/>/>
                    </div>
                </div>
            </div>

@@ -119,5 +119,19 @@
     "card" : {
       "account" : "Manage your personal information, update your profile, and view your account details. "
     }
+  },
+  "pdfVisio" : {
+    "nofiles" : "No files selected",
+    "visualize" : "Visualize PDF",
+    "filesName" : "File name",
+    "choice" : "Choose a file",
+    "download" : "Download the PDF"
+  },
+  "account" : {
+    "info" : {
+      "personal" : "Personal Information",
+      "educational" : "Educational Information",
+      "professional" : "Professional Information"
+    }
   }
 }
