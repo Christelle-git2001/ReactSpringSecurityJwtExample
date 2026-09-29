@@ -110,7 +110,8 @@
     "home": "Accueil",
     "account": "Compte",
     "login": "Connexion",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "add_offer" : "Créer une offre"
   },
   "home": {
     "welcome" : "Bienvenue"
