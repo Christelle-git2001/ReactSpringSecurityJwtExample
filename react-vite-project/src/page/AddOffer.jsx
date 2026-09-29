@@ -5,19 +5,18 @@ import { useTranslation } from "react-i18next";
 import { getSecteursEmployeur } from "../api/http.jsx";
 
 function AddOffer() {
-     const navigate = useNavigate();
-     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const { t } = useTranslation();
 
-     const [errors, setErrors] = useState({});
-     const [secteurs, setSecteurs] = useState([]);
-     const [loading, setLoading] = useState(true);
+    const [errors, setErrors] = useState({});
+    const [secteurs, setSecteurs] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-     useEffect(() => {
-         getSecteursEmployeur()
-             .then(setSecteurs)
-             .finally(() => setLoading(false));
-     }, []);
-
+    useEffect(() => {
+        getSecteursEmployeur()
+            .then(setSecteurs)
+            .finally(() => setLoading(false));
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -32,255 +31,202 @@ function AddOffer() {
 
         const newErrors = {};
 
-            if (!title) {
-                newErrors.title = "Veuillez remplir le titre de l'offre.";
-            }
+        if (!title) newErrors.title = t("add_offer.errors.title_required");
+        if (!domain) newErrors.domain = t("add_offer.errors.domain_required");
 
-            if (!domain) {
-                newErrors.domain = "Veuillez remplir le domaine.";
-            }
+        if (!salary) {
+            newErrors.salary = t("add_offer.errors.salary_required");
+        } else if (Number(salary) < 0) {
+            newErrors.salary = t("add_offer.errors.salary_negative");
+        }
 
-            if (!salary) {
-                newErrors.salary = "Veuillez remplir le salaire.";
-            } else if (Number(salary) < 0) {
-                newErrors.salary = "Le salaire ne peut pas être négatif.";
-            }
+        if (!startDate) newErrors.startDate = t("add_offer.errors.startDate_required");
+        if (!endDate) newErrors.endDate = t("add_offer.errors.endDate_required");
 
-            if (!startDate) {
-                newErrors.startDate = "Veuillez sélectionner une date de début.";
-            }
+        if (!file || file.size === 0) {
+            newErrors.file = t("add_offer.errors.file_required");
+        }
 
-            if (!endDate) {
-                newErrors.endDate = "Veuillez sélectionner une date de fin.";
-            }
+        if (startDate && endDate && endDate <= startDate) {
+            newErrors.endDate = t("add_offer.errors.endDate_invalid");
+        }
 
-            if (!file || file.size === 0) {
-                newErrors.file = "Veuillez sélectionner un document PDF.";
-            }
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
 
-            if (Object.keys(newErrors).length > 0) {
-                setErrors(newErrors);
-                return;
-            }
-
-            if (endDate <= startDate) {
-                setErrors({
-                    endDate: "La date de fin doit être après la date de début."
-                });
-                return;
-            }
-
-            setErrors({});
-
+        setErrors({});
 
         const newOffer = {
-            title: formData.get("title"),
-            domain: formData.get("domain"),
-            salary: formData.get("salary"),
-            startDate: formData.get("startDate"),
-            endDate: formData.get("endDate"),
+            title,
+            domain,
+            salary,
+            startDate,
+            endDate,
             fileName: file.name,
             status: "EN_ATTENTE"
         };
-//TODO avec Backend (enregistrer plusieurs offres)
-        navigate("/employeur", {
-            state: {
-                offer: newOffer
-            }
-        });
+
+        //TODO Back end (Ajouter Offre)
+
+        navigate("/employeur", { state: { offer: newOffer } });
     };
+
+    const inputStyle = (hasError) =>
+        `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none focus:ring-2 ${
+            hasError
+                ? "border-red-500 focus:ring-red-200"
+                : "border-gray-300 focus:border-[#0ee1cc] focus:ring-[#0ee1cc]/20"
+        }`;
+
     return (
+        <form
+            onSubmit={handleSubmit}
+            className="m-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
+        >
+            <h2 className="mb-6 text-xl font-bold text-[#043462]">
+                {t("add_offer.title", "Ajouter une offre")}
+            </h2>
 
-        <main className="min-h-screen bg-gray-100 px-6 py-8">
-            <div className="mx-auto max-w-3xl">
-
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[#043462]">
-                        Ajouter une offre de stage
-                    </h1>
-
-                    <p className="mt-2 text-gray-600">
-                        Remplissez les informations de votre offre de stage.
-                    </p>
-
-                    <div className="mt-3 h-px w-full bg-[#0FFFDF]"></div>
-                </div>
-
-                <form
-                    onSubmit={handleSubmit}
-                    className="rounded-xl bg-white p-6 shadow"
-                >
-
-                    {/* Titre */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="title"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Titre de l'offre
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                {/* Titre */}
+                <div className="md:col-span-2">
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="title" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.offer_title")}
                         </label>
-
                         <input
                             id="title"
                             name="title"
                             type="text"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2"
+                            className={inputStyle(errors.title)}
                         />
-
                         {errors.title && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                                <span>⚠️</span>
-                                <span>{errors.title}</span>
-                            </div>
+                            <span className="text-xs font-medium text-red-500">{errors.title}</span>
                         )}
                     </div>
+                </div>
 
-                    {/* Domaine */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="domain"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Domaine
+                {/* Domaine */}
+                <div>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="domain" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.domain")}
                         </label>
-
                         <select
                             id="domain"
                             name="domain"
                             disabled={loading}
-                            className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 outline-none focus:border-[#0ee1cc]"
+                            className={inputStyle(errors.domain)}
                         >
                             <option value="">
                                 {loading
-                                    ? "Chargement des domaines..."
-                                    : "Choisir un domaine"}
+                                    ? t("add_offer.loading_domains")
+                                    : t("add_offer.select_domain")}
                             </option>
-
                             {secteurs.map((s) => (
                                 <option key={s.name} value={s.name}>
                                     {t(`secteur.${s.name}`)}
                                 </option>
                             ))}
                         </select>
-
                         {errors.domain && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                                <span>⚠️</span>
-                                <span>{errors.domain}</span>
-                            </div>
+                            <span className="text-xs font-medium text-red-500">{errors.domain}</span>
                         )}
                     </div>
-                    {/* Salaire */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="salary"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Salaire
-                        </label>
+                </div>
 
+                {/* Salaire */}
+                <div>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="salary" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.salary")}
+                        </label>
                         <input
                             id="salary"
                             name="salary"
                             type="number"
-                            min = "0"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
+                            min="0"
+                            className={inputStyle(errors.salary)}
                         />
                         {errors.salary && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                                <span>⚠️</span>
-                                <span>{errors.salary}</span>
-                            </div>
+                            <span className="text-xs font-medium text-red-500">{errors.salary}</span>
                         )}
                     </div>
+                </div>
 
-                    {/* Date de début */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="startDate"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Date de début
+                {/* Date début */}
+                <div>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="startDate" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.start_date")}
                         </label>
-
                         <input
                             id="startDate"
                             name="startDate"
                             type="date"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
+                            className={inputStyle(errors.startDate)}
                         />
                         {errors.startDate && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                                <span>⚠️</span>
-                                <span>{errors.startDate}</span>
-                            </div>
+                            <span className="text-xs font-medium text-red-500">{errors.startDate}</span>
                         )}
                     </div>
+                </div>
 
-                    {/* Date de fin */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="endDate"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Date de fin
+                {/* Date fin */}
+                <div>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="endDate" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.end_date")}
                         </label>
-
                         <input
                             id="endDate"
                             name="endDate"
                             type="date"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
+                            className={inputStyle(errors.endDate)}
                         />
+                        {errors.endDate && (
+                            <span className="text-xs font-medium text-red-500">{errors.endDate}</span>
+                        )}
                     </div>
-                    {errors.endDate && (
-                        <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                            <span>⚠️</span>
-                            <span>{errors.endDate}</span>
-                        </div>
-                    )}
-                    {/* Document complémentaire Obligatoire */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="file"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Document complémentaire (PDF)
-                        </label>
+                </div>
 
+                {/* Fichier */}
+                <div className="md:col-span-2">
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="file" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.document")}
+                        </label>
                         <input
                             id="file"
                             name="file"
                             type="file"
                             accept=".pdf,application/pdf"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2"
+                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-[#043462] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-[#03284d]"
                         />
                         {errors.file && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                                <span>⚠️</span>
-                                <span>{errors.file}</span>
-                            </div>
+                            <span className="text-xs font-medium text-red-500">{errors.file}</span>
                         )}
                     </div>
-                    <div className="mt-8 flex justify-end gap-4">
-                        <Button
-                            type="button"
-                            onClick={() => navigate("/employeur")}
-                            className="bg-gray-400 hover:bg-gray-500"
-                        >
-                            Annuler
-                        </Button>
-
-                        <Button
-                            type="submit"
-                        >
-                            Accepter
-                        </Button>
-                    </div>
-
-                </form>
+                </div>
             </div>
-        </main>
+
+            {/* Boutons */}
+            <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
+                <Button
+                    type="button"
+                    onClick={() => navigate("/employeur")}
+                    className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                    {t("add_offer.cancel")}
+                </Button>
+
+                <Button type="submit" className="bg-[#043462] text-white hover:bg-[#03284d]">
+                    {t("add_offer.submit")}
+                </Button>
+            </div>
+        </form>
     );
 }
 

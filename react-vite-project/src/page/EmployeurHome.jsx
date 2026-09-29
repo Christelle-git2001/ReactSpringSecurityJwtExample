@@ -15,7 +15,7 @@ const EmployeurHome = ({ user }) => {
     const handleView = (offer) => {
         openDrawer(
             <div className="space-y-4">
-                <div className="bg-white p-4 rounded-lg shadow-md">
+                <div className="bg-base-100 p-4 rounded-lg shadow-md">
                     <h2 className="text-xl font-bold">{offer.title}</h2>
                     <ul className="mt-4 text-sm space-y-1">
                         <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
@@ -47,8 +47,6 @@ const EmployeurHome = ({ user }) => {
 
     return (
         <>
-            <h1>Page accueil Employeur</h1>
-
             <div className="mt-6 flex flex-col gap-6">
                 {offres.map((offer) => (
                     <div key={offer.id} className="flex gap-24 items-stretch">

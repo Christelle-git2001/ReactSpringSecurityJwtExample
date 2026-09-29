@@ -55,10 +55,10 @@ function SideBarLayout({ user, openDrawer }) {
 
                     </div>
                 </nav>
-
-                <div className="p-4 bg-base-200 flex flex-col items-center w-full">
+                <div className="p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col items-center w-full">
                     <Outlet context={{ openDrawer }} />
                 </div>
+
             </div>
 
             <div className="drawer-side is-drawer-close:overflow-visible bg-[#043462] text-white">
