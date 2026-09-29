@@ -14,22 +14,23 @@ const EmployeurHome = ({ user }) => {
     const handleView = (offer) => {
         openDrawer(
             <div className="space-y-4">
-                <h2 className="text-xl font-bold">{offer.title}</h2>
-
-                <p>
-                    <strong>{t("offre.description")} :</strong><br />
-                    {offer.description}
-                </p>
-
-                <ul className="mt-4 text-sm space-y-1">
-                    <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
-                    <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
-                    <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
-                    <li><strong>{t("offre.document")} :</strong> {offer.fileName || t("offre.aucun")}</li>
-                </ul>
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h2 className="text-xl font-bold">{offer.title}</h2>
+                    <ul className="mt-4 text-sm space-y-1">
+                        <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
+                        <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
+                        <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
+                        <li><strong>{t("offre.document")} :</strong> {offer.fileName || t("offre.aucun")}</li>
+                    </ul>
+                    <p className="mt-2">
+                        <strong>{t("offre.description")} :</strong><br />
+                        {offer.description}
+                    </p>
+                </div>
             </div>
         );
     };
+
 
     const handleEdit = (offer) => {
         navigate("/employeur/offres/modifier", {
