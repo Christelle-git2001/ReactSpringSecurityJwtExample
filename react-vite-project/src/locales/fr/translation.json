@@ -104,11 +104,27 @@
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
     "professor_added": "Professeur ajouté avec succès.",
-    "employer_added": "Employeur ajouté avec succès."
+    "employer_added": "Employeur ajouté avec succès.",
+    "offer_loaded": "Offre chargée avec succès.",
+    "offer_created": "Offre créée avec succès.",
+    "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
     "home": "Accueil",
     "login": "Connexion",
     "logout": "Déconnexion"
+  },
+  "offre": {
+    "domaine": "Domaine",
+    "date_debut": "Date de début",
+    "date_fin": "Date de fin",
+    "document": "Document",
+    "details" : "Voir les détails",
+    "edit" : "Modifier"
+  },
+  "status": {
+    "en_attente": "En attente",
+    "acceptee": "Acceptée",
+    "refusee": "Refusée"
   }
 }

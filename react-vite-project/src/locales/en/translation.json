@@ -104,11 +104,27 @@
   "success": {
     "student_added": "Student added successfully.",
     "professor_added": "Professor added successfully.",
-    "employer_added": "Employer added successfully."
+    "employer_added": "Employer added successfully.",
+    "offer_loaded": "Offer loaded successfully.",
+    "offer_created": "Offer created successfully.",
+    "offer_updated": "Offer updated successfully."
   },
   "nav": {
     "home": "Home",
     "login": "Login",
     "logout": "Logout"
+  },
+  "offre": {
+    "domaine": "Domain",
+    "date_debut": "Start date",
+    "date_fin": "End date",
+    "document": "Document",
+    "details" : "See details",
+    "edit" : "Edit"
+  },
+  "status": {
+    "en_attente": "Pending",
+    "acceptee": "Accepted",
+    "refusee": "Rejected"
   }
 }
