@@ -48,27 +48,35 @@ const EmployeurHome = ({ user }) => {
 
     return (
         <>
-            <div className="mt-6 flex flex-col gap-6">
-                <SearchBar className="self-center mb-6" />
+        <SearchBar className="self-center mb-6" />
+        <div className="flex flex-col md:flex-row
+                gap-6 md:gap-16
+                items-start">
+
+            {/* Colonne des offres */}
+            <div className="mt-6 flex flex-col gap-6 flex-1">
                 {offres.map((offer) => (
-                    <div key={offer.id} className="flex gap-24 items-stretch">
-
-                        {/* Carte de l'offre */}
-                        <Card
-                            offer={offer}
-                            onView={handleView}
-                            onEdit={handleEdit}
-                        />
-
-                        {/* Bloc candidatures */}
-                        <div className="bg-white p-4 rounded-lg shadow-md w-100">
-                            <h3 className="font-semibold text-sm mb-2">Candidatures</h3>
-                            <p className="text-xs text-gray-600">Aucune candidature pour le moment</p>
-                        </div>
-
-                    </div>
+                    <Card
+                        key={offer.id}
+                        offer={offer}
+                        onView={handleView}
+                        onEdit={handleEdit}
+                    />
                 ))}
             </div>
+
+            {/* Bloc candidatures */}
+            <div className="
+                mt-6 bg-white p-6 rounded-lg shadow-md
+                w-full md:w-[420px] lg:w-[500px]
+                h-auto md:h-[85vh] lg:h-[90vh]
+                overflow-y-auto
+            ">
+                <h3 className="font-semibold text-sm mb-4">Candidatures</h3>
+                <p className="text-xs text-gray-600">Aucune candidature pour le moment</p>
+            </div>
+
+        </div>
         </>
     );
 };
