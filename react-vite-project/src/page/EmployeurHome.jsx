@@ -3,6 +3,7 @@ import { useOutletContext, useNavigate } from "react-router-dom";
 import Card from "./../component/Design/Card.jsx";
 import { fetchOffresEmployeur } from "../utils/offerService.js";
 import { useTranslation } from "react-i18next";
+import { getSecteursEmployeur } from "../api/http.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();

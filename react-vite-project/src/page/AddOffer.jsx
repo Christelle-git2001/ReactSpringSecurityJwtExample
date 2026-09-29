@@ -1,10 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../component/ui/Button.jsx";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { getSecteursEmployeur } from "../api/http.jsx";
 
 function AddOffer() {
-    const navigate = useNavigate();
-    const [errors, setErrors] = useState({});
+     const navigate = useNavigate();
+     const { t } = useTranslation();
+
+     const [errors, setErrors] = useState({});
+     const [secteurs, setSecteurs] = useState([]);
+     const [loading, setLoading] = useState(true);
+
+     useEffect(() => {
+         getSecteursEmployeur()
+             .then(setSecteurs)
+             .finally(() => setLoading(false));
+     }, []);
 
 
     const handleSubmit = (e) => {
@@ -30,6 +42,8 @@ function AddOffer() {
 
             if (!salary) {
                 newErrors.salary = "Veuillez remplir le salaire.";
+            } else if (Number(salary) < 0) {
+                newErrors.salary = "Le salaire ne peut pas être négatif.";
             }
 
             if (!startDate) {
@@ -130,12 +144,24 @@ function AddOffer() {
                             Domaine
                         </label>
 
-                        <input
+                        <select
                             id="domain"
                             name="domain"
-                            type="text"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2"
-                        />
+                            disabled={loading}
+                            className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 outline-none focus:border-[#0ee1cc]"
+                        >
+                            <option value="">
+                                {loading
+                                    ? "Chargement des domaines..."
+                                    : "Choisir un domaine"}
+                            </option>
+
+                            {secteurs.map((s) => (
+                                <option key={s.name} value={s.name}>
+                                    {t(`secteur.${s.name}`)}
+                                </option>
+                            ))}
+                        </select>
 
                         {errors.domain && (
                             <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
@@ -157,6 +183,7 @@ function AddOffer() {
                             id="salary"
                             name="salary"
                             type="number"
+                            min = "0"
                             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
                         {errors.salary && (
