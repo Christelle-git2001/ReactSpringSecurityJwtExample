@@ -29,7 +29,8 @@ export default function AppRoutes({
                                       addEtudiant,
                                       addProfesseur,
                                       addEmployeur,
-                                      setMessage
+                                      setMessage,
+                                      openDrawer
                                   }) {
     return (
         <Routes>
@@ -49,14 +50,13 @@ export default function AppRoutes({
                             setError={setError}
                             setMessage={setMessage}
                         />
-
                     }
                 />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
 
-            <Route element={<SideBarLayout user={user} />}>
+            <Route element={<SideBarLayout user={user} openDrawer={openDrawer} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
