@@ -110,7 +110,8 @@
     "home": "Home",
     "account" : "Account",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "add_offer" : "Add offer"
   },
   "home": {
     "welcome" : "Welcome"

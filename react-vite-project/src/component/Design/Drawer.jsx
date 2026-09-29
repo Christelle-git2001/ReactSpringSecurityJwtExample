@@ -1,15 +1,11 @@
-import React from "react";
-
-function Drawer({ id, content, children }) {
+function Drawer({ id, content }) {
     return (
-        <div className="drawer drawer-end">
+        <div className="drawer drawer-end fixed inset-0 z-50 pointer-events-none ">
             <input id={id} type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content">
-                {children}
-            </div>
-            <div className="drawer-side z-50">
-                <label htmlFor={id} aria-label="close sidebar" className="drawer-overlay"></label>
-                <div className="bg-base-200 min-h-full w-80 p-4">
+
+            <div className="drawer-side pointer-events-auto">
+                <label htmlFor={id} className="drawer-overlay"></label>
+                <div className="min-h-full w-80 p-4 shadow-xl bg-[#D9B8FF]">
                     {content}
                 </div>
             </div>

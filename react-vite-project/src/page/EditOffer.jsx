@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
-import Button from "../component/ui/Button.jsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Button from "../component/ui/Button.jsx";
 import { getSecteursEmployeur } from "../api/http.jsx";
 
-function AddOffer() {
+function EditOffer() {
+    const location = useLocation();
     const navigate = useNavigate();
     const { t } = useTranslation();
+
+    const offer = location.state?.offer;
 
     const [errors, setErrors] = useState({});
     const [secteurs, setSecteurs] = useState([]);
@@ -27,7 +30,6 @@ function AddOffer() {
         const salary = formData.get("salary");
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
-        const file = formData.get("file");
 
         const newErrors = {};
 
@@ -43,10 +45,6 @@ function AddOffer() {
         if (!startDate) newErrors.startDate = t("add_offer.errors.startDate_required");
         if (!endDate) newErrors.endDate = t("add_offer.errors.endDate_required");
 
-        if (!file || file.size === 0) {
-            newErrors.file = t("add_offer.errors.file_required");
-        }
-
         if (startDate && endDate && endDate <= startDate) {
             newErrors.endDate = t("add_offer.errors.endDate_invalid");
         }
@@ -56,22 +54,37 @@ function AddOffer() {
             return;
         }
 
-        setErrors({});
-
-        const newOffer = {
+        const updatedOffer = {
+            ...offer,
             title,
             domain,
             salary,
             startDate,
             endDate,
-            fileName: file.name,
-            status: "EN_ATTENTE"
+            status: offer.status
         };
 
-        //TODO Back end (Ajouter Offre)
+        //TODO Back end (Modifier)
 
-        navigate("/employeur", { state: { offer: newOffer } });
+        navigate("/employeur", { state: { offer: updatedOffer } });
     };
+
+    if (!offer) {
+        return (
+            <main className="flex min-h-[50vh] flex-col items-center justify-center p-8">
+                <p className="text-base font-medium text-red-600">
+                    {t("edit_offer.no_offer")}
+                </p>
+
+                <Button
+                    onClick={() => navigate("/employeur")}
+                    className="mt-4 bg-[#043462] text-white"
+                >
+                    {t("edit_offer.back")}
+                </Button>
+            </main>
+        );
+    }
 
     const inputStyle = (hasError) =>
         `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none focus:ring-2 ${
@@ -84,10 +97,10 @@ function AddOffer() {
         <div className="min-h-screen flex items-center justify-center">
         <form
             onSubmit={handleSubmit}
-            className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8 "
+            className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
         >
             <h2 className="mb-6 text-xl font-bold text-[#043462]">
-                {t("add_offer.title")}
+                {t("edit_offer.title", "Modifier l'offre")}
             </h2>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -101,6 +114,7 @@ function AddOffer() {
                             id="title"
                             name="title"
                             type="text"
+                            defaultValue={offer.title}
                             className={inputStyle(errors.title)}
                         />
                         {errors.title && (
@@ -118,6 +132,7 @@ function AddOffer() {
                         <select
                             id="domain"
                             name="domain"
+                            defaultValue={offer.domain}
                             disabled={loading}
                             className={inputStyle(errors.domain)}
                         >
@@ -149,6 +164,7 @@ function AddOffer() {
                             name="salary"
                             type="number"
                             min="0"
+                            defaultValue={offer.salary}
                             className={inputStyle(errors.salary)}
                         />
                         {errors.salary && (
@@ -167,6 +183,7 @@ function AddOffer() {
                             id="startDate"
                             name="startDate"
                             type="date"
+                            defaultValue={offer.startDate}
                             className={inputStyle(errors.startDate)}
                         />
                         {errors.startDate && (
@@ -185,6 +202,7 @@ function AddOffer() {
                             id="endDate"
                             name="endDate"
                             type="date"
+                            defaultValue={offer.endDate}
                             className={inputStyle(errors.endDate)}
                         />
                         {errors.endDate && (
@@ -193,22 +211,18 @@ function AddOffer() {
                     </div>
                 </div>
 
-                {/* Fichier */}
+                {/* Document (Lecture seule) */}
                 <div className="md:col-span-2">
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="file" className="text-sm font-semibold text-[#043462]">
+                        <label className="text-sm font-semibold text-[#043462]">
                             {t("add_offer.document")}
                         </label>
-                        <input
-                            id="file"
-                            name="file"
-                            type="file"
-                            accept=".pdf,application/pdf"
-                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-[#043462] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-[#03284d]"
-                        />
-                        {errors.file && (
-                            <span className="text-xs font-medium text-red-500">{errors.file}</span>
-                        )}
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-700">
+                            {offer.fileName || "—"}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                            {t("edit_offer.document_note")}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -224,7 +238,7 @@ function AddOffer() {
                 </Button>
 
                 <Button type="submit" className="bg-[#043462] text-white hover:bg-[#03284d]">
-                    {t("add_offer.submit")}
+                    {t("edit_offer.save")}
                 </Button>
             </div>
         </form>
@@ -232,4 +246,4 @@ function AddOffer() {
     );
 }
 
-export default AddOffer;
+export default EditOffer;
