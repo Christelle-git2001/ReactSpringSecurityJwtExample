@@ -1,92 +1,107 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../component/ui/Button.jsx";
-import { useNavigate } from "react-router-dom";
 
-function AddOffer() {
+function EditOffer() {
+    const location = useLocation();
     const navigate = useNavigate();
-    const [errors, setErrors] = useState({});
 
+    const offer = location.state?.offer;
+
+    const [errors, setErrors] = useState({});
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         const formData = new FormData(e.target);
+
         const title = formData.get("title");
         const domain = formData.get("domain");
         const salary = formData.get("salary");
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
-        const file = formData.get("file");
 
         const newErrors = {};
 
-            if (!title) {
-                newErrors.title = "Veuillez remplir le titre de l'offre.";
-            }
+        if (!title) {
+            newErrors.title = "Veuillez remplir le titre de l'offre.";
+        }
 
-            if (!domain) {
-                newErrors.domain = "Veuillez remplir le domaine.";
-            }
+        if (!domain) {
+            newErrors.domain = "Veuillez remplir le domaine.";
+        }
 
-            if (!salary) {
-                newErrors.salary = "Veuillez remplir le salaire.";
-            }
+        if (!salary) {
+            newErrors.salary = "Veuillez remplir le salaire.";
+        }
 
-            if (!startDate) {
-                newErrors.startDate = "Veuillez sélectionner une date de début.";
-            }
+        if (!startDate) {
+            newErrors.startDate =
+                "Veuillez sélectionner une date de début.";
+        }
 
-            if (!endDate) {
-                newErrors.endDate = "Veuillez sélectionner une date de fin.";
-            }
+        if (!endDate) {
+            newErrors.endDate =
+                "Veuillez sélectionner une date de fin.";
+        }
 
-            if (!file || file.size === 0) {
-                newErrors.file = "Veuillez sélectionner un document PDF.";
-            }
+        if (startDate && endDate && endDate <= startDate) {
+            newErrors.endDate =
+                "La date de fin doit être après la date de début.";
+        }
 
-            if (Object.keys(newErrors).length > 0) {
-                setErrors(newErrors);
-                return;
-            }
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
 
-            if (endDate <= startDate) {
-                setErrors({
-                    endDate: "La date de fin doit être après la date de début."
-                });
-                return;
-            }
-
-            setErrors({});
-
-
-        const newOffer = {
-            title: formData.get("title"),
-            domain: formData.get("domain"),
-            salary: formData.get("salary"),
-            startDate: formData.get("startDate"),
-            endDate: formData.get("endDate"),
-            fileName: file.name,
-            status: "EN_ATTENTE"
+        const updatedOffer = {
+            ...offer,
+            title,
+            domain,
+            salary,
+            startDate,
+            endDate,
+            status: offer.status
         };
-//TODO avec Backend (enregistrer plusieurs offres)
+
+        // TODO avec Backend : modifier l'offre
         navigate("/employeur", {
             state: {
-                offer: newOffer
+                offer: updatedOffer
             }
         });
     };
-    return (
 
+    // Si aucune offre n'a été transmise
+    if (!offer) {
+        return (
+            <main className="min-h-screen bg-gray-100 p-8">
+                <p className="text-red-600">
+                    Aucune offre à modifier.
+                </p>
+
+                <Button
+                    onClick={() => navigate("/employeur")}
+                    className="mt-4"
+                >
+                    Retour
+                </Button>
+            </main>
+        );
+    }
+
+    return (
         <main className="min-h-screen bg-gray-100 px-6 py-8">
             <div className="mx-auto max-w-3xl">
 
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-[#043462]">
-                        Ajouter une offre de stage
+                        Modifier l'offre de stage
                     </h1>
 
                     <p className="mt-2 text-gray-600">
-                        Remplissez les informations de votre offre de stage.
+                        Modifiez les informations de votre offre de stage.
                     </p>
 
                     <div className="mt-3 h-px w-full bg-[#0FFFDF]"></div>
@@ -110,11 +125,12 @@ function AddOffer() {
                             id="title"
                             name="title"
                             type="text"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2"
+                            defaultValue={offer.title}
+                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
 
                         {errors.title && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
+                            <div className="mt-2 flex items-center gap-2 text-sm text-error">
                                 <span>⚠️</span>
                                 <span>{errors.title}</span>
                             </div>
@@ -134,16 +150,18 @@ function AddOffer() {
                             id="domain"
                             name="domain"
                             type="text"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2"
+                            defaultValue={offer.domain}
+                            className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
 
                         {errors.domain && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
+                            <div className="mt-2 flex items-center gap-2 text-sm text-error">
                                 <span>⚠️</span>
                                 <span>{errors.domain}</span>
                             </div>
                         )}
                     </div>
+
                     {/* Salaire */}
                     <div className="mb-5">
                         <label
@@ -157,10 +175,12 @@ function AddOffer() {
                             id="salary"
                             name="salary"
                             type="number"
+                            defaultValue={offer.salary}
                             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
+
                         {errors.salary && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
+                            <div className="mt-2 flex items-center gap-2 text-sm text-error">
                                 <span>⚠️</span>
                                 <span>{errors.salary}</span>
                             </div>
@@ -180,10 +200,12 @@ function AddOffer() {
                             id="startDate"
                             name="startDate"
                             type="date"
+                            defaultValue={offer.startDate}
                             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
+
                         {errors.startDate && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
+                            <div className="mt-2 flex items-center gap-2 text-sm text-error">
                                 <span>⚠️</span>
                                 <span>{errors.startDate}</span>
                             </div>
@@ -203,39 +225,38 @@ function AddOffer() {
                             id="endDate"
                             name="endDate"
                             type="date"
+                            defaultValue={offer.endDate}
                             className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0ee1cc]"
                         />
-                    </div>
-                    {errors.endDate && (
-                        <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
-                            <span>⚠️</span>
-                            <span>{errors.endDate}</span>
-                        </div>
-                    )}
-                    {/* Document complémentaire Obligatoire */}
-                    <div className="mb-5">
-                        <label
-                            htmlFor="file"
-                            className="mb-2 block font-medium text-[#043462]"
-                        >
-                            Document complémentaire (PDF)
-                        </label>
 
-                        <input
-                            id="file"
-                            name="file"
-                            type="file"
-                            accept=".pdf,application/pdf"
-                            className="w-full rounded-md border border-gray-300 px-4 py-2"
-                        />
-                        {errors.file && (
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-error">
+                        {errors.endDate && (
+                            <div className="mt-2 flex items-center gap-2 text-sm text-error">
                                 <span>⚠️</span>
-                                <span>{errors.file}</span>
+                                <span>{errors.endDate}</span>
                             </div>
                         )}
                     </div>
+
+                    {/* Document */}
+                    <div className="mb-5">
+                        <label
+                            className="mb-2 block font-medium text-[#043462]"
+                        >
+                            Document complémentaire
+                        </label>
+
+                        <div className="rounded-md bg-gray-100 px-4 py-3 text-sm">
+                            📄 {offer.fileName}
+                        </div>
+
+                        <p className="mt-1 text-xs text-gray-500">
+                            Le document pourra être modifié avec le backend.
+                        </p>
+                    </div>
+
+                    {/* Boutons */}
                     <div className="mt-8 flex justify-end gap-4">
+
                         <Button
                             type="button"
                             onClick={() => navigate("/employeur")}
@@ -244,11 +265,10 @@ function AddOffer() {
                             Annuler
                         </Button>
 
-                        <Button
-                            type="submit"
-                        >
-                            Accepter
+                        <Button type="submit">
+                            Enregistrer les modifications
                         </Button>
+
                     </div>
 
                 </form>
@@ -257,4 +277,4 @@ function AddOffer() {
     );
 }
 
-export default AddOffer;
+export default EditOffer;
