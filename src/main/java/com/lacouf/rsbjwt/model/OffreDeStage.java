@@ -33,9 +33,11 @@ public class OffreDeStage {
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
     @Builder
-    public OffreDeStage(String title, Double salary, String description, LocalDate firstDate, LocalDate lastDate) {
+    public OffreDeStage(String title, Double salary,String poste,StatutOffre statut, String description, LocalDate firstDate, LocalDate lastDate) {
         this.title = title;
         this.salary = salary;
+        this.poste = poste;
+        this.statut = statut;
         this.description = description;
         this.firstDate = firstDate;
         this.lastDate = lastDate;
