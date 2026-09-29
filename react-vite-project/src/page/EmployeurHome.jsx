@@ -48,14 +48,24 @@ const EmployeurHome = ({ user }) => {
         <>
             <h1>Page accueil Employeur</h1>
 
-            <div className="mt-6 flex gap-4 flex-wrap">
+            <div className="mt-6 flex flex-col gap-6">
                 {offres.map((offer) => (
-                    <Card
-                        key={offer.id}
-                        offer={offer}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                    />
+                    <div key={offer.id} className="flex gap-24 items-stretch">
+
+                        {/* Carte de l'offre */}
+                        <Card
+                            offer={offer}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                        />
+
+                        {/* Bloc candidatures */}
+                        <div className="bg-white p-4 rounded-lg shadow-md w-100">
+                            <h3 className="font-semibold text-sm mb-2">Candidatures</h3>
+                            <p className="text-xs text-gray-600">Aucune candidature pour le moment</p>
+                        </div>
+
+                    </div>
                 ))}
             </div>
         </>
