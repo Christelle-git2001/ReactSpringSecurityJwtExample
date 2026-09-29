@@ -14,24 +14,24 @@ public class CvEtudiant {
     @GeneratedValue
     private Long id;
 
-    private String nomFichier;
-    private String typeContenu;
-    private Long tailleFichier;
-    private String cheminStockage;
-    private LocalDateTime dateTeleversement;
+    private String fileName;
+    private String contentType;
+    private Long fileSize;
+    private String storagePath;
+    private LocalDateTime uploadDate;
 
     @OneToOne
     @JoinColumn(name = "etudiant_id", nullable = false)
     private Etudiant etudiant;
 
     @Builder
-    public CvEtudiant(String nomFichier, String typeContenu, Long tailleFichier,
-                      String cheminStockage, LocalDateTime dateTeleversement, Etudiant etudiant) {
-        this.nomFichier = nomFichier;
-        this.typeContenu = typeContenu;
-        this.tailleFichier = tailleFichier;
-        this.cheminStockage = cheminStockage;
-        this.dateTeleversement = dateTeleversement;
+    public CvEtudiant(String fileName, String contentType, Long fileSize,
+                      String storagePath, LocalDateTime uploadDate, Etudiant etudiant) {
+        this.fileName = fileName;
+        this.contentType = contentType;
+        this.fileSize = fileSize;
+        this.storagePath = storagePath;
+        this.uploadDate = uploadDate;
         this.etudiant = etudiant;
     }
 }

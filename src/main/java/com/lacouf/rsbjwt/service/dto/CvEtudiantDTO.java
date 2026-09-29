@@ -6,18 +6,18 @@ import java.time.LocalDateTime;
 
 public record CvEtudiantDTO (
     long id,
-    String nomFichier,
-    String typeContenu,
-    Long tailleFichier,
-    LocalDateTime dateTeleversement
+    String fileName,
+    String contentType,
+    Long fileSize,
+    LocalDateTime uploadDate
 ){
     public static CvEtudiantDTO of(CvEtudiant cv) {
         return new CvEtudiantDTO(
                 cv.getId(),
-                cv.getNomFichier(),
-                cv.getTypeContenu(),
-                cv.getTailleFichier(),
-                cv.getDateTeleversement()
+                cv.getFileName(),
+                cv.getContentType(),
+                cv.getFileSize(),
+                cv.getUploadDate()
         );
     }
 }
