@@ -2,10 +2,7 @@ package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -35,6 +32,7 @@ public class OffreDeStage {
     private String filePath; // Optionnel
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
+    @Builder
     public OffreDeStage(String title, Double salary, String description, LocalDate firstDate, LocalDate lastDate) {
         this.title = title;
         this.salary = salary;
