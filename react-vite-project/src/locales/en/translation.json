@@ -111,5 +111,13 @@
     "account" : "Account",
     "login": "Login",
     "logout": "Logout"
+  },
+  "home": {
+    "welcome" : "Welcome"
+  },
+  "etudiant": {
+    "card" : {
+      "account" : "Manage your personal information, update your profile, and view your account details. "
+    }
   }
 }

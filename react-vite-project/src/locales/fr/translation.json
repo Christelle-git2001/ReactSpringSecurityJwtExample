@@ -111,5 +111,13 @@
     "account": "Compte",
     "login": "Connexion",
     "logout": "Déconnexion"
+  },
+  "home": {
+    "welcome" : "Bienvenue"
+  },
+  "etudiant": {
+    "card" : {
+      "account" : "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
+    }
   }
 }
