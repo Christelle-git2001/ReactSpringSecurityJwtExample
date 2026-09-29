@@ -28,9 +28,9 @@ function SideBarLayout({ user, openDrawer }) {
             <input id="my-drawer-4" type="checkbox" className="drawer-toggle inline" />
 
             <div className="drawer-content">
-                <nav className="navbar w-full">
-                    <label htmlFor="my-drawer-4" aria-label="open sidebar"
-                           className="btn btn-square btn-ghost drawer-button hover:bg-[#00CCCB] hover:text-white">
+                <nav className="navbar w-full bg-gradient-to-r from-[#043462] via-[#2F4A7A] to-[#6C4CCF]">
+                <label htmlFor="my-drawer-4" aria-label="open sidebar"
+                           className="btn btn-square btn-ghost drawer-button hover:bg-[#00CCCB] hover:text-white text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                              strokeWidth="2" fill="none" stroke="currentColor"
                              className="my-1.5 inline-block size-4">
@@ -40,7 +40,7 @@ function SideBarLayout({ user, openDrawer }) {
                         </svg>
                     </label>
 
-                    <div className="px-4">
+                    <div className="px-4 text-[#00CCCB] font-semibold">
                         {user?.isLoggedIn && (<span>{user.firstName} {user.lastName}</span>)}
                     </div>
 
@@ -54,7 +54,7 @@ function SideBarLayout({ user, openDrawer }) {
                 </div>
             </div>
 
-            <div className="drawer-side is-drawer-close:overflow-visible">
+            <div className="drawer-side is-drawer-close:overflow-visible bg-[#043462] text-white">
                 <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
 
                 <div className="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">

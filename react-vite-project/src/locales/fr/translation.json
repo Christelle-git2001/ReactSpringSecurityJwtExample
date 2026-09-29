@@ -120,7 +120,8 @@
     "date_fin": "Date de fin",
     "document": "Document",
     "details" : "Voir les détails",
-    "edit" : "Modifier"
+    "edit" : "Modifier",
+    "description" : "Description"
   },
   "status": {
     "en_attente": "En attente",
