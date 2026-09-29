@@ -112,7 +112,8 @@
   "nav": {
     "home": "Accueil",
     "login": "Connexion",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "add_offer" : "Créer une offre"
   },
   "offre": {
     "domaine": "Domaine",
