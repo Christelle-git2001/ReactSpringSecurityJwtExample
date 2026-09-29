@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { useTranslation } from "react-i18next";
+import {FiX} from "react-icons/fi";
 
 
-const PDFVisioneuseTest = () => {
+const PDFVisioneuse = () => {
     const { t } = useTranslation();
     pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
     const [pdfFile, setPdfFile] = useState(null);
     const [numPages, setNumPages] = useState(null);
     const [nameFile, setNameFiles] = useState("")
     const [pageNumber, setPageNumber] = useState(1);
+    const [scale, setScale] = useState(1.0);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -73,9 +75,9 @@ const PDFVisioneuseTest = () => {
             )}
 
             <dialog id="pdfModal" className="modal">
-                <div className="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col">
+                <div className="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col bg-[radial-gradient(circle_at_top_left,#000CCB33,#00CCCFFF,#000CCB33)]">
                     <form method="dialog">
-                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"><FiX></FiX></button>
                     </form>
                     <div className="flex flex-col items-center border p-4 rounded-xl shadow-xs bg-base-100 overflow-hidden w-full">
                         <div className="w-full flex justify-center overflow-auto max-h-[70vh]">
@@ -83,6 +85,7 @@ const PDFVisioneuseTest = () => {
                                 <Page
                                     pageNumber={pageNumber}
                                     renderTextLayer={false}
+                                    scale={scale}
                                     renderAnnotationLayer={false}
                                     width={Math.min(window.innerWidth * 0.7, 800)}
                                 />
@@ -109,4 +112,4 @@ const PDFVisioneuseTest = () => {
         </div>
     );
 };
-export default PDFVisioneuseTest
+export default PDFVisioneuse

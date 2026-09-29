@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import ProfileField from "../../component/ui/ProfileField.jsx";
 import {getDepartmentKey} from "../../utils/departementConverter.js";
-import PDFVisioneuseTest from "../../component/PDF/PDFVisioneuseTest.jsx";
+import PDFVisioneuse from "../../component/PDF/PDFVisioneuse.jsx";
 const AccountEtudiant = ({user}) => {
     const { t } = useTranslation();
     return (
@@ -52,7 +52,7 @@ const AccountEtudiant = ({user}) => {
                </h2>
                <div className="grid grid-cols-12">
                    <div className={"col-span-12"}>
-                       <ProfileField label={"Curriculum Vitae"} result=<PDFVisioneuseTest/>/>
+                       <ProfileField label={"Curriculum Vitae"} result={<PDFVisioneuse/>}/>
                    </div>
                </div>
            </div>
