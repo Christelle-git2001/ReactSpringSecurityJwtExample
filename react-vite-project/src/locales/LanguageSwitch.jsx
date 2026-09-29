@@ -11,27 +11,20 @@ function LanguageSwitch() {
     };
 
     return (
-        <button
-            onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors shadow-sm font-medium text-sm"
-        >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5 text-gray-600"
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z"
-                />
-            </svg>
-
-            <span>{currentLang === "fr" ? "EN" : "FR"}</span>
-        </button>
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+            <span className={`text-xs font-bold ${currentLang === "fr" ? "text-black" : "text-gray-400"}`}>
+                FR
+            </span>
+            <input
+                type="checkbox"
+                checked={currentLang === "en"}
+                onChange={toggleLanguage}
+                className="toggle border-black bg-white checked:border-black checked:bg-black checked:text-white"
+            />
+            <span className={`text-xs font-bold ${currentLang === "en" ? "text-black" : "text-gray-400"}`}>
+                EN
+            </span>
+        </label>
     );
 }
 

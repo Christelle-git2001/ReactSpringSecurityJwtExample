@@ -1,128 +1,75 @@
-import { Link } from "react-router-dom";
-import Card from "../component/ui/Card.jsx";
-import Sidebar from "../component/ui/Sidebar.jsx";
+import React, { useEffect, useState } from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import Card from "./../component/Design/Card.jsx";
+import { fetchOffresEmployeur } from "../utils/offerService.js";
+import { useTranslation } from "react-i18next";
+import { getSecteursEmployeur } from "../api/http.jsx";
+import SearchBar from "../component/Design/SearchBar.jsx";
+
+const EmployeurHome = ({ user }) => {
+    const { t } = useTranslation();
+    const { openDrawer } = useOutletContext();
+    const navigate = useNavigate();
+
+    const [offres, setOffres] = useState([]);
+
+    const handleView = (offer) => {
+        openDrawer(
+            <div className="space-y-4">
+                <div className="bg-base-100 p-4 rounded-lg shadow-md">
+                    <h2 className="text-xl font-bold">{offer.title}</h2>
+                    <ul className="mt-4 text-sm space-y-1">
+                        <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
+                        <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
+                        <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
+                        <li><strong>{t("offre.document")} :</strong> {offer.fileName || t("offre.aucun")}</li>
+                    </ul>
+                    <p className="mt-2">
+                        <strong>{t("offre.description")} :</strong><br />
+                        {offer.description}
+                    </p>
+                </div>
+            </div>
+        );
+    };
 
 
-const EmployeurHome = () => {
+    const handleEdit = (offer) => {
+        navigate("/employeur/offres/modifier", {
+            state: { offer }
+        });
+    };
+
+    useEffect(() => {
+        fetchOffresEmployeur(user?.id).then(res => {
+            setOffres(res);
+        });
+    }, [user]);
+
     return (
-        <main className="min-h-screen bg-gray-100 px-6 py-8">
+        <>
+            <div className="mt-6 flex flex-col gap-6">
+                <SearchBar className="self-center mb-6" />
+                {offres.map((offer) => (
+                    <div key={offer.id} className="flex gap-24 items-stretch">
 
-            <div className="mx-auto flex max-w-6xl gap-6">
+                        {/* Carte de l'offre */}
+                        <Card
+                            offer={offer}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                        />
 
-                    <Sidebar />
-
-                {/* =========================
-                    CONTENU PRINCIPAL
-                ========================== */}
-                <div className="min-w-0 flex-1">
-
-                    {/* Bienvenue */}
-                    <section className="mb-8">
-                        <h1 className="text-3xl font-bold text-[#043462]">
-                            Bienvenue dans votre espace employeur
-                        </h1>
-
-                        <p className="mt-2 text-gray-600">
-                            Gérez vos offres de stage et consultez vos candidatures.
-                        </p>
-
-                        <div className="mx-auto mt-3 h-px w-full max-w-[600px] bg-[#0FFFDF]"></div>
-                    </section>
-
-
-                    {/* =========================
-                        OFFRES + CANDIDATURES
-                    ========================== */}
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-                       {/* Mes offres */}
-                       <section className="lg:col-span-2">
-
-                           <div className="mb-4 flex items-center justify-between">
-                               <h2 className="text-2xl font-semibold text-[#043462]">
-                                   Mes offres
-                               </h2>
-
-                               <button className="rounded-md bg-[#0ee1cc] px-4 py-2 font-medium text-white transition-colors hover:bg-[#043462]">
-                                   + Ajouter une offre
-                               </button>
-                           </div>
-
-                           <Card className="mb-4">
-
-                               <div className="flex items-start justify-between gap-4">
-
-                                   <div>
-                                       <h3 className="text-xl font-semibold text-[#043462]">
-                                           Stage développeur Web
-                                       </h3>
-
-                                       <p className="mt-1 text-gray-600">
-                                           Entreprise ABC
-                                       </p>
-                                   </div>
-
-                                   <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
-                                       En attente
-                                   </span>
-
-                               </div>
-
-                               <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                   <p className="text-gray-600">📍 Montréal</p>
-                                   <p className="text-gray-600">💻 Informatique</p>
-                                   <p className="text-gray-600">💰 22 $ / heure</p>
-                                   <p className="text-gray-600">
-                                       📅 1 octobre 2026 → 1 avril 2027
-                                   </p>
-                               </div>
-
-                           </Card>
-
-                       </section>
-
-                        {/* =========================
-                            CANDIDATURES
-                        ========================== */}
-                        <section className="rounded-xl bg-white p-6 shadow">
-
-                            <h2 className="mb-4 text-2xl font-semibold text-[#043462]">
-                                Candidatures
-                            </h2>
-
-                            <div className="space-y-3">
-
-                                <div className="rounded-lg border p-4">
-                                    <p className="font-medium">
-                                        Candidature #1
-                                    </p>
-
-                                    <p className="text-sm text-gray-500">
-                                        Stage développeur Web
-                                    </p>
-                                </div>
-
-                                <div className="rounded-lg border p-4">
-                                    <p className="font-medium">
-                                        Candidature #2
-                                    </p>
-
-                                    <p className="text-sm text-gray-500">
-                                        Stage développeur mobile
-                                    </p>
-                                </div>
-
-                            </div>
-
-                        </section>
+                        {/* Bloc candidatures */}
+                        <div className="bg-white p-4 rounded-lg shadow-md w-100">
+                            <h3 className="font-semibold text-sm mb-2">Candidatures</h3>
+                            <p className="text-xs text-gray-600">Aucune candidature pour le moment</p>
+                        </div>
 
                     </div>
-
-                </div>
-
+                ))}
             </div>
-
-        </main>
+        </>
     );
 };
 

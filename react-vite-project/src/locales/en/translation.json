@@ -42,6 +42,38 @@
     "loading_sectors": "Loading sectors...",
     "submit": "Create account"
   },
+  "add_offer": {
+    "title": "Add an internship offer",
+    "subtitle": "Fill in the information for your internship offer.",
+    "offer_title": "Offer title",
+    "domain": "Domain",
+    "loading_domains": "Loading domains...",
+    "select_domain": "Choose a domain",
+    "salary": "Salary",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "document": "Additional document (PDF)",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "errors": {
+      "title_required": "Please enter the offer title.",
+      "domain_required": "Please select a domain.",
+      "salary_required": "Please enter the salary.",
+      "salary_negative": "Salary cannot be negative.",
+      "startDate_required": "Please select a start date.",
+      "endDate_required": "Please select an end date.",
+      "file_required": "Please select a PDF document.",
+      "endDate_invalid": "End date must be after the start date."
+    }
+  },
+  "edit_offer": {
+    "title": "Edit internship offer",
+    "subtitle": "Edit the information for your internship offer.",
+    "save": "Save changes",
+    "no_offer": "No offer to edit.",
+    "back": "Back",
+    "document_note": "The document can be modified with the backend."
+  },
   "login": {
     "page_title": "Login",
     "page_subtitle": "Access to your user account",
@@ -104,6 +136,29 @@
   "success": {
     "student_added": "Student added successfully.",
     "professor_added": "Professor added successfully.",
-    "employer_added": "Employer added successfully."
+    "employer_added": "Employer added successfully.",
+    "offer_loaded": "Offer loaded successfully.",
+    "offer_created": "Offer created successfully.",
+    "offer_updated": "Offer updated successfully."
+  },
+  "nav": {
+    "home": "Home",
+    "login": "Login",
+    "logout": "Logout",
+    "add_offer": "Add offer"
+  },
+  "offre": {
+    "domaine": "Domain",
+    "date_debut": "Start date",
+    "date_fin": "End date",
+    "document": "Document",
+    "details": "See details",
+    "edit": "Edit",
+    "description": "Description"
+  },
+  "status": {
+    "en_attente": "Pending",
+    "acceptee": "Accepted",
+    "refusee": "Rejected"
   }
 }
