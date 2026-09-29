@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@plugin "daisyui" {
+    themes: light, dark;
+}
+
 @layer utilities {
     .bg-mersdusud {
         background-color: #00CCCB;

@@ -3,6 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import { FiHome, FiLogOut, FiLogIn } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 function SideBarLayout({ user, openDrawer }) {
 
@@ -45,7 +46,10 @@ function SideBarLayout({ user, openDrawer }) {
                     </div>
 
                     <div className="fixed top-4 right-4 z-50">
-                        <LanguageSwitch />
+                        <div className="gap-6 flex flex-wrap">
+                            <ThemeToggle />
+                            <LanguageSwitch />
+                        </div>
                     </div>
                 </nav>
 
