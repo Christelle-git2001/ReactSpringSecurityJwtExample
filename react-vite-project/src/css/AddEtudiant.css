@@ -58,7 +58,20 @@
 }
 
 .add-etudiant-input {
-  @apply w-full rounded-md border border-gray-300 px-3 py-2;
+  @apply w-full rounded-md border border-gray-300 px-3 py-2 transition-colors duration-200;
+}
+
+.add-etudiant-input.input-error {
+  @apply border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400/30;
+}
+
+.form-login-error {
+  @apply mt-1.5 flex items-center gap-1 text-xs font-medium text-red-500/90 transition-all duration-200;
+}
+
+.form-login-error::before {
+  content: "•";
+  @apply text-sm leading-none text-red-400 mr-0.5;
 }
 
 .error-message {
@@ -81,4 +94,3 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-

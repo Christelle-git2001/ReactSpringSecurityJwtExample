@@ -1,6 +1,5 @@
 package com.lacouf.rsbjwt.service.dto;
 
-import com.lacouf.rsbjwt.model.Professeur;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -26,7 +25,7 @@ public record InscriptionProfesseurDTO(
         String matricule,
 
         @NotBlank
-        String phoneNumber,
+        String phone,
 
         @NotBlank
         String department
