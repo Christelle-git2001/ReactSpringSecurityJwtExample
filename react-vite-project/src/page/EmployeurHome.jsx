@@ -4,6 +4,7 @@ import Card from "./../component/Design/Card.jsx";
 import { fetchOffresEmployeur } from "../utils/offerService.js";
 import { useTranslation } from "react-i18next";
 import { getSecteursEmployeur } from "../api/http.jsx";
+import SearchBar from "../component/Design/SearchBar.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
@@ -48,6 +49,7 @@ const EmployeurHome = ({ user }) => {
     return (
         <>
             <div className="mt-6 flex flex-col gap-6">
+                <SearchBar className="self-center mb-6" />
                 {offres.map((offer) => (
                     <div key={offer.id} className="flex gap-24 items-stretch">
 
