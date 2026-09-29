@@ -23,6 +23,17 @@ const MOCK_OFFRES = [
         fileName: null,
         status: "ACCEPTEE",
         description: "Maintenance des infrastructures réseau, configuration des routeurs et switches, support aux utilisateurs."
+    },
+    {
+        id: 3,
+        title: "Technicien Réseau",
+        salary: 30,
+        domain: "Réseau",
+        startDate: "2024-11-15",
+        endDate: "2025-02-15",
+        fileName: null,
+        status: "REFUSEE",
+        description: "Maintenance des infrastructures réseau, configuration des routeurs et switches, support aux utilisateurs."
     }
 ];
 
