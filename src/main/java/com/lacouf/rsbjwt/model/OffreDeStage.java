@@ -33,7 +33,7 @@ public class OffreDeStage {
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
     @Builder
-    public OffreDeStage(String title, Double salary,String poste,StatutOffre statut, String description, LocalDate firstDate, LocalDate lastDate) {
+    public OffreDeStage(String title, Double salary,String poste,StatutOffre statut, String description, LocalDate firstDate, LocalDate lastDate,String filePath) {
         this.title = title;
         this.salary = salary;
         this.poste = poste;
@@ -41,6 +41,7 @@ public class OffreDeStage {
         this.description = description;
         this.firstDate = firstDate;
         this.lastDate = lastDate;
+        this.filePath = filePath;
     }
 
     @ManyToOne
