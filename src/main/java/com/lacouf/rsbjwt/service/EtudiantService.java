@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -16,11 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,8 +28,7 @@ public class EtudiantService {
     private final UserAppRepository userAppRepository;
     private final CvEtudiantRepository cvEtudiantRepository;
     private final PasswordEncoder passwordEncoder;
-    private static final String TYPE_PDF = "application/pdf";
-    private final Path storageDirectory = Paths.get("uploads", "cvs");
+    private final Path STORAGE_CV = Paths.get("uploads", "cvs");
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder) {
@@ -100,17 +98,13 @@ public class EtudiantService {
 
     @Transactional
     public CvEtudiantDTO uploadCv(MultipartFile file, String email)
-        throws FichierInvalideException, EtudiantIntrouvableException,
-        SuppressionEchoueeFichierException {
-        if (!estFichierPdf(file)) {
-            throw new FichierInvalideException();
-        }
+        throws FichierTypeInvalideException, EtudiantIntrouvableException,
+        SuppressionEchoueeFichierException, FichierCorrompuException,
+        FichierTropVolumineuxException, IOException {
 
         Etudiant etudiant = trouverEtudiantParEmail(email);
-        String fileName = genererNomFichier(file);
-        Path filePath = storageDirectory.resolve(fileName).normalize();
+        Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
-        sauvegarderFichier(file, filePath);
         CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
                 .orElseGet(() -> CvEtudiant.builder().etudiant(etudiant).build());
 
@@ -125,30 +119,14 @@ public class EtudiantService {
                 .orElseThrow(EtudiantIntrouvableException::new);
     }
 
-    private String genererNomFichier(MultipartFile file) {
-        return UUID.randomUUID() + ".pdf";
-    }
-
-    private void sauvegarderFichier(MultipartFile file, Path cheminFichier)
-            throws FichierInvalideException {
-        try {
-            Files.createDirectories(storageDirectory);
-            Files.copy(file.getInputStream(), cheminFichier);
-        } catch (IOException e) {
-            throw new FichierInvalideException();
-        }
-    }
-
     private void supprimerAncienCv(CvEtudiant cv, Path newPath)
             throws SuppressionEchoueeFichierException {
         if (cv.getStoragePath() == null) { return; }
+
         Path oldPathCv = Paths.get(cv.getStoragePath());
+
         if(!oldPathCv.equals(newPath)){
-            try{
-                Files.deleteIfExists(oldPathCv);
-            }catch(IOException e){
-                throw new SuppressionEchoueeFichierException();
-            }
+            StockageFichierUtils.supprimerFichier(oldPathCv);
         }
     }
 
@@ -158,11 +136,5 @@ public class EtudiantService {
         cv.setFileSize(file.getSize());
         cv.setStoragePath(filePath.toString());
         cv.setUploadDate(LocalDateTime.now());
-    }
-
-    private boolean estFichierPdf(MultipartFile file) {
-        return file != null
-                && !file.isEmpty()
-                && TYPE_PDF.equals(file.getContentType());
     }
 }
