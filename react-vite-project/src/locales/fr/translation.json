@@ -160,5 +160,11 @@
     "student_added": "Étudiant ajouté avec succès.",
     "professor_added": "Professeur ajouté avec succès.",
     "employer_added": "Employeur ajouté avec succès."
+  },
+  "nav": {
+    "home": "Accueil",
+    "account": "Compte",
+    "login": "Connexion",
+    "logout": "Déconnexion"
   }
 }

@@ -1,7 +1,7 @@
 const EtudiantHome = () => {
   return(
     <>
-      <h1>Page accueil Etudiant</h1>
+
       
     </>
   );

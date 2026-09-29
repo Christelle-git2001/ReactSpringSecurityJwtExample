@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
-import { FiHome, FiLogOut, FiLogIn } from "react-icons/fi";
+import {FiHome, FiLogOut, FiLogIn, FiUser} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import Drawer from "./Drawer.jsx";
 
@@ -16,6 +16,7 @@ function SideBarLayout({ user }){
     const NAV_ITEMS = [
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
         {path: user?.isLoggedIn ? "/logout" : "/login", label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"), roles: null, icon: user?.isLoggedIn ? <FiLogOut className="size-4 my-1.5" /> : <FiLogIn className="size-4 my-1.5" />},
     ];
 
