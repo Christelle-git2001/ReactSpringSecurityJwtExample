@@ -6,7 +6,7 @@ import com.lacouf.rsbjwt.Exception.FichierTropVolumineuxException;
 import com.lacouf.rsbjwt.Exception.FichierTypeInvalideException;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.service.OffreDeStageService;
+import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
@@ -22,20 +22,20 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/employeur/offres")
 public class OffreDeStageController {
-    private final OffreDeStageService offreDeStageService;
+    private final EmployeurService employeurService;
 
-    public OffreDeStageController(OffreDeStageService offreDeStageService){
-        this.offreDeStageService = offreDeStageService;
+    public OffreDeStageController(EmployeurService employeurService){
+        this.employeurService = employeurService;
     }
 
     @PostMapping("/creation-offre")
     public ResponseEntity<OffreDeStageDTO> creerOffre(
             @Valid @RequestPart("offre")CreationOffreDeStageDTO creationOffreDeStageDTO,
             @RequestPart(value = "fichier", required = false)MultipartFile multipartFile,
-            @AuthenticationPrincipal Employeur employeur
+            @AuthenticationPrincipal String email
             ) throws DateFinAvantDateDebutException, FichierCorrompuException,
             FichierTropVolumineuxException, FichierTypeInvalideException, IOException {
-        OffreDeStageDTO offreDeStageDTO = offreDeStageService.creerOffre(creationOffreDeStageDTO,multipartFile,employeur);
+        OffreDeStageDTO offreDeStageDTO = employeurService.creerOffre(creationOffreDeStageDTO, multipartFile, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDeStageDTO);
     }
 

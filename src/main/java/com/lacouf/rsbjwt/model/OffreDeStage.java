@@ -32,8 +32,12 @@ public class OffreDeStage {
     private String filePath; // Optionnel
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
+    @ManyToOne
+    @JoinColumn(name = "employeur_id")
+    private Employeur employeur;
+
     @Builder
-    public OffreDeStage(String title, Double salary,String poste,StatutOffre statut, String description, LocalDate firstDate, LocalDate lastDate,String filePath) {
+    public OffreDeStage(String title, Double salary,String poste,StatutOffre statut, String description, LocalDate firstDate, LocalDate lastDate,String filePath,Employeur employeur) {
         this.title = title;
         this.salary = salary;
         this.poste = poste;
@@ -42,10 +46,9 @@ public class OffreDeStage {
         this.firstDate = firstDate;
         this.lastDate = lastDate;
         this.filePath = filePath;
+        this.employeur = employeur;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "employeur_id")
-    private Employeur employeur;
+
 
 }
