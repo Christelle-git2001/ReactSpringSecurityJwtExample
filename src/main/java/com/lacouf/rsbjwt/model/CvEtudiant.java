@@ -25,10 +25,11 @@ public class CvEtudiant {
     private Etudiant etudiant;
 
     @Builder
-    public CvEtudiant(String nomFichier, String typeContenu, String cheminStockage,
-                      LocalDateTime dateTeleversement, Etudiant etudiant) {
+    public CvEtudiant(String nomFichier, String typeContenu, Long tailleFichier,
+                      String cheminStockage, LocalDateTime dateTeleversement, Etudiant etudiant) {
         this.nomFichier = nomFichier;
         this.typeContenu = typeContenu;
+        this.tailleFichier = tailleFichier;
         this.cheminStockage = cheminStockage;
         this.dateTeleversement = dateTeleversement;
         this.etudiant = etudiant;
