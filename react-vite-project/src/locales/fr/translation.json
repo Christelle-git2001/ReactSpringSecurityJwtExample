@@ -133,5 +133,9 @@
       "educational" : "Renseignements Scolaire",
       "professional" : "Renseignements Professionels"
     }
+  },
+  "button": {
+    "previous" : "precedent",
+    "next" : "suivant"
   }
 }
