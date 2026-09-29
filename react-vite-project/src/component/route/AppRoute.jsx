@@ -61,7 +61,7 @@ export default function AppRoutes({
                 <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
-                <Route path="/etudiant/account" element={<AccountEtudiant/>}/>
+                <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/> {/*TODO Faire un appelle API (dossier api/etudiant) get par email au lieu de user. */}
                 <Route path="/employeur" element={<EmployeurHome />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
