@@ -81,12 +81,13 @@ function AddOffer() {
         }`;
 
     return (
+        <div className="min-h-screen flex items-center justify-center">
         <form
             onSubmit={handleSubmit}
-            className="m-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
+            className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8 "
         >
             <h2 className="mb-6 text-xl font-bold text-[#043462]">
-                {t("add_offer.title", "Ajouter une offre")}
+                {t("add_offer.title")}
             </h2>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -227,6 +228,7 @@ function AddOffer() {
                 </Button>
             </div>
         </form>
+        </div>
     );
 }
 

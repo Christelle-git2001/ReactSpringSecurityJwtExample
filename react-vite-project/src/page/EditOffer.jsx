@@ -94,9 +94,10 @@ function EditOffer() {
         }`;
 
     return (
+        <div className="min-h-screen flex items-center justify-center">
         <form
             onSubmit={handleSubmit}
-            className="m-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
+            className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
         >
             <h2 className="mb-6 text-xl font-bold text-[#043462]">
                 {t("edit_offer.title", "Modifier l'offre")}
@@ -241,6 +242,7 @@ function EditOffer() {
                 </Button>
             </div>
         </form>
+        </div>
     );
 }
 
