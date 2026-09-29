@@ -104,4 +104,24 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(EtudiantIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleEtudiantIntrouvableException(DateFinAvantDateDebutException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(FichierIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> FichierIntrouvableExceptionException(DateFinAvantDateDebutException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(SuppressionEchoueeFichierException.class)
+    public ResponseEntity<ErreurDTO> handleSuppressionEchoueeFichierExceptio(DateFinAvantDateDebutException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErreurDTO(e.getMessage()));
+    }
 }
