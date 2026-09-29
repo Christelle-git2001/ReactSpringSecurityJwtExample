@@ -1,46 +1,91 @@
-function Card(){
+function Card({ offer, onView, onEdit }) {
 
-return(
+    const statusConfig = {
+        EN_ATTENTE: {
+            label: "En attente",
+            className: "badge-warning"
+        },
+        ACCEPTEE: {
+            label: "Acceptée",
+            className: "badge-success"
+        },
+        REFUSEE: {
+            label: "Refusée",
+            className: "badge-error"
+        }
+    };
 
+    const status = statusConfig[offer.status] || statusConfig.EN_ATTENTE;
+
+    return (
         <div className="card w-96 bg-base-100 shadow-sm">
             <div className="card-body">
-                <span className="badge badge-xs badge-warning">Most Popular</span>
-                <div className="flex justify-between">
-                    <h2 className="text-3xl font-bold">Premium</h2>
-                    <span className="text-xl">$29/mo</span>
+
+                {/* Statut */}
+                <span className={`badge badge-xs ${status.className}`}>
+                    {status.label}
+                </span>
+
+                {/* Titre + salaire */}
+                <div className="flex justify-between gap-4">
+                    <h2 className="text-2xl font-bold">
+                        {offer.title}
+                    </h2>
+
+                    <span className="whitespace-nowrap text-lg font-semibold">
+                        {offer.salary} $ / heure
+                    </span>
                 </div>
+
+                {/* Informations */}
                 <ul className="mt-6 flex flex-col gap-2 text-xs">
+
                     <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="size-4 me-2 inline-block text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                        <span>High-resolution image generation</span>
+                        <span className="me-2">💻</span>
+                        <strong>Domaine :</strong> {offer.domain}
                     </li>
+
                     <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="size-4 me-2 inline-block text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                        <span>Customizable style templates</span>
+                        <span className="me-2">📅</span>
+                        <strong>Date de début :</strong> {offer.startDate}
                     </li>
+
                     <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="size-4 me-2 inline-block text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                        <span>Batch processing capabilities</span>
+                        <span className="me-2">📅</span>
+                        <strong>Date de fin :</strong> {offer.endDate}
                     </li>
+
                     <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="size-4 me-2 inline-block text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                        <span>AI-driven image enhancements</span>
+                        <span className="me-2">📄</span>
+                        <strong>Document :</strong> {offer.fileName}
                     </li>
-                    <li className="opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="size-4 me-2 inline-block text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                        <span className="line-through">Seamless cloud integration</span>
-                    </li>
-                    <li className="opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="size-4 me-2 inline-block text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                        <span className="line-through">Real-time collaboration tools</span>
-                    </li>
+
                 </ul>
-                <label htmlFor="my-drawer-5" className="btn btn-primary btn-block">
-                    Subscribe
-                </label>
+
+                {/* Boutons */}
+                <div className="mt-6 flex gap-2">
+
+                    <button
+                        type="button"
+                        onClick={() => onView(offer)}
+                        className="btn btn-primary flex-1"
+                    >
+                        Voir détails
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => onEdit(offer)}
+                        className="btn btn-outline flex-1"
+                    >
+                        Modifier
+                    </button>
+
+                </div>
+
             </div>
         </div>
-
-    )}
+    );
+}
 
 export default Card;
