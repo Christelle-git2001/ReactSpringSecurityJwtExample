@@ -51,6 +51,7 @@
     "select_domain": "Choisissez un domaine",
     "salary": "Salaire",
     "description": "Description",
+    "description_required": "Veuillez entrer une description.",
     "start_date": "Date de début",
     "end_date": "Date de fin",
     "document": "Document supplémentaire (PDF)",

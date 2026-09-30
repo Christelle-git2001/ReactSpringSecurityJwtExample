@@ -10,13 +10,16 @@ export async function inscrireEmployeur(employeur) {
 
 export async function creerOffreEmployeur(dto, file) {
     const formData = new FormData();
+
     formData.append(
         "offre",
         new Blob([JSON.stringify(dto)], { type: "application/json" })
     );
+
     if (file) {
         formData.append("file", file);
     }
+
     return fetchJson("/employeur/offres", {
         method: "POST",
         body: formData,
@@ -26,5 +29,23 @@ export async function creerOffreEmployeur(dto, file) {
 export async function getOffresEmployeur() {
     return fetchJson("/employeur/offres", {
         method: "GET",
+    });
+}
+
+export async function modifierOffreEmployeur(id, dto, file) {
+    const formData = new FormData();
+
+    formData.append(
+        "offre",
+        new Blob([JSON.stringify(dto)], { type: "application/json" })
+    );
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    return fetchJson(`/employeur/offres/${id}`, {
+        method: "PUT",
+        body: formData,
     });
 }
