@@ -17,6 +17,7 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final Path root = Paths.get("uploads/offres");
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     public String storeOfferFile(MultipartFile file) throws IOException {
 
@@ -35,15 +36,14 @@ public class FileStorageService {
     }
 
     private void validate(MultipartFile file) {
-        if (file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
             throw new FichierCorrompuException();
         }
         if (!"application/pdf".equals(file.getContentType())) {
             throw new FichierTypeInvalideException();
         }
-        if (file.getSize() > 5 * 1024 * 1024) {
+        if (file.getSize() > MAX_FILE_SIZE) {
             throw new FichierTropVolumineuxException();
         }
     }
 }
-
