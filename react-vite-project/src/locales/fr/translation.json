@@ -135,8 +135,14 @@
     "phone_exists": "Ce numéro de téléphone est déjà utilisé.",
     "department_invalid": "Le département sélectionné est invalide.",
     "user_not_found": "Utilisateur introuvable.",
-    "generic": "Une erreur est survenue. Veuillez réessayer."
-
+    "generic": "Une erreur est survenue. Veuillez réessayer.",
+    "etudiant_not_found": "Étudiant introuvable.",
+    "fichier_corrompu": "Le fichier est vide ou corrompu.",
+    "file_not_found": "Fichier introuvable.",
+    "fichier_volumineux": "Le fichier est trop volumineux.",
+    "type_fichier_invalide": "Le fichier doit être un PDF.",
+    "file_delete_failed": "La suppression du fichier a échoué.",
+    "date_fin_antérieure_date_debut": "La date de fin doit être après la date de début."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
