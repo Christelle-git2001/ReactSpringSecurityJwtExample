@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 
 @Service
@@ -99,6 +100,21 @@ public class EmployeurService {
                 .build();
         return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
     }
+
+    @Transactional(readOnly = true)
+    public List<OffreDeStageDTO> obtenirOffres(String email) {
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UserNotFoundException::new);
+
+        return employeur.getOffres()
+                .stream()
+                .map(OffreDeStageDTO::of)
+                .toList();
+    }
+
 
     private Employeur getEmployeurByEmail(String email) {
         return userAppRepository.findUserAppByEmail(email)
