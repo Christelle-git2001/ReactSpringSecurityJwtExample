@@ -76,7 +76,7 @@ public class EmployeurService {
     public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO dto,
                                       MultipartFile file,
                                       String email)
-            throws DateFinAvantDateDebutException, IOException, DepartementInvalideException {
+            throws DateFinAvantDateDebutException, IOException, DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
 
         Employeur employeur = getEmployeurByEmail(email);
 
@@ -161,7 +161,7 @@ public class EmployeurService {
             String email
     ) throws DateFinAvantDateDebutException,
             IOException,
-            DepartementInvalideException {
+            DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
 
 
         Employeur employeur = getEmployeurByEmail(email);

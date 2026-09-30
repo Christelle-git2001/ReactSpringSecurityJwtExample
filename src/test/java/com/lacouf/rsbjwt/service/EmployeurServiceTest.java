@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.OffreDeStage;
@@ -106,12 +107,11 @@ public class EmployeurServiceTest {
                 1L,
                 "Infirmerie",
                 "préposé",
-                StatutOffre.EN_ATTENTE,
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15),
-                null,
+                StatutOffre.EN_ATTENTE,
                 null
         );
 
@@ -126,12 +126,11 @@ public class EmployeurServiceTest {
 
         offreDeStage = OffreDeStage.builder()
                 .title("Infirmerie")
-                .poste("préposé")
-                .salary(19.25)
                 .description("donner à manger")
+                .salary(19.25)
                 .statut(StatutOffre.EN_ATTENTE)
-                .firstDate(LocalDate.of(2026, 10, 1))
-                .lastDate(LocalDate.of(2026, 10, 15))
+                .startDate(LocalDate.of(2026, 10, 1))
+                .endDate(LocalDate.of(2026, 10, 15))
                 .build();
 
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)

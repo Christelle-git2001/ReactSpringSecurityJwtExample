@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.lacouf.rsbjwt.Exception.*;
@@ -65,12 +66,11 @@ public class EmployeurControllerTest {
                 1L,
                 "Infirmerie",
                 "préposé",
-                StatutOffre.EN_ATTENTE,
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15),
-                null,
+                StatutOffre.EN_ATTENTE,
                 null
         );
 
