@@ -1,38 +1,48 @@
 package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 
 import java.time.LocalDate;
 
 public record OffreDeStageDTO(
         Long id,
-        String titre,
-        String poste,
-        StatutOffre statut,
-        Double salaire,
+        String title,
         String description,
-        LocalDate dateDebut,
-        LocalDate dateFin,
-        String cheminFichier,
-        String messageRefus
+        Double salary,
+        Departement domain,
+        LocalDate startDate,
+        LocalDate endDate,
+        StatutOffre statut,
+        String filePath
 ) {
-    public static OffreDeStageDTO of(OffreDeStage offreDeStage) {
-        return new OffreDeStageDTO(offreDeStage.getId()
-        ,offreDeStage.getTitle(),
-        offreDeStage.getPoste(),
-        offreDeStage.getStatut(),
-        offreDeStage.getSalary(),
-        offreDeStage.getDescription(),
-        offreDeStage.getFirstDate(),
-        offreDeStage.getLastDate(),
-        offreDeStage.getFilePath(),
-        offreDeStage.getMessageRefus());
+
+    public static OffreDeStageDTO of(OffreDeStage offre) {
+        return new OffreDeStageDTO(
+                offre.getId(),
+                offre.getTitle(),
+                offre.getDescription(),
+                offre.getSalary(),
+                offre.getDomain(),
+                offre.getStartDate(),
+                offre.getEndDate(),
+                offre.getStatut(),
+                offre.getFilePath()
+        );
     }
 
-    public static OffreDeStageDTO empty(){
-        return new OffreDeStageDTO(0L,null,null,null,null,null,
-                null,null,null,null);
+    public static OffreDeStageDTO empty() {
+        return new OffreDeStageDTO(
+                0L,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
     }
-
 }
