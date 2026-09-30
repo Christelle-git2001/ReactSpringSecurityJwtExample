@@ -1,25 +1,32 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
+import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.service.EmployeurService;
+import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +43,7 @@ public class EmployeurControllerTest {
     private ObjectMapper objectMapper;
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
+    OffreDeStageDTO offreDeStageDTO;
 
     private MockMvc mockMvc;
 
@@ -52,9 +60,23 @@ public class EmployeurControllerTest {
                 "Losange12%",
                 "Losange12%"
         );
+
+        offreDeStageDTO = new OffreDeStageDTO(
+                1L,
+                "Infirmerie",
+                "préposé",
+                StatutOffre.EN_ATTENTE,
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15),
+                null,
+                null
+        );
+
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
-        objectMapper = new ObjectMapper();
+        objectMapper = JsonMapper.builder().build();
     }
 
     @Test
@@ -135,6 +157,207 @@ public class EmployeurControllerTest {
         mockMvc.perform(post("/employeur/inscription")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inscriptionEmployeurDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // Test OffreDeStage
+
+    @Test
+    void doitCreerOffreDeStageSansFichier() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+
+        when(employeurService.creerOffre(any(), any(), any())).thenReturn(offreDeStageDTO);
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void doitCreerOffreDeStageAvecFichierPdf() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+        // Le nom "fichier" doit être identique à @RequestPart("fichier") dans le contrôleur
+        MockMultipartFile fichier = new MockMultipartFile(
+                "fichier",
+                "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE,
+                "contenu du pdf".getBytes()
+        );
+
+        when(employeurService.creerOffre(any(), any(), any())).thenReturn(offreDeStageDTO);
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre)
+                        .file(fichier))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandTitreVide() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRetournerUnsupportedMediaTypeQuandMauvaisTypeDeFichier() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+        MockMultipartFile fichier = new MockMultipartFile(
+                "fichier",
+                "offre.exe",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "contenu".getBytes()
+        );
+
+        when(employeurService.creerOffre(any(), any(), any()))
+                .thenThrow(new FichierTypeInvalideException());
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre)
+                        .file(fichier))
+                .andExpect(status().isUnsupportedMediaType());
+    }
+
+    @Test
+    void doitRetournerPayloadTooLargeQuandFichierTropVolumineux() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+        MockMultipartFile fichier = new MockMultipartFile(
+                "fichier",
+                "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE,
+                "contenu du pdf".getBytes()
+        );
+
+        when(employeurService.creerOffre(any(), any(), any()))
+                .thenThrow(new FichierTropVolumineuxException());
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre)
+                        .file(fichier))
+                .andExpect(status().is(413));
+    }
+
+    @Test
+    void doitRetournerUnprocessableEntityQuandFichierCorrompu() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+        MockMultipartFile fichier = new MockMultipartFile(
+                "fichier",
+                "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE,
+                new byte[0]
+        );
+
+        when(employeurService.creerOffre(any(), any(), any()))
+                .thenThrow(new FichierCorrompuException());
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre)
+                        .file(fichier))
+                .andExpect(status().is(422));
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandDateFinAvantDateDebut() throws Exception {
+        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                "donner à manger",
+                LocalDate.of(2026, 10, 15),
+                LocalDate.of(2026, 10, 1)
+        );
+        MockMultipartFile offre = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
+        );
+
+        when(employeurService.creerOffre(any(), any(), any()))
+                .thenThrow(new DateFinAvantDateDebutException());
+
+        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+                        .file(offre))
                 .andExpect(status().isBadRequest());
     }
 
