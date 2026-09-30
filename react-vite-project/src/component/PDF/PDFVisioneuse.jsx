@@ -11,7 +11,6 @@ const PDFVisioneuse = () => {
     const [numPages, setNumPages] = useState(null);
     const [nameFile, setNameFiles] = useState("")
     const [pageNumber, setPageNumber] = useState(1);
-    const [scale, setScale] = useState(1.0);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -85,7 +84,6 @@ const PDFVisioneuse = () => {
                                 <Page
                                     pageNumber={pageNumber}
                                     renderTextLayer={false}
-                                    scale={scale}
                                     renderAnnotationLayer={false}
                                     width={Math.min(window.innerWidth * 0.7, 800)}
                                 />
@@ -94,11 +92,11 @@ const PDFVisioneuse = () => {
                         {numPages && (
                             <div className="flex items-center gap-4 mt-4 shrink-0">
                                 <button className="btn btn-sm" disabled={pageNumber <= 1} onClick={() => setPageNumber(prev => prev - 1)}>
-                                    Précédent
+                                    {t("button.previous")}
                                 </button>
-                                <span className="text-sm">Page {pageNumber} sur {numPages}</span>
+                                <span className="text-sm">{pageNumber}/{numPages}</span>
                                 <button className="btn btn-sm" disabled={pageNumber >= numPages} onClick={() => setPageNumber(prev => prev + 1)}>
-                                    Suivant
+                                    {t("button.next")}
                                 </button>
                             </div>
                         )}
