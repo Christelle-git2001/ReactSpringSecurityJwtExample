@@ -82,9 +82,11 @@ public class EmployeurService {
 
         validerDates(dto);
 
-        String filePath = null;
+        String fileName = null;
+
         if (file != null && !file.isEmpty()) {
-            filePath = fileStorageService.storeOfferFile(file);
+            fileStorageService.storeOfferFile(file);
+            fileName = file.getOriginalFilename();
         }
 
         OffreDeStage offre = OffreDeStage.builder()
@@ -95,7 +97,7 @@ public class EmployeurService {
                 .startDate(dto.startDate())
                 .endDate(dto.endDate())
                 .statut(StatutOffre.EN_ATTENTE)
-                .filePath(filePath)
+                .fileName(fileName)
                 .employeur(employeur)
                 .build();
         return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
@@ -149,5 +151,51 @@ public class EmployeurService {
         }
 
         throw new DepartementInvalideException(value);
+    }
+
+    @Transactional
+    public OffreDeStageDTO modifierOffre(
+            Long id,
+            CreationOffreDeStageDTO dto,
+            MultipartFile file,
+            String email
+    ) throws DateFinAvantDateDebutException,
+            IOException,
+            DepartementInvalideException {
+
+
+        Employeur employeur = getEmployeurByEmail(email);
+    //TODO : EXCEPETIONS PERSONNALISÉES
+        OffreDeStage offre = offreDeStageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Offre introuvable"));
+
+        if (offre.getEmployeur() == null
+                || !offre.getEmployeur().getId().equals(employeur.getId())) {
+            throw new RuntimeException("Cette offre ne vous appartient pas");
+        }
+
+        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+            throw new RuntimeException(
+                    "Une offre qui n'est pas en attente ne peut pas être modifiée"
+            );
+        }
+
+        validerDates(dto);
+
+        offre.setTitle(dto.title());
+        offre.setDescription(dto.description());
+        offre.setSalary(dto.salary());
+        offre.setDomain(normaliserDepartement(dto.domain()));
+        offre.setStartDate(dto.startDate());
+        offre.setEndDate(dto.endDate());
+
+        if (file != null && !file.isEmpty()) {
+            fileStorageService.storeOfferFile(file);
+            offre.setFileName(file.getOriginalFilename());
+        }
+
+        return OffreDeStageDTO.of(
+                offreDeStageRepository.save(offre)
+        );
     }
 }

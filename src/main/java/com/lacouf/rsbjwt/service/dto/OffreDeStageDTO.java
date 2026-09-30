@@ -15,7 +15,7 @@ public record OffreDeStageDTO(
         LocalDate startDate,
         LocalDate endDate,
         StatutOffre statut,
-        String filePath
+        String fileName
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
@@ -28,7 +28,7 @@ public record OffreDeStageDTO(
                 offre.getStartDate(),
                 offre.getEndDate(),
                 offre.getStatut(),
-                offre.getFilePath()
+                offre.getFileName()
         );
     }
 

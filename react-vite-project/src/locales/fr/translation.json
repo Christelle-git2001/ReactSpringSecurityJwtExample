@@ -128,7 +128,7 @@
   "error": {
     "required": "Ce champ est requis.",
     "email_invalid": "Veuillez entrer une adresse courriel valide | Ex : example@domain.com",
-    "phone_invalid": "Veuillez entrer un numéro de téléphone valide | Ex: 123-123-1234",
+    "phone_invalid": "Veuillez entrer un numéro de téléphone valide | Ex: 123-123-1235",
     "password_mismatch": "Les mots de passe ne correspondent pas.",
     "email_exists": "Cette adresse courriel est déjà utilisée.",
     "matricule_exists": "Ce numéro d'identification est déjà utilisé.",

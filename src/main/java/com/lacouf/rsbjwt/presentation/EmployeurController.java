@@ -52,4 +52,19 @@ public class EmployeurController {
         return ResponseEntity.ok(offres);
     }
 
+    @PutMapping("/offres/{id}")
+    public ResponseEntity<OffreDeStageDTO> modifierOffre(
+            @PathVariable Long id,
+            @Valid @RequestPart("offre") CreationOffreDeStageDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            Principal principal
+    ) throws DateFinAvantDateDebutException,
+            IOException,
+            DepartementInvalideException {
+
+        OffreDeStageDTO offreDTO =
+                employeurService.modifierOffre(id, dto, file, principal.getName());
+
+        return ResponseEntity.ok(offreDTO);
+    }
 }

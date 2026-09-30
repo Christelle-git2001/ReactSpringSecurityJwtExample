@@ -40,7 +40,7 @@ public class OffreDeStage {
             @Column(nullable = false)
             private StatutOffre statut;
 
-            private String filePath;
+            private String fileName;
 
             @ManyToOne
             @JoinColumn(name = "employeur_id")
@@ -55,7 +55,7 @@ public class OffreDeStage {
                 LocalDate startDate,
                 LocalDate endDate,
                 StatutOffre statut,
-                String filePath,
+                String fileName,
                 Employeur employeur
     ) {
         this.title = title;
@@ -65,7 +65,7 @@ public class OffreDeStage {
         this.startDate = startDate;
         this.endDate = endDate;
         this.statut = statut;
-        this.filePath = filePath;
+        this.fileName = fileName;
         this.employeur = employeur;
     }
 }
