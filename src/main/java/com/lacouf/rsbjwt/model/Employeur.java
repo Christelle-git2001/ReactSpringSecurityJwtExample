@@ -3,10 +3,11 @@ package com.lacouf.rsbjwt.model;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.auth.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,6 +23,10 @@ public class Employeur extends UserApp{
     private String businessName;
     @Column(nullable = false)
     private SecteurActivite businessSector;
+
+    @OneToMany(mappedBy = "employeur", cascade = CascadeType.ALL)
+    private List<OffreDeStage> offres = new ArrayList<>();
+
 
     @Builder
     public Employeur(String firstName, String lastName, String phone, String email, String town, String businessName, SecteurActivite businessSector, String password

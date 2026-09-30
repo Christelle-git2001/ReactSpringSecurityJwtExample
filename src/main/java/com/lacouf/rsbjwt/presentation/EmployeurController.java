@@ -8,12 +8,14 @@ import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,19 +34,37 @@ public class EmployeurController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeurDTO);
     }
 
-    @PostMapping("/offres/creation-offre")
+    @PostMapping(value = "/offres", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<OffreDeStageDTO> creerOffre(
-            @Valid @RequestPart("offre") CreationOffreDeStageDTO creationOffreDeStageDTO,
-            @RequestPart(value = "fichier", required = false) MultipartFile multipartFile,
-            @AuthenticationPrincipal String email
-    ) throws DateFinAvantDateDebutException, FichierCorrompuException,
-            FichierTropVolumineuxException, FichierTypeInvalideException, IOException {
-        OffreDeStageDTO offreDeStageDTO = employeurService.creerOffre(creationOffreDeStageDTO, multipartFile, email);
-        return ResponseEntity.status(HttpStatus.CREATED).body(offreDeStageDTO);
+            @Valid @RequestPart("offre") CreationOffreDeStageDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            Principal principal
+    ) throws DepartementInvalideException, IOException, DateFinAvantDateDebutException {
+        OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
+        return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
 
     @GetMapping("/offres")
-    public ResponseEntity<List<OffreDeStageDTO>> getOffresEmployeur(@AuthenticationPrincipal String email) {
-        return ResponseEntity.ok(employeurService.getOffresEmployeur(email));
+    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur(
+            @AuthenticationPrincipal String email
+    ) {
+        List<OffreDeStageDTO> offres = employeurService.obtenirOffres(email);
+        return ResponseEntity.ok(offres);
+    }
+
+    @PutMapping("/offres/{id}")
+    public ResponseEntity<OffreDeStageDTO> modifierOffre(
+            @PathVariable Long id,
+            @Valid @RequestPart("offre") CreationOffreDeStageDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            Principal principal
+    ) throws DateFinAvantDateDebutException,
+            IOException,
+            DepartementInvalideException {
+
+        OffreDeStageDTO offreDTO =
+                employeurService.modifierOffre(id, dto, file, principal.getName());
+
+        return ResponseEntity.ok(offreDTO);
     }
 }

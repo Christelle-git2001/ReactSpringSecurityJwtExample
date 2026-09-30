@@ -51,11 +51,11 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
-        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
-        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,"donner à manger",LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
+        //InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
+        //etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+       // CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,"donner à manger",LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
 
-        Employeur employeurTest = employeurRepository.save(
+       /* Employeur employeurTest = employeurRepository.save(
                 Employeur.builder()
                         .firstName("Jean")
                         .lastName("Dupont")
@@ -66,9 +66,9 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                         .businessName("Clinique Test")
                         .businessSector(SecteurActivite.FINANCE)
                         .build()
-        );
+        ); */
 
-        employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
+        //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
         /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
                         .firstName("Gerard")
