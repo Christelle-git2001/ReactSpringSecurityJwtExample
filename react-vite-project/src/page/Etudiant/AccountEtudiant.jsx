@@ -5,8 +5,8 @@ import PDFVisioneuse from "../../component/PDF/PDFVisioneuse.jsx";
 const AccountEtudiant = ({user}) => {
     const { t } = useTranslation();
     return (
-       <div className={"bg-teal-200/30 p-10"}>
-           <div className="max-w-4xl mx-auto p-6 bg-base-100 rounded-2xl shadow-sm border border-base-200">
+       <div className={"bg-teal-200/30 p-10 w-full"}>
+           <div className="max-w-4xl mx-auto p-6 bg-base-100 rounded-2xl shadow-sm border border-base-200 text-center">
                <h2 className="text-2xl font-bold text-[#043462] border-b pb-4 mb-6">
                    {t("account.info.personal")}
                </h2>
@@ -44,7 +44,7 @@ const AccountEtudiant = ({user}) => {
                        <div className="divider divider-horizontal m-0"></div>
                    </div>
                    <div className={"col-span-5"}>
-                       <ProfileField label={t("add_etudiant.department")} result={t("departement." + getDepartmentKey(user.department))}/>
+                       <ProfileField label={t("add_etudiant.department")} result={t("departement." + getDepartmentKey(user?.department))}/>
                    </div>
                </div>
                <h2 className="text-2xl font-bold text-[#043462] border-b p-4 mb-6">
