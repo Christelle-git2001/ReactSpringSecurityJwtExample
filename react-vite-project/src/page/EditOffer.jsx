@@ -16,6 +16,7 @@ function EditOffer() {
     const [departements, setDepartements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedDomain, setSelectedDomain] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
         if (!offer) {
@@ -61,49 +62,35 @@ function EditOffer() {
 
         const newErrors = {};
 
-        // Titre
+        // Validation des champs
         if (!title) {
             newErrors.title = t("add_offer.errors.title_required");
         }
 
-        // Domaine
         if (!domain) {
             newErrors.domain = t("add_offer.errors.domain_required");
         }
 
-        // Description
         if (!description) {
-            newErrors.description = t(
-                "add_offer.errors.description_required"
-            );
+            newErrors.description = t("add_offer.errors.description_required");
         }
 
-        // Salaire
         if (!salary) {
             newErrors.salary = t("add_offer.errors.salary_required");
         } else if (Number(salary) < 0) {
             newErrors.salary = t("add_offer.errors.salary_negative");
         }
 
-        // Date de début
         if (!startDate) {
-            newErrors.startDate = t(
-                "add_offer.errors.startDate_required"
-            );
+            newErrors.startDate = t("add_offer.errors.startDate_required");
         }
 
-        // Date de fin
         if (!endDate) {
-            newErrors.endDate = t(
-                "add_offer.errors.endDate_required"
-            );
+            newErrors.endDate = t("add_offer.errors.endDate_required");
         }
 
-        // Vérification des dates
         if (startDate && endDate && endDate <= startDate) {
-            newErrors.endDate = t(
-                "add_offer.errors.endDate_invalid"
-            );
+            newErrors.endDate = t("add_offer.errors.endDate_invalid");
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -111,6 +98,7 @@ function EditOffer() {
             return;
         }
 
+        // Création du DTO JSON attendu par Spring Boot
         const dto = {
             title,
             domain,
@@ -122,20 +110,19 @@ function EditOffer() {
 
         setErrors({});
 
-        modifierOffreEmployeur(offer.id, dto)
+        // Appel à l'API en passant l'ID, le DTO et le Fichier
+        modifierOffreEmployeur(offer.id, dto, selectedFile)
             .then(() => {
                 navigate("/employeur");
             })
             .catch((err) => {
                 console.error(err);
-
                 setErrors({
                     api: "Une erreur est survenue lors de la modification de l'offre."
                 });
             });
     };
 
-    // Aucune offre reçue
     if (!offer) {
         return (
             <main className="flex min-h-[50vh] flex-col items-center justify-center p-8">
@@ -170,7 +157,6 @@ function EditOffer() {
                     {t("edit_offer.title", "Modifier l'offre")}
                 </h2>
 
-                {/* Erreur API */}
                 {errors.api && (
                     <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
                         {errors.api}
@@ -182,13 +168,9 @@ function EditOffer() {
                     {/* Titre */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="title"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="title" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.offer_title")}
                             </label>
-
                             <input
                                 id="title"
                                 name="title"
@@ -196,11 +178,8 @@ function EditOffer() {
                                 defaultValue={offer.title}
                                 className={inputStyle(errors.title)}
                             />
-
                             {errors.title && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {errors.title}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{errors.title}</span>
                             )}
                         </div>
                     </div>
@@ -208,43 +187,28 @@ function EditOffer() {
                     {/* Domaine */}
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="domain"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="domain" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.domain")}
                             </label>
-
                             <select
                                 id="domain"
                                 name="domain"
                                 value={selectedDomain}
-                                onChange={(e) =>
-                                    setSelectedDomain(e.target.value)
-                                }
+                                onChange={(e) => setSelectedDomain(e.target.value)}
                                 disabled={loading}
                                 className={inputStyle(errors.domain)}
                             >
                                 <option value="">
-                                    {loading
-                                        ? t("add_offer.loading_domains")
-                                        : t("add_offer.select_domain")}
+                                    {loading ? t("add_offer.loading_domains") : t("add_offer.select_domain")}
                                 </option>
-
                                 {departements.map((d) => (
-                                    <option
-                                        key={d.name}
-                                        value={d.name}
-                                    >
+                                    <option key={d.name} value={d.name}>
                                         {t(`departement.${d.name}`)}
                                     </option>
                                 ))}
                             </select>
-
                             {errors.domain && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {errors.domain}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{errors.domain}</span>
                             )}
                         </div>
                     </div>
@@ -252,13 +216,9 @@ function EditOffer() {
                     {/* Salaire */}
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="salary"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="salary" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.salary")}
                             </label>
-
                             <input
                                 id="salary"
                                 name="salary"
@@ -267,11 +227,8 @@ function EditOffer() {
                                 defaultValue={offer.salary}
                                 className={inputStyle(errors.salary)}
                             />
-
                             {errors.salary && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {errors.salary}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{errors.salary}</span>
                             )}
                         </div>
                     </div>
@@ -279,13 +236,9 @@ function EditOffer() {
                     {/* Description */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="description"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="description" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.description")}
                             </label>
-
                             <textarea
                                 id="description"
                                 name="description"
@@ -293,11 +246,8 @@ function EditOffer() {
                                 defaultValue={offer.description}
                                 className={inputStyle(errors.description)}
                             />
-
                             {errors.description && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {errors.description}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{errors.description}</span>
                             )}
                         </div>
                     </div>
@@ -305,13 +255,9 @@ function EditOffer() {
                     {/* Date de début */}
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="startDate"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="startDate" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.start_date")}
                             </label>
-
                             <input
                                 id="startDate"
                                 name="startDate"
@@ -319,11 +265,8 @@ function EditOffer() {
                                 defaultValue={offer.startDate}
                                 className={inputStyle(errors.startDate)}
                             />
-
                             {errors.startDate && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {errors.startDate}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{errors.startDate}</span>
                             )}
                         </div>
                     </div>
@@ -331,13 +274,9 @@ function EditOffer() {
                     {/* Date de fin */}
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="endDate"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="endDate" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.end_date")}
                             </label>
-
                             <input
                                 id="endDate"
                                 name="endDate"
@@ -345,29 +284,60 @@ function EditOffer() {
                                 defaultValue={offer.endDate}
                                 className={inputStyle(errors.endDate)}
                             />
-
                             {errors.endDate && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {errors.endDate}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{errors.endDate}</span>
                             )}
                         </div>
                     </div>
 
-                    {/* Document */}
+                    {/* Document / Fichier */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-semibold text-[#043462]">
+                            <span className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.document")}
-                            </label>
+                            </span>
 
-                            <div className="rounded-lg border border-gray-300 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-600">
-                                {offer.fileName || "—"}
+                            {/* Indication du fichier déjà enregistré sur l'offre */}
+                            {offer.fileName && (
+                                <p className="text-xs text-gray-600 mt-2">
+                                    {t("edit_offer.current_file", "Fichier actuel :")}{" "}
+                                    <span className="font-medium text-[#043462]">{offer.fileName}</span>
+                                </p>
+                            )}
+
+                            {/* Input file masqué lié à son label stylisé */}
+                            <div className="flex items-center gap-3">
+                                <label
+                                    htmlFor="file"
+                                    className="inline-block cursor-pointer rounded-md bg-[#043462] px-4 py-2 text-sm font-semibold text-white hover:bg-[#03284d] transition-colors"
+                                >
+                                    {selectedFile ? selectedFile.name : t("add_offer.choose_file")}
+                                </label>
+
+                                <input
+                                    id="file"
+                                    name="file"
+                                    type="file"
+                                    accept=".pdf,application/pdf"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0] || null;
+                                        setSelectedFile(file);
+                                    }}
+                                />
                             </div>
 
-                            <p className="text-xs text-gray-500">
-                                {t("edit_offer.document_note")}
+                            {/* Message d'aide */}
+                            <p className="text-xs text-gray-500 mt-2">
+                                {t("edit_offer.keep_file_note")}
                             </p>
+
+                            {/* Message d'erreur */}
+                            {errors.file && (
+                                <span className="text-xs font-medium text-red-500">
+                                    {t(errors.file)}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>

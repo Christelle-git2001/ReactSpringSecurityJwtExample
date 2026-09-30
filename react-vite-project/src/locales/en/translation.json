@@ -76,7 +76,9 @@
     "save": "Save changes",
     "no_offer": "No offer to edit.",
     "back": "Back",
-    "document_note": "The document can be modified with the backend."
+    "document_note": "The document can be modified with the backend.",
+    "current_file": "Current file:",
+    "keep_file_note": "Leave empty if you do not want to modify the current document."
   },
   "login": {
     "page_title": "Login",

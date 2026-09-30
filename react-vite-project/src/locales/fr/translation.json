@@ -76,7 +76,9 @@
     "save": "Enregistrer les modifications",
     "no_offer": "Aucune offre à modifier.",
     "back": "Retour",
-    "document_note": "Le document peut être modifié via le backend."
+    "document_note": "Le document peut être modifié via le backend.",
+    "current_file": "Fichier actuel :",
+    "keep_file_note": "Laissez vide si vous ne souhaitez pas modifier le document actuel."
   },
   "login": {
     "page_title": "Connexion",
