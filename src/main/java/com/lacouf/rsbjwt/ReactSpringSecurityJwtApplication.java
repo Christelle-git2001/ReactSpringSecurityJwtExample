@@ -2,11 +2,12 @@ package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.GestionnaireRepository;
+import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.repository.*;
 //import com.lacouf.rsbjwt.repository.ProfesseurRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
+import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -14,7 +15,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @SpringBootApplication
 public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
@@ -26,14 +26,23 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     private final PasswordEncoder passwordEncoder;
     private final EtudiantService etudiantService;
+    private final OffreDeStageRepository offreDeStageRepository;
+    private final EmployeurRepository employeurRepository;
+    private final EmployeurService employeurService;
 
-    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder, EtudiantService etudiantService) {
+    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
+                                             UserAppRepository userAppRepository, PasswordEncoder passwordEncoder, EtudiantService etudiantService,
+                                             OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
+                                             EmployeurRepository employeurRepository) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
        // this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.etudiantService = etudiantService;
+        this.employeurService = employeurService;
+        this.offreDeStageRepository = offreDeStageRepository;
+        this.employeurRepository = employeurRepository;
     }
 
     public static void main(String[] args) {
@@ -42,7 +51,24 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        //InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
+        //etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+       // CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,"donner à manger",LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
 
+       /* Employeur employeurTest = employeurRepository.save(
+                Employeur.builder()
+                        .firstName("Jean")
+                        .lastName("Dupont")
+                        .email("employeur@test.com")
+                        .password(passwordEncoder.encode("Test1234!"))
+                        .phone("450-000-0000")
+                        .town("Montréal")
+                        .businessName("Clinique Test")
+                        .businessSector(SecteurActivite.FINANCE)
+                        .build()
+        ); */
+
+        //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
         /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
                         .firstName("Gerard")

@@ -6,22 +6,22 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record CreationOffreDeStageDTO(
-        @NotBlank(message = "validation.titre.required")
-        String titre,
 
-        @NotBlank(message = "validation.poste.required")
-        String poste,
+        @NotBlank(message = "validation.title.required")
+        String title,
 
-        @NotNull(message = "validation.salaire.required")
-        Double salaire,
+        @NotBlank(message = "validation.domain.required")
+        String domain,
+
+        @NotNull(message = "validation.salary.required")
+        Double salary,
 
         @NotBlank(message = "validation.description.required")
         String description,
 
-        @NotNull(message = "validation.dateDebut.required")
-        LocalDate dateDebut,
+        @NotNull(message = "validation.startDate.required")
+        LocalDate startDate,
 
-        @NotNull(message = "validation.dateFin.required")
-        LocalDate dateFin
-) {
-}
+        @NotNull(message = "validation.endDate.required")
+        LocalDate endDate
+) {}

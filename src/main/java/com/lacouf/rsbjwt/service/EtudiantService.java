@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -105,29 +106,25 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
-        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
-                .orElseGet(() -> CvEtudiant.builder().etudiant(etudiant).build());
+        CvEtudiant cv = CvEtudiant.builder().etudiant(etudiant).build();
 
-        supprimerAncienCv(cv, filePath);
         remplirInformationsCv(cv, file, filePath);
 
         return CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
     }
 
+    public List<CvEtudiantDTO> getTousLesCv(String email) throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return cvEtudiantRepository.findByEtudiantOrderByUploadDateDesc(etudiant)
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
+    }
+
     private Etudiant trouverEtudiantParEmail(String email) throws EtudiantIntrouvableException {
         return etudiantRepository.findByCredentialsEmail(email)
                 .orElseThrow(EtudiantIntrouvableException::new);
-    }
-
-    private void supprimerAncienCv(CvEtudiant cv, Path newPath)
-            throws SuppressionEchoueeFichierException {
-        if (cv.getStoragePath() == null) { return; }
-
-        Path oldPathCv = Paths.get(cv.getStoragePath());
-
-        if(!oldPathCv.equals(newPath)){
-            StockageFichierUtils.supprimerFichier(oldPathCv);
-        }
     }
 
     private void remplirInformationsCv(CvEtudiant cv, MultipartFile file, Path filePath){
