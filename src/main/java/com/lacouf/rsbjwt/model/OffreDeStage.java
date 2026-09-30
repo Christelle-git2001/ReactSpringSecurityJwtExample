@@ -2,10 +2,7 @@ package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -35,16 +32,23 @@ public class OffreDeStage {
     private String filePath; // Optionnel
     private String messageRefus; // Rempli seulement si l'offre est refusée
 
-    public OffreDeStage(String title, Double salary, String description, LocalDate firstDate, LocalDate lastDate) {
-        this.title = title;
-        this.salary = salary;
-        this.description = description;
-        this.firstDate = firstDate;
-        this.lastDate = lastDate;
-    }
-
     @ManyToOne
     @JoinColumn(name = "employeur_id")
     private Employeur employeur;
+
+    @Builder
+    public OffreDeStage(String title, Double salary,String poste,StatutOffre statut, String description, LocalDate firstDate, LocalDate lastDate,String filePath,Employeur employeur) {
+        this.title = title;
+        this.salary = salary;
+        this.poste = poste;
+        this.statut = statut;
+        this.description = description;
+        this.firstDate = firstDate;
+        this.lastDate = lastDate;
+        this.filePath = filePath;
+        this.employeur = employeur;
+    }
+
+
 
 }

@@ -136,35 +136,29 @@
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
     "professor_added": "Professeur ajouté avec succès.",
-    "employer_added": "Employeur ajouté avec succès."
+    "employer_added": "Employeur ajouté avec succès.",
+    "offer_loaded": "Offre chargée avec succès.",
+    "offer_created": "Offre créée avec succès.",
+    "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
     "home": "Accueil",
-    "account": "Compte",
     "login": "Connexion",
     "logout": "Déconnexion",
     "add_offer" : "Créer une offre"
   },
-  "home": {
-    "welcome" : "Bienvenue"
+  "offre": {
+    "domaine": "Domaine",
+    "date_debut": "Date de début",
+    "date_fin": "Date de fin",
+    "document": "Document",
+    "details" : "Voir les détails",
+    "edit" : "Modifier",
+    "description" : "Description"
   },
-  "etudiant": {
-    "card" : {
-      "account" : "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
-    }
-  },
-  "pdfVisio" : {
-    "nofiles" : "Aucun fichier sélectioné",
-    "visualize" : "Visualiser le PDF",
-    "filesName" : "Nom du fichier",
-    "choice" : "Sélectionner un fichier",
-    "download" : "Télécharger le PDF"
-  },
-  "account" : {
-    "info" : {
-      "personal" : "Renseignements personnels",
-      "educational" : "Renseignements Scolaire",
-      "professional" : "Renseignements Professionels"
-    }
+  "status": {
+    "en_attente": "En attente",
+    "acceptee": "Acceptée",
+    "refusee": "Refusée"
   }
 }
