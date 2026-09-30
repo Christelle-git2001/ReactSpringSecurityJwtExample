@@ -1,13 +1,22 @@
 @import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui" {
+    themes: light, dark;
+}
+
+@layer utilities {
+    .bg-mersdusud {
+        background-color: #00CCCB;
+    }
+}
+
 
 @theme {
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
-a:hover {
-    text-decoration: underline;
-}
 
 h1 {
     color: #043462;

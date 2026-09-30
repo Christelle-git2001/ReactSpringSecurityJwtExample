@@ -16,6 +16,10 @@ import GestionnaireHome from "../../page/GestionnaireHome.jsx";
 import EtudiantHome from "../../page/EtudiantHome.jsx";
 import ProfesseurHome from "../../page/ProfesseurHome.jsx";
 
+import AddOffer from "../../page/AddOffer.jsx";
+import SideBarLayout from "../Design/SideBarLayout.jsx";
+import EditOffer from "../../page/EditOffer.jsx";
+
 export default function AppRoutes({
                                       user,
                                       error,
@@ -25,7 +29,8 @@ export default function AppRoutes({
                                       addEtudiant,
                                       addProfesseur,
                                       addEmployeur,
-                                      setMessage
+                                      setMessage,
+                                      openDrawer
                                   }) {
     return (
         <Routes>
@@ -45,19 +50,20 @@ export default function AppRoutes({
                             setError={setError}
                             setMessage={setMessage}
                         />
-
                     }
                 />
 
                 <Route path="/" element={<Navigate to="/login" />} />
             </Route>
 
-            <Route element={<PageLayout user={user} />}>
+            <Route element={<SideBarLayout user={user} openDrawer={openDrawer} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
-                <Route  path="/etudiant" element={<EtudiantHome />} />
+                <Route path="/etudiant" element={<EtudiantHome />} />
                 <Route path="/employeur" element={<EmployeurHome />} />
+                <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
+                <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome />} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
