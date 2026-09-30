@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.model.OffreDeStage;
 import java.time.LocalDate;
 
 public record OffreDeStageDTO(
-        Long id,
+        long id,
         String title,
         String description,
         Double salary,
