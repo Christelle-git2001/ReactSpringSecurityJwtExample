@@ -13,7 +13,8 @@ import Logout from "../auth/Logout";
 import ErrorPage from "../Design/ErrorPage";
 import EmployeurHome from "../../page/EmployeurHome";
 import GestionnaireHome from "../../page/GestionnaireHome.jsx";
-import EtudiantHome from "../../page/EtudiantHome.jsx";
+import EtudiantHome from "../../page/Etudiant/EtudiantHome.jsx";
+import AccountEtudiant from "../../page/Etudiant/AccountEtudiant.jsx";
 import ProfesseurHome from "../../page/ProfesseurHome.jsx";
 
 import AddOffer from "../../page/AddOffer.jsx";
@@ -60,7 +61,8 @@ export default function AppRoutes({
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
-                <Route path="/etudiant" element={<EtudiantHome />} />
+                <Route path="/etudiant" element={<EtudiantHome user={user} />} />
+                <Route path="/etudiant/account" element={<AccountEtudiant user={user} />} />
                 <Route path="/employeur" element={<EmployeurHome />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
