@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 
 @Service
@@ -129,6 +130,18 @@ public class EmployeurService {
         Files.createDirectories(DOSSIER);
         Path destination = DOSSIER.resolve(nomFichier);
         Files.copy(multipartFile.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public List<OffreDeStageDTO> getOffresEmployeur(String email){
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(user -> user instanceof Employeur)
+                .map(user -> (Employeur) user)
+                .orElseThrow(UserNotFoundException::new);
+
+        return offreDeStageRepository.findByEmployeurId(employeur.getId())
+                .stream()
+                .map(OffreDeStageDTO::of)
+                .toList();
     }
 
 }

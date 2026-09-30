@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/employeur")
@@ -40,5 +41,10 @@ public class EmployeurController {
             FichierTropVolumineuxException, FichierTypeInvalideException, IOException {
         OffreDeStageDTO offreDeStageDTO = employeurService.creerOffre(creationOffreDeStageDTO, multipartFile, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDeStageDTO);
+    }
+
+    @GetMapping("/offres")
+    public ResponseEntity<List<OffreDeStageDTO>> getOffresEmployeur(@AuthenticationPrincipal String email) {
+        return ResponseEntity.ok(employeurService.getOffresEmployeur(email));
     }
 }
