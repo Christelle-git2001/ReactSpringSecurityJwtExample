@@ -105,10 +105,8 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
-        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
-                .orElseGet(() -> CvEtudiant.builder().etudiant(etudiant).build());
+        CvEtudiant cv = CvEtudiant.builder().etudiant(etudiant).build();
 
-        supprimerAncienCv(cv, filePath);
         remplirInformationsCv(cv, file, filePath);
 
         return CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
@@ -119,15 +117,9 @@ public class EtudiantService {
                 .orElseThrow(EtudiantIntrouvableException::new);
     }
 
-    private void supprimerAncienCv(CvEtudiant cv, Path newPath)
-            throws SuppressionEchoueeFichierException {
-        if (cv.getStoragePath() == null) { return; }
-
-        Path oldPathCv = Paths.get(cv.getStoragePath());
-
-        if(!oldPathCv.equals(newPath)){
-            StockageFichierUtils.supprimerFichier(oldPathCv);
-        }
+    private CvEtudiant trouverCvParEtudiant(Etudiant etudiant) throws FichierIntrouvableException {
+        return cvEtudiantRepository.findFirstByEtudiantOrderByUploadDateDesc(etudiant)
+                .orElseThrow(FichierIntrouvableException::new);
     }
 
     private void remplirInformationsCv(CvEtudiant cv, MultipartFile file, Path filePath){
