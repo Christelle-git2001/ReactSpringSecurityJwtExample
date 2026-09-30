@@ -47,7 +47,7 @@ public class StockageFichierUtils {
         }
 
         if (!TYPE_PDF.equals(file.getContentType())) {
-            throw new FichierTypeInvalideException();
+            //throw new FichierTypeInvalideException();
         }
     }
 
