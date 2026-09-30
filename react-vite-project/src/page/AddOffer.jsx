@@ -12,6 +12,7 @@ function AddOffer() {
     const [errors, setErrors] = useState({});
     const [departements, setDepartements] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [fileName, setFileName] = useState("");
 
     useEffect(() => {
         getDepartements()
@@ -224,21 +225,38 @@ function AddOffer() {
                         </div>
                     </div>
 
+
                     {/* Fichier */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="file" className="text-sm font-semibold text-[#043462]">
-                                {t("add_offer.document")}
+                            <label
+                                htmlFor="file"
+                                className="inline-block cursor-pointer rounded-md bg-[#043462] px-4 py-2 text-sm font-semibold text-white hover:bg-[#03284d]"
+                            >
+                                {fileName || t("add_offer.choose_file")}
                             </label>
+
                             <input
                                 id="file"
                                 name="file"
                                 type="file"
                                 accept=".pdf,application/pdf"
-                                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-[#043462] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-[#03284d]"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+
+                                    if (file) {
+                                        setFileName(file.name);
+                                    } else {
+                                        setFileName("");
+                                    }
+                                }}
                             />
+
                             {errors.file && (
-                                <span className="text-xs font-medium text-red-500">{errors.file}</span>
+                                <span className="text-xs font-medium text-red-500">
+                                    {errors.file}
+                                </span>
                             )}
                         </div>
                     </div>
@@ -249,7 +267,7 @@ function AddOffer() {
                     <Button
                         type="button"
                         onClick={() => navigate("/employeur")}
-                        className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+                         className="bg-gray-500 text-white hover:bg-gray-600"
                     >
                         {t("add_offer.cancel")}
                     </Button>

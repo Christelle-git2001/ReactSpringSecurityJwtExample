@@ -22,7 +22,7 @@ const EmployeurHome = () => {
                         <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
                         <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
                         <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
-                        <li><strong>{t("offre.document")} :</strong> {offer.filePath || "-"}</li>
+                        <li><strong>{t("offre.document")} :</strong> {offer.fileName || "-"}</li>
                     </ul>
 
                     <p className="mt-2">

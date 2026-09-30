@@ -50,9 +50,11 @@
     "loading_domains": "Loading domains...",
     "select_domain": "Choose a domain",
     "salary": "Salary",
+    "description": "Description",
     "start_date": "Start date",
     "end_date": "End date",
     "document": "Additional document (PDF)",
+    "choose_file": "Choose a file",
     "cancel": "Cancel",
     "submit": "Submit",
     "errors": {
