@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/etudiant")
@@ -39,4 +40,9 @@ public class EtudiantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(cvEtudiantDto);
     }
 
+    @GetMapping("/cv")
+    public ResponseEntity<List<CvEtudiantDTO>> obtenirTousLesCv(Authentication authentication)
+            throws EtudiantIntrouvableException {
+        return ResponseEntity.ok(etudiantService.getTousLesCv(authentication.getName()));
+    }
 }
