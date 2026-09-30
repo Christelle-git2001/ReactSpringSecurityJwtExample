@@ -63,6 +63,7 @@
       "domain_required": "Please select a domain.",
       "salary_required": "Please enter the salary.",
       "salary_negative": "Salary cannot be negative.",
+      "description_required": "Veuillez entrer une description.",
       "startDate_required": "Please select a start date.",
       "endDate_required": "Please select an end date.",
       "file_required": "Please select a PDF document.",

@@ -63,6 +63,7 @@
       "domain_required": "Veuillez sélectionner un domaine.",
       "salary_required": "Veuillez entrer le salaire.",
       "salary_negative": "Le salaire ne peut pas être négatif.",
+      "description_required": "Veuillez entrer une description.",
       "startDate_required": "Veuillez sélectionner une date de début.",
       "endDate_required": "Veuillez sélectionner une date de fin.",
       "file_required": "Veuillez sélectionner un document PDF.",
@@ -134,7 +135,8 @@
     "phone_exists": "Ce numéro de téléphone est déjà utilisé.",
     "department_invalid": "Le département sélectionné est invalide.",
     "user_not_found": "Utilisateur introuvable.",
-    "generic": "Une erreur est survenue. Veuillez réessayer."
+    "generic": "Une erreur est survenue. Veuillez réessayer.",
+
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
