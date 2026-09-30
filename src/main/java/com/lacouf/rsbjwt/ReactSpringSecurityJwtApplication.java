@@ -42,8 +42,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
-        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+
         /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
                         .firstName("Gerard")
