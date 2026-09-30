@@ -8,12 +8,15 @@ import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/employeur")
@@ -31,13 +34,22 @@ public class EmployeurController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeurDTO);
     }
 
-    @PostMapping(value = "/offres", consumes = "multipart/form-data")
+    @PostMapping(value = "/offres", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<OffreDeStageDTO> creerOffre(
             @Valid @RequestPart("offre") CreationOffreDeStageDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
-            @AuthenticationPrincipal String email
+            Principal principal
     ) throws DepartementInvalideException, IOException, DateFinAvantDateDebutException {
-        OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, email);
+        OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
+
+    @GetMapping("/offres")
+    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur(
+            @AuthenticationPrincipal String email
+    ) {
+        List<OffreDeStageDTO> offres = employeurService.obtenirOffres(email);
+        return ResponseEntity.ok(offres);
+    }
+
 }
