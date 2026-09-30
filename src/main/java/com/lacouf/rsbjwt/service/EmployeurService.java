@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
@@ -28,23 +29,24 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class EmployeurService {
-    private final static Path DOSSIER = Paths.get("pdf/pdfEmployeur/offresDeStage");
-    private final static String TYPE_FICHIERS = "application/pdf";
-    //private final static String EXTENSION_PDF = ".pdf";
-    private final static long TAILLE_MAX = 5 * 1024 * 1024;
-    // 5 Mo
     private final EmployeurRepository employeurRepository;
     private final UserAppRepository userAppRepository;
     private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
+    private final FileStorageService fileStorageService;
 
-
-    public EmployeurService(EmployeurRepository employeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder,
-                            OffreDeStageRepository offreDeStageRepository) {
+    public EmployeurService(
+            EmployeurRepository employeurRepository,
+            UserAppRepository userAppRepository,
+            PasswordEncoder passwordEncoder,
+            OffreDeStageRepository offreDeStageRepository,
+            FileStorageService fileStorageService
+    ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     @Transactional
@@ -70,78 +72,130 @@ public class EmployeurService {
         return userAppRepository.findUserAppByEmail(email.toLowerCase()).isPresent();
     }
 
-    // Offre de stage
+    @Transactional
+    public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO dto,
+                                      MultipartFile file,
+                                      String email)
+            throws DateFinAvantDateDebutException, IOException, DepartementInvalideException {
 
-    @Transactional(rollbackFor = IOException.class)
-    public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO creationOffreDeStageDTO,
-                                      MultipartFile multipartFile,
-                                      String email) throws DateFinAvantDateDebutException, IOException {
+        Employeur employeur = getEmployeurByEmail(email);
 
-        Employeur employeur = userAppRepository.findUserAppByEmail(email)
-                .filter(user -> user instanceof Employeur)
-                .map(user -> (Employeur) user)
-                .orElseThrow(UserNotFoundException::new);
+        validerDates(dto);
 
-        if (!creationOffreDeStageDTO.dateFin().isAfter(creationOffreDeStageDTO.dateDebut())){
-            throw new DateFinAvantDateDebutException();
-        }
-        String cheminFichier = null; // Au cas où l'employeur décide de ne soumettre aucun fichier
-        if (multipartFile != null ){
-            cheminFichier = validerFichier(multipartFile);
+        String fileName = null;
+
+        if (file != null && !file.isEmpty()) {
+            fileStorageService.storeOfferFile(file);
+            fileName = file.getOriginalFilename();
         }
 
-        OffreDeStage offreDeStage = OffreDeStage.builder()
-                .title(creationOffreDeStageDTO.titre())
-                .salary(creationOffreDeStageDTO.salaire())
-                .poste(creationOffreDeStageDTO.poste())
+        OffreDeStage offre = OffreDeStage.builder()
+                .title(dto.title())
+                .description(dto.description())
+                .salary(dto.salary())
+                .domain(normaliserDepartement(dto.domain()))
+                .startDate(dto.startDate())
+                .endDate(dto.endDate())
                 .statut(StatutOffre.EN_ATTENTE)
-                .description(creationOffreDeStageDTO.description())
-                .firstDate(creationOffreDeStageDTO.dateDebut())
-                .lastDate(creationOffreDeStageDTO.dateFin())
-                .filePath(cheminFichier)
+                .fileName(fileName)
                 .employeur(employeur)
                 .build();
-
-        OffreDeStage offreSauvegardee = offreDeStageRepository.save(offreDeStage);
-
-        if (cheminFichier != null){
-            sauvegarderFichier(multipartFile, cheminFichier);
-        }
-
-        return OffreDeStageDTO.of(offreSauvegardee);
+        return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
     }
 
-    private String validerFichier(MultipartFile multipartFile) throws FichierTypeInvalideException,
-            FichierTropVolumineuxException, FichierCorrompuException {
-        if (multipartFile.getSize() == 0){
-            throw new FichierCorrompuException();
-        }
-        if (multipartFile.getSize() > TAILLE_MAX){
-            throw  new FichierTropVolumineuxException();
-        }
-        if (!TYPE_FICHIERS.contains(multipartFile.getContentType())){
-            throw  new FichierTypeInvalideException();
-        }
+    @Transactional(readOnly = true)
+    public List<OffreDeStageDTO> obtenirOffres(String email) {
 
-        return multipartFile.getOriginalFilename();
-    }
-
-    private void sauvegarderFichier(MultipartFile multipartFile, String nomFichier) throws IOException {
-        Files.createDirectories(DOSSIER);
-        Path destination = DOSSIER.resolve(nomFichier);
-        Files.copy(multipartFile.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-    }
-
-    public List<OffreDeStageDTO> getOffresEmployeur(String email){
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
-                .filter(user -> user instanceof Employeur)
-                .map(user -> (Employeur) user)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
                 .orElseThrow(UserNotFoundException::new);
 
-        return offreDeStageRepository.findByEmployeurId(employeur.getId())
+        return employeur.getOffres()
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
 
+
+    private Employeur getEmployeurByEmail(String email) {
+        return userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    private void validerDates(CreationOffreDeStageDTO dto)
+            throws DateFinAvantDateDebutException {
+
+        if (!dto.endDate().isAfter(dto.startDate())) {
+            throw new DateFinAvantDateDebutException();
+        }
+    }
+
+    private Departement normaliserDepartement(String value)
+            throws DepartementInvalideException {
+
+        if (value == null) {
+            throw new DepartementInvalideException(value);
+        }
+
+        String normalized = value.trim()
+                .toUpperCase()
+                .replaceAll("\\s+", "_");
+
+        for (Departement d : Departement.values()) {
+            if (d.name().equals(normalized)) {
+                return d;
+            }
+        }
+
+        throw new DepartementInvalideException(value);
+    }
+
+    @Transactional
+    public OffreDeStageDTO modifierOffre(
+            Long id,
+            CreationOffreDeStageDTO dto,
+            MultipartFile file,
+            String email
+    ) throws DateFinAvantDateDebutException,
+            IOException,
+            DepartementInvalideException {
+
+
+        Employeur employeur = getEmployeurByEmail(email);
+    //TODO : EXCEPETIONS PERSONNALISÉES
+        OffreDeStage offre = offreDeStageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Offre introuvable"));
+
+        if (offre.getEmployeur() == null
+                || !offre.getEmployeur().getId().equals(employeur.getId())) {
+            throw new RuntimeException("Cette offre ne vous appartient pas");
+        }
+
+        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+            throw new RuntimeException(
+                    "Une offre qui n'est pas en attente ne peut pas être modifiée"
+            );
+        }
+
+        validerDates(dto);
+
+        offre.setTitle(dto.title());
+        offre.setDescription(dto.description());
+        offre.setSalary(dto.salary());
+        offre.setDomain(normaliserDepartement(dto.domain()));
+        offre.setStartDate(dto.startDate());
+        offre.setEndDate(dto.endDate());
+
+        if (file != null && !file.isEmpty()) {
+            fileStorageService.storeOfferFile(file);
+            offre.setFileName(file.getOriginalFilename());
+        }
+
+        return OffreDeStageDTO.of(
+                offreDeStageRepository.save(offre)
+        );
+    }
 }
