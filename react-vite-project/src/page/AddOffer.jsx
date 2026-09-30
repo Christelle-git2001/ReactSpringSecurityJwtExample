@@ -2,19 +2,20 @@ import { useState, useEffect } from "react";
 import Button from "../component/ui/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getSecteursEmployeur } from "../api/http.jsx";
+import { getDepartements } from "../api/http.jsx";
+import { creerOffreEmployeur } from "../api/employeur.jsx";
 
 function AddOffer() {
     const navigate = useNavigate();
     const { t } = useTranslation();
 
     const [errors, setErrors] = useState({});
-    const [secteurs, setSecteurs] = useState([]);
+    const [departements, setDepartements] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getSecteursEmployeur()
-            .then(setSecteurs)
+        getDepartements()
+            .then(setDepartements)
             .finally(() => setLoading(false));
     }, []);
 
@@ -29,6 +30,15 @@ function AddOffer() {
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
         const file = formData.get("file");
+
+        const dto = {
+            title,
+            domain,
+            salary: Number(salary),
+            description,
+            startDate,
+            endDate
+        };
 
         const newErrors = {};
 
@@ -60,20 +70,14 @@ function AddOffer() {
 
         setErrors({});
 
-        const newOffer = {
-            title,
-            domain,
-            salary,
-            description,
-            startDate,
-            endDate,
-            fileName: file.name,
-            status: "EN_ATTENTE"
-        };
-
-        // TODO: Back-end (Ajouter Offre)
-
-        navigate("/employeur", { state: { offer: newOffer } });
+        creerOffreEmployeur(dto, file)
+            .then(() => {
+                navigate("/employeur");
+            })
+            .catch((err) => {
+                console.error(err);
+                setErrors({ api: "Une erreur est survenue lors de la création de l'offre." });
+            });
     };
 
     const inputStyle = (hasError) =>
@@ -87,14 +91,19 @@ function AddOffer() {
         <div className="min-h-screen flex items-center justify-center">
             <form
                 onSubmit={handleSubmit}
-                className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8 "
+                className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
             >
                 <h2 className="mb-6 text-xl font-bold text-[#043462]">
                     {t("add_offer.title")}
                 </h2>
 
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                {errors.api && (
+                    <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+                        {errors.api}
+                    </div>
+                )}
 
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     {/* Titre */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
@@ -113,7 +122,7 @@ function AddOffer() {
                         </div>
                     </div>
 
-                    {/* Domaine */}
+                    {/* Département / Domaine */}
                     <div>
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="domain" className="text-sm font-semibold text-[#043462]">
@@ -130,9 +139,9 @@ function AddOffer() {
                                         ? t("add_offer.loading_domains")
                                         : t("add_offer.select_domain")}
                                 </option>
-                                {secteurs.map((s) => (
-                                    <option key={s.name} value={s.name}>
-                                        {t(`secteur.${s.name}`)}
+                                {departements.map((d) => (
+                                    <option key={d.name} value={d.name}>
+                                        {t(`departement.${d.name}`)}
                                     </option>
                                 ))}
                             </select>
