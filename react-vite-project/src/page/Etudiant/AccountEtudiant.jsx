@@ -5,7 +5,7 @@ import CurriculumVitaeZone from "../../component/CV/CurriculumVitaeZone.jsx";
 const AccountEtudiant = ({user}) => {
     const { t } = useTranslation();
     return (
-       <div className={"bg-teal-200/30 p-10 w-full"}>
+       <div className={"p-10 w-full"}>
            <div className="max-w-4xl mx-auto p-6 bg-base-100 rounded-2xl shadow-sm border border-base-200 text-center">
                <h2 className="text-2xl font-bold text-[#043462] border-b pb-4 mb-6">
                    {t("account.info.personal")}
