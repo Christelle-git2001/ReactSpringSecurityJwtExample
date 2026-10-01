@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -122,9 +123,24 @@ public class EtudiantService {
                 .toList();
     }
 
+    public Resource telechargerCv(Long cvId, String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParIdEtEtudiant(cvId, etudiant);
+
+        return StockageFichierUtils.chargerFichier(Paths.get(cv.getStoragePath()));
+    }
+
     private Etudiant trouverEtudiantParEmail(String email) throws EtudiantIntrouvableException {
         return etudiantRepository.findByCredentialsEmail(email)
                 .orElseThrow(EtudiantIntrouvableException::new);
+    }
+
+    private CvEtudiant trouverCvParIdEtEtudiant(Long cvId, Etudiant etudiant)
+            throws FichierIntrouvableException {
+        return cvEtudiantRepository.findById(cvId)
+                .filter(cv -> cv.getEtudiant().getId().equals(etudiant.getId()))
+                .orElseThrow(FichierIntrouvableException::new);
     }
 
     private void remplirInformationsCv(CvEtudiant cv, MultipartFile file, Path filePath){
