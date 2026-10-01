@@ -4,10 +4,13 @@ import com.lacouf.rsbjwt.Exception.EmailExistantException;
 import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
 import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -24,6 +28,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -42,6 +50,9 @@ public class EtudiantServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private CvEtudiantRepository cvEtudiantRepository;
 
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
@@ -159,9 +170,79 @@ public class EtudiantServiceTest {
         verify(etudiantRepository, never()).save(any(Etudiant.class));
     }
 
+    @Test
+    void doitTeleverserCv() throws Exception{
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                "contenu pdf".getBytes()
+        );
 
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
 
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        when(cvEtudiantRepository.save(any(CvEtudiant.class)))
+                .thenAnswer(invocation -> {
+                    CvEtudiant cv = invocation.getArgument(0);
+                    cv.setId(1L);
+                    return cv;
+                });
+
+        CvEtudiantDTO result = etudiantService.uploadCv(file, "steveJean@gmail.com");
+
+        assertThat(result).isNotNull();
+        assertThat(result.fileName()).isEqualTo("cv.pdf");
+        assertThat(result.contentType()).isEqualTo("application/pdf");
+
+        verify(cvEtudiantRepository).save(any(CvEtudiant.class));
     }
+
+    @Test
+    void doitRemplacerAncienCv() throws Exception{
+        Path ancienFichier = Paths.get("uploads", "cvs", "ancien.pdf");
+        Files.createDirectories(ancienFichier.getParent());
+        Files.writeString(ancienFichier, "ancien contenu");
+        
+        CvEtudiant ancienCv = CvEtudiant.builder()
+                .fileName("ancien.pdf")
+                .contentType("application/pdf")
+                .fileSize(10L)
+                .storagePath(ancienFichier.toString())
+                .uploadDate(LocalDateTime.now())
+                .etudiant(etudiant)
+                .build();
+        ancienCv.setId(1L);
+        
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "nouveau.pdf",
+                "application/pdf",
+                "nouveau contenu".getBytes()
+        );
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(ancienCv));
+
+        when(cvEtudiantRepository.save(any(CvEtudiant.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        CvEtudiantDTO result = etudiantService.uploadCv(file, "steveJean@gmail.com");
+
+        assertThat(result.fileName()).isEqualTo("nouveau.pdf");
+        assertThat(Files.exists(ancienFichier)).isFalse();
+
+        verify(cvEtudiantRepository).save(any(CvEtudiant.class));
+    }
+
+
+}
 
 
 
