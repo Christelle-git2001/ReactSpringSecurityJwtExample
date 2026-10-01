@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -99,9 +100,9 @@ public class EtudiantService {
 
     @Transactional
     public CvEtudiantDTO uploadCv(MultipartFile file, String email)
-        throws FichierTypeInvalideException, EtudiantIntrouvableException,
-        SuppressionEchoueeFichierException, FichierCorrompuException,
-        FichierTropVolumineuxException, IOException {
+            throws FichierTypeInvalideException, EtudiantIntrouvableException,
+            SuppressionEchoueeFichierException, FichierCorrompuException,
+            FichierTropVolumineuxException, IOException {
 
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
@@ -122,9 +123,34 @@ public class EtudiantService {
                 .toList();
     }
 
+    public Resource telechargerCv(Long cvId, String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParIdEtEtudiant(cvId, etudiant);
+
+        return StockageFichierUtils.chargerFichier(Paths.get(cv.getStoragePath()));
+    }
+
+    @Transactional
+    public void supprimerCv(Long cvId, String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException, SuppressionEchoueeFichierException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParIdEtEtudiant(cvId, etudiant);
+
+        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
+        cvEtudiantRepository.delete(cv);
+    }
+
     private Etudiant trouverEtudiantParEmail(String email) throws EtudiantIntrouvableException {
         return etudiantRepository.findByCredentialsEmail(email)
                 .orElseThrow(EtudiantIntrouvableException::new);
+    }
+
+    private CvEtudiant trouverCvParIdEtEtudiant(Long cvId, Etudiant etudiant)
+            throws FichierIntrouvableException {
+        return cvEtudiantRepository.findById(cvId)
+                .filter(cv -> cv.getEtudiant().getId().equals(etudiant.getId()))
+                .orElseThrow(FichierIntrouvableException::new);
     }
 
     private void remplirInformationsCv(CvEtudiant cv, MultipartFile file, Path filePath){
