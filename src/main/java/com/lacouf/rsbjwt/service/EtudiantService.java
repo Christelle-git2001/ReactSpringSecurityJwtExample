@@ -131,6 +131,16 @@ public class EtudiantService {
         return StockageFichierUtils.chargerFichier(Paths.get(cv.getStoragePath()));
     }
 
+    @Transactional
+    public void supprimerCv(Long cvId, String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException, SuppressionEchoueeFichierException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParIdEtEtudiant(cvId, etudiant);
+
+        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
+        cvEtudiantRepository.delete(cv);
+    }
+
     private Etudiant trouverEtudiantParEmail(String email) throws EtudiantIntrouvableException {
         return etudiantRepository.findByCredentialsEmail(email)
                 .orElseThrow(EtudiantIntrouvableException::new);

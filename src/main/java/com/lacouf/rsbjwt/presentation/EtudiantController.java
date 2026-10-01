@@ -63,4 +63,15 @@ public class EtudiantController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"cv.pdf\"")
                 .body(resource);
     }
+
+    @DeleteMapping("/cv/{cvId}")
+    public ResponseEntity<Void> supprimerCv(
+            @PathVariable Long cvId,
+            Authentication authetication
+    ) throws EtudiantIntrouvableException, FichierIntrouvableException,
+            SuppressionEchoueeFichierException {
+
+        etudiantService.supprimerCv(cvId, authetication.getName());
+        return ResponseEntity.noContent().build();
+    }
 }
