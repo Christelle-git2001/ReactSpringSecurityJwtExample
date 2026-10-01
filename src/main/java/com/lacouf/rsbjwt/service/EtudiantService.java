@@ -102,7 +102,6 @@ public class EtudiantService {
             throws FichierTypeInvalideException, EtudiantIntrouvableException,
             SuppressionEchoueeFichierException, FichierCorrompuException,
             FichierTropVolumineuxException, IOException {
-
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
@@ -136,7 +135,8 @@ public class EtudiantService {
 
     @Transactional
     public void supprimerCv(String email)
-            throws EtudiantIntrouvableException, FichierIntrouvableException, SuppressionEchoueeFichierException {
+            throws EtudiantIntrouvableException, FichierIntrouvableException,
+            SuppressionEchoueeFichierException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 

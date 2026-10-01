@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Etudiant;
@@ -20,10 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -258,6 +253,44 @@ public class EtudiantServiceTest {
     }
 
     @Test
+    void doitLancerExceptionFichierTypeInvalide() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "nouveau.pdf",
+                "text/plain",
+                "contenu".getBytes()
+        );
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        assertThatThrownBy(() ->
+                etudiantService.uploadCv(file, "steveJean@gmail.com"))
+                .isInstanceOf(FichierTypeInvalideException.class);
+
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitLancerExceptionFichierCorrompu() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "nouveau.pdf",
+                "application/pdf",
+                new byte[0]
+        );
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        assertThatThrownBy(() ->
+                etudiantService.uploadCv(file, "steveJean@gmail.com"))
+                .isInstanceOf(FichierCorrompuException.class);
+
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
     void doitRetournerCv() throws Exception{
         CvEtudiant cv = CvEtudiant.builder()
                 .fileName("cv.pdf")
@@ -279,6 +312,19 @@ public class EtudiantServiceTest {
 
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.fileName()).isEqualTo("cv.pdf");
+    }
+
+    @Test
+    void doitLancerExceptionFichierIntrouvableQuandAucunCv() {
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.getCv("steveJean@gmail.com"))
+                .isInstanceOf(FichierIntrouvableException.class);
     }
 
     @Test
@@ -308,8 +354,6 @@ public class EtudiantServiceTest {
         assertThat(Files.exists(fichier)).isFalse();
         verify(cvEtudiantRepository).delete(cv);
     }
-
-
 }
 
 
