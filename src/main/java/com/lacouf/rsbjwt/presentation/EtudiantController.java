@@ -4,7 +4,6 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import jakarta.validation.Valid;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.locks.ReadWriteLock;
 
 @RestController
 @RequestMapping("/etudiant")
@@ -45,18 +42,16 @@ public class EtudiantController {
     }
 
     @GetMapping("/cv")
-    public ResponseEntity<List<CvEtudiantDTO>> obtenirTousLesCv(Authentication authentication)
-            throws EtudiantIntrouvableException {
-        return ResponseEntity.ok(etudiantService.getTousLesCv(authentication.getName()));
+    public ResponseEntity<CvEtudiantDTO> obtenirCv(Authentication authentication)
+            throws EtudiantIntrouvableException, FichierIntrouvableException {
+        return ResponseEntity.ok(etudiantService.getCv(authentication.getName()));
     }
 
-    @GetMapping("/cv/{cvId}")
-    public ResponseEntity<Resource> telechargerCv(
-            @PathVariable Long cvId,
-            Authentication authetication
-    ) throws EtudiantIntrouvableException, FichierIntrouvableException {
+    @GetMapping("/cv/download")
+    public ResponseEntity<Resource> telechargerCv( Authentication authentication )
+        throws EtudiantIntrouvableException, FichierIntrouvableException {
 
-        Resource resource = etudiantService.telechargerCv(cvId, authetication.getName());
+        Resource resource = etudiantService.telechargerCv(authentication.getName());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
@@ -64,14 +59,12 @@ public class EtudiantController {
                 .body(resource);
     }
 
-    @DeleteMapping("/cv/{cvId}")
-    public ResponseEntity<Void> supprimerCv(
-            @PathVariable Long cvId,
-            Authentication authetication
-    ) throws EtudiantIntrouvableException, FichierIntrouvableException,
+    @DeleteMapping("/cv")
+    public ResponseEntity<Void> supprimerCv( Authentication authentication )
+        throws EtudiantIntrouvableException, FichierIntrouvableException,
             SuppressionEchoueeFichierException {
 
-        etudiantService.supprimerCv(cvId, authetication.getName());
+        etudiantService.supprimerCv(authentication.getName());
         return ResponseEntity.noContent().build();
     }
 }

@@ -11,9 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-public class StockageFichierUtils {
+public final class StockageFichierUtils {
     private static final String TYPE_PDF = "application/pdf";
-    private static final long TAILLE_MAX = 5 * 1024 * 1024;
+    private static final long TAILLE_MAX = 10 * 1024 * 1024;
     private StockageFichierUtils() {
     }
 
