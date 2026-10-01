@@ -53,10 +53,10 @@ public class EtudiantController {
     @GetMapping("/cv/{cvId}")
     public ResponseEntity<Resource> telechargerCv(
             @PathVariable Long cvId,
-            Authentication authetication
+            Authentication authentication
     ) throws EtudiantIntrouvableException, FichierIntrouvableException {
 
-        Resource resource = etudiantService.telechargerCv(cvId, authetication.getName());
+        Resource resource = etudiantService.telechargerCv(cvId, authentication.getName());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
@@ -67,11 +67,11 @@ public class EtudiantController {
     @DeleteMapping("/cv/{cvId}")
     public ResponseEntity<Void> supprimerCv(
             @PathVariable Long cvId,
-            Authentication authetication
+            Authentication authentication
     ) throws EtudiantIntrouvableException, FichierIntrouvableException,
             SuppressionEchoueeFichierException {
 
-        etudiantService.supprimerCv(cvId, authetication.getName());
+        etudiantService.supprimerCv(cvId, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 }
