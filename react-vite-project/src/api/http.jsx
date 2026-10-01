@@ -7,11 +7,24 @@ export async function fetchJson(path, options = {}) {
 
 export async function fetchApi(path, options = {}) {
     try {
-
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
         const cleanBaseUrl = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+        const token = localStorage.getItem("token");
+        const headers = {
+            ...(options.headers || {}),
+        };
 
-        const res = await fetch(`${cleanBaseUrl}${cleanPath}`, options);
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
+            headers["Content-Type"] = "application/json";
+        }
+
+        const res = await fetch(`${cleanBaseUrl}${cleanPath}`, {
+            ...options,
+            headers,
+        });
 
         if (!res.ok) {
             await manageError(res);
@@ -19,7 +32,7 @@ export async function fetchApi(path, options = {}) {
 
         return res;
     } catch (error) {
-        if (error instanceof TypeError) {
+        if (error instanceof TypeError && error.message.includes("fetch")) {
             throw new Error("Impossible de se connecter au serveur.");
         }
         throw error;

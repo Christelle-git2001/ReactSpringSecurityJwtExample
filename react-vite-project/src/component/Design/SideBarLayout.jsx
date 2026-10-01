@@ -33,7 +33,7 @@ function SideBarLayout({ user, openDrawer }) {
 
             <div className="drawer-content">
                 <nav className="navbar w-full bg-gradient-to-r from-[#043462] via-[#2F4A7A] to-[#6C4CCF]">
-                    <label htmlFor="my-drawer-4" aria-label="open sidebar"
+                <label htmlFor="my-drawer-4" aria-label="open sidebar"
                            className="btn btn-square btn-ghost drawer-button hover:bg-[#00CCCB] hover:text-white text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                              strokeWidth="2" fill="none" stroke="currentColor"

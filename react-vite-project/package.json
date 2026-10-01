@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "daisyui": "^5.7.46",
     "i18next": "^26.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -20,7 +21,6 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^4.2.0",
-    "daisyui": "^5.7.46",
     "tailwindcss": "^4.3.3",
     "vite": "^6.3.3"
   }
