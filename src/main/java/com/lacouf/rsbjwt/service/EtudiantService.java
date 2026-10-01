@@ -1,26 +1,41 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
+import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class EtudiantService {
     private final EtudiantRepository etudiantRepository;
     private final UserAppRepository userAppRepository;
+    private final CvEtudiantRepository cvEtudiantRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Path STORAGE_CV = Paths.get("uploads", "cvs");
 
-    public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,PasswordEncoder passwordEncoder) {
+    public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
+                           CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
+        this.cvEtudiantRepository = cvEtudiantRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -82,4 +97,41 @@ public class EtudiantService {
         throw new DepartementInvalideException(value);
     }
 
+    @Transactional
+    public CvEtudiantDTO uploadCv(MultipartFile file, String email)
+        throws FichierTypeInvalideException, EtudiantIntrouvableException,
+        SuppressionEchoueeFichierException, FichierCorrompuException,
+        FichierTropVolumineuxException, IOException {
+
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
+
+        CvEtudiant cv = CvEtudiant.builder().etudiant(etudiant).build();
+
+        remplirInformationsCv(cv, file, filePath);
+
+        return CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
+    }
+
+    public List<CvEtudiantDTO> getTousLesCv(String email) throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return cvEtudiantRepository.findByEtudiantOrderByUploadDateDesc(etudiant)
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
+    }
+
+    private Etudiant trouverEtudiantParEmail(String email) throws EtudiantIntrouvableException {
+        return etudiantRepository.findByCredentialsEmail(email)
+                .orElseThrow(EtudiantIntrouvableException::new);
+    }
+
+    private void remplirInformationsCv(CvEtudiant cv, MultipartFile file, Path filePath){
+        cv.setFileName(file.getOriginalFilename());
+        cv.setContentType(file.getContentType());
+        cv.setFileSize(file.getSize());
+        cv.setStoragePath(filePath.toString());
+        cv.setUploadDate(LocalDateTime.now());
+    }
 }

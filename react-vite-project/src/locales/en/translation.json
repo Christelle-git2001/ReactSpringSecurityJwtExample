@@ -137,7 +137,14 @@
     "phone_exists": "This phone number is already in use.",
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
-    "generic": "An error occurred. Please try again."
+    "generic": "An error occurred. Please try again.",
+    "etudiant_not_found": "Student not found.",
+    "fichier_corrompu": "The file is empty or corrupted.",
+    "file_not_found": "File not found.",
+    "fichier_volumineux": "The file is too large.",
+    "type_fichier_invalide": "The file must be a PDF.",
+    "file_delete_failed": "File deletion failed.",
+    "date_fin_antérieure_date_debut": "The end date must be after the start date."
   },
   "success": {
     "student_added": "Student added successfully.",
