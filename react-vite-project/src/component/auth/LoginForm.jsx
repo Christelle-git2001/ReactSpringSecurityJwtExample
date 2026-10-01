@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import fetcher from "../../utils/fetcher";
@@ -25,6 +25,18 @@ const LoginForm = ({ user, setError }) => {
   const [erreurHTTP, setErreurHTTP] = useState({
     message: ""
   });
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+  }, []);
+
+  useEffect(() => {
+    if (user?.isLoggedIn) {
+      if (user.role === "ROLE_GESTIONNAIRE") {
+        navigate("/gestionnaire");
+      }
+    }
+  }, [user, navigate]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -145,107 +157,95 @@ const LoginForm = ({ user, setError }) => {
       }
     }
   };
-
   return (
-      <>
-        {user?.isLoggedIn ? (
-            user.role === "ROLE_GESTIONNAIRE" ? (
-                navigate("/gestionnaire")
-            ) : (
-                navigate("/")
-            )
-        ) : (
-            <div className="inscription-wrapper">
-              <div className="fixed top-4 right-4 z-50">
-                <LanguageSwitch />
-              </div>
-              <div className="inscription-background">
-                <div className="circleDesign circleDesign-top-right" />
-                <div className="circleDesign circleDesign-bottom-left-1" />
-                <div className="circleDesign circleDesign-bottom-left-2" />
-              </div>
+      <div className="inscription-wrapper">
+        <div className="fixed top-4 right-4 z-50">
+          <LanguageSwitch />
+        </div>
+        <div className="inscription-background">
+          <div className="circleDesign circleDesign-top-right" />
+          <div className="circleDesign circleDesign-bottom-left-1" />
+          <div className="circleDesign circleDesign-bottom-left-2" />
+        </div>
 
-              <div className="inscription-page">
-                <div className="add-etudiant-page-header mt-10">
-                  <h1 className="add-etudiant-title">{t("login.page_title")}</h1>
-                  <p className="add-etudiant-subtitle">{t("login.page_subtitle")}</p>
-                  <span className="add-etudiant-subtitle-line" />
-                </div>
+        <div className="inscription-page">
+          <div className="add-etudiant-page-header mt-10">
+            <h1 className="add-etudiant-title">{t("login.page_title")}</h1>
+            <p className="add-etudiant-subtitle">{t("login.page_subtitle")}</p>
+            <span className="add-etudiant-subtitle-line" />
+          </div>
 
-                <form
-                    className="add-etudiant-form login-form"
-                    noValidate
-                    onSubmit={handleSubmit}
-
-                >
-                  <div className="add-etudiant-fields">
-                    {erreurHTTP.message !== "" && (
-                        <div className="form-login-error">
-                          {erreurHTTP.message}
-                        </div>
-                    )}
-
-                    <div className="login-input-field">
-                      <label htmlFor="courrielLogin">{t("login.courriel")}</label>
-                      <input
-                          type="email"
-                          required
-                          placeholder={t("login.courriel_placeholder")}
-                          value={formData.email}
-                          onChange={handleChanges}
-                          id="courrielLogin"
-                          name="email"
-                          className="add-etudiant-input"
-                      />
-                    </div>
-
-                    {warnings.email !== "" && (
-                        <div className="form-login-error">
-                          {t("login.courriel.invalide")}
-                        </div>
-                    )}
-
-                    <div className="login-input-field">
-                      <label htmlFor="motDePasseLogin">{t("login.motDePasse")}</label>
-                      <input
-                          type="password"
-                          required
-                          placeholder={t("login.motDePasse_placeholder")}
-                          value={formData.password}
-                          onChange={handleChanges}
-                          id="motDePasseLogin"
-                          name="password"
-                          className="add-etudiant-input"
-                      />
-                    </div>
-
-                    {warnings.password !== "" && (
-                        <div className="form-login-error">
-                          {t("login.password.invalide")}
-                        </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        className="primary-submit"
-                    >
-                      {t("login.submit")}
-                    </button>
-                    <ConnexionRapideStudent/>
-                    <div className="mt-10">
-                      <p className="add-etudiant-login-text">
-                        {t("login.noAccount")} :{" "}
-                        <Link to="/inscription" className="add-etudiant-login-link">
-                          {t("login.inscription")}
-                        </Link>
-                      </p>
-                    </div>
+          <form
+              className="add-etudiant-form login-form"
+              noValidate
+              onSubmit={handleSubmit}
+          >
+            <div className="add-etudiant-fields">
+              {erreurHTTP.message !== "" && (
+                  <div className="form-login-error">
+                    {erreurHTTP.message}
                   </div>
-                </form>
+              )}
+
+              <div className="login-input-field">
+                <label htmlFor="courrielLogin">{t("login.courriel")}</label>
+                <input
+                    type="email"
+                    required
+                    placeholder={t("login.courriel_placeholder")}
+                    value={formData.email}
+                    onChange={handleChanges}
+                    id="courrielLogin"
+                    name="email"
+                    className="add-etudiant-input"
+                />
+              </div>
+
+              {warnings.email !== "" && (
+                  <div className="form-login-error">
+                    {t("login.courriel.invalide")}
+                  </div>
+              )}
+
+              <div className="login-input-field">
+                <label htmlFor="motDePasseLogin">{t("login.motDePasse")}</label>
+                <input
+                    type="password"
+                    required
+                    placeholder={t("login.motDePasse_placeholder")}
+                    value={formData.password}
+                    onChange={handleChanges}
+                    id="motDePasseLogin"
+                    name="password"
+                    className="add-etudiant-input"
+                />
+              </div>
+
+              {warnings.password !== "" && (
+                  <div className="form-login-error">
+                    {t("login.password.invalide")}
+                  </div>
+              )}
+
+              <button
+                  type="submit"
+                  className="primary-submit"
+              >
+                {t("login.submit")}
+              </button>
+              <ConnexionRapideStudent />
+              <div className="mt-10">
+                <p className="add-etudiant-login-text">
+                  {t("login.noAccount")} :{" "}
+                  <Link to="/inscription" className="add-etudiant-login-link">
+                    {t("login.inscription")}
+                  </Link>
+                </p>
               </div>
             </div>
-        )}
-      </>
+          </form>
+        </div>
+      </div>
   );
 };
 
