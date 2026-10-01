@@ -1,10 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -13,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -205,4 +204,46 @@ public class EtudiantControllerTest {
                         .principal(authentication))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void doitTelechargerCv() throws Exception {
+        Resource resource = new ByteArrayResource("contenu pdf".getBytes());
+
+        when(etudiantService.telechargerCv("christelle@gmail.com"))
+                .thenReturn(resource);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(get("/etudiant/cv/download")
+                        .principal(authentication))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandCvIntrouvable() throws Exception {
+        when(etudiantService.getCv("christelle@gmail.com"))
+                .thenThrow(new FichierIntrouvableException());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(get("/etudiant/cv")
+                        .principal(authentication))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitSupprimerCv() throws Exception {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(delete("/etudiant/cv")
+                        .principal(authentication))
+                .andExpect(status().isNoContent());
+    }
+
 }
