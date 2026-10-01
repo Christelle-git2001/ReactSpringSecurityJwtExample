@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import AjoutCV from "./AjoutCV.jsx";
-import ListeCV from "./ListeCV.jsx";
+import ShowCv from "./ShowCv.jsx";
 
 const CurriculumVitaeZone = () => {
     const { t } = useTranslation();
@@ -12,7 +12,7 @@ const CurriculumVitaeZone = () => {
     return (
         <div className=" w-full">
            <AjoutCV onCvAjoute={handleCvAjoute}/>
-            <ListeCV refreshTrigger={refreshTrigger}/>
+            <ShowCv refreshTrigger={refreshTrigger}/>
         </div>
     )
 };export default CurriculumVitaeZone;

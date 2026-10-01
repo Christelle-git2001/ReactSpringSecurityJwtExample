@@ -5,13 +5,22 @@ import {televerserCV} from "../../api/etudiant.jsx";
 const AjoutCV = ({onCvAjoute}) => {
     const { t } = useTranslation();
     const [erreur,setErreur] = useState("")
+    const TAILLE_MAX_OCTETS = 10 * 1024 * 1024; // 10 MB en octets
 
     async function ajoutCVCall(e){
         const file = e.target.files[0];
         if (!file || file.type !== "application/pdf") {
             setErreur(t("pdfVisio.fichierInvalide"))
+            return
         }
-
+        if (file.size > TAILLE_MAX_OCTETS){
+            setErreur(t("pdfVisio.bigFiles"))
+            return
+        }
+        if (file.size <= 0){
+            setErreur(t("pdfVisio.lowFiles"))
+            return
+        }
         try{
             await televerserCV(file)
             if (onCvAjoute) {
@@ -21,7 +30,6 @@ const AjoutCV = ({onCvAjoute}) => {
             if (error.status === 401){
                 setErreur(t("token.doesntExist"))//TODO demander pour la translation
             }
-            //TODO do other exception
         }
     }
     return (

@@ -97,6 +97,13 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(FichierIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleFichierIntrouvableException(FichierIntrouvableException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
     @ExceptionHandler(DateFinAvantDateDebutException.class)
     public ResponseEntity<ErreurDTO> handleDateFinAvantDateDebutException(DateFinAvantDateDebutException e) {
         return ResponseEntity

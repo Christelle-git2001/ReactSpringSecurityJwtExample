@@ -7,7 +7,7 @@ import {FaDownload, FaTrashAlt} from "react-icons/fa";
 import {PDFVisioneuse} from "../PDF/PDFVisioneuse.jsx"
 import {declencherTelechargement} from "../../utils/filesUtils.jsx";
 
-const ListeCV = ({refreshTrigger}) => {
+const ShowCv = ({refreshTrigger}) => {
     const { t } = useTranslation();
     const [cv, setCv] = useState({
         id : null,
@@ -18,7 +18,7 @@ const ListeCV = ({refreshTrigger}) => {
 
     });
     const [cvPDFUrl, setCvPDFUrl] = useState("");
-    const [error, setError] = useState("")
+    const [error, setError] = useState("fdnjhfdj")
 
     async function obtenirCVs(){
         try{
@@ -41,7 +41,21 @@ const ListeCV = ({refreshTrigger}) => {
 
     const viewPDF = async () => {
         if (!cvPDFUrl)
-            setCvPDFUrl(await obtenirCVUrlPDF());
+            try {
+                setCvPDFUrl(await obtenirCVUrlPDF());
+            }catch(error){
+                switch (error.status){
+                    case 404:
+                        setError(t("etudiant.noCvFound"))
+                        break
+                    case 401:
+                        setError(t("token.doesntExist"))
+                        break
+                    default :
+                        setError(t("error.generic"))
+                        break
+                }
+            }
         document.getElementById('pdfModal').showModal();
 
     }
@@ -59,7 +73,17 @@ const ListeCV = ({refreshTrigger}) => {
         try {
              url = await obtenirCVUrlPDF();
         }catch (error){
-            console.log(error)
+            switch (error.status){
+                case 404:
+                    setError(t("etudiant.noCvFound"))
+                    break
+                case 401:
+                    setError(t("token.doesntExist"))
+                    break
+                default :
+                    setError(t("error.generic"))
+                    break
+            }
             return
         }
         if (url) {
@@ -78,7 +102,17 @@ const ListeCV = ({refreshTrigger}) => {
                 uploadDate : ""
             })
         }catch (error){
-            console.log(error)
+            switch (error.status){
+                case 404:
+                    setError(t("etudiant.noCvFound"))
+                    break
+                case 401:
+                    setError(t("token.doesntExist"))
+                    break
+                default :
+                    setError(t("error.generic"))
+                    break
+            }
         }
     }
 
@@ -92,7 +126,17 @@ const ListeCV = ({refreshTrigger}) => {
             const data = await response.blob()
             return URL.createObjectURL(data);
         }catch (error){
-            console.log(error)
+            switch (error.status){
+                case 404:
+                    setError(t("etudiant.noCvFound"))
+                    break
+                case 401:
+                    setError(t("token.doesntExist"))
+                    break
+                default :
+                    setError(t("error.generic"))
+                    break
+            }
         }
     }
 
@@ -136,17 +180,17 @@ const ListeCV = ({refreshTrigger}) => {
                         <div>
                             <div>{formaterTailleFichier(cv.fileSize)}</div>
                         </div>
-                        <button className="btn btn-square btn-ghost" onClick={viewPDF} > {/* todo on click */}
+                        <button className="btn btn-square btn-ghost" onClick={viewPDF} >
                             <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
                         </button>
                         <button
                             onClick={gererTelechargement}
                             className="btn btn-ghost"
                         >
-                            <FaDownload className="w-full h-full text-green-700 hover:text-black"/>  {/*TODO waiting for the end-point */}
+                            <FaDownload className="w-full h-full text-green-700 hover:text-black"/>
                         </button>
                         <button className="btn btn-square btn-ghost" onClick={supprimerCv}>
-                            <FaTrashAlt className="w-full h-full text-red-900 hover:text-black"/> {/*TODO waiting for the end-point */}
+                            <FaTrashAlt className="w-full h-full text-red-900 hover:text-black"/>
                         </button>
                 </div>
                 ) : (
@@ -158,7 +202,12 @@ const ListeCV = ({refreshTrigger}) => {
                 cvUrlAAffiche={cvPDFUrl}
                 onClose={() => fermerModal()}
             />
+            {error && (
+                <div>
+                    <p></p>
+                </div>
+            )}
         </div>
     )
 };
-export default ListeCV;
+export default ShowCv;

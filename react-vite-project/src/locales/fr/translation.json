@@ -164,7 +164,9 @@
     "choice" : "Sélectionner un fichier",
     "download" : "Télécharger le PDF",
     "fichierInvalide" : "Fichier Invalide",
-    "noFileDetected" : "Aucun fichier à lire"
+    "noFileDetected" : "Aucun fichier à lire",
+    "bigFiles" : "Votre fichier est trop volumineux, vous avez besoin de moins de 10 mo",
+    "lowFiles" : "Votre fichier est corrompus, réessayez."
   },
   "account" : {
     "info" : {
