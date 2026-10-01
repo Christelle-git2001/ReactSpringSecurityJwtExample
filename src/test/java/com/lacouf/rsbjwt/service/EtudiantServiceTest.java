@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,28 +83,43 @@ public class EtudiantServiceTest {
         etudiant.setId(1L);
     }
 
-        @Test
-        void doitCreerCompteEtudiant() throws Exception{
-
-            when(etudiantRepository.save(any(Etudiant.class)))
-                    .thenReturn(etudiant);
-
-            EtudiantDTO result =
-                    etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
-
-            verify(etudiantRepository, times(1))
-                    .save(any(Etudiant.class));
-
-            assertThat(result)
-                    .isNotNull()
-                    .returns(etudiant.getFirstName(), EtudiantDTO::firstName)
-                    .returns(etudiant.getEmail(), EtudiantDTO::email)
-                    .returns(etudiant.getMatricule(), EtudiantDTO::matricule)
-                    .returns(etudiant.getPhoneNumber(), EtudiantDTO::phoneNumber);
-
-
-
+    @AfterEach
+    void nettoyerFichiersCvDuDossierUploads() throws Exception {
+        Path dossier = Paths.get("uploads", "cvs");
+        if (Files.exists(dossier)) {
+            try (var fichiers = Files.list(dossier)) {
+                fichiers.forEach(path -> {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (Exception ignored) {
+                    }
+                });
+            }
         }
+    }
+
+    @Test
+    void doitCreerCompteEtudiant() throws Exception{
+
+        when(etudiantRepository.save(any(Etudiant.class)))
+                .thenReturn(etudiant);
+
+        EtudiantDTO result =
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+
+        verify(etudiantRepository, times(1))
+                .save(any(Etudiant.class));
+
+        assertThat(result)
+                .isNotNull()
+                .returns(etudiant.getFirstName(), EtudiantDTO::firstName)
+                .returns(etudiant.getEmail(), EtudiantDTO::email)
+                .returns(etudiant.getMatricule(), EtudiantDTO::matricule)
+                .returns(etudiant.getPhoneNumber(), EtudiantDTO::phoneNumber);
+
+
+
+    }
 
     @Test
     void doitLancerExceptionEmailExistant() {
