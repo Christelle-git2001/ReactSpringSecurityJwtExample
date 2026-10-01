@@ -1,13 +1,10 @@
 import {useTranslation} from "react-i18next";
-import {obtenirCv} from "../../api/etudiant.jsx";
+import {obtenirCvInfo, obtenirCvPDF} from "../../api/etudiant.jsx";
 import {useEffect, useState} from "react";
 import {FiFileText} from "react-icons/fi";
 import {IoEyeSharp} from "react-icons/io5";
 import {FaDownload, FaTrashAlt} from "react-icons/fa";
-
-function PDFVisionneuse(props) {
-    return null;
-}
+import {PDFVisioneuse} from "../PDF/PDFVisioneuse.jsx"
 
 const ListeCV = (refreshTrigger) => {
     const { t } = useTranslation();
@@ -19,14 +16,28 @@ const ListeCV = (refreshTrigger) => {
         uploadDate : ""
 
     });
+    const [cvPDF, setCvPDF] = useState(null);
+    const [numPages, setNumPages] = useState(null);
+    const [nameFile, setNameFiles] = useState("")
+    const [pageNumber, setPageNumber] = useState(1);
+
     const [error, setError] = useState("")
 
     async function obtenirCVs(){
         try{
-            const data = await obtenirCv();
+            const data = await obtenirCvInfo();
             setCv(data)
         }catch (error){
             // TODO exception
+        }
+    }
+
+    async function obtenirCVInPDF(){
+        try {
+            const data = await obtenirCvPDF(cv.id);
+            setCvPDF(data)
+        }catch (error){
+            console.log(error)
         }
     }
 
@@ -58,7 +69,7 @@ const ListeCV = (refreshTrigger) => {
     }, [refreshTrigger]);
     return (
         <div className=" w-full mt-5">
-            {!cv ? (
+            {cv ? (
                 <div>
                     <div><FiFileText className="size-10 rounded-box text-red-500 bg-purple-200 border border-t-0" /></div>
                     <div>
@@ -68,7 +79,7 @@ const ListeCV = (refreshTrigger) => {
                         <div>
                             <div>{formaterTailleFichier(cv.fileSize)}</div>
                         </div>
-                        <button className="btn btn-square btn-ghost"> {/* todo on click */}
+                        <button className="btn btn-square btn-ghost" onClick={openPDF}> {/* todo on click */}
                             <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
                         </button>
                         <a
@@ -84,9 +95,12 @@ const ListeCV = (refreshTrigger) => {
                 </div>
                 ) : (
                     <div>
-                        <p>{t("")}</p>
+                        <p>{t("etudiant.noCVUpload")}</p>
                     </div>
                 )}
+            <PDFVisioneuse
+                cvAAfficher={cv}
+            />
         </div>
     )
 };

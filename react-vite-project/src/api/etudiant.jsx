@@ -22,7 +22,7 @@ export async function televerserCV(file) {
   });
 }
 
-  export async function obtenirCv(){
+  export async function obtenirCvInfo(){
   const token = getToken();
     return fetchJson("/etudiant/cv", {
       method: "GET",
@@ -30,6 +30,16 @@ export async function televerserCV(file) {
         "Authorization": `Bearer ${token}`
       },
     })
+}
+
+export async function obtenirCvPDF(id){
+  const token = getToken();
+  return fetchJson("/etudiant/cv/" + id, {
+    method : "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+  })
 }
 
 function getToken(){
