@@ -10,25 +10,26 @@ const AjoutCV = ({onCvAjoute}) => {
     async function ajoutCVCall(e){
         const file = e.target.files[0];
         if (!file || file.type !== "application/pdf") {
-            setErreur(t("pdfVisio.fichierInvalide"))
+            setErreur("pdfVisio.fichierInvalide")
             return
         }
         if (file.size > TAILLE_MAX_OCTETS){
-            setErreur(t("pdfVisio.bigFiles"))
+            setErreur("pdfVisio.bigFiles")
             return
         }
         if (file.size <= 0){
-            setErreur(t("pdfVisio.lowFiles"))
+            setErreur("pdfVisio.lowFiles")
             return
         }
         try{
             await televerserCV(file)
             if (onCvAjoute) {
                 onCvAjoute();
+                setErreur("")
             }
         }catch (error){
             if (error.status === 401){
-                setErreur(t("token.doesntExist"))//TODO demander pour la translation
+                setErreur("token.doesntExist")
             }
         }
     }
@@ -46,7 +47,7 @@ const AjoutCV = ({onCvAjoute}) => {
             </label>
             {erreur &&
                 <div>
-                    <p className="text-red-500">{erreur}</p>
+                    <p className="text-red-500">{t(erreur)}</p>
                 </div>
             }
         </div>

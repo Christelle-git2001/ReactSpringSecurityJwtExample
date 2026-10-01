@@ -1,6 +1,6 @@
 import {useTranslation} from "react-i18next";
 import {obtenirCvInfo, obtenirCvPDF, suppressionCv} from "../../api/etudiant.jsx";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {FiFileText} from "react-icons/fi";
 import {IoEyeSharp} from "react-icons/io5";
 import {FaDownload, FaTrashAlt} from "react-icons/fa";
@@ -24,16 +24,17 @@ const ShowCv = ({refreshTrigger}) => {
         try{
             const data = await obtenirCvInfo();
             setCv(data)
+            setError(null)
         }catch (error){
             switch (error.status){
                 case 404:
-                    setError(t("etudiant.noCvFound"))
+                    setError("etudiant.noCvFound")
                 break
                 case 401:
-                    setError(t("token.doesntExist"))
+                    setError("token.doesntExist")
                     break
                 default :
-                    setError(t("error.generic"))
+                    setError("error.generic")
                     break
             }
         }
@@ -46,13 +47,13 @@ const ShowCv = ({refreshTrigger}) => {
             }catch(error){
                 switch (error.status){
                     case 404:
-                        setError(t("etudiant.noCvFound"))
+                        setError("etudiant.noCvFound")
                         break
                     case 401:
-                        setError(t("token.doesntExist"))
+                        setError("token.doesntExist")
                         break
                     default :
-                        setError(t("error.generic"))
+                        setError("error.generic")
                         break
                 }
             }
@@ -75,13 +76,13 @@ const ShowCv = ({refreshTrigger}) => {
         }catch (error){
             switch (error.status){
                 case 404:
-                    setError(t("etudiant.noCvFound"))
+                    setError("etudiant.noCvFound")
                     break
                 case 401:
-                    setError(t("token.doesntExist"))
+                    setError("token.doesntExist")
                     break
                 default :
-                    setError(t("error.generic"))
+                    setError("error.generic")
                     break
             }
             return
@@ -104,13 +105,13 @@ const ShowCv = ({refreshTrigger}) => {
         }catch (error){
             switch (error.status){
                 case 404:
-                    setError(t("etudiant.noCvFound"))
+                    setError("etudiant.noCvFound")
                     break
                 case 401:
-                    setError(t("token.doesntExist"))
+                    setError("token.doesntExist")
                     break
                 default :
-                    setError(t("error.generic"))
+                    setError("error.generic")
                     break
             }
         }
@@ -120,7 +121,7 @@ const ShowCv = ({refreshTrigger}) => {
         try {
             const response = await obtenirCvPDF(cv.id);
             if (!response.ok) {
-                setError(t("error.generic"))
+                setError("error.generic")
                 return
             }
             const data = await response.blob()
@@ -128,13 +129,13 @@ const ShowCv = ({refreshTrigger}) => {
         }catch (error){
             switch (error.status){
                 case 404:
-                    setError(t("etudiant.noCvFound"))
+                    setError("etudiant.noCvFound")
                     break
                 case 401:
-                    setError(t("token.doesntExist"))
+                    setError("token.doesntExist")
                     break
                 default :
-                    setError(t("error.generic"))
+                    setError("error.generic")
                     break
             }
         }
@@ -169,13 +170,13 @@ const ShowCv = ({refreshTrigger}) => {
         obtenirCVs();
     }, [refreshTrigger]);
     return (
-        <div className="mt-5 bg-purple-200 rounded-4xl flex items-center justify-center">
+        <div className="">
+            <div className={"mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2"}>
             {cv.id !== null ? (
-                <div className="flex justify-around w-full">
-                    <FiFileText className="size-10 rounded-box text-red-500 bg-purple-200 border border-t-0" />
-                    <div>
+                <div className="flex justify-around w-full items-center  h-full">
+                    <FiFileText className="size-10 rounded-box text-red-500 border-0 border border-t-0" />
                         <div>{cv.fileName}</div>
-                            <div className="text-xs uppercase font-semibold opacity-60">{formaterDate(cv.uploadDate)}</div>
+                            <div className="text-xs uppercase font-semibold opacity-60">{formaterDate(cv.uploadDate)}
                         </div>
                         <div>
                             <div>{formaterTailleFichier(cv.fileSize)}</div>
@@ -198,15 +199,16 @@ const ShowCv = ({refreshTrigger}) => {
                         <p className="text-center">{t("etudiant.noCVUpload")}</p>
                     </div>
                 )}
+            {error && (
+                <div>
+                    <p className="text-red-500">{t(error)}</p>
+                </div>
+            )}
+        </div>
             <PDFVisioneuse
                 cvUrlAAffiche={cvPDFUrl}
                 onClose={() => fermerModal()}
             />
-            {error && (
-                <div>
-                    <p></p>
-                </div>
-            )}
         </div>
     )
 };
