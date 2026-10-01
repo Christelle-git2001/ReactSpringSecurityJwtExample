@@ -184,7 +184,7 @@
     "next" : "next"
   },
   "token": {
-    "doesntExist" : "No Session Found"
+    "doesntExist" : "No Session Found",
     "employer_added": "Employer added successfully.",
     "offer_loaded": "Offer loaded successfully.",
     "offer_created": "Offer created successfully.",

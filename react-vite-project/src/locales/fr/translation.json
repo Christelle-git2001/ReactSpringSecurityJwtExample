@@ -149,6 +149,7 @@
   },
   "nav": {
     "home": "Accueil",
+    "account" : "Compte",
     "login": "Connexion",
     "logout": "Déconnexion",
     "add_offer" : "Créer une offre"
@@ -165,7 +166,7 @@
   "status": {
     "en_attente": "En attente",
     "acceptee": "Acceptée",
-    "refusee": "Refusée"
+    "refusee": "Refusée",
     "employer_added": "Employeur ajouté avec succès."
   },
   "home": {
