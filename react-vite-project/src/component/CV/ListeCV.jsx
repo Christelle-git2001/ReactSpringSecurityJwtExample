@@ -1,5 +1,5 @@
 import {useTranslation} from "react-i18next";
-import {obtenirTousLesCv} from "../../api/etudiant.jsx";
+import {obtenirCv} from "../../api/etudiant.jsx";
 import {useEffect, useState} from "react";
 import {FiFileText} from "react-icons/fi";
 import {IoEyeSharp} from "react-icons/io5";
@@ -11,14 +11,20 @@ function PDFVisionneuse(props) {
 
 const ListeCV = (refreshTrigger) => {
     const { t } = useTranslation();
-    const [listeCVs, setListeCVs] = useState([]);
-    const [cvSelectionne, setCvSelectionne] = useState(null);
+    const [cv, setCv] = useState({
+        id : null,
+        fileName : "",
+        contentType : "",
+        fileSize : 0,
+        uploadDate : ""
+
+    });
     const [error, setError] = useState("")
 
-    async function obtenirTousCVs(){
+    async function obtenirCVs(){
         try{
-            const data = await obtenirTousLesCv();
-            setListeCVs(data)
+            const data = await obtenirCv();
+            setCv(data)
         }catch (error){
             // TODO exception
         }
@@ -48,49 +54,39 @@ const ListeCV = (refreshTrigger) => {
     };
 
     useEffect(() => {
-        obtenirTousCVs();
+        obtenirCVs();
     }, [refreshTrigger]);
     return (
         <div className=" w-full mt-5">
-            {listeCVs.length > 0 ? (
-                <ul className="list rounded-box shadow-md bg-gray-300">
-                    {listeCVs.map((cv) => (
-                        <li className="list-row bg-purple-200 border border-t-0" key={cv.id}>
-                            <div><FiFileText className="size-10 rounded-box text-red-500" /></div>
-                            <div>
-                                <div>{cv.fileName}</div>
-                                <div className="text-xs uppercase font-semibold opacity-60">{formaterDate(cv.uploadDate)}</div>
-                            </div>
-                            <div>
-                                <div>{formaterTailleFichier(cv.fileSize)}</div>
-                            </div>
-                            <button onClick={() => setCvSelectionne(cv)} className="btn btn-square btn-ghost">
-                                <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
-                            </button>
-                            <a
-                                href={null}
-                                download={cv.fileName || "document.pdf"}
-                                className="btn btn-ghost"
-                            >
-                                <FaDownload className="w-full h-full text-green-700 hover:text-black"/>  {/*TODO waiting for the end-point */}
-                            </a>
-                            <button className="btn btn-square btn-ghost">
-                                <FaTrashAlt className="w-full h-full text-red-900 hover:text-black"/> {/*TODO waiting for the end-point */}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+            {!cv ? (
+                <div>
+                    <div><FiFileText className="size-10 rounded-box text-red-500 bg-purple-200 border border-t-0" /></div>
+                    <div>
+                        <div>{cv.fileName}</div>
+                            <div className="text-xs uppercase font-semibold opacity-60">{formaterDate(cv.uploadDate)}</div>
+                        </div>
+                        <div>
+                            <div>{formaterTailleFichier(cv.fileSize)}</div>
+                        </div>
+                        <button className="btn btn-square btn-ghost"> {/* todo on click */}
+                            <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
+                        </button>
+                        <a
+                            href={null}
+                            download={cv.fileName || "document.pdf"}
+                            className="btn btn-ghost"
+                        >
+                            <FaDownload className="w-full h-full text-green-700 hover:text-black"/>  {/*TODO waiting for the end-point */}
+                        </a>
+                        <button className="btn btn-square btn-ghost">
+                            <FaTrashAlt className="w-full h-full text-red-900 hover:text-black"/> {/*TODO waiting for the end-point */}
+                        </button>
+                </div>
                 ) : (
                     <div>
-
+                        <p>{t("")}</p>
                     </div>
                 )}
-            {cvSelectionne && (
-                <PDFVisionneuse //TODO waiting for the end-point
-                    cv={cvSelectionne}
-                    onClose={() => setCvSelectionne(null)}
-                />
-            )}
         </div>
     )
 };

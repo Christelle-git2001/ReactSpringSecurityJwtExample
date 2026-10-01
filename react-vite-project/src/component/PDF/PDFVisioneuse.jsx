@@ -26,20 +26,7 @@ const PDFVisioneuse = ({cv, onClose}) => {
     };
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-4">
-            {!pdfFile ? (
-                <div>
-                    <input
-                        id="pdf-upload"
-                        type="file"
-                        accept="application/pdf"
-                        onChange={handleFileChange}
-                        className="hidden"
-                    />
-                    <label htmlFor="pdf-upload" className="btn btn-primary cursor-pointer">
-                        {t("pdfVisio.choice")}
-                    </label>
-                </div>
-            ) : (
+
                 <div className={"grid grid-cols-12"}>
                     <div className={"col-span-12"}>
                         <p className="mb-5">{t("pdfVisio.filesName")} : {nameFile}</p>
@@ -71,7 +58,7 @@ const PDFVisioneuse = ({cv, onClose}) => {
                         </a>
                     </div>
                 </div>
-            )}
+
 
             <dialog id="pdfModal" className="modal">
                 <div className="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col bg-[radial-gradient(circle_at_top_left,#000CCB33,#00CCCFFF,#000CCB33)]">

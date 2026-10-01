@@ -22,7 +22,7 @@ export async function televerserCV(file) {
   });
 }
 
-  export async function obtenirTousLesCv(){
+  export async function obtenirCv(){
   const token = getToken();
     return fetchJson("/etudiant/cv", {
       method: "GET",

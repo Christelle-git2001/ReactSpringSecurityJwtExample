@@ -120,7 +120,8 @@
     "card" : {
       "account" : "Manage your personal information, update your profile, and view your account details. "
     },
-    "listCvSubtitle" : "Your curriculum vitae"
+    "listCvSubtitle" : "Your curriculum vitae",
+    "noCVUpload" : "No Curriculum Vitae Upload yet."
   },
   "pdfVisio" : {
     "nofiles" : "No files selected",
