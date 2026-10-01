@@ -20,7 +20,7 @@ public class CvEtudiant {
     private String storagePath;
     private LocalDateTime uploadDate;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "etudiant_id", nullable = false)
     private Etudiant etudiant;
 
