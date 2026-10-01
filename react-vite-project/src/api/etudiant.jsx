@@ -32,10 +32,20 @@ export async function televerserCV(file) {
     })
 }
 
-export async function obtenirCvPDF(id){
+export async function obtenirCvPDF(){
   const token = getToken();
-  return fetchJson("/etudiant/cv/" + id, {
+  return fetch("http://localhost:8080/etudiant/cv/download", {
     method : "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+  })
+}
+
+export async function suppressionCv(){
+  const token = getToken();
+  return fetch("http://localhost:8080/etudiant/cv", {
+    method : "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`
     },

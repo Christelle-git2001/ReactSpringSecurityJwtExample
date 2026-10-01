@@ -153,7 +153,9 @@
       "account" : "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
     },
     "listCvSubtitle" : "Vos curriculum vitae",
-    "noCVUpload" : "Aucun Curriculum Vitae téléversé."
+    "noCVUpload" : "Aucun Curriculum Vitae téléversé.",
+    "noCvFound" : "Cv non trouvé"
+
   },
   "pdfVisio" : {
     "nofiles" : "Aucun fichier sélectioné",
@@ -161,7 +163,8 @@
     "filesName" : "Nom du fichier",
     "choice" : "Sélectionner un fichier",
     "download" : "Télécharger le PDF",
-    "fichierInvalide" : "Fichier Invalide"
+    "fichierInvalide" : "Fichier Invalide",
+    "noFileDetected" : "Aucun fichier à lire"
   },
   "account" : {
     "info" : {

@@ -1,12 +1,13 @@
 import {useTranslation} from "react-i18next";
-import {obtenirCvInfo, obtenirCvPDF} from "../../api/etudiant.jsx";
+import {obtenirCvInfo, obtenirCvPDF, suppressionCv} from "../../api/etudiant.jsx";
 import {useEffect, useState} from "react";
 import {FiFileText} from "react-icons/fi";
 import {IoEyeSharp} from "react-icons/io5";
 import {FaDownload, FaTrashAlt} from "react-icons/fa";
 import {PDFVisioneuse} from "../PDF/PDFVisioneuse.jsx"
+import {declencherTelechargement} from "../../utils/filesUtils.jsx";
 
-const ListeCV = (refreshTrigger) => {
+const ListeCV = ({refreshTrigger}) => {
     const { t } = useTranslation();
     const [cv, setCv] = useState({
         id : null,
@@ -16,11 +17,7 @@ const ListeCV = (refreshTrigger) => {
         uploadDate : ""
 
     });
-    const [cvPDF, setCvPDF] = useState(null);
-    const [numPages, setNumPages] = useState(null);
-    const [nameFile, setNameFiles] = useState("")
-    const [pageNumber, setPageNumber] = useState(1);
-
+    const [cvPDFUrl, setCvPDFUrl] = useState("");
     const [error, setError] = useState("")
 
     async function obtenirCVs(){
@@ -28,18 +25,78 @@ const ListeCV = (refreshTrigger) => {
             const data = await obtenirCvInfo();
             setCv(data)
         }catch (error){
-            // TODO exception
+            switch (error.status){
+                case 404:
+                    setError(t("etudiant.noCvFound"))
+                break
+                case 401:
+                    setError(t("token.doesntExist"))
+                    break
+                default :
+                    setError(t("error.generic"))
+                    break
+            }
         }
     }
 
-    async function obtenirCVInPDF(){
+    const viewPDF = async () => {
+        if (!cvPDFUrl)
+            setCvPDFUrl(await obtenirCVUrlPDF());
+        document.getElementById('pdfModal').showModal();
+
+    }
+
+    const fermerModal = () => {
+        document.getElementById('pdfModal').close();
+        if (cvPDFUrl) {
+            URL.revokeObjectURL(cvPDFUrl);
+            setCvPDFUrl(null);
+        }
+    };
+
+    const gererTelechargement = async () => {
+        let url = "";
         try {
-            const data = await obtenirCvPDF(cv.id);
-            setCvPDF(data)
+             url = await obtenirCVUrlPDF();
+        }catch (error){
+            console.log(error)
+            return
+        }
+        if (url) {
+            declencherTelechargement(url, cv.fileName);
+        }
+    };
+
+    const supprimerCv = async () => {
+        try {
+            await suppressionCv();
+            setCv({
+                id : null,
+                fileName : "",
+                contentType : "",
+                fileSize : 0,
+                uploadDate : ""
+            })
         }catch (error){
             console.log(error)
         }
     }
+
+    async function obtenirCVUrlPDF(){
+        try {
+            const response = await obtenirCvPDF(cv.id);
+            if (!response.ok) {
+                setError(t("error.generic"))
+                return
+            }
+            const data = await response.blob()
+            return URL.createObjectURL(data);
+        }catch (error){
+            console.log(error)
+        }
+    }
+
+
 
     const formaterTailleFichier = (octets) => {
         if (!octets || octets === 0) return "0 KB";
@@ -68,10 +125,10 @@ const ListeCV = (refreshTrigger) => {
         obtenirCVs();
     }, [refreshTrigger]);
     return (
-        <div className=" w-full mt-5">
-            {cv ? (
-                <div>
-                    <div><FiFileText className="size-10 rounded-box text-red-500 bg-purple-200 border border-t-0" /></div>
+        <div className="mt-5 bg-purple-200 rounded-4xl flex items-center justify-center">
+            {cv.id !== null ? (
+                <div className="flex justify-around w-full">
+                    <FiFileText className="size-10 rounded-box text-red-500 bg-purple-200 border border-t-0" />
                     <div>
                         <div>{cv.fileName}</div>
                             <div className="text-xs uppercase font-semibold opacity-60">{formaterDate(cv.uploadDate)}</div>
@@ -79,27 +136,27 @@ const ListeCV = (refreshTrigger) => {
                         <div>
                             <div>{formaterTailleFichier(cv.fileSize)}</div>
                         </div>
-                        <button className="btn btn-square btn-ghost" onClick={openPDF}> {/* todo on click */}
+                        <button className="btn btn-square btn-ghost" onClick={viewPDF} > {/* todo on click */}
                             <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
                         </button>
-                        <a
-                            href={null}
-                            download={cv.fileName || "document.pdf"}
+                        <button
+                            onClick={gererTelechargement}
                             className="btn btn-ghost"
                         >
                             <FaDownload className="w-full h-full text-green-700 hover:text-black"/>  {/*TODO waiting for the end-point */}
-                        </a>
-                        <button className="btn btn-square btn-ghost">
+                        </button>
+                        <button className="btn btn-square btn-ghost" onClick={supprimerCv}>
                             <FaTrashAlt className="w-full h-full text-red-900 hover:text-black"/> {/*TODO waiting for the end-point */}
                         </button>
                 </div>
                 ) : (
-                    <div>
-                        <p>{t("etudiant.noCVUpload")}</p>
+                    <div className=" flex justify-center w-full">
+                        <p className="text-center">{t("etudiant.noCVUpload")}</p>
                     </div>
                 )}
             <PDFVisioneuse
-                cvAAfficher={cv}
+                cvUrlAAffiche={cvPDFUrl}
+                onClose={() => fermerModal()}
             />
         </div>
     )

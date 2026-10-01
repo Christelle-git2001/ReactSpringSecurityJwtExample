@@ -120,8 +120,8 @@
     "card" : {
       "account" : "Manage your personal information, update your profile, and view your account details. "
     },
-    "listCvSubtitle" : "Your curriculum vitae",
-    "noCVUpload" : "No Curriculum Vitae Upload yet."
+    "noCVUpload" : "No Curriculum Vitae Upload yet.",
+    "noCvFound" : "Cv not found"
   },
   "pdfVisio" : {
     "nofiles" : "No files selected",
@@ -129,7 +129,8 @@
     "filesName" : "File name",
     "choice" : "Choose a file",
     "download" : "Download the PDF",
-    "fichierInvalide" : "Invalid file"
+    "fichierInvalide" : "Invalid file",
+    "noFileDetected" : "No file to read"
   },
   "account" : {
     "info" : {

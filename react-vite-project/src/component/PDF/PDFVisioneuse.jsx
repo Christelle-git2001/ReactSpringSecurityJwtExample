@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import {FiX} from "react-icons/fi";
 
 
-export const PDFVisioneuse = ({cvAAfficher}) => {
+export const PDFVisioneuse = ({cvUrlAAffiche,onClose}) => {
     const { t } = useTranslation();
     pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
+    const [numPages, setNumPages] = useState(null);
+    const [pageNumber, setPageNumber] = useState(1);
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages);
     };
@@ -18,36 +19,42 @@ export const PDFVisioneuse = ({cvAAfficher}) => {
                     <form method="dialog">
                         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"><FiX></FiX></button>
                     </form>
-                    <div className="flex flex-col items-center border p-4 rounded-xl shadow-xs bg-base-100 overflow-hidden w-full">
-                        <div className="w-full flex justify-center overflow-auto max-h-[70vh]">
-                            <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
-                                <Page
-                                    pageNumber={pageNumber}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                    width={Math.min(window.innerWidth * 0.7, 800)}
-                                />
-                            </Document>
+                    {!cvUrlAAffiche ? (
+                        <div>
+                            <p>{t("pdfVisio.noFileDetected")}</p>
                         </div>
-                        {numPages && (
-                            <div className="flex items-center gap-4 mt-4 shrink-0">
-                                <button className="btn btn-sm" disabled={pageNumber <= 1} onClick={() => setPageNumber(prev => prev - 1)}>
-                                    {t("button.previous")}
-                                </button>
-                                <span className="text-sm">{pageNumber}/{numPages}</span>
-                                <button className="btn btn-sm" disabled={pageNumber >= numPages} onClick={() => setPageNumber(prev => prev + 1)}>
-                                    {t("button.next")}
-                                </button>
+                    ):(
+                        <div className="flex flex-col items-center border p-4 rounded-xl shadow-xs bg-base-100 overflow-hidden w-full">
+                            <div className="w-full flex justify-center overflow-auto max-h-[70vh]">
+                                <Document file={cvUrlAAffiche} onLoadSuccess={onDocumentLoadSuccess}>
+                                    <Page
+                                        pageNumber={pageNumber}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        width={Math.min(window.innerWidth * 0.7, 800)}
+                                    />
+                                </Document>
                             </div>
-                        )}
-                    </div>
+                            {numPages && (
+                                <div className="flex items-center gap-4 mt-4 shrink-0">
+                                    <button className="btn btn-sm" disabled={pageNumber <= 1} onClick={() => setPageNumber(prev => prev - 1)}>
+                                        {t("button.previous")}
+                                    </button>
+                                    <span className="text-sm">{pageNumber}/{numPages}</span>
+                                    <button className="btn btn-sm" disabled={pageNumber >= numPages} onClick={() => setPageNumber(prev => prev + 1)}>
+                                        {t("button.next")}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                 </div>
 
                 <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
+                    <button onClick={onClose}>close</button>
                 </form>
             </dialog>
         </div>
     );
 };
-export default PDFVisionneuse;

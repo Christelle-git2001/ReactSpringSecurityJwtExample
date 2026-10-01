@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import ProfileField from "../../component/ui/ProfileField.jsx";
 import {getDepartmentKey} from "../../utils/departementConverter.js";
-import PDFVisioneuse from "../../component/PDF/PDFVisioneuse.jsx";
 import CurriculumVitaeZone from "../../component/CV/CurriculumVitaeZone.jsx";
 const AccountEtudiant = ({user}) => {
     const { t } = useTranslation();
