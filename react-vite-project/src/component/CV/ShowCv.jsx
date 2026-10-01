@@ -175,8 +175,11 @@ const ShowCv = ({refreshTrigger}) => {
             {cv.id !== null ? (
                 <div className="flex justify-around w-full items-center  h-full">
                     <FiFileText className="size-10 rounded-box text-red-500 border-0 border border-t-0" />
-                        <div>{cv.fileName}</div>
-                            <div className="text-xs uppercase font-semibold opacity-60">{formaterDate(cv.uploadDate)}
+                        <div>
+                            {cv.fileName}
+                            <div className="text-xs uppercase font-semibold opacity-60">
+                                {formaterDate(cv.uploadDate)}
+                            </div>
                         </div>
                         <div>
                             <div>{formaterTailleFichier(cv.fileSize)}</div>
