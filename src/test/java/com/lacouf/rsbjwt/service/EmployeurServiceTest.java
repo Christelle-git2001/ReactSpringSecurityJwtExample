@@ -35,6 +35,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -276,6 +277,73 @@ public class EmployeurServiceTest {
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierCorrompuException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitRetournerLesOffresDeLEmployeur() {
+        employeur.setOffres(List.of(offreDeStage));
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneOffre() {
+        employeur.setOffres(List.of());
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void doitModifierOffreDeStage() throws Exception {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+        when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
+
+        OffreDeStageDTO result = employeurService.modifierOffre(1L, creationOffreDeStageDTO, null, employeur.getEmail());
+
+        verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreIntrouvable() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.modifierOffre(99L, creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(RuntimeException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreAppartientAUnAutreEmployeur() {
+        Employeur autreEmployeur = Employeur.builder()
+                .firstName("Autre")
+                .lastName("Personne")
+                .town("Laval")
+                .phone("450-111-2222")
+                .email("autre@test.com")
+                .businessName("Autre inc")
+                .businessSector(SecteurActivite.AEROSPATIAL)
+                .password("Losange12%")
+                .build();
+        autreEmployeur.setId(2L);
+        offreDeStage.setEmployeur(autreEmployeur);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+
+        assertThatThrownBy(() -> employeurService.modifierOffre(1L, creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(RuntimeException.class);
 
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
     }

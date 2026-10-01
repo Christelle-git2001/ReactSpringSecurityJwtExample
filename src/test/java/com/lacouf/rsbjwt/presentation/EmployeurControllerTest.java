@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import org.springframework.http.HttpMethod;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.lacouf.rsbjwt.Exception.*;
@@ -23,18 +24,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.security.Principal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
 public class EmployeurControllerTest {
 
+    private JsonMapper jsonMapper;
+    CreationOffreDeStageDTO creationOffreDeStageDTO;
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -45,6 +49,7 @@ public class EmployeurControllerTest {
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     OffreDeStageDTO offreDeStageDTO;
+    Principal principal = () -> "employeur@test.com";
 
     private MockMvc mockMvc;
 
@@ -359,6 +364,25 @@ public class EmployeurControllerTest {
         mockMvc.perform(multipart("/employeur/offres/creation-offre")
                         .file(offre))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRetournerLesOffresDeLEmployeur() throws Exception {
+        when(employeurService.obtenirOffres(any())).thenReturn(List.of(offreDeStageDTO));
+
+        mockMvc.perform(get("/employeur/offres"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void doitModifierOffreDeStage() throws Exception {
+        when(employeurService.modifierOffre(any(), any(), any(), any())).thenReturn(offreDeStageDTO);
+
+        mockMvc.perform(multipart(HttpMethod.PUT, "/employeur/offres/1")
+                        .file(new MockMultipartFile("offre", "", MediaType.APPLICATION_JSON_VALUE,
+                                jsonMapper.writeValueAsBytes(creationOffreDeStageDTO)))
+                        .principal(principal))
+                .andExpect(status().isOk());
     }
 
 }
