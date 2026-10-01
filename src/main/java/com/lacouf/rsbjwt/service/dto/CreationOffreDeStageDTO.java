@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,14 +11,14 @@ public record CreationOffreDeStageDTO(
         @NotBlank(message = "validation.title.required")
         String title,
 
-        @NotBlank(message = "validation.domain.required")
-        String domain,
+        @NotBlank(message = "validation.description.required")
+        String description,
 
         @NotNull(message = "validation.salary.required")
         Double salary,
 
-        @NotBlank(message = "validation.description.required")
-        String description,
+        @NotNull(message = "validation.domain.required")
+        Departement domain,
 
         @NotNull(message = "validation.startDate.required")
         LocalDate startDate,
