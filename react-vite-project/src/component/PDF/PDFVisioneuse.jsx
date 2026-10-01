@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import {FiX} from "react-icons/fi";
 
 
-const PDFVisioneuse = () => {
+const PDFVisioneuse = ({cv, onClose}) => {
     const { t } = useTranslation();
     pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
     const [pdfFile, setPdfFile] = useState(null);

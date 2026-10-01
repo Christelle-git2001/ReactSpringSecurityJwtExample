@@ -119,14 +119,16 @@
   "etudiant": {
     "card" : {
       "account" : "Manage your personal information, update your profile, and view your account details. "
-    }
+    },
+    "listCvSubtitle" : "Your curriculum vitae"
   },
   "pdfVisio" : {
     "nofiles" : "No files selected",
     "visualize" : "Visualize PDF",
     "filesName" : "File name",
     "choice" : "Choose a file",
-    "download" : "Download the PDF"
+    "download" : "Download the PDF",
+    "fichierInvalide" : "Invalid file"
   },
   "account" : {
     "info" : {
@@ -138,5 +140,8 @@
   "button": {
     "previous" : "previous",
     "next" : "next"
+  },
+  "token": {
+    "doesntExist" : "No Session Found"
   }
 }
