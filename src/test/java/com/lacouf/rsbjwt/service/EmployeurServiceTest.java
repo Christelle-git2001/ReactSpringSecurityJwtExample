@@ -26,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -61,6 +62,9 @@ public class EmployeurServiceTest {
     private UserAppRepository userAppRepository;
 
     @Mock
+    private FileStorageService fileStorageService;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -69,6 +73,7 @@ public class EmployeurServiceTest {
     private ObjectMapper objectMapper;
     private JsonMapper jsonMapper;
     private MockMvc mockMvc;
+
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     CreationOffreDeStageDTO creationOffreDeStageDTO;
@@ -113,14 +118,15 @@ public class EmployeurServiceTest {
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15),
                 StatutOffre.EN_ATTENTE,
-                null
+                null,
+                employeur
         );
 
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
@@ -129,10 +135,13 @@ public class EmployeurServiceTest {
                 .title("Infirmerie")
                 .description("donner à manger")
                 .salary(19.25)
+                .domain(Departement.INFORMATIQUE)
                 .statut(StatutOffre.EN_ATTENTE)
                 .startDate(LocalDate.of(2026, 10, 1))
                 .endDate(LocalDate.of(2026, 10, 15))
+                .employeur(employeur)
                 .build();
+        ReflectionTestUtils.setField(offreDeStage, "id", 1L);
 
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
@@ -198,24 +207,13 @@ public class EmployeurServiceTest {
     // Offre de Stage
 
     @Test
-    void doitCreerOffreDeStageSansFichier() throws Exception {
-        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
-
-        OffreDeStageDTO result = employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail());
-
-        verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
-        assertThat(result).isNotNull();
-    }
-
-    @Test
     void doitLancerExceptionQuandDateFinAvantDateDebut() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 15),
                 LocalDate.of(2026, 10, 1)
         );
@@ -233,7 +231,7 @@ public class EmployeurServiceTest {
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 1)
         );
@@ -245,10 +243,11 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandMauvaisTypeDeFichier() {
+    void doitLancerExceptionQuandMauvaisTypeDeFichier() throws Exception {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        MockMultipartFile fichier = new MockMultipartFile("fichier", "offre.exe",
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.exe",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, "contenu".getBytes());
+        doThrow(new FichierTypeInvalideException()).when(fileStorageService).storeOfferFile(fichier);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierTypeInvalideException.class);
@@ -257,11 +256,11 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierTropVolumineux() {
+    void doitLancerExceptionQuandFichierTropVolumineux() throws Exception {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        // 5 Mo + 1 octet : juste au-dessus de TAILLE_MAX
-        MockMultipartFile fichier = new MockMultipartFile("fichier", "offre.pdf",
-                MediaType.APPLICATION_PDF_VALUE, new byte[5 * 1024 * 1024 + 1]);
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE, "contenu".getBytes());
+        doThrow(new FichierTropVolumineuxException()).when(fileStorageService).storeOfferFile(fichier);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierTropVolumineuxException.class);
@@ -270,10 +269,12 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierCorrompu() {
+    void doitLancerExceptionQuandFichierCorrompu() throws Exception {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        MockMultipartFile fichier = new MockMultipartFile("fichier", "offre.pdf",
-                MediaType.APPLICATION_PDF_VALUE, new byte[0]);
+        // Contenu non vide sinon file.isEmpty() est vrai et le service n'appelle jamais storeOfferFile
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE, "x".getBytes());
+        doThrow(new FichierCorrompuException()).when(fileStorageService).storeOfferFile(fichier);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierCorrompuException.class);

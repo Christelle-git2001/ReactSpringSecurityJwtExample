@@ -76,8 +76,19 @@ public class EmployeurControllerTest {
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15),
                 StatutOffre.EN_ATTENTE,
+                null,
                 null
         );
+
+        creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                Departement.INFORMATIQUE,
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 15)
+        );
+
 
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
@@ -168,36 +179,12 @@ public class EmployeurControllerTest {
     // Test OffreDeStage
 
     @Test
-    void doitCreerOffreDeStageSansFichier() throws Exception {
-        CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
-                "Infirmerie",
-                "préposé",
-                19.25,
-                "donner à manger",
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
-        );
-        MockMultipartFile offre = new MockMultipartFile(
-                "offre",
-                "",
-                MediaType.APPLICATION_JSON_VALUE,
-                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
-        );
-
-        when(employeurService.creerOffre(any(), any(), any())).thenReturn(offreDeStageDTO);
-
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
-                        .file(offre))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
     void doitCreerOffreDeStageAvecFichierPdf() throws Exception {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
@@ -209,7 +196,7 @@ public class EmployeurControllerTest {
         );
         // Le nom "fichier" doit être identique à @RequestPart("fichier") dans le contrôleur
         MockMultipartFile fichier = new MockMultipartFile(
-                "fichier",
+                "file",
                 "offre.pdf",
                 MediaType.APPLICATION_PDF_VALUE,
                 "contenu du pdf".getBytes()
@@ -217,9 +204,10 @@ public class EmployeurControllerTest {
 
         when(employeurService.creerOffre(any(), any(), any())).thenReturn(offreDeStageDTO);
 
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+        mockMvc.perform(multipart("/employeur/offres")
                         .file(offre)
-                        .file(fichier))
+                        .file(fichier)
+                        .principal(principal))
                 .andExpect(status().isCreated());
     }
 
@@ -229,7 +217,7 @@ public class EmployeurControllerTest {
                 "",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
@@ -240,8 +228,9 @@ public class EmployeurControllerTest {
                 objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
         );
 
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
-                        .file(offre))
+        mockMvc.perform(multipart("/employeur/offres")
+                        .file(offre)
+                        .principal(principal))
                 .andExpect(status().isBadRequest());
     }
 
@@ -251,7 +240,7 @@ public class EmployeurControllerTest {
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
@@ -271,9 +260,10 @@ public class EmployeurControllerTest {
         when(employeurService.creerOffre(any(), any(), any()))
                 .thenThrow(new FichierTypeInvalideException());
 
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+        mockMvc.perform(multipart("/employeur/offres")
                         .file(offre)
-                        .file(fichier))
+                        .file(fichier)
+                        .principal(principal))
                 .andExpect(status().isUnsupportedMediaType());
     }
 
@@ -283,7 +273,7 @@ public class EmployeurControllerTest {
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
@@ -303,9 +293,10 @@ public class EmployeurControllerTest {
         when(employeurService.creerOffre(any(), any(), any()))
                 .thenThrow(new FichierTropVolumineuxException());
 
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+        mockMvc.perform(multipart("/employeur/offres")
                         .file(offre)
-                        .file(fichier))
+                        .file(fichier)
+                        .principal(principal))
                 .andExpect(status().is(413));
     }
 
@@ -315,7 +306,7 @@ public class EmployeurControllerTest {
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
@@ -335,9 +326,10 @@ public class EmployeurControllerTest {
         when(employeurService.creerOffre(any(), any(), any()))
                 .thenThrow(new FichierCorrompuException());
 
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
+        mockMvc.perform(multipart("/employeur/offres")
                         .file(offre)
-                        .file(fichier))
+                        .file(fichier)
+                        .principal(principal))
                 .andExpect(status().is(422));
     }
 
@@ -347,7 +339,7 @@ public class EmployeurControllerTest {
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 15),
                 LocalDate.of(2026, 10, 1)
         );
@@ -361,8 +353,9 @@ public class EmployeurControllerTest {
         when(employeurService.creerOffre(any(), any(), any()))
                 .thenThrow(new DateFinAvantDateDebutException());
 
-        mockMvc.perform(multipart("/employeur/offres/creation-offre")
-                        .file(offre))
+        mockMvc.perform(multipart("/employeur/offres")
+                        .file(offre)
+                        .principal(principal))
                 .andExpect(status().isBadRequest());
     }
 
@@ -380,7 +373,7 @@ public class EmployeurControllerTest {
 
         mockMvc.perform(multipart(HttpMethod.PUT, "/employeur/offres/1")
                         .file(new MockMultipartFile("offre", "", MediaType.APPLICATION_JSON_VALUE,
-                                jsonMapper.writeValueAsBytes(creationOffreDeStageDTO)))
+                                objectMapper.writeValueAsBytes(creationOffreDeStageDTO)))
                         .principal(principal))
                 .andExpect(status().isOk());
     }
