@@ -206,7 +206,7 @@ public class EtudiantServiceTest {
         Path ancienFichier = Paths.get("uploads", "cvs", "ancien.pdf");
         Files.createDirectories(ancienFichier.getParent());
         Files.writeString(ancienFichier, "ancien contenu");
-        
+
         CvEtudiant ancienCv = CvEtudiant.builder()
                 .fileName("ancien.pdf")
                 .contentType("application/pdf")
@@ -216,7 +216,7 @@ public class EtudiantServiceTest {
                 .etudiant(etudiant)
                 .build();
         ancienCv.setId(1L);
-        
+
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "nouveau.pdf",
@@ -239,6 +239,58 @@ public class EtudiantServiceTest {
         assertThat(Files.exists(ancienFichier)).isFalse();
 
         verify(cvEtudiantRepository).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitRetournerCv() throws Exception{
+        CvEtudiant cv = CvEtudiant.builder()
+                .fileName("cv.pdf")
+                .contentType("application/pdf")
+                .fileSize(10L)
+                .storagePath("uploads/cvs/cv.pdf")
+                .uploadDate(LocalDateTime.now())
+                .etudiant(etudiant)
+                .build();
+        cv.setId(1L);
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        CvEtudiantDTO result = etudiantService.getCv("steveJean@gmail.com");
+
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.fileName()).isEqualTo("cv.pdf");
+    }
+
+    @Test
+    void doitSupprimerCv() throws Exception {
+        Path fichier = Paths.get("uploads", "cvs", "cv.pdf");
+        Files.createDirectories(fichier.getParent());
+        Files.writeString(fichier, "contenu");
+
+        CvEtudiant cv = CvEtudiant.builder()
+                .fileName("cv.pdf")
+                .contentType("application/pdf")
+                .fileSize(10L)
+                .storagePath(fichier.toString())
+                .uploadDate(java.time.LocalDateTime.now())
+                .etudiant(etudiant)
+                .build();
+        cv.setId(1L);
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        etudiantService.supprimerCv("steveJean@gmail.com");
+
+        assertThat(Files.exists(fichier)).isFalse();
+        verify(cvEtudiantRepository).delete(cv);
     }
 
 
