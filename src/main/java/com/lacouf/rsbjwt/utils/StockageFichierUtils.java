@@ -52,11 +52,11 @@ public final class StockageFichierUtils {
     }
 
     public static void supprimerFichier(Path chemin)
-            throws SuppressionEchoueeFichierException {
+            throws SuppressionFichierEchoueeException {
         try {
             Files.deleteIfExists(chemin);
         } catch (IOException e) {
-            throw new SuppressionEchoueeFichierException();
+            throw new SuppressionFichierEchoueeException();
         }
     }
 

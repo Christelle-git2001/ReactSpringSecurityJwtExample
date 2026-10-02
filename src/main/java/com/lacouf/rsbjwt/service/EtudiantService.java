@@ -98,9 +98,9 @@ public class EtudiantService {
     }
 
     @Transactional
-    public CvEtudiantDTO uploadCv(MultipartFile file, String email)
+    public CvEtudiantDTO televerserCv(MultipartFile file, String email)
             throws FichierTypeInvalideException, EtudiantIntrouvableException,
-            SuppressionEchoueeFichierException, FichierCorrompuException,
+            SuppressionFichierEchoueeException, FichierCorrompuException,
             FichierTropVolumineuxException, IOException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
@@ -136,7 +136,7 @@ public class EtudiantService {
     @Transactional
     public void supprimerCv(String email)
             throws EtudiantIntrouvableException, FichierIntrouvableException,
-            SuppressionEchoueeFichierException {
+            SuppressionFichierEchoueeException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
@@ -145,7 +145,7 @@ public class EtudiantService {
     }
 
     private void supprimerAncienCv(CvEtudiant cv, Path newPath)
-            throws SuppressionEchoueeFichierException {
+            throws SuppressionFichierEchoueeException {
         if (cv.getStoragePath() == null) {
             return;
         }
