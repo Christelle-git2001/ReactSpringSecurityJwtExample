@@ -12,12 +12,15 @@ import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -28,20 +31,18 @@ public class EmployeurService {
     private final UserAppRepository userAppRepository;
     private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
-    private final FileStorageService fileStorageService;
+    private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
-            OffreDeStageRepository offreDeStageRepository,
-            FileStorageService fileStorageService
+            OffreDeStageRepository offreDeStageRepository
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     @Transactional
@@ -79,8 +80,8 @@ public class EmployeurService {
 
         String fileName = null;
 
-        if (file != null && !file.isEmpty()) {
-            fileStorageService.storeOfferFile(file);
+        if (file != null) {
+            StockageFichierUtils.sauvegarderPdf(file,STORAGE_OFFRE);
             fileName = file.getOriginalFilename();
         }
 
@@ -163,7 +164,7 @@ public class EmployeurService {
         offre.setEndDate(dto.endDate());
 
         if (file != null && !file.isEmpty()) {
-            fileStorageService.storeOfferFile(file);
+            StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
             offre.setFileName(file.getOriginalFilename());
         }
 

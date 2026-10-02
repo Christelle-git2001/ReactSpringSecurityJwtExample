@@ -17,7 +17,7 @@ public record OffreDeStageDTO(
         LocalDate endDate,
         StatutOffre statut,
         String fileName,
-        Employeur employeur
+        EmployeurDTO employeur
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
@@ -31,7 +31,7 @@ public record OffreDeStageDTO(
                 offre.getEndDate(),
                 offre.getStatut(),
                 offre.getFileName(),
-                offre.getEmployeur()
+                EmployeurDTO.of(offre.getEmployeur())
         );
     }
 

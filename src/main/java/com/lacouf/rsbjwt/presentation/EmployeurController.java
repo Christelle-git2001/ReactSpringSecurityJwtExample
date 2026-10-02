@@ -60,7 +60,7 @@ public class EmployeurController {
             Principal principal
     ) throws DateFinAvantDateDebutException,
             IOException,
-            DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
+            DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException {
 
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(id, dto, file, principal.getName());

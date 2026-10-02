@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +53,7 @@ public class EmployeurServiceTest {
     private UserAppRepository userAppRepository;
 
     @Mock
-    private FileStorageService fileStorageService;
+    private StockageFichierUtils stockageFichierUtils;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -224,11 +225,10 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandMauvaisTypeDeFichier() throws Exception {
+    void doitLancerExceptionQuandMauvaisTypeDeFichier() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.exe",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, "contenu".getBytes());
-        doThrow(new FichierTypeInvalideException()).when(fileStorageService).storeOfferFile(fichier);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierTypeInvalideException.class);
@@ -237,11 +237,10 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierTropVolumineux() throws Exception {
+    void doitLancerExceptionQuandFichierTropVolumineux() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
-                MediaType.APPLICATION_PDF_VALUE, "contenu".getBytes());
-        doThrow(new FichierTropVolumineuxException()).when(fileStorageService).storeOfferFile(fichier);
+                MediaType.APPLICATION_PDF_VALUE, new byte[10 * 1024 * 1024 + 1]);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierTropVolumineuxException.class);
@@ -250,12 +249,10 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierCorrompu() throws Exception {
+    void doitLancerExceptionQuandFichierCorrompu() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        // Contenu non vide sinon file.isEmpty() est vrai et le service n'appelle jamais storeOfferFile
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
-                MediaType.APPLICATION_PDF_VALUE, "x".getBytes());
-        doThrow(new FichierCorrompuException()).when(fileStorageService).storeOfferFile(fichier);
+                MediaType.APPLICATION_PDF_VALUE, new byte[0]);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierCorrompuException.class);
@@ -301,7 +298,7 @@ public class EmployeurServiceTest {
         when(offreDeStageRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> employeurService.modifierOffre(99L, creationOffreDeStageDTO, null, employeur.getEmail()))
-                .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(OffreIntrouvableException.class);
 
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
     }
