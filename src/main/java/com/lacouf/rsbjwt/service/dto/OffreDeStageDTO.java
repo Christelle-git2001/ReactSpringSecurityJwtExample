@@ -1,6 +1,4 @@
 package com.lacouf.rsbjwt.service.dto;
-
-import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.OffreDeStage;

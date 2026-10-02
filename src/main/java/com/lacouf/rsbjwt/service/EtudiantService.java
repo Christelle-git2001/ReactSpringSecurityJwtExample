@@ -42,7 +42,7 @@ public class EtudiantService {
     @Transactional
     public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException, NumeroTelephoneExistantException {
         validerInscriptionEtudiant(inscriptionEtudiantDto);
-        Departement departement = normaliserDepartement(inscriptionEtudiantDto.department()) ;
+        Departement departement = StockageFichierUtils.normaliserDepartement(inscriptionEtudiantDto.department()) ;
 
         Etudiant etudiant = Etudiant.builder()
                 .firstName(inscriptionEtudiantDto.firstName())
@@ -77,24 +77,6 @@ public class EtudiantService {
                 inscriptionEtudiantDto.phone()).isPresent()) {
             throw new NumeroTelephoneExistantException();
         }
-    }
-
-    private Departement normaliserDepartement(String value) throws DepartementInvalideException {
-        if(value == null){
-            throw new DepartementInvalideException(value);
-        }
-
-        String normalized = value.trim()
-                .toUpperCase()
-                .replaceAll("\\s+", "_");
-
-        for (Departement departement : Departement.values()) {
-            if (departement.name().equals(normalized)) {
-                return departement;
-            }
-        }
-
-        throw new DepartementInvalideException(value);
     }
 
     @Transactional

@@ -39,7 +39,7 @@ public class EmployeurController {
             @Valid @RequestPart("offre") CreationOffreDeStageDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal
-    ) throws DepartementInvalideException, IOException, DateFinAvantDateDebutException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
+    ) throws  IOException, DateFinAvantDateDebutException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
         OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
@@ -60,7 +60,7 @@ public class EmployeurController {
             Principal principal
     ) throws DateFinAvantDateDebutException,
             IOException,
-            DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException {
+            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException {
 
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(id, dto, file, principal.getName());
