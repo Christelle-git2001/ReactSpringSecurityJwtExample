@@ -1,19 +1,19 @@
 package com.lacouf.rsbjwt.utils;
 
-import com.lacouf.rsbjwt.Exception.FichierCorrompuException;
-import com.lacouf.rsbjwt.Exception.FichierTropVolumineuxException;
-import com.lacouf.rsbjwt.Exception.FichierTypeInvalideException;
-import com.lacouf.rsbjwt.Exception.SuppressionEchoueeFichierException;
+import com.lacouf.rsbjwt.Exception.*;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-public class StockageFichierUtils {
+public final class StockageFichierUtils {
     private static final String TYPE_PDF = "application/pdf";
-    private static final long TAILLE_MAX = 5 * 1024 * 1024;
+    private static final long TAILLE_MAX = 10 * 1024 * 1024;
     private StockageFichierUtils() {
     }
 
@@ -57,6 +57,20 @@ public class StockageFichierUtils {
             Files.deleteIfExists(chemin);
         } catch (IOException e) {
             throw new SuppressionEchoueeFichierException();
+        }
+    }
+
+    public static Resource chargerFichier(Path chemin)
+            throws FichierIntrouvableException {
+        try {
+            Resource resource = new UrlResource(chemin.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new FichierIntrouvableException();
+            }
+
+            return resource;
+        } catch (MalformedURLException e) {
+            throw new FichierIntrouvableException();
         }
     }
 }

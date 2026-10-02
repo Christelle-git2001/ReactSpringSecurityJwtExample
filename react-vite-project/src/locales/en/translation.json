@@ -137,28 +137,58 @@
     "phone_exists": "This phone number is already in use.",
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
-    "generic": "An error occurred. Please try again.",
-    "etudiant_not_found": "Student not found.",
-    "fichier_corrompu": "The file is empty or corrupted.",
-    "file_not_found": "File not found.",
-    "fichier_volumineux": "The file is too large.",
-    "type_fichier_invalide": "The file must be a PDF.",
-    "file_delete_failed": "File deletion failed.",
-    "date_fin_antérieure_date_debut": "The end date must be after the start date."
+    "generic": "An error occurred. Please try again."
   },
   "success": {
     "student_added": "Student added successfully.",
     "professor_added": "Professor added successfully.",
+    "employer_added": "Employer added successfully."
+  },
+  "nav": {
+    "home": "Home",
+    "account" : "Account",
+    "login": "Login",
+    "logout": "Logout",
+    "add_offer" : "Add offer"
+  },
+  "home": {
+    "welcome" : "Welcome"
+  },
+  "etudiant": {
+    "card" : {
+      "account" : "Manage your personal information, update your profile, and view your account details. "
+    },
+    "noCVUpload" : "No Curriculum Vitae Upload yet.",
+    "noCvFound" : "Cv not found"
+  },
+  "pdfVisio" : {
+    "nofiles" : "No files selected",
+    "visualize" : "Visualize PDF",
+    "filesName" : "File name",
+    "choice" : "Choose a file",
+    "download" : "Download the PDF",
+    "fichierInvalide" : "Invalid file",
+    "noFileDetected" : "No file to read",
+    "bigFiles" : "Your file is too big, you need less than 10 mo",
+    "lowFiles" : "Your file is corrupted, please select another file"
+  },
+  "account" : {
+    "info" : {
+      "personal" : "Personal Information",
+      "educational" : "Educational Information",
+      "professional" : "Professional Information"
+    }
+  },
+  "button": {
+    "previous" : "previous",
+    "next" : "next"
+  },
+  "token": {
+    "doesntExist" : "No Session Found",
     "employer_added": "Employer added successfully.",
     "offer_loaded": "Offer loaded successfully.",
     "offer_created": "Offer created successfully.",
     "offer_updated": "Offer updated successfully."
-  },
-  "nav": {
-    "home": "Home",
-    "login": "Login",
-    "logout": "Logout",
-    "add_offer": "Add offer"
   },
   "offre": {
     "domaine": "Domain",

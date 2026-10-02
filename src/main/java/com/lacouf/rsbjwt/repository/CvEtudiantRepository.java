@@ -4,10 +4,8 @@ import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Etudiant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CvEtudiantRepository extends JpaRepository<CvEtudiant, Long> {
-    List<CvEtudiant> findByEtudiantOrderByUploadDateDesc(Etudiant etudiant);
-    Optional<CvEtudiant> findFirstByEtudiantOrderByUploadDateDesc(Etudiant etudiant);
+    Optional<CvEtudiant> findByEtudiant(Etudiant etudiant);
 }

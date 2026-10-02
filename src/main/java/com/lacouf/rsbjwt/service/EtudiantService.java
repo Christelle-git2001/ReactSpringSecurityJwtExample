@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -20,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -99,32 +99,73 @@ public class EtudiantService {
 
     @Transactional
     public CvEtudiantDTO uploadCv(MultipartFile file, String email)
-        throws FichierTypeInvalideException, EtudiantIntrouvableException,
-        SuppressionEchoueeFichierException, FichierCorrompuException,
-        FichierTropVolumineuxException, IOException {
-
+            throws FichierTypeInvalideException, EtudiantIntrouvableException,
+            SuppressionEchoueeFichierException, FichierCorrompuException,
+            FichierTropVolumineuxException, IOException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
-        CvEtudiant cv = CvEtudiant.builder().etudiant(etudiant).build();
+        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseGet(() -> CvEtudiant.builder()
+                        .etudiant(etudiant)
+                        .build());
+
+        supprimerAncienCv(cv, filePath);
 
         remplirInformationsCv(cv, file, filePath);
 
         return CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
     }
 
-    public List<CvEtudiantDTO> getTousLesCv(String email) throws EtudiantIntrouvableException {
+    public CvEtudiantDTO getCv(String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-        return cvEtudiantRepository.findByEtudiantOrderByUploadDateDesc(etudiant)
-                .stream()
-                .map(CvEtudiantDTO::of)
-                .toList();
+        return CvEtudiantDTO.of(cv);
+    }
+
+    public Resource telechargerCv(String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParEtudiant(etudiant);
+
+        return StockageFichierUtils.chargerFichier(Paths.get(cv.getStoragePath()));
+    }
+
+    @Transactional
+    public void supprimerCv(String email)
+            throws EtudiantIntrouvableException, FichierIntrouvableException,
+            SuppressionEchoueeFichierException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        CvEtudiant cv = trouverCvParEtudiant(etudiant);
+
+        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
+        cvEtudiantRepository.delete(cv);
+    }
+
+    private void supprimerAncienCv(CvEtudiant cv, Path newPath)
+            throws SuppressionEchoueeFichierException {
+        if (cv.getStoragePath() == null) {
+            return;
+        }
+
+        Path oldPathCv = Paths.get(cv.getStoragePath());
+
+        if (!oldPathCv.equals(newPath)) {
+            StockageFichierUtils.supprimerFichier(oldPathCv);
+        }
     }
 
     private Etudiant trouverEtudiantParEmail(String email) throws EtudiantIntrouvableException {
         return etudiantRepository.findByCredentialsEmail(email)
                 .orElseThrow(EtudiantIntrouvableException::new);
+    }
+
+    private CvEtudiant trouverCvParEtudiant(Etudiant etudiant)
+            throws FichierIntrouvableException {
+        return cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseThrow(FichierIntrouvableException::new);
     }
 
     private void remplirInformationsCv(CvEtudiant cv, MultipartFile file, Path filePath){
