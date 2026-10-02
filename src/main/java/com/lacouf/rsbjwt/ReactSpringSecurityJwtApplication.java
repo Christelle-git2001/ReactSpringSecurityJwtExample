@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -51,11 +52,14 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        //InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
-        //etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
-       // CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,"donner à manger",LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
+//        InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
+//        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+//       CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,Departement.INFORMATIQUE,LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
 
-       /* Employeur employeurTest = employeurRepository.save(
+       InscriptionEmployeurDTO inscriptionEmployeurDTO2 = new InscriptionEmployeurDTO("Jean","Dupont","444-555-6666","sisi@gmail.com","Clinique Test",SecteurActivite.FINANCE.name(),SecteurActivite.AEROSPATIAL,"Test1234!","Test1234!");
+       employeurService.creeCompteEmployeur(inscriptionEmployeurDTO2);
+
+/*        Employeur employeurTest = employeurRepository.save(
                 Employeur.builder()
                         .firstName("Jean")
                         .lastName("Dupont")
@@ -66,8 +70,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                         .businessName("Clinique Test")
                         .businessSector(SecteurActivite.FINANCE)
                         .build()
-        ); */
-
+        );
+*/
         //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
         /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
