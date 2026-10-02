@@ -71,4 +71,5 @@ public class OffreDeStage {
         this.employeur = employeur;
         this.rejectionComment = rejectionComment;
     }
+
 }
