@@ -1,17 +1,20 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.Exception.EmailExistantException;
-import com.lacouf.rsbjwt.Exception.MatriculeExistantException;
-import com.lacouf.rsbjwt.Exception.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.Exception.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.EtudiantService;
+import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,9 +22,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -146,4 +152,98 @@ public class EtudiantControllerTest {
                         .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    void doitTeleverserCv() throws Exception {
+        CvEtudiantDTO cvDTO = new CvEtudiantDTO(
+                1L,
+                "cv.pdf",
+                "application/pdf",
+                13L,
+                LocalDateTime.now()
+        );
+
+        when(etudiantService.uploadCv(any(), anyString()))
+                .thenReturn(cvDTO);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                "contenu pdf".getBytes()
+        );
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(multipart("/etudiant/cv")
+                .file(file)
+                .principal(authentication))
+            .andExpect(status().isCreated());
+    }
+
+    @Test
+    void doitObtenirCv() throws Exception {
+        CvEtudiantDTO cvDTO = new CvEtudiantDTO(
+                1L,
+                "cv.pdf",
+                "application/pdf",
+                13L,
+                LocalDateTime.now()
+        );
+
+        when(etudiantService.getCv("christelle@gmail.com"))
+                .thenReturn(cvDTO);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(get("/etudiant/cv")
+                        .principal(authentication))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void doitTelechargerCv() throws Exception {
+        Resource resource = new ByteArrayResource("contenu pdf".getBytes());
+
+        when(etudiantService.telechargerCv("christelle@gmail.com"))
+                .thenReturn(resource);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(get("/etudiant/cv/download")
+                        .principal(authentication))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandCvIntrouvable() throws Exception {
+        when(etudiantService.getCv("christelle@gmail.com"))
+                .thenThrow(new FichierIntrouvableException());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(get("/etudiant/cv")
+                        .principal(authentication))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitSupprimerCv() throws Exception {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "christelle@gmail.com",
+                null);
+
+        mockMvc.perform(delete("/etudiant/cv")
+                        .principal(authentication))
+                .andExpect(status().isNoContent());
+    }
+
 }

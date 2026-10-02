@@ -20,7 +20,6 @@ public class Etudiant extends UserApp {
 
     @Column(unique = true, nullable = false)
     private String matricule;
-    private String phoneNumber;
     private Departement department ;
 
     @Builder

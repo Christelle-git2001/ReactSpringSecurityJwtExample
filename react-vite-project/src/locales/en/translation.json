@@ -142,16 +142,53 @@
   "success": {
     "student_added": "Student added successfully.",
     "professor_added": "Professor added successfully.",
+    "employer_added": "Employer added successfully."
+  },
+  "nav": {
+    "home": "Home",
+    "account" : "Account",
+    "login": "Login",
+    "logout": "Logout",
+    "add_offer" : "Add offer"
+  },
+  "home": {
+    "welcome" : "Welcome"
+  },
+  "etudiant": {
+    "card" : {
+      "account" : "Manage your personal information, update your profile, and view your account details. "
+    },
+    "noCVUpload" : "No Curriculum Vitae Upload yet.",
+    "noCvFound" : "Cv not found"
+  },
+  "pdfVisio" : {
+    "nofiles" : "No files selected",
+    "visualize" : "Visualize PDF",
+    "filesName" : "File name",
+    "choice" : "Choose a file",
+    "download" : "Download the PDF",
+    "fichierInvalide" : "Invalid file",
+    "noFileDetected" : "No file to read",
+    "bigFiles" : "Your file is too big, you need less than 10 mo",
+    "lowFiles" : "Your file is corrupted, please select another file"
+  },
+  "account" : {
+    "info" : {
+      "personal" : "Personal Information",
+      "educational" : "Educational Information",
+      "professional" : "Professional Information"
+    }
+  },
+  "button": {
+    "previous" : "previous",
+    "next" : "next"
+  },
+  "token": {
+    "doesntExist" : "No Session Found",
     "employer_added": "Employer added successfully.",
     "offer_loaded": "Offer loaded successfully.",
     "offer_created": "Offer created successfully.",
     "offer_updated": "Offer updated successfully."
-  },
-  "nav": {
-    "home": "Home",
-    "login": "Login",
-    "logout": "Logout",
-    "add_offer": "Add offer"
   },
   "offre": {
     "domaine": "Domain",

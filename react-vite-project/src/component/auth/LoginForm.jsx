@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import fetcher from "../../utils/fetcher";
@@ -25,10 +25,22 @@ const LoginForm = ({ user, setError }) => {
         message: ""
     });
 
-    const validateEmail = (email) => {
-        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-        return emailRegex.test(email.trim());
-    };
+  useEffect(() => {
+    localStorage.removeItem("token");
+  }, []);
+
+  useEffect(() => {
+    if (user?.isLoggedIn) {
+      if (user.role === "ROLE_GESTIONNAIRE") {
+        navigate("/gestionnaire");
+      }
+    }
+  }, [user, navigate]);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return emailRegex.test(email.trim());
+  };
 
     const validatePassword = (password) => {
         return password.trim().length > 0;

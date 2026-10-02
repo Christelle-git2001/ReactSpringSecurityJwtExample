@@ -3,7 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle } from "react-icons/fi";
+import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser} from "react-icons/fi";
 
 
 function SideBarLayout({ user, openDrawer }) {
@@ -17,6 +17,7 @@ function SideBarLayout({ user, openDrawer }) {
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         {path: "/employeur/offres/nouvelle",label: t("nav.add_offer"),roles: ["EMPLOYEUR"],icon: <FiPlusCircle className="size-4 my-1.5" />},
         { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
         { path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),
             roles: null,
