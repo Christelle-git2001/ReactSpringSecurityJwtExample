@@ -19,7 +19,6 @@ public class GestionnaireController {
 
 
     private final GestionnaireService gestionnaireService;
-
     public GestionnaireController(GestionnaireService gestionnaireService) {
         this.gestionnaireService = gestionnaireService;
     }
