@@ -28,4 +28,6 @@ public class GestionnaireService {
                 ))
                 .toList();
     }
+
+    // Allô Christelle :-)
 }
