@@ -102,7 +102,7 @@ public class EmployeurServiceTest {
 
         employeur.setId(1L);
 
-        offreDeStageDTO = new OffreDeStageDTO(
+       /* offreDeStageDTO = new OffreDeStageDTO(
                 1L,
                 "Infirmerie",
                 "préposé",
@@ -113,7 +113,7 @@ public class EmployeurServiceTest {
                 LocalDate.of(2026, 10, 15),
                 null,
                 null
-        );
+        ); */
 
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
@@ -124,7 +124,7 @@ public class EmployeurServiceTest {
                 LocalDate.of(2026, 10, 15)
         );
 
-        offreDeStage = OffreDeStage.builder()
+      /*  offreDeStage = OffreDeStage.builder()
                 .title("Infirmerie")
                 .poste("préposé")
                 .salary(19.25)
@@ -132,7 +132,7 @@ public class EmployeurServiceTest {
                 .statut(StatutOffre.EN_ATTENTE)
                 .firstDate(LocalDate.of(2026, 10, 1))
                 .lastDate(LocalDate.of(2026, 10, 15))
-                .build();
+                .build(); */
 
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
