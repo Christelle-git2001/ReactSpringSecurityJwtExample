@@ -41,9 +41,6 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class EmployeurServiceTest {
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
     @Mock
     private EmployeurRepository employeurRepository;
     @Mock
@@ -51,9 +48,6 @@ public class EmployeurServiceTest {
 
     @Mock
     private UserAppRepository userAppRepository;
-
-    @Mock
-    private StockageFichierUtils stockageFichierUtils;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -64,7 +58,6 @@ public class EmployeurServiceTest {
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     CreationOffreDeStageDTO creationOffreDeStageDTO;
-    OffreDeStageDTO offreDeStageDTO;
     Employeur employeur;
     OffreDeStage offreDeStage;
 
@@ -95,19 +88,6 @@ public class EmployeurServiceTest {
                 .build();
 
         employeur.setId(1L);
-
-        offreDeStageDTO = new OffreDeStageDTO(
-                1L,
-                "Infirmerie",
-                "préposé",
-                19.25,
-                Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15),
-                StatutOffre.EN_ATTENTE,
-                null,
-                employeur
-        );
 
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
