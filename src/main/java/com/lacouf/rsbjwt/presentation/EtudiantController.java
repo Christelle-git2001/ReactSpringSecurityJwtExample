@@ -36,8 +36,8 @@ public class EtudiantController {
     @PostMapping("/cv")
     public ResponseEntity<CvEtudiantDTO> televerserCv(@RequestParam("file") MultipartFile file, Authentication authentication)
             throws FichierCorrompuException, FichierTropVolumineuxException, FichierTypeInvalideException,
-            EtudiantIntrouvableException, SuppressionEchoueeFichierException, IOException{
-        CvEtudiantDTO cvEtudiantDto = etudiantService.uploadCv(file, authentication.getName());
+            EtudiantIntrouvableException, SuppressionFichierEchoueeException, IOException{
+        CvEtudiantDTO cvEtudiantDto = etudiantService.televerserCv(file, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(cvEtudiantDto);
     }
 
@@ -62,7 +62,7 @@ public class EtudiantController {
     @DeleteMapping("/cv")
     public ResponseEntity<Void> supprimerCv( Authentication authentication )
         throws EtudiantIntrouvableException, FichierIntrouvableException,
-            SuppressionEchoueeFichierException {
+            SuppressionFichierEchoueeException {
 
         etudiantService.supprimerCv(authentication.getName());
         return ResponseEntity.noContent().build();

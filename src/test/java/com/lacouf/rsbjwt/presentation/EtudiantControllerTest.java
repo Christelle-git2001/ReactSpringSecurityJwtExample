@@ -163,7 +163,7 @@ public class EtudiantControllerTest {
                 LocalDateTime.now()
         );
 
-        when(etudiantService.uploadCv(any(), anyString()))
+        when(etudiantService.televerserCv(any(), anyString()))
                 .thenReturn(cvDTO);
 
         MockMultipartFile file = new MockMultipartFile(
