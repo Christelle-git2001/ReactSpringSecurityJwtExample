@@ -75,7 +75,7 @@ public class GestionnaireService {
 
         if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
             throw new RuntimeException(
-                    "Seule une offre en attente peut être approuvée"
+                    "Seule une offre en attente peut être refusée"
             );
         }
 
