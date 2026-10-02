@@ -136,23 +136,21 @@ public class EmployeurService {
             String email
     ) throws DateFinAvantDateDebutException,
             IOException,
-            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
+            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
     //TODO : EXCEPETIONS PERSONNALISÉES
         OffreDeStage offre = offreDeStageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offre introuvable"));
+                .orElseThrow(OffreIntrouvableException::new);
 
         if (offre.getEmployeur() == null
                 || !offre.getEmployeur().getId().equals(employeur.getId())) {
-            throw new RuntimeException("Cette offre ne vous appartient pas");
+            throw new OffrePasAVous();
         }
 
         if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
-            throw new RuntimeException(
-                    "Une offre qui n'est pas en attente ne peut pas être modifiée"
-            );
+            throw new OffrePasEnAttenteModifiee();
         }
 
         validerDates(dto);
