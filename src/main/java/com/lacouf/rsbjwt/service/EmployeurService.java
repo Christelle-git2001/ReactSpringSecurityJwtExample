@@ -2,7 +2,6 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
@@ -76,7 +75,7 @@ public class EmployeurService {
     public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO dto,
                                       MultipartFile file,
                                       String email)
-            throws DateFinAvantDateDebutException, IOException, DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
+            throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
 
         Employeur employeur = getEmployeurByEmail(email);
 
@@ -93,7 +92,7 @@ public class EmployeurService {
                 .title(dto.title())
                 .description(dto.description())
                 .salary(dto.salary())
-                .domain(normaliserDepartement(dto.domain()))
+                .domain(dto.domain())
                 .startDate(dto.startDate())
                 .endDate(dto.endDate())
                 .statut(StatutOffre.EN_ATTENTE)
@@ -133,26 +132,6 @@ public class EmployeurService {
         }
     }
 
-    private Departement normaliserDepartement(String value)
-            throws DepartementInvalideException {
-
-        if (value == null) {
-            throw new DepartementInvalideException(value);
-        }
-
-        String normalized = value.trim()
-                .toUpperCase()
-                .replaceAll("\\s+", "_");
-
-        for (Departement d : Departement.values()) {
-            if (d.name().equals(normalized)) {
-                return d;
-            }
-        }
-
-        throw new DepartementInvalideException(value);
-    }
-
     @Transactional
     public OffreDeStageDTO modifierOffre(
             Long id,
@@ -161,7 +140,7 @@ public class EmployeurService {
             String email
     ) throws DateFinAvantDateDebutException,
             IOException,
-            DepartementInvalideException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
+            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
@@ -185,7 +164,7 @@ public class EmployeurService {
         offre.setTitle(dto.title());
         offre.setDescription(dto.description());
         offre.setSalary(dto.salary());
-        offre.setDomain(normaliserDepartement(dto.domain()));
+        offre.setDomain(dto.domain());
         offre.setStartDate(dto.startDate());
         offre.setEndDate(dto.endDate());
 
