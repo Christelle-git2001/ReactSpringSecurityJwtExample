@@ -36,8 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 public class EmployeurControllerTest {
-
-    private JsonMapper jsonMapper;
     CreationOffreDeStageDTO creationOffreDeStageDTO;
     @Autowired
     private WebApplicationContext webApplicationContext;
