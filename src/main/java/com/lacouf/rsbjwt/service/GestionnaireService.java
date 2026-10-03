@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
+import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
@@ -40,23 +43,22 @@ public class GestionnaireService {
                 .toList();
     }
 
-    public List<OffreDeStageDTO> getOffresEnAttente(){
+    public List<OffreDeStageDTO> getOffresEnAttente() {
         return offreDeStageRepository
                 .findByStatut(StatutOffre.EN_ATTENTE)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
-//TODO : exception personnalisée
+
     @Transactional
-    public OffreDeStageDTO approuverOffre(Long id){
+    public OffreDeStageDTO approuverOffre (Long id)
+            throws OffreIntrouvableException, OffreNonEnAttenteException {
         OffreDeStage offre = offreDeStageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offre introuvable"));
+                .orElseThrow(OffreIntrouvableException::new);
 
         if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
-            throw new RuntimeException(
-                    "Seule une offre en attente peut être approuvée"
-            );
+            throw new OffreNonEnAttenteException();
         }
 
         offre.setStatut(StatutOffre.ACCEPTEE);
@@ -69,20 +71,17 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public OffreDeStageDTO refuserOffre(Long id, String commentaire){
+    public OffreDeStageDTO refuserOffre(Long id, String commentaire)
+            throws OffreIntrouvableException, OffreNonEnAttenteException, CommentaireRefusObligatoireException {
         OffreDeStage offre = offreDeStageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offre introuvable"));
+                .orElseThrow((OffreIntrouvableException::new));
 
         if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
-            throw new RuntimeException(
-                    "Seule une offre en attente peut être refusée"
-            );
+            throw new OffreNonEnAttenteException();
         }
 
         if (commentaire == null || commentaire.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Le commentaire de refus est obligatoire"
-            );
+            throw new CommentaireRefusObligatoireException();
         }
 
         offre.setStatut(StatutOffre.REFUSEE);

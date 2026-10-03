@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
+import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.DepartementDTO;
@@ -44,7 +47,7 @@ public class GestionnaireController {
     @PutMapping("/offres/{id}/approuver")
     public ResponseEntity<OffreDeStageDTO> approveOffer(
             @PathVariable Long id
-    ) {
+    ) throws OffreIntrouvableException, OffreNonEnAttenteException {
         OffreDeStageDTO offre =
                 gestionnaireService.approuverOffre(id);
 
@@ -55,7 +58,7 @@ public class GestionnaireController {
     public ResponseEntity<OffreDeStageDTO> rejectOffer(
             @PathVariable Long id,
             @RequestBody RejectionCommentDTO commentdto
-    ) {
+    ) throws OffreIntrouvableException, OffreNonEnAttenteException, CommentaireRefusObligatoireException {
         OffreDeStageDTO offre =
                 gestionnaireService.refuserOffre(id, commentdto.rejectionComment());
 
