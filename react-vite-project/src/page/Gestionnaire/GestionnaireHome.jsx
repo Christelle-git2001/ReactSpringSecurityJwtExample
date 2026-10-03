@@ -1,31 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import fetcher from "../../utils/fetcher.js";
+import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import Card from "../../component/Design/Cards/Card.jsx";
 
 const GestionnaireHome = () => {
-  const [message, setMessage] = useState("");
+    const { t } = useTranslation();
+    const [offres, setOffres] = useState([]);
+    const { openDrawer } = useOutletContext();
+    const navigate = useNavigate();
 
-  const handleAccessGestionnaireEndpoint = () => {
-    setMessage("");
-    fetcher("/user/gestionnaire/demo", { method: "GET" })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`Erreur API (${response.status})`);
-        }
-        const data = await response.text();
-        setMessage(data);
-      })
-      .catch((error) => {
-        setMessage(error.message);
-      });
-  };
+    useEffect(() => {
+        getOffresEnAttente().then((res) => {setOffres(res);})
+            .catch((err) => console.log(err));
+    }, []);
 
-  return(
+    const handleView = (offer) => {
+        navigate(`/gestionnaire/offres/details`, { state: { offer } });
+    };
+
+
+
+  return (
     <>
       <h1>Page accueil gestionnaire</h1>
-      <button style={{ width: 'fit-content' }} onClick={handleAccessGestionnaireEndpoint}>
-        Accéder à l'endpoint gestionnaire
-      </button>
-      {message && <p>{message}</p>}
+
+        <div className="mt-6 flex flex-col gap-6 flex-1 items-center">
+            {!offres || offres.length === 0 ? (
+                <div className=" items-center flex justify-center w-full">
+                    <p className="text-gray-500 font-medium">
+                        {t("offre.no_offers")}
+                    </p>
+                </div>
+            ) : (
+                offres.map((offer) => (
+                    <Card
+                        key={offer.id}
+                        offer={offer}
+                        onView={handleView}
+                    />
+                ))
+            )}
+        </div>
+
     </>
   );
 }

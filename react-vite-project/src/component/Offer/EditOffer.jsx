@@ -62,7 +62,6 @@ function EditOffer() {
 
         const newErrors = {};
 
-        // Validation des champs
         if (!title) {
             newErrors.title = t("add_offer.errors.title_required");
         }
@@ -97,8 +96,6 @@ function EditOffer() {
             setErrors(newErrors);
             return;
         }
-
-        // Création du DTO JSON attendu par Spring Boot
         const dto = {
             title,
             domain,
@@ -110,7 +107,6 @@ function EditOffer() {
 
         setErrors({});
 
-        // Appel à l'API en passant l'ID, le DTO et le Fichier
         modifierOffreEmployeur(offer.id, dto, selectedFile)
             .then(() => {
                 navigate("/employeur");
@@ -122,23 +118,6 @@ function EditOffer() {
                 });
             });
     };
-
-    if (!offer) {
-        return (
-            <main className="flex min-h-[50vh] flex-col items-center justify-center p-8">
-                <p className="text-base font-medium text-red-600">
-                    {t("edit_offer.no_offer")}
-                </p>
-
-                <Button
-                    onClick={() => navigate("/employeur")}
-                    className="mt-4 bg-[#043462] text-white"
-                >
-                    {t("edit_offer.back")}
-                </Button>
-            </main>
-        );
-    }
 
     const inputStyle = (hasError) =>
         `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none focus:ring-2 ${
@@ -154,7 +133,7 @@ function EditOffer() {
                 className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
             >
                 <h2 className="mb-6 text-xl font-bold text-[#043462]">
-                    {t("edit_offer.title", "Modifier l'offre")}
+                    {t("edit_offer.title")}
                 </h2>
 
                 {errors.api && (
@@ -165,7 +144,6 @@ function EditOffer() {
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 
-                    {/* Titre */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="title" className="text-sm font-semibold text-[#043462]">
@@ -183,8 +161,6 @@ function EditOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Domaine */}
                     <div>
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="domain" className="text-sm font-semibold text-[#043462]">
@@ -212,8 +188,6 @@ function EditOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Salaire */}
                     <div>
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="salary" className="text-sm font-semibold text-[#043462]">
@@ -232,8 +206,6 @@ function EditOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Description */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="description" className="text-sm font-semibold text-[#043462]">
@@ -251,8 +223,6 @@ function EditOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Date de début */}
                     <div>
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="startDate" className="text-sm font-semibold text-[#043462]">
@@ -270,8 +240,6 @@ function EditOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Date de fin */}
                     <div>
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="endDate" className="text-sm font-semibold text-[#043462]">
@@ -289,23 +257,18 @@ function EditOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Document / Fichier */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <span className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.document")}
                             </span>
 
-                            {/* Indication du fichier déjà enregistré sur l'offre */}
                             {offer.fileName && (
                                 <p className="text-xs text-gray-600 mt-2">
                                     {t("edit_offer.current_file", "Fichier actuel :")}{" "}
                                     <span className="font-medium text-[#043462]">{offer.fileName}</span>
                                 </p>
                             )}
-
-                            {/* Input file masqué lié à son label stylisé */}
                             <div className="flex items-center gap-3">
                                 <label
                                     htmlFor="file"
@@ -326,13 +289,9 @@ function EditOffer() {
                                     }}
                                 />
                             </div>
-
-                            {/* Message d'aide */}
                             <p className="text-xs text-gray-500 mt-2">
                                 {t("edit_offer.keep_file_note")}
                             </p>
-
-                            {/* Message d'erreur */}
                             {errors.file && (
                                 <span className="text-xs font-medium text-red-500">
                                     {t(errors.file)}
@@ -342,7 +301,6 @@ function EditOffer() {
                     </div>
                 </div>
 
-                {/* Boutons */}
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
                     <Button
                         type="button"

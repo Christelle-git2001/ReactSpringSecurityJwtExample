@@ -13,6 +13,7 @@ import AddOffer from "../Offer/AddOffer.jsx";
 import SideBarLayout from "../Design/Layouts/SideBarLayout.jsx";
 import AccountEtudiant from "../../page/Etudiant/AccountEtudiant.jsx";
 import EditOffer from "../Offer/EditOffer.jsx";
+import OfferDetails from "../Offer/OfferDetails.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -60,6 +61,7 @@ export default function AppRoutes({
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome />} />
+                <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
 

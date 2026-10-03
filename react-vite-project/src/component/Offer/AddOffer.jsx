@@ -43,50 +43,32 @@ function AddOffer() {
         };
 
         const newErrors = {};
-
-        // Titre
         if (!title) {
             newErrors.title = "add_offer.errors.title_required";
         }
-
-        // Domaine
         if (!domain) {
             newErrors.domain = "add_offer.errors.domain_required";
         }
-
-        // Description
         if (!description) {
             newErrors.description = "add_offer.errors.description_required";
         }
-
-        // Salaire
         if (!salary) {
             newErrors.salary = "add_offer.errors.salary_required";
         } else if (Number(salary) < 0) {
             newErrors.salary = "add_offer.errors.salary_negative";
         }
-
-        // Date de début
         if (!startDate) {
             newErrors.startDate = "add_offer.errors.startDate_required";
         }
-
-        // Date de fin
         if (!endDate) {
             newErrors.endDate = "add_offer.errors.endDate_required";
         }
-
-        // Fichier PDF
         if (!file || file.size === 0) {
             newErrors.file = "add_offer.errors.file_required";
         }
-
-        // Vérification des dates
         if (startDate && endDate && endDate <= startDate) {
             newErrors.endDate = "add_offer.errors.endDate_invalid";
         }
-
-        // S'il y a des erreurs, on les affiche
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -131,8 +113,6 @@ function AddOffer() {
                 )}
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-
-                    {/* Titre */}
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <label
@@ -156,8 +136,6 @@ function AddOffer() {
                             )}
                         </div>
                     </div>
-
-                    {/* Domaine */}
                     <div>
                         <div className="flex flex-col gap-1.5">
                             <label

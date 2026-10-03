@@ -47,36 +47,40 @@ const EmployeurHome = () => {
     }, []);
 
     return (
-        <>
-            <SearchBar className="self-center mb-6" />
-
-            <div className="flex flex-col md:flex-row gap-6 md:gap-16 items-start">
-
-                {/* Colonne des offres */}
-                <div className="mt-6 flex flex-col gap-6 flex-1">
-                    {offres.map((offer) => (
-                        <Card
-                            key={offer.id}
-                            offer={offer}
-                            onView={handleView}
-                            onEdit={handleEdit}
-                        />
-                    ))}
+        <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
+            <SearchBar className="mb-6" />
+            <div className="w-full flex flex-col md:flex-row gap-8 items-start mt-6">
+                <div className="w-full md:w-2/3 flex justify-center">
+                    <div className="flex flex-col gap-6 w-full max-w-xl">
+                        {!offres || offres.length === 0 ? (
+                            <div className=" items-center flex justify-center w-full">
+                                <p className="text-gray-500 font-medium">
+                                    {t("offre.no_offers")}
+                                </p>
+                            </div>
+                        ) : (
+                            offres.map((offer) => (
+                                <Card
+                                    key={offer.id}
+                                    offer={offer}
+                                    onView={handleView}
+                                    onEdit={handleEdit}
+                                />
+                            ))
+                        )}
+                    </div>
                 </div>
-
-                {/* Bloc candidatures */}
                 <div className="
-                    mt-6 bg-white p-6 rounded-lg shadow-md
-                    w-full md:w-[420px] lg:w-[500px]
+                    w-full md:w-1/3 bg-white p-6 rounded-lg shadow-md
                     h-auto md:h-[85vh] lg:h-[90vh]
-                    overflow-y-auto
+                    overflow-y-auto sticky top-4
                 ">
                     <h3 className="font-semibold text-sm mb-4">Candidatures</h3>
                     <p className="text-xs text-gray-600">Aucune candidature pour le moment</p>
                 </div>
 
             </div>
-        </>
+        </div>
     );
 };
 

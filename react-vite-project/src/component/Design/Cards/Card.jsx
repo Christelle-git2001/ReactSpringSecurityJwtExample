@@ -4,9 +4,7 @@ import { FiEdit } from 'react-icons/fi';
 
 function Card({ offer, onView, onEdit }) {
     const { t } = useTranslation();
-
-    //TODO status temporaire - demander un end point pour get les status d'offre au back end
-    const STATUS_CONFIG = {
+     const STATUS_CONFIG = {
         EN_ATTENTE: {
             label: t("status.en_attente"),
             className: "badge-warning"
@@ -21,7 +19,9 @@ function Card({ offer, onView, onEdit }) {
         }
     };
 
-    const status = STATUS_CONFIG[offer?.status] || STATUS_CONFIG.EN_ATTENTE;
+    const currentStatusKey = offer?.statut || offer?.status;
+    const status = STATUS_CONFIG[offer?.statut] || STATUS_CONFIG.EN_ATTENTE;
+    const canEdit = Boolean(onEdit) && currentStatusKey === "EN_ATTENTE";
 
     const offre = [
         { label: t("offre.domaine"), value: offer?.domain },
@@ -37,7 +37,7 @@ function Card({ offer, onView, onEdit }) {
                     <span className={`badge badge-xs ${status.className}`}>
                         {status.label}
                     </span>
-
+                    {canEdit && (
                     <button
                         type="button"
                         onClick={() => onEdit?.(offer)}
@@ -45,7 +45,7 @@ function Card({ offer, onView, onEdit }) {
                         aria-label={t("offre.edit")}
                     >
                         <FiEdit className="size-4" />
-                    </button>
+                    </button>)}
                 </div>
                 <div className="flex justify-between items-baseline mt-2">
                     <h2 className="text-2l font-bold text-[#043462]">{offer?.title}</h2>
