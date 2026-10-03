@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Button from "../ui/Button.jsx";
+import Button from "../Design/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getDepartements } from "../../api/http.jsx";

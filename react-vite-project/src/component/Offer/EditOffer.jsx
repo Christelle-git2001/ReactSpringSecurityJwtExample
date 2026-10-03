@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Button from "../ui/Button.jsx";
+import Button from "../Design/Button.jsx";
 import { getDepartements } from "../../api/http.jsx";
 import { modifierOffreEmployeur } from "../../api/employeur.jsx";
 
