@@ -1,16 +1,13 @@
 import { useState } from "react";
-import fetcher from "../utils/fetcher.js";
+import fetcher from "../../utils/fetcher.js";
 
-const EmprunteurHome = () => {
+const GestionnaireHome = () => {
   const [message, setMessage] = useState("");
 
   const handleAccessGestionnaireEndpoint = () => {
     setMessage("");
     fetcher("/user/gestionnaire/demo", { method: "GET" })
       .then(async (response) => {
-        if (response.status === 403) {
-          throw new Error("Accès refusé: endpoint réservé au gestionnaire (403).");
-        }
         if (!response.ok) {
           throw new Error(`Erreur API (${response.status})`);
         }
@@ -24,7 +21,7 @@ const EmprunteurHome = () => {
 
   return(
     <>
-      <h1>Page accueil emprunteur</h1>
+      <h1>Page accueil gestionnaire</h1>
       <button style={{ width: 'fit-content' }} onClick={handleAccessGestionnaireEndpoint}>
         Accéder à l'endpoint gestionnaire
       </button>
@@ -32,4 +29,4 @@ const EmprunteurHome = () => {
     </>
   );
 }
-export default EmprunteurHome;
+export default GestionnaireHome;

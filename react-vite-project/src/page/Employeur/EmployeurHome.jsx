@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import Card from "./../component/Design/Card.jsx";
-import { getOffresEmployeur } from "../api/employeur.jsx";
+import Card from "../../component/Design/Card.jsx";
+import { getOffresEmployeur } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
-import SearchBar from "../component/Design/SearchBar.jsx";
+import SearchBar from "../../component/Design/SearchBar.jsx";
 
 const EmployeurHome = () => {
     const { t } = useTranslation();

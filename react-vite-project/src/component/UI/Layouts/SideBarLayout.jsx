@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
-import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
-import ThemeToggle from "./ThemeToggle.jsx";
+import LanguageSwitch from "../../../locales/LanguageSwitch.jsx";
+import ThemeToggle from "../ThemeToggle.jsx";
 import { useTranslation } from "react-i18next";
 import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser} from "react-icons/fi";
 
