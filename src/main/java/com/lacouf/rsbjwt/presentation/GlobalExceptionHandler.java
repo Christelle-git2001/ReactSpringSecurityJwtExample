@@ -138,4 +138,13 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(OffreNonAutoriseeException.class)
+    public ResponseEntity<ErreurDTO> handleOffreNonAutoriseeException(
+            OffreNonAutoriseeException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }

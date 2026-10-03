@@ -11,10 +11,10 @@ import com.lacouf.rsbjwt.service.dto.LoginDTO;
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "http://localhost:5173")
-public class UtilisateurController {
+public class UtilisateurAppController {
     private final UserAppService userAppService;
 
-    public UtilisateurController (UserAppService userAppService) {
+    public UtilisateurAppController(UserAppService userAppService) {
         this.userAppService = userAppService;
     }
 
