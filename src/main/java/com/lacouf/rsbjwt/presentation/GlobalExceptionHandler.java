@@ -111,4 +111,31 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(OffreIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleOffreIntrouvableException(
+            OffreIntrouvableException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(OffreNonEnAttenteException.class)
+    public ResponseEntity<ErreurDTO> handleOffreNonEnAttenteException(
+            OffreNonEnAttenteException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(CommentaireRefusObligatoireException.class)
+    public ResponseEntity<ErreurDTO> handleCommentaireRefusObligatoireException(
+            CommentaireRefusObligatoireException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }
