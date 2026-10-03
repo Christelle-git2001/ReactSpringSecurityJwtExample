@@ -45,6 +45,7 @@ public class OffreDeStage {
             @ManyToOne
             @JoinColumn(name = "employeur_id")
             private Employeur employeur;
+            private String rejectionComment;
 
     @Builder
     public OffreDeStage(
@@ -56,7 +57,8 @@ public class OffreDeStage {
                 LocalDate endDate,
                 StatutOffre statut,
                 String fileName,
-                Employeur employeur
+                Employeur employeur,
+                String rejectionComment
     ) {
         this.title = title;
         this.description = description;
@@ -67,5 +69,7 @@ public class OffreDeStage {
         this.statut = statut;
         this.fileName = fileName;
         this.employeur = employeur;
+        this.rejectionComment = rejectionComment;
     }
+
 }

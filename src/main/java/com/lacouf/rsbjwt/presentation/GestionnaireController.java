@@ -1,14 +1,16 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
+import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.DepartementDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.RejectionCommentDTO;
 import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,7 +21,6 @@ public class GestionnaireController {
 
 
     private final GestionnaireService gestionnaireService;
-
     public GestionnaireController(GestionnaireService gestionnaireService) {
         this.gestionnaireService = gestionnaireService;
     }
@@ -36,4 +37,32 @@ public class GestionnaireController {
         List<DepartementDTO> departements = gestionnaireService.getAllDepartements();
         return ResponseEntity.ok(departements);
     }
+
+    @GetMapping("/offres")
+    public ResponseEntity<List<OffreDeStageDTO>> getOffresEnAttente(){
+        List<OffreDeStageDTO> offres = gestionnaireService.getOffresEnAttente();
+        return ResponseEntity.ok(offres);
+    }
+
+    @PutMapping("/offres/{id}/approuver")
+    public ResponseEntity<OffreDeStageDTO> approveOffer(
+            @PathVariable Long id
+    ) throws OffreIntrouvableException, OffreNonEnAttenteException {
+        OffreDeStageDTO offre =
+                gestionnaireService.approuverOffre(id);
+
+        return ResponseEntity.ok(offre);
+    }
+
+    @PutMapping("/offres/{id}/refuser")
+    public ResponseEntity<OffreDeStageDTO> rejectOffer(
+            @PathVariable Long id,
+            @RequestBody RejectionCommentDTO commentdto
+    ) throws OffreIntrouvableException, OffreNonEnAttenteException, CommentaireRefusObligatoireException {
+        OffreDeStageDTO offre =
+                gestionnaireService.refuserOffre(id, commentdto.rejectionComment());
+
+        return ResponseEntity.ok(offre);
+    }
+
 }

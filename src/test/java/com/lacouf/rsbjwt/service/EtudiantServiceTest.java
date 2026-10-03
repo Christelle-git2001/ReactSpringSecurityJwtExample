@@ -203,7 +203,7 @@ public class EtudiantServiceTest {
                     return cv;
                 });
 
-        CvEtudiantDTO result = etudiantService.uploadCv(file, "steveJean@gmail.com");
+        CvEtudiantDTO result = etudiantService.televerserCv(file, "steveJean@gmail.com");
 
         assertThat(result).isNotNull();
         assertThat(result.fileName()).isEqualTo("cv.pdf");
@@ -244,7 +244,7 @@ public class EtudiantServiceTest {
         when(cvEtudiantRepository.save(any(CvEtudiant.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        CvEtudiantDTO result = etudiantService.uploadCv(file, "steveJean@gmail.com");
+        CvEtudiantDTO result = etudiantService.televerserCv(file, "steveJean@gmail.com");
 
         assertThat(result.fileName()).isEqualTo("nouveau.pdf");
         assertThat(Files.exists(ancienFichier)).isFalse();
@@ -265,7 +265,7 @@ public class EtudiantServiceTest {
                 .thenReturn(Optional.of(etudiant));
 
         assertThatThrownBy(() ->
-                etudiantService.uploadCv(file, "steveJean@gmail.com"))
+                etudiantService.televerserCv(file, "steveJean@gmail.com"))
                 .isInstanceOf(FichierTypeInvalideException.class);
 
         verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
@@ -284,7 +284,7 @@ public class EtudiantServiceTest {
                 .thenReturn(Optional.of(etudiant));
 
         assertThatThrownBy(() ->
-                etudiantService.uploadCv(file, "steveJean@gmail.com"))
+                etudiantService.televerserCv(file, "steveJean@gmail.com"))
                 .isInstanceOf(FichierCorrompuException.class);
 
         verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
