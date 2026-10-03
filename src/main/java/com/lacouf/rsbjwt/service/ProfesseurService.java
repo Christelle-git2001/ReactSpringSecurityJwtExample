@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class ProfesseurService {
     public ProfesseurDTO creerCompteProfesseur(InscriptionProfesseurDTO inscriptionProfesseurDto) throws DepartementInvalideException, EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
         validerInscription(inscriptionProfesseurDto);
 
-        Departement departement = normaliserDepartement(inscriptionProfesseurDto.department()) ;
+        Departement departement = StockageFichierUtils.normaliserDepartement(inscriptionProfesseurDto.department()) ;
 
         Professeur professeur = Professeur.builder()
                 .firstName(inscriptionProfesseurDto.firstName())
@@ -63,23 +64,5 @@ public class ProfesseurService {
             throw new NumeroTelephoneExistantException();
         }
 
-    }
-
-    private Departement normaliserDepartement(String value) throws DepartementInvalideException {
-        if(value == null){
-            throw new DepartementInvalideException(value);
-        }
-
-        String normalized = value.trim()
-                .toUpperCase()
-                .replaceAll("\\s+", "_");
-
-        for (Departement departement : Departement.values()) {
-            if (departement.name().equals(normalized)) {
-                return departement;
-            }
-        }
-
-        throw new DepartementInvalideException(value);
     }
 }

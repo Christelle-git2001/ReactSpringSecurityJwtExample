@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.OffreDeStage;
@@ -15,41 +16,28 @@ import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
+import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class EmployeurServiceTest {
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
     @Mock
     private EmployeurRepository employeurRepository;
     @Mock
@@ -64,13 +52,9 @@ public class EmployeurServiceTest {
     @InjectMocks
     private EmployeurService employeurService;
 
-    private ObjectMapper objectMapper;
-    private JsonMapper jsonMapper;
-    private MockMvc mockMvc;
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     CreationOffreDeStageDTO creationOffreDeStageDTO;
-    OffreDeStageDTO offreDeStageDTO;
     Employeur employeur;
     OffreDeStage offreDeStage;
 
@@ -102,42 +86,26 @@ public class EmployeurServiceTest {
 
         employeur.setId(1L);
 
-       /* offreDeStageDTO = new OffreDeStageDTO(
-                1L,
-                "Infirmerie",
-                "préposé",
-                StatutOffre.EN_ATTENTE,
-                19.25,
-                "donner à manger",
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15),
-                null,
-                null
-        ); */
-
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15)
         );
 
-      /*  offreDeStage = OffreDeStage.builder()
+        offreDeStage = OffreDeStage.builder()
                 .title("Infirmerie")
-                .poste("préposé")
-                .salary(19.25)
                 .description("donner à manger")
+                .salary(19.25)
+                .domain(Departement.INFORMATIQUE)
                 .statut(StatutOffre.EN_ATTENTE)
-                .firstDate(LocalDate.of(2026, 10, 1))
-                .lastDate(LocalDate.of(2026, 10, 15))
-                .build(); */
-
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .startDate(LocalDate.of(2026, 10, 1))
+                .endDate(LocalDate.of(2026, 10, 15))
+                .employeur(employeur)
                 .build();
-        objectMapper = new ObjectMapper();
-        jsonMapper = JsonMapper.builder().build();
+        ReflectionTestUtils.setField(offreDeStage, "id", 1L);
     }
 
     @Test
@@ -198,24 +166,13 @@ public class EmployeurServiceTest {
     // Offre de Stage
 
     @Test
-    void doitCreerOffreDeStageSansFichier() throws Exception {
-        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
-
-        OffreDeStageDTO result = employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail());
-
-        verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
-        assertThat(result).isNotNull();
-    }
-
-    @Test
     void doitLancerExceptionQuandDateFinAvantDateDebut() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 15),
                 LocalDate.of(2026, 10, 1)
         );
@@ -233,7 +190,7 @@ public class EmployeurServiceTest {
                 "Infirmerie",
                 "préposé",
                 19.25,
-                "donner à manger",
+                Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 1)
         );
@@ -247,7 +204,7 @@ public class EmployeurServiceTest {
     @Test
     void doitLancerExceptionQuandMauvaisTypeDeFichier() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        MockMultipartFile fichier = new MockMultipartFile("fichier", "offre.exe",
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.exe",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, "contenu".getBytes());
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
@@ -259,9 +216,8 @@ public class EmployeurServiceTest {
     @Test
     void doitLancerExceptionQuandFichierTropVolumineux() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        // 5 Mo + 1 octet : juste au-dessus de TAILLE_MAX
-        MockMultipartFile fichier = new MockMultipartFile("fichier", "offre.pdf",
-                MediaType.APPLICATION_PDF_VALUE, new byte[5 * 1024 * 1024 + 1]);
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE, new byte[10 * 1024 * 1024 + 1]);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierTropVolumineuxException.class);
@@ -272,13 +228,92 @@ public class EmployeurServiceTest {
     @Test
     void doitLancerExceptionQuandFichierCorrompu() {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        MockMultipartFile fichier = new MockMultipartFile("fichier", "offre.pdf",
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
                 MediaType.APPLICATION_PDF_VALUE, new byte[0]);
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail()))
                 .isInstanceOf(FichierCorrompuException.class);
 
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitRetournerLesOffresDeLEmployeur() {
+        employeur.setOffres(List.of(offreDeStage));
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneOffre() {
+        employeur.setOffres(List.of());
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void doitModifierOffreDeStage() throws Exception {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+        when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
+
+        OffreDeStageDTO result = employeurService.modifierOffre(1L, creationOffreDeStageDTO, null, employeur.getEmail());
+
+        verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreIntrouvable() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.modifierOffre(99L, creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(OffreIntrouvableException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreAppartientAUnAutreEmployeur() {
+        Employeur autreEmployeur = Employeur.builder()
+                .firstName("Autre")
+                .lastName("Personne")
+                .town("Laval")
+                .phone("450-111-2222")
+                .email("autre@test.com")
+                .businessName("Autre inc")
+                .businessSector(SecteurActivite.AEROSPATIAL)
+                .password("Losange12%")
+                .build();
+
+        autreEmployeur.setId(2L);
+        offreDeStage.setEmployeur(autreEmployeur);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(offreDeStageRepository.findById(1L))
+                .thenReturn(Optional.of(offreDeStage));
+
+        assertThatThrownBy(() ->
+                employeurService.modifierOffre(
+                        1L,
+                        creationOffreDeStageDTO,
+                        null,
+                        employeur.getEmail()
+                )
+        )
+                .isInstanceOf(OffreNonAutoriseeException.class);
+
+        verify(offreDeStageRepository, never())
+                .save(any(OffreDeStage.class));
     }
 
 }

@@ -11,6 +11,7 @@
   "dependencies": {
     "daisyui": "^5.7.46",
     "i18next": "^26.4.2",
+    "pdfjs-dist": "^6.3.289",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^17.0.14",

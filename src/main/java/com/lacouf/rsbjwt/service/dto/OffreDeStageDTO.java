@@ -1,5 +1,4 @@
 package com.lacouf.rsbjwt.service.dto;
-
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.OffreDeStage;
@@ -16,6 +15,7 @@ public record OffreDeStageDTO(
         LocalDate endDate,
         StatutOffre statut,
         String fileName,
+        EmployeurDTO employeur,
         String rejectionComment
 ) {
 
@@ -30,6 +30,7 @@ public record OffreDeStageDTO(
                 offre.getEndDate(),
                 offre.getStatut(),
                 offre.getFileName(),
+                EmployeurDTO.of(offre.getEmployeur()),
                 offre.getRejectionComment()
         );
     }
@@ -37,6 +38,7 @@ public record OffreDeStageDTO(
     public static OffreDeStageDTO empty() {
         return new OffreDeStageDTO(
                 0L,
+                null,
                 null,
                 null,
                 null,

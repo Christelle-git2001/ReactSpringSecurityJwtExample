@@ -2,7 +2,6 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
@@ -13,16 +12,15 @@ import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 
@@ -33,20 +31,18 @@ public class EmployeurService {
     private final UserAppRepository userAppRepository;
     private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
-    private final FileStorageService fileStorageService;
+    private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
-            OffreDeStageRepository offreDeStageRepository,
-            FileStorageService fileStorageService
+            OffreDeStageRepository offreDeStageRepository
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     @Transactional
@@ -76,7 +72,7 @@ public class EmployeurService {
     public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO dto,
                                       MultipartFile file,
                                       String email)
-            throws DateFinAvantDateDebutException, IOException, DepartementInvalideException {
+            throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
 
         Employeur employeur = getEmployeurByEmail(email);
 
@@ -84,8 +80,8 @@ public class EmployeurService {
 
         String fileName = null;
 
-        if (file != null && !file.isEmpty()) {
-            fileStorageService.storeOfferFile(file);
+        if (file != null) {
+            StockageFichierUtils.sauvegarderPdf(file,STORAGE_OFFRE);
             fileName = file.getOriginalFilename();
         }
 
@@ -93,7 +89,7 @@ public class EmployeurService {
                 .title(dto.title())
                 .description(dto.description())
                 .salary(dto.salary())
-                .domain(normaliserDepartement(dto.domain()))
+                .domain(dto.domain())
                 .startDate(dto.startDate())
                 .endDate(dto.endDate())
                 .statut(StatutOffre.EN_ATTENTE)
@@ -133,26 +129,6 @@ public class EmployeurService {
         }
     }
 
-    private Departement normaliserDepartement(String value)
-            throws DepartementInvalideException {
-
-        if (value == null) {
-            throw new DepartementInvalideException(value);
-        }
-
-        String normalized = value.trim()
-                .toUpperCase()
-                .replaceAll("\\s+", "_");
-
-        for (Departement d : Departement.values()) {
-            if (d.name().equals(normalized)) {
-                return d;
-            }
-        }
-
-        throw new DepartementInvalideException(value);
-    }
-
     @Transactional
     public OffreDeStageDTO modifierOffre(
             Long id,
@@ -161,23 +137,20 @@ public class EmployeurService {
             String email
     ) throws DateFinAvantDateDebutException,
             IOException,
-            DepartementInvalideException {
+            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
-    //TODO : EXCEPETIONS PERSONNALISÉES
         OffreDeStage offre = offreDeStageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offre introuvable"));
+                .orElseThrow(OffreIntrouvableException::new);
 
         if (offre.getEmployeur() == null
                 || !offre.getEmployeur().getId().equals(employeur.getId())) {
-            throw new RuntimeException("Cette offre ne vous appartient pas");
+            throw new OffreNonAutoriseeException();
         }
 
         if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
-            throw new RuntimeException(
-                    "Une offre qui n'est pas en attente ne peut pas être modifiée"
-            );
+            throw new OffreNonEnAttenteException();
         }
 
         validerDates(dto);
@@ -185,12 +158,12 @@ public class EmployeurService {
         offre.setTitle(dto.title());
         offre.setDescription(dto.description());
         offre.setSalary(dto.salary());
-        offre.setDomain(normaliserDepartement(dto.domain()));
+        offre.setDomain(dto.domain());
         offre.setStartDate(dto.startDate());
         offre.setEndDate(dto.endDate());
 
         if (file != null && !file.isEmpty()) {
-            fileStorageService.storeOfferFile(file);
+            StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
             offre.setFileName(file.getOriginalFilename());
         }
 

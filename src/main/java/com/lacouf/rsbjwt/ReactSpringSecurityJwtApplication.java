@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -51,16 +52,37 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-      gestionnaireRepository.save(
+//        InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
+//        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
+//       CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,Departement.INFORMATIQUE,LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
+
+       InscriptionEmployeurDTO inscriptionEmployeurDTO2 = new InscriptionEmployeurDTO("Jean","Dupont","444-555-6666","sisi@gmail.com","Clinique Test",SecteurActivite.FINANCE.name(),SecteurActivite.AEROSPATIAL,"Test1234!","Test1234!");
+       employeurService.creeCompteEmployeur(inscriptionEmployeurDTO2);
+
+/*        Employeur employeurTest = employeurRepository.save(
+                Employeur.builder()
+                        .firstName("Jean")
+                        .lastName("Dupont")
+                        .email("employeur@test.com")
+                        .password(passwordEncoder.encode("Test1234!"))
+                        .phone("450-000-0000")
+                        .town("Montréal")
+                        .businessName("Clinique Test")
+                        .businessSector(SecteurActivite.FINANCE)
+                        .build()
+        );
+*/
+        //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
+        /*  gestionnaireRepository.save(
                 Gestionnaire.builder()
                         .firstName("Gerard")
                         .lastName("Biblio")
                         .email("l@l.com")
                         .password(passwordEncoder.encode("bib"))
                         .matricule("0000001")
-                        .phoneNumber("123-456-7890")
+                        .phone("123-456-7890")
                         .build()
-        );
+        );*/
         /*
         emprunteurRepository.save(
                 Emprunteur.builder()

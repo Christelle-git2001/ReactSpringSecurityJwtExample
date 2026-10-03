@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.utils;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,5 +73,23 @@ public final class StockageFichierUtils {
         } catch (MalformedURLException e) {
             throw new FichierIntrouvableException();
         }
+    }
+
+    public static Departement normaliserDepartement(String value) throws DepartementInvalideException {
+        if(value == null){
+            throw new DepartementInvalideException(value);
+        }
+
+        String normalized = value.trim()
+                .toUpperCase()
+                .replaceAll("\\s+", "_");
+
+        for (Departement departement : Departement.values()) {
+            if (departement.name().equals(normalized)) {
+                return departement;
+            }
+        }
+
+        throw new DepartementInvalideException(value);
     }
 }

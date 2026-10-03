@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class UtilisateurControllerTest {
+public class UtilisateurAppControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
