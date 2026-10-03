@@ -292,16 +292,28 @@ public class EmployeurServiceTest {
                 .businessSector(SecteurActivite.AEROSPATIAL)
                 .password("Losange12%")
                 .build();
+
         autreEmployeur.setId(2L);
         offreDeStage.setEmployeur(autreEmployeur);
 
-        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
 
-        assertThatThrownBy(() -> employeurService.modifierOffre(1L, creationOffreDeStageDTO, null, employeur.getEmail()))
-                .isInstanceOf(RuntimeException.class);
+        when(offreDeStageRepository.findById(1L))
+                .thenReturn(Optional.of(offreDeStage));
 
-        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+        assertThatThrownBy(() ->
+                employeurService.modifierOffre(
+                        1L,
+                        creationOffreDeStageDTO,
+                        null,
+                        employeur.getEmail()
+                )
+        )
+                .isInstanceOf(OffreNonAutoriseeException.class);
+
+        verify(offreDeStageRepository, never())
+                .save(any(OffreDeStage.class));
     }
 
 }

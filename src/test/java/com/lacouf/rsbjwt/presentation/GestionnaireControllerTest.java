@@ -143,7 +143,9 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 StatutOffre.REFUSEE,
-                "offre.pdf"
+                "offre.pdf",
+                null,
+                commentaire
 
         );
 
