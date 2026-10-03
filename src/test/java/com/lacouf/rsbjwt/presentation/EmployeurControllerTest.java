@@ -75,6 +75,7 @@ public class EmployeurControllerTest {
                 LocalDate.of(2026, 10, 15),
                 StatutOffre.EN_ATTENTE,
                 null,
+                null,
                 null
         );
 

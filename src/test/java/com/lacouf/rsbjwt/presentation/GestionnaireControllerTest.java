@@ -81,6 +81,7 @@ public class GestionnaireControllerTest {
                 null,
                 StatutOffre.EN_ATTENTE,
                 "offre.pdf",
+                null,
                 null
         );
 
@@ -110,6 +111,7 @@ public class GestionnaireControllerTest {
                 null,
                 StatutOffre.ACCEPTEE,
                 "offre.pdf",
+                null,
                 null
         );
 
@@ -141,8 +143,8 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 StatutOffre.REFUSEE,
-                "offre.pdf",
-                commentaire
+                "offre.pdf"
+
         );
 
         when(gestionnaireService.refuserOffre(1L, commentaire))
