@@ -61,18 +61,18 @@ public class EmployeurControllerTest {
                 "Losange12%"
         );
 
-        offreDeStageDTO = new OffreDeStageDTO(
-                1L,
-                "Infirmerie",
-                "préposé",
-                StatutOffre.EN_ATTENTE,
-                19.25,
-                "donner à manger",
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15),
-                null,
-                null
-        );
+        //offreDeStageDTO = new OffreDeStageDTO(
+         //       1L,
+           //     "Infirmerie",
+            //    "préposé",
+            //    StatutOffre.EN_ATTENTE,
+            //    19.25,
+             //   "donner à manger",
+             //   LocalDate.of(2026, 10, 1),
+              //  LocalDate.of(2026, 10, 15),
+              //  null,
+              //  null
+       // );
 
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
