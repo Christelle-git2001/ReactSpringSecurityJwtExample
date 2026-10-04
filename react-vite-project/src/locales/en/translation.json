@@ -84,6 +84,7 @@
     "not_provided": "Not provided"
   },
   "actions": {
+    "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
     "back": "Back",

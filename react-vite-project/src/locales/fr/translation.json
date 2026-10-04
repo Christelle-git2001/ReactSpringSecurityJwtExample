@@ -84,6 +84,7 @@
     "not_provided": "Non renseigné"
   },
   "actions": {
+    "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
     "approve": "Approuver",

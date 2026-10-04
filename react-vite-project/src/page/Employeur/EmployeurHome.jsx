@@ -150,40 +150,29 @@ const EmployeurHome = () => {
                     availableDomains={availableDomains}
                 />
             </div>
-
-            <div className="w-full flex flex-col md:flex-row gap-8 items-start">
-                <div className="w-full md:w-2/3 flex justify-center">
-                    <div className="flex flex-col gap-6 w-full max-w-xl">
-                        {offresFiltrees.length === 0 ? (
-                            <div className="items-center flex justify-center w-full py-8">
-                                <p className="text-gray-500 font-medium">
-                                    {offres.length === 0
-                                        ? t("offre.no_offers")
-                                        : t("offre.no_matching_offers")}
-                                </p>
-                            </div>
-                        ) : (
-                            offresFiltrees.map((offer) => (
-                                <Card
-                                    key={offer.id}
-                                    offer={offer}
-                                    onView={handleView}
-                                    onEdit={handleEdit}
-                                />
-                            ))
-                        )}
+            <div className="w-full">
+                {offresFiltrees.length === 0 ? (
+                    <div className="items-center flex justify-center w-full py-8">
+                        <p className="text-gray-500 font-medium">
+                            {offres.length === 0
+                                ? t("offre.no_offers")
+                                : t("offre.no_matching_offers")}
+                        </p>
                     </div>
-                </div>
-
-                <div className="
-                    w-full md:w-1/3 bg-white p-6 rounded-lg shadow-md
-                    h-auto md:h-[85vh] lg:h-[90vh]
-                    overflow-y-auto sticky top-4
-                ">
-                    <h3 className="font-semibold text-sm mb-4">Candidatures</h3>
-                    <p className="text-xs text-gray-600">Aucune candidature pour le moment</p>
-                </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full ">
+                        {offresFiltrees.map((offer) => (
+                            <Card
+                                key={offer.id}
+                                offer={offer}
+                                onView={handleView}
+                                onEdit={handleEdit}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
+
         </div>
     );
 };
