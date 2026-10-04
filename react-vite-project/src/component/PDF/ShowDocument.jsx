@@ -55,18 +55,20 @@ const ShowDocument = ({ offerId, fileName }) => {
         };
     }, [documentPDFUrl]);
 
-    const handleDownload = async () => {
-        let url = documentPDFUrl;
-        if (!url) {
-            url = await chargerDocumentURL();
-            if (url) {
-                setDocumentPDFUrl(url);
-            }
-        }
-        if (url) {
-            declencherTelechargement(url, fileName || `document_offre_${offerId}.pdf`);
-        }
-    };
+   const handleDownload = async () => {
+       let url = documentPDFUrl;
+
+       if (!url) {
+           url = await chargerDocumentURL();
+       }
+
+       if (url) {
+           declencherTelechargement(
+               url,
+               fileName || `document_offre_${offerId}.pdf`
+           );
+       }
+   };
 
     return (
         <div className="w-full">

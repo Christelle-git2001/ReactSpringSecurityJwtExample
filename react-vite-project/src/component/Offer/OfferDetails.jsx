@@ -46,7 +46,7 @@ function OfferDetails({ offre: offreProp }) {
             if (showRefusalReason) {
                 if (!rejectionComment.trim()) {
                     setErrors({
-                        rejectionComment: t("offre.errors.rejection_required")
+                        rejectionComment: "offre.errors.rejection_required"
                     });
                     setIsLoading(false);
                     return;
