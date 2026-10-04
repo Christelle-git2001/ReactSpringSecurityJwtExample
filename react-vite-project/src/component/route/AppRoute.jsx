@@ -12,6 +12,8 @@ import ProfesseurHome from "../../page/Professeur/ProfesseurHome.jsx";
 import AddOffer from "../Offer/AddOffer.jsx";
 import SideBarLayout from "../Design/Layouts/SideBarLayout.jsx";
 import AccountEtudiant from "../../page/Etudiant/AccountEtudiant.jsx";
+import AccountEmployeur from "../../page/Employeur/AccountEmployeur.jsx";
+import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx";
 import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
 
@@ -56,6 +58,8 @@ export default function AppRoutes({
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/>
+                <Route path="/employeur/account" element={<AccountEmployeur/>}/>
+                <Route path="/gestionnaire/account" element={<AccountGestionnaire/>}/>
                 <Route path="/employeur" element={<EmployeurHome />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
