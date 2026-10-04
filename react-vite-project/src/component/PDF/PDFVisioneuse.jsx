@@ -37,19 +37,21 @@ export const PDFContent = ({ cvUrlAAffiche, width }) => {
             {numPages && (
                 <div className="flex items-center gap-4 mt-4 shrink-0">
                     <button
+                        type="button"
                         className="btn btn-sm"
                         disabled={pageNumber <= 1}
                         onClick={() => setPageNumber((prev) => prev - 1)}
                     >
-                        {t("button.previous")}
+                        {t("button.previous", "Précédent")}
                     </button>
                     <span className="text-sm">{pageNumber}/{numPages}</span>
                     <button
+                        type="button"
                         className="btn btn-sm"
                         disabled={pageNumber >= numPages}
                         onClick={() => setPageNumber((prev) => prev + 1)}
                     >
-                        {t("button.next")}
+                        {t("button.next", "Suivant")}
                     </button>
                 </div>
             )}
@@ -59,22 +61,16 @@ export const PDFContent = ({ cvUrlAAffiche, width }) => {
 
 export const PDFVisioneuse = ({ cvUrlAAffiche, onClose }) => {
     return (
-        <div className="p-6 max-w-2xl mx-auto space-y-4">
-            <dialog id="pdfModal" className="modal">
-                <div className="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col bg-[radial-gradient(circle_at_top_left,#000CCB33,#00CCCFFF,#000CCB33)]">
-                    <form method="dialog">
-                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                            <FiX />
-                        </button>
-                    </form>
+        <div className="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col bg-[radial-gradient(circle_at_top_left,#000CCB33,#00CCCFFF,#000CCB33)]">
+            <button
+                type="button"
+                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10"
+                onClick={onClose}
+            >
+                <FiX className="size-5" />
+            </button>
 
-                    <PDFContent cvUrlAAffiche={cvUrlAAffiche} />
-                </div>
-
-                <form method="dialog" className="modal-backdrop">
-                    <button onClick={onClose}>close</button>
-                </form>
-            </dialog>
+            <PDFContent cvUrlAAffiche={cvUrlAAffiche} />
         </div>
     );
 };

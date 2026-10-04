@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { approuverOffre, refuserOffre } from "../../api/gestionnaire.jsx";
+import ShowDocument from "../PDF/ShowDocument.jsx";
 
 function ReadOnlyField({ label, value, isMultiline = false }) {
     const { t } = useTranslation();
@@ -37,7 +38,7 @@ function OfferDetails({ offre: offreProp }) {
     const [rejectionComment, setRejectionComment] = useState("");
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setIsLoading(true);
         setErrors({});
 
@@ -75,10 +76,8 @@ function OfferDetails({ offre: offreProp }) {
 
     return (
         <div className="w-full max-w-2xl mx-auto p-4 md:p-8">
-            <form
-                onSubmit={handleSubmit}
-                className="w-full rounded-xl bg-white p-6 shadow-md md:p-8"
-            >
+            {/* Remplacement de <form> par <div> */}
+            <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8">
                 <h2 className="mb-6 text-xl font-bold text-[#043462]">
                     {t("offre.details_title")}
                 </h2>
@@ -138,7 +137,10 @@ function OfferDetails({ offre: offreProp }) {
                             </span>
 
                             <div className="flex items-center gap-3 mt-1">
-                                {/* Show pdf */}
+                                <ShowDocument
+                                    offerId={offre?.id}
+                                    fileName={offre?.fileName}
+                                />
                             </div>
                         </div>
                     </div>
@@ -185,12 +187,13 @@ function OfferDetails({ offre: offreProp }) {
                                 onClick={() => setShowRefusalReason(true)}
                                 className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                             >
-                                {t("actions.reject", "Refuser")}
+                                {t("actions.reject")}
                             </Button>
 
                             <Button
-                                type="submit"
+                                type="button"
                                 disabled={isLoading}
+                                onClick={handleSubmit}
                                 className="bg-green-600 text-white hover:bg-green-800 disabled:opacity-50"
                             >
                                 {isLoading ? t("actions.loading") : t("actions.approve")}
@@ -212,8 +215,9 @@ function OfferDetails({ offre: offreProp }) {
                             </Button>
 
                             <Button
-                                type="submit"
+                                type="button"
                                 disabled={isLoading}
+                                onClick={handleSubmit}
                                 className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                             >
                                 {isLoading ? t("actions.loading") : t("actions.confirm_rejection")}
@@ -221,7 +225,7 @@ function OfferDetails({ offre: offreProp }) {
                         </>
                     )}
                 </div>
-            </form>
+            </div>
         </div>
     );
 }

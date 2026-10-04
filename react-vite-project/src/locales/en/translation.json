@@ -202,6 +202,7 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "document_error" : "Document unavailable",
     "no_offers": "No offers available at the moment.",
     "details_title": "Offer Details",
     "offer_title": "Job Title",
@@ -216,7 +217,7 @@
     "details": "See details",
     "edit": "Edit",
     "description": "Description",
-    "rejection_comment": "Rejection reason *",
+    "rejection_comment": "Rejection reason",
     "rejection_placeholder": "Please enter the reason for rejection...",
     "errors": {
       "rejection_required": "The rejection reason is required.",

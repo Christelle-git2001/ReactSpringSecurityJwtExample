@@ -13,48 +13,85 @@ const EmployeurHome = () => {
 
     const [offres, setOffres] = useState([]);
 
+    const handleDownloadFile = (blobUrl, fileName) => {
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName || "offre-de-stage.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const renderStatusBadge = (statut) => {
+        switch (statut) {
+            case "ACCEPTEE":
+                return <span className="badge badge-success text-white">{t("status.acceptee")}</span>;
+            case "REFUSEE":
+                return <span className="badge badge-error text-white">{t("status.refusee")}</span>;
+            case "EN_ATTENTE":
+            default:
+                return <span className="badge badge-warning text-white">{t("status.en_attente")}</span>;
+        }
+    };
+
     const handleView = async (offer) => {
         let pdfBlobUrl = null;
 
         try {
-            // 1. Récupérer le fichier PDF depuis l'API Spring Boot
             const response = await obtenirOffrePDF(offer.id);
 
             if (response.ok) {
-                // 2. Transformer la réponse binaire en Blob
                 const blob = await response.blob();
-                // 3. Créer une URL temporaire utilisable par <Document file={...} />
                 pdfBlobUrl = URL.createObjectURL(blob);
             }
         } catch (error) {
             console.error("Erreur lors de la récupération du PDF de l'offre:", error);
         }
 
-        // 4. Ouvrir le drawer avec le composant PDFContent
         openDrawer(
-            <div className="space-y-4">
-                <div className="bg-base-100 p-4 rounded-lg shadow-md">
-                    <h2 className="text-xl font-bold">{offer.title}</h2>
-
-                    <ul className="mt-4 text-sm space-y-1">
+            <div className="space-y-4 p-2">
+                <div className="bg-base-100 p-4 rounded-lg shadow-md space-y-4">
+                    <div className="flex justify-between items-start">
+                        <h2 className="text-xl font-bold">{offer.title}</h2>
+                        {renderStatusBadge(offer.statut)}
+                    </div>
+                    {offer.statut === "REFUSEE" && offer.rejectionComment && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                            <p className="text-sm font-semibold text-red-700"> {t("offre.rejection_comment")}</p>
+                            <p className="text-xs text-red-600 mt-1">{offer.rejectionComment}</p>
+                        </div>
+                    )}
+                    <ul className="text-sm space-y-1">
                         <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
                         <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
                         <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
                     </ul>
 
-                    <p className="mt-2 text-sm">
+                    <p className="text-sm">
                         <strong>{t("offre.description")} :</strong><br />
                         {offer.description}
                     </p>
 
-                    <div className="mt-4">
-                        <h3 className="font-semibold text-sm mb-2">{t("offre.document")} :</h3>
-                        {pdfBlobUrl ? (
-                            <PDFContent cvUrlAAffiche={pdfBlobUrl} width={300} />
-                        ) : (
-                            <p className="text-xs text-gray-500">Aucun document attaché ou erreur de chargement</p>
-                        )}
-                    </div>
+                    {pdfBlobUrl ? (
+                        <PDFContent cvUrlAAffiche={pdfBlobUrl} width={300} />
+                    ) : (
+                        <p className="text-xs text-gray-500">{t("offre.document_error")}</p>
+                    )}
+
+                </div>
+
+                <div className="flex justify-center items-center">
+                    {pdfBlobUrl && (
+                        <button
+                            onClick={() => handleDownloadFile(pdfBlobUrl, offer.fileName || `offre_${offer.id}.pdf`)}
+                            className="btn btn-primary flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            {t("pdfVisio.download")}
+                        </button>
+                    )}
                 </div>
             </div>
         );

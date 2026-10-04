@@ -93,6 +93,7 @@
     "loading": "En cours..."
   },
   "offre": {
+    "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
     "details_title": "Détails de l'offre",
     "offer_title": "Titre de l'offre",
@@ -107,7 +108,7 @@
     "no_document": "Aucun document joint",
     "details": "Voir les détails",
     "edit": "Modifier",
-    "rejection_comment": "Raison du refus *",
+    "rejection_comment": "Raison du refus",
     "rejection_placeholder": "Veuillez entrer le motif du refus...",
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
