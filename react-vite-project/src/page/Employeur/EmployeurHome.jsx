@@ -89,7 +89,7 @@ const EmployeurHome = () => {
                         <li><strong>{t("offre.domaine")} :</strong> {translatedDepartment}</li>
                         <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
                         <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
-                        {offer.salary && <li><strong>{t("offre.salaire", "Salaire")} :</strong> {offer.salary}</li>}
+                        {offer.salary && <li><strong>{t("offre.salary")} :</strong> {offer.salary}  $ / h </li>}
                     </ul>
 
                     <p className="text-sm">
