@@ -180,7 +180,8 @@ public class EmployeurService {
         offre.setEndDate(dto.endDate());
 
         if (file != null && !file.isEmpty()) {
-            StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+            Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+            offre.setStoragePath(path.toString());
             offre.setFileName(file.getOriginalFilename());
         }
 
