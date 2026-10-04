@@ -33,7 +33,6 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
             </div>
 
             <div className="collapse-content space-y-4 text-sm">
-                {/* Statut */}
                 <div className="space-y-2">
           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
             {t("offre.statut")}
@@ -61,8 +60,6 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
                         />
                     </form>
                 </div>
-
-                {/* Domaine */}
                 {availableDomains.length > 0 && (
                     <div className="space-y-2 pt-2 border-t border-base-200">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
