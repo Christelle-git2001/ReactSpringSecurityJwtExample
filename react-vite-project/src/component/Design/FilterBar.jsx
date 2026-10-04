@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FiFilter } from "react-icons/fi";
+import { getDepartmentKey } from "../../utils/departementConverter.js";
 
 export default function FilterBar({selectedStatus, onStatusChange, selectedDomain, onDomainChange, availableDomains = [], className = ""}) {
     const { t } = useTranslation();
@@ -32,6 +33,7 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
             </div>
 
             <div className="collapse-content space-y-4 text-sm">
+                {/* Statut */}
                 <div className="space-y-2">
           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
             {t("offre.statut")}
@@ -59,6 +61,8 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
                         />
                     </form>
                 </div>
+
+                {/* Domaine */}
                 {availableDomains.length > 0 && (
                     <div className="space-y-2 pt-2 border-t border-base-200">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
@@ -66,6 +70,7 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
             </span>
 
                         <form className="filter flex flex-wrap gap-2">
+                            {/* Bouton TOUS */}
                             <label>
                                 <input
                                     type="checkbox"
@@ -76,17 +81,25 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
                                 />
                             </label>
 
-                            {availableDomains.map((domain) => (
-                                <label key={domain}>
-                                    <input
-                                        type="checkbox"
-                                        className="btn btn-xs"
-                                        checked={selectedDomain === domain}
-                                        onChange={() => onDomainChange(domain)}
-                                        aria-label={domain}
-                                    />
-                                </label>
-                            ))}
+                            {/* Boutons domaines convertis + traduits */}
+                            {availableDomains.map((domain) => {
+                                const key = getDepartmentKey(domain);
+                                const translated = key
+                                    ? t(`departement.${key}`, domain)
+                                    : domain;
+
+                                return (
+                                    <label key={domain}>
+                                        <input
+                                            type="checkbox"
+                                            className="btn btn-xs"
+                                            checked={selectedDomain === domain}
+                                            onChange={() => onDomainChange(domain)}
+                                            aria-label={translated}
+                                        />
+                                    </label>
+                                );
+                            })}
 
                             <input
                                 className="btn btn-square btn-xs"

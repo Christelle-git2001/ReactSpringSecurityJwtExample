@@ -8,6 +8,8 @@ import FilterBar from "../../component/Design/FilterBar.jsx";
 import { PDFContent } from "../../component/PDF/PDFVisioneuse.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import { FiRotateCcw } from "react-icons/fi";
+import { getDepartmentKey } from "../../utils/departementConverter.js";
+
 
 const EmployeurHome = () => {
     const { t } = useTranslation();
@@ -50,6 +52,8 @@ const EmployeurHome = () => {
         }
     };
 
+
+
     const handleView = async (offer) => {
         let pdfBlobUrl = null;
 
@@ -62,6 +66,11 @@ const EmployeurHome = () => {
         } catch (error) {
             console.error("Erreur lors de la récupération du PDF de l'offre:", error);
         }
+
+        const departmentKey = getDepartmentKey(offer?.domain);
+        const translatedDepartment = departmentKey
+            ? t(`departement.${departmentKey}`, offer?.domain)
+            : offer?.domain;
 
         openDrawer(
             <div className="space-y-4 p-2">
@@ -77,7 +86,7 @@ const EmployeurHome = () => {
                         </div>
                     )}
                     <ul className="text-sm space-y-1">
-                        <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
+                        <li><strong>{t("offre.domaine")} :</strong> {translatedDepartment}</li>
                         <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
                         <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
                         {offer.salary && <li><strong>{t("offre.salaire", "Salaire")} :</strong> {offer.salary}</li>}
