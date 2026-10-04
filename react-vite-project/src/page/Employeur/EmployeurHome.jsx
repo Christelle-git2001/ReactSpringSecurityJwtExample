@@ -4,7 +4,10 @@ import Card from "../../component/Design/Cards/Card.jsx";
 import { getOffresEmployeur, obtenirOffrePDF } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/SearchBar.jsx";
+import FilterBar from "../../component/Design/FilterBar.jsx";
 import { PDFContent } from "../../component/PDF/PDFVisioneuse.jsx";
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
+import { FiRotateCcw } from "react-icons/fi";
 
 const EmployeurHome = () => {
     const { t } = useTranslation();
@@ -12,6 +15,19 @@ const EmployeurHome = () => {
     const navigate = useNavigate();
 
     const [offres, setOffres] = useState([]);
+
+    const {
+        searchTerm,
+        setSearchTerm,
+        selectedStatus,
+        setSelectedStatus,
+        selectedDomain,
+        setSelectedDomain,
+        availableDomains,
+        hasActiveFilters,
+        offresFiltrees,
+        resetFilters
+    } = useOffreFilters(offres);
 
     const handleDownloadFile = (blobUrl, fileName) => {
         const link = document.createElement("a");
@@ -39,7 +55,6 @@ const EmployeurHome = () => {
 
         try {
             const response = await obtenirOffrePDF(offer.id);
-
             if (response.ok) {
                 const blob = await response.blob();
                 pdfBlobUrl = URL.createObjectURL(blob);
@@ -56,7 +71,7 @@ const EmployeurHome = () => {
                         {renderStatusBadge(offer.statut)}
                     </div>
                     {offer.statut === "REFUSEE" && offer.rejectionComment && (
-                        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                        <div className="bg-red-50 border-red-500 p-3 rounded">
                             <p className="text-sm font-semibold text-red-700"> {t("offre.rejection_comment")}</p>
                             <p className="text-xs text-red-600 mt-1">{offer.rejectionComment}</p>
                         </div>
@@ -65,6 +80,7 @@ const EmployeurHome = () => {
                         <li><strong>{t("offre.domaine")} :</strong> {offer.domain}</li>
                         <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
                         <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
+                        {offer.salary && <li><strong>{t("offre.salaire", "Salaire")} :</strong> {offer.salary}</li>}
                     </ul>
 
                     <p className="text-sm">
@@ -77,12 +93,12 @@ const EmployeurHome = () => {
                     ) : (
                         <p className="text-xs text-gray-500">{t("offre.document_error")}</p>
                     )}
-
                 </div>
 
                 <div className="flex justify-center items-center">
                     {pdfBlobUrl && (
                         <button
+                            type="button"
                             onClick={() => handleDownloadFile(pdfBlobUrl, offer.fileName || `offre_${offer.id}.pdf`)}
                             className="btn btn-primary flex items-center gap-2"
                         >
@@ -111,18 +127,34 @@ const EmployeurHome = () => {
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
-            <SearchBar className="mb-6" />
-            <div className="w-full flex flex-col md:flex-row gap-8 items-start mt-6">
+            <div className="w-full max-w-4xl space-y-4 mb-6">
+                    <SearchBar
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        onClear={() => setSearchTerm("")}
+                    />
+                <FilterBar
+                    selectedStatus={selectedStatus}
+                    onStatusChange={setSelectedStatus}
+                    selectedDomain={selectedDomain}
+                    onDomainChange={setSelectedDomain}
+                    availableDomains={availableDomains}
+                />
+            </div>
+
+            <div className="w-full flex flex-col md:flex-row gap-8 items-start">
                 <div className="w-full md:w-2/3 flex justify-center">
                     <div className="flex flex-col gap-6 w-full max-w-xl">
-                        {!offres || offres.length === 0 ? (
-                            <div className="items-center flex justify-center w-full">
+                        {offresFiltrees.length === 0 ? (
+                            <div className="items-center flex justify-center w-full py-8">
                                 <p className="text-gray-500 font-medium">
-                                    {t("offre.no_offers")}
+                                    {offres.length === 0
+                                        ? t("offre.no_offers")
+                                        : t("offre.no_matching_offers")}
                                 </p>
                             </div>
                         ) : (
-                            offres.map((offer) => (
+                            offresFiltrees.map((offer) => (
                                 <Card
                                     key={offer.id}
                                     offer={offer}
@@ -133,6 +165,7 @@ const EmployeurHome = () => {
                         )}
                     </div>
                 </div>
+
                 <div className="
                     w-full md:w-1/3 bg-white p-6 rounded-lg shadow-md
                     h-auto md:h-[85vh] lg:h-[90vh]

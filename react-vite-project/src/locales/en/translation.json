@@ -84,6 +84,8 @@
     "not_provided": "Not provided"
   },
   "actions": {
+    "filter_by": "Filter by ",
+    "reset_filters": "Reset filters",
     "back": "Back",
     "reject": "Reject",
     "approve": "Approve",
@@ -208,12 +210,14 @@
     "offer_title": "Job Title",
     "domaine": "Domain",
     "salary": "Salary",
+    "statut": "Status",
     "hourly_rate_suffix": "$/hr",
     "date_debut": "Start date",
     "date_fin": "End date",
     "document": "Document",
     "view_document": "View PDF document",
     "no_document": "No document attached",
+    "no_matching_offers": "No offers match your filters.",
     "details": "See details",
     "edit": "Edit",
     "description": "Description",
@@ -225,8 +229,13 @@
     }
   },
   "status": {
+    "tous": "All",
     "en_attente": "Pending",
     "acceptee": "Accepted",
     "refusee": "Rejected"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "clear": "Clear search"
   }
 }

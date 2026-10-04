@@ -90,11 +90,19 @@
     "cancel": "Annuler",
     "cancel_refusal": "Annuler le refus",
     "confirm_rejection": "Confirmer le refus",
-    "loading": "En cours..."
+    "loading": "En cours...",
+    "filter_by": "Filtrer par ",
+    "reset_filters": "Réinitialiser les filtres"
+  },
+  "search": {
+    "placeholder": "Rechercher...",
+    "clear": "Effacer la recherche"
   },
   "offre": {
+    "statut": "Statut",
     "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
+    "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
     "details_title": "Détails de l'offre",
     "offer_title": "Titre de l'offre",
     "domaine": "Domaine",
@@ -190,6 +198,7 @@
     "add_offer": "Créer une offre"
   },
   "status": {
+    "tous": "Tous",
     "en_attente": "En attente",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
