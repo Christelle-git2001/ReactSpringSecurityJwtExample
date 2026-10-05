@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.RejectionCommentDTO;
@@ -79,7 +79,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                StatutOffre.EN_ATTENTE,
+                Statut.EN_ATTENTE,
                 "offre.pdf",
                 null,
                 null
@@ -109,7 +109,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                StatutOffre.ACCEPTEE,
+                Statut.ACCEPTEE,
                 "offre.pdf",
                 null,
                 null
@@ -142,7 +142,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                StatutOffre.REFUSEE,
+                Statut.REFUSEE,
                 "offre.pdf",
                 null,
                 commentaire

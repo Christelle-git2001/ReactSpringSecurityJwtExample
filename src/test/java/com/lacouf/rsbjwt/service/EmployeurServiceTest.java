@@ -4,7 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -100,7 +100,7 @@ public class EmployeurServiceTest {
                 .description("donner à manger")
                 .salary(19.25)
                 .domain(Departement.INFORMATIQUE)
-                .statut(StatutOffre.EN_ATTENTE)
+                .statut(Statut.EN_ATTENTE)
                 .startDate(LocalDate.of(2026, 10, 1))
                 .endDate(LocalDate.of(2026, 10, 15))
                 .employeur(employeur)

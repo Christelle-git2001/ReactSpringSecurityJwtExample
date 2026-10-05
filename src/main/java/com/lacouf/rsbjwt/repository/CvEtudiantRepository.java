@@ -10,5 +10,5 @@ import java.util.Optional;
 
 public interface CvEtudiantRepository extends JpaRepository<CvEtudiant, Long> {
     Optional<CvEtudiant> findByEtudiant(Etudiant etudiant);
-    List<CvEtudiant> findByStatus(Statut statut);
+    List<CvEtudiant> findByStatut(Statut statut);
 }

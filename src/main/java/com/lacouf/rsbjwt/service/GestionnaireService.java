@@ -38,7 +38,7 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public void creerCompteGestionnaire(GestionnaireDto gestionnaireDto) throws EmailExistantException, NumeroTelephoneExistantException {
+    public GestionnaireDto creerCompteGestionnaire(GestionnaireDto gestionnaireDto) throws EmailExistantException, NumeroTelephoneExistantException {
         validerInscriptionGestionnaire(gestionnaireDto);
         Gestionnaire gestionnaire = Gestionnaire.builder()
                 .firstName(gestionnaireDto.firstName())
@@ -47,7 +47,7 @@ public class GestionnaireService {
                 .phoneNumber(gestionnaireDto.phoneNumber())
                 .password(passwordEncoder.encode(gestionnaireDto.password()))
                 .build();
-        gestionnaireRepository.save(gestionnaire);
+        return GestionnaireDto.create(gestionnaireRepository.save(gestionnaire));
     }
 
     public List<SecteurEmployeurDTO> getAllSecteurs() {
@@ -118,7 +118,7 @@ public class GestionnaireService {
     }
 
     public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){
-        return cvEtudiantRepository.findByStatus(Statut.EN_ATTENTE)
+        return cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)
                 .stream()
                 .map(CvEtudiantDTO::of)
                 .toList();
