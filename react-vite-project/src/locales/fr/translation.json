@@ -176,6 +176,10 @@
     "card" : {
       "account" : "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
     },
+    "card_intership" : {
+      "title" : "offres de stage",
+      "description" : "Explorez les opportunités de stage disponibles, consultez les détails des offres et postulez à celles qui correspondent à vos intérêts et compétences."
+    },
     "listCvSubtitle" : "Vos curriculum vitae",
     "noCVUpload" : "Aucun Curriculum Vitae téléversé.",
     "noCvFound" : "Cv non trouvé"

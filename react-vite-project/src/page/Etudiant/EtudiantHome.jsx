@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import CardEtudiant from "../../component/ui/CardEtudiant.jsx";
-import {FiUser} from "react-icons/fi";
+import {FiSearch, FiUser, FiZoomOut} from "react-icons/fi";
 
 const EtudiantHome = ({user}) => {
   const { t } = useTranslation();
@@ -14,6 +14,12 @@ const EtudiantHome = ({user}) => {
                 description={t("etudiant.card.account")}
                 Icon={FiUser}
                 linkTo="/etudiant/account"
+            />
+            <CardEtudiant
+                title={t("etudiant.card_intership.title")}
+                description={t("etudiant.card_intership.description")}
+                Icon={FiSearch}
+                linkTo="/etudiant/cv"
             />
         </div>
       </div>

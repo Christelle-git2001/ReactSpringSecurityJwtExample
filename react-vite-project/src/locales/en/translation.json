@@ -158,6 +158,10 @@
     "card" : {
       "account" : "Manage your personal information, update your profile, and view your account details. "
     },
+    "card_intership" : {
+      "title" : "Internship Offers",
+      "description" : "View and manage your internship offers, apply for internships, and track your application status."
+    },
     "noCVUpload" : "No Curriculum Vitae Upload yet.",
     "noCvFound" : "Cv not found"
   },
