@@ -14,51 +14,54 @@ import java.time.LocalDate;
 @ToString
 public class OffreDeStage {
 
-            @Id
-            @GeneratedValue(strategy = GenerationType.AUTO)
-            private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-            @Column(nullable = false)
-            private String title;
+    @Column(nullable = false)
+    private String title;
 
-            @Column(nullable = false)
-            private String description;
+    @Column(nullable = false)
+    private String description;
 
-            @Column(nullable = false)
-            private Double salary;
+    @Column(nullable = false)
+    private Double salary;
 
-            @Column(nullable = false)
-            private Departement domain;
+    @Column(nullable = false)
+    private Departement domain;
 
-            @Column(nullable = false)
-            private LocalDate startDate;
+    @Column(nullable = false)
+    private LocalDate startDate;
 
-            @Column(nullable = false)
-            private LocalDate endDate;
+    @Column(nullable = false)
+    private LocalDate endDate;
 
             @Enumerated(EnumType.STRING)
             @Column(nullable = false)
             private Statut statut;
 
-            private String fileName;
+    private String fileName;
+    private String storagePath;
 
-            @ManyToOne
-            @JoinColumn(name = "employeur_id")
-            private Employeur employeur;
-            private String rejectionComment;
+    @ManyToOne
+    @JoinColumn(name = "employeur_id")
+    private Employeur employeur;
+
+    private String rejectionComment;
 
     @Builder
     public OffreDeStage(
-                String title,
-                String description,
-                Double salary,
-                Departement domain,
-                LocalDate startDate,
-                LocalDate endDate,
-                Statut statut,
-                String fileName,
-                Employeur employeur,
-                String rejectionComment
+            String title,
+            String description,
+            Double salary,
+            Departement domain,
+            LocalDate startDate,
+            LocalDate endDate,
+            Statut statut,
+            String fileName,
+            String storagePath,
+            Employeur employeur,
+            String rejectionComment
     ) {
         this.title = title;
         this.description = description;

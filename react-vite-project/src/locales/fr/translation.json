@@ -80,6 +80,50 @@
     "current_file": "Fichier actuel :",
     "keep_file_note": "Laissez vide si vous ne souhaitez pas modifier le document actuel."
   },
+  "common": {
+    "not_provided": "Non renseigné"
+  },
+  "actions": {
+    "active": "Actif",
+    "back": "Retour",
+    "reject": "Refuser",
+    "approve": "Approuver",
+    "cancel": "Annuler",
+    "cancel_refusal": "Annuler le refus",
+    "confirm_rejection": "Confirmer le refus",
+    "loading": "En cours...",
+    "filter_by": "Filtrer par ",
+    "reset_filters": "Réinitialiser les filtres"
+  },
+  "search": {
+    "placeholder": "Rechercher...",
+    "clear": "Effacer la recherche"
+  },
+  "offre": {
+    "statut": "Statut",
+    "document_error" : "Document indisponible",
+    "no_offers": "Aucune offre disponible pour le moment.",
+    "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
+    "details_title": "Détails de l'offre",
+    "offer_title": "Titre de l'offre",
+    "domaine": "Domaine",
+    "salary": "Salaire",
+    "hourly_rate_suffix": "$/h",
+    "description": "Description",
+    "date_debut": "Date de début",
+    "date_fin": "Date de fin",
+    "document": "Document",
+    "view_document": "Voir le document PDF",
+    "no_document": "Aucun document joint",
+    "details": "Voir les détails",
+    "edit": "Modifier",
+    "rejection_comment": "Raison du refus",
+    "rejection_placeholder": "Veuillez entrer le motif du refus...",
+    "errors": {
+      "rejection_required": "Le motif du refus est obligatoire.",
+      "api_generic": "Une erreur est survenue lors de l'envoi."
+    }
+  },
   "login": {
     "page_title": "Connexion",
     "page_subtitle": "Accédez à votre compte utilisateur",
@@ -149,61 +193,52 @@
   },
   "nav": {
     "home": "Accueil",
-    "account" : "Compte",
+    "account": "Compte",
     "login": "Connexion",
     "logout": "Déconnexion",
-    "add_offer" : "Créer une offre"
-  },
-  "offre": {
-    "domaine": "Domaine",
-    "date_debut": "Date de début",
-    "date_fin": "Date de fin",
-    "document": "Document",
-    "details" : "Voir les détails",
-    "edit" : "Modifier",
-    "description" : "Description"
+    "add_offer": "Créer une offre"
   },
   "status": {
+    "tous": "Tous",
     "en_attente": "En attente",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
     "employer_added": "Employeur ajouté avec succès."
   },
   "home": {
-    "welcome" : "Bienvenue"
+    "welcome": "Bienvenue"
   },
   "etudiant": {
-    "card" : {
-      "account" : "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
+    "card": {
+      "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
     },
-    "listCvSubtitle" : "Vos curriculum vitae",
-    "noCVUpload" : "Aucun Curriculum Vitae téléversé.",
-    "noCvFound" : "Cv non trouvé"
-
+    "listCvSubtitle": "Vos curriculum vitae",
+    "noCVUpload": "Aucun Curriculum Vitae téléversé.",
+    "noCvFound": "Cv non trouvé"
   },
-  "pdfVisio" : {
-    "nofiles" : "Aucun fichier sélectioné",
-    "visualize" : "Visualiser le PDF",
-    "filesName" : "Nom du fichier",
-    "choice" : "Sélectionner un fichier",
-    "download" : "Télécharger le PDF",
-    "fichierInvalide" : "Fichier Invalide",
-    "noFileDetected" : "Aucun fichier à lire",
-    "bigFiles" : "Votre fichier est trop volumineux, vous avez besoin de moins de 10 mo",
-    "lowFiles" : "Votre fichier est corrompus, réessayez."
+  "pdfVisio": {
+    "nofiles": "Aucun fichier sélectioné",
+    "visualize": "Visualiser le PDF",
+    "filesName": "Nom du fichier",
+    "choice": "Sélectionner un fichier",
+    "download": "Télécharger le PDF",
+    "fichierInvalide": "Fichier Invalide",
+    "noFileDetected": "Aucun fichier à lire",
+    "bigFiles": "Votre fichier est trop volumineux, vous avez besoin de moins de 10 mo",
+    "lowFiles": "Votre fichier est corrompus, réessayez."
   },
-  "account" : {
-    "info" : {
-      "personal" : "Renseignements personnels",
-      "educational" : "Renseignements Scolaire",
-      "professional" : "Renseignements Professionels"
+  "account": {
+    "info": {
+      "personal": "Renseignements personnels",
+      "educational": "Renseignements Scolaire",
+      "professional": "Renseignements Professionels"
     }
   },
   "button": {
-    "previous" : "precedent",
-    "next" : "suivant"
+    "previous": "precedent",
+    "next": "suivant"
   },
   "token": {
-    "doesntExist" : "Aucune Session trouvée"
+    "doesntExist": "Aucune Session trouvée"
   }
 }

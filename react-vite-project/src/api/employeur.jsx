@@ -49,3 +49,17 @@ export async function modifierOffreEmployeur(id, dto, file) {
         body: formData,
     });
 }
+
+export async function obtenirOffrePDF(id) {
+    const token = localStorage.getItem("token");
+    const headers = {};
+
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return fetch(`http://localhost:8080/employeur/offres/${id}/download`, {
+        method: "GET",
+        headers: headers,
+    });
+}

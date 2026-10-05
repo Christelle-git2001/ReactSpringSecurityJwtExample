@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,31 +70,34 @@ public class EmployeurService {
     }
 
     @Transactional
-    public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO dto,
+    public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO creationOffreDeStageDTO,
                                       MultipartFile file,
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
 
         Employeur employeur = getEmployeurByEmail(email);
 
-        validerDates(dto);
+        validerDates(creationOffreDeStageDTO);
 
         String fileName = null;
+        String storagePath = null ;
 
-        if (file != null) {
-            StockageFichierUtils.sauvegarderPdf(file,STORAGE_OFFRE);
+        if (file != null && !file.isEmpty()) {
+            Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+            storagePath = path.toString();
             fileName = file.getOriginalFilename();
         }
 
         OffreDeStage offre = OffreDeStage.builder()
-                .title(dto.title())
-                .description(dto.description())
-                .salary(dto.salary())
-                .domain(dto.domain())
-                .startDate(dto.startDate())
-                .endDate(dto.endDate())
+                .title(creationOffreDeStageDTO.title())
+                .description(creationOffreDeStageDTO.description())
+                .salary(creationOffreDeStageDTO.salary())
+                .domain(creationOffreDeStageDTO.domain())
+                .startDate(creationOffreDeStageDTO.startDate())
+                .endDate(creationOffreDeStageDTO.endDate())
                 .statut(Statut.EN_ATTENTE)
                 .fileName(fileName)
+                .storagePath(storagePath)
                 .employeur(employeur)
                 .build();
         return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
@@ -111,6 +115,19 @@ public class EmployeurService {
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
+    }
+
+    public Resource telechargerOffre(Long id, String email)
+            throws OffreIntrouvableException, FichierIntrouvableException {
+
+        OffreDeStage offre = offreDeStageRepository.findById(id)
+                .orElseThrow(OffreIntrouvableException::new);
+
+        if (offre.getStoragePath() == null || offre.getStoragePath().isEmpty()) {
+            throw new FichierIntrouvableException();
+        }
+
+        return StockageFichierUtils.chargerFichier(Paths.get(offre.getStoragePath()));
     }
 
 
@@ -163,7 +180,8 @@ public class EmployeurService {
         offre.setEndDate(dto.endDate());
 
         if (file != null && !file.isEmpty()) {
-            StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+            Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+            offre.setStoragePath(path.toString());
             offre.setFileName(file.getOriginalFilename());
         }
 

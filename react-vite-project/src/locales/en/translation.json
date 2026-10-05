@@ -80,6 +80,20 @@
     "current_file": "Current file:",
     "keep_file_note": "Leave empty if you do not want to modify the current document."
   },
+  "common": {
+    "not_provided": "Not provided"
+  },
+  "actions": {
+    "active": "Active",
+    "filter_by": "Filter by ",
+    "reset_filters": "Reset filters",
+    "back": "Back",
+    "reject": "Reject",
+    "approve": "Approve",
+    "cancel_refusal": "Cancel rejection",
+    "confirm_rejection": "Confirm rejection",
+    "loading": "Loading..."
+  },
   "login": {
     "page_title": "Login",
     "page_subtitle": "Access to your user account",
@@ -146,62 +160,83 @@
   },
   "nav": {
     "home": "Home",
-    "account" : "Account",
+    "account": "Account",
     "login": "Login",
     "logout": "Logout",
-    "add_offer" : "Add offer"
+    "add_offer": "Add offer"
   },
   "home": {
-    "welcome" : "Welcome"
+    "welcome": "Welcome"
   },
   "etudiant": {
-    "card" : {
-      "account" : "Manage your personal information, update your profile, and view your account details. "
+    "card": {
+      "account": "Manage your personal information, update your profile, and view your account details. "
     },
-    "noCVUpload" : "No Curriculum Vitae Upload yet.",
-    "noCvFound" : "Cv not found"
+    "noCVUpload": "No Curriculum Vitae Upload yet.",
+    "noCvFound": "Cv not found"
   },
-  "pdfVisio" : {
-    "nofiles" : "No files selected",
-    "visualize" : "Visualize PDF",
-    "filesName" : "File name",
-    "choice" : "Choose a file",
-    "download" : "Download the PDF",
-    "fichierInvalide" : "Invalid file",
-    "noFileDetected" : "No file to read",
-    "bigFiles" : "Your file is too big, you need less than 10 mo",
-    "lowFiles" : "Your file is corrupted, please select another file"
+  "pdfVisio": {
+    "nofiles": "No files selected",
+    "visualize": "Visualize PDF",
+    "filesName": "File name",
+    "choice": "Choose a file",
+    "download": "Download the PDF",
+    "fichierInvalide": "Invalid file",
+    "noFileDetected": "No file to read",
+    "bigFiles": "Your file is too big, you need less than 10 mo",
+    "lowFiles": "Your file is corrupted, please select another file"
   },
-  "account" : {
-    "info" : {
-      "personal" : "Personal Information",
-      "educational" : "Educational Information",
-      "professional" : "Professional Information"
+  "account": {
+    "info": {
+      "personal": "Personal Information",
+      "educational": "Educational Information",
+      "professional": "Professional Information"
     }
   },
   "button": {
-    "previous" : "previous",
-    "next" : "next"
+    "previous": "previous",
+    "next": "next"
   },
   "token": {
-    "doesntExist" : "No Session Found",
+    "doesntExist": "No Session Found",
     "employer_added": "Employer added successfully.",
     "offer_loaded": "Offer loaded successfully.",
     "offer_created": "Offer created successfully.",
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "document_error" : "Document unavailable",
+    "no_offers": "No offers available at the moment.",
+    "details_title": "Offer Details",
+    "offer_title": "Job Title",
     "domaine": "Domain",
+    "salary": "Salary",
+    "statut": "Status",
+    "hourly_rate_suffix": "$/hr",
     "date_debut": "Start date",
     "date_fin": "End date",
     "document": "Document",
+    "view_document": "View PDF document",
+    "no_document": "No document attached",
+    "no_matching_offers": "No offers match your filters.",
     "details": "See details",
     "edit": "Edit",
-    "description": "Description"
+    "description": "Description",
+    "rejection_comment": "Rejection reason",
+    "rejection_placeholder": "Please enter the reason for rejection...",
+    "errors": {
+      "rejection_required": "The rejection reason is required.",
+      "api_generic": "An error occurred while submitting."
+    }
   },
   "status": {
+    "tous": "All",
     "en_attente": "Pending",
     "acceptee": "Accepted",
     "refusee": "Rejected"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "clear": "Clear search"
   }
 }

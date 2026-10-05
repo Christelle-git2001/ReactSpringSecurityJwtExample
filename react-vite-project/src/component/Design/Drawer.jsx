@@ -5,7 +5,7 @@ function Drawer({ id, content }) {
 
             <div className="drawer-side pointer-events-auto">
                 <label htmlFor={id} className="drawer-overlay"></label>
-                <div className="min-h-full w-80 p-4 shadow-xl bg-[#D9B8FF]">
+                <div className="min-h-full w-96 p-4 shadow-xl bg-[#D9B8FF]">
                     {content}
                 </div>
             </div>
