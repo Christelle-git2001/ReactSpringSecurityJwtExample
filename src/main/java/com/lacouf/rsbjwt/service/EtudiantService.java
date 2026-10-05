@@ -2,11 +2,14 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
+import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,13 +34,16 @@ public class EtudiantService {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final PasswordEncoder passwordEncoder;
     private final Path STORAGE_CV = Paths.get("uploads", "cvs");
+    private final OffreDeStageRepository offreDeStageRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
-                           CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder) {
+                           CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
+                           OffreDeStageRepository offreDeStageRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.passwordEncoder = passwordEncoder;
+        this.offreDeStageRepository = offreDeStageRepository;
     }
 
     @Transactional
@@ -156,5 +163,13 @@ public class EtudiantService {
         cv.setFileSize(file.getSize());
         cv.setStoragePath(filePath.toString());
         cv.setUploadDate(LocalDateTime.now());
+    }
+
+    public List<OffreDeStageDTO> getOffresDisponibles() {
+        return offreDeStageRepository.findByStatut(StatutOffre.ACCEPTEE)
+                .stream()
+                .map(OffreDeStageDTO::of)
+                .toList();
+
     }
 }
