@@ -67,7 +67,6 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
             </span>
 
                         <form className="filter flex flex-wrap gap-2">
-                            {/* Bouton TOUS */}
                             <label>
                                 <input
                                     type="checkbox"
@@ -77,8 +76,6 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
                                     aria-label={t("status.tous")}
                                 />
                             </label>
-
-                            {/* Boutons domaines convertis + traduits */}
                             {availableDomains.map((domain) => {
                                 const key = getDepartmentKey(domain);
                                 const translated = key

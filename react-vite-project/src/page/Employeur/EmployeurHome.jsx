@@ -7,7 +7,6 @@ import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import { PDFContent } from "../../component/PDF/PDFVisioneuse.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
-import { FiRotateCcw } from "react-icons/fi";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 
 
@@ -26,9 +25,7 @@ const EmployeurHome = () => {
         selectedDomain,
         setSelectedDomain,
         availableDomains,
-        hasActiveFilters,
         offresFiltrees,
-        resetFilters
     } = useOffreFilters(offres);
 
     const handleDownloadFile = (blobUrl, fileName) => {
