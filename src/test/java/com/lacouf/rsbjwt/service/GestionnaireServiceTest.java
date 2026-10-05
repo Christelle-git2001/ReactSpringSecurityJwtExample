@@ -12,6 +12,10 @@ import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,17 +25,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class GestionnaireServiceTest {
 
+    @Mock
     private OffreDeStageRepository offreDeStageRepository;
 
+    @InjectMocks
     private GestionnaireService gestionnaireService;
 
-    @BeforeEach
-    void setUp() {
-        offreDeStageRepository = mock(OffreDeStageRepository.class);
-        gestionnaireService = new GestionnaireService(offreDeStageRepository);
-    }
 
     private Employeur creerEmployeurTest() {
         Employeur employeur = Employeur.builder()

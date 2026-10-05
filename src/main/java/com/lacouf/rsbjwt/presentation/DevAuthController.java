@@ -1,9 +1,8 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
+import com.lacouf.rsbjwt.model.Gestionnaire;
+import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
-import com.lacouf.rsbjwt.service.UserAppService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,25 +18,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Profile("dev")
 public class DevAuthController {
 
-    private final EtudiantRepository etudiantRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final GestionnaireRepository gestionnaireRepository;
 
-    public DevAuthController(EtudiantRepository etudiantRepository, UserAppService userAppService, JwtTokenProvider jwtTokenProvider){
-        this.etudiantRepository = etudiantRepository;
+    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository){
         this.jwtTokenProvider = jwtTokenProvider;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
 
-    @PostMapping("/login/student")
-    public ResponseEntity<String> devLoginStudent(){
-        Etudiant etudiant = etudiantRepository.findAll()
+    @PostMapping("/login/gestionnaire")
+    public ResponseEntity<String> devLoginStudent() throws Exception {
+        Gestionnaire gestionnaire = gestionnaireRepository.findAll()
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Aucun étudiant trouvé en BDD"));
+                .orElseThrow(() -> new Exception("Aucun gestionnaire trouvé en BDD"));
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                etudiant.getEmail(),
+                gestionnaire.getEmail(),
                 null,
-                etudiant.getAuthorities()
+                gestionnaire.getAuthorities()
         );
 
         String token = jwtTokenProvider.generateToken(auth);

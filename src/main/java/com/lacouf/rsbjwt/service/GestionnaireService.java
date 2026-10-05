@@ -1,16 +1,16 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
-import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
-import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.service.dto.DepartementDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.dto.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +18,34 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class GestionnaireService {
+    private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
+    private final UserAppRepository userAppRepository;
+    private final GestionnaireRepository gestionnaireRepository;
 
-    public GestionnaireService(OffreDeStageRepository offreDeStageRepository){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository){
+        this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
+        this.userAppRepository = userAppRepository;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
+
+    @Transactional
+    public void creerCompteGestionnaire(GestionnaireDto gestionnaireDto) throws EmailExistantException, NumeroTelephoneExistantException {
+        validerInscriptionGestionnaire(gestionnaireDto);
+        Gestionnaire gestionnaire = Gestionnaire.builder()
+                .firstName(gestionnaireDto.firstName())
+                .lastName(gestionnaireDto.lastName())
+                .email(gestionnaireDto.email())
+                .phoneNumber(gestionnaireDto.phoneNumber())
+                .password(passwordEncoder.encode(gestionnaireDto.password()))
+                .build();
+        gestionnaireRepository.save(gestionnaire);
+    }
+
     public List<SecteurEmployeurDTO> getAllSecteurs() {
         return Arrays.stream(SecteurActivite.values())
                 .map(secteur -> new SecteurEmployeurDTO(
@@ -90,6 +111,18 @@ public class GestionnaireService {
         return OffreDeStageDTO.of(
                 offreDeStageRepository.save(offre)
         );
+    }
+
+    private void validerInscriptionGestionnaire(GestionnaireDto gestionnaireDto)  throws EmailExistantException, NumeroTelephoneExistantException{
+        if (userAppRepository.findUserAppByEmail(
+                gestionnaireDto.email()).isPresent()) {
+            throw new EmailExistantException();
+        }
+
+        if (userAppRepository.findByPhoneNumber(
+                gestionnaireDto.phoneNumber()).isPresent()) {
+            throw new NumeroTelephoneExistantException();
+        }
     }
 
 }
