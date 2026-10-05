@@ -4,9 +4,7 @@ package com.lacouf.rsbjwt.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.GestionnaireService;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.RejectionCommentDTO;
-import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +13,21 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 
 
@@ -38,10 +42,14 @@ public class GestionnaireControllerTest {
     private GestionnaireService gestionnaireService;
 
     private MockMvc mockMvc;
+
+    private JsonMapper jsonMapper;
+
     @BeforeEach
     void init(){
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
+        jsonMapper = JsonMapper.builder().build();
     }
 
 
@@ -57,6 +65,29 @@ public class GestionnaireControllerTest {
         when(gestionnaireService.getAllSecteurs()).thenReturn(secteurs);
 
         mockMvc.perform(get("/gestionnaire/secteurEmployeur")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].name").value("INFORMATIQUE"))
+                .andExpect(jsonPath("$[0].label").value("Informatique"))
+                .andExpect(jsonPath("$[1].name").value("PHARMACEUTIQUE"))
+                .andExpect(jsonPath("$[1].label").value("Pharmaceutique"))
+                .andExpect(jsonPath("$[2].name").value("FINANCE"))
+                .andExpect(jsonPath("$[2].label").value("Finance"));
+    }
+
+    @Test
+    void doitRetournerListeDepartement() throws Exception {
+
+        List<DepartementDTO> departement = List.of(
+                new DepartementDTO("INFORMATIQUE", "Informatique"),
+                new DepartementDTO("PHARMACEUTIQUE", "Pharmaceutique"),
+                new DepartementDTO("FINANCE", "Finance")
+        );
+
+        when(gestionnaireService.getAllDepartements()).thenReturn(departement);
+
+        mockMvc.perform(get("/gestionnaire/departement")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3))
@@ -166,5 +197,94 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.statut").value("REFUSEE"))
                 .andExpect(jsonPath("$.rejectionComment").value(commentaire));
+    }
+
+    @Test
+    void doitRetournerCurriculumVitaeEnAttente() throws Exception {
+        CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
+                -1,
+                "LeRagout",
+                "application/pdf",
+                18L,
+                LocalDateTime.now(),
+                Statut.EN_ATTENTE,
+                ""
+        );
+
+        when(gestionnaireService.getCurriculumVitaeEnAttente()).thenReturn(List.of(cvEtudiantDTO));
+
+       MvcResult mvcResult =  mockMvc.perform(get("/gestionnaire/cvs/attente")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(cvEtudiantDTO)))
+                .andExpect(status().isOk()).andReturn();
+        String jsonResponse = mvcResult.getResponse().getContentAsString();
+        List<CvEtudiantDTO> cvEtudiantDTOResult = jsonMapper.readValue(
+                jsonResponse,
+                new TypeReference<List<CvEtudiantDTO>>() {}
+        );
+
+        assertThat(cvEtudiantDTOResult).hasSize(1);
+        assertThat(cvEtudiantDTOResult.getFirst()).satisfies(dto -> {
+            assertThat(dto.rejectionComment()).isEqualTo(cvEtudiantDTO.rejectionComment());
+            assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
+            assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
+
+        });
+    }
+
+    @Test
+    void doitApprouverUnCurriculumVitae() throws Exception {
+        CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
+                1,
+                "LeRagout",
+                "application/pdf",
+                18L,
+                LocalDateTime.now(),
+                Statut.ACCEPTEE,
+                ""
+        );
+
+        when(gestionnaireService.approuverCurriculumVitae(1L)).thenReturn(cvEtudiantDTO);
+
+        MvcResult mvcResult = mockMvc.perform(put("/gestionnaire/cv/" + 1 + "/approuver")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(cvEtudiantDTO)))
+                .andExpect(status().isOk()).andReturn();
+        String jsonResponse = mvcResult.getResponse().getContentAsString();
+        CvEtudiantDTO cvEtudiantDTOResult = jsonMapper.readValue(jsonResponse, CvEtudiantDTO.class);
+
+        assertThat(cvEtudiantDTOResult).isNotNull().satisfies(dto -> {
+            assertThat(dto.rejectionComment()).isEqualTo(cvEtudiantDTO.rejectionComment());
+            assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
+            assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
+        });
+    }
+
+    @Test
+    void doitRefuserUnCurriculumVitae() throws Exception {
+        CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
+                1,
+                "LeRagout",
+                "application/pdf",
+                18L,
+                LocalDateTime.now(),
+                Statut.REFUSEE,
+                "Illegal Curriculum Vitae"
+        );
+
+        when(gestionnaireService.refuserCurriculumVitae(cvEtudiantDTO.id(), cvEtudiantDTO.rejectionComment())).thenReturn(cvEtudiantDTO);
+
+        MvcResult mvcResult = mockMvc.perform(put("/gestionnaire/cv/" + 1 + "/refuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(cvEtudiantDTO)))
+                .andExpect(status().isOk()).andReturn();
+        String jsonResponse = mvcResult.getResponse().getContentAsString();
+        CvEtudiantDTO cvEtudiantDTOResult = jsonMapper.readValue(jsonResponse, CvEtudiantDTO.class);
+
+        assertThat(cvEtudiantDTOResult).isNotNull().satisfies(dto -> {
+            assertThat(dto.rejectionComment()).isEqualTo(cvEtudiantDTO.rejectionComment());
+            assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
+            assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
+        });
     }
 }

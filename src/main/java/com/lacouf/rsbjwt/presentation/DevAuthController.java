@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.Exception.AucunGestionnaireTrouver;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
@@ -31,7 +32,7 @@ public class DevAuthController {
         Gestionnaire gestionnaire = gestionnaireRepository.findAll()
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new Exception("Aucun gestionnaire trouvé en BDD"));
+                .orElseThrow(AucunGestionnaireTrouver::new);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 gestionnaire.getEmail(),
