@@ -82,7 +82,11 @@ public class EmployeurService {
         String fileName = null;
         String storagePath = null ;
 
-        if (file != null && !file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
+            throw new FichierCorrompuException();
+        }
+
+        if (!file.isEmpty()) {
             Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
             storagePath = path.toString();
             fileName = file.getOriginalFilename();

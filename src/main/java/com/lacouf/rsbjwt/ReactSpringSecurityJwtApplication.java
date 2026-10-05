@@ -81,16 +81,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         );
 */
         //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
-        gestionnaireRepository.save(
-                Gestionnaire.builder()
-                        .firstName("Gerard")
-                        .lastName("Biblio")
-                        .email("l@l.com")
-                        .password(passwordEncoder.encode("bib"))
-                        .matricule("0000001")
-                        .phoneNumber("123-456-7890")
-                        .build()
-        );
         /*
         emprunteurRepository.save(
                 Emprunteur.builder()
