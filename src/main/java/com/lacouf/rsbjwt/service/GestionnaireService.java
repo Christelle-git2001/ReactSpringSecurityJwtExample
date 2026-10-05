@@ -1,11 +1,13 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -24,13 +26,15 @@ public class GestionnaireService {
     private final OffreDeStageRepository offreDeStageRepository;
     private final UserAppRepository userAppRepository;
     private final GestionnaireRepository gestionnaireRepository;
+    private final CvEtudiantRepository cvEtudiantRepository;
 
-    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
         this.userAppRepository = userAppRepository;
         this.gestionnaireRepository = gestionnaireRepository;
+        this.cvEtudiantRepository = cvEtudiantRepository;
     }
 
     @Transactional
@@ -66,7 +70,7 @@ public class GestionnaireService {
 
     public List<OffreDeStageDTO> getOffresEnAttente() {
         return offreDeStageRepository
-                .findByStatut(StatutOffre.EN_ATTENTE)
+                .findByStatut(Statut.EN_ATTENTE)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
@@ -78,11 +82,11 @@ public class GestionnaireService {
         OffreDeStage offre = offreDeStageRepository.findById(id)
                 .orElseThrow(OffreIntrouvableException::new);
 
-        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+        if (offre.getStatut() != Statut.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
-        offre.setStatut(StatutOffre.ACCEPTEE);
+        offre.setStatut(Statut.ACCEPTEE);
         offre.setRejectionComment(null);
 
         return OffreDeStageDTO.of(
@@ -97,7 +101,7 @@ public class GestionnaireService {
         OffreDeStage offre = offreDeStageRepository.findById(id)
                 .orElseThrow((OffreIntrouvableException::new));
 
-        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+        if (offre.getStatut() != Statut.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
@@ -105,11 +109,52 @@ public class GestionnaireService {
             throw new CommentaireRefusObligatoireException();
         }
 
-        offre.setStatut(StatutOffre.REFUSEE);
+        offre.setStatut(Statut.REFUSEE);
         offre.setRejectionComment(commentaire);
 
         return OffreDeStageDTO.of(
                 offreDeStageRepository.save(offre)
+        );
+    }
+
+    public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){
+        return cvEtudiantRepository.findByStatus(Statut.EN_ATTENTE)
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
+    }
+
+    @Transactional
+    public CvEtudiantDTO approuverCurriculumVitae(Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
+        CvEtudiant cvEtudiant = cvEtudiantRepository.findById(id).orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cvEtudiant.getStatut() != Statut.EN_ATTENTE)
+            throw new CurriculumVitaeNonEnAttente();
+
+        cvEtudiant.setStatut(Statut.ACCEPTEE);
+        cvEtudiant.setRejectionComment(null);
+
+        return CvEtudiantDTO.of(
+                cvEtudiantRepository.save(cvEtudiant)
+        );
+    }
+
+    @Transactional
+    public CvEtudiantDTO refuserCurriculumVitae(Long id, String commentaire) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente, CommentaireRefusObligatoireException {
+        CvEtudiant cvEtudiant = cvEtudiantRepository.findById(id).orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cvEtudiant.getStatut() != Statut.EN_ATTENTE)
+            throw new CurriculumVitaeNonEnAttente();
+
+        if (commentaire == null || commentaire.isBlank()) {
+            throw new CommentaireRefusObligatoireException();
+        }
+
+        cvEtudiant.setStatut(Statut.REFUSEE);
+        cvEtudiant.setRejectionComment(commentaire);
+
+        return CvEtudiantDTO.of(
+                cvEtudiantRepository.save(cvEtudiant)
         );
     }
 

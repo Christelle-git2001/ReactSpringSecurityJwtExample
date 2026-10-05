@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -92,7 +92,7 @@ public class EmployeurService {
                 .domain(dto.domain())
                 .startDate(dto.startDate())
                 .endDate(dto.endDate())
-                .statut(StatutOffre.EN_ATTENTE)
+                .statut(Statut.EN_ATTENTE)
                 .fileName(fileName)
                 .employeur(employeur)
                 .build();
@@ -149,7 +149,7 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+        if (offre.getStatut() != Statut.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
