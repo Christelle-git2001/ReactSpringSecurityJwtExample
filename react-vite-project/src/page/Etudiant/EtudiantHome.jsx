@@ -16,8 +16,8 @@ const EtudiantHome = ({user}) => {
                 linkTo="/etudiant/account"
             />
             <CardEtudiant
-                title={t("etudiant.card_intership.title")}
-                description={t("etudiant.card_intership.description")}
+                title={t("nav.view_offers")}
+                description={t("etudiant.card.view_offers")}
                 Icon={FiSearch}
                 linkTo="/etudiant/cv"
             />

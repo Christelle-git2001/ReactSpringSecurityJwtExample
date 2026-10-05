@@ -147,6 +147,7 @@
   "nav": {
     "home": "Home",
     "account" : "Account",
+    "view_offers" : "Internship offers",
     "login": "Login",
     "logout": "Logout",
     "add_offer" : "Add offer"
@@ -156,11 +157,8 @@
   },
   "etudiant": {
     "card" : {
-      "account" : "Manage your personal information, update your profile, and view your account details. "
-    },
-    "card_intership" : {
-      "title" : "Internship Offers",
-      "description" : "View and manage your internship offers, apply for internships, and track your application status."
+      "account" : "Manage your personal information, update your profile, and view your account details. ",
+      "view_offers" : "Browse and apply for internship offers, track your applications, and manage your internship opportunities."
     },
     "noCVUpload" : "No Curriculum Vitae Upload yet.",
     "noCvFound" : "Cv not found"
