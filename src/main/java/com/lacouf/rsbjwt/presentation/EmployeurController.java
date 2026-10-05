@@ -7,12 +7,15 @@ import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -66,5 +69,19 @@ public class EmployeurController {
                 employeurService.modifierOffre(id, dto, file, principal.getName());
 
         return ResponseEntity.ok(offreDTO);
+    }
+
+    @GetMapping("/offres/{id}/download")
+    public ResponseEntity<Resource> telechargerDocumentOffre(
+            @PathVariable Long id,
+            Authentication authentication
+    ) throws FichierIntrouvableException, OffreIntrouvableException {
+
+        Resource resource = employeurService.telechargerOffre(id, authentication.getName());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"offre.pdf\"")
+                .body(resource);
     }
 }
