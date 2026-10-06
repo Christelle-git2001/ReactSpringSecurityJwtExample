@@ -1,25 +1,21 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-
-import PageLayout from "../Design/PageLayout.jsx";
-import PublicLayout from "../Design/PublicLayout.jsx";
-
+import PublicLayout from "../Design/Layouts/PublicLayout.jsx";
 import MainContainer from "../Design/MainContainer";
-import About from "../Design/About";
 import LoginForm from "../auth/LoginForm";
-
 import InscriptionHome from "../../page/InscriptionHome.jsx";
-
 import Logout from "../auth/Logout";
-import ErrorPage from "../Design/ErrorPage";
-import EmployeurHome from "../../page/EmployeurHome";
-import GestionnaireHome from "../../page/GestionnaireHome.jsx";
+import ErrorPage from "../../page/ErrorPage.jsx";
+import EmployeurHome from "../../page/Employeur/EmployeurHome";
+import GestionnaireHome from "../../page/Gestionnaire/GestionnaireHome.jsx";
 import EtudiantHome from "../../page/Etudiant/EtudiantHome.jsx";
-import ProfesseurHome from "../../page/ProfesseurHome.jsx";
-
-import AddOffer from "../../page/AddOffer.jsx";
-import SideBarLayout from "../Design/SideBarLayout.jsx";
+import ProfesseurHome from "../../page/Professeur/ProfesseurHome.jsx";
+import AddOffer from "../Offer/AddOffer.jsx";
+import SideBarLayout from "../Design/Layouts/SideBarLayout.jsx";
 import AccountEtudiant from "../../page/Etudiant/AccountEtudiant.jsx";
-import EditOffer from "../../page/EditOffer.jsx";
+import AccountEmployeur from "../../page/Employeur/AccountEmployeur.jsx";
+import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx";
+import EditOffer from "../Offer/EditOffer.jsx";
+import OfferDetails from "../Offer/OfferDetails.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -59,15 +55,17 @@ export default function AppRoutes({
 
             <Route element={<SideBarLayout user={user} openDrawer={openDrawer} />}>
                 <Route path="/home" element={<MainContainer setError={setError} />} />
-                <Route path="/about" element={<About />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/>
+                <Route path="/employeur/account" element={<AccountEmployeur/>}/>
+                <Route path="/gestionnaire/account" element={<AccountGestionnaire/>}/>
                 <Route path="/employeur" element={<EmployeurHome />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome />} />
+                <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
 

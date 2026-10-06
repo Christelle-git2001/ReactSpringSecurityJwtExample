@@ -6,7 +6,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
@@ -73,7 +73,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2026, 10, 1),
                 LocalDate.of(2026, 10, 15),
-                StatutOffre.EN_ATTENTE,
+                Statut.EN_ATTENTE,
                 null,
                 null,
                 null
