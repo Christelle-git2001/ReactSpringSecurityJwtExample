@@ -19,7 +19,7 @@ const EtudiantHome = ({user}) => {
                 title={t("nav.view_offers")}
                 description={t("etudiant.card.view_offers")}
                 Icon={FiSearch}
-                linkTo="/etudiant/cv"
+                linkTo="/etudiant/offers"
             />
         </div>
       </div>
