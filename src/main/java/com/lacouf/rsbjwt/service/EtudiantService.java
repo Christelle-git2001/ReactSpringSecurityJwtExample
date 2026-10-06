@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
@@ -83,7 +84,8 @@ public class EtudiantService {
     public CvEtudiantDTO televerserCv(MultipartFile file, String email)
             throws FichierTypeInvalideException, EtudiantIntrouvableException,
             SuppressionFichierEchoueeException, FichierCorrompuException,
-            FichierTropVolumineuxException, IOException {
+            FichierTropVolumineuxException, CurriculumVitaeEnAttenteException,
+            IOException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
@@ -91,6 +93,10 @@ public class EtudiantService {
                 .orElseGet(() -> CvEtudiant.builder()
                         .etudiant(etudiant)
                         .build());
+
+        if (cv.getId() != null && cv.getStatut() == Statut.EN_ATTENTE) {
+            throw new CurriculumVitaeEnAttenteException();
+        }
 
         supprimerAncienCv(cv, filePath);
 
@@ -156,5 +162,7 @@ public class EtudiantService {
         cv.setFileSize(file.getSize());
         cv.setStoragePath(filePath.toString());
         cv.setUploadDate(LocalDateTime.now());
+        cv.setStatut(Statut.EN_ATTENTE);
+        cv.setComment(null);
     }
 }

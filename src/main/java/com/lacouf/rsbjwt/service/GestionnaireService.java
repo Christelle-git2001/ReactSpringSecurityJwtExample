@@ -125,14 +125,14 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public CvEtudiantDTO approuverCurriculumVitae(Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
+    public CvEtudiantDTO approuverCurriculumVitae(Long id, String commentaire) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
         CvEtudiant cvEtudiant = cvEtudiantRepository.findById(id).orElseThrow(CurriculumVitaeIntrouvable::new);
 
         if (cvEtudiant.getStatut() != Statut.EN_ATTENTE)
             throw new CurriculumVitaeNonEnAttente();
 
         cvEtudiant.setStatut(Statut.ACCEPTEE);
-        cvEtudiant.setRejectionComment(null);
+        cvEtudiant.setComment(commentaire);
 
         return CvEtudiantDTO.of(
                 cvEtudiantRepository.save(cvEtudiant)
@@ -151,7 +151,7 @@ public class GestionnaireService {
         }
 
         cvEtudiant.setStatut(Statut.REFUSEE);
-        cvEtudiant.setRejectionComment(commentaire);
+        cvEtudiant.setComment(commentaire);
 
         return CvEtudiantDTO.of(
                 cvEtudiantRepository.save(cvEtudiant)
@@ -170,4 +170,10 @@ public class GestionnaireService {
         }
     }
 
+    public List<CvEtudiantDTO> getTousLesCvs() {
+        return cvEtudiantRepository.findAll()
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
+    }
 }
