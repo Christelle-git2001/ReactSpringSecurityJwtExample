@@ -67,14 +67,19 @@ public class GestionnaireController {
         return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTOS);
     }
 
+    @GetMapping("/cvs")
+    public ResponseEntity<List<CvEtudiantDTO>> getTousLesCvs() {
+        return ResponseEntity.ok(gestionnaireService.getTousLesCvs());
+    }
+
     @PutMapping("/cv/{id}/approuver")
-    public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
-        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.approuverCurriculumVitae(id);
+    public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id, @RequestBody RejectionCommentDTO rejectionCommentDTO) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
+        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.approuverCurriculumVitae(id, rejectionCommentDTO.rejectionComment());
         return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTO);
     }
 
     @PutMapping("/cv/{id}/refuser")
-    public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id, @RequestBody RejectionCommentDTO rejectionCommentDTO) throws CurriculumVitaeNonEnAttente, CurriculumVitaeIntrouvable, CommentaireRefusObligatoireException {
+    public ResponseEntity<CvEtudiantDTO> refuserCurriculumVitae(@PathVariable Long id, @RequestBody RejectionCommentDTO rejectionCommentDTO) throws CurriculumVitaeNonEnAttente, CurriculumVitaeIntrouvable, CommentaireRefusObligatoireException {
         CvEtudiantDTO cvEtudiantDTO = gestionnaireService.refuserCurriculumVitae(id,rejectionCommentDTO.rejectionComment());
         return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTO);
     }
