@@ -169,7 +169,7 @@ public class EtudiantService {
         cv.setStoragePath(filePath.toString());
         cv.setUploadDate(LocalDateTime.now());
         cv.setStatut(Statut.EN_ATTENTE);
-        cv.setComment(null);
+        cv.setRejectionComment(null);
     }
 
     public List<OffreDeStageDTO> getOffresDisponibles() {

@@ -380,14 +380,14 @@ class GestionnaireServiceTest {
         when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
         when(cvEtudiantRepository.save(any(CvEtudiant.class))).thenReturn(cvEtudiant);
 
-        CvEtudiantDTO result = gestionnaireService.approuverCurriculumVitae(1L, "" );
+        CvEtudiantDTO result = gestionnaireService.approuverCurriculumVitae(1L);
 
         assertThat(result)
                 .isNotNull()
                 .satisfies(dto -> {
                     assertThat(dto.fileName()).isEqualTo(cvEtudiant.getFileName());
                     assertThat(dto.statut()).isEqualTo(Statut.ACCEPTEE);
-                    assertThat(dto.comment()).isBlank();
+                    assertThat(dto.rejectionComment()).isBlank();
                 });
 
         verify(cvEtudiantRepository).findById(1L);
@@ -399,7 +399,7 @@ class GestionnaireServiceTest {
         cvEtudiant.setStatut(Statut.REFUSEE);
         when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
 
-        assertThatThrownBy(() -> gestionnaireService.approuverCurriculumVitae(1L, "")).isInstanceOf(CurriculumVitaeNonEnAttente.class);
+        assertThatThrownBy(() -> gestionnaireService.approuverCurriculumVitae(1L)).isInstanceOf(CurriculumVitaeNonEnAttente.class);
 
         verify(cvEtudiantRepository).findById(1L);
         verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
@@ -409,7 +409,7 @@ class GestionnaireServiceTest {
     void doitLeverExceptionSiCurriculumVitaeIntrouvableApprouver(){
         when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> gestionnaireService.approuverCurriculumVitae(1L, "")).isInstanceOf(CurriculumVitaeIntrouvable.class);
+        assertThatThrownBy(() -> gestionnaireService.approuverCurriculumVitae(1L)).isInstanceOf(CurriculumVitaeIntrouvable.class);
 
         verify(cvEtudiantRepository).findById(1L);
         verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
@@ -427,7 +427,7 @@ class GestionnaireServiceTest {
                 .satisfies(dto -> {
                     assertThat(dto.fileName()).isEqualTo(cvEtudiant.getFileName());
                     assertThat(dto.statut()).isEqualTo(Statut.REFUSEE);
-                    assertThat(dto.comment()).isEqualTo(cvCommentError);
+                    assertThat(dto.rejectionComment()).isEqualTo(cvCommentError);
                 });
 
         verify(cvEtudiantRepository).findById(1L);

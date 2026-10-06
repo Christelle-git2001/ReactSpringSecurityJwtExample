@@ -73,8 +73,8 @@ public class GestionnaireController {
     }
 
     @PutMapping("/cv/{id}/approuver")
-    public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id, @RequestBody RejectionCommentDTO rejectionCommentDTO) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
-        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.approuverCurriculumVitae(id, rejectionCommentDTO.rejectionComment());
+    public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
+        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.approuverCurriculumVitae(id);
         return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTO);
     }
 

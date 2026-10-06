@@ -14,7 +14,7 @@ public record CvEtudiantDTO (
     Long fileSize,
     LocalDateTime uploadDate,
     Statut statut,
-    String comment
+    String rejectionComment
 ){
     public static CvEtudiantDTO of(CvEtudiant cv) {
         return new CvEtudiantDTO(
@@ -25,7 +25,7 @@ public record CvEtudiantDTO (
                 cv.getFileSize(),
                 cv.getUploadDate(),
                 cv.getStatut(),
-                cv.getComment()
+                cv.getRejectionComment()
         );
     }
 }
