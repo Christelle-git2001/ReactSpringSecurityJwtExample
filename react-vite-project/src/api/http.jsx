@@ -69,12 +69,6 @@ export async function getTousLesCvs() {
 export async function approuverCv(id, commentText) {
     return fetchJson(`/gestionnaire/cv/${id}/approuver`, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            rejectionComment: commentText
-        }),
     });
 }
 

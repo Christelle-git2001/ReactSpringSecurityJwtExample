@@ -38,7 +38,7 @@ function CvCard({ cv, onApprove, onReject }) {
 
     const handleApprove = async () => {
         setError("");
-        onApprove(cv.id, commentaires);
+        onApprove(cv.id);
     };
 
     const handleReject = async () => {
@@ -162,11 +162,11 @@ function CvCard({ cv, onApprove, onReject }) {
                             value={cv.statut}
                         />
 
-                        {cv.comment && (
+                        {cv.rejectionComment && (
                             <div className="md:col-span-2">
                                 <ReadOnlyField
                                     label={t("cv.previous_rejection_comment")}
-                                    value={cv.comment}
+                                    value={cv.rejectionComment}
                                     isMultiline
                                 />
                             </div>

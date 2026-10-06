@@ -24,9 +24,9 @@ function GestionnaireCvs() {
         chargerCvs();
     }, []);
 
-    const handleApprove = async (id, comment) => {
+    const handleApprove = async (id) => {
         try {
-            await approuverCv(id, comment);
+            await approuverCv(id);
             await chargerCvs();
         } catch (err) {
             setError("error.generic");
