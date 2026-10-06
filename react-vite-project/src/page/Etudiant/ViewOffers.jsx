@@ -52,10 +52,6 @@ const ViewOffers = () => {
                         placeholder={t("etudiant.offers.title_filter")}
                         className="input input-bordered"
                     />
-                    <select name="domaine" value={filtres.domaine} onChange={changer} className="select select-bordered">
-                        <option value="">{t("etudiant.offers.domain_filter")}</option>
-                        {domaines.map((d) => <option key={d} value={d}>{d}</option>)}
-                    </select>
                     <input
                         name="salaireMin"
                         type="number"
