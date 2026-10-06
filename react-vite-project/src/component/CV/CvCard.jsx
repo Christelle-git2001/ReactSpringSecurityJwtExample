@@ -29,12 +29,8 @@ function CvCard({ cv, onApprove, onReject }) {
     const [commentaires, setCommentaires] = useState("");
 
     const getStudentName = () => {
-        if (cv.etudiantFullName) {
-            return cv.etudiantFullName;
-        }
-
-        if (cv.etudiantFirstName || cv.etudiantLastName) {
-            return `${cv.etudiantFirstName || ""} ${cv.etudiantLastName || ""}`.trim();
+        if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
+            return `${cv.etudiant?.firstName || ""} ${cv.etudiant?.lastName || ""}`.trim();
         }
 
         return t("cv.student_unknown");
@@ -166,11 +162,11 @@ function CvCard({ cv, onApprove, onReject }) {
                             value={cv.statut}
                         />
 
-                        {cv.rejectionComment && (
+                        {cv.comment && (
                             <div className="md:col-span-2">
                                 <ReadOnlyField
                                     label={t("cv.previous_rejection_comment")}
-                                    value={cv.rejectionComment}
+                                    value={cv.comment}
                                     isMultiline
                                 />
                             </div>
