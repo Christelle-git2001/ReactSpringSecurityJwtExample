@@ -166,9 +166,7 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now(),
-                Statut.EN_ATTENTE,
-                ""
+                LocalDateTime.now()
         );
 
         when(etudiantService.televerserCv(any(), anyString()))
@@ -198,9 +196,7 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now(),
-                Statut.ACCEPTEE,
-                ""
+                LocalDateTime.now()
         );
 
         when(etudiantService.getCv("christelle@gmail.com"))
