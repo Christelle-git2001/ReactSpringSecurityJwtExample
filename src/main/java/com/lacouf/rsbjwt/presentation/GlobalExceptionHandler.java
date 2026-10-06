@@ -147,16 +147,4 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
-    @ExceptionHandler(CurriculumVitaeIntrouvable.class)
-    public ResponseEntity<ErreurDTO> handleCurriculumVitaeIntrouvable(CurriculumVitaeIntrouvable e){
-        logger.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
-    }
-
-    @ExceptionHandler(CurriculumVitaeNonEnAttente.class)
-    public ResponseEntity<ErreurDTO> handleCurriculumVitaeNonEnAttente(CurriculumVitaeNonEnAttente e){
-        logger.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
-    }
-
 }

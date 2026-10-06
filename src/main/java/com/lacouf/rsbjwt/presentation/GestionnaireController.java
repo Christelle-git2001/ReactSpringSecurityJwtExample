@@ -1,10 +1,14 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
+import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.service.GestionnaireService;
-import com.lacouf.rsbjwt.service.dto.*;
-import org.springframework.http.HttpStatus;
+import com.lacouf.rsbjwt.service.dto.DepartementDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.RejectionCommentDTO;
+import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,24 +63,6 @@ public class GestionnaireController {
                 gestionnaireService.refuserOffre(id, commentdto.rejectionComment());
 
         return ResponseEntity.ok(offre);
-    }
-
-    @GetMapping("/cvs/attente")
-    public ResponseEntity<List<CvEtudiantDTO>> getCurriculumVitaeEnAttente(){
-        List<CvEtudiantDTO> cvEtudiantDTOS = gestionnaireService.getCurriculumVitaeEnAttente();
-        return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTOS);
-    }
-
-    @PutMapping("/cv/{id}/approuver")
-    public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
-        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.approuverCurriculumVitae(id);
-        return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTO);
-    }
-
-    @PutMapping("/cv/{id}/refuser")
-    public ResponseEntity<CvEtudiantDTO> refuserCurriculumVitae(@PathVariable Long id, @RequestBody RejectionCommentDTO rejectionCommentDTO) throws CurriculumVitaeNonEnAttente, CurriculumVitaeIntrouvable, CommentaireRefusObligatoireException {
-        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.refuserCurriculumVitae(id,rejectionCommentDTO.rejectionComment());
-        return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTO);
     }
 
 }

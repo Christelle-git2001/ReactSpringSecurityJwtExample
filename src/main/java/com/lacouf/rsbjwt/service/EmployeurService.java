@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -82,15 +82,11 @@ public class EmployeurService {
         String fileName = null;
         String storagePath = null ;
 
-        if (file == null || file.isEmpty()) {
-            throw new FichierCorrompuException();
+        if (file != null && !file.isEmpty()) {
+            Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+            storagePath = path.toString();
+            fileName = file.getOriginalFilename();
         }
-
-
-        Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
-        storagePath = path.toString();
-        fileName = file.getOriginalFilename();
-
 
         OffreDeStage offre = OffreDeStage.builder()
                 .title(creationOffreDeStageDTO.title())
@@ -99,7 +95,7 @@ public class EmployeurService {
                 .domain(creationOffreDeStageDTO.domain())
                 .startDate(creationOffreDeStageDTO.startDate())
                 .endDate(creationOffreDeStageDTO.endDate())
-                .statut(Statut.EN_ATTENTE)
+                .statut(StatutOffre.EN_ATTENTE)
                 .fileName(fileName)
                 .storagePath(storagePath)
                 .employeur(employeur)
@@ -170,7 +166,7 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        if (offre.getStatut() != Statut.EN_ATTENTE) {
+        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
