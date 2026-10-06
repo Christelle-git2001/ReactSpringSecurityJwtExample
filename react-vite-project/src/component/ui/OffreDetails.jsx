@@ -17,7 +17,7 @@ const OffreDetails = ({ offre, onClose, onPostuler }) => {
                 <h2 className="text-2xl font-bold">{offre.title}</h2>
 
                 <div className="flex flex-wrap gap-2">
-                    <span className="badge badge-primary">{offre.domain}</span>
+                    <span className="badge badge-accent">{offre.domain}</span>
                     <span className="badge badge-outline">{offre.salary} $/h</span>
                 </div>
 
@@ -32,7 +32,7 @@ const OffreDetails = ({ offre, onClose, onPostuler }) => {
                 </div>
 
                 <div className="mt-auto">
-                    <button className="btn btn-primary w-full" onClick={() => onPostuler(offre)}>
+                    <button className="btn btn-accent w-full" onClick={() => onPostuler(offre)}>
                         {t("etudiant.offers.apply_button")}
                     </button>
                 </div>

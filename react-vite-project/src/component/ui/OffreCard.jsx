@@ -10,7 +10,7 @@ const OffreCard = ({ offre, onDetails }) => {
                 <h2 className="card-title">{offre.title}</h2>
                 <p className="line-clamp-3">{offre.description}</p>
                 <div className="justify-end card-actions">
-                    <button className="btn btn-primary" onClick={() => onDetails(offre)}>
+                    <button className="btn btn-accent" onClick={() => onDetails(offre)}>
                         {t("etudiant.offers.details_button")}
                     </button>
                 </div>
