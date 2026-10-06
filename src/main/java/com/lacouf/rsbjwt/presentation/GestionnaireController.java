@@ -1,10 +1,12 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.*;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ public class GestionnaireController {
 
 
     private final GestionnaireService gestionnaireService;
+
     public GestionnaireController(GestionnaireService gestionnaireService) {
         this.gestionnaireService = gestionnaireService;
     }
@@ -35,7 +38,7 @@ public class GestionnaireController {
     }
 
     @GetMapping("/offres")
-    public ResponseEntity<List<OffreDeStageDTO>> getOffresEnAttente(){
+    public ResponseEntity<List<OffreDeStageDTO>> getOffresEnAttente() {
         List<OffreDeStageDTO> offres = gestionnaireService.getOffresEnAttente();
         return ResponseEntity.ok(offres);
     }
@@ -62,7 +65,7 @@ public class GestionnaireController {
     }
 
     @GetMapping("/cvs/attente")
-    public ResponseEntity<List<CvEtudiantDTO>> getCurriculumVitaeEnAttente(){
+    public ResponseEntity<List<CvEtudiantDTO>> getCurriculumVitaeEnAttente() {
         List<CvEtudiantDTO> cvEtudiantDTOS = gestionnaireService.getCurriculumVitaeEnAttente();
         return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTOS);
     }
@@ -80,8 +83,21 @@ public class GestionnaireController {
 
     @PutMapping("/cv/{id}/refuser")
     public ResponseEntity<CvEtudiantDTO> refuserCurriculumVitae(@PathVariable Long id, @RequestBody RejectionCommentDTO rejectionCommentDTO) throws CurriculumVitaeNonEnAttente, CurriculumVitaeIntrouvable, CommentaireRefusObligatoireException {
-        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.refuserCurriculumVitae(id,rejectionCommentDTO.rejectionComment());
+        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.refuserCurriculumVitae(id, rejectionCommentDTO.rejectionComment());
         return ResponseEntity.status(HttpStatus.OK).body(cvEtudiantDTO);
     }
 
+    @GetMapping("/cv/{id}/download")
+    public ResponseEntity<Resource> telechargerCvGestionnaire(@PathVariable Long id)
+            throws CurriculumVitaeIntrouvable, FichierIntrouvableException {
+
+        Resource resource = gestionnaireService.telechargerCvParId(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"cv.pdf\"")
+                .body(resource);
+
+
+    }
 }

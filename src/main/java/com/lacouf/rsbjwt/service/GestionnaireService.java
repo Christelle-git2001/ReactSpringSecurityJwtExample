@@ -12,10 +12,13 @@ import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.core.io.Resource;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,7 +31,7 @@ public class GestionnaireService {
     private final GestionnaireRepository gestionnaireRepository;
     private final CvEtudiantRepository cvEtudiantRepository;
 
-    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository ){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -176,4 +179,10 @@ public class GestionnaireService {
                 .map(CvEtudiantDTO::of)
                 .toList();
     }
+
+    public Resource telechargerCvParId(Long id) throws CurriculumVitaeIntrouvable, FichierIntrouvableException {
+        CvEtudiant cv = cvEtudiantRepository.findById(id)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        return StockageFichierUtils.chargerFichier(Path.of(cv.getStoragePath()));    }
 }
