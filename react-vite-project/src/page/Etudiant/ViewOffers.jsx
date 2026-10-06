@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import OffreCard from "../../component/ui/OffreCard";
-import OffreDetails from "../../component/ui/OffreDetails";
+import OffreCard from "../../component/Design/Cards/OffreCard";
+import OffreDetails from "../../component/Design/OffreDetails";
 import {obtenirOffres} from "../../api/etudiant.jsx";
 
 const ViewOffers = () => {

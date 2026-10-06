@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
-import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
-import ThemeToggle from "./ThemeToggle.jsx";
+import LanguageSwitch from "../../../locales/LanguageSwitch.jsx";
+import ThemeToggle from "../ThemeToggle.jsx";
 import { useTranslation } from "react-i18next";
 import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser} from "react-icons/fi";
 
@@ -15,6 +15,7 @@ function SideBarLayout({ user, openDrawer }) {
 
     const NAV_ITEMS = [
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         {path: "/employeur/offres/nouvelle",label: t("nav.add_offer"),roles: ["EMPLOYEUR"],icon: <FiPlusCircle className="size-4 my-1.5" />},
         { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
@@ -56,7 +57,7 @@ function SideBarLayout({ user, openDrawer }) {
 
                     </div>
                 </nav>
-                <div className="p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col items-center w-full">
+                <div className="p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col  w-full">
                     <Outlet context={{ openDrawer }} />
                 </div>
 

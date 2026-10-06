@@ -1,7 +1,7 @@
 import React from "react";
-import '../../css/Header.css';
+import '../../../css/Header.css';
 import { Link } from 'react-router-dom';
-import LanguageSwitche from "../../locales/LanguageSwitch.jsx";
+import LanguageSwitche from "../../../locales/LanguageSwitch.jsx";
 
 function Header({user}) {
     // Function to format role for display (remove ROLE_ prefix and capitalize)

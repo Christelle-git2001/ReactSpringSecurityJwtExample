@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import CardEtudiant from "../../component/ui/CardEtudiant.jsx";
-import {FiSearch, FiUser} from "react-icons/fi";
+import CardEtudiant from "../../component/Design/Cards/CardEtudiant.jsx";
+import {FiUser,FiSearch} from "react-icons/fi";
 
 const EtudiantHome = ({user}) => {
   const { t } = useTranslation();
