@@ -165,7 +165,10 @@
       "title_filter" : "Filter by title",
       "domain_filter" : "Filter by domain",
       "salary_filter" : "Filter by minimum salary",
-      "no_offers" : "No offers found"
+      "details_button" : "Details",
+      "no_offers" : "No offers found",
+      "fromTo" : "to",
+      "apply_button" : "Apply"
     },
     "noCVUpload" : "No Curriculum Vitae Upload yet.",
     "noCvFound" : "Cv not found"
@@ -206,7 +209,8 @@
     "document": "Document",
     "details": "See details",
     "edit": "Edit",
-    "description": "Description"
+    "description": "Description",
+    "period": "Period"
   },
   "status": {
     "en_attente": "Pending",

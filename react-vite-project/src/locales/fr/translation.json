@@ -162,7 +162,8 @@
     "document": "Document",
     "details" : "Voir les détails",
     "edit" : "Modifier",
-    "description" : "Description"
+    "description" : "Description",
+    "period" : "Période"
   },
   "status": {
     "en_attente": "En attente",
@@ -183,7 +184,10 @@
       "title_filter": "Filtrer par titre",
       "domain_filter": "Filtrer par domaine",
       "salary_filter": "Filtrer par salaire minimum",
-        "no_offers": "Aucune offre trouvée"
+      "details_button" : "Détails",
+      "no_offers": "Aucune offre trouvée",
+      "fromTo": "au",
+      "apply_button": "Postuler"
     },
     "listCvSubtitle" : "Vos curriculum vitae",
     "noCVUpload" : "Aucun Curriculum Vitae téléversé.",
