@@ -17,7 +17,6 @@ const OffreDetails = ({ offre, onClose, onPostuler }) => {
                 <h2 className="text-2xl font-bold">{offre.title}</h2>
 
                 <div className="flex flex-wrap gap-2">
-                    <span className="badge badge-accent">{offre.domain}</span>
                     <span className="badge badge-outline">{offre.salary} $/h</span>
                 </div>
 
