@@ -14,7 +14,7 @@ public record CvEtudiantDTO (
     Long fileSize,
     LocalDateTime uploadDate,
     Statut statut,
-    String rejectionComment
+    String comment
 ){
     public static CvEtudiantDTO of(CvEtudiant cv) {
         return new CvEtudiantDTO(
