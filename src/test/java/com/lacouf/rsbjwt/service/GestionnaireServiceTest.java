@@ -5,7 +5,7 @@ import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
 import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
@@ -70,10 +70,10 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
-        when(offreDeStageRepository.findByStatut(StatutOffre.EN_ATTENTE))
+        when(offreDeStageRepository.findByStatut(Statut.EN_ATTENTE))
                 .thenReturn(List.of(offre));
 
         List<OffreDeStageDTO> result =
@@ -85,7 +85,7 @@ class GestionnaireServiceTest {
                 .contains(1L);
 
         verify(offreDeStageRepository)
-                .findByStatut(StatutOffre.EN_ATTENTE);
+                .findByStatut(Statut.EN_ATTENTE);
     }
 
     @Test
@@ -94,7 +94,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
         when(offreDeStageRepository.findById(1L))
@@ -109,7 +109,7 @@ class GestionnaireServiceTest {
         assertThat(result).isNotNull();
 
         assertThat(offre.getStatut())
-                .isEqualTo(StatutOffre.ACCEPTEE);
+                .isEqualTo(Statut.ACCEPTEE);
 
         assertThat(offre.getRejectionComment())
                 .isNull();
@@ -143,7 +143,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.ACCEPTEE);
+        offre.setStatut(Statut.ACCEPTEE);
 
         when(offreDeStageRepository.findById(1L))
                 .thenReturn(Optional.of(offre));
@@ -165,7 +165,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
         when(offreDeStageRepository.findById(1L))
@@ -183,7 +183,7 @@ class GestionnaireServiceTest {
         assertThat(result).isNotNull();
 
         assertThat(offre.getStatut())
-                .isEqualTo(StatutOffre.REFUSEE);
+                .isEqualTo(Statut.REFUSEE);
 
         assertThat(offre.getRejectionComment())
                 .isEqualTo(commentaire);
@@ -202,7 +202,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setStatut(Statut.EN_ATTENTE);
 
         when(offreDeStageRepository.findById(1L))
                 .thenReturn(Optional.of(offre));
@@ -223,7 +223,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setStatut(Statut.EN_ATTENTE);
 
         when(offreDeStageRepository.findById(1L))
                 .thenReturn(Optional.of(offre));
@@ -244,7 +244,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.EN_ATTENTE);
+        offre.setStatut(Statut.EN_ATTENTE);
 
         when(offreDeStageRepository.findById(1L))
                 .thenReturn(Optional.of(offre));
@@ -265,7 +265,7 @@ class GestionnaireServiceTest {
 
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
-        offre.setStatut(StatutOffre.ACCEPTEE);
+        offre.setStatut(Statut.ACCEPTEE);
 
         when(offreDeStageRepository.findById(1L))
                 .thenReturn(Optional.of(offre));

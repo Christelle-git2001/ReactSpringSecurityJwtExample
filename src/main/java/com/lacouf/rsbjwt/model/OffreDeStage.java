@@ -1,7 +1,7 @@
 package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,7 +38,7 @@ public class OffreDeStage {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatutOffre statut;
+    private Statut statut;
 
     private String fileName;
     private String storagePath;
@@ -57,7 +57,7 @@ public class OffreDeStage {
             Departement domain,
             LocalDate startDate,
             LocalDate endDate,
-            StatutOffre statut,
+            Statut statut,
             String fileName,
             String storagePath,
             Employeur employeur,

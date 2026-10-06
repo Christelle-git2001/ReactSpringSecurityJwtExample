@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -166,7 +166,7 @@ public class EtudiantService {
     }
 
     public List<OffreDeStageDTO> getOffresDisponibles() {
-        return offreDeStageRepository.findByStatut(StatutOffre.ACCEPTEE)
+        return offreDeStageRepository.findByStatut(Statut.ACCEPTEE)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
