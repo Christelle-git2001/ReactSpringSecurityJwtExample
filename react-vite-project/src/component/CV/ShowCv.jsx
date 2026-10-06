@@ -48,7 +48,7 @@ const ShowCv = ({ refreshTrigger }) => {
                 return null;
             }
             const data = await response.blob();
-            setCvPDFUrl(URL.createObjectURL(data));
+            return URL.createObjectURL(data);
         } catch (error) {
             switch (error?.status) {
                 case 404:
@@ -61,7 +61,7 @@ const ShowCv = ({ refreshTrigger }) => {
                     setError("error.generic");
                     break;
             }
-            setCvPDFUrl("")
+            return null;
         }
     }
 
@@ -69,6 +69,9 @@ const ShowCv = ({ refreshTrigger }) => {
         let url = cvPDFUrl;
         if (!url) {
             url = await obtenirCVUrlPDF();
+            if (url) {
+                setCvPDFUrl(url);
+            }
         }
         if (url && dialogRef.current) {
             dialogRef.current.showModal();
@@ -93,6 +96,9 @@ const ShowCv = ({ refreshTrigger }) => {
         let url = cvPDFUrl;
         if (!url) {
             url = await obtenirCVUrlPDF();
+            if (url) {
+                setCvPDFUrl(url);
+            }
         }
         if (url) {
             declencherTelechargement(url, cv.fileName);
@@ -150,7 +156,6 @@ const ShowCv = ({ refreshTrigger }) => {
 
     useEffect(() => {
         obtenirCVs();
-        obtenirCVUrlPDF();
     }, [refreshTrigger]);
 
     return (
