@@ -5,7 +5,7 @@ import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
@@ -390,10 +390,10 @@ public class EtudiantServiceTest {
         offre.setDomain(Departement.INFORMATIQUE);
         offre.setStartDate(LocalDate.of(2026, 1, 1));
         offre.setEndDate(LocalDate.of(2026, 4, 30));
-        offre.setStatut(StatutOffre.ACCEPTEE);
+        offre.setStatut(Statut.ACCEPTEE);
         offre.setEmployeur(employeur);
 
-        when(offreDeStageRepository.findByStatut(StatutOffre.ACCEPTEE))
+        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
                 .thenReturn(List.of(offre));
 
         List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
@@ -402,12 +402,12 @@ public class EtudiantServiceTest {
         assertThat(result.get(0).title()).isEqualTo("Développeur Java");
 
         verify(offreDeStageRepository)
-                .findByStatut(StatutOffre.ACCEPTEE);
+                .findByStatut(Statut.ACCEPTEE);
     }
 
     @Test
     void doitRetournerListeVideQuandAucuneOffreAcceptee() {
-        when(offreDeStageRepository.findByStatut(StatutOffre.ACCEPTEE))
+        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
                 .thenReturn(List.of());
 
         List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
@@ -415,7 +415,7 @@ public class EtudiantServiceTest {
         assertThat(result).isEmpty();
 
         verify(offreDeStageRepository)
-                .findByStatut(StatutOffre.ACCEPTEE);
+                .findByStatut(Statut.ACCEPTEE);
     }
 }
 
