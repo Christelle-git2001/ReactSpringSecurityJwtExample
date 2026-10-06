@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { obtenirCvInfo, obtenirCvPDF, suppressionCv } from "../../api/etudiant.jsx";
+import { obtenirCvPDF, suppressionCv } from "../../api/etudiant.jsx";
 import React, { useEffect, useState, useRef } from "react";
 import { FiFileText } from "react-icons/fi";
 import { IoEyeSharp } from "react-icons/io5";
@@ -7,42 +7,18 @@ import { FaDownload, FaTrashAlt } from "react-icons/fa";
 import { PDFVisioneuse } from "../PDF/PDFVisioneuse.jsx";
 import { declencherTelechargement } from "../../utils/filesUtils.jsx";
 
-const ShowCv = ({ refreshTrigger }) => {
+const ShowCv = ({ cv, onCvDeleted }) => {
     const { t } = useTranslation();
-    const [cv, setCv] = useState({
-        id: null,
-        fileName: "",
-        contentType: "",
-        fileSize: 0,
-        uploadDate: ""
-    });
     const [cvPDFUrl, setCvPDFUrl] = useState(null);
     const [error, setError] = useState(null);
     const dialogRef = useRef(null);
 
-    async function obtenirCVs() {
-        try {
-            const data = await obtenirCvInfo();
-            setCv(data);
-            setError(null);
-        } catch (error) {
-            switch (error?.status) {
-                case 404:
-                    setError("etudiant.noCvFound");
-                    break;
-                case 401:
-                    setError("token.doesntExist");
-                    break;
-                default:
-                    setError("error.generic");
-                    break;
-            }
-        }
-    }
-
     async function obtenirCVUrlPDF() {
+        if (!cv?.id) {
+            return null;
+        }
         try {
-            const response = await obtenirCvPDF(cv.id);
+            const response = await obtenirCvPDF();
             if (!response.ok) {
                 setError("error.generic");
                 return null;
@@ -95,20 +71,16 @@ const ShowCv = ({ refreshTrigger }) => {
             url = await obtenirCVUrlPDF();
         }
         if (url) {
-            declencherTelechargement(url, cv.fileName);
+            declencherTelechargement(url, cv?.fileName);
         }
     };
 
     const supprimerCv = async () => {
         try {
             await suppressionCv();
-            setCv({
-                id: null,
-                fileName: "",
-                contentType: "",
-                fileSize: 0,
-                uploadDate: ""
-            });
+            if (onCvDeleted) {
+                onCvDeleted();
+            }
             setCvPDFUrl(null);
         } catch (error) {
             switch (error?.status) {
@@ -148,25 +120,20 @@ const ShowCv = ({ refreshTrigger }) => {
         return `${annee}-${mois}-${jour} ${heures}:${minutes}`;
     };
 
-    useEffect(() => {
-        obtenirCVs();
-        obtenirCVUrlPDF();
-    }, [refreshTrigger]);
-
     return (
         <div className="w-full">
             <div className="mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2">
-                {cv.id !== null ? (
+                {cv?.id ? (
                     <div className="flex justify-around w-full items-center h-full">
                         <FiFileText className="size-10 rounded-box text-red-500 border border-t-0" />
                         <div>
-                            {cv.fileName}
+                            {cv?.fileName}
                             <div className="text-xs uppercase font-semibold opacity-60">
-                                {formaterDate(cv.uploadDate)}
+                                {formaterDate(cv?.uploadDate)}
                             </div>
                         </div>
                         <div>
-                            <div>{formaterTailleFichier(cv.fileSize)}</div>
+                            <div>{formaterTailleFichier(cv?.fileSize)}</div>
                         </div>
                         <button
                             type="button"
