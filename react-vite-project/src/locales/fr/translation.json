@@ -178,6 +178,13 @@
       "account" : "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
       "view_offers" : "Explorez les opportunités de stage disponibles, consultez les détails des offres et postulez à celles qui correspondent à vos intérêts et compétences."
     },
+    "offers": {
+      "page_title": "Offres de stage",
+      "title_filter": "Filtrer par titre",
+      "domain_filter": "Filtrer par domaine",
+      "salary_filter": "Filtrer par salaire minimum",
+        "no_offers": "Aucune offre trouvée"
+    },
     "listCvSubtitle" : "Vos curriculum vitae",
     "noCVUpload" : "Aucun Curriculum Vitae téléversé.",
     "noCvFound" : "Cv non trouvé"

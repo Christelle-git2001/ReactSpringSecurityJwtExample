@@ -160,6 +160,13 @@
       "account" : "Manage your personal information, update your profile, and view your account details. ",
       "view_offers" : "Browse and apply for internship offers, track your applications, and manage your internship opportunities."
     },
+    "offers": {
+      "page_title" : "Internship Offers",
+      "title_filter" : "Filter by title",
+      "domain_filter" : "Filter by domain",
+      "salary_filter" : "Filter by minimum salary",
+      "no_offers" : "No offers found"
+    },
     "noCVUpload" : "No Curriculum Vitae Upload yet.",
     "noCvFound" : "Cv not found"
   },
