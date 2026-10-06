@@ -50,6 +50,7 @@ public class EtudiantControllerTest {
 
     private ObjectMapper objectMapper;
     private InscriptionEtudiantDTO inscriptionEtudiantDTO;
+    private EtudiantDTO etudiantDTO;
 
     @BeforeEach
     void init() {
@@ -70,6 +71,16 @@ public class EtudiantControllerTest {
                 "INFORMATIQUE",
                 "111111",
                 "111111"
+        );
+
+        etudiantDTO = new EtudiantDTO(
+                1L,
+                "Christelle",
+                "Altineus",
+                "christelle@gmail.com",
+                "2226252",
+                "438-297-8191",
+                "INFORMATIQUE"
         );
     }
 
@@ -158,6 +169,7 @@ public class EtudiantControllerTest {
     void doitTeleverserCv() throws Exception {
         CvEtudiantDTO cvDTO = new CvEtudiantDTO(
                 1L,
+                etudiantDTO,
                 "cv.pdf",
                 "application/pdf",
                 13L,
@@ -190,6 +202,7 @@ public class EtudiantControllerTest {
     void doitObtenirCv() throws Exception {
         CvEtudiantDTO cvDTO = new CvEtudiantDTO(
                 1L,
+                etudiantDTO,
                 "cv.pdf",
                 "application/pdf",
                 13L,
