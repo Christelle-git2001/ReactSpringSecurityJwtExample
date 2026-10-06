@@ -3,7 +3,8 @@ package com.lacouf.rsbjwt.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -166,7 +167,9 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                Statut.EN_ATTENTE,
+                ""
         );
 
         when(etudiantService.televerserCv(any(), anyString()))
@@ -196,7 +199,9 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                Statut.ACCEPTEE,
+                ""
         );
 
         when(etudiantService.getCv("christelle@gmail.com"))
@@ -262,7 +267,7 @@ public class EtudiantControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2026, 1, 1),
                 LocalDate.of(2026, 4, 30),
-                StatutOffre.ACCEPTEE,
+                Statut.ACCEPTEE,
                 null,
                 null,
                 null
