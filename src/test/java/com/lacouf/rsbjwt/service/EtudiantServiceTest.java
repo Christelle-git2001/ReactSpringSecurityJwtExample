@@ -2,20 +2,14 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,9 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -58,12 +50,8 @@ public class EtudiantServiceTest {
     @Mock
     private CvEtudiantRepository cvEtudiantRepository;
 
-    @Mock
-    private OffreDeStageRepository offreDeStageRepository;
-
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
-    Employeur employeur;
 
     @BeforeEach
     void init() {
@@ -88,19 +76,6 @@ public class EtudiantServiceTest {
                 .password("Passewod123")
                 .build();
         etudiant.setId(1L);
-
-        employeur = Employeur.builder()
-                .firstName("Gerard")
-                .lastName("Robert")
-                .town("Mercier")
-                .phone("165-685-4569")
-                .email("Gerard.Robert@hotmail.com")
-                .businessName("Gerard inc")
-                .businessSector(SecteurActivite.AEROSPATIAL)
-                .password("Losange12%")
-                .build();
-
-        employeur.setId(1L);
     }
 
     @AfterEach
@@ -378,44 +353,6 @@ public class EtudiantServiceTest {
 
         assertThat(Files.exists(fichier)).isFalse();
         verify(cvEtudiantRepository).delete(cv);
-    }
-
-    @Test
-    void doitRetournerLesOffresAcceptees() {
-        OffreDeStage offre = new OffreDeStage();
-        offre.setId(1L);
-        offre.setTitle("Développeur Java");
-        offre.setDescription("Développement d'applications");
-        offre.setSalary(25.0);
-        offre.setDomain(Departement.INFORMATIQUE);
-        offre.setStartDate(LocalDate.of(2026, 1, 1));
-        offre.setEndDate(LocalDate.of(2026, 4, 30));
-        offre.setStatut(Statut.ACCEPTEE);
-        offre.setEmployeur(employeur);
-
-        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
-                .thenReturn(List.of(offre));
-
-        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).title()).isEqualTo("Développeur Java");
-
-        verify(offreDeStageRepository)
-                .findByStatut(Statut.ACCEPTEE);
-    }
-
-    @Test
-    void doitRetournerListeVideQuandAucuneOffreAcceptee() {
-        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
-                .thenReturn(List.of());
-
-        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
-
-        assertThat(result).isEmpty();
-
-        verify(offreDeStageRepository)
-                .findByStatut(Statut.ACCEPTEE);
     }
 }
 

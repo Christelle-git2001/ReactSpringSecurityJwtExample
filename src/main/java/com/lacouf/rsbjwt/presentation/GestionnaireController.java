@@ -41,7 +41,7 @@ public class GestionnaireController {
     }
 
     @PutMapping("/offres/{id}/approuver")
-    public ResponseEntity<OffreDeStageDTO> approverOffre(
+    public ResponseEntity<OffreDeStageDTO> approveOffer(
             @PathVariable Long id
     ) throws OffreIntrouvableException, OffreNonEnAttenteException {
         OffreDeStageDTO offre =
@@ -51,7 +51,7 @@ public class GestionnaireController {
     }
 
     @PutMapping("/offres/{id}/refuser")
-    public ResponseEntity<OffreDeStageDTO> refuserOffre(
+    public ResponseEntity<OffreDeStageDTO> rejectOffer(
             @PathVariable Long id,
             @RequestBody RejectionCommentDTO commentdto
     ) throws OffreIntrouvableException, OffreNonEnAttenteException, CommentaireRefusObligatoireException {
