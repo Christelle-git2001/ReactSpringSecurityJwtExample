@@ -2,11 +2,13 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 
 @SpringBootTest
@@ -161,9 +166,7 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now(),
-                Statut.EN_ATTENTE,
-                ""
+                LocalDateTime.now()
         );
 
         when(etudiantService.televerserCv(any(), anyString()))
@@ -193,9 +196,7 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now(),
-                Statut.EN_ATTENTE,
-                ""
+                LocalDateTime.now()
         );
 
         when(etudiantService.getCv("christelle@gmail.com"))
@@ -249,6 +250,43 @@ public class EtudiantControllerTest {
         mockMvc.perform(delete("/etudiant/cv")
                         .principal(authentication))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void doitRetournerLesOffresDisponibles() throws Exception {
+        OffreDeStageDTO offre = new OffreDeStageDTO(
+                1L,
+                "Développeur Java",
+                "Développement d'applications",
+                25.0,
+                Departement.INFORMATIQUE,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 4, 30),
+                StatutOffre.ACCEPTEE,
+                null,
+                null,
+                null
+        );
+
+        when(etudiantService.getOffresDisponibles())
+                .thenReturn(List.of(offre));
+
+        mockMvc.perform(get("/etudiant/offres"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Développeur Java"));
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneOffreDisponible() throws Exception {
+        when(etudiantService.getOffresDisponibles())
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/etudiant/offres"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
 }
