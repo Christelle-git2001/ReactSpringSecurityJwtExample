@@ -86,7 +86,7 @@ const ViewOffers = () => {
                 )}
 
                 {etat === "ok" && offres.length > 0 && offresFiltrees.length === 0 && (
-                    <div role="alert" className="alert alert-warning max-w-xl mx-auto">
+                    <div role="alert" className="alert alert-error max-w-xl mx-auto">
                         <span>{t("etudiant.offers.no_offers")}</span>
                     </div>
                 )}
