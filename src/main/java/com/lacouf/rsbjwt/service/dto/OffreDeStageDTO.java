@@ -1,5 +1,5 @@
 package com.lacouf.rsbjwt.service.dto;
-import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutOffre;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 
@@ -13,7 +13,7 @@ public record OffreDeStageDTO(
         Departement domain,
         LocalDate startDate,
         LocalDate endDate,
-        Statut statut,
+        StatutOffre statut,
         String fileName,
         EmployeurDTO employeur,
         String rejectionComment

@@ -2,7 +2,6 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -173,9 +172,7 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now(),
-                Statut.EN_ATTENTE,
-                ""
+                LocalDateTime.now()
         );
 
         when(etudiantService.televerserCv(any(), anyString()))
@@ -206,9 +203,7 @@ public class EtudiantControllerTest {
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now(),
-                Statut.EN_ATTENTE,
-                ""
+                LocalDateTime.now()
         );
 
         when(etudiantService.getCv("christelle@gmail.com"))
