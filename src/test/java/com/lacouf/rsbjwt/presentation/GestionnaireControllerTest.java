@@ -238,7 +238,7 @@ public class GestionnaireControllerTest {
 
         assertThat(cvEtudiantDTOResult).hasSize(1);
         assertThat(cvEtudiantDTOResult.getFirst()).satisfies(dto -> {
-            assertThat(dto.rejectionComment()).isEqualTo(cvEtudiantDTO.rejectionComment());
+            assertThat(dto.comment()).isEqualTo(cvEtudiantDTO.comment());
             assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
             assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
 
@@ -258,7 +258,7 @@ public class GestionnaireControllerTest {
                 ""
         );
 
-        when(gestionnaireService.approuverCurriculumVitae(1L, cvEtudiantDTO.rejectionComment())).thenReturn(cvEtudiantDTO);
+        when(gestionnaireService.approuverCurriculumVitae(1L, cvEtudiantDTO.comment())).thenReturn(cvEtudiantDTO);
 
         MvcResult mvcResult = mockMvc.perform(put("/gestionnaire/cv/" + 1 + "/approuver")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -268,7 +268,7 @@ public class GestionnaireControllerTest {
         CvEtudiantDTO cvEtudiantDTOResult = jsonMapper.readValue(jsonResponse, CvEtudiantDTO.class);
 
         assertThat(cvEtudiantDTOResult).isNotNull().satisfies(dto -> {
-            assertThat(dto.rejectionComment()).isEqualTo(cvEtudiantDTO.rejectionComment());
+            assertThat(dto.comment()).isEqualTo(cvEtudiantDTO.comment());
             assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
             assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
         });
@@ -287,7 +287,7 @@ public class GestionnaireControllerTest {
                 "Illegal Curriculum Vitae"
         );
 
-        when(gestionnaireService.refuserCurriculumVitae(cvEtudiantDTO.id(), cvEtudiantDTO.rejectionComment())).thenReturn(cvEtudiantDTO);
+        when(gestionnaireService.refuserCurriculumVitae(cvEtudiantDTO.id(), cvEtudiantDTO.comment())).thenReturn(cvEtudiantDTO);
 
         MvcResult mvcResult = mockMvc.perform(put("/gestionnaire/cv/" + 1 + "/refuser")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -297,7 +297,7 @@ public class GestionnaireControllerTest {
         CvEtudiantDTO cvEtudiantDTOResult = jsonMapper.readValue(jsonResponse, CvEtudiantDTO.class);
 
         assertThat(cvEtudiantDTOResult).isNotNull().satisfies(dto -> {
-            assertThat(dto.rejectionComment()).isEqualTo(cvEtudiantDTO.rejectionComment());
+            assertThat(dto.comment()).isEqualTo(cvEtudiantDTO.comment());
             assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
             assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
         });
