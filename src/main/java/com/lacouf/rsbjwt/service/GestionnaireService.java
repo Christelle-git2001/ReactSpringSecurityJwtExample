@@ -5,7 +5,7 @@ import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
 import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.StatutOffre;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.service.dto.DepartementDTO;
@@ -45,7 +45,7 @@ public class GestionnaireService {
 
     public List<OffreDeStageDTO> getOffresEnAttente() {
         return offreDeStageRepository
-                .findByStatut(StatutOffre.EN_ATTENTE)
+                .findByStatut(Statut.EN_ATTENTE)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
@@ -57,11 +57,11 @@ public class GestionnaireService {
         OffreDeStage offre = offreDeStageRepository.findById(id)
                 .orElseThrow(OffreIntrouvableException::new);
 
-        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+        if (offre.getStatut() != Statut.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
-        offre.setStatut(StatutOffre.ACCEPTEE);
+        offre.setStatut(Statut.ACCEPTEE);
         offre.setRejectionComment(null);
 
         return OffreDeStageDTO.of(
@@ -76,7 +76,7 @@ public class GestionnaireService {
         OffreDeStage offre = offreDeStageRepository.findById(id)
                 .orElseThrow((OffreIntrouvableException::new));
 
-        if (offre.getStatut() != StatutOffre.EN_ATTENTE) {
+        if (offre.getStatut() != Statut.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
@@ -84,7 +84,7 @@ public class GestionnaireService {
             throw new CommentaireRefusObligatoireException();
         }
 
-        offre.setStatut(StatutOffre.REFUSEE);
+        offre.setStatut(Statut.REFUSEE);
         offre.setRejectionComment(commentaire);
 
         return OffreDeStageDTO.of(
