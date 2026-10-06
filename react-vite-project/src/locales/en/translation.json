@@ -234,6 +234,8 @@
     "en_attente": "Pending",
     "acceptee": "Accepted",
     "refusee": "Rejected",
+    "cv_accepte" : "Accepted",
+    "cv_refuse" : "Rejected",
     "cvs_acceptes": "Accepted",
     "cvs_refuses": "Rejected"
   },

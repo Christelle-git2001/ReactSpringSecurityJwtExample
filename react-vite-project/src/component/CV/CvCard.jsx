@@ -28,6 +28,20 @@ function CvCard({ cv, onApprove, onReject }) {
     const [showCommentaire, setShowCommentaire] = useState(false);
     const [commentaires, setCommentaires] = useState("");
 
+    const isAccepted = cv.statut === "ACCEPTEE";
+    const isRejected = cv.statut === "REFUSEE";
+    const isFinalStatus = isAccepted || isRejected;
+
+    const getStatusLabel = (statut) => {
+        const labels = {
+            EN_ATTENTE: t("status.en_attente"),
+            ACCEPTEE: t("status.cv_accepte"),
+            REFUSEE: t("status.cv_refuse"),
+        };
+
+        return labels[statut] || statut;
+    };
+
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
             return `${cv.etudiant?.firstName || ""} ${cv.etudiant?.lastName || ""}`.trim();
@@ -81,21 +95,27 @@ function CvCard({ cv, onApprove, onReject }) {
                         <p className="text-sm text-gray-600">
                             {cv.fileName || t("cv.file_without_name")}
                         </p>
+                        <p className="text-sm text-gray-400">
+                            {getStatusLabel(cv.statut)}
+                        </p>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <button
-                        type="button"
-                        onClick={() => setShowCommentaire(!showCommentaire)}
-                        className="text-sm font-semibold text-black underline transition-colors hover:text-[#043462]"
-                    >
-                        {t("cv.leave_comment")}
-                    </button>
+                    {!isFinalStatus && (
+                        <button
+                            type="button"
+                            onClick={() => setShowCommentaire(!showCommentaire)}
+                            className="text-sm font-semibold text-black underline transition-colors hover:text-[#043462]"
+                        >
+                            {t("cv.leave_comment")}
+                        </button>
+                    )}
 
                     <Button
                         type="button"
                         onClick={handleReject}
+                        disabled={isFinalStatus}
                         className="bg-red-600 text-white hover:bg-red-700"
                     >
                         {t("actions.reject")}
@@ -104,6 +124,7 @@ function CvCard({ cv, onApprove, onReject }) {
                     <Button
                         type="button"
                         onClick={handleApprove}
+                        disabled={isFinalStatus}
                         className="bg-green-600 text-white hover:bg-green-800"
                     >
                         {t("actions.approve")}
@@ -140,39 +161,39 @@ function CvCard({ cv, onApprove, onReject }) {
                     )}
                 </div>
             )}
-                {isOpen && (
-                    <div className="grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 md:grid-cols-2">
-                        <ReadOnlyField
-                            label={t("cv.content_type")}
-                            value={cv.contentType}
-                        />
+            {isOpen && (
+                <div className="grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 md:grid-cols-2">
+                    <ReadOnlyField
+                        label={t("cv.content_type")}
+                        value={cv.contentType}
+                    />
 
-                        <ReadOnlyField
-                            label={t("cv.file_size")}
-                            value={formaterTailleFichier(cv.fileSize)}
-                        />
+                    <ReadOnlyField
+                        label={t("cv.file_size")}
+                        value={formaterTailleFichier(cv.fileSize)}
+                    />
 
-                        <ReadOnlyField
-                            label={t("cv.upload_date")}
-                            value={formaterDate(cv.uploadDate)}
-                        />
+                    <ReadOnlyField
+                        label={t("cv.upload_date")}
+                        value={formaterDate(cv.uploadDate)}
+                    />
 
-                        <ReadOnlyField
-                            label={t("cv.status")}
-                            value={cv.statut}
-                        />
+                    <ReadOnlyField
+                        label={t("cv.status")}
+                        value={getStatusLabel(cv.statut)}
+                    />
 
-                        {cv.rejectionComment && (
-                            <div className="md:col-span-2">
-                                <ReadOnlyField
-                                    label={t("cv.previous_rejection_comment")}
-                                    value={cv.rejectionComment}
-                                    isMultiline
-                                />
-                            </div>
-                        )}
-                    </div>
-                )}
+                    {cv.rejectionComment && (
+                        <div className="md:col-span-2">
+                            <ReadOnlyField
+                                label={t("cv.previous_rejection_comment")}
+                                value={cv.rejectionComment}
+                                isMultiline
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

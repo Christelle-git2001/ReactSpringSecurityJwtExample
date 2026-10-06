@@ -203,6 +203,8 @@
     "en_attente": "En attente",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
+    "cv_accepte" : "Accepté",
+    "cv_refuse" : "Refusé",
     "cvs_acceptes": "Acceptés",
     "cvs_refuses": "Refusés",
     "employer_added": "Employeur ajouté avec succès."
