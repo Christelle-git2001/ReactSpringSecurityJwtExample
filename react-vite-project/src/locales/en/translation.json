@@ -181,6 +181,7 @@
       "salary_filter": "Filter by salary",
       "no_offers": "No offers available",
       "details_button": "Details",
+      "apply_button": "Apply",
       "fromTo": "to"
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
