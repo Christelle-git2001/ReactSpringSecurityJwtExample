@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.model.Enum;
 
-public enum StatutOffre {
+public enum Statut {
     ACCEPTEE,
     REFUSEE,
     EN_ATTENTE

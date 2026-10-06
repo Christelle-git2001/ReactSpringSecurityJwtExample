@@ -10,8 +10,8 @@ public record GestionnaireDto(
         String firstName,
         String lastName,
         String email,
-        String matricule,
-        String phoneNumber
+        String phoneNumber,
+        String password
 ) implements UserDTO {
 
     public static GestionnaireDto create(Gestionnaire gestionnaire) {
@@ -24,13 +24,12 @@ public record GestionnaireDto(
                 .firstName(gestionnaire.getFirstName())
                 .lastName(gestionnaire.getLastName())
                 .email(gestionnaire.getEmail())
-                .matricule(gestionnaire.getMatricule())
                 .phoneNumber(gestionnaire.getPhoneNumber())
                 .build();
     }
 
     public static GestionnaireDto empty() {
-        return new GestionnaireDto(0L, "", "", "", "", "");
+        return new GestionnaireDto(0L, "", "", "", "","");
     }
 
     @Override
