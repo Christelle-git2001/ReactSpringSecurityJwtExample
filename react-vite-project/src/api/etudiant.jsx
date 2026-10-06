@@ -1,5 +1,4 @@
 import { fetchJson } from "./http.jsx";
-import {useTranslation} from "react-i18next";
 
 export async function inscrireEtudiant(etudiant) {
   return fetchJson("/etudiant/inscription", {

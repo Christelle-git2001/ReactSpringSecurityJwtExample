@@ -4,8 +4,6 @@ import OffreCard from "../../component/ui/OffreCard";
 import OffreDetails from "../../component/ui/OffreDetails";
 import {obtenirOffres} from "../../api/etudiant.jsx";
 
-const API_URL = "http://localhost:8080/etudiant/offres";
-
 const ViewOffers = () => {
     const { t } = useTranslation();
     const [offres, setOffres] = useState([]);

@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import PageLayout from "../Design/PageLayout.jsx";
 import PublicLayout from "../Design/PublicLayout.jsx";
 
 import MainContainer from "../Design/MainContainer";
