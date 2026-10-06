@@ -25,7 +25,7 @@ public record CvEtudiantDTO (
                 cv.getFileSize(),
                 cv.getUploadDate(),
                 cv.getStatut(),
-                cv.getRejectionComment()
+                cv.getComment()
         );
     }
 }

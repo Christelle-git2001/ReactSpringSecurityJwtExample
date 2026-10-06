@@ -29,7 +29,7 @@ public class CvEtudiant {
     @Column(nullable = false)
     private Statut statut;
     @Column
-    private String rejectionComment;
+    private String comment;
 
     @ManyToOne
     @JoinColumn(name = "etudiant_id", nullable = false)
