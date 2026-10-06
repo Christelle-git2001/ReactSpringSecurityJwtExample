@@ -3,14 +3,15 @@ import { useTranslation } from "react-i18next";
 import { FiFilter } from "react-icons/fi";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 
-export default function FilterBar({selectedStatus, onStatusChange, selectedDomain, onDomainChange, availableDomains = [], className = ""}) {
+export default function FilterBar({selectedStatus, onStatusChange, selectedDomain, onDomainChange,
+                                      availableDomains = [], className = "", statusLabels = {}}) {
     const { t } = useTranslation();
 
     const statuses = [
-        { key: "TOUS", label: t("status.tous") },
-        { key: "EN_ATTENTE", label: t("status.en_attente") },
-        { key: "ACCEPTEE", label: t("status.acceptee") },
-        { key: "REFUSEE", label: t("status.refusee") }
+        { key: "TOUS", label: statusLabels.TOUS ?? t("status.tous") },
+        { key: "EN_ATTENTE", label: statusLabels.EN_ATTENTE ?? t("status.en_attente") },
+        { key: "ACCEPTEE", label: statusLabels.ACCEPTEE ?? t("status.acceptee") },
+        { key: "REFUSEE", label: statusLabels.REFUSEE ?? t("status.refusee") },
     ];
 
     const isFilterActive =
