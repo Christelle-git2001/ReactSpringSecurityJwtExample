@@ -32,6 +32,14 @@ export async function televerserCV(file) {
     })
 }
 
+export async function obtenirOffres() {
+  const token = getToken();
+  return fetchJson("/etudiant/offres", {
+    method: "GET",
+    headers: { "Authorization": `Bearer ${token}` },
+  });
+}
+
 export async function obtenirCvPDF(){
   const token = getToken();
   return fetch("http://localhost:8080/etudiant/cv/download", {
