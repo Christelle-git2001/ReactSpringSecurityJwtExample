@@ -1,7 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 
 import java.time.LocalDateTime;
 
@@ -10,9 +9,7 @@ public record CvEtudiantDTO (
     String fileName,
     String contentType,
     Long fileSize,
-    LocalDateTime uploadDate,
-    Statut statut,
-    String rejectionComment
+    LocalDateTime uploadDate
 ){
     public static CvEtudiantDTO of(CvEtudiant cv) {
         return new CvEtudiantDTO(
@@ -20,9 +17,7 @@ public record CvEtudiantDTO (
                 cv.getFileName(),
                 cv.getContentType(),
                 cv.getFileSize(),
-                cv.getUploadDate(),
-                cv.getStatut(),
-                cv.getRejectionComment()
+                cv.getUploadDate()
         );
     }
 }

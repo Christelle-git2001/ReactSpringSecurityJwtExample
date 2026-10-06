@@ -1,7 +1,5 @@
 package com.lacouf.rsbjwt.model;
 
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,21 +13,12 @@ public class CvEtudiant {
     @Id
     @GeneratedValue
     private Long id;
-    @Column(nullable = false)
+
     private String fileName;
-    @Column(nullable = false)
     private String contentType;
-    @Column(nullable = false)
     private Long fileSize;
-    @Column(nullable = false)
     private String storagePath;
-    @Column(nullable = false)
     private LocalDateTime uploadDate;
-    @Enumerated
-    @Column(nullable = false)
-    private Statut statut;
-    @Column
-    private String rejectionComment;
 
     @ManyToOne
     @JoinColumn(name = "etudiant_id", nullable = false)
@@ -44,6 +33,5 @@ public class CvEtudiant {
         this.storagePath = storagePath;
         this.uploadDate = uploadDate;
         this.etudiant = etudiant;
-        this.statut = Statut.EN_ATTENTE;
     }
 }
