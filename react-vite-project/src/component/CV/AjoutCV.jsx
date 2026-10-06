@@ -33,7 +33,7 @@ const AjoutCV = ({onCvAjoute}) => {
             }
 
             if (error.status === 409) {
-                setErreur("error.cv_pending_approval");
+                setErreur("cv.cv_pending_approval");
                 return;
             }
 

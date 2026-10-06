@@ -6,6 +6,7 @@ import LanguageSwitch from "../../locales/LanguageSwitch.jsx";
 import "../../css/AddEtudiant.css";
 import "../../css/InscriptionHome.css";
 import "../../css/Login.css";
+import ConnexionRapideGestionnaire from "../../config/ConnexionRapideGestionnaire.jsx";
 
 const LoginForm = ({ user, setError }) => {
     const navigate = useNavigate();
@@ -307,6 +308,8 @@ const LoginForm = ({ user, setError }) => {
                                 >
                                     {t("login.submit")}
                                 </button>
+
+                                <ConnexionRapideGestionnaire />
 
                                 {/* Inscription */}
                                 <div className="mt-10">

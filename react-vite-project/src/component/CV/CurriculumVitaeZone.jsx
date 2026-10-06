@@ -45,7 +45,7 @@ const CurriculumVitaeZone = () => {
         <div className="w-full">
             {cvEnAttente ? (
                 <p className="text-sm text-red-400 border border-blue-900 rounded-md p-3">
-                    {t("error.cv_pending_approval")}
+                    {t("cv.cv_pending_approval")}
                 </p>
             ) : (
                 <AjoutCV onCvAjoute={handleCvAjoute} />

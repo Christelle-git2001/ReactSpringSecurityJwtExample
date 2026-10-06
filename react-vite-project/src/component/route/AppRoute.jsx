@@ -16,6 +16,7 @@ import AccountEmployeur from "../../page/Employeur/AccountEmployeur.jsx";
 import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx";
 import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
+import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -65,6 +66,7 @@ export default function AppRoutes({
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome />} />
+                <Route path="/gestionnaire/cvs" element={<GestionnaireCvs />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>

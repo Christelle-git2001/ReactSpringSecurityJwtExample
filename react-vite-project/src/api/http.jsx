@@ -57,3 +57,35 @@ export async function getDepartements() {
 export async function getSecteursEmployeur() {
     return fetchJson("/gestionnaire/secteurEmployeur");
 }
+
+export async function getCvsEnAttente() {
+    return fetchJson("/gestionnaire/cvs/attente");
+}
+
+export async function getTousLesCvs() {
+    return fetchJson("/gestionnaire/cvs");
+}
+
+export async function approuverCv(id, commentText) {
+    return fetchJson(`/gestionnaire/cv/${id}/approuver`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            rejectionComment: commentText
+        }),
+    });
+}
+
+export async function refuserCv(id, commentText) {
+    return fetchJson(`/gestionnaire/cv/${id}/refuser`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            rejectionComment : commentText
+        }),
+    });
+}

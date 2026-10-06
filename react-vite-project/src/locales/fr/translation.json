@@ -203,6 +203,8 @@
     "en_attente": "En attente",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
+    "cvs_acceptes": "Acceptés",
+    "cvs_refuses": "Refusés",
     "employer_added": "Employeur ajouté avec succès."
   },
   "home": {
@@ -240,5 +242,21 @@
   },
   "token": {
     "doesntExist": "Aucune Session trouvée"
+  },
+  "cv": {
+    "pending_title": "Curriculum Vitae en attente",
+    "none_pending": "Aucun CV en attente.",
+    "student_unknown": "Étudiant inconnu",
+    "file_without_name": "CV sans nom",
+    "leave_comment": "Laisser un commentaire",
+    "rejection_comment": "Commentaire",
+    "rejection_comment_placeholder": "Expliquez pourquoi le CV est refusé ou accepté",
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
+    "content_type": "Type",
+    "file_size": "Taille",
+    "upload_date": "Date de téléversement",
+    "status": "Statut",
+    "previous_rejection_comment": "Commentaire de refus précédent",
+    "cv_pending_approval" : "Votre CV est en attente d'approbation par un gestionnaire. Vous pourrez téléverser un nouveau CV lorsqu'il aura été approuvé ou refusé."
   }
 }

@@ -233,10 +233,28 @@
     "tous": "All",
     "en_attente": "Pending",
     "acceptee": "Accepted",
-    "refusee": "Rejected"
+    "refusee": "Rejected",
+    "cvs_acceptes": "Accepted",
+    "cvs_refuses": "Rejected"
   },
   "search": {
     "placeholder": "Search...",
     "clear": "Clear search"
+  },
+  "cv": {
+    "pending_title": "Pending Curriculum Vitae",
+    "none_pending": "No CV pending.",
+    "student_unknown": "Unknown student",
+    "file_without_name": "Unnamed CV",
+    "leave_comment": "Leave a comment",
+    "rejection_comment": "Comment",
+    "rejection_comment_placeholder": "Explain why the CV is rejected or accepted",
+    "rejection_comment_required": "A comment is required when rejecting a CV.",
+    "content_type": "Type",
+    "file_size": "Size",
+    "upload_date": "Upload date",
+    "status": "Status",
+    "previous_rejection_comment": "Previous rejection comment",
+    "cv_pending_approval": "Your CV is awaiting approval from a manager. You can upload a new CV once it has been approved or rejected."
   }
 }
