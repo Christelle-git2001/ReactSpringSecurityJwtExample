@@ -45,11 +45,23 @@ public class GestionnaireControllerTest {
 
     private JsonMapper jsonMapper;
 
+    private EtudiantDTO etudiantDTO;
+
     @BeforeEach
     void init(){
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
         jsonMapper = JsonMapper.builder().build();
+
+        etudiantDTO = new EtudiantDTO(
+                1L,
+                "Christelle",
+                "Altineus",
+                "christelle@gmail.com",
+                "2226252",
+                "438-297-8191",
+                "INFORMATIQUE"
+        );
     }
 
 
@@ -203,6 +215,7 @@ public class GestionnaireControllerTest {
     void doitRetournerCurriculumVitaeEnAttente() throws Exception {
         CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
                 -1,
+                etudiantDTO,
                 "LeRagout",
                 "application/pdf",
                 18L,
@@ -236,6 +249,7 @@ public class GestionnaireControllerTest {
     void doitApprouverUnCurriculumVitae() throws Exception {
         CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
                 1,
+                etudiantDTO,
                 "LeRagout",
                 "application/pdf",
                 18L,
@@ -244,7 +258,7 @@ public class GestionnaireControllerTest {
                 ""
         );
 
-        when(gestionnaireService.approuverCurriculumVitae(1L)).thenReturn(cvEtudiantDTO);
+        when(gestionnaireService.approuverCurriculumVitae(1L, cvEtudiantDTO.rejectionComment())).thenReturn(cvEtudiantDTO);
 
         MvcResult mvcResult = mockMvc.perform(put("/gestionnaire/cv/" + 1 + "/approuver")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -264,6 +278,7 @@ public class GestionnaireControllerTest {
     void doitRefuserUnCurriculumVitae() throws Exception {
         CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
                 1,
+                etudiantDTO,
                 "LeRagout",
                 "application/pdf",
                 18L,
