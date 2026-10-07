@@ -15,13 +15,15 @@ const EtudiantHome = ({user}) => {
                 Icon={FiUser}
                 linkTo="/etudiant/account"
             />
-            <CardEtudiant
-                title={t("nav.view_offers")}
-                description={t("etudiant.card.view_offers")}
-                Icon={FiSearch}
-                linkTo="/etudiant/offers"
-            />
         </div>
+          <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
+              <CardEtudiant
+                  title={t("nav.view_offers")}
+                  description={t("etudiant.card.view_offers")}
+                  Icon={FiSearch}
+                  linkTo="/etudiant/offers"
+              />
+          </div>
       </div>
     </div>
   );
