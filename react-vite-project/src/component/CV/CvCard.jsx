@@ -3,7 +3,8 @@ import Button from "../Design/Button.jsx";
 import { useTranslation } from "react-i18next";
 import { formaterDate, formaterTailleFichier } from "../../utils/CvFormatters.jsx";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
-import ShowCvGestionnaire from "./ShowCvGestionnaire.jsx";
+import ShowDocument from "../PDF/ShowDocument.jsx";
+import { obtenirCvPDFGestionnaire } from "../../api/http.jsx";
 import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
@@ -142,7 +143,10 @@ function CvCard({ cv, onApprove, onReject }) {
                     )}
 
                     <div className="mt-4">
-                        <ShowCvGestionnaire cv={cv} />
+                        <ShowDocument
+                            fileName={cv?.fileName}
+                            loadPdfResponse={() => obtenirCvPDFGestionnaire(cv?.id)}
+                        />
                     </div>
                 </div>
             )}
