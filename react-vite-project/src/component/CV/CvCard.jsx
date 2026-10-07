@@ -37,7 +37,7 @@ function CvCard({ cv, onApprove, onReject }) {
         if (!commentaires.trim()) {
             setIsOpen(true);
             setShowCommentaire(true);
-            setError(t("error.rejection_comment_required"));
+            setError("error.rejection_comment_required");
             return;
         }
 
@@ -119,7 +119,7 @@ function CvCard({ cv, onApprove, onReject }) {
                     <ul className="flex flex-col gap-2 text-xs">
                         <li>
                             <strong className="text-[#043462]">
-                                {t("cv.file_size")}
+                                {t("cv. file_size")}
                             </strong>{" "}
                             : {formaterTailleFichier(cv.fileSize)}
                         </li>
@@ -176,7 +176,7 @@ function CvCard({ cv, onApprove, onReject }) {
 
                     {error && (
                         <p className="mt-1 text-xs font-medium text-red-500">
-                            {error}
+                            {t(error)}
                         </p>
                     )}
                 </div>
