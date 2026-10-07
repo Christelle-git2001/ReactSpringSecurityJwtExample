@@ -83,3 +83,9 @@ export async function refuserCv(id, commentText) {
         }),
     });
 }
+
+export async function obtenirCvPDFGestionnaire(id) {
+    return fetchApi(`/gestionnaire/cv/${id}/download`, {
+        method: "GET",
+    });
+}
