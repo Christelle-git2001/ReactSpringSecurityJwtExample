@@ -3,6 +3,7 @@ import Button from "../Design/Button.jsx";
 import { useTranslation } from "react-i18next";
 import { formaterDate, formaterTailleFichier } from "../../utils/CvFormatters.jsx";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import ShowCvGestionnaire from "./ShowCvGestionnaire.jsx";
 
 function ReadOnlyField({ label, value, isMultiline = false }) {
     return (
@@ -182,6 +183,10 @@ function CvCard({ cv, onApprove, onReject }) {
                         label={t("cv.status")}
                         value={getStatusLabel(cv.statut)}
                     />
+
+                    <div className="md:col-span-2">
+                        <ShowCvGestionnaire cv={cv} />
+                    </div>
 
                     {cv.rejectionComment && (
                         <div className="md:col-span-2">
