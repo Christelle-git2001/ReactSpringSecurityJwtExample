@@ -7,6 +7,8 @@ import "../../css/AddEtudiant.css";
 import "../../css/InscriptionHome.css";
 import "../../css/Login.css";
 import ConnexionRapideGestionnaire from "../../config/ConnexionRapideGestionnaire.jsx";
+import ConnexionRapideStudent from "../../config/ConnexionRapideStudent.jsx";
+import ConnexionRapideEmployeur from "../../config/ConnexionRapideEmployeur.jsx";
 
 const LoginForm = ({ user, setError }) => {
     const navigate = useNavigate();
@@ -308,9 +310,6 @@ const LoginForm = ({ user, setError }) => {
                                 >
                                     {t("login.submit")}
                                 </button>
-
-                                <ConnexionRapideGestionnaire />
-
                                 {/* Inscription */}
                                 <div className="mt-10">
 
@@ -333,6 +332,10 @@ const LoginForm = ({ user, setError }) => {
                         </form>
 
                     </div>
+
+                    <ConnexionRapideGestionnaire />
+                    <ConnexionRapideStudent/>
+                    <ConnexionRapideEmployeur/>
 
                 </div>
 

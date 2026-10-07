@@ -8,10 +8,7 @@ import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.GestionnaireService;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.GestionnaireDto;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -65,8 +62,12 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         GestionnaireDto gestionnaireDto = new GestionnaireDto(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed");
         gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
-        System.out.println(userAppRepository.findUserAppByEmail("Pascal.Belmont@hotmail.com"));
 
+        InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO( "Sebastien","Castonguay","450-716-1217","Sebastien.Castonguay@hotmail.com","6565656",Departement.INFORMATIQUE.name(),"NoNeedButStillNeed","NoNeedButStillNeed");
+        etudiantService.creerCompteEtudiant(etudiantDTO);
+
+        InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
+        employeurService.creeCompteEmployeur(employeurDTO);
 /*        Employeur employeurTest = employeurRepository.save(
                 Employeur.builder()
                         .firstName("Jean")

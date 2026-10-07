@@ -1,11 +1,11 @@
 import {useNavigate} from "react-router-dom";
 import fetcher from "../utils/fetcher.js";
 
-const ConnexionRapideGestionnaire = () => {
+const ConnexionRapideStudent = () => {
     const navigate = useNavigate();
-    const connexion = async () => {
+    const connexion  = async () =>{
         try {
-            const response = await fetcher('/api/auth/login/gestionnaire', {
+            const response = await fetcher('/api/auth/login/employeur', {
                 method: 'POST',
             });
 
@@ -15,22 +15,22 @@ const ConnexionRapideGestionnaire = () => {
             const token = await response.text();
             localStorage.setItem('token', token);
 
-            navigate('/gestionnaire');
+            navigate('/employeur');
         } catch (error) {
             console.error(error);
         }
     };
+
     return (
         <div className="mt-4 text-center">
             <button
                 type="button"
-                className="bg-yellow-500 p-5 rounded-3xl underline font-bold text-black transition-colors hover:text-blue-600 cursor-pointer"
+                className="bg-purple-500 p-5 rounded-3xl underline font-bold text-black transition-colors hover:text-blue-600 cursor-pointer"
                 onClick={connexion}
             >
-               Gestionnaire
+                Employeur
             </button>
         </div>
-    );
-};
-
-export default ConnexionRapideGestionnaire;
+    )
+}
+export default ConnexionRapideStudent;

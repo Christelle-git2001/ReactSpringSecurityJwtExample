@@ -5,7 +5,7 @@ const ConnexionRapideStudent = () => {
     const navigate = useNavigate();
     const connexion  = async () =>{
         try {
-            const response = await fetcher('/api/auth/login/student', {
+            const response = await fetcher('/api/auth/login/etudiant', {
                 method: 'POST',
             });
 
@@ -22,8 +22,14 @@ const ConnexionRapideStudent = () => {
     };
 
     return (
-        <div className={"text-white"}>
-            <button type="button" className={"bg-blue-500 p-3"} onClick={connexion}>Connexion Rapide Etudiant</button>
+        <div className="mt-4 text-center">
+            <button
+                type="button"
+                className="bg-pink-500 p-5 rounded-3xl underline font-bold text-black transition-colors hover:text-blue-600 cursor-pointer"
+                onClick={connexion}
+            >
+                Étudiant
+            </button>
         </div>
     )
 }
