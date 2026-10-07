@@ -268,10 +268,10 @@ public class EtudiantControllerTest {
                 null
         );
 
-        when(etudiantService.getOffresDisponibles())
+        when(etudiantService.getOffresDisponibles(offre.domain()))
                 .thenReturn(List.of(offre));
 
-        mockMvc.perform(get("/etudiant/offres"))
+        mockMvc.perform(get("/etudiant/offres/" + inscriptionEtudiantDTO.department()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
@@ -280,10 +280,10 @@ public class EtudiantControllerTest {
 
     @Test
     void doitRetournerListeVideQuandAucuneOffreDisponible() throws Exception {
-        when(etudiantService.getOffresDisponibles())
+        when(etudiantService.getOffresDisponibles(Departement.valueOf(inscriptionEtudiantDTO.department())))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get("/etudiant/offres"))
+        mockMvc.perform(get("/etudiant/offres/" + inscriptionEtudiantDTO.department()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));

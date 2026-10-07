@@ -393,29 +393,29 @@ public class EtudiantServiceTest {
         offre.setStatut(Statut.ACCEPTEE);
         offre.setEmployeur(employeur);
 
-        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
+        when(offreDeStageRepository.findAllByStatutAndDomain(Statut.ACCEPTEE,offre.getDomain()))
                 .thenReturn(List.of(offre));
 
-        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
+        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles(offre.getDomain());
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).title()).isEqualTo("Développeur Java");
 
         verify(offreDeStageRepository)
-                .findByStatut(Statut.ACCEPTEE);
+                .findAllByStatutAndDomain(Statut.ACCEPTEE,offre.getDomain());
     }
 
     @Test
     void doitRetournerListeVideQuandAucuneOffreAcceptee() {
-        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
+        when(offreDeStageRepository.findAllByStatutAndDomain(Statut.ACCEPTEE,etudiant.getDepartment()))
                 .thenReturn(List.of());
 
-        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
+        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles(etudiant.getDepartment());
 
         assertThat(result).isEmpty();
 
         verify(offreDeStageRepository)
-                .findByStatut(Statut.ACCEPTEE);
+                .findAllByStatutAndDomain(Statut.ACCEPTEE,etudiant.getDepartment());
     }
 }
 

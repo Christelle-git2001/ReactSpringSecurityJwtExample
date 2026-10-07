@@ -2,10 +2,9 @@ package com.lacouf.rsbjwt.presentation;
 
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/etudiant")
@@ -66,5 +66,10 @@ public class EtudiantController {
 
         etudiantService.supprimerCv(authentication.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/offres/{departement}")
+    public ResponseEntity<List<OffreDeStageDTO>> getOffresDisponibles(@PathVariable Departement departement){
+        return ResponseEntity.ok(etudiantService.getOffresDisponibles(departement));
     }
 }

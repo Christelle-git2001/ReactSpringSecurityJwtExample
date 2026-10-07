@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import OffreCard from "../../component/Design/Cards/OffreCard";
 import OffreDetails from "../../component/Design/OffreDetails";
 import {obtenirOffres} from "../../api/etudiant.jsx";
+import {getDepartmentKey} from "../../utils/departementConverter.js";
 
-const ViewOffers = () => {
+const ViewOffers = ({user}) => {
     const { t } = useTranslation();
     const [offres, setOffres] = useState([]);
     const [etat, setEtat] = useState("chargement");
@@ -14,7 +15,7 @@ const ViewOffers = () => {
     const charger = useCallback(async () => {
         setEtat("chargement");
         try {
-            setOffres(await obtenirOffres());
+            setOffres(await obtenirOffres(getDepartmentKey(user.department)));
             setEtat("ok");
         } catch {
             setEtat("erreur");
