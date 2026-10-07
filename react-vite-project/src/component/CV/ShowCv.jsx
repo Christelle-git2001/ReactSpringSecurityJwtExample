@@ -1,27 +1,79 @@
 import { useTranslation } from "react-i18next";
 import { obtenirCvPDF, suppressionCv } from "../../api/etudiant.jsx";
-import React, { useState } from "react";
-import {usePdfDocument} from "../../utils/filesUtils.jsx";
-import CvDocumentViewer from "./CvDocumentViewer.jsx";
-import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
+import React, { useEffect, useState, useRef } from "react";
+import { FiFileText } from "react-icons/fi";
+import { IoEyeSharp } from "react-icons/io5";
+import { FaDownload, FaTrashAlt } from "react-icons/fa";
+import { PDFVisioneuse } from "../PDF/PDFVisioneuse.jsx";
+import { declencherTelechargement } from "../../utils/filesUtils.jsx";
 
 const ShowCv = ({ cv, onCvDeleted }) => {
     const { t } = useTranslation();
-    const [deleteError, setDeleteError] = useState(null);
+    const [cvPDFUrl, setCvPDFUrl] = useState(null);
+    const [error, setError] = useState(null);
+    const dialogRef = useRef(null);
 
-    const status = getCvStatusConfig(cv?.statut, t);
+    async function obtenirCVUrlPDF() {
+        if (!cv?.id) {
+            return null;
+        }
+        try {
+            const response = await obtenirCvPDF();
+            if (!response.ok) {
+                setError("error.generic");
+                return null;
+            }
+            const data = await response.blob();
+            setCvPDFUrl(URL.createObjectURL(data));
+        } catch (error) {
+            switch (error?.status) {
+                case 404:
+                    setError("etudiant.noCvFound");
+                    break;
+                case 401:
+                    setError("token.doesntExist");
+                    break;
+                default:
+                    setError("error.generic");
+                    break;
+            }
+            setCvPDFUrl("")
+        }
+    }
 
-    const {
-        pdfUrl,
-        error,
-        dialogRef,
-        viewPDF,
-        fermerModal,
-        gererTelechargement,
-    } = usePdfDocument({
-        loadPdfResponse: obtenirCvPDF,
-        fileNameFallback: cv?.fileName,
-    });
+    const viewPDF = async () => {
+        let url = cvPDFUrl;
+        if (!url) {
+            url = await obtenirCVUrlPDF();
+        }
+        if (url && dialogRef.current) {
+            dialogRef.current.showModal();
+        }
+    };
+
+    const fermerModal = () => {
+        if (dialogRef.current) {
+            dialogRef.current.close();
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (cvPDFUrl) {
+                URL.revokeObjectURL(cvPDFUrl);
+            }
+        };
+    }, [cvPDFUrl]);
+
+    const gererTelechargement = async () => {
+        let url = cvPDFUrl;
+        if (!url) {
+            url = await obtenirCVUrlPDF();
+        }
+        if (url) {
+            declencherTelechargement(url, cv?.fileName);
+        }
+    };
 
     const supprimerCv = async () => {
         try {
@@ -29,58 +81,107 @@ const ShowCv = ({ cv, onCvDeleted }) => {
             if (onCvDeleted) {
                 onCvDeleted();
             }
-
-            setDeleteError(null);
+            setCvPDFUrl(null);
         } catch (error) {
             switch (error?.status) {
                 case 404:
-                    setDeleteError("etudiant.noCvFound");
+                    setError("etudiant.noCvFound");
                     break;
                 case 401:
-                    setDeleteError("token.doesntExist");
+                    setError("token.doesntExist");
                     break;
                 default:
-                    setDeleteError("error.generic");
+                    setError("error.generic");
                     break;
             }
         }
     };
 
-    const currentError = error || deleteError;
+    const formaterTailleFichier = (octets) => {
+        if (!octets || octets === 0) return "0 KB";
+        const kb = octets / 1024;
+
+        if (kb >= 1024) {
+            return `${(kb / 1024).toFixed(1)} MB`;
+        }
+        return `${Math.round(kb)} KB`;
+    };
+
+    const formaterDate = (isoString) => {
+        if (!isoString) return "";
+        const date = new Date(isoString);
+
+        const annee = date.getFullYear();
+        const mois = String(date.getMonth() + 1).padStart(2, "0");
+        const jour = String(date.getDate()).padStart(2, "0");
+        const heures = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+
+        return `${annee}-${mois}-${jour} ${heures}:${minutes}`;
+    };
 
     return (
-        <>
-            <CvDocumentViewer
-                cv={cv}
-                pdfUrl={pdfUrl}
-                error={error || deleteError}
-                dialogRef={dialogRef}
-                viewPDF={viewPDF}
-                fermerModal={fermerModal}
-                gererTelechargement={gererTelechargement}
-                supprimerCv={supprimerCv}
-                showDelete
-            />
-
-            {cv?.id && (
-                <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3 py-2 text-left">
-                    <span className="text-sm font-bold text-[#043480]">Statut : </span><span className={`badge badge-xs ${status.className}`}>
-                        {status.label}
-                    </span>
-
-                    {cv?.rejectionComment && (
-                        <div className="mt-2">
-                            <p className="text-sm font-bold text-[#043462]">
-                                {t("cv.previous_rejection_comment")}
-                            </p>
-                            <p className="mt-1 whitespace-pre-line text-sm text-gray-800">
-                                {cv.rejectionComment}
-                            </p>
+        <div className="w-full">
+            <div className="mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2">
+                {cv?.id ? (
+                    <div className="flex justify-around w-full items-center h-full">
+                        <FiFileText className="size-10 rounded-box text-red-500 border border-t-0" />
+                        <div>
+                            {cv?.fileName}
+                            <div className="text-xs uppercase font-semibold opacity-60">
+                                {formaterDate(cv?.uploadDate)}
+                            </div>
                         </div>
-                    )}
-                </div>
-            )}
-        </>
+                        <div>
+                            <div>{formaterTailleFichier(cv?.fileSize)}</div>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn btn-square btn-ghost"
+                            onClick={viewPDF}
+                            title={t("actions.view", "Visualiser")}
+                        >
+                            <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={gererTelechargement}
+                            className="btn btn-ghost"
+                            title={t("actions.download", "Télécharger")}
+                        >
+                            <FaDownload className="w-full h-full text-green-700 hover:text-black" />
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-square btn-ghost"
+                            onClick={supprimerCv}
+                            title={t("actions.delete", "Supprimer")}
+                        >
+                            <FaTrashAlt className="w-full h-full text-red-900 hover:text-black" />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex justify-center w-full">
+                        <p className="text-center">{t("etudiant.noCVUpload")}</p>
+                    </div>
+                )}
+                {error && (
+                    <div className="mt-1">
+                        <p className="text-xs text-red-500">{t(error)}</p>
+                    </div>
+                )}
+            </div>
+
+            <dialog ref={dialogRef} className="modal">
+                <PDFVisioneuse
+                    cvUrlAAffiche={cvPDFUrl}
+                    onClose={fermerModal}
+                />
+                <form method="dialog" className="modal-backdrop">
+                    <button type="submit">close</button>
+                </form>
+            </dialog>
+        </div>
     );
 };
 
