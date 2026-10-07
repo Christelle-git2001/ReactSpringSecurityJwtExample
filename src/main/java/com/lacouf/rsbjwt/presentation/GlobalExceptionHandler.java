@@ -168,4 +168,10 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO("cv.cv_pending_approval"));
     }
 
+    @ExceptionHandler(EmployeurIntrouvable.class)
+    public ResponseEntity<ErreurDTO> handleEmployeurIntrouvableException(EmployeurIntrouvable e){
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
+    }
+
 }
