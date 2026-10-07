@@ -3,7 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 import LanguageSwitch from "../../../locales/LanguageSwitch.jsx";
 import ThemeToggle from "../ThemeToggle.jsx";
 import { useTranslation } from "react-i18next";
-import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiFileText} from "react-icons/fi";
+import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiFileText, FiBriefcase} from "react-icons/fi";
 
 
 function SideBarLayout({ user, openDrawer }) {
@@ -14,21 +14,17 @@ function SideBarLayout({ user, openDrawer }) {
     const role = rawRole?.toString().replace("ROLE_", "");
 
     const NAV_ITEMS = [
+        { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
-        {path: "/employeur/offres/nouvelle",label: t("nav.add_offer"),roles: ["EMPLOYEUR"],icon: <FiPlusCircle className="size-4 my-1.5" />},
-        { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
+        { path: `/${role?.toLowerCase()}/offers`, label: t("nav.offers"), roles: null, icon: <FiBriefcase className="size-4 my-1.5" />},
+        {path: "/gestionnaire/cvs", label: "CVs", roles: ["GESTIONNAIRE"], icon: <FiFileText className="size-4 my-1.5" />},
+        {path: "/employeur/offres/nouvelle",label: t("nav.add_offer"),roles: ["EMPLOYEUR"],icon: <FiPlusCircle className="size-4 my-1.5" />},
         { path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),
             roles: null,
             icon: user?.isLoggedIn ? <FiLogOut className="size-4 my-1.5" /> : <FiLogIn className="size-4 my-1.5" />
-        },
-        {
-            path: "/gestionnaire/cvs",
-            label: "CVs",
-            roles: ["GESTIONNAIRE"],
-            icon: <FiFileText className="size-4 my-1.5" />
         },
     ];
 
