@@ -184,5 +184,6 @@ public class GestionnaireService {
         CvEtudiant cv = cvEtudiantRepository.findById(id)
                 .orElseThrow(CurriculumVitaeIntrouvable::new);
 
-        return StockageFichierUtils.chargerFichier(Path.of(cv.getStoragePath()));    }
+        return StockageFichierUtils.chargerFichier(Path.of(cv.getStoragePath()));
+    }
 }

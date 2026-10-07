@@ -252,6 +252,7 @@ public class EtudiantServiceTest {
                 .etudiant(etudiant)
                 .build();
         ancienCv.setId(1L);
+        ancienCv.setStatut(Statut.REFUSEE);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",

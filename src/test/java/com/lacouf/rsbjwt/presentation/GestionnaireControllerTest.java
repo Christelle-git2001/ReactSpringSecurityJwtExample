@@ -2,6 +2,8 @@ package com.lacouf.rsbjwt.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lacouf.rsbjwt.Exception.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.Exception.FichierIntrouvableException;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -9,6 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,11 +29,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -301,5 +303,57 @@ public class GestionnaireControllerTest {
             assertThat(dto.fileName()).isEqualTo(cvEtudiantDTO.fileName());
             assertThat(dto.statut()).isEqualTo(cvEtudiantDTO.statut());
         });
+    }
+
+    @Test
+    void doitRetournePDFAvecStatutOK() throws Exception {
+        byte[] contenuCv = "Contenu du CV".getBytes();
+        Resource pdf = new ByteArrayResource(contenuCv);
+        when(gestionnaireService.telechargerCvParId(1L)).thenReturn(pdf);
+
+        MvcResult mvcResult = mockMvc.perform(get("/gestionnaire/cv/1/download"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PDF))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"cv.pdf\""))
+                .andReturn();
+
+        byte[] responseBytes = mvcResult.getResponse().getContentAsByteArray();
+        assertThat(responseBytes).isEqualTo(contenuCv);
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandCvIntrouvable() throws Exception {
+        when(gestionnaireService.telechargerCvParId(99L))
+                .thenThrow(new CurriculumVitaeIntrouvable());
+
+        mockMvc.perform(get("/gestionnaire/cv/99/download"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandFichierPhysiqueIntrouvable() throws Exception {
+        when(gestionnaireService.telechargerCvParId(1L))
+                .thenThrow(new FichierIntrouvableException());
+
+        mockMvc.perform(get("/gestionnaire/cv/1/download"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandIdEstInvalide() throws Exception {
+        mockMvc.perform(get("/gestionnaire/cv/sdsdww/download"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitGererFichierVide() throws Exception {
+        Resource pdfVide = new ByteArrayResource(new byte[0]);
+        when(gestionnaireService.telechargerCvParId(1L)).thenReturn(pdfVide);
+
+        MvcResult mvcResult = mockMvc.perform(get("/gestionnaire/cv/1/download"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getContentAsByteArray()).isEmpty();
     }
 }
