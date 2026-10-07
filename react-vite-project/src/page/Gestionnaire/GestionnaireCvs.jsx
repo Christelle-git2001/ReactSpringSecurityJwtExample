@@ -6,7 +6,7 @@ import FilterBar from "../../component/Design/FilterBar.jsx";
 
 function GestionnaireCvs() {
     const { t } = useTranslation();
-    const [selectedStatus, setSelectedStatus] = useState("TOUS");
+    const [selectedStatus, setSelectedStatus] = useState("EN_ATTENTE");
     const [cvs, setCvs] = useState([]);
     const [error, setError] = useState(null);
 
