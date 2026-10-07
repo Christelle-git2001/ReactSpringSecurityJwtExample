@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { approuverCv, getTousLesCvs, refuserCv } from "../../api/gestionnaire.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
-import SearchBar from "../../component/Design/SearchBar.jsx";
 
 function GestionnaireCvs() {
     const { t } = useTranslation();
@@ -56,11 +55,6 @@ function GestionnaireCvs() {
     return (
         <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
             <div className="w-full max-w-4xl space-y-4 mb-6">
-                <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    onClear={() => setSearchTerm("")}
-                />
                 <FilterBar
                     selectedStatus={selectedStatus}
                     onStatusChange={setSelectedStatus}
