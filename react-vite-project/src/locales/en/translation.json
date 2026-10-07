@@ -165,14 +165,26 @@
     "account": "Account",
     "login": "Login",
     "logout": "Logout",
-    "add_offer": "Add offer"
+    "add_offer": "Add offer",
+    "view_offers": "Internship offers"
   },
   "home": {
     "welcome": "Welcome"
   },
   "etudiant": {
     "card": {
-      "account": "Manage your personal information, update your profile, and view your account details. "
+      "account": "Manage your personal information, update your profile, and view your account details. ",
+      "view_offers": "Explore available internship offers, filter by title, domain, and salary, and view detailed information about each offer."
+    },
+    "offers":{
+      "page_title": "Internship Offers",
+      "title_filter": "Filter by title",
+      "domain_filter": "Filter by domain",
+      "salary_filter": "Filter by salary",
+      "no_offers": "No offers available",
+      "details_button": "Details",
+      "apply_button": "Apply",
+      "fromTo": "to"
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
@@ -207,6 +219,7 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "period": "Period",
     "document_error" : "Document unavailable",
     "no_offers": "No offers available at the moment.",
     "details_title": "Offer Details",

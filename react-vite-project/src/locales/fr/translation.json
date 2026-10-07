@@ -198,7 +198,8 @@
     "account": "Compte",
     "login": "Connexion",
     "logout": "Déconnexion",
-    "add_offer": "Créer une offre"
+    "add_offer": "Créer une offre",
+    "view_offers": "Offres de stage"
   },
   "status": {
     "tous": "Tous",
@@ -216,7 +217,18 @@
   },
   "etudiant": {
     "card": {
-      "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
+      "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
+      "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. "
+    },
+    "offers":{
+      "page_title": "Offres de stage",
+      "title_filter": "Filtrer par titre",
+      "domain_filter": "Filtrer par domaine",
+      "salary_filter": "Filtrer par salaire",
+      "no_offers": "Aucune offre disponible",
+      "details_button": "Détails",
+      "apply_button": "Postuler",
+      "fromTo": "à"
     },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
