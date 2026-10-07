@@ -104,7 +104,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
             </div>
 
             {cv?.id && (
-                <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3 py-2 text-left">
+                <div className=" rounded-lg px-3 py-2 text-left">
                     <span className={`badge badge-xs ${status.className}`}>
                         {status.label}
                     </span>

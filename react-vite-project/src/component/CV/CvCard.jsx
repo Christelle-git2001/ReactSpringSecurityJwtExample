@@ -64,19 +64,6 @@ function CvCard({ cv, onApprove, onReject }) {
                 </div>
 
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                    {!isFinalStatus && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsOpen(true);
-                                setShowCommentaire(!showCommentaire);
-                            }}
-                            className="text-sm font-semibold text-black underline transition-colors hover:text-[#043462] cursor-pointer"
-                        >
-                            {t("cv.leave_comment")}
-                        </button>
-                    )}
-
                     <Button
                         type="button"
                         onClick={handleReject}
