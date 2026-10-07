@@ -31,9 +31,9 @@ export async function televerserCV(file) {
     })
 }
 
-export async function obtenirOffres() {
+export async function obtenirOffres(departement) {
   const token = getToken();
-  return fetchJson("/etudiant/offres", {
+  return fetchJson("/etudiant/offres/" + departement, {
     method: "GET",
     headers: { "Authorization": `Bearer ${token}` },
   });

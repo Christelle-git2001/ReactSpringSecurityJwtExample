@@ -172,8 +172,8 @@ public class EtudiantService {
         cv.setRejectionComment(null);
     }
 
-    public List<OffreDeStageDTO> getOffresDisponibles() {
-        return offreDeStageRepository.findByStatut(Statut.ACCEPTEE)
+    public List<OffreDeStageDTO> getOffresDisponibles(Departement departement) {
+        return offreDeStageRepository.findAllByStatutAndDomain(Statut.ACCEPTEE,departement)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();

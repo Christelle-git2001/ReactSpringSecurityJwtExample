@@ -2,11 +2,9 @@ package com.lacouf.rsbjwt.presentation;
 
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -70,9 +68,8 @@ public class EtudiantController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/offres")
-    public ResponseEntity<List<OffreDeStageDTO>> getOffresDisponibles(){
-        return ResponseEntity.ok(etudiantService.getOffresDisponibles());
+    @GetMapping("/offres/{departement}")
+    public ResponseEntity<List<OffreDeStageDTO>> getOffresDisponibles(@PathVariable Departement departement){
+        return ResponseEntity.ok(etudiantService.getOffresDisponibles(departement));
     }
-
 }
