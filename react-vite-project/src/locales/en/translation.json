@@ -175,7 +175,9 @@
   "etudiant": {
     "card": {
       "account": "Manage your personal information, update your profile, and view your account details. ",
-      "view_offers": "Explore available internship offers, filter by title, location and view detailed information about each offer."
+      "view_offers": "Explore available internship offers, filter by title, location and view detailed information about each offer.",
+      "new_offer": "",
+      "cvs": ""
     },
     "offers":{
       "page_title": "Internship Offers",

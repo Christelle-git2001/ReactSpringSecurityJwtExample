@@ -18,7 +18,7 @@ function SideBarLayout({ user, openDrawer }) {
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
-        { path: `/${role?.toLowerCase()}/offers`, label: t("nav.offers"), roles: null, icon: <FiBriefcase className="size-4 my-1.5" />},
+        { path: `/${role?.toLowerCase()}/offers`, label: t("nav.view_offers"), roles: null, icon: <FiBriefcase className="size-4 my-1.5" />},
         {path: "/gestionnaire/cvs", label: "CVs", roles: ["GESTIONNAIRE"], icon: <FiFileText className="size-4 my-1.5" />},
         {path: "/employeur/offres/nouvelle",label: t("nav.add_offer"),roles: ["EMPLOYEUR"],icon: <FiPlusCircle className="size-4 my-1.5" />},
         { path: user?.isLoggedIn ? "/logout" : "/login",
@@ -59,10 +59,9 @@ function SideBarLayout({ user, openDrawer }) {
 
                     </div>
                 </nav>
-                <div className="p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col  w-full">
+                <div className="min-h-screen p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col w-full">
                     <Outlet context={{ openDrawer }} />
                 </div>
-
             </div>
 
             <div className="drawer-side is-drawer-close:overflow-visible bg-[#043462] text-white">

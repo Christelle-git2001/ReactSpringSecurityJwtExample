@@ -221,7 +221,9 @@
   "etudiant": {
     "card": {
       "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
-      "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. "
+      "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. ",
+      "new_offer" : "",
+      "cvs" :""
     },
     "offers":{
       "page_title": "Offres de stage",
