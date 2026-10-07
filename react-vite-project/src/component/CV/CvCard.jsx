@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import Button from "../Design/Button.jsx";
 import { useTranslation } from "react-i18next";
-import { formaterDate, formaterTailleFichier } from "../../utils/CvFormatters.jsx";
+import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import ShowDocument from "../PDF/ShowDocument.jsx";
 import { obtenirCvPDFGestionnaire } from "../../api/http.jsx";
