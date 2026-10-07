@@ -1,79 +1,31 @@
 import { useTranslation } from "react-i18next";
 import { obtenirCvPDF, suppressionCv } from "../../api/etudiant.jsx";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import { FiFileText } from "react-icons/fi";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaDownload, FaTrashAlt } from "react-icons/fa";
 import { PDFVisioneuse } from "../PDF/PDFVisioneuse.jsx";
-import { declencherTelechargement } from "../../utils/filesUtils.jsx";
+import {usePdfDocument} from "../../utils/filesUtils.jsx";
+import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
+import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
 
 const ShowCv = ({ cv, onCvDeleted }) => {
     const { t } = useTranslation();
-    const [cvPDFUrl, setCvPDFUrl] = useState(null);
-    const [error, setError] = useState(null);
-    const dialogRef = useRef(null);
+    const [deleteError, setDeleteError] = useState(null);
 
-    async function obtenirCVUrlPDF() {
-        if (!cv?.id) {
-            return null;
-        }
-        try {
-            const response = await obtenirCvPDF();
-            if (!response.ok) {
-                setError("error.generic");
-                return null;
-            }
-            const data = await response.blob();
-            setCvPDFUrl(URL.createObjectURL(data));
-        } catch (error) {
-            switch (error?.status) {
-                case 404:
-                    setError("etudiant.noCvFound");
-                    break;
-                case 401:
-                    setError("token.doesntExist");
-                    break;
-                default:
-                    setError("error.generic");
-                    break;
-            }
-            setCvPDFUrl("")
-        }
-    }
+    const status = getCvStatusConfig(cv?.statut, t);
 
-    const viewPDF = async () => {
-        let url = cvPDFUrl;
-        if (!url) {
-            url = await obtenirCVUrlPDF();
-        }
-        if (url && dialogRef.current) {
-            dialogRef.current.showModal();
-        }
-    };
-
-    const fermerModal = () => {
-        if (dialogRef.current) {
-            dialogRef.current.close();
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            if (cvPDFUrl) {
-                URL.revokeObjectURL(cvPDFUrl);
-            }
-        };
-    }, [cvPDFUrl]);
-
-    const gererTelechargement = async () => {
-        let url = cvPDFUrl;
-        if (!url) {
-            url = await obtenirCVUrlPDF();
-        }
-        if (url) {
-            declencherTelechargement(url, cv?.fileName);
-        }
-    };
+    const {
+        pdfUrl,
+        error,
+        dialogRef,
+        viewPDF,
+        fermerModal,
+        gererTelechargement,
+    } = usePdfDocument({
+        loadPdfResponse: obtenirCvPDF,
+        fileNameFallback: cv?.fileName,
+    });
 
     const supprimerCv = async () => {
         try {
@@ -81,44 +33,23 @@ const ShowCv = ({ cv, onCvDeleted }) => {
             if (onCvDeleted) {
                 onCvDeleted();
             }
-            setCvPDFUrl(null);
+            setDeleteError(null);
         } catch (error) {
             switch (error?.status) {
                 case 404:
-                    setError("etudiant.noCvFound");
+                    setDeleteError("etudiant.noCvFound");
                     break;
                 case 401:
-                    setError("token.doesntExist");
+                    setDeleteError("token.doesntExist");
                     break;
                 default:
-                    setError("error.generic");
+                    setDeleteError("error.generic");
                     break;
             }
         }
     };
 
-    const formaterTailleFichier = (octets) => {
-        if (!octets || octets === 0) return "0 KB";
-        const kb = octets / 1024;
-
-        if (kb >= 1024) {
-            return `${(kb / 1024).toFixed(1)} MB`;
-        }
-        return `${Math.round(kb)} KB`;
-    };
-
-    const formaterDate = (isoString) => {
-        if (!isoString) return "";
-        const date = new Date(isoString);
-
-        const annee = date.getFullYear();
-        const mois = String(date.getMonth() + 1).padStart(2, "0");
-        const jour = String(date.getDate()).padStart(2, "0");
-        const heures = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-
-        return `${annee}-${mois}-${jour} ${heures}:${minutes}`;
-    };
+    const currentError = error || deleteError;
 
     return (
         <div className="w-full">
@@ -145,7 +76,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
                         </button>
                         <button
                             type="button"
-                            onClick={gererTelechargement}
+                            onClick={() => gererTelechargement(cv?.fileName)}
                             className="btn btn-ghost"
                             title={t("actions.download", "Télécharger")}
                         >
@@ -165,16 +96,35 @@ const ShowCv = ({ cv, onCvDeleted }) => {
                         <p className="text-center">{t("etudiant.noCVUpload")}</p>
                     </div>
                 )}
-                {error && (
+                {currentError && (
                     <div className="mt-1">
-                        <p className="text-xs text-red-500">{t(error)}</p>
+                        <p className="text-xs text-red-500">{t(curentError)}</p>
                     </div>
                 )}
             </div>
 
+            {cv?.id && (
+                <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3 py-2 text-left">
+                    <span className={`badge badge-xs ${status.className}`}>
+                        {status.label}
+                    </span>
+
+                    {cv?.rejectionComment && (
+                        <div className="mt-2">
+                            <p className="text-xs font-bold text-[#043462]">
+                                {t("cv.previous_rejection_comment")}
+                            </p>
+                            <p className="mt-1 whitespace-pre-line text-sm text-gray-800">
+                                {cv.rejectionComment}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
+
             <dialog ref={dialogRef} className="modal">
                 <PDFVisioneuse
-                    cvUrlAAffiche={cvPDFUrl}
+                    cvUrlAAffiche={pdfUrl}
                     onClose={fermerModal}
                 />
                 <form method="dialog" className="modal-backdrop">
