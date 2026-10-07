@@ -5,23 +5,6 @@ import { formaterDate, formaterTailleFichier } from "../../utils/CvFormatters.js
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import ShowCvGestionnaire from "./ShowCvGestionnaire.jsx";
 
-function ReadOnlyField({ label, value, isMultiline = false }) {
-    return (
-        <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-[#043462]">
-                {label}
-            </span>
-            <div
-                className={`w-full rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-2.5 text-sm text-gray-800 font-medium ${
-                    isMultiline ? "whitespace-pre-line min-h-[100px]" : ""
-                }`}
-            >
-                {value || "-"}
-            </div>
-        </div>
-    );
-}
-
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +19,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const STATUS_CONFIG = {
             EN_ATTENTE: { label: t("status.en_attente"), className: "badge-warning",},
             ACCEPTEE: { label: t("status.cv_accepte"), className: "badge-success",},
-            REFUSEE: { label: t("status.cv_refuse"), className: "badge-warning",},
+            REFUSEE: { label: t("status.cv_refuse"), className: "badge-error",},
     };
 
     const status = STATUS_CONFIG[cv.statut] || {
@@ -155,10 +138,6 @@ function CvCard({ cv, onApprove, onReject }) {
                         </li>
                     </ul>
 
-                    <div className="mt-4">
-                        <ShowCvGestionnaire cv={cv} />
-                    </div>
-
                     {cv.rejectionComment && (
                         <div className="mt-4">
                             <p className="text-xs font-bold text-[#043462]">
@@ -169,6 +148,10 @@ function CvCard({ cv, onApprove, onReject }) {
                             </p>
                         </div>
                     )}
+
+                    <div className="mt-4">
+                        <ShowCvGestionnaire cv={cv} />
+                    </div>
                 </div>
             )}
 
