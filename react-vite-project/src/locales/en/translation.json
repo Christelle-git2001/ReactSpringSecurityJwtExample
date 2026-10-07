@@ -219,6 +219,8 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "employeur" : "Company",
+    "lieu" : "Location",
     "period": "Period",
     "document_error" : "Document unavailable",
     "no_offers": "No offers available at the moment.",

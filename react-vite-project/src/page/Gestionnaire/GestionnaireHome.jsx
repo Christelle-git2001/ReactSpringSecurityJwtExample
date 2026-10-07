@@ -48,8 +48,6 @@ const GestionnaireHome = () => {
                     onClear={() => setSearchTerm("")}
                 />
                 <FilterBar
-                    selectedStatus={selectedStatus}
-                    onStatusChange={setSelectedStatus}
                     selectedDomain={selectedDomain}
                     onDomainChange={setSelectedDomain}
                     availableDomains={availableDomains}

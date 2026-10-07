@@ -102,6 +102,8 @@
     "clear": "Effacer la recherche"
   },
   "offre": {
+    "employeur" : "Entreprise ",
+    "lieu" : "Lieu",
     "statut": "Statut",
     "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
