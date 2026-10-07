@@ -19,21 +19,21 @@
     "submit": "S'inscrire"
   },
   "add_etudiant": {
-    "page_title": "Inscription à OSE",
+    "page_title": "Inscription à IKey",
     "page_subtitle": "Compte étudiant",
     "matricule": "Matricule",
     "department": "Département",
     "department_placeholder": "Choisir un département"
   },
   "add_professeur": {
-    "page_title": "Inscription sur OSE",
+    "page_title": "Inscription sur IKey",
     "page_subtitle": "Compte professeur",
     "matricule": "Numéro d'identification",
     "department": "Département",
     "department_placeholder": "-- Sélectionner un département --"
   },
   "add_employeur": {
-    "page_title": "Inscription sur OSE",
+    "page_title": "Inscription sur IKey",
     "page_subtitle": "Compte employeur",
     "town": "Ville",
     "business_name": "Nom de l'entreprise",

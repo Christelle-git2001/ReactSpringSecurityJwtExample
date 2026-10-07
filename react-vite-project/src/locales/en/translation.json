@@ -19,21 +19,21 @@
     "submit": "Register"
   },
   "add_etudiant": {
-    "page_title": "Sign up for OSE",
+    "page_title": "Sign up for IKey",
     "page_subtitle": "Student account",
     "matricule": "Student ID",
     "department": "Department",
     "department_placeholder": "Choose a department"
   },
   "add_professeur": {
-    "page_title": "Register on OSE",
+    "page_title": "Register on IKey",
     "page_subtitle": "Professor account",
     "matricule": "ID number",
     "department": "Department",
     "department_placeholder": "-- Select a department --"
   },
   "add_employeur": {
-    "page_title": "Register on OSE",
+    "page_title": "Register on IKey",
     "page_subtitle": "Employer account",
     "town": "City",
     "business_name": "Company name",
