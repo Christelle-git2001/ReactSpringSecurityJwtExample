@@ -37,7 +37,7 @@ function CvCard({ cv, onApprove, onReject }) {
         if (!commentaires.trim()) {
             setIsOpen(true);
             setShowCommentaire(true);
-            setError(t("cv.rejection_comment_required"));
+            setError(t("error.rejection_comment_required"));
             return;
         }
 
