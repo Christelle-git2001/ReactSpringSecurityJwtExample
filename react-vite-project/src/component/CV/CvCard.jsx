@@ -35,6 +35,7 @@ function CvCard({ cv, onApprove, onReject }) {
 
     const handleReject = async () => {
         if (!commentaires.trim()) {
+            setIsOpen(true);
             setShowCommentaire(true);
             setError(t("cv.rejection_comment_required"));
             return;
