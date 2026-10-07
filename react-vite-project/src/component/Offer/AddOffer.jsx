@@ -187,6 +187,7 @@ function AddOffer() {
                                 name="salary"
                                 type="number"
                                 min="0"
+                                step="0.01"
                                 className={inputStyle(errors.salary)}
                             />
 
