@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Button from "../Design/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getDepartements } from "../../api/http.jsx";
+import { getDepartements } from "../../api/gestionnaire.jsx";
 import { creerOffreEmployeur } from "../../api/employeur.jsx";
 
 function AddOffer() {

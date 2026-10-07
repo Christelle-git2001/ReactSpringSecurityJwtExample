@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import RegisterForm from "./RegisterForm.jsx";
-import { getDepartements } from "../../api/http.jsx";
+import { getDepartements } from "../../api/gestionnaire.jsx";
 import { COMMON_USER_FIELDS } from "./formFields";
 
 function AddProfesseur(props) {

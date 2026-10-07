@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import RegisterForm from "./RegisterForm.jsx";
-import { getSecteursEmployeur} from "../../api/http.jsx";
+import { getSecteursEmployeur} from "../../api/gestionnaire.jsx";
 import { COMMON_USER_FIELDS } from "./formFields";
 
 function AddEmployeur(props) {
