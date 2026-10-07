@@ -32,8 +32,7 @@ function SideBarLayout({ user, openDrawer }) {
 
     return (
         <div className="drawer lg:drawer-open">
-            <input id="my-drawer-4" type="checkbox" className="drawer-toggle inline" />
-
+            <input id="my-drawer-4" type="checkbox" className="drawer-toggle inline" defaultChecked />
             <div className="drawer-content">
                 <nav className="navbar w-full bg-gradient-to-r from-[#043462] via-[#2F4A7A] to-[#6C4CCF]">
                 <label htmlFor="my-drawer-4" aria-label="open sidebar"
