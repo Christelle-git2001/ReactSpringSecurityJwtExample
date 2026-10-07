@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import ShowDocument from "../PDF/ShowDocument.jsx";
-import { obtenirCvPDFGestionnaire } from "../../api/http.jsx";
+import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
