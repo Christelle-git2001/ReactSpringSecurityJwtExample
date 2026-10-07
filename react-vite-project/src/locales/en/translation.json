@@ -153,7 +153,8 @@
     "phone_exists": "This phone number is already in use.",
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
-    "generic": "An error occurred. Please try again."
+    "generic": "An error occurred. Please try again.",
+    "rejection_comment_required": "A comment is required when rejecting a CV."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -268,12 +269,11 @@
     "leave_comment": "Leave a comment",
     "rejection_comment": "Comment",
     "rejection_comment_placeholder": "Explain why the CV is rejected or accepted",
-    "rejection_comment_required": "A comment is required when rejecting a CV.",
     "content_type": "Type",
     "file_size": "Size",
     "upload_date": "Upload date",
     "status": "Status",
-    "previous_rejection_comment": "Previous rejection comment",
-    "cv_pending_approval": "Your CV is awaiting approval from a manager. You can upload a new CV once it has been approved or rejected."
+    "previous_rejection_comment": "Rejection comment : ",
+    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
   }
 }

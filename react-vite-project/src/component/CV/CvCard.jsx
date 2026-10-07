@@ -1,9 +1,11 @@
 import React, {useState} from "react";
 import Button from "../Design/Button.jsx";
 import { useTranslation } from "react-i18next";
-import { formaterDate, formaterTailleFichier } from "../../utils/CvFormatters.jsx";
+import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
-import ShowCvGestionnaire from "./ShowCvGestionnaire.jsx";
+import ShowDocument from "../PDF/ShowDocument.jsx";
+import { obtenirCvPDFGestionnaire } from "../../api/http.jsx";
+import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
@@ -16,16 +18,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const STATUS_CONFIG = {
-            EN_ATTENTE: { label: t("status.en_attente"), className: "badge-warning",},
-            ACCEPTEE: { label: t("status.cv_accepte"), className: "badge-success",},
-            REFUSEE: { label: t("status.cv_refuse"), className: "badge-error",},
-    };
-
-    const status = STATUS_CONFIG[cv.statut] || {
-        label: cv.statut,
-        className: "badge-neutral",
-    };
+    const status = getCvStatusConfig(cv?.statut, t);
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
@@ -42,8 +35,9 @@ function CvCard({ cv, onApprove, onReject }) {
 
     const handleReject = async () => {
         if (!commentaires.trim()) {
+            setIsOpen(true);
             setShowCommentaire(true);
-            setError(t("cv.rejection_comment_required"));
+            setError("error.rejection_comment_required");
             return;
         }
 
@@ -125,7 +119,7 @@ function CvCard({ cv, onApprove, onReject }) {
                     <ul className="flex flex-col gap-2 text-xs">
                         <li>
                             <strong className="text-[#043462]">
-                                {t("cv.file_size")}
+                                {t("cv. file_size")}
                             </strong>{" "}
                             : {formaterTailleFichier(cv.fileSize)}
                         </li>
@@ -150,7 +144,10 @@ function CvCard({ cv, onApprove, onReject }) {
                     )}
 
                     <div className="mt-4">
-                        <ShowCvGestionnaire cv={cv} />
+                        <ShowDocument
+                            fileName={cv?.fileName}
+                            loadPdfResponse={() => obtenirCvPDFGestionnaire(cv?.id)}
+                        />
                     </div>
                 </div>
             )}
@@ -179,7 +176,7 @@ function CvCard({ cv, onApprove, onReject }) {
 
                     {error && (
                         <p className="mt-1 text-xs font-medium text-red-500">
-                            {error}
+                            {t(error)}
                         </p>
                     )}
                 </div>

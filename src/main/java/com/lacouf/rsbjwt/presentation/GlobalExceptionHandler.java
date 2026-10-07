@@ -159,19 +159,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
     }
 
-    @ExceptionHandler(CurriculumVitaeEnAttenteException.class)
-    public ResponseEntity<ErreurDTO> handleCurriculumVitaeEnAttenteException(
-            CurriculumVitaeEnAttenteException exception
+    @ExceptionHandler(CurriculumVitaeDejaApprouveException.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeDejaApprouveException(
+            CurriculumVitaeDejaApprouveException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErreurDTO("cv.cv_pending_approval"));
+                .body(new ErreurDTO(exception.getMessage()));
     }
-
-    @ExceptionHandler(EmployeurIntrouvable.class)
-    public ResponseEntity<ErreurDTO> handleEmployeurIntrouvableException(EmployeurIntrouvable e){
-        logger.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
-    }
-
 }

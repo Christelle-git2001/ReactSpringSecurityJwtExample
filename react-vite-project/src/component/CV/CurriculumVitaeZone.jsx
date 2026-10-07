@@ -39,15 +39,9 @@ const CurriculumVitaeZone = () => {
         chargerCv();
     }, [refreshTrigger]);
 
-    const cvEnAttente = cv?.statut === "EN_ATTENTE";
-
     return (
         <div className="w-full">
-            {cvEnAttente ? (
-                <p className="text-sm text-red-400 border border-blue-900 rounded-md p-3">
-                    {t("cv.cv_pending_approval")}
-                </p>
-            ) : (
+            {cv?.statut !== "ACCEPTEE" && (
                 <AjoutCV onCvAjoute={handleCvAjoute} />
             )}
 
