@@ -260,7 +260,6 @@
     "file_size": "Taille",
     "upload_date": "Date de téléversement",
     "status": "Statut",
-    "previous_rejection_comment": "Commentaire de refus précédent",
-    "cv_pending_approval" : "Votre CV est en attente d'approbation par un gestionnaire. Vous pourrez téléverser un nouveau CV lorsqu'il aura été approuvé ou refusé."
+    "previous_rejection_comment": "Commentaire de refus précédent"
   }
 }

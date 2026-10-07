@@ -36,7 +36,7 @@ public class EtudiantController {
     @PostMapping("/cv")
     public ResponseEntity<CvEtudiantDTO> televerserCv(@RequestParam("file") MultipartFile file, Authentication authentication)
             throws FichierCorrompuException, FichierTropVolumineuxException, FichierTypeInvalideException,
-            EtudiantIntrouvableException, SuppressionFichierEchoueeException, CurriculumVitaeEnAttenteException, IOException{
+            EtudiantIntrouvableException, SuppressionFichierEchoueeException, IOException{
         CvEtudiantDTO cvEtudiantDto = etudiantService.televerserCv(file, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(cvEtudiantDto);
     }

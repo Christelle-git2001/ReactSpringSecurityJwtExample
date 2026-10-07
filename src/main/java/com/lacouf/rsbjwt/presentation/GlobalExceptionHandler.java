@@ -158,14 +158,4 @@ public class GlobalExceptionHandler {
         logger.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
     }
-
-    @ExceptionHandler(CurriculumVitaeEnAttenteException.class)
-    public ResponseEntity<ErreurDTO> handleCurriculumVitaeEnAttenteException(
-            CurriculumVitaeEnAttenteException exception
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ErreurDTO("cv.cv_pending_approval"));
-    }
-
 }

@@ -258,7 +258,6 @@
     "file_size": "Size",
     "upload_date": "Upload date",
     "status": "Status",
-    "previous_rejection_comment": "Previous rejection comment",
-    "cv_pending_approval": "Your CV is awaiting approval from a manager. You can upload a new CV once it has been approved or rejected."
+    "previous_rejection_comment": "Previous rejection comment"
   }
 }

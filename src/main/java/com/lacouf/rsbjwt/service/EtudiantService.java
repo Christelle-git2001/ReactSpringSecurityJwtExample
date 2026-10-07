@@ -90,8 +90,7 @@ public class EtudiantService {
     public CvEtudiantDTO televerserCv(MultipartFile file, String email)
             throws FichierTypeInvalideException, EtudiantIntrouvableException,
             SuppressionFichierEchoueeException, FichierCorrompuException,
-            FichierTropVolumineuxException, CurriculumVitaeEnAttenteException,
-            IOException {
+            FichierTropVolumineuxException, IOException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
@@ -99,10 +98,6 @@ public class EtudiantService {
                 .orElseGet(() -> CvEtudiant.builder()
                         .etudiant(etudiant)
                         .build());
-
-        if (cv.getId() != null && cv.getStatut() == Statut.EN_ATTENTE) {
-            throw new CurriculumVitaeEnAttenteException();
-        }
 
         supprimerAncienCv(cv, filePath);
 
