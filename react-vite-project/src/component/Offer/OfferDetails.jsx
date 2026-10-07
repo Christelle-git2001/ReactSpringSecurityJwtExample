@@ -52,10 +52,10 @@ function OfferDetails({ offre: offreProp }) {
                     return;
                 }
                 await refuserOffre(offre.id, rejectionComment);
-                navigate("/gestionnaire");
+                navigate("/gestionnaire/offers");
             } else {
                 await approuverOffre(offre.id);
-                navigate("/gestionnaire");
+                navigate("/gestionnaire/offers");
             }
         } catch (err) {
             console.error("Erreur lors de la mise à jour de l'offre:", err);

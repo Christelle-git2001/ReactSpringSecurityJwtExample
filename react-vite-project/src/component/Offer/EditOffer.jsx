@@ -109,7 +109,7 @@ function EditOffer() {
 
         modifierOffreEmployeur(offer.id, dto, selectedFile)
             .then(() => {
-                navigate("/employeur");
+                navigate("/employeur/offers");
             })
             .catch((err) => {
                 console.error(err);
