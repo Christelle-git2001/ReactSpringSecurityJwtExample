@@ -33,14 +33,15 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const getStatusLabel = (statut) => {
-        const labels = {
-            EN_ATTENTE: t("status.en_attente"),
-            ACCEPTEE: t("status.cv_accepte"),
-            REFUSEE: t("status.cv_refuse"),
-        };
+    const STATUS_CONFIG = {
+            EN_ATTENTE: { label: t("status.en_attente"), className: "badge-warning",},
+            ACCEPTEE: { label: t("status.cv_accepte"), className: "badge-success",},
+            REFUSEE: { label: t("status.cv_refuse"), className: "badge-warning",},
+    };
 
-        return labels[statut] || statut;
+    const status = STATUS_CONFIG[cv.statut] || {
+        label: cv.statut,
+        className: "badge-neutral",
     };
 
     const getStudentName = () => {
@@ -68,13 +69,59 @@ function CvCard({ cv, onApprove, onReject }) {
     };
 
     return (
-        <div className="rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-start gap-3">
+        <div className="rounded-xl border border-base-300 bg-base-100 p-5 mt-5 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                    <div className="mb-2">
+                        <span className={`badge badge-xs ${status.className}`}>
+                            {status.label}
+                        </span>
+                    </div>
+                    <p className="text-2l font-bold text-[#043462]">
+                        {getStudentName()}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-600">
+                        {cv.fileName || t("cv.file_without_name")}
+                    </p>
+                </div>
+
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                    {!isFinalStatus && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsOpen(true);
+                                setShowCommentaire(!showCommentaire);
+                            }}
+                            className="text-sm font-semibold text-black underline transition-colors hover:text-[#043462] cursor-pointer"
+                        >
+                            {t("cv.leave_comment")}
+                        </button>
+                    )}
+
+                    <Button
+                        type="button"
+                        onClick={handleReject}
+                        disabled={isFinalStatus}
+                        className="bg-red-600 text-white cursor-pointer hover:bg-red-700"
+                    >
+                        {t("actions.reject")}
+                    </Button>
+
+                    <Button
+                        type="button"
+                        onClick={handleApprove}
+                        disabled={isFinalStatus}
+                        className="bg-green-600 text-white cursor-pointer hover:bg-green-800"
+                    >
+                        {t("actions.approve")}
+                    </Button>
+
                     <button
                         type="button"
                         onClick={() => setIsOpen(!isOpen)}
-                        className="mt-1 flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-[#043462] hover:bg-gray-100"
+                        className="btn btn-ghost btn-xs btn-circle text-base-content/70 hover:text-primary"
                         aria-label={
                             isOpen
                                 ? t("actions.collapse")
@@ -87,53 +134,45 @@ function CvCard({ cv, onApprove, onReject }) {
                             <FiChevronDown className="size-5 stroke-[3]" />
                         )}
                     </button>
-
-                    <div>
-                        <p className="font-bold text-[#043462]">
-                            {getStudentName()}
-                        </p>
-
-                        <p className="text-sm text-gray-600">
-                            {cv.fileName || t("cv.file_without_name")}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                            {getStatusLabel(cv.statut)}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                    {!isFinalStatus && (
-                        <button
-                            type="button"
-                            onClick={() => setShowCommentaire(!showCommentaire)}
-                            className="text-sm font-semibold text-black underline transition-colors hover:text-[#043462]"
-                        >
-                            {t("cv.leave_comment")}
-                        </button>
-                    )}
-
-                    <Button
-                        type="button"
-                        onClick={handleReject}
-                        disabled={isFinalStatus}
-                        className="bg-red-600 text-white hover:bg-red-700"
-                    >
-                        {t("actions.reject")}
-                    </Button>
-
-                    <Button
-                        type="button"
-                        onClick={handleApprove}
-                        disabled={isFinalStatus}
-                        className="bg-green-600 text-white hover:bg-green-800"
-                    >
-                        {t("actions.approve")}
-                    </Button>
                 </div>
             </div>
 
-            {showCommentaire && (
+            {isOpen && (
+                <div className="mt-6 border-t border-gray-100 pt-4">
+                    <ul className="flex flex-col gap-2 text-xs">
+                        <li>
+                            <strong className="text-[#043462]">
+                                {t("cv.file_size")}
+                            </strong>{" "}
+                            : {formaterTailleFichier(cv.fileSize)}
+                        </li>
+
+                        <li>
+                            <strong className="text-[#043462]">
+                                {t("cv.upload_date")}
+                            </strong>{" "}
+                            : {formaterDate(cv.uploadDate)}
+                        </li>
+                    </ul>
+
+                    <div className="mt-4">
+                        <ShowCvGestionnaire cv={cv} />
+                    </div>
+
+                    {cv.rejectionComment && (
+                        <div className="mt-4">
+                            <p className="text-xs font-bold text-[#043462]">
+                                {t("cv.previous_rejection_comment")}
+                            </p>
+                            <p className="mt-1 whitespace-pre-line rounded-lg bg-gray-50/70 px-3 py-2 text-sm text-gray-800">
+                                {cv.rejectionComment}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {isOpen && showCommentaire && !isFinalStatus && (
                 <div className="mt-4 border-t border-red-200 pt-4">
                     <label
                         htmlFor={`rejectionComment-${cv.id}`}
@@ -159,43 +198,6 @@ function CvCard({ cv, onApprove, onReject }) {
                         <p className="mt-1 text-xs font-medium text-red-500">
                             {error}
                         </p>
-                    )}
-                </div>
-            )}
-            {isOpen && (
-                <div className="grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 md:grid-cols-2">
-                    <ReadOnlyField
-                        label={t("cv.content_type")}
-                        value={cv.contentType}
-                    />
-
-                    <ReadOnlyField
-                        label={t("cv.file_size")}
-                        value={formaterTailleFichier(cv.fileSize)}
-                    />
-
-                    <ReadOnlyField
-                        label={t("cv.upload_date")}
-                        value={formaterDate(cv.uploadDate)}
-                    />
-
-                    <ReadOnlyField
-                        label={t("cv.status")}
-                        value={getStatusLabel(cv.statut)}
-                    />
-
-                    <div className="md:col-span-2">
-                        <ShowCvGestionnaire cv={cv} />
-                    </div>
-
-                    {cv.rejectionComment && (
-                        <div className="md:col-span-2">
-                            <ReadOnlyField
-                                label={t("cv.previous_rejection_comment")}
-                                value={cv.rejectionComment}
-                                isMultiline
-                            />
-                        </div>
                     )}
                 </div>
             )}

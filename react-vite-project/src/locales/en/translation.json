@@ -92,7 +92,9 @@
     "approve": "Approve",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "collapse": "collapse",
+    "expand": "expand"
   },
   "login": {
     "page_title": "Login",
@@ -244,7 +246,7 @@
     "clear": "Clear search"
   },
   "cv": {
-    "pending_title": "Pending Curriculum Vitae",
+    "pending_title": "Curriculums Vitae",
     "none_pending": "No CV pending.",
     "student_unknown": "Unknown student",
     "file_without_name": "Unnamed CV",

@@ -93,7 +93,9 @@
     "confirm_rejection": "Confirmer le refus",
     "loading": "En cours...",
     "filter_by": "Filtrer par ",
-    "reset_filters": "Réinitialiser les filtres"
+    "reset_filters": "Réinitialiser les filtres",
+    "collapse": "Réduire",
+    "expand": "Développer"
   },
   "search": {
     "placeholder": "Rechercher...",
@@ -246,7 +248,7 @@
     "doesntExist": "Aucune Session trouvée"
   },
   "cv": {
-    "pending_title": "Curriculum Vitae en attente",
+    "pending_title": "Curriculums Vitae",
     "none_pending": "Aucun CV en attente.",
     "student_unknown": "Étudiant inconnu",
     "file_without_name": "CV sans nom",
