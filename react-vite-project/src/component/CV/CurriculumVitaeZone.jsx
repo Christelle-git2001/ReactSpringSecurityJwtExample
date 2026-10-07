@@ -41,7 +41,9 @@ const CurriculumVitaeZone = () => {
 
     return (
         <div className="w-full">
-            <AjoutCV onCvAjoute={handleCvAjoute} />
+            {cv?.statut !== "ACCEPTEE" && (
+                <AjoutCV onCvAjoute={handleCvAjoute} />
+            )}
 
             {error && (
                 <p className="text-red-500 text-sm mt-2">

@@ -158,4 +158,13 @@ public class GlobalExceptionHandler {
         logger.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
     }
+
+    @ExceptionHandler(CurriculumVitaeDejaApprouveException.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeDejaApprouveException(
+            CurriculumVitaeDejaApprouveException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(exception.getMessage()));
+    }
 }
