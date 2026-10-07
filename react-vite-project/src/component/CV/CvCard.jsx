@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formaterDate, formaterTailleFichier } from "../../utils/CvFormatters.jsx";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import ShowCvGestionnaire from "./ShowCvGestionnaire.jsx";
+import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
@@ -16,16 +17,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const STATUS_CONFIG = {
-            EN_ATTENTE: { label: t("status.en_attente"), className: "badge-warning",},
-            ACCEPTEE: { label: t("status.cv_accepte"), className: "badge-success",},
-            REFUSEE: { label: t("status.cv_refuse"), className: "badge-error",},
-    };
-
-    const status = STATUS_CONFIG[cv.statut] || {
-        label: cv.statut,
-        className: "badge-neutral",
-    };
+    const status = getCvStatusConfig(cv?.statut, t);
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {

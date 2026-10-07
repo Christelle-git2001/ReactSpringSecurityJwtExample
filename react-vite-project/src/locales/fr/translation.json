@@ -260,6 +260,6 @@
     "file_size": "Taille",
     "upload_date": "Date de téléversement",
     "status": "Statut",
-    "previous_rejection_comment": "Commentaire de refus précédent"
+    "previous_rejection_comment": "Commentaire de refus : "
   }
 }

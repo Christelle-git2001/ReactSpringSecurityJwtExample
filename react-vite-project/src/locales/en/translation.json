@@ -258,6 +258,6 @@
     "file_size": "Size",
     "upload_date": "Upload date",
     "status": "Status",
-    "previous_rejection_comment": "Previous rejection comment"
+    "previous_rejection_comment": "Rejection comment : "
   }
 }
