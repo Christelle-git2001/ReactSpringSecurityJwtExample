@@ -72,6 +72,7 @@ public class OffreDeStage {
         this.statut = statut;
         this.fileName = fileName;
         this.employeur = employeur;
+        this.storagePath = storagePath;
         this.rejectionComment = rejectionComment;
     }
 
