@@ -153,6 +153,7 @@ function OfferDetails({ offre: offreProp }) {
                                 <textarea
                                     id="rejectionComment"
                                     name="rejectionComment"
+                                    maxLength={500}
                                     rows="4"
                                     value={rejectionComment}
                                     onChange={(e) => setRejectionComment(e.target.value)}
