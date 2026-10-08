@@ -110,7 +110,7 @@ public class DevAuthController {
                 .findFirst()
                 .orElseThrow(EmployeurIntrouvable::new);
         OffreDeStage offreDeStage = OffreDeStage.builder()
-                .title("OffreDeStageGenererAutomatiquement")
+                .title("OffreDeStageGenerer")
                 .description("Ce document est généré automatiquement")
                 .salary(8.5)
                 .domain(Departement.INFORMATIQUE)
@@ -119,6 +119,7 @@ public class DevAuthController {
                 .statut(Statut.EN_ATTENTE)
                 .employeur(employeur)
                 .storagePath("uploads/offres/bff2f672-69d6-4959-8356-6babf160a15f.pdf")
+                .fileName("Malinois_Inc_offer.pdf")
                 .build();
         offreDeStageRepository.save(offreDeStage);
         return new ResponseEntity<>(HttpStatus.OK);
