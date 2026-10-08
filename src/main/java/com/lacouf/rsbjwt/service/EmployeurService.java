@@ -82,11 +82,15 @@ public class EmployeurService {
         String fileName = null;
         String storagePath = null ;
 
-        if (file != null && !file.isEmpty()) {
-            Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
-            storagePath = path.toString();
-            fileName = file.getOriginalFilename();
+        if (file == null || file.isEmpty()) {
+            throw new FichierCorrompuException();
         }
+
+
+        Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+        storagePath = path.toString();
+        fileName = file.getOriginalFilename();
+
 
         OffreDeStage offre = OffreDeStage.builder()
                 .title(creationOffreDeStageDTO.title())

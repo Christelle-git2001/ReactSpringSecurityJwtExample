@@ -16,6 +16,10 @@ import AccountEmployeur from "../../page/Employeur/AccountEmployeur.jsx";
 import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx";
 import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
+import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
+import ViewOffers from "../../page/Etudiant/ViewOffers.jsx";
+import EmployeurOffers from "../../page/Employeur/EmployeurOffers.jsx";
+import GestionnaireOffers from "../../page/Gestionnaire/GestionnaireOffers.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -58,13 +62,17 @@ export default function AppRoutes({
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/>
+                <Route path="/etudiant/offers" element={<ViewOffers user={user}/>}/>
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>
-                <Route path="/gestionnaire/account" element={<AccountGestionnaire/>}/>
-                <Route path="/employeur" element={<EmployeurHome />} />
+                <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>
+                <Route path="/employeur" element={<EmployeurHome  user={user}/>} />
+                <Route path="/employeur/offers" element={<EmployeurOffers />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />
-                <Route path="/gestionnaire" element={<GestionnaireHome />} />
+                <Route path="/gestionnaire" element={<GestionnaireHome  user={user}/>} />
+                <Route path="/gestionnaire/offers" element={<GestionnaireOffers />} />
+                <Route path="/gestionnaire/cvs" element={<GestionnaireCvs />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>

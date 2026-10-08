@@ -31,3 +31,12 @@ h1 {
 .primary-submit:not(:disabled):hover {
     background: #043462;
 }
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    opacity: 0.5;
+}

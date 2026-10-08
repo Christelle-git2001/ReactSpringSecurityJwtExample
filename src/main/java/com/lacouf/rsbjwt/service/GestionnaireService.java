@@ -1,30 +1,58 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
-import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
-import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
+import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.service.dto.DepartementDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.core.io.Resource;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class GestionnaireService {
+    private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
+    private final UserAppRepository userAppRepository;
+    private final GestionnaireRepository gestionnaireRepository;
+    private final CvEtudiantRepository cvEtudiantRepository;
 
-    public GestionnaireService(OffreDeStageRepository offreDeStageRepository){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository ){
+        this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
+        this.userAppRepository = userAppRepository;
+        this.gestionnaireRepository = gestionnaireRepository;
+        this.cvEtudiantRepository = cvEtudiantRepository;
     }
+
+    @Transactional
+    public GestionnaireDto creerCompteGestionnaire(GestionnaireDto gestionnaireDto) throws EmailExistantException, NumeroTelephoneExistantException {
+        validerInscriptionGestionnaire(gestionnaireDto);
+        Gestionnaire gestionnaire = Gestionnaire.builder()
+                .firstName(gestionnaireDto.firstName())
+                .lastName(gestionnaireDto.lastName())
+                .email(gestionnaireDto.email())
+                .phoneNumber(gestionnaireDto.phoneNumber())
+                .password(passwordEncoder.encode(gestionnaireDto.password()))
+                .build();
+        return GestionnaireDto.create(gestionnaireRepository.save(gestionnaire));
+    }
+
     public List<SecteurEmployeurDTO> getAllSecteurs() {
         return Arrays.stream(SecteurActivite.values())
                 .map(secteur -> new SecteurEmployeurDTO(
@@ -92,4 +120,70 @@ public class GestionnaireService {
         );
     }
 
+    public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){
+        return cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
+    }
+
+    @Transactional
+    public CvEtudiantDTO approuverCurriculumVitae(Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
+        CvEtudiant cvEtudiant = cvEtudiantRepository.findById(id).orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cvEtudiant.getStatut() != Statut.EN_ATTENTE)
+            throw new CurriculumVitaeNonEnAttente();
+
+        cvEtudiant.setStatut(Statut.ACCEPTEE);
+        cvEtudiant.setRejectionComment(null);
+
+        return CvEtudiantDTO.of(
+                cvEtudiantRepository.save(cvEtudiant)
+        );
+    }
+
+    @Transactional
+    public CvEtudiantDTO refuserCurriculumVitae(Long id, String commentaire) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente, CommentaireRefusObligatoireException {
+        CvEtudiant cvEtudiant = cvEtudiantRepository.findById(id).orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cvEtudiant.getStatut() != Statut.EN_ATTENTE)
+            throw new CurriculumVitaeNonEnAttente();
+
+        if (commentaire == null || commentaire.isBlank()) {
+            throw new CommentaireRefusObligatoireException();
+        }
+
+        cvEtudiant.setStatut(Statut.REFUSEE);
+        cvEtudiant.setRejectionComment(commentaire);
+
+        return CvEtudiantDTO.of(
+                cvEtudiantRepository.save(cvEtudiant)
+        );
+    }
+
+    private void validerInscriptionGestionnaire(GestionnaireDto gestionnaireDto)  throws EmailExistantException, NumeroTelephoneExistantException{
+        if (userAppRepository.findUserAppByEmail(
+                gestionnaireDto.email()).isPresent()) {
+            throw new EmailExistantException();
+        }
+
+        if (userAppRepository.findByPhoneNumber(
+                gestionnaireDto.phoneNumber()).isPresent()) {
+            throw new NumeroTelephoneExistantException();
+        }
+    }
+
+    public List<CvEtudiantDTO> getTousLesCvs() {
+        return cvEtudiantRepository.findAll()
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
+    }
+
+    public Resource telechargerCvParId(Long id) throws CurriculumVitaeIntrouvable, FichierIntrouvableException {
+        CvEtudiant cv = cvEtudiantRepository.findById(id)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        return StockageFichierUtils.chargerFichier(Path.of(cv.getStoragePath()));
+    }
 }

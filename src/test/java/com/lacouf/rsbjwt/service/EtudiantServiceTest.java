@@ -252,6 +252,7 @@ public class EtudiantServiceTest {
                 .etudiant(etudiant)
                 .build();
         ancienCv.setId(1L);
+        ancienCv.setStatut(Statut.REFUSEE);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -381,7 +382,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitRetournerLesOffresAcceptees() {
+    void doitRetournerLesOffresAcceptees() throws Exception {
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
         offre.setTitle("Développeur Java");
@@ -393,29 +394,96 @@ public class EtudiantServiceTest {
         offre.setStatut(Statut.ACCEPTEE);
         offre.setEmployeur(employeur);
 
-        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findAllByStatutAndDomain(
+                Statut.ACCEPTEE,
+                offre.getDomain()))
                 .thenReturn(List.of(offre));
 
-        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
+        List<OffreDeStageDTO> result =
+                etudiantService.getOffresDisponibles(
+                        offre.getDomain(),
+                        etudiant.getEmail());
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).title()).isEqualTo("Développeur Java");
-
-        verify(offreDeStageRepository)
-                .findByStatut(Statut.ACCEPTEE);
     }
 
     @Test
-    void doitRetournerListeVideQuandAucuneOffreAcceptee() {
-        when(offreDeStageRepository.findByStatut(Statut.ACCEPTEE))
+    void doitRetournerListeVideQuandAucuneOffreAcceptee() throws Exception {
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findAllByStatutAndDomain(
+                Statut.ACCEPTEE,
+                etudiant.getDepartment()))
                 .thenReturn(List.of());
 
-        List<OffreDeStageDTO> result = etudiantService.getOffresDisponibles();
+        List<OffreDeStageDTO> result =
+                etudiantService.getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail());
 
         assertThat(result).isEmpty();
 
+        verify(etudiantRepository)
+                .findByCredentialsEmail(etudiant.getEmail());
+
+        verify(cvEtudiantRepository)
+                .findByEtudiant(etudiant);
+
         verify(offreDeStageRepository)
-                .findByStatut(Statut.ACCEPTEE);
+                .findAllByStatutAndDomain(
+                        Statut.ACCEPTEE,
+                        etudiant.getDepartment());
+    }
+
+    @Test
+    void doitRefuserAccesAuxOffresSiCvNonApprouve() throws Exception {
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.EN_ATTENTE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        assertThatThrownBy(() ->
+                etudiantService.getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()))
+                .isInstanceOf(CurriculumVitaeNonApprouveException.class);
+
+        verify(etudiantRepository)
+                .findByCredentialsEmail(etudiant.getEmail());
+
+        verify(cvEtudiantRepository)
+                .findByEtudiant(etudiant);
+
+        verify(offreDeStageRepository, never())
+                .findAllByStatutAndDomain(
+                        any(Statut.class),
+                        any(Departement.class));
     }
 }
 

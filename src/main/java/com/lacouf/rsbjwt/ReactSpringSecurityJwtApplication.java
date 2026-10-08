@@ -7,9 +7,8 @@ import com.lacouf.rsbjwt.repository.*;
 //import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.GestionnaireService;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,11 +29,12 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final OffreDeStageRepository offreDeStageRepository;
     private final EmployeurRepository employeurRepository;
     private final EmployeurService employeurService;
+    private final GestionnaireService gestionnaireService;
 
     public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
                                              UserAppRepository userAppRepository, PasswordEncoder passwordEncoder, EtudiantService etudiantService,
                                              OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
-                                             EmployeurRepository employeurRepository) {
+                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
        // this.professeurRepository = professeurRepository;
@@ -44,6 +44,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.employeurService = employeurService;
         this.offreDeStageRepository = offreDeStageRepository;
         this.employeurRepository = employeurRepository;
+        this.gestionnaireService = gestionnaireService;
     }
 
     public static void main(String[] args) {
@@ -56,9 +57,17 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 //        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
 //       CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,Departement.INFORMATIQUE,LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
 
-       InscriptionEmployeurDTO inscriptionEmployeurDTO2 = new InscriptionEmployeurDTO("Jean","Dupont","444-555-6666","sisi@gmail.com","Clinique Test",SecteurActivite.FINANCE.name(),SecteurActivite.AEROSPATIAL,"Test1234!","Test1234!");
-       employeurService.creeCompteEmployeur(inscriptionEmployeurDTO2);
+       //InscriptionEmployeurDTO inscriptionEmployeurDTO2 = new InscriptionEmployeurDTO("Jean","Dupont","444-555-6666","sisi@gmail.com","Clinique Test",SecteurActivite.FINANCE.name(),SecteurActivite.AEROSPATIAL,"Test1234!","Test1234!");
+       //employeurService.creeCompteEmployeur(inscriptionEmployeurDTO2);
 
+        GestionnaireDto gestionnaireDto = new GestionnaireDto(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed");
+        gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+
+        InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO( "Sebastien","Castonguay","450-716-1217","Sebastien.Castonguay@hotmail.com","6565656",Departement.INFORMATIQUE.name(),"NoNeedButStillNeed","NoNeedButStillNeed");
+        etudiantService.creerCompteEtudiant(etudiantDTO);
+
+        InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
+        employeurService.creeCompteEmployeur(employeurDTO);
 /*        Employeur employeurTest = employeurRepository.save(
                 Employeur.builder()
                         .firstName("Jean")
@@ -73,16 +82,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         );
 */
         //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
-        gestionnaireRepository.save(
-                Gestionnaire.builder()
-                        .firstName("Gerard")
-                        .lastName("Biblio")
-                        .email("l@l.com")
-                        .password(passwordEncoder.encode("bib"))
-                        .matricule("0000001")
-                        .phoneNumber("123-456-7890")
-                        .build()
-        );
         /*
         emprunteurRepository.save(
                 Emprunteur.builder()

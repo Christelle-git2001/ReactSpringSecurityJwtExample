@@ -19,21 +19,21 @@
     "submit": "S'inscrire"
   },
   "add_etudiant": {
-    "page_title": "Inscription à OSE",
+    "page_title": "Inscription à IKey",
     "page_subtitle": "Compte étudiant",
     "matricule": "Matricule",
     "department": "Département",
     "department_placeholder": "Choisir un département"
   },
   "add_professeur": {
-    "page_title": "Inscription sur OSE",
+    "page_title": "Inscription sur IKey",
     "page_subtitle": "Compte professeur",
     "matricule": "Numéro d'identification",
     "department": "Département",
     "department_placeholder": "-- Sélectionner un département --"
   },
   "add_employeur": {
-    "page_title": "Inscription sur OSE",
+    "page_title": "Inscription sur IKey",
     "page_subtitle": "Compte employeur",
     "town": "Ville",
     "business_name": "Nom de l'entreprise",
@@ -93,13 +93,17 @@
     "confirm_rejection": "Confirmer le refus",
     "loading": "En cours...",
     "filter_by": "Filtrer par ",
-    "reset_filters": "Réinitialiser les filtres"
+    "reset_filters": "Réinitialiser les filtres",
+    "collapse": "Réduire",
+    "expand": "Développer"
   },
   "search": {
     "placeholder": "Rechercher...",
     "clear": "Effacer la recherche"
   },
   "offre": {
+    "employeur" : "Entreprise ",
+    "lieu" : "Lieu",
     "statut": "Statut",
     "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
@@ -181,7 +185,8 @@
     "phone_exists": "Ce numéro de téléphone est déjà utilisé.",
     "department_invalid": "Le département sélectionné est invalide.",
     "user_not_found": "Utilisateur introuvable.",
-    "generic": "Une erreur est survenue. Veuillez réessayer."
+    "generic": "Une erreur est survenue. Veuillez réessayer.",
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -196,13 +201,18 @@
     "account": "Compte",
     "login": "Connexion",
     "logout": "Déconnexion",
-    "add_offer": "Créer une offre"
+    "add_offer": "Créer une offre",
+    "view_offers": "Offres de stage"
   },
   "status": {
     "tous": "Tous",
     "en_attente": "En attente",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
+    "cv_accepte" : "Accepté",
+    "cv_refuse" : "Refusé",
+    "cvs_acceptes": "Acceptés",
+    "cvs_refuses": "Refusés",
     "employer_added": "Employeur ajouté avec succès."
   },
   "home": {
@@ -210,11 +220,37 @@
   },
   "etudiant": {
     "card": {
-      "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. "
+      "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
+      "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. ",
+      "new_offer" : "",
+      "cvs" :""
+    },
+    "offers":{
+      "page_title": "Offres de stage",
+      "title_filter": "Filtrer par titre",
+      "domain_filter": "Filtrer par domaine",
+      "salary_filter": "Filtrer par salaire",
+      "no_offers": "Aucune offre disponible",
+      "error" : "Merci d'ajouté un CV (validé) avant de voir les offres",
+      "details_button": "Détails",
+      "apply_button": "Postuler",
+      "fromTo": "à"
     },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
     "noCvFound": "Cv non trouvé"
+  },
+  "employeur": {
+    "card": {
+      "view_offers" : "Consultez vos offres créées, leur statut ainsi que leurs informations",
+      "new_offer" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+    }
+  },
+  "gestionnaire": {
+    "card": {
+      "view_offers": "Validez et gérez l'ensemble des offres de stage soumises par les entreprises partenaires.",
+      "cvs": "Évaluez les CV soumis par les étudiants. Approuvez, refusez ou accompagnez les étudiants dans leur démarche."
+    }
   },
   "pdfVisio": {
     "nofiles": "Aucun fichier sélectioné",
@@ -224,7 +260,7 @@
     "download": "Télécharger le PDF",
     "fichierInvalide": "Fichier Invalide",
     "noFileDetected": "Aucun fichier à lire",
-    "bigFiles": "Votre fichier est trop volumineux, vous avez besoin de moins de 10 mo",
+    "bigFiles": "Votre fichier est trop volumineux. La taille maximale autorisée est de 10 Mo.",
     "lowFiles": "Votre fichier est corrompus, réessayez."
   },
   "account": {
@@ -240,5 +276,20 @@
   },
   "token": {
     "doesntExist": "Aucune Session trouvée"
+  },
+  "cv": {
+    "pending_title": "Curriculums Vitae",
+    "none_pending": "Aucun CV en attente.",
+    "student_unknown": "Étudiant inconnu",
+    "file_without_name": "CV sans nom",
+    "leave_comment": "Laisser un commentaire",
+    "rejection_comment": "Commentaire",
+    "rejection_comment_placeholder": "Expliquez pourquoi le CV est refusé",
+    "content_type": "Type",
+    "file_size": "Taille",
+    "upload_date": "Date de téléversement",
+    "status": "Statut",
+    "previous_rejection_comment": "Commentaire de refus : ",
+    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
   }
 }

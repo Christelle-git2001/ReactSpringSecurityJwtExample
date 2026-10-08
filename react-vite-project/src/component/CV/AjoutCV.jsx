@@ -31,6 +31,13 @@ const AjoutCV = ({onCvAjoute}) => {
             if (error.status === 401){
                 setErreur("token.doesntExist")
             }
+
+            if (error.status === 409) {
+                setErreur("cv.cv_already_approved");
+                return;
+            }
+
+            setErreur("error.generic");
         }
     }
     return (

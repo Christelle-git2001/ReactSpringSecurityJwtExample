@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.EtudiantService;
@@ -11,6 +12,7 @@ import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ByteArrayResource;
@@ -55,6 +57,7 @@ public class EtudiantControllerTest {
 
     private ObjectMapper objectMapper;
     private InscriptionEtudiantDTO inscriptionEtudiantDTO;
+    private EtudiantDTO etudiantDTO;
 
     @BeforeEach
     void init() {
@@ -75,6 +78,16 @@ public class EtudiantControllerTest {
                 "INFORMATIQUE",
                 "111111",
                 "111111"
+        );
+
+        etudiantDTO = new EtudiantDTO(
+                1L,
+                "Christelle",
+                "Altineus",
+                "christelle@gmail.com",
+                "2226252",
+                "438-297-8191",
+                "INFORMATIQUE"
         );
     }
 
@@ -163,10 +176,13 @@ public class EtudiantControllerTest {
     void doitTeleverserCv() throws Exception {
         CvEtudiantDTO cvDTO = new CvEtudiantDTO(
                 1L,
+                etudiantDTO,
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                Statut.EN_ATTENTE,
+                ""
         );
 
         when(etudiantService.televerserCv(any(), anyString()))
@@ -193,10 +209,13 @@ public class EtudiantControllerTest {
     void doitObtenirCv() throws Exception {
         CvEtudiantDTO cvDTO = new CvEtudiantDTO(
                 1L,
+                etudiantDTO,
                 "cv.pdf",
                 "application/pdf",
                 13L,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                Statut.EN_ATTENTE,
+                ""
         );
 
         when(etudiantService.getCv("christelle@gmail.com"))
@@ -268,10 +287,19 @@ public class EtudiantControllerTest {
                 null
         );
 
-        when(etudiantService.getOffresDisponibles())
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                inscriptionEtudiantDTO.email(),
+                null);
+
+        when(etudiantService.getOffresDisponibles(
+                Departement.valueOf(inscriptionEtudiantDTO.department()),
+                inscriptionEtudiantDTO.email()))
                 .thenReturn(List.of(offre));
 
-        mockMvc.perform(get("/etudiant/offres"))
+        mockMvc.perform(
+                        get("/etudiant/offres/" + inscriptionEtudiantDTO.department())
+                                .principal(authentication)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
@@ -280,13 +308,41 @@ public class EtudiantControllerTest {
 
     @Test
     void doitRetournerListeVideQuandAucuneOffreDisponible() throws Exception {
-        when(etudiantService.getOffresDisponibles())
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                inscriptionEtudiantDTO.email(),
+                null);
+
+        when(etudiantService.getOffresDisponibles(
+                Departement.valueOf(inscriptionEtudiantDTO.department()),
+                inscriptionEtudiantDTO.email()))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get("/etudiant/offres"))
+        mockMvc.perform(
+                        get("/etudiant/offres/" + inscriptionEtudiantDTO.department())
+                                .principal(authentication)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
+    @Test
+    void doitRefuserAccesAuxOffresSiCvNonApprouve() throws Exception {
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                inscriptionEtudiantDTO.email(),
+                null);
+
+        when(etudiantService.getOffresDisponibles(
+                Departement.valueOf(inscriptionEtudiantDTO.department()),
+                inscriptionEtudiantDTO.email()))
+                .thenThrow(new CurriculumVitaeNonApprouveException());
+
+        mockMvc.perform(
+                        get("/etudiant/offres/" + inscriptionEtudiantDTO.department())
+                                .principal(authentication)
+                )
+                .andExpect(status().isForbidden());
+    }
 }

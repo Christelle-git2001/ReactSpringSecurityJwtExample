@@ -90,7 +90,7 @@ public class EtudiantService {
     public CvEtudiantDTO televerserCv(MultipartFile file, String email)
             throws FichierTypeInvalideException, EtudiantIntrouvableException,
             SuppressionFichierEchoueeException, FichierCorrompuException,
-            FichierTropVolumineuxException, IOException {
+            FichierTropVolumineuxException, IOException, CurriculumVitaeDejaApprouveException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         Path filePath = StockageFichierUtils.sauvegarderPdf(file, STORAGE_CV);
 
@@ -98,6 +98,10 @@ public class EtudiantService {
                 .orElseGet(() -> CvEtudiant.builder()
                         .etudiant(etudiant)
                         .build());
+
+        if (cv.getId() != null && cv.getStatut() == Statut.ACCEPTEE) {
+            throw new CurriculumVitaeDejaApprouveException();
+        }
 
         supprimerAncienCv(cv, filePath);
 
@@ -163,13 +167,29 @@ public class EtudiantService {
         cv.setFileSize(file.getSize());
         cv.setStoragePath(filePath.toString());
         cv.setUploadDate(LocalDateTime.now());
+        cv.setStatut(Statut.EN_ATTENTE);
+        cv.setRejectionComment(null);
     }
 
-    public List<OffreDeStageDTO> getOffresDisponibles() {
-        return offreDeStageRepository.findByStatut(Statut.ACCEPTEE)
+    public List<OffreDeStageDTO> getOffresDisponibles( Departement departement, String email)
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException, CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cv.getStatut() != Statut.ACCEPTEE) {
+            throw new CurriculumVitaeNonApprouveException();
+        }
+
+        return offreDeStageRepository.findAllByStatutAndDomain(
+                        Statut.ACCEPTEE,
+                        departement
+                )
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
-
     }
 }

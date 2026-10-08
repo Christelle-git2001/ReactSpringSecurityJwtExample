@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Button from "../Design/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getDepartements } from "../../api/http.jsx";
+import { getDepartements } from "../../api/gestionnaire.jsx";
 import { creerOffreEmployeur } from "../../api/employeur.jsx";
 
 function AddOffer() {
@@ -13,6 +13,7 @@ function AddOffer() {
     const [departements, setDepartements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [fileName, setFileName] = useState("");
+    const TAILLE_MAX_OCTETS = 10 * 1024 * 1024; // 10 MB en octets
 
     useEffect(() => {
         getDepartements()
@@ -63,8 +64,14 @@ function AddOffer() {
         if (!endDate) {
             newErrors.endDate = "add_offer.errors.endDate_required";
         }
-        if (!file || file.size === 0) {
+        if (!file) {
             newErrors.file = "add_offer.errors.file_required";
+        }
+        if (file.size <= 0){
+            newErrors.file = "pdfVisio.lowFiles";
+        }
+        if (file.size > TAILLE_MAX_OCTETS){
+            newErrors.file = "pdfVisio.bigFiles" ;
         }
         if (startDate && endDate && endDate <= startDate) {
             newErrors.endDate = "add_offer.errors.endDate_invalid";
@@ -78,7 +85,7 @@ function AddOffer() {
 
         creerOffreEmployeur(dto, file)
             .then(() => {
-                navigate("/employeur");
+                navigate("/employeur/offers");
             })
             .catch((err) => {
                 console.error(err);
@@ -98,7 +105,7 @@ function AddOffer() {
 
     return (
         <div className="min-h-screen flex items-center justify-center">
-            <form
+            <form noValidate
                 onSubmit={handleSubmit}
                 className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
             >
@@ -187,6 +194,7 @@ function AddOffer() {
                                 name="salary"
                                 type="number"
                                 min="0"
+                                step="0.01"
                                 className={inputStyle(errors.salary)}
                             />
 

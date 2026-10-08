@@ -19,21 +19,21 @@
     "submit": "Register"
   },
   "add_etudiant": {
-    "page_title": "Sign up for OSE",
+    "page_title": "Sign up for IKey",
     "page_subtitle": "Student account",
     "matricule": "Student ID",
     "department": "Department",
     "department_placeholder": "Choose a department"
   },
   "add_professeur": {
-    "page_title": "Register on OSE",
+    "page_title": "Register on IKey",
     "page_subtitle": "Professor account",
     "matricule": "ID number",
     "department": "Department",
     "department_placeholder": "-- Select a department --"
   },
   "add_employeur": {
-    "page_title": "Register on OSE",
+    "page_title": "Register on IKey",
     "page_subtitle": "Employer account",
     "town": "City",
     "business_name": "Company name",
@@ -92,7 +92,9 @@
     "approve": "Approve",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "collapse": "collapse",
+    "expand": "expand"
   },
   "login": {
     "page_title": "Login",
@@ -151,7 +153,8 @@
     "phone_exists": "This phone number is already in use.",
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
-    "generic": "An error occurred. Please try again."
+    "generic": "An error occurred. Please try again.",
+    "rejection_comment_required": "A comment is required when rejecting a CV."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -163,17 +166,44 @@
     "account": "Account",
     "login": "Login",
     "logout": "Logout",
-    "add_offer": "Add offer"
+    "add_offer": "Add offer",
+    "view_offers": "Internship offers"
   },
   "home": {
     "welcome": "Welcome"
   },
   "etudiant": {
     "card": {
-      "account": "Manage your personal information, update your profile, and view your account details. "
+      "account": "Manage your personal information, update your profile, and view your account details. ",
+      "view_offers": "Explore available internship offers, filter by title, location and view detailed information about each offer.",
+      "new_offer": "",
+      "cvs": ""
+    },
+    "offers":{
+      "page_title": "Internship Offers",
+      "title_filter": "Filter by title",
+      "domain_filter": "Filter by domain",
+      "salary_filter": "Filter by salary",
+      "no_offers": "No offers available",
+      "details_button": "Details",
+      "apply_button": "Apply",
+      "fromTo": "to",
+      "error" : "Please add a CV (approved) before viewing offers."
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
+  },
+  "employeur": {
+    "card": {
+      "view_offers" : "View your created offers, their status, and details",
+      "new_offer" : "Create a new internship offer to allow students to join your company!"
+    }
+  },
+  "gestionnaire": {
+    "card": {
+      "view_offers": "Review and manage all internship offers submitted by partner companies.",
+      "cvs": "Review student resumes. Approve, reject, or provide guidance."
+    }
   },
   "pdfVisio": {
     "nofiles": "No files selected",
@@ -205,6 +235,9 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "employeur" : "Company",
+    "lieu" : "Location",
+    "period": "Period",
     "document_error" : "Document unavailable",
     "no_offers": "No offers available at the moment.",
     "details_title": "Offer Details",
@@ -233,10 +266,29 @@
     "tous": "All",
     "en_attente": "Pending",
     "acceptee": "Accepted",
-    "refusee": "Rejected"
+    "refusee": "Rejected",
+    "cv_accepte" : "Accepted",
+    "cv_refuse" : "Rejected",
+    "cvs_acceptes": "Accepted",
+    "cvs_refuses": "Rejected"
   },
   "search": {
     "placeholder": "Search...",
     "clear": "Clear search"
+  },
+  "cv": {
+    "pending_title": "Curriculums Vitae",
+    "none_pending": "No CV pending.",
+    "student_unknown": "Unknown student",
+    "file_without_name": "Unnamed CV",
+    "leave_comment": "Leave a comment",
+    "rejection_comment": "Comment",
+    "rejection_comment_placeholder": "Explain why the CV is rejected",
+    "content_type": "Type",
+    "file_size": "Size",
+    "upload_date": "Upload date",
+    "status": "Status",
+    "previous_rejection_comment": "Rejection comment : ",
+    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
   }
 }

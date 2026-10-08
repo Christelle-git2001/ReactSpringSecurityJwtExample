@@ -52,10 +52,10 @@ function OfferDetails({ offre: offreProp }) {
                     return;
                 }
                 await refuserOffre(offre.id, rejectionComment);
-                navigate("/gestionnaire");
+                navigate("/gestionnaire/offers");
             } else {
                 await approuverOffre(offre.id);
-                navigate("/gestionnaire");
+                navigate("/gestionnaire/offers");
             }
         } catch (err) {
             console.error("Erreur lors de la mise à jour de l'offre:", err);
@@ -153,6 +153,7 @@ function OfferDetails({ offre: offreProp }) {
                                 <textarea
                                     id="rejectionComment"
                                     name="rejectionComment"
+                                    maxLength={500}
                                     rows="4"
                                     value={rejectionComment}
                                     onChange={(e) => setRejectionComment(e.target.value)}
@@ -173,7 +174,7 @@ function OfferDetails({ offre: offreProp }) {
                     <Button
                         type="button"
                         disabled={isLoading}
-                        onClick={() => navigate("/gestionnaire")}
+                        onClick={() => navigate("/gestionnaire/offers")}
                         className="bg-gray-500 text-white hover:bg-gray-600 disabled:opacity-50"
                     >
                         {t("actions.back")}

@@ -1,79 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { FiFileText } from "react-icons/fi";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaDownload } from "react-icons/fa";
 import { PDFVisioneuse } from "./PDFVisioneuse.jsx";
-import { declencherTelechargement } from "../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../api/employeur.jsx";
+import { usePdfDocument } from "../../utils/filesUtils.jsx";
 
-const ShowDocument = ({ offerId, fileName }) => {
+const ShowDocument = ({ offerId, fileName, loadPdfResponse }) => {
     const { t } = useTranslation();
-    const [documentPDFUrl, setDocumentPDFUrl] = useState(null);
-    const [error, setError] = useState(null);
-    const dialogRef = useRef(null);
 
-    const chargerDocumentURL = async () => {
-        try {
-            const response = await obtenirOffrePDF(offerId);
-            if (!response.ok) {
-                setError("error.generic");
-                return null;
-            }
-            const blob = await response.blob();
-            return URL.createObjectURL(blob);
-        } catch (err) {
-            setError("error.generic");
-            return null;
-        }
-    };
-
-    const handleViewPDF = async () => {
-        let url = documentPDFUrl;
-        if (!url) {
-            url = await chargerDocumentURL();
-            if (url) {
-                setDocumentPDFUrl(url);
-            }
-        }
-        if (url && dialogRef.current) {
-            dialogRef.current.showModal();
-        }
-    };
-
-    const handleCloseModal = () => {
-        if (dialogRef.current) {
-            dialogRef.current.close();
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            if (documentPDFUrl) {
-                URL.revokeObjectURL(documentPDFUrl);
-            }
-        };
-    }, [documentPDFUrl]);
-
-   const handleDownload = async () => {
-       let url = documentPDFUrl;
-
-       if (!url) {
-           url = await chargerDocumentURL();
-       }
-
-       if (url) {
-           declencherTelechargement(
-               url,
-               fileName || `document_offre_${offerId}.pdf`
-           );
-       }
-   };
+    const {
+        pdfUrl,
+        error,
+        dialogRef,
+        viewPDF,
+        fermerModal,
+        gererTelechargement,
+    } = usePdfDocument({
+        loadPdfResponse: loadPdfResponse || (() => obtenirOffrePDF(offerId)),
+        fileNameFallback: fileName || `document_offre_${offerId}.pdf`,
+    });
 
     return (
         <div className="w-full">
             <div className="mt-2 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-3">
-                {fileName || offerId ? (
+                {fileName || offerId  || loadPdfResponse ? (
                     <div className="flex justify-around w-full items-center h-full">
                         <FiFileText className="size-10 rounded-box text-red-500 border-0" />
 
@@ -87,7 +39,7 @@ const ShowDocument = ({ offerId, fileName }) => {
                             <button
                                 type="button"
                                 className="btn btn-square btn-ghost"
-                                onClick={handleViewPDF}
+                                onClick={viewPDF}
                                 title={t("actions.view", "Visualiser")}
                             >
                                 <IoEyeSharp className="w-6 h-6 text-teal-500 hover:text-black" />
@@ -96,7 +48,7 @@ const ShowDocument = ({ offerId, fileName }) => {
                             <button
                                 type="button"
                                 className="btn btn-square btn-ghost"
-                                onClick={handleDownload}
+                                onClick={() => gererTelechargement(fileName)}
                                 title={t("actions.download", "Télécharger")}
                             >
                                 <FaDownload className="w-5 h-5 text-green-700 hover:text-black" />
@@ -120,8 +72,8 @@ const ShowDocument = ({ offerId, fileName }) => {
 
             <dialog ref={dialogRef} className="modal">
                 <PDFVisioneuse
-                    cvUrlAAffiche={documentPDFUrl}
-                    onClose={handleCloseModal}
+                    cvUrlAAffiche={pdfUrl}
+                    onClose={fermerModal}
                 />
                 <form method="dialog" className="modal-backdrop">
                     <button type="submit">close</button>

@@ -1,5 +1,4 @@
 import { fetchJson } from "./http.jsx";
-import {useTranslation} from "react-i18next";
 
 export async function inscrireEtudiant(etudiant) {
   return fetchJson("/etudiant/inscription", {
@@ -30,6 +29,14 @@ export async function televerserCV(file) {
         "Authorization": `Bearer ${token}`
       },
     })
+}
+
+export async function obtenirOffres(departement) {
+  const token = getToken();
+  return fetchJson("/etudiant/offres/" + departement, {
+    method: "GET",
+    headers: { "Authorization": `Bearer ${token}` },
+  });
 }
 
 export async function obtenirCvPDF(){

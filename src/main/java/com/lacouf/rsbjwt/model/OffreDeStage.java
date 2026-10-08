@@ -36,9 +36,9 @@ public class OffreDeStage {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Statut statut;
+            @Enumerated(EnumType.STRING)
+            @Column(nullable = false)
+            private Statut statut;
 
     private String fileName;
     private String storagePath;
@@ -71,8 +71,9 @@ public class OffreDeStage {
         this.endDate = endDate;
         this.statut = statut;
         this.fileName = fileName;
-        this.storagePath = storagePath;
         this.employeur = employeur;
+        this.storagePath = storagePath;
         this.rejectionComment = rejectionComment;
     }
+
 }

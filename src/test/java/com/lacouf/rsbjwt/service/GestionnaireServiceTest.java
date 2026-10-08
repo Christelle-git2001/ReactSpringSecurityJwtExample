@@ -1,18 +1,34 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.CommentaireRefusObligatoireException;
-import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
-import com.lacouf.rsbjwt.Exception.OffreNonEnAttenteException;
-import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
+import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,18 +36,50 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 class GestionnaireServiceTest {
 
+    @Mock
     private OffreDeStageRepository offreDeStageRepository;
 
+    @Mock
+    private CvEtudiantRepository cvEtudiantRepository;
+
+    @Mock
+    private GestionnaireRepository gestionnaireRepository;
+
+    @Mock
+    private UserAppRepository userAppRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+
+
+    @InjectMocks
     private GestionnaireService gestionnaireService;
+    private GestionnaireDto gestionnaireDto;
+    private Gestionnaire gestionnaire;
+    private CvEtudiant cvEtudiant;
+    private Etudiant etudiant;
+    private String cvCommentError;
 
     @BeforeEach
-    void setUp() {
-        offreDeStageRepository = mock(OffreDeStageRepository.class);
-        gestionnaireService = new GestionnaireService(offreDeStageRepository);
+    void setUp(){
+        gestionnaireDto = new GestionnaireDto(-6L,"Laurent","losange","Laurent.Losange@hotmail.com","458-458-4584","5858");
+        gestionnaire = new Gestionnaire(1L,"Laurent","losange","Laurent.Losange@hotmail.com","5858","458-458-4584");
+        gestionnaire.setId(1L);
+        etudiant = new Etudiant("pascal","losange","pascal.losange@hotmail.com","585-585-5858", Departement.INFORMATIQUE,"5858585","5858");
+        etudiant.setId(1L);
+        cvEtudiant = new CvEtudiant("jeronimo","application/pdf",18L,"", LocalDateTime.now(),etudiant);
+        cvEtudiant.setId(1L);
+        cvCommentError = "Cv non conforme";
     }
+
 
     private Employeur creerEmployeurTest() {
         Employeur employeur = Employeur.builder()
@@ -51,6 +99,34 @@ class GestionnaireServiceTest {
     }
 
     @Test
+    void doitCreerCompteGestionnaire() throws EmailExistantException, NumeroTelephoneExistantException {
+        when(gestionnaireRepository.save(any(Gestionnaire.class))).thenReturn(gestionnaire);
+
+        GestionnaireDto gestionnaireDtoBD = gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+
+        assertThat(gestionnaireDtoBD).isNotNull().satisfies(dto -> {
+                assertThat(dto.email()).isEqualTo(gestionnaire.getEmail());
+                assertThat(dto.firstName()).isEqualTo(gestionnaire.getFirstName());
+                assertThat(dto.id()).isEqualTo(gestionnaire.getId());
+
+        });
+    }
+
+    @Test
+    void doitLeverExceptionSiEmailExisteDeja()  {
+        when(userAppRepository.findUserAppByEmail(any(String.class))).thenReturn(Optional.of(gestionnaire));
+
+        assertThatThrownBy(() -> gestionnaireService.creerCompteGestionnaire(gestionnaireDto)).isInstanceOf(EmailExistantException.class);
+    }
+
+    @Test
+    void doitLeverExceptionSiTelephoneExisteDeja()  {
+        when(userAppRepository.findByPhoneNumber(any(String.class))).thenReturn(Optional.of(gestionnaire));
+
+        assertThatThrownBy(() -> gestionnaireService.creerCompteGestionnaire(gestionnaireDto)).isInstanceOf(NumeroTelephoneExistantException.class);
+    }
+
+    @Test
     void doitMapperEtRetournerTousLesSecteurs() {
         List<SecteurEmployeurDTO> result =
                 gestionnaireService.getAllSecteurs();
@@ -62,6 +138,21 @@ class GestionnaireServiceTest {
                         SecteurActivite.INFORMATIQUE.getLabel(),
                         SecteurActivite.PHARMACEUTIQUE.getLabel(),
                         SecteurActivite.FINANCE.getLabel()
+                );
+    }
+
+    @Test
+    void doitMapperEtRetournerTousLesDepartements() {
+        List<DepartementDTO> result =
+                gestionnaireService.getAllDepartements();
+
+        assertThat(result)
+                .hasSize(Departement.values().length)
+                .extracting(DepartementDTO::label)
+                .contains(
+                        Departement.INFORMATIQUE.getLabel(),
+                        Departement.GENIE_PHYSIQUE.getLabel(),
+                        Departement.EDUCATION_ENFANCE.getLabel()
                 );
     }
 
@@ -280,5 +371,243 @@ class GestionnaireServiceTest {
 
         verify(offreDeStageRepository, never())
                 .save(any());
+    }
+
+    @Test
+    void doitRetournerLesCurriculumVitaeEnAttente(){
+        List<CvEtudiant> listCv = List.of(cvEtudiant);
+
+        when(cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)).thenReturn(listCv);
+
+        List<CvEtudiantDTO> cvEtudiantDTOs = gestionnaireService.getCurriculumVitaeEnAttente();
+
+        assertThat(cvEtudiantDTOs)
+                .hasSize(1)
+                .first()
+                .extracting(CvEtudiantDTO::fileName)
+                .isEqualTo(cvEtudiant.getFileName());
+
+        verify(cvEtudiantRepository).findByStatut(Statut.EN_ATTENTE);
+    }
+
+    @Test
+    void doitRetournerLesCurriculumVitae(){
+        List<CvEtudiant> listCv = new ArrayList<>();
+        listCv.add(cvEtudiant);
+
+        CvEtudiant cvRefuse = CvEtudiant.builder()
+                .fileName(cvEtudiant.getFileName())
+                .contentType(cvEtudiant.getContentType())
+                .fileSize(cvEtudiant.getFileSize())
+                .storagePath(cvEtudiant.getStoragePath())
+                .uploadDate(cvEtudiant.getUploadDate())
+                .etudiant(cvEtudiant.getEtudiant()).build();
+        cvRefuse.setId(2L);
+        cvRefuse.setStatut(Statut.REFUSEE);
+        cvRefuse.setRejectionComment("Why not");
+        listCv.add(cvRefuse);
+
+        when(cvEtudiantRepository.findAll()).thenReturn(listCv);
+
+        List<CvEtudiantDTO> cvEtudiantDTOs = gestionnaireService.getTousLesCvs();
+
+        assertThat(cvEtudiantDTOs)
+                .hasSize(2)
+                .first()
+                .extracting(CvEtudiantDTO::fileName, CvEtudiantDTO::statut)
+                .containsExactly(cvEtudiant.getFileName(), Statut.EN_ATTENTE);
+        assertThat(cvEtudiantDTOs)
+                .hasSize(2)
+                .last()
+                .extracting(CvEtudiantDTO::fileName,CvEtudiantDTO::statut)
+                .containsExactly(cvEtudiant.getFileName(),Statut.REFUSEE);
+
+        verify(cvEtudiantRepository).findAll();
+    }
+
+    @Test
+    void doitApprouverCurriculumVitaeEnAttente() throws CurriculumVitaeNonEnAttente, CurriculumVitaeIntrouvable {
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+        when(cvEtudiantRepository.save(any(CvEtudiant.class))).thenReturn(cvEtudiant);
+
+        CvEtudiantDTO result = gestionnaireService.approuverCurriculumVitae(1L);
+
+        assertThat(result)
+                .isNotNull()
+                .satisfies(dto -> {
+                    assertThat(dto.fileName()).isEqualTo(cvEtudiant.getFileName());
+                    assertThat(dto.statut()).isEqualTo(Statut.ACCEPTEE);
+                    assertThat(dto.rejectionComment()).isBlank();
+                });
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository).save(cvEtudiant);
+    }
+
+    @Test
+    void doitLeverExceptionSiCurriculumVitaeNonEnAttenteApprouver(){
+        cvEtudiant.setStatut(Statut.REFUSEE);
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.approuverCurriculumVitae(1L)).isInstanceOf(CurriculumVitaeNonEnAttente.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiCurriculumVitaeIntrouvableApprouver(){
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.approuverCurriculumVitae(1L)).isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitRefuserUnCurriculumVitaeEnAttente() throws CurriculumVitaeNonEnAttente, CurriculumVitaeIntrouvable, CommentaireRefusObligatoireException {
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+        when(cvEtudiantRepository.save(any(CvEtudiant.class))).thenReturn(cvEtudiant);
+
+        CvEtudiantDTO result = gestionnaireService.refuserCurriculumVitae(1L,cvCommentError);
+
+        assertThat(result)
+                .isNotNull()
+                .satisfies(dto -> {
+                    assertThat(dto.fileName()).isEqualTo(cvEtudiant.getFileName());
+                    assertThat(dto.statut()).isEqualTo(Statut.REFUSEE);
+                    assertThat(dto.rejectionComment()).isEqualTo(cvCommentError);
+                });
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository).save(cvEtudiant);
+    }
+
+    @Test
+    void doitLeverExceptionSiCurriculumVitaeNonEnAttenteRefuser(){
+        cvEtudiant.setStatut(Statut.REFUSEE);
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.refuserCurriculumVitae(1L,cvCommentError)).isInstanceOf(CurriculumVitaeNonEnAttente.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiCurriculumVitaeIntrouvableRefuser(){
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.refuserCurriculumVitae(1L,cvCommentError)).isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiCommentaireContientQueDesEspace(){
+        cvCommentError = " ";
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.refuserCurriculumVitae(1L,cvCommentError)).isInstanceOf(CommentaireRefusObligatoireException.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiCommentaireContientNull(){
+        cvCommentError = null;
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.refuserCurriculumVitae(1L,cvCommentError)).isInstanceOf(CommentaireRefusObligatoireException.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiCommentaireContientVide(){
+        cvCommentError = "";
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.refuserCurriculumVitae(1L,cvCommentError)).isInstanceOf(CommentaireRefusObligatoireException.class);
+
+        verify(cvEtudiantRepository).findById(1L);
+        verify(cvEtudiantRepository, never()).save(any(CvEtudiant.class));
+    }
+
+    @Test
+    void doitRetournePDF() throws Exception {
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+        Path pathAttendu = Path.of(cvEtudiant.getStoragePath());
+        Resource mockResource = new ByteArrayResource(cvEtudiant.getFileName().getBytes());
+
+        try (MockedStatic<StockageFichierUtils> stockageUtilsMock = mockStatic(StockageFichierUtils.class)) {
+            stockageUtilsMock.when(() -> StockageFichierUtils.chargerFichier(pathAttendu))
+                    .thenReturn(mockResource);
+
+            Resource resource = gestionnaireService.telechargerCvParId(1L);
+
+
+            assertThat(resource).isNotNull();
+            assertThat(resource.getInputStream().readAllBytes())
+                    .isEqualTo(mockResource.getContentAsByteArray());
+            assertThat(resource.exists()).isTrue();
+            assertThat(resource.isReadable()).isTrue();
+            assertThat(resource.contentLength())
+                    .isPositive()
+                    .isEqualTo(mockResource.getContentAsByteArray().length);
+
+        }
+
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandCvIntrouvable() {
+        when(cvEtudiantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.telechargerCvParId(99L))
+                .isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandFichierPhysiqueIntrouvable() throws Exception {
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+        Path pathAttendu = Path.of(cvEtudiant.getStoragePath());
+
+        try (MockedStatic<StockageFichierUtils> stockageUtilsMock = mockStatic(StockageFichierUtils.class)) {
+            stockageUtilsMock.when(() -> StockageFichierUtils.chargerFichier(pathAttendu))
+                    .thenThrow(FichierIntrouvableException.class);
+
+            assertThatThrownBy(() -> gestionnaireService.telechargerCvParId(1L)).isInstanceOf(FichierIntrouvableException.class);
+        }
+
+    }
+
+    @Test
+    void doitGererFichierVide() throws Exception {
+        when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));
+        Path pathAttendu = Path.of(cvEtudiant.getStoragePath());
+        Resource pdfVide = new ByteArrayResource(new byte[0]);
+
+        try (MockedStatic<StockageFichierUtils> stockageUtilsMock = mockStatic(StockageFichierUtils.class)) {
+            stockageUtilsMock.when(() -> StockageFichierUtils.chargerFichier(pathAttendu))
+                    .thenReturn(pdfVide);
+
+            Resource resource = gestionnaireService.telechargerCvParId(1L);
+
+
+            assertThat(resource).isNotNull();
+            assertThat(resource.getInputStream().readAllBytes())
+                    .isEqualTo(pdfVide.getContentAsByteArray());
+            assertThat(resource.exists()).isTrue();
+            assertThat(resource.isReadable()).isTrue();
+            assertThat(resource.contentLength())
+                    .isEqualTo(pdfVide.getContentAsByteArray().length);
+
+        }
     }
 }

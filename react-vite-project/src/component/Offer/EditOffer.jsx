@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "../Design/Button.jsx";
-import { getDepartements } from "../../api/http.jsx";
+import { getDepartements } from "../../api/gestionnaire.jsx";
 import { modifierOffreEmployeur } from "../../api/employeur.jsx";
 
 function EditOffer() {
@@ -109,7 +109,7 @@ function EditOffer() {
 
         modifierOffreEmployeur(offer.id, dto, selectedFile)
             .then(() => {
-                navigate("/employeur");
+                navigate("/employeur/offers");
             })
             .catch((err) => {
                 console.error(err);

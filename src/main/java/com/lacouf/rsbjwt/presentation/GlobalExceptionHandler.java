@@ -147,4 +147,33 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(CurriculumVitaeIntrouvable.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeIntrouvable(CurriculumVitaeIntrouvable e){
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(CurriculumVitaeNonEnAttente.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeNonEnAttente(CurriculumVitaeNonEnAttente e){
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(CurriculumVitaeDejaApprouveException.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeDejaApprouveException(
+            CurriculumVitaeDejaApprouveException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(exception.getMessage()));
+    }
+
+    @ExceptionHandler(CurriculumVitaeNonApprouveException.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeNonApprouveException(
+            CurriculumVitaeNonApprouveException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErreurDTO(e.getMessage()));
+    }
 }
