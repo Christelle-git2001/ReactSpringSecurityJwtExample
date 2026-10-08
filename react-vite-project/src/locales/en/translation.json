@@ -198,6 +198,12 @@
       "new_offer" : "Create a new internship offer to allow students to join your company!"
     }
   },
+  "gestionnaire": {
+    "card": {
+      "view_offers": "Review and manage all internship offers submitted by partner companies.",
+      "cvs": "Review student resumes. Approve, reject, or provide guidance."
+    }
+  },
   "pdfVisio": {
     "nofiles": "No files selected",
     "visualize": "Visualize PDF",

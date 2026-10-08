@@ -242,7 +242,13 @@
   "employeur": {
     "card": {
       "view_offers" : "Consultez vos offres créées, leur statut ainsi que leurs informations",
-      "new_offer" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+      "cvs" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+    }
+  },
+  "gestionnaire": {
+    "card": {
+      "view_offers": "Validez et gérez l'ensemble des offres de stage soumises par les entreprises partenaires.",
+      "cvs": "Évaluez les CV soumis par les étudiants. Approuvez, refusez ou accompagnez les étudiants dans leur démarche."
     }
   },
   "pdfVisio": {

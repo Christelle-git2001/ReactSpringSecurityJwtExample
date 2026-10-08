@@ -19,7 +19,7 @@ const GestionnaireHome = ({user}) => {
                 <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
                     <CardEtudiant
                         title={t("nav.view_offers")}
-                        description={t("etudiant.card.view_offers")}
+                        description={t("gestionnaire.card.view_offers")}
                         Icon={FiBriefcase}
                         linkTo="/gestionnaire/offers"
                     />
@@ -27,7 +27,7 @@ const GestionnaireHome = ({user}) => {
                 <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
                     <CardEtudiant
                         title={"CVs"}
-                        description={t("etudiant.card.cvs")}
+                        description={t("gestionnaire.card.cvs")}
                         Icon={FiFileText}
                         linkTo="/gestionnaire/cvs"
                     />
