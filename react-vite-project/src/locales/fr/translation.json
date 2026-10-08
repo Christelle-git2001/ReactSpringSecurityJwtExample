@@ -231,6 +231,7 @@
       "domain_filter": "Filtrer par domaine",
       "salary_filter": "Filtrer par salaire",
       "no_offers": "Aucune offre disponible",
+      "error" : "Merci d'ajouté un CV (validé) avant de voir les offres",
       "details_button": "Détails",
       "apply_button": "Postuler",
       "fromTo": "à"

@@ -187,7 +187,8 @@
       "no_offers": "No offers available",
       "details_button": "Details",
       "apply_button": "Apply",
-      "fromTo": "to"
+      "fromTo": "to",
+      "error" : "Please add a CV (approved) before viewing offers."
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
