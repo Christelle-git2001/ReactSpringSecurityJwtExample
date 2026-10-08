@@ -330,13 +330,13 @@ const LoginForm = ({ user, setError }) => {
                             </div>
 
                         </form>
+                        <div className="flex justify-around">
+                            <ConnexionRapideGestionnaire />
+                            <ConnexionRapideStudent/>
+                            <ConnexionRapideEmployeur/>
+                        </div>
 
                     </div>
-
-                    <ConnexionRapideGestionnaire />
-                    <ConnexionRapideStudent/>
-                    <ConnexionRapideEmployeur/>
-
                 </div>
 
         </>
