@@ -242,7 +242,7 @@
   "employeur": {
     "card": {
       "view_offers" : "Consultez vos offres créées, leur statut ainsi que leurs informations",
-      "cvs" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+      "new_offer" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
     }
   },
   "gestionnaire": {
