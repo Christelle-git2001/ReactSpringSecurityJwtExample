@@ -174,7 +174,7 @@ function OfferDetails({ offre: offreProp }) {
                     <Button
                         type="button"
                         disabled={isLoading}
-                        onClick={() => navigate("/gestionnaire")}
+                        onClick={() => navigate("/gestionnaire/offers")}
                         className="bg-gray-500 text-white hover:bg-gray-600 disabled:opacity-50"
                     >
                         {t("actions.back")}
