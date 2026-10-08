@@ -118,6 +118,7 @@ public class DevAuthController {
                 .endDate(LocalDate.of(2026,12,25))
                 .statut(Statut.EN_ATTENTE)
                 .employeur(employeur)
+                .storagePath("uploads/offres/bff2f672-69d6-4959-8356-6babf160a15f.pdf")
                 .build();
         offreDeStageRepository.save(offreDeStage);
         return new ResponseEntity<>(HttpStatus.OK);
