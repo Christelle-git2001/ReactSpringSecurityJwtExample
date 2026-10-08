@@ -171,11 +171,25 @@ public class EtudiantService {
         cv.setRejectionComment(null);
     }
 
-    public List<OffreDeStageDTO> getOffresDisponibles(Departement departement) {
-        return offreDeStageRepository.findAllByStatutAndDomain(Statut.ACCEPTEE,departement)
+    public List<OffreDeStageDTO> getOffresDisponibles( Departement departement, String email)
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException, CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cv.getStatut() != Statut.ACCEPTEE) {
+            throw new CurriculumVitaeNonApprouveException();
+        }
+
+        return offreDeStageRepository.findAllByStatutAndDomain(
+                        Statut.ACCEPTEE,
+                        departement
+                )
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
-
     }
 }

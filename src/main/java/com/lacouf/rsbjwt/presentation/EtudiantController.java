@@ -69,7 +69,8 @@ public class EtudiantController {
     }
 
     @GetMapping("/offres/{departement}")
-    public ResponseEntity<List<OffreDeStageDTO>> getOffresDisponibles(@PathVariable Departement departement){
-        return ResponseEntity.ok(etudiantService.getOffresDisponibles(departement));
+    public ResponseEntity<List<OffreDeStageDTO>> getOffresDisponibles(@PathVariable Departement departement, Authentication authentication)
+        throws EtudiantIntrouvableException, CurriculumVitaeNonApprouveException, CurriculumVitaeIntrouvable{
+        return ResponseEntity.ok(etudiantService.getOffresDisponibles(departement, authentication.getName()));
     }
 }

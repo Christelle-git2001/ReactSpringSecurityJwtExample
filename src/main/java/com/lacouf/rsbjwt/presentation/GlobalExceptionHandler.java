@@ -167,4 +167,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErreurDTO(exception.getMessage()));
     }
+
+    @ExceptionHandler(CurriculumVitaeNonApprouveException.class)
+    public ResponseEntity<ErreurDTO> handleCurriculumVitaeNonApprouveException(
+            CurriculumVitaeNonApprouveException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErreurDTO(e.getMessage()));
+    }
 }
