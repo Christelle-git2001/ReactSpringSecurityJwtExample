@@ -7,6 +7,7 @@ import FilterBar from "../../component/Design/FilterBar.jsx";
 function GestionnaireCvs() {
     const { t } = useTranslation();
     const [selectedStatus, setSelectedStatus] = useState("EN_ATTENTE");
+    const [searchTerm, setSearchTerm] = useState("");
     const [cvs, setCvs] = useState([]);
     const [error, setError] = useState(null);
 
@@ -43,54 +44,57 @@ function GestionnaireCvs() {
     };
 
     const cvsFiltres = cvs.filter((cv) => {
-        if (selectedStatus === "TOUS") {
-            return true;
-        }
+        const matchesStatus = selectedStatus === "TOUS" || cv.statut === selectedStatus;
+        const matchesSearch = searchTerm === "" ||
+            (cv.nom && cv.nom.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (cv.prenom && cv.prenom.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        return cv.statut === selectedStatus;
+        return matchesStatus && matchesSearch;
     });
 
     return (
-        <div className="w-full max-w-7xl mx-auto px-4">
-            <div className="w-full max-w-4xl mx-auto p-4 md:p-8">
-                <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8">
-                    <h2 className="mb-6 text-xl font-bold text-[#043462]">
-                        {t("cv.pending_title")}
-                    </h2>
-                    <FilterBar
-                        selectedStatus={selectedStatus}
-                        onStatusChange={setSelectedStatus}
-                        selectedDomain="TOUS"
-                        onDomainChange={() => {}}
-                        availableDomains={[]}
-                        statusLabels={{
-                            ACCEPTEE: t("status.cvs_acceptes"),
-                            REFUSEE: t("status.cvs_refuses"),
-                        }}
-                    />
-                    {error && (
-                        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-                            {t(error)}
-                        </div>
-                    )}
+        <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
+            <div className="w-full max-w-4xl space-y-4 mb-6">
+                <FilterBar
+                    selectedStatus={selectedStatus}
+                    onStatusChange={setSelectedStatus}
+                    selectedDomain="TOUS"
+                    onDomainChange={() => {}}
+                    availableDomains={[]}
+                    statusLabels={{
+                        ACCEPTEE: t("status.cvs_acceptes"),
+                        REFUSEE: t("status.cvs_refuses"),
+                    }}
+                />
+            </div>
 
-                    {cvsFiltres.length === 0 ?  (
-                        <p className="text-center font-medium text-gray-500">
-                            {t("cv.none_pending")}
-                        </p>
-                    ) : (
-                        <div className="space-y-4">
-                            {cvsFiltres.map((cv) => (
-                                <CvCard
-                                    key={cv.id}
-                                    cv={cv}
-                                    onApprove={handleApprove}
-                                    onReject={handleReject}
-                                />
-                            ))}
-                        </div>
-                    )}
+            {error && (
+                <div className="w-full max-w-4xl mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+                    {t(error)}
                 </div>
+            )}
+
+            <div className="w-full">
+                {cvsFiltres.length === 0 ? (
+                    <div className="items-center flex justify-center w-full py-8">
+                        <p className="text-gray-500 font-medium">
+                            {cvs.length === 0
+                                ? t("cv.none_pending")
+                                : t("offre.no_matching_offers")}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-4 w-full max-w-4xl mx-auto">
+                        {cvsFiltres.map((cv) => (
+                            <CvCard
+                                key={cv.id}
+                                cv={cv}
+                                onApprove={handleApprove}
+                                onReject={handleReject}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
