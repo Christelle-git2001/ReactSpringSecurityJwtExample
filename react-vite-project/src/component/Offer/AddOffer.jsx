@@ -64,8 +64,11 @@ function AddOffer() {
         if (!endDate) {
             newErrors.endDate = "add_offer.errors.endDate_required";
         }
-        if (!file || file.size === 0) {
+        if (!file) {
             newErrors.file = "add_offer.errors.file_required";
+        }
+        if (file.size <= 0){
+            newErrors.file = "pdfVisio.lowFiles";
         }
         if (file.size > TAILLE_MAX_OCTETS){
             newErrors.file = "pdfVisio.bigFiles" ;
