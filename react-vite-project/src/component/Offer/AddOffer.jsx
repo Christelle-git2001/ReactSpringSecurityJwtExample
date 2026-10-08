@@ -105,7 +105,7 @@ function AddOffer() {
 
     return (
         <div className="min-h-screen flex items-center justify-center">
-            <form
+            <form noValidate
                 onSubmit={handleSubmit}
                 className="mx-auto max-w-2xl rounded-xl bg-white p-6 shadow-md md:p-8"
             >
