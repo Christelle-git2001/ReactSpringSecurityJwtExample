@@ -13,6 +13,7 @@ function AddOffer() {
     const [departements, setDepartements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [fileName, setFileName] = useState("");
+    const TAILLE_MAX_OCTETS = 10 * 1024 * 1024; // 10 MB en octets
 
     useEffect(() => {
         getDepartements()
@@ -65,6 +66,9 @@ function AddOffer() {
         }
         if (!file || file.size === 0) {
             newErrors.file = "add_offer.errors.file_required";
+        }
+        if (file.size > TAILLE_MAX_OCTETS){
+            newErrors.file = "pdfVisio.bigFiles" ;
         }
         if (startDate && endDate && endDate <= startDate) {
             newErrors.endDate = "add_offer.errors.endDate_invalid";
