@@ -20,7 +20,7 @@ const EmployeurHome = ({user}) => {
                 <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
                     <CardEtudiant
                         title={t("nav.view_offers")}
-                        description={t("etudiant.card.view_offers")}
+                        description={t("employeur.card.view_offers")}
                         Icon={FiBriefcase}
                         linkTo="/employeur/offers"
                     />
@@ -28,7 +28,7 @@ const EmployeurHome = ({user}) => {
                 <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
                     <CardEtudiant
                         title={t("nav.add_offer")}
-                        description={t("etudiant.card.new_offer")}
+                        description={t("employeur.card.new_offer")}
                         Icon={FiPlusCircle}
                         linkTo="/employeur/offres/nouvelle"
                     />

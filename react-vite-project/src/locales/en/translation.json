@@ -192,6 +192,12 @@
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
   },
+  "employeur": {
+    "card": {
+      "view_offers" : "View your created offers, their status, and details",
+      "new_offer" : "Create a new internship offer to allow students to join your company!"
+    }
+  },
   "pdfVisio": {
     "nofiles": "No files selected",
     "visualize": "Visualize PDF",

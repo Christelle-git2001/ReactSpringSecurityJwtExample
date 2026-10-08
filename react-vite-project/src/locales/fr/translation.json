@@ -239,6 +239,12 @@
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
     "noCvFound": "Cv non trouvé"
   },
+  "employeur": {
+    "card": {
+      "view_offers" : "Consultez vos offres créées, leur statut ainsi que leurs informations",
+      "new_offer" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+    }
+  },
   "pdfVisio": {
     "nofiles": "Aucun fichier sélectioné",
     "visualize": "Visualiser le PDF",
