@@ -23,7 +23,14 @@ export function usePdfDocument({ loadPdfResponse, fileNameFallback = "document.p
             const response = await
                 loadPdfResponse();
             if (!response.ok) {
-                setError("error.generic");
+                switch (response.status){
+                    case 404:
+                        setError("pdfVisio.noFileDetected");
+                        break;
+                    default:
+                        setError("error.generic");
+                        break;
+                }
                 return null;
             }
             const data = await response.blob();
@@ -33,7 +40,7 @@ export function usePdfDocument({ loadPdfResponse, fileNameFallback = "document.p
             setError(null);
 
             return url;
-        } catch {
+        } catch  {
             setError("error.generic");
             return null;
         }
