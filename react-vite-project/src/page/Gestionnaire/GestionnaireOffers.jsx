@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import fetcher from "../../utils/fetcher.js";
 import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
 import { useOutletContext, useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import Card from "../../component/Design/Cards/Card.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import {useOffreFilters} from "../../utils/useOffreFilters.jsx";
+import AddOfferRapide from "../../config/AddOfferRapide.jsx";
 
 const GestionnaireOffers = () => {
     const { t } = useTranslation();
@@ -54,6 +55,7 @@ const GestionnaireOffers = () => {
                     />
                 </div>
                 <div className="w-full">
+                    <AddOfferRapide/>
                     {offresFiltrees.length === 0 ? (
                         <div className="items-center flex justify-center w-full py-8">
                             <p className="text-gray-500 font-medium">

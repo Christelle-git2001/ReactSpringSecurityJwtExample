@@ -4,13 +4,19 @@ import com.lacouf.rsbjwt.Exception.AucunGestionnaireTrouver;
 import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
 import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
 import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Gestionnaire;
+import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
+import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
+import com.lacouf.rsbjwt.service.EmployeurService;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +24,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,12 +37,16 @@ public class DevAuthController {
     private final GestionnaireRepository gestionnaireRepository;
     private final EtudiantRepository etudiantRepository;
     private final EmployeurRepository employeurRepository;
+    private final EmployeurService employeurService;
+    private final OffreDeStageRepository offreDeStageRepository;
 
-    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, EmployeurRepository employeurRepository){
+    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, EmployeurRepository employeurRepository, EmployeurService employeurService, OffreDeStageRepository offreDeStageRepository){
         this.jwtTokenProvider = jwtTokenProvider;
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.employeurRepository = employeurRepository;
+        this.employeurService = employeurService;
+        this.offreDeStageRepository = offreDeStageRepository;
     }
 
     @PostMapping("/login/gestionnaire")
@@ -89,5 +101,25 @@ public class DevAuthController {
         String token = jwtTokenProvider.generateToken(auth);
 
         return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/create/offre")
+    public ResponseEntity<HttpStatus> devCreeOffre() throws EmployeurIntrouvable {
+        Employeur employeur = employeurRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow(EmployeurIntrouvable::new);
+        OffreDeStage offreDeStage = OffreDeStage.builder()
+                .title("OffreDeStageGenererAutomatiquement")
+                .description("Ce document est généré automatiquement")
+                .salary(8.5)
+                .domain(Departement.INFORMATIQUE)
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.of(2026,12,25))
+                .statut(Statut.EN_ATTENTE)
+                .employeur(employeur)
+                .build();
+        offreDeStageRepository.save(offreDeStage);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

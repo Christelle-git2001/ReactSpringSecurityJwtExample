@@ -8,7 +8,7 @@ const EtudiantHome = ({user}) => {
     <div className={"pt-5 h-full"}>
       <h1 className={"text-4xl mb-10 text-center"}>{t("home.welcome")} {user?.firstName} {user?.lastName}</h1>
       <div className="grid grid-cols-12">
-        <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
+        <div className="xl:col-span-4 md:col-span-6 col-span-12 ">
             <CardEtudiant
                 title={t("nav.account")}
                 description={t("etudiant.card.account")}
@@ -16,7 +16,7 @@ const EtudiantHome = ({user}) => {
                 linkTo="/etudiant/account"
             />
         </div>
-          <div className="xl:col-span-3 md:col-span-6 sm:col-span-12 ">
+          <div className="xl:col-span-4 md:col-span-6 col-span-12 ">
               <CardEtudiant
                   title={t("nav.view_offers")}
                   description={t("etudiant.card.view_offers")}
