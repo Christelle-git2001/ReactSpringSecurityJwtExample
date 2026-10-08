@@ -82,14 +82,16 @@ const ShowCv = ({ cv, onCvDeleted }) => {
                         >
                             <FaDownload className="w-full h-full text-green-700 hover:text-black" />
                         </button>
-                        <button
-                            type="button"
-                            className="btn btn-square btn-ghost"
-                            onClick={supprimerCv}
-                            title={t("actions.delete", "Supprimer")}
-                        >
-                            <FaTrashAlt className="w-full h-full text-red-900 hover:text-black" />
-                        </button>
+                        {cv?.statut !== "ACCEPTEE"  && (
+                            <button
+                                type="button"
+                                className="btn btn-square btn-ghost"
+                                onClick={supprimerCv}
+                                title={t("actions.delete", "Supprimer")}
+                            >
+                                <FaTrashAlt className="w-full h-full text-red-900 hover:text-black" />
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="flex justify-center w-full">
@@ -108,7 +110,6 @@ const ShowCv = ({ cv, onCvDeleted }) => {
                     <span className={`badge badge-xs ${status.className}`}>
                         {status.label}
                     </span>
-
                     {cv?.rejectionComment && (
                         <div className="mt-2">
                             <p className="text-xs font-bold text-[#043462]">
