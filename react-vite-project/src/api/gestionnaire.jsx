@@ -1,4 +1,4 @@
-import { fetchJson } from "./http.jsx";
+import {fetchApi, fetchJson} from "./http.jsx";
 
 
 export async function getDepartements() {
