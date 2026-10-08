@@ -260,7 +260,7 @@
     "download": "Télécharger le PDF",
     "fichierInvalide": "Fichier Invalide",
     "noFileDetected": "Aucun fichier à lire",
-    "bigFiles": "Votre fichier est trop volumineux, vous avez besoin de moins de 10 mo",
+    "bigFiles": "Votre fichier est trop volumineux. La taille maximale autorisée est de 10 Mo.",
     "lowFiles": "Votre fichier est corrompus, réessayez."
   },
   "account": {
@@ -284,7 +284,7 @@
     "file_without_name": "CV sans nom",
     "leave_comment": "Laisser un commentaire",
     "rejection_comment": "Commentaire",
-    "rejection_comment_placeholder": "Expliquez pourquoi le CV est refusé ou accepté",
+    "rejection_comment_placeholder": "Expliquez pourquoi le CV est refusé",
     "content_type": "Type",
     "file_size": "Taille",
     "upload_date": "Date de téléversement",
