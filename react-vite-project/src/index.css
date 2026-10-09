@@ -40,3 +40,15 @@ button:disabled {
 button:disabled:hover {
     opacity: 0.5;
 }
+
+button,
+.btn,
+[role="button"] {
+    cursor: pointer;
+}
+
+button:not(:disabled),
+.btn:not(:disabled),
+[role="button"] {
+    cursor: pointer;
+}

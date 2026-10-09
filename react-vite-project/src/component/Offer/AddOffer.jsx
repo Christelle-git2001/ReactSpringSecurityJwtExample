@@ -32,7 +32,7 @@ function AddOffer() {
         const description = formData.get("description");
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
-        const displayEndDate = formDate.get("displayEndDate");
+        const displayEndDate = formData.get("displayEndDate");
         const file = formData.get("file");
 
         const dto = {
