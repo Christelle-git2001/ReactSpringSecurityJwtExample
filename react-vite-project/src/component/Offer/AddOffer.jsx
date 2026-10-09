@@ -85,11 +85,11 @@ function AddOffer() {
         }
 
         if (displayEndDate && startDate && displayEndDate > startDate) {
-            newErrors.displayEndDate = "add_offer.errors.display_end_date_after_start_date";
+            newErrors.displayEndDate = "error.display_end_date_after_start_date";
         }
 
         if (displayEndDate && displayEndDate < today) {
-            newErrors.displayEndDate = "add_offer.errors.display_end_date_before_today";
+            newErrors.displayEndDate = "error.display_end_date_before_today";
         }
 
         if (Object.keys(newErrors).length > 0) {
