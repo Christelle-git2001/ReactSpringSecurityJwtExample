@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import fetcher from "../../utils/fetcher.js";
 import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Card from "../../component/Design/Cards/Card.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
@@ -12,7 +11,6 @@ import AddOfferRapide from "../../config/AddOfferRapide.jsx";
 const GestionnaireOffers = () => {
     const { t } = useTranslation();
     const [offres, setOffres] = useState([]);
-    const { openDrawer } = useOutletContext();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,20 +19,16 @@ const GestionnaireOffers = () => {
     }, []);
 
     const handleView = (offer) => {
-        navigate(`/gestionnaire/offres/details`, { state: { offer } });
+        navigate(`/gestionnaire/offres/details`, { state: { offer, from:"/gestionnaire/offersy" } });
     };
 
     const {
         searchTerm,
         setSearchTerm,
-        selectedStatus,
-        setSelectedStatus,
         selectedDomain,
         setSelectedDomain,
         availableDomains,
-        hasActiveFilters,
         offresFiltrees,
-        resetFilters
     } = useOffreFilters(offres);
 
 
