@@ -2,14 +2,12 @@ import React, {useState} from "react";
 import Button from "../Design/Button.jsx";
 import { useTranslation } from "react-i18next";
 import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import ShowDocument from "../PDF/ShowDocument.jsx";
 import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
-    const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState(null);
     const [showCommentaire, setShowCommentaire] = useState(false);
     const [commentaires, setCommentaires] = useState("");
@@ -118,6 +116,7 @@ function CvCard({ cv, onApprove, onReject }) {
                         />
                     </div>
                 </div>
+
 
             {showCommentaire && !isFinalStatus && (
                 <div className="mt-4 border-t border-red-200 pt-4">
