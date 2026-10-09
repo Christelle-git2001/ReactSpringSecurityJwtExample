@@ -45,6 +45,8 @@ function AddOffer() {
             displayEndDate,
         };
 
+        const today = new Date().toISOString().split("T")[0];
+
         const newErrors = {};
         if (!title) {
             newErrors.title = "add_offer.errors.title_required";
@@ -86,7 +88,7 @@ function AddOffer() {
             newErrors.displayEndDate = "add_offer.errors.display_end_date_after_start_date";
         }
 
-        if (displayEndDate < today) {
+        if (displayEndDate && displayEndDate < today) {
             newErrors.displayEndDate = "add_offer.errors.display_end_date_before_today";
         }
 
