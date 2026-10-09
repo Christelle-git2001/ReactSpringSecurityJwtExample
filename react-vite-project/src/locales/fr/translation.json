@@ -118,6 +118,7 @@
     "description": "Description",
     "date_debut": "Date de début",
     "date_fin": "Date de fin",
+    "date_fin_affichage": "Date de fin d'affichage",
     "document": "Document",
     "view_document": "Voir le document PDF",
     "no_document": "Aucun document joint",

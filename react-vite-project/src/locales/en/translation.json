@@ -256,6 +256,7 @@
     "hourly_rate_suffix": "$/hr",
     "date_debut": "Start date",
     "date_fin": "End date",
+    "date_fin_affichage": "Display end date",
     "document": "Document",
     "view_document": "View PDF document",
     "no_document": "No document attached",
