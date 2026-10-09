@@ -180,7 +180,7 @@
       "cvs": ""
     },
     "popup":{
-      "popup_description":"Please upload a valid Curriculum Vitae (CV) and wait for approval before accessing internship offers.",
+      "popup_description":"Please upload a valid Curriculum Vitae (CV) and wait for approval by a manager before applying for internship offers.",
       "popup_title":"Curriculum Vitae required"
     },
     "offers":{

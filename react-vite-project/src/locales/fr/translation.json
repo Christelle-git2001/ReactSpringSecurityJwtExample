@@ -226,7 +226,7 @@
       "cvs" :""
     },
     "popup":{
-      "popup_description":"S'il vous plaît, téléversez un CV valide et attendez qu'il soit approuvé par un professeur avant de pouvoir accéder aux offres de stage.",
+      "popup_description":"S'il vous plaît, téléversez un CV valide et attendez qu'il soit approuvé par un gestionnaire avant de pouvoir accéder aux offres de stage.",
       "popup_title":"Curriculum Vitae requis"
     },
     "offers":{
