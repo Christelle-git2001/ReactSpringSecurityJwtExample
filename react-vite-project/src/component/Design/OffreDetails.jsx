@@ -30,6 +30,11 @@ const OffreDetails = ({ offre, onClose, onPostuler }) => {
                     <p>{formatDate(offre.startDate)} {t("etudiant.offers.fromTo")} {formatDate(offre.endDate)}</p>
                 </div>
 
+                <div>
+                    <h3 className="font-semibold">{t("offre.date_fin_affichage")}</h3>
+                    <p>{formatDate(offre.displayEndDate)}</p>
+                </div>
+
                 <div className="mt-auto">
                     <button className="btn btn-accent w-full" onClick={() => onPostuler(offre)}>
                         {t("etudiant.offers.apply_button")}

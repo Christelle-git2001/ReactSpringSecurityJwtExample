@@ -34,6 +34,7 @@ function Card({ offer, onView, onEdit }) {
         { label: t("offre.domaine"), value: translatedDepartment },
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
+        { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
         { label: t("offre.document"), value: offer?.fileName || "-" },
     ];
 

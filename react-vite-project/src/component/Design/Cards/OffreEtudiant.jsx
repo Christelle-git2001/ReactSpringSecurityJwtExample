@@ -9,6 +9,7 @@ function OffreEtudiant({ offer, onView, onEdit }) {
         { label: t("offre.lieu"), value: offer?.employeur?.town},
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
+        { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
     ];
 
     return (
