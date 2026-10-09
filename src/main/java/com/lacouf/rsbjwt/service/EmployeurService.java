@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -73,7 +74,8 @@ public class EmployeurService {
     public OffreDeStageDTO creerOffre(CreationOffreDeStageDTO creationOffreDeStageDTO,
                                       MultipartFile file,
                                       String email)
-            throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException {
+            throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
+            FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageInvalideException {
 
         Employeur employeur = getEmployeurByEmail(email);
 
@@ -99,6 +101,7 @@ public class EmployeurService {
                 .domain(creationOffreDeStageDTO.domain())
                 .startDate(creationOffreDeStageDTO.startDate())
                 .endDate(creationOffreDeStageDTO.endDate())
+                .displayEndDate(creationOffreDeStageDTO.displayEndDate())
                 .statut(Statut.EN_ATTENTE)
                 .fileName(fileName)
                 .storagePath(storagePath)
@@ -143,10 +146,14 @@ public class EmployeurService {
     }
 
     private void validerDates(CreationOffreDeStageDTO dto)
-            throws DateFinAvantDateDebutException {
+            throws DateFinAvantDateDebutException, DateFinAffichageInvalideException {
 
         if (!dto.endDate().isAfter(dto.startDate())) {
             throw new DateFinAvantDateDebutException();
+        }
+
+        if (dto.displayEndDate().isBefore(LocalDate.now())) {
+            throw new DateFinAffichageInvalideException();
         }
     }
 
@@ -158,7 +165,8 @@ public class EmployeurService {
             String email
     ) throws DateFinAvantDateDebutException,
             IOException,
-            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException {
+            FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageInvalideException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
@@ -182,6 +190,7 @@ public class EmployeurService {
         offre.setDomain(dto.domain());
         offre.setStartDate(dto.startDate());
         offre.setEndDate(dto.endDate());
+        offre.setDisplayEndDate(dto.displayEndDate());
 
         if (file != null && !file.isEmpty()) {
             Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
