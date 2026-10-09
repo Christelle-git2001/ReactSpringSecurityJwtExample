@@ -57,12 +57,18 @@ const GestionnaireHome = ({user}) => {
             <h2 className="text-2xl font-bold mb-4 text-center">CVs</h2>
 
             <div className="space-y-4 w-full max-w-4xl mx-auto mb-10">
+                {cvs.length === 0 && !error && (
+                    <p className="text-center opacity-70">{t("cv.none_pending")}</p>
+                )}
                 {cvs.map((cv) => (
                     <CvCard key={cv.id} cv={cv} onApprove={handleApprove} onReject={handleReject} />
                 ))}
             </div>
 
             <h2 className="text-2xl font-bold mb-4 text-center">{t("nav.view_offers")}</h2>
+            {offres.length === 0 && (
+                <p className="text-center opacity-70">{t("offre.no_offers")}</p>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center w-full">
                 {offres.map((offer) => (
                     <Card key={offer.id} offer={offer} onView={handleView} />
