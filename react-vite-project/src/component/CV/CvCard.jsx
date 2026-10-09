@@ -35,7 +35,6 @@ function CvCard({ cv, onApprove, onReject }) {
 
     const handleReject = async () => {
         if (!commentaires.trim()) {
-            setIsOpen(true);
             setShowCommentaire(true);
             setError("error.rejection_comment_required");
             return;
@@ -81,27 +80,9 @@ function CvCard({ cv, onApprove, onReject }) {
                     >
                         {t("actions.approve")}
                     </Button>
-
-                    <button
-                        type="button"
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="btn btn-ghost btn-xs btn-circle text-base-content/70 hover:text-primary"
-                        aria-label={
-                            isOpen
-                                ? t("actions.collapse")
-                                : t("actions.expand")
-                        }
-                    >
-                        {isOpen ? (
-                            <FiChevronUp className="size-5 stroke-[3]" />
-                        ) : (
-                            <FiChevronDown className="size-5 stroke-[3]" />
-                        )}
-                    </button>
                 </div>
             </div>
 
-            {isOpen && (
                 <div className="mt-6 border-t border-gray-100 pt-4">
                     <ul className="flex flex-col gap-2 text-xs">
                         <li>
@@ -137,9 +118,8 @@ function CvCard({ cv, onApprove, onReject }) {
                         />
                     </div>
                 </div>
-            )}
 
-            {isOpen && showCommentaire && !isFinalStatus && (
+            {showCommentaire && !isFinalStatus && (
                 <div className="mt-4 border-t border-red-200 pt-4">
                     <label
                         htmlFor={`rejectionComment-${cv.id}`}
