@@ -54,6 +54,7 @@
     "description_required": "Veuillez entrer une description.",
     "start_date": "Date de début de stage",
     "end_date": "Date de fin de stage",
+    "display_end_date": "Offer display end date",
     "document": "Document supplémentaire (PDF)",
     "choose_file": "Choisir un fichier",
     "cancel": "Annuler",
@@ -67,7 +68,8 @@
       "startDate_required": "Veuillez sélectionner une date de début.",
       "endDate_required": "Veuillez sélectionner une date de fin.",
       "file_required": "Veuillez sélectionner un document PDF.",
-      "endDate_invalid": "La date de fin doit être après la date de début."
+      "endDate_invalid": "La date de fin doit être après la date de début.",
+      "display_end_date_required": "Veuillez sélectionner une date de fin d'affichage de l'offre."
     }
   },
   "edit_offer": {
@@ -186,7 +188,9 @@
     "department_invalid": "Le département sélectionné est invalide.",
     "user_not_found": "Utilisateur introuvable.",
     "generic": "Une erreur est survenue. Veuillez réessayer.",
-    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
+    "display_end_date_after_start_date": "La date de fin d'affichage de l'offre doit être avant ou égale à la date de début du stage.",
+    "display_end_date_before_today": "La date de fin d'affichage de l'offre ne peut pas être dans le passé."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",

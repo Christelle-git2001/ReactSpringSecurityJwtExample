@@ -75,8 +75,8 @@ public class EmployeurService {
                                       MultipartFile file,
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
-            FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageInvalideException {
-
+            FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
+            DateFinAffichageApresDateDebutException {
         Employeur employeur = getEmployeurByEmail(email);
 
         validerDates(creationOffreDeStageDTO);
@@ -146,14 +146,19 @@ public class EmployeurService {
     }
 
     private void validerDates(CreationOffreDeStageDTO dto)
-            throws DateFinAvantDateDebutException, DateFinAffichageInvalideException {
+            throws DateFinAvantDateDebutException, DateFinAffichageAvantAujourdhuiException,
+            DateFinAffichageApresDateDebutException {
 
         if (!dto.endDate().isAfter(dto.startDate())) {
             throw new DateFinAvantDateDebutException();
         }
 
         if (dto.displayEndDate().isBefore(LocalDate.now())) {
-            throw new DateFinAffichageInvalideException();
+            throw new DateFinAffichageAvantAujourdhuiException();
+        }
+
+        if (dto.displayEndDate().isAfter(dto.startDate())) {
+            throw new DateFinAffichageApresDateDebutException();
         }
     }
 
@@ -166,7 +171,7 @@ public class EmployeurService {
     ) throws DateFinAvantDateDebutException,
             IOException,
             FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
-            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageInvalideException {
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException {
 
 
         Employeur employeur = getEmployeurByEmail(email);

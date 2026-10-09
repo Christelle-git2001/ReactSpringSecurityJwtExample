@@ -367,7 +367,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws Exception {
+    void doitModifierOffreDeStage() throws Exception, DateFinAffichageApresDateDebutException {
         when(employeurService.modifierOffre(any(), any(), any(), any())).thenReturn(offreDeStageDTO);
 
         mockMvc.perform(multipart(HttpMethod.PUT, "/employeur/offres/1")
