@@ -1,6 +1,4 @@
 import { useTranslation } from "react-i18next";
-import CardEtudiant from "../../component/Design/Cards/CardEtudiant.jsx";
-import {FiUser,FiBriefcase, FiFileText} from "react-icons/fi";
 import {useEffect, useState} from "react";
 import CvCard from "../../component/CV/CvCard.jsx";
 import Card from "../../component/Design/Cards/Card.jsx";
