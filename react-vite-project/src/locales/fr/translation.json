@@ -54,7 +54,7 @@
     "description_required": "Veuillez entrer une description.",
     "start_date": "Date de début de stage",
     "end_date": "Date de fin de stage",
-    "display_end_date": "Offer display end date",
+    "display_end_date": "Date de fin d'affiche de l'offre",
     "document": "Document supplémentaire (PDF)",
     "choose_file": "Choisir un fichier",
     "cancel": "Annuler",
