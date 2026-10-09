@@ -6,7 +6,6 @@ import CurriculumVitaeZone from "./CurriculumVitaeZone.jsx";
 
 const CvOnLandingPage = () => {
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const [ouvert, setOuvert] = useState(false);
 
     useEffect(() => {
@@ -21,17 +20,13 @@ const CvOnLandingPage = () => {
         setOuvert(false);
     };
 
-    const allerAuOffre = () => {
-        fermer();
-        navigate("/etudiant/offers");
-    };
 
     if (!ouvert) return null;
 
     return (
         <dialog className="modal modal-open">
             <div className="modal-box bg-[radial-gradient(circle_at_top_left,#00CCCB33,transparent_70%)]">
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={allerAuOffre}>✕</button>
+                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={fermer}>✕</button>
                 <h3 className="font-bold text-lg text-center">{t("etudiant.popup.popup_title")}</h3>
                 <p className="py-4 text-center">{t("etudiant.popup.popup_description")}</p>
                 <div className="modal-action">
