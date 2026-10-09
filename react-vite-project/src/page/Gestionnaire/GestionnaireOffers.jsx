@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Card from "../../component/Design/Cards/Card.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
