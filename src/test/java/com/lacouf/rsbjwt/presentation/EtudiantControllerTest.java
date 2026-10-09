@@ -281,6 +281,7 @@ public class EtudiantControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2026, 1, 1),
                 LocalDate.of(2026, 4, 30),
+                LocalDate.of(2026, 1, 1).minusDays(15),
                 Statut.ACCEPTEE,
                 null,
                 null,
