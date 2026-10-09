@@ -21,7 +21,7 @@ const GestionnaireOffers = () => {
     }, []);
 
     const handleView = (offer) => {
-        navigate(`/gestionnaire/offres/details`, { state: { offer } });
+        navigate(`/gestionnaire/offres/details`, { state: { offer, from:"/gestionnaire/offers" } });
     };
 
     const {
