@@ -131,6 +131,12 @@ function OfferDetails({ offre: offreProp }) {
                             value={offre?.endDate}
                         />
                     </div>
+                    <div>
+                        <ReadOnlyField
+                            label={t("offre.date_fin_affichage")}
+                            value={offre?.displayEndDate}
+                        />
+                    </div>
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <span className="text-sm font-semibold text-[#043462]">
