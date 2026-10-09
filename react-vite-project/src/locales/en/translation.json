@@ -179,6 +179,10 @@
       "new_offer": "",
       "cvs": ""
     },
+    "popup":{
+      "popup_description":"Please upload a valid Curriculum Vitae (CV) and wait for approval before accessing internship offers.",
+      "popup_title":"Curriculum Vitae required"
+    },
     "offers":{
       "page_title": "Internship Offers",
       "title_filter": "Filter by title",

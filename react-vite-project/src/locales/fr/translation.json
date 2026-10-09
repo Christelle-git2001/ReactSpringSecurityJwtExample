@@ -225,6 +225,10 @@
       "new_offer" : "",
       "cvs" :""
     },
+    "popup":{
+      "popup_description":"S'il vous plaît, téléversez un CV valide et attendez qu'il soit approuvé par un professeur avant de pouvoir accéder aux offres de stage.",
+      "popup_title":"Curriculum Vitae requis"
+    },
     "offers":{
       "page_title": "Offres de stage",
       "title_filter": "Filtrer par titre",
