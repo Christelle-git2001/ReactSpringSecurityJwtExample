@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Card from "../../component/Design/Cards/Card.jsx";
+import Card from "../../component/Design/Cards/OffreStageCard.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import {useOffreFilters} from "../../utils/useOffreFilters.jsx";

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import CvCard from "../../component/CV/CvCard.jsx";
-import Card from "../../component/Design/Cards/Card.jsx";
+import Card from "../../component/Design/Cards/OffreStageCard.jsx";
 import {approuverCv, getOffresEnAttente, getTousLesCvs, refuserCv} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 

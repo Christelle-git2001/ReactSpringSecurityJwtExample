@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FiEdit } from 'react-icons/fi';
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 
-function Card({ offer, onView, onEdit }) {
+function OffreStageCard({ offer, onView, onEdit }) {
     const { t } = useTranslation();
 
     const STATUS_CONFIG = {
@@ -73,16 +73,18 @@ function Card({ offer, onView, onEdit }) {
                     ))}
                 </ul>
 
-                <label
-                    htmlFor="my-drawer-5"
-                    className="btn bg-[#66E5E4] btn-block text-[#043462]"
-                    onClick={() => onView?.(offer)}
-                >
-                    {t("offre.details")}
-                </label>
+                {onView && (
+                    <label
+                        htmlFor="my-drawer-5"
+                        className="btn bg-[#66E5E4] btn-block text-[#043462]"
+                        onClick={() => onView?.(offer)}
+                    >
+                        {t("offre.details")}
+                    </label>
+                )}
             </div>
         </div>
     );
 }
 
-export default React.memo(Card);
+export default React.memo(OffreStageCard);
