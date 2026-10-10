@@ -273,7 +273,7 @@
   },
   "status": {
     "tous": "All",
-    "en_attente": "Pending",
+    "en_attente": "Pending approval",
     "acceptee": "Accepted",
     "refusee": "Rejected",
     "cv_accepte" : "Accepted",

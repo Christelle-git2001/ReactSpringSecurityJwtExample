@@ -54,7 +54,7 @@
     "description_required": "Veuillez entrer une description.",
     "start_date": "Date de début de stage",
     "end_date": "Date de fin de stage",
-    "display_end_date": "Date de fin d'affiche de l'offre",
+    "display_end_date": "Date de fin d'affichage de l'offre",
     "document": "Document supplémentaire (PDF)",
     "choose_file": "Choisir un fichier",
     "cancel": "Annuler",
@@ -211,7 +211,7 @@
   },
   "status": {
     "tous": "Tous",
-    "en_attente": "En attente",
+    "en_attente": "En attente d'approbation",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
     "cv_accepte" : "Accepté",
