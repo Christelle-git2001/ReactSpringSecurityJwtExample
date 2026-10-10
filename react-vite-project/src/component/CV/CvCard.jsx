@@ -16,7 +16,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const status = getStatusConfig(cv?.statut, t);
+    const status = getStatusConfig(cv?.statut, t, cv);
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {

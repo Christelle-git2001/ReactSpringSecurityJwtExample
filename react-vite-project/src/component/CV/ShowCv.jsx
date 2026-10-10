@@ -13,7 +13,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
     const { t } = useTranslation();
     const [deleteError, setDeleteError] = useState(null);
 
-    const status = getStatusConfig(cv?.statut, t);
+    const status = getStatusConfig(cv?.statut, t, cv);
 
     const {
         pdfUrl,

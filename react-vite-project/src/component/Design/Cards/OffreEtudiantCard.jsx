@@ -1,7 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
+import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
+import { usePdfDocument } from "../../../utils/filesUtils.jsx";
+import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 
-function OffreEtudiantCard({ offer, onView, onEdit }) {
+function OffreEtudiantCard({ offer, onView }) {
     const { t } = useTranslation();
 
     const offre = [
@@ -12,9 +16,26 @@ function OffreEtudiantCard({ offer, onView, onEdit }) {
         { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
     ];
 
+    const {
+        pdfUrl,
+        dialogRef,
+        viewPDF,
+        fermerModal,
+        gererTelechargement,
+    } = usePdfDocument({
+        loadPdfResponse: () => obtenirOffrePDF(offer?.id),
+        fileNameFallback: offer?.fileName || `offre_${offer?.id}.pdf`,
+    });
+
     return (
-        <div className="card w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
-            <div className="card-body">
+        <>
+            <div className="card w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+                <div className="card-body">
+                <PdfActionButtons
+                    onView={viewPDF}
+                    onDownload={() => gererTelechargement(offer?.fileName)}
+                />
+
                 <div className="flex justify-between items-baseline mt-2">
                     <h2 className="text-2l font-bold text-[#043462]">{offer?.title}</h2>
                     <span className="text-2l font-bold">{offer?.salary} $ / h</span>
@@ -38,7 +59,13 @@ function OffreEtudiantCard({ offer, onView, onEdit }) {
                     {t("offre.details")}
                 </label>
             </div>
-        </div>
+                <PdfPreviewDialog
+                    dialogRef={dialogRef}
+                    pdfUrl={pdfUrl}
+                    onClose={fermerModal}
+                />
+            </div>
+        </>
     );
 }
 

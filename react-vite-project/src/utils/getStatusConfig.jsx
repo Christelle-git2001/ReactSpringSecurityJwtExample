@@ -1,12 +1,27 @@
-export function getStatusConfig(statut, t) {
-    const STATUS_CONFIG = {
-        EN_ATTENTE: { label: t("status.en_attente"), className: "badge-warning",},
-        ACCEPTEE: { label: t("status.cv_accepte"), className: "badge-success",},
-        REFUSEE: { label: t("status.cv_refuse"), className: "badge-error",},
+export function getStatusConfig(statut, t, type = "offre") {
+    const labelKeys = {
+        offre: {
+            EN_ATTENTE: "status.en_attente",
+            ACCEPTEE: "status.acceptee",
+            REFUSEE: "status.refusee",
+        },
+        cv: {
+            EN_ATTENTE: "status.en_attente",
+            ACCEPTEE: "status.cv_accepte",
+            REFUSEE: "status.cv_refuse",
+        },
     };
 
-    return STATUS_CONFIG[statut] || {
-        label: statut || "-",
-        className: "badge-neutral",
+    const classNames = {
+        EN_ATTENTE: "badge-warning",
+        ACCEPTEE: "badge-success",
+        REFUSEE: "badge-error",
+    };
+
+    const statusLabels = labelKeys[type] || labelKeys.offre;
+
+    return {
+        label: statut ? t(statusLabels[statut], statut) : "-",
+        className: classNames[statut] || "badge-neutral",
     };
 }
