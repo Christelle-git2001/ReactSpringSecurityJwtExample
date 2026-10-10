@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import Card from "../../component/Design/Cards/OffreStageCard.jsx";
+import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import { getOffresEmployeur, obtenirOffrePDF } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
-import { PDFContent } from "../../component/PDF/PDFVisioneuse.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
-import { getDepartmentKey } from "../../utils/departementConverter.js";
-
+import OffreDetailsDrawerContent  from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 
 const EmployeurOffers = () => {
     const { t } = useTranslation();
@@ -28,96 +26,8 @@ const EmployeurOffers = () => {
         offresFiltrees,
     } = useOffreFilters(offres);
 
-    const handleDownloadFile = (blobUrl, fileName) => {
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = fileName || "offre-de-stage.pdf";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const renderStatusBadge = (statut) => {
-        switch (statut) {
-            case "ACCEPTEE":
-                return <span className="badge badge-success text-white">{t("status.acceptee")}</span>;
-            case "REFUSEE":
-                return <span className="badge badge-error text-white">{t("status.refusee")}</span>;
-            case "EN_ATTENTE":
-            default:
-                return <span className="badge badge-warning text-white">{t("status.en_attente")}</span>;
-        }
-    };
-
-
-
     const handleView = async (offer) => {
-        let pdfBlobUrl = null;
-
-        try {
-            const response = await obtenirOffrePDF(offer.id);
-            if (response.ok) {
-                const blob = await response.blob();
-                pdfBlobUrl = URL.createObjectURL(blob);
-            }
-        } catch (error) {
-            console.error("Erreur lors de la récupération du PDF de l'offre:", error);
-        }
-
-        const departmentKey = getDepartmentKey(offer?.domain);
-        const translatedDepartment = departmentKey
-            ? t(`departement.${departmentKey}`, offer?.domain)
-            : offer?.domain;
-
-        openDrawer(
-            <div className="space-y-4 p-2">
-                <div className="bg-base-100 p-4 rounded-lg shadow-md space-y-4">
-                    <div className="flex justify-between items-start">
-                        <h2 className="text-xl font-bold">{offer.title}</h2>
-                        {renderStatusBadge(offer.statut)}
-                    </div>
-                    {offer.statut === "REFUSEE" && offer.rejectionComment && (
-                        <div className="bg-red-50 border-red-500 p-3 rounded">
-                            <p className="text-sm font-semibold text-red-700"> {t("offre.rejection_comment")}</p>
-                            <p className="text-xs text-red-600 mt-1">{offer.rejectionComment}</p>
-                        </div>
-                    )}
-                    <ul className="text-sm space-y-1">
-                        <li><strong>{t("offre.domaine")} :</strong> {translatedDepartment}</li>
-                        <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
-                        <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
-                        <li><strong>{t("offre.date_fin_affichage")} :</strong> {offer.displayEndDate}</li>
-                        {offer.salary && <li><strong>{t("offre.salary")} :</strong> {offer.salary}  $ / h </li>}
-                    </ul>
-
-                    <p className="text-sm">
-                        <strong>{t("offre.description")} :</strong><br />
-                        {offer.description}
-                    </p>
-
-                    {pdfBlobUrl ? (
-                        <PDFContent cvUrlAAffiche={pdfBlobUrl} width={300} />
-                    ) : (
-                        <p className="text-xs text-gray-500">{t("offre.document_error")}</p>
-                    )}
-                </div>
-
-                <div className="flex justify-center items-center">
-                    {pdfBlobUrl && (
-                        <button
-                            type="button"
-                            onClick={() => handleDownloadFile(pdfBlobUrl, offer.fileName || `offre_${offer.id}.pdf`)}
-                            className="btn btn-primary flex items-center gap-2"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            {t("pdfVisio.download")}
-                        </button>
-                    )}
-                </div>
-            </div>
-        );
+        openDrawer(<OffreDetailsDrawerContent offer={offer} />);
     };
 
     const handleEdit = (offer) => {
@@ -140,6 +50,7 @@ const EmployeurOffers = () => {
                     onChange={setSearchTerm}
                     onClear={() => setSearchTerm("")}
                 />
+
                 <FilterBar
                     selectedStatus={selectedStatus}
                     onStatusChange={setSelectedStatus}
@@ -160,7 +71,7 @@ const EmployeurOffers = () => {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full ">
                         {offresFiltrees.map((offer) => (
-                            <Card
+                            <OffreStageCard
                                 key={offer.id}
                                 offer={offer}
                                 onView={handleView}
@@ -170,7 +81,6 @@ const EmployeurOffers = () => {
                     </div>
                 )}
             </div>
-
         </div>
     );
 };
