@@ -16,12 +16,17 @@ function SideBarLayout({ user, openDrawer }) {
 
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/etudiant/account", label: t("nav.account"), roles: ["ETUDIANT"], icon: <FiUser className="size-4 my-1.5" /> },
+
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/employeur/account", label: t("nav.account"), roles: ["EMPLOYEUR"], icon: <FiUser className="size-4 my-1.5" /> },
+        { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
+        { path: "/employeur/offers", label: t("nav.created_offers"), roles: ["EMPLOYEUR"], icon: <FiBriefcase className="size-4 my-1.5" /> },
+
         { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
-        { path: `/${role?.toLowerCase()}/offers`, label: t("nav.view_offers"), roles: null, icon: <FiBriefcase className="size-4 my-1.5" />},
+        //{ path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
+        //{ path: `/${role?.toLowerCase()}/offers`, label: t("nav.view_offers"), roles: null, icon: <FiBriefcase className="size-4 my-1.5" />},
         {path: "/gestionnaire/cvs", label: "CVs", roles: ["GESTIONNAIRE"], icon: <FiFileText className="size-4 my-1.5" />},
-        {path: "/employeur/offres/nouvelle",label: t("nav.add_offer"),roles: ["EMPLOYEUR"],icon: <FiPlusCircle className="size-4 my-1.5" />},
         { path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),
             roles: null,
