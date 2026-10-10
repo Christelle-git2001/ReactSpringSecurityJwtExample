@@ -95,8 +95,8 @@
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
-    "collapse": "collapse",
-    "expand": "expand"
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "login": {
     "page_title": "Login",
