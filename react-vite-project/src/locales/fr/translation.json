@@ -110,6 +110,8 @@
     "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
     "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
+    "pending_offers": "Offres en attente d'approbation",
+    "no_pending_offers": "Aucune offre en attente d'approbation",
     "details_title": "Détails de l'offre",
     "offer_title": "Titre de l'offre",
     "domaine": "Domaine",
@@ -207,7 +209,8 @@
     "login": "Connexion",
     "logout": "Déconnexion",
     "add_offer": "Créer une offre",
-    "view_offers": "Offres de stage"
+    "view_offers": "Offres de stage",
+    "created_offers": "Offres créees"
   },
   "status": {
     "tous": "Tous",

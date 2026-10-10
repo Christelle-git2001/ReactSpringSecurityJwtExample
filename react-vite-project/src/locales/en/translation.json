@@ -171,7 +171,8 @@
     "login": "Login",
     "logout": "Logout",
     "add_offer": "Add offer",
-    "view_offers": "Internship offers"
+    "view_offers": "Internship offers",
+    "created_offers": "Created offers"
   },
   "home": {
     "welcome": "Welcome"
@@ -261,6 +262,8 @@
     "view_document": "View PDF document",
     "no_document": "No document attached",
     "no_matching_offers": "No offers match your filters.",
+    "pending_offers": "Offers pending approval",
+    "no_pending_offers": "No offers pending approval",
     "details": "See details",
     "edit": "Edit",
     "description": "Description",
