@@ -6,14 +6,14 @@ import { IoEyeSharp } from "react-icons/io5";
 import { FaDownload, FaTrashAlt } from "react-icons/fa";
 import { PDFVisioneuse } from "../PDF/PDFVisioneuse.jsx";
 import {usePdfDocument} from "../../utils/filesUtils.jsx";
-import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
+import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
 
 const ShowCv = ({ cv, onCvDeleted }) => {
     const { t } = useTranslation();
     const [deleteError, setDeleteError] = useState(null);
 
-    const status = getCvStatusConfig(cv?.statut, t);
+    const status = getStatusConfig(cv?.statut, t);
 
     const {
         pdfUrl,

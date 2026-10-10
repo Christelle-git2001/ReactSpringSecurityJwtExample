@@ -1,4 +1,4 @@
-export function getCvStatusConfig(statut, t) {
+export function getStatusConfig(statut, t) {
     const STATUS_CONFIG = {
         EN_ATTENTE: { label: t("status.en_attente"), className: "badge-warning",},
         ACCEPTEE: { label: t("status.cv_accepte"), className: "badge-success",},

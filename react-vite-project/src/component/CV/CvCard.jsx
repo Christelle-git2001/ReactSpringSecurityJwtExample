@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
 import ShowDocument from "../PDF/ShowDocument.jsx";
 import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
-import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
+import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
@@ -16,7 +16,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const status = getCvStatusConfig(cv?.statut, t);
+    const status = getStatusConfig(cv?.statut, t);
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
