@@ -14,7 +14,6 @@ import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
-import com.lacouf.rsbjwt.service.EmployeurService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,28 +23,25 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173")
 @Profile("dev")
 public class DevAuthController {
-
     private final JwtTokenProvider jwtTokenProvider;
     private final GestionnaireRepository gestionnaireRepository;
     private final EtudiantRepository etudiantRepository;
     private final EmployeurRepository employeurRepository;
-    private final EmployeurService employeurService;
     private final OffreDeStageRepository offreDeStageRepository;
 
-    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, EmployeurRepository employeurRepository, EmployeurService employeurService, OffreDeStageRepository offreDeStageRepository){
+    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, EmployeurRepository employeurRepository, OffreDeStageRepository offreDeStageRepository){
         this.jwtTokenProvider = jwtTokenProvider;
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.employeurRepository = employeurRepository;
-        this.employeurService = employeurService;
         this.offreDeStageRepository = offreDeStageRepository;
     }
 
@@ -55,6 +51,10 @@ public class DevAuthController {
                 .stream()
                 .findFirst()
                 .orElseThrow(AucunGestionnaireTrouver::new);
+
+        gestionnaire.setPreviousLoginAt(gestionnaire.getLastLoginAt());
+        gestionnaire.setLastLoginAt(LocalDateTime.now());
+        gestionnaireRepository.save(gestionnaire);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 gestionnaire.getEmail(),
@@ -74,6 +74,10 @@ public class DevAuthController {
                 .findFirst()
                 .orElseThrow(EtudiantIntrouvableException::new);
 
+        etudiant.setPreviousLoginAt(etudiant.getLastLoginAt());
+        etudiant.setLastLoginAt(LocalDateTime.now());
+        etudiantRepository.save(etudiant);
+
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 etudiant.getEmail(),
                 null,
@@ -91,6 +95,10 @@ public class DevAuthController {
                 .stream()
                 .findFirst()
                 .orElseThrow(EmployeurIntrouvable::new);
+
+        employeur.setPreviousLoginAt(employeur.getLastLoginAt());
+        employeur.setLastLoginAt(LocalDateTime.now());
+        employeurRepository.save(employeur);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 employeur.getEmail(),
