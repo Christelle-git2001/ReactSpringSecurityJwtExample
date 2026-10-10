@@ -52,8 +52,9 @@
     "salary": "Salaire",
     "description": "Description",
     "description_required": "Veuillez entrer une description.",
-    "start_date": "Date de début",
-    "end_date": "Date de fin",
+    "start_date": "Date de début de stage",
+    "end_date": "Date de fin de stage",
+    "display_end_date": "Date de fin d'affichage de l'offre",
     "document": "Document supplémentaire (PDF)",
     "choose_file": "Choisir un fichier",
     "cancel": "Annuler",
@@ -67,7 +68,8 @@
       "startDate_required": "Veuillez sélectionner une date de début.",
       "endDate_required": "Veuillez sélectionner une date de fin.",
       "file_required": "Veuillez sélectionner un document PDF.",
-      "endDate_invalid": "La date de fin doit être après la date de début."
+      "endDate_invalid": "La date de fin doit être après la date de début.",
+      "display_end_date_required": "Veuillez sélectionner une date de fin d'affichage de l'offre."
     }
   },
   "edit_offer": {
@@ -108,6 +110,8 @@
     "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
     "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
+    "pending_offers": "Offres de stage en attente d'approbation",
+    "no_pending_offers": "Aucune offre en attente d'approbation",
     "details_title": "Détails de l'offre",
     "offer_title": "Titre de l'offre",
     "domaine": "Domaine",
@@ -116,6 +120,7 @@
     "description": "Description",
     "date_debut": "Date de début",
     "date_fin": "Date de fin",
+    "date_fin_affichage": "Date de fin d'affichage",
     "document": "Document",
     "view_document": "Voir le document PDF",
     "no_document": "Aucun document joint",
@@ -186,7 +191,9 @@
     "department_invalid": "Le département sélectionné est invalide.",
     "user_not_found": "Utilisateur introuvable.",
     "generic": "Une erreur est survenue. Veuillez réessayer.",
-    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
+    "display_end_date_after_start_date": "La date de fin d'affichage de l'offre doit être avant ou égale à la date de début du stage.",
+    "display_end_date_before_today": "La date de fin d'affichage de l'offre ne peut pas être dans le passé."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -202,11 +209,12 @@
     "login": "Connexion",
     "logout": "Déconnexion",
     "add_offer": "Créer une offre",
-    "view_offers": "Offres de stage"
+    "view_offers": "Offres de stage",
+    "created_offers": "Offres créees"
   },
   "status": {
     "tous": "Tous",
-    "en_attente": "En attente",
+    "en_attente": "En attente d'approbation",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
     "cv_accepte" : "Accepté",
@@ -224,6 +232,10 @@
       "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. ",
       "new_offer" : "",
       "cvs" :""
+    },
+    "popup":{
+      "popup_description":"S'il vous plaît, téléversez un CV valide et attendez qu'il soit approuvé par un gestionnaire avant de pouvoir accéder aux offres de stage.",
+      "popup_title":"Curriculum Vitae requis"
     },
     "offers":{
       "page_title": "Offres de stage",
@@ -290,6 +302,7 @@
     "upload_date": "Date de téléversement",
     "status": "Statut",
     "previous_rejection_comment": "Commentaire de refus : ",
-    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
+    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer.",
+    "pending_cvs_title" : "Cvs en attente d'approbation"
   }
 }

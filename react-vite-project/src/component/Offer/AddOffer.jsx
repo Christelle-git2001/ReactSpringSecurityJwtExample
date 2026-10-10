@@ -32,6 +32,7 @@ function AddOffer() {
         const description = formData.get("description");
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
+        const displayEndDate = formData.get("displayEndDate");
         const file = formData.get("file");
 
         const dto = {
@@ -40,8 +41,11 @@ function AddOffer() {
             salary: Number(salary),
             description,
             startDate,
-            endDate
+            endDate,
+            displayEndDate,
         };
+
+        const today = new Date().toISOString().split("T")[0];
 
         const newErrors = {};
         if (!title) {
@@ -76,6 +80,18 @@ function AddOffer() {
         if (startDate && endDate && endDate <= startDate) {
             newErrors.endDate = "add_offer.errors.endDate_invalid";
         }
+        if (!displayEndDate) {
+            newErrors.displayEndDate = "add_offer.errors.display_end_date_required";
+        }
+
+        if (displayEndDate && startDate && displayEndDate > startDate) {
+            newErrors.displayEndDate = "error.display_end_date_after_start_date";
+        }
+
+        if (displayEndDate && displayEndDate < today) {
+            newErrors.displayEndDate = "error.display_end_date_before_today";
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -276,6 +292,31 @@ function AddOffer() {
                             {errors.endDate && (
                                 <span className="text-xs font-medium text-red-500">
                                     {t(errors.endDate)}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Date de fin d'affichage */}
+                    <div>
+                        <div className="flex flex-col gap-1.5">
+                            <label
+                                htmlFor="displayEndDate"
+                                className="text-sm font-semibold text-[#043462]"
+                            >
+                                {t("add_offer.display_end_date")}
+                            </label>
+
+                            <input
+                                id="displayEndDate"
+                                name="displayEndDate"
+                                type="date"
+                                className={inputStyle(errors.displayEndDate)}
+                            />
+
+                            {errors.displayEndDate && (
+                                <span className="text-xs font-medium text-red-500">
+                                    {t(errors.displayEndDate)}
                                 </span>
                             )}
                         </div>

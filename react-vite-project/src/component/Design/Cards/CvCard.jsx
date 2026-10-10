@@ -1,15 +1,13 @@
 import React, {useState} from "react";
-import Button from "../Design/Button.jsx";
+import Button from "../Button.jsx";
 import { useTranslation } from "react-i18next";
-import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
-import ShowDocument from "../PDF/ShowDocument.jsx";
-import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
-import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
+import { formaterDate, formaterTailleFichier } from "../../../utils/cvFormatters.jsx";
+import ShowDocument from "../../PDF/ShowDocument.jsx";
+import { obtenirCvPDFGestionnaire } from "../../../api/gestionnaire.jsx";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
-    const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState(null);
     const [showCommentaire, setShowCommentaire] = useState(false);
     const [commentaires, setCommentaires] = useState("");
@@ -18,7 +16,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const status = getCvStatusConfig(cv?.statut, t);
+    const status = getStatusConfig(cv?.statut, t, cv);
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
@@ -35,7 +33,6 @@ function CvCard({ cv, onApprove, onReject }) {
 
     const handleReject = async () => {
         if (!commentaires.trim()) {
-            setIsOpen(true);
             setShowCommentaire(true);
             setError("error.rejection_comment_required");
             return;
@@ -81,27 +78,9 @@ function CvCard({ cv, onApprove, onReject }) {
                     >
                         {t("actions.approve")}
                     </Button>
-
-                    <button
-                        type="button"
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="btn btn-ghost btn-xs btn-circle text-base-content/70 hover:text-primary"
-                        aria-label={
-                            isOpen
-                                ? t("actions.collapse")
-                                : t("actions.expand")
-                        }
-                    >
-                        {isOpen ? (
-                            <FiChevronUp className="size-5 stroke-[3]" />
-                        ) : (
-                            <FiChevronDown className="size-5 stroke-[3]" />
-                        )}
-                    </button>
                 </div>
             </div>
 
-            {isOpen && (
                 <div className="mt-6 border-t border-gray-100 pt-4">
                     <ul className="flex flex-col gap-2 text-xs">
                         <li>
@@ -137,9 +116,9 @@ function CvCard({ cv, onApprove, onReject }) {
                         />
                     </div>
                 </div>
-            )}
 
-            {isOpen && showCommentaire && !isFinalStatus && (
+
+            {showCommentaire && !isFinalStatus && (
                 <div className="mt-4 border-t border-red-200 pt-4">
                     <label
                         htmlFor={`rejectionComment-${cv.id}`}

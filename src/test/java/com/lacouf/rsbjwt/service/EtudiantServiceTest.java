@@ -404,9 +404,10 @@ public class EtudiantServiceTest {
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
 
-        when(offreDeStageRepository.findAllByStatutAndDomain(
-                Statut.ACCEPTEE,
-                offre.getDomain()))
+        when(offreDeStageRepository.findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+                eq(Statut.ACCEPTEE),
+                eq(offre.getDomain()),
+                any(LocalDate.class)))
                 .thenReturn(List.of(offre));
 
         List<OffreDeStageDTO> result =
@@ -431,9 +432,10 @@ public class EtudiantServiceTest {
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
 
-        when(offreDeStageRepository.findAllByStatutAndDomain(
-                Statut.ACCEPTEE,
-                etudiant.getDepartment()))
+        when(offreDeStageRepository.findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
                 .thenReturn(List.of());
 
         List<OffreDeStageDTO> result =
@@ -450,9 +452,10 @@ public class EtudiantServiceTest {
                 .findByEtudiant(etudiant);
 
         verify(offreDeStageRepository)
-                .findAllByStatutAndDomain(
-                        Statut.ACCEPTEE,
-                        etudiant.getDepartment());
+                .findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+                        eq(Statut.ACCEPTEE),
+                        eq(etudiant.getDepartment()),
+                        any(LocalDate.class));
     }
 
     @Test
@@ -481,9 +484,10 @@ public class EtudiantServiceTest {
                 .findByEtudiant(etudiant);
 
         verify(offreDeStageRepository, never())
-                .findAllByStatutAndDomain(
+                .findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
                         any(Statut.class),
-                        any(Departement.class));
+                        any(Departement.class),
+                        any(LocalDate.class));
     }
 }
 

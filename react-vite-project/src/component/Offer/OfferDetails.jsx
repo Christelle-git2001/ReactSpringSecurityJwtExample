@@ -31,6 +31,7 @@ function OfferDetails({ offre: offreProp }) {
     const { t } = useTranslation();
 
     const offre = offreProp || location.state?.offer;
+    const retour = location.state?.from;
 
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -52,10 +53,10 @@ function OfferDetails({ offre: offreProp }) {
                     return;
                 }
                 await refuserOffre(offre.id, rejectionComment);
-                navigate("/gestionnaire/offers");
+                navigate(retour);
             } else {
                 await approuverOffre(offre.id);
-                navigate("/gestionnaire/offers");
+                navigate(retour);
             }
         } catch (err) {
             console.error("Erreur lors de la mise à jour de l'offre:", err);
@@ -130,6 +131,12 @@ function OfferDetails({ offre: offreProp }) {
                             value={offre?.endDate}
                         />
                     </div>
+                    <div>
+                        <ReadOnlyField
+                            label={t("offre.date_fin_affichage")}
+                            value={offre?.displayEndDate}
+                        />
+                    </div>
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <span className="text-sm font-semibold text-[#043462]">
@@ -174,7 +181,7 @@ function OfferDetails({ offre: offreProp }) {
                     <Button
                         type="button"
                         disabled={isLoading}
-                        onClick={() => navigate("/gestionnaire/offers")}
+                        onClick={() => navigate(retour)}
                         className="bg-gray-500 text-white hover:bg-gray-600 disabled:opacity-50"
                     >
                         {t("actions.back")}

@@ -13,6 +13,7 @@ public record OffreDeStageDTO(
         Departement domain,
         LocalDate startDate,
         LocalDate endDate,
+        LocalDate  displayEndDate,
         Statut statut,
         String fileName,
         EmployeurDTO employeur,
@@ -28,6 +29,7 @@ public record OffreDeStageDTO(
                 offre.getDomain(),
                 offre.getStartDate(),
                 offre.getEndDate(),
+                offre.getDisplayEndDate(),
                 offre.getStatut(),
                 offre.getFileName(),
                 EmployeurDTO.of(offre.getEmployeur()),
@@ -38,6 +40,7 @@ public record OffreDeStageDTO(
     public static OffreDeStageDTO empty() {
         return new OffreDeStageDTO(
                 0L,
+                null,
                 null,
                 null,
                 null,

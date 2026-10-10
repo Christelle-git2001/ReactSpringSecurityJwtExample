@@ -52,8 +52,9 @@
     "salary": "Salary",
     "description": "Description",
     "description_required": "Please enter a description.",
-    "start_date": "Start date",
-    "end_date": "End date",
+    "start_date": "Internship start date",
+    "end_date": "Internship end date",
+    "display_end_date": "Offer display end date",
     "document": "Additional document (PDF)",
     "choose_file": "Choose a file",
     "cancel": "Cancel",
@@ -67,7 +68,8 @@
       "startDate_required": "Please select a start date.",
       "endDate_required": "Please select an end date.",
       "file_required": "Please select a PDF document.",
-      "endDate_invalid": "End date must be after the start date."
+      "endDate_invalid": "End date must be after the start date.",
+      "display_end_date_required": "Please select an offer display end date."
     }
   },
   "edit_offer": {
@@ -93,8 +95,8 @@
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
-    "collapse": "collapse",
-    "expand": "expand"
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "login": {
     "page_title": "Login",
@@ -154,7 +156,9 @@
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
-    "rejection_comment_required": "A comment is required when rejecting a CV."
+    "rejection_comment_required": "A comment is required when rejecting a CV.",
+    "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
+    "display_end_date_before_today": "The offer display end date cannot be in the past."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -167,7 +171,8 @@
     "login": "Login",
     "logout": "Logout",
     "add_offer": "Add offer",
-    "view_offers": "Internship offers"
+    "view_offers": "Internship offers",
+    "created_offers": "Created offers"
   },
   "home": {
     "welcome": "Welcome"
@@ -178,6 +183,10 @@
       "view_offers": "Explore available internship offers, filter by title, location and view detailed information about each offer.",
       "new_offer": "",
       "cvs": ""
+    },
+    "popup":{
+      "popup_description":"Please upload a valid Curriculum Vitae (CV) and wait for approval by a manager before applying for internship offers.",
+      "popup_title":"Curriculum Vitae required"
     },
     "offers":{
       "page_title": "Internship Offers",
@@ -248,10 +257,13 @@
     "hourly_rate_suffix": "$/hr",
     "date_debut": "Start date",
     "date_fin": "End date",
+    "date_fin_affichage": "Display end date",
     "document": "Document",
     "view_document": "View PDF document",
     "no_document": "No document attached",
     "no_matching_offers": "No offers match your filters.",
+    "pending_offers": "Offers pending approval",
+    "no_pending_offers": "No offers pending approval",
     "details": "See details",
     "edit": "Edit",
     "description": "Description",
@@ -264,7 +276,7 @@
   },
   "status": {
     "tous": "All",
-    "en_attente": "Pending",
+    "en_attente": "Pending approval",
     "acceptee": "Accepted",
     "refusee": "Rejected",
     "cv_accepte" : "Accepted",
@@ -289,6 +301,7 @@
     "upload_date": "Upload date",
     "status": "Status",
     "previous_rejection_comment": "Rejection comment : ",
-    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
+    "cv_already_approved": "Your CV has already been approved. You can no longer replace it.",
+    "pending_cvs_title" : "Cvs pending approval"
   }
 }
