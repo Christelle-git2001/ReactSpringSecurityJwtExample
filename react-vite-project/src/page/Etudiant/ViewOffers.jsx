@@ -89,6 +89,7 @@ const ViewOffers = ({ user }) => {
                         {offer.salary && <li><strong>{t("offre.salary")} :</strong> {offer.salary} $ / h </li>}
                         <li><strong>{t("offre.date_debut")} :</strong> {offer.startDate}</li>
                         <li><strong>{t("offre.date_fin")} :</strong> {offer.endDate}</li>
+                        <li><strong>{t("offre.date_fin_affichage")} :</strong> {offer.displayEndDate}</li>
                     </ul>
 
                     <p className="text-sm">
