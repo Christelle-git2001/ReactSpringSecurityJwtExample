@@ -101,7 +101,7 @@ function AddOffer() {
 
         creerOffreEmployeur(dto, file)
             .then(() => {
-                navigate("/employeur/offers");
+                navigate("/employeur");
             })
             .catch((err) => {
                 console.error(err);
