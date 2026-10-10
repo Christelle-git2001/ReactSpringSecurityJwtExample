@@ -110,7 +110,7 @@
     "document_error" : "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
     "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
-    "pending_offers": "Offres en attente d'approbation",
+    "pending_offers": "Offres de stage en attente d'approbation",
     "no_pending_offers": "Aucune offre en attente d'approbation",
     "details_title": "Détails de l'offre",
     "offer_title": "Titre de l'offre",
@@ -302,6 +302,7 @@
     "upload_date": "Date de téléversement",
     "status": "Statut",
     "previous_rejection_comment": "Commentaire de refus : ",
-    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
+    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer.",
+    "pending_cvs_title" : "Cvs en attente d'approbation"
   }
 }

@@ -301,6 +301,7 @@
     "upload_date": "Upload date",
     "status": "Status",
     "previous_rejection_comment": "Rejection comment : ",
-    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
+    "cv_already_approved": "Your CV has already been approved. You can no longer replace it.",
+    "pending_cvs_title" : "Cvs pending approval"
   }
 }

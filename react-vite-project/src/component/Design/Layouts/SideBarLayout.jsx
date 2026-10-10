@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiFileText, FiBriefcase} from "react-icons/fi";
+import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiFileText, FiBriefcase, FiClock} from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 
-
 function SideBarLayout({ user, openDrawer }) {
-
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -24,8 +22,8 @@ function SideBarLayout({ user, openDrawer }) {
         { path: "/employeur/offers", label: t("nav.created_offers"), roles: ["EMPLOYEUR"], icon: <FiBriefcase className="size-4 my-1.5" /> },
 
         { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
-        //{ path: `/${role?.toLowerCase()}/account`, label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
-        //{ path: `/${role?.toLowerCase()}/offers`, label: t("nav.view_offers"), roles: null, icon: <FiBriefcase className="size-4 my-1.5" />},
+        { path: "/gestionnaire/account", label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
+        //{ path: "/gestionnaire/historique", label: t("nav.history"), roles: null, icon: <FiClock className="size-4 my-1.5" />},
         {path: "/gestionnaire/cvs", label: "CVs", roles: ["GESTIONNAIRE"], icon: <FiFileText className="size-4 my-1.5" />},
         { path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),
@@ -49,7 +47,7 @@ function SideBarLayout({ user, openDrawer }) {
             <div className="drawer-content">
                 <Header user={user} sidebarOpen={sidebarOpen} />
 
-                <div className="min-h-screen ...">
+                <div className="min-h-screen p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col w-full">
                     <Outlet context={{ openDrawer }} />
                 </div>
             </div>

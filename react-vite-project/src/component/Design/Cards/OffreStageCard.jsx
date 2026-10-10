@@ -41,7 +41,7 @@ function OffreStageCard({ offer, onView, onEdit }) {
 
     return (
         <>
-            <div className="card w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card w-full max-w-sm bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                 <div className="card-body">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">

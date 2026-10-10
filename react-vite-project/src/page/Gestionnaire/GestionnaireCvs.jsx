@@ -1,4 +1,4 @@
-import CvCard from "../../component/CV/CvCard.jsx";
+import CvCard from "../../component/Design/Cards/CvCard.jsx";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { approuverCv, getTousLesCvs, refuserCv } from "../../api/gestionnaire.jsx";

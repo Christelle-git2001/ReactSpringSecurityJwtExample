@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
-import CvCard from "../../component/CV/CvCard.jsx";
-import Card from "../../component/Design/Cards/OffreStageCard.jsx";
+import CvCard from "../../component/Design/Cards/CvCard.jsx";
+import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import {approuverCv, getOffresEnAttente, getTousLesCvs, refuserCv} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 
@@ -11,7 +11,6 @@ const GestionnaireHome = ({user}) => {
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
     const [error, setError] = useState(null);
-
 
     useEffect(() => {
         chargerCvs();
@@ -54,7 +53,7 @@ const GestionnaireHome = ({user}) => {
     return(
         <div className={"pt-5 h-full"}>
             <h1 className={"text-4xl mb-10 text-center"}>{t("home.welcome")} {user?.firstName} {user?.lastName}</h1>
-            <h2 className="text-2xl font-bold mb-4 text-center">CVs</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center">{t("cv.pending_cvs_title")}</h2>
 
             <div className="space-y-4 w-full max-w-4xl mx-auto mb-10">
                 {cvs.length === 0 && !error && (
@@ -65,13 +64,13 @@ const GestionnaireHome = ({user}) => {
                 ))}
             </div>
 
-            <h2 className="text-2xl font-bold mb-4 text-center">{t("nav.view_offers")}</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center">{t("offre.pending_offers")}</h2>
             {offres.length === 0 && (
                 <p className="text-center opacity-70">{t("offre.no_offers")}</p>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center w-full">
                 {offres.map((offer) => (
-                    <Card key={offer.id} offer={offer} onView={handleView} />
+                    <OffreStageCard key={offer.id} offer={offer} onView={handleView} />
                 ))}
             </div>
 

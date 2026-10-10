@@ -43,8 +43,8 @@ const EmployeurOffers = () => {
     }, []);
 
     return (
-        <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
-            <div className="w-full max-w-4xl space-y-4 mb-6">
+        <div className="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
+            <div className="w-full max-w-4xl space-y-4 mb-6 mt-6">
                 <SearchBar
                     value={searchTerm}
                     onChange={setSearchTerm}
@@ -59,7 +59,7 @@ const EmployeurOffers = () => {
                     availableDomains={availableDomains}
                 />
             </div>
-            <div className="w-full">
+            <div className="w-full px-2 sm:px-4 pb-8">
                 {offresFiltrees.length === 0 ? (
                     <div className="items-center flex justify-center w-full py-8">
                         <p className="text-gray-500 font-medium">
@@ -69,7 +69,7 @@ const EmployeurOffers = () => {
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full ">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full">
                         {offresFiltrees.map((offer) => (
                             <OffreStageCard
                                 key={offer.id}

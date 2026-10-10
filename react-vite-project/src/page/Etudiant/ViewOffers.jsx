@@ -60,9 +60,9 @@ const ViewOffers = ({ user, showFilters = true }) => {
 
 
     return (
-        <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center">
             {showFilters && (
-                <div className="w-full max-w-4xl space-y-4 mb-6">
+                <div className="w-full max-w-4xl space-y-4 mt-6 mb-6">
                 <SearchBar
                     value={searchTerm}
                     onChange={setSearchTerm}

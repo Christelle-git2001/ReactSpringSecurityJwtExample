@@ -1,10 +1,10 @@
 import React, {useState} from "react";
-import Button from "../Design/Button.jsx";
+import Button from "../Button.jsx";
 import { useTranslation } from "react-i18next";
-import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
-import ShowDocument from "../PDF/ShowDocument.jsx";
-import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
-import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
+import { formaterDate, formaterTailleFichier } from "../../../utils/cvFormatters.jsx";
+import ShowDocument from "../../PDF/ShowDocument.jsx";
+import { obtenirCvPDFGestionnaire } from "../../../api/gestionnaire.jsx";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 
 function CvCard({ cv, onApprove, onReject }) {
     const { t } = useTranslation();
