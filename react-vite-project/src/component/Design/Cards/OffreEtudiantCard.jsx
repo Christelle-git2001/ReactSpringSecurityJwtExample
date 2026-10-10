@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-function OffreEtudiant({ offer, onView, onEdit }) {
+function OffreEtudiantCard({ offer, onView, onEdit }) {
     const { t } = useTranslation();
 
     const offre = [
@@ -42,4 +42,4 @@ function OffreEtudiant({ offer, onView, onEdit }) {
     );
 }
 
-export default React.memo(OffreEtudiant);
+export default React.memo(OffreEtudiantCard);

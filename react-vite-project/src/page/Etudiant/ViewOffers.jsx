@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import OffreEtudiant from "../../component/Design/Cards/OffreEtudiant.jsx";
+import OffreEtudiant from "../../component/Design/Cards/OffreEtudiantCard.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import { PDFContent } from "../../component/PDF/PDFVisioneuse.jsx";
