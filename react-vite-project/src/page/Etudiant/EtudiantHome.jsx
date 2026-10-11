@@ -8,7 +8,7 @@ const EtudiantHome = ({user}) => {
     return(
       <div className={"h-full px-4 sm:px-6 lg:px-8 py-6"}>
         <CvOnLandingPage />
-        <h1 className={"text-4xl mb-10 text-center"}>{t("home.welcome")} {user?.firstName} {user?.lastName}</h1>
+        <h1 className={"welcome-message"}>{t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span></h1>
         <div className="w-full">
             <EtudiantOffers user={user} showFilters={false} />
         </div>

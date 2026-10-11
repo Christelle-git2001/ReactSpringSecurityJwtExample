@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import {useCallback, useEffect, useState} from "react";
-import DashboardSummaryCard from "../../component/Design/Cards/DashboardSummaryCard.jsx";
-import DashboardCvItem from "../../component/Design/Cards/DashboardCvItem.jsx";
-import DashboardOfferItem from "../../component/Design/Cards/DashboardOfferItem.jsx";
+import DashboardSummaryCard from "../../component/Design/Cards/Dashboard/DashboardSummaryCard.jsx";
+import DashboardCvItem from "../../component/Design/Cards/Dashboard/DashboardCvItem.jsx";
+import DashboardOfferItem from "../../component/Design/Cards/Dashboard/DashboardOfferItem.jsx";
 import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";

@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaBriefcase } from "react-icons/fa";
-import { getDepartmentKey } from "../../../utils/departementConverter.js";
-import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import { getDepartmentKey } from "../../../../utils/departementConverter.js";
+import { getStatusConfig } from "../../../../utils/getStatusConfig.jsx";
 import RecentActivityBoardItem from "./RecentActivityBoardItem.jsx";
 
 function DashboardOfferItem({ offer, onClick, isNew = false, variant = "card", actionLabel }) {

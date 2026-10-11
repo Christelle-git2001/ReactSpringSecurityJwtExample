@@ -1,5 +1,5 @@
 import React from "react";
-import NewLabel from "../NewLabel.jsx";
+import NewLabel from "../../NewLabel.jsx";
 import { FiChevronRight } from "react-icons/fi";
 
 const toneClasses = {

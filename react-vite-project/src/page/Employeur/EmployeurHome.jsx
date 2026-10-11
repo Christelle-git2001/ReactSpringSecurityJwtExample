@@ -29,7 +29,7 @@ const EmployeurHome = ({user}) => {
 
     return(
         <div className={"pt-5 h-full"}>
-            <h1 className={"text-4xl mb-10 text-center"}>{t("home.welcome")} {user?.firstName} {user?.lastName}</h1>
+            <h1 className={"welcome-message"}>{t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span></h1>
             <h2 className="text-2xl font-bold text-[#043462] mb-6 text-center">{t("offre.pending_offers")}</h2>
 
             {offresEnAttente.length === 0 ? (

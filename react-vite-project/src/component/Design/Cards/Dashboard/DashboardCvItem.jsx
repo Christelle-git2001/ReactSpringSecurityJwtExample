@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileAlt } from "react-icons/fa";
-import { formaterDate } from "../../../utils/cvFormatters.jsx";
-import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import { formaterDate } from "../../../../utils/cvFormatters.jsx";
+import { getStatusConfig } from "../../../../utils/getStatusConfig.jsx";
 import RecentActivityBoardItem from "./RecentActivityBoardItem.jsx";
 
 function DashboardCvItem({ cv, onClick, isNew = false, variant = "card", actionLabel }) {
