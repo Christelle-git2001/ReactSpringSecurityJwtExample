@@ -69,7 +69,10 @@
       "endDate_required": "Please select an end date.",
       "file_required": "Please select a PDF document.",
       "endDate_invalid": "End date must be after the start date.",
-      "display_end_date_required": "Please select an offer display end date."
+      "display_end_date_required": "Please select an offer display end date.",
+      "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
+      "display_end_date_before_today": "The offer display end date cannot be in the past.",
+      "start_date_before_today": "The start date cannot be before today."
     }
   },
   "edit_offer": {
@@ -156,9 +159,7 @@
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
-    "rejection_comment_required": "A comment is required when rejecting a CV.",
-    "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
-    "display_end_date_before_today": "The offer display end date cannot be in the past."
+    "rejection_comment_required": "A comment is required when rejecting a CV."
   },
   "success": {
     "student_added": "Student added successfully.",
