@@ -1,21 +1,26 @@
-import SideBarIcon from "./Icons/SideBarIcon.jsx";
+import React from "react";
+import { FiX } from "react-icons/fi";
 
-function Drawer({ id, content }) {
+function Drawer({ isOpen, onClose, content }) {
     return (
-        <div className="drawer drawer-end fixed inset-0 z-50 pointer-events-none ">
-            <input id={id} type="checkbox" className="drawer-toggle" />
-
-            <div className="drawer-side pointer-events-auto">
-                <label htmlFor={id} className="drawer-overlay"></label>
-                <label
-                    htmlFor={id}
-                    aria-label="Fermer"
-                    data-tip="Fermer"
-                    className="btn btn-square btn-ghost fixed bottom-6 right-80 z-[60] tooltip tooltip-left bg-[#043462] text-white hover:bg-[#00CCCB] hover:text-white"
-                >
-                    <SideBarIcon />
-                </label>
-                <div className="min-h-full w-96 p-4 shadow-xl bg-[#D9B8FF]">
+        <div
+            className={`transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full bg-[#D9B8FF] shadow-xl rounded-l-lg border-l border-purple-300 ${
+                isOpen ? "w-80 opacity-100 ml-4" : "w-0 opacity-0 ml-0 border-none"
+            }`}
+        >
+            <div className="w-80 flex flex-col h-full">
+                <div className="p-3 flex justify-between items-center border-b border-purple-300/60">
+                    <span className="font-bold text-[#043462] text-lg">Détails</span>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="btn btn-sm btn-circle btn-ghost text-[#043462] hover:bg-[#043462] hover:text-white"
+                        aria-label="Fermer"
+                    >
+                        <FiX className="size-5" />
+                    </button>
+                </div>
+                <div className="p-4 overflow-y-auto flex-1">
                     {content}
                 </div>
             </div>
