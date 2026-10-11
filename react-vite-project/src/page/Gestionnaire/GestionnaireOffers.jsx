@@ -1,44 +1,41 @@
-import React, { useCallback, useState, useEffect } from "react";
-import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useCallback, useState } from "react";
+import { getToutesLesOffres } from "../../api/gestionnaire.jsx";
+import { useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
-import {useOffreFilters} from "../../utils/useOffreFilters.jsx";
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import AddOfferRapide from "../../config/AddOfferRapide.jsx";
-import { isNewSince } from "../../utils/isNewItem.jsx";
+import GestionnaireItemsPage, { useGestionnaireItems } from "../../utils/GestionnaireItemsPage.jsx";
 
-const GestionnaireOffers = ({ user }) => {
-    const { t } = useTranslation();
-    const [searchParams] = useSearchParams();
-    const targetOfferId = Number(searchParams.get("offerId"));
-    const [offres, setOffres] = useState([]);
+const GestionnaireOffers = () => {
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
 
-    const chargerOffres = useCallback(() => {
-        getOffresEnAttente().then((res) => {setOffres(res);})
-            .catch((err) => console.log(err));
+    const handleLoadError = useCallback((err) => {
+        setError(err ? "error.generic" : null);
     }, []);
 
-    useEffect(() => {
-        chargerOffres();
-    }, [chargerOffres]);
-
-    useEffect(() => {
-        if (!targetOfferId || offres.length === 0) return;
-
-        const targetElement = document.getElementById(`offer-${targetOfferId}`);
-        targetElement?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, [targetOfferId, offres]);
+    const {
+        items: offres,
+        reloadItems: chargerOffres,
+        targetItemId: targetOfferId,
+    } = useGestionnaireItems({
+        fetchItems: getToutesLesOffres,
+        targetParamName: "offerId",
+        targetElementPrefix: "offer",
+        onError: handleLoadError,
+    });
 
     const handleView = (offer) => {
-        navigate(`/gestionnaire/offres/details`, { state: { offer, from:"/gestionnaire/offers" } });
+        navigate("/gestionnaire/offres/details", { state: { offer, from: "/gestionnaire/offers" } });
     };
 
     const {
         searchTerm,
         setSearchTerm,
+        selectedStatus,
+        setSelectedStatus,
         selectedDomain,
         setSelectedDomain,
         availableDomains,
@@ -52,53 +49,41 @@ const GestionnaireOffers = ({ user }) => {
         ]
         : offresFiltrees;
 
-
     return (
-        <>
-            <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
-                <div className="w-full max-w-4xl space-y-4 mb-6">
+        <GestionnaireItemsPage
+            controls={
+                <>
                     <SearchBar
                         value={searchTerm}
                         onChange={setSearchTerm}
                         onClear={() => setSearchTerm("")}
                     />
                     <FilterBar
+                        selectedStatus={selectedStatus}
+                        onStatusChange={setSelectedStatus}
                         selectedDomain={selectedDomain}
                         onDomainChange={setSelectedDomain}
                         availableDomains={availableDomains}
                     />
-                </div>
-                <div className="w-full">
-                    <AddOfferRapide onCreated={chargerOffres}/>
-                    {offresAffichees.length === 0 ? (
-                        <div className="items-center flex justify-center w-full py-8">
-                            <p className="text-gray-500 font-medium">
-                                {offres.length === 0
-                                    ? t("offre.no_offers")
-                                    : t("offre.no_matching_offers")}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full ">
-                            {offresAffichees.map((offer) => (
-                                <div
-                                    key={offer.id}
-                                    id={`offer-${offer.id}`}
-                                    className={offer.id === targetOfferId ? "scroll-mt-24 rounded-xl ring-2 ring-[#00CCCB] ring-offset-4" : "scroll-mt-24"}
-                                >
-                                    <OffreStageCard
-                                        offer={offer}
-                                        onView={handleView}
-                                        isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-            </div>
-        </>
+                </>
+            }
+            errorMessage={error}
+            items={offres}
+            displayedItems={offresAffichees}
+            targetItemId={targetOfferId}
+            targetElementPrefix="offer"
+            emptyItemsMessageKey="offre.no_offers"
+            emptyFilteredMessageKey="offre.no_matching_offers"
+            beforeList={<AddOfferRapide onCreated={chargerOffres}/>}
+            listClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full"
+            renderItem={(offer) => (
+                <OffreStageCard
+                    offer={offer}
+                    onView={handleView}
+                />
+            )}
+        />
     );
 }
+
 export default GestionnaireOffers;

@@ -20,11 +20,11 @@ const GestionnaireHome = ({user}) => {
     const [showRecentActivity, setShowRecentActivity] = useState(true);
 
     const viewCvInList = (cv) => {
-        navigate(`/gestionnaire/cvs?cvId=${cv.id}`);
+        navigate(`/gestionnaire/cvs/attente?cvId=${cv.id}`);
     };
 
     const viewOfferInList = (offer) => {
-        navigate(`/gestionnaire/offers?offerId=${offer.id}`);
+        navigate(`/gestionnaire/offers/attente?offerId=${offer.id}`);
     };
 
     const chargerCvs = useCallback(async () => {
@@ -154,7 +154,7 @@ const GestionnaireHome = ({user}) => {
                             </h2>
                             <button
                                 type="button"
-                                onClick={() => navigate("/gestionnaire/cvs")}
+                                onClick={() => navigate(`/gestionnaire/cvs/attente?cvId=${cv.id}`)}
                                 className="text-xs font-semibold text-blue-600 hover:underline hover:underline-offset-4"
                             >
                                 {t("dashboard.view_all")} ({cvs.length})
@@ -186,7 +186,7 @@ const GestionnaireHome = ({user}) => {
                             </h2>
                             <button
                                 type="button"
-                                onClick={() => navigate("/gestionnaire/offers")}
+                                onClick={() => navigate(`/gestionnaire/offers/attente?offerId=${offer.id}`)}
                                 className="text-xs font-semibold text-green-600 hover:underline hover:underline-offset-4"
                             >
                                 {t("dashboard.view_all_feminine")} ({offres.length})

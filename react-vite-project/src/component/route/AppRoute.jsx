@@ -16,10 +16,13 @@ import AccountEmployeur from "../../page/Employeur/AccountEmployeur.jsx";
 import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx";
 import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
+import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
+import GestionnaireCvsEnAttente from "../../page/Gestionnaire/GestionnaireCvsEnAttente.jsx";
 import GestionnaireHistorique from "../../page/Gestionnaire/GestionnaireHistorique.jsx";
 import EtudiantOffers from "../../page/Etudiant/EtudiantOffers.jsx";
 import EmployeurOffers from "../../page/Employeur/EmployeurOffers.jsx";
 import GestionnaireOffers from "../../page/Gestionnaire/GestionnaireOffers.jsx";
+import GestionnaireOffersEnAttente from "../../page/Gestionnaire/GestionnaireOffersEnAttente.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -72,7 +75,9 @@ export default function AppRoutes({
                 <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome  user={user}/>} />
                 <Route path="/gestionnaire/offers" element={<GestionnaireOffers />} />
-                <Route path="/gestionnaire/cvs" element={<GestionnaireHistorique />} />
+                <Route path="/gestionnaire/offers/attente" element={<GestionnaireOffersEnAttente user={user} />} />
+                <Route path="/gestionnaire/cvs" element={<GestionnaireCvs />} />
+                <Route path="/gestionnaire/cvs/attente" element={<GestionnaireCvsEnAttente />} />
                 <Route path="/gestionnaire/historique" element={<GestionnaireHistorique />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />

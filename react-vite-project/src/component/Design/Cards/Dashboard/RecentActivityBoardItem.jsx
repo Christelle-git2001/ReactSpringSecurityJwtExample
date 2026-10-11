@@ -71,15 +71,23 @@ function RecentActivityBoardItem({
                     </div>
                 </div>
 
-                {actionLabel ? (
-                    <span className={`btn btn-xs shrink-0 rounded-lg border-none bg-white/80 px-3 ${styles.action}`}>
-                        {actionLabel}
-                    </span>
-                ) : (
-                    <span className={`grid size-8 shrink-0 place-items-center rounded-full bg-white/80 ${styles.action}`}>
-                        <FiChevronRight className="size-4" />
-                    </span>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                    {badge && (
+                        <span className={`badge badge-xs h-auto min-h-6 whitespace-nowrap px-2 py-1 text-center leading-tight ${badgeClassName || ""}`}>
+                            {badge}
+                        </span>
+                    )}
+
+                    {actionLabel ? (
+                        <span className={`btn btn-xs rounded-lg border-none bg-white/80 px-3 ${styles.action}`}>
+                            {actionLabel}
+                        </span>
+                    ) : (
+                        <span className={`grid size-8 place-items-center rounded-full bg-white/80 ${styles.action}`}>
+                            <FiChevronRight className="size-4" />
+                        </span>
+                    )}
+                </div>
             </button>
         );
     }
