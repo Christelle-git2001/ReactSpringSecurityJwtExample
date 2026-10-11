@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { obtenirCvPDF, suppressionCv } from "../../api/etudiant.jsx";
 import React, { useState } from "react";
-import { FiFileText } from "react-icons/fi";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaDownload, FaTrashAlt } from "react-icons/fa";
 import { PDFVisioneuse } from "../PDF/PDFVisioneuse.jsx";
@@ -13,7 +12,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
     const { t } = useTranslation();
     const [deleteError, setDeleteError] = useState(null);
 
-    const status = getStatusConfig(cv?.statut, t, cv);
+    const status = getStatusConfig(cv?.statut, t, "cv");
 
     const {
         pdfUrl,
@@ -56,7 +55,6 @@ const ShowCv = ({ cv, onCvDeleted }) => {
             <div className="mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2">
                 {cv?.id ? (
                     <div className="flex justify-around w-full items-center h-full">
-                        <FiFileText className="size-10 rounded-box text-red-500 border border-t-0" />
                         <div>
                             {cv?.fileName}
                             <div className="text-xs uppercase font-semibold opacity-60">
