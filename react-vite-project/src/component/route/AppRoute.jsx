@@ -19,8 +19,6 @@ import OfferDetails from "../Offer/OfferDetails.jsx";
 import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
 import GestionnaireCvsEnAttente from "../../page/Gestionnaire/GestionnaireCvsEnAttente.jsx";
 import GestionnaireHistorique from "../../page/Gestionnaire/GestionnaireHistorique.jsx";
-import EtudiantOffers from "../../page/Etudiant/EtudiantOffers.jsx";
-import EmployeurOffers from "../../page/Employeur/EmployeurOffers.jsx";
 import GestionnaireOffers from "../../page/Gestionnaire/GestionnaireOffers.jsx";
 import GestionnaireOffersEnAttente from "../../page/Gestionnaire/GestionnaireOffersEnAttente.jsx";
 
@@ -65,11 +63,9 @@ export default function AppRoutes({
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/>
-                <Route path="/etudiant/offers" element={<EtudiantOffers user={user}/>}/>
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>
                 <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>
                 <Route path="/employeur" element={<EmployeurHome  user={user}/>} />
-                <Route path="/employeur/offers" element={<EmployeurOffers />} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/professeur" element={<ProfesseurHome />} />

@@ -39,5 +39,5 @@ button:disabled,
 }
 
 .welcome-message {
-    @apply text-4xl font-bold text-[#043462];
+    @apply text-3xl font-bold text-[#043462];
 }

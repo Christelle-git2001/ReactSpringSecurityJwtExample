@@ -19,7 +19,6 @@ function SideBarLayout({ user, openDrawer }) {
         { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur/account", label: t("nav.account"), roles: ["EMPLOYEUR"], icon: <FiUser className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
-        { path: "/employeur/offers", label: t("nav.created_offers"), roles: ["EMPLOYEUR"], icon: <FiBriefcase className="size-4 my-1.5" /> },
 
         { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/account", label: t("nav.account"), roles:["GESTIONNAIRE"], icon: <FiUser className="size-4 my-1.5" />},

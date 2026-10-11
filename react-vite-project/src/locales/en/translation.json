@@ -305,7 +305,7 @@
     "cvs_refuses": "Rejected"
   },
   "search": {
-    "placeholder": "Search...",
+    "placeholder": "Search by title and description...",
     "clear": "Clear search"
   },
   "cv": {
