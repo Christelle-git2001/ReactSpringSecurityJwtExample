@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record GestionnaireDTO(
         long id,
@@ -11,7 +13,8 @@ public record GestionnaireDTO(
         String lastName,
         String email,
         String phoneNumber,
-        String password
+        String password,
+        LocalDateTime previousLoginAt
 ) implements UserDTO {
 
     public static GestionnaireDTO create(Gestionnaire gestionnaire) {
@@ -25,11 +28,13 @@ public record GestionnaireDTO(
                 .lastName(gestionnaire.getLastName())
                 .email(gestionnaire.getEmail())
                 .phoneNumber(gestionnaire.getPhoneNumber())
+                .previousLoginAt(gestionnaire.getPreviousLoginAt())
                 .build();
     }
 
     public static GestionnaireDTO empty() {
-        return new GestionnaireDTO(0L, "", "", "", "","");
+        return new GestionnaireDTO(0L, "", "",
+                "", "","", null);
     }
 
     @Override

@@ -62,7 +62,8 @@ public class GestionnaireControllerTest {
                 "christelle@gmail.com",
                 "2226252",
                 "438-297-8191",
-                "INFORMATIQUE"
+                "INFORMATIQUE",
+                null
         );
     }
 

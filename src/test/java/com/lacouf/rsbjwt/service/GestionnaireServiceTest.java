@@ -65,7 +65,7 @@ class GestionnaireServiceTest {
 
     @BeforeEach
     void setUp(){
-        gestionnaireDto = new GestionnaireDTO(-6L,"Laurent","losange","Laurent.Losange@hotmail.com","458-458-4584","5858");
+        gestionnaireDto = new GestionnaireDTO(-6L,"Laurent","losange","Laurent.Losange@hotmail.com","458-458-4584","5858", null);
         gestionnaire = new Gestionnaire(1L,"Laurent","losange","Laurent.Losange@hotmail.com","5858","458-458-4584");
         gestionnaire.setId(1L);
         etudiant = new Etudiant("pascal","losange","pascal.losange@hotmail.com","585-585-5858", Departement.INFORMATIQUE,"5858585","5858");

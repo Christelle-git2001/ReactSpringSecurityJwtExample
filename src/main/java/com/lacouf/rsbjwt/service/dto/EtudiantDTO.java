@@ -4,16 +4,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Etudiant;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
-public record EtudiantDTO(long id, String firstName, String lastName, String email, String matricule, String phoneNumber, String department) implements UserDTO{
+public record EtudiantDTO(long id, String firstName, String lastName, String email, String matricule,
+                          String phoneNumber, String department, LocalDateTime previousLoginAt)
+        implements UserDTO{
     public static EtudiantDTO of(Etudiant etudiant) {
-        return new EtudiantDTO(etudiant.getId(), etudiant.getFirstName(), etudiant.getLastName(),
-                etudiant.getEmail(), etudiant.getMatricule(), etudiant.getPhoneNumber(), etudiant.getDepartment().getLabel());
+        return new EtudiantDTO(
+                etudiant.getId(),
+                etudiant.getFirstName(),
+                etudiant.getLastName(),
+                etudiant.getEmail(),
+                etudiant.getMatricule(),
+                etudiant.getPhoneNumber(),
+                etudiant.getDepartment().getLabel(),
+                etudiant.getPreviousLoginAt());
     }
 
-
     public static EtudiantDTO empty() {
-        return new EtudiantDTO(0L, null, null, null, null, null, null);
+        return new EtudiantDTO(0L, null, null, null,
+                null, null, null, null);
     }
 
     @Override

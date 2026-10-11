@@ -65,7 +65,8 @@ public class ProfesseurControllerTest {
                 "carole.test@gmail.com",
                 "1234567",
                 "123-123-1234",
-                "INFORMATIQUE"
+                "INFORMATIQUE",
+                null
         );
     }
 

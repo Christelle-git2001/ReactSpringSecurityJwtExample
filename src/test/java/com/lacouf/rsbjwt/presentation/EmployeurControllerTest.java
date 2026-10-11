@@ -107,7 +107,8 @@ public class EmployeurControllerTest {
               "Gerard.Robert@hotmail.com",
               "Mercier",
               "Gerard inc",
-              SecteurActivite.AEROSPATIAL
+              SecteurActivite.AEROSPATIAL,
+              null
         );
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class))).thenReturn(employeurDTO);
 
@@ -178,8 +179,6 @@ public class EmployeurControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // Test OffreDeStage
-
     @Test
     void doitCreerOffreDeStageAvecFichierPdf() throws Exception, DateFinAffichageApresDateDebutException {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
@@ -197,7 +196,6 @@ public class EmployeurControllerTest {
                 MediaType.APPLICATION_JSON_VALUE,
                 objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
         );
-        // Le nom "fichier" doit être identique à @RequestPart("fichier") dans le contrôleur
         MockMultipartFile fichier = new MockMultipartFile(
                 "file",
                 "offre.pdf",
@@ -385,5 +383,4 @@ public class EmployeurControllerTest {
                         .principal(principal))
                 .andExpect(status().isOk());
     }
-
 }
