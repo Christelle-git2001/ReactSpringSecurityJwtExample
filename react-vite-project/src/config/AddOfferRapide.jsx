@@ -1,22 +1,17 @@
-import fetcher from "../utils/fetcher.js";
+import BASE_URL from "./Config.jsx";
 
-const AddOfferRapide = () => {
+const AddOfferRapide = ({ onCreated }) => {
     const createOffer = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const headers = {};
-
-            if (token) {
-                headers["Authorization"] = `Bearer ${token}`;
-            }
-            const response = await fetcher('/api/auth/create/offre', {
+            const response = await fetch(`${BASE_URL}/api/auth/create/offre`, {
                 method: 'POST',
-                headers:headers
             });
 
             if (!response.ok) {
                 throw new Error('Erreur lors de la connexion rapide');
             }
+
+            onCreated?.();
         } catch (error) {
             console.error(error);
         }
