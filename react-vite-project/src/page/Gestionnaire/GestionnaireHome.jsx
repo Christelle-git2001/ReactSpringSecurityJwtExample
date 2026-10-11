@@ -19,8 +19,12 @@ const GestionnaireHome = ({user}) => {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [showRecentActivity, setShowRecentActivity] = useState(true);
 
-    const handleView = (offer) => {
-        navigate("/gestionnaire/offres/details", { state: { offer, from: "/gestionnaire" } });
+    const viewCvInList = (cv) => {
+        navigate(`/gestionnaire/cvs?cvId=${cv.id}`);
+    };
+
+    const viewOfferInList = (offer) => {
+        navigate(`/gestionnaire/offers?offerId=${offer.id}`);
     };
 
     const chargerCvs = useCallback(async () => {
@@ -119,7 +123,7 @@ const GestionnaireHome = ({user}) => {
                                 <DashboardCvItem
                                     key={`cv-${cv.id}`}
                                     cv={cv}
-                                    onClick={() => navigate("/gestionnaire/cvs")}
+                                    onClick={() => viewCvInList(cv)}
                                     variant="row"
                                     actionLabel={t("dashboard.view_cv")}
                                 />
@@ -129,7 +133,7 @@ const GestionnaireHome = ({user}) => {
                                 <DashboardOfferItem
                                     key={`offer-${offer.id}`}
                                     offer={offer}
-                                    onClick={() => handleView(offer)}
+                                    onClick={() => viewOfferInList(offer)}
                                     variant="row"
                                     actionLabel={t("dashboard.view_offer")}
                                 />
@@ -167,7 +171,7 @@ const GestionnaireHome = ({user}) => {
                                 <DashboardCvItem
                                     key={cv.id}
                                     cv={cv}
-                                    onClick={() => navigate("/gestionnaire/cvs")}
+                                    onClick={() => viewCvInList(cv)}
                                     isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
                                     actionLabel={t("dashboard.view_cv")}
                                 />
@@ -199,7 +203,7 @@ const GestionnaireHome = ({user}) => {
                                 <DashboardOfferItem
                                     key={offer.id}
                                     offer={offer}
-                                    onClick={() => handleView(offer)}
+                                    onClick={() => viewOfferInList(offer)}
                                     isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
                                     actionLabel={t("dashboard.view_offer")}
                                 />
