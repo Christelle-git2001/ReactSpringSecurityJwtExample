@@ -7,7 +7,7 @@ import RecentActivityBoardItem from "./RecentActivityBoardItem.jsx";
 
 function DashboardCvItem({ cv, onClick, isNew = false, variant = "card", actionLabel }) {
     const { t } = useTranslation();
-    const status = getStatusConfig(cv?.statut, t, cv);
+    const status = getStatusConfig(cv?.statut, t, "cv");
 
     const studentName = `${cv?.etudiant?.firstName || ""} ${cv?.etudiant?.lastName || ""}`.trim();
 
@@ -19,7 +19,7 @@ function DashboardCvItem({ cv, onClick, isNew = false, variant = "card", actionL
             meta={cv?.uploadDate ? formaterDate(cv.uploadDate) : null}
             badge={status.label}
             badgeClassName={status.className}
-            isNew={variant === "card" && isNew}
+            isNew={isNew}
             tone="blue"
             variant={variant}
             actionLabel={actionLabel}

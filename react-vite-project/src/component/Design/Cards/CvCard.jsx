@@ -17,7 +17,7 @@ function CvCard({ cv, onApprove, onReject, isNew = false }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const status = getStatusConfig(cv?.statut, t, cv);
+    const status = getStatusConfig(cv?.statut, t, "cv");
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
@@ -56,6 +56,10 @@ function CvCard({ cv, onApprove, onReject, isNew = false }) {
                     </div>
                     <p className="text-2l font-bold text-[#043462]">
                         {getStudentName()}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-600">
+                        {cv.etudiant?.department || t("cv.department_unknown", "Département inconnu")}
                     </p>
 
                     <p className="mt-1 text-sm text-gray-600">

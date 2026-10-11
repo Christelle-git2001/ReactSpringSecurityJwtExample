@@ -21,7 +21,7 @@ function DashboardOfferItem({ offer, onClick, isNew = false, variant = "card", a
             meta={translatedDepartment}
             badge={status.label}
             badgeClassName={status.className}
-            isNew={variant === "card" && isNew}
+            isNew={isNew}
             tone="green"
             variant={variant}
             actionLabel={actionLabel}
