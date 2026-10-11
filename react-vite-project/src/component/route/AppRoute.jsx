@@ -76,8 +76,8 @@ export default function AppRoutes({
                 <Route path="/gestionnaire" element={<GestionnaireHome  user={user}/>} />
                 <Route path="/gestionnaire/offers" element={<GestionnaireOffers />} />
                 <Route path="/gestionnaire/offers/attente" element={<GestionnaireOffersEnAttente user={user} />} />
-                <Route path="/gestionnaire/cvs" element={<GestionnaireCvs />} />
-                <Route path="/gestionnaire/cvs/attente" element={<GestionnaireCvsEnAttente />} />
+                <Route path="/gestionnaire/cvs" element={<GestionnaireCvs user={user} />} />
+                <Route path="/gestionnaire/cvs/attente" element={<GestionnaireCvsEnAttente user={user} />} />
                 <Route path="/gestionnaire/historique" element={<GestionnaireHistorique />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />

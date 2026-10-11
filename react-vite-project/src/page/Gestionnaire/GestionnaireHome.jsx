@@ -3,12 +3,12 @@ import {useCallback, useEffect, useState} from "react";
 import DashboardSummaryCard from "../../component/Design/Cards/Dashboard/DashboardSummaryCard.jsx";
 import DashboardCvItem from "../../component/Design/Cards/Dashboard/DashboardCvItem.jsx";
 import DashboardOfferItem from "../../component/Design/Cards/Dashboard/DashboardOfferItem.jsx";
+import RecentActivitySection from "../../component/Design/Cards/Dashboard/RecentActivitySection.jsx";
 import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import {isNewSince} from "../../utils/isNewItem.jsx";
 import {FaBriefcase, FaFileAlt} from "react-icons/fa";
-import {FiChevronDown, FiChevronUp} from "react-icons/fi";
 
 const GestionnaireHome = ({user}) => {
     const { t } = useTranslation();
@@ -17,14 +17,13 @@ const GestionnaireHome = ({user}) => {
     const [offres, setOffres] = useState([]);
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const [showRecentActivity, setShowRecentActivity] = useState(true);
 
     const viewCvInList = (cv) => {
-        navigate(`/gestionnaire/cvs/attente?cvId=${cv.id}`);
+        navigate("/gestionnaire/cvs/attente", { state: { targetItemId: cv.id } });
     };
 
     const viewOfferInList = (offer) => {
-        navigate(`/gestionnaire/offers/attente?offerId=${offer.id}`);
+        navigate("/gestionnaire/offers/attente", { state: { targetItemId: offer.id } });
     };
 
     const chargerCvs = useCallback(async () => {
@@ -93,58 +92,14 @@ const GestionnaireHome = ({user}) => {
                     />
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                        <h2 className="text-lg font-bold text-[#043462]">
-                            {t("dashboard.recent_activity")}
-                        </h2>
-                        <button
-                            type="button"
-                            onClick={() => setShowRecentActivity((current) => !current)}
-                            className="btn btn-circle btn-sm border-none bg-gray-50 text-[#043462] hover:bg-gray-100"
-                            aria-label={
-                                showRecentActivity
-                                    ? t("actions.collapse")
-                                    : t("actions.expand")
-                            }
-                        >
-                            {showRecentActivity ? (
-                                <FiChevronUp className="size-4" />
-                            ) : (
-                                <FiChevronDown className="size-4" />
-                            )}
-                        </button>
-                    </div>
-                    <div className="mb-4 h-px w-full bg-[#043462]" />
-
-                    {showRecentActivity && (
-                        <div className="space-y-3">
-                            {cvs.slice(0, 2).map((cv) => (
-                                <DashboardCvItem
-                                    key={`cv-${cv.id}`}
-                                    cv={cv}
-                                    onClick={() => viewCvInList(cv)}
-                                    variant="row"
-                                    actionLabel={t("dashboard.view_cv")}
-                                />
-                            ))}
-
-                            {offres.slice(0, 2).map((offer) => (
-                                <DashboardOfferItem
-                                    key={`offer-${offer.id}`}
-                                    offer={offer}
-                                    onClick={() => viewOfferInList(offer)}
-                                    variant="row"
-                                    actionLabel={t("dashboard.view_offer")}
-                                />
-                            ))}
-
-                            {!isInitialLoading && cvs.length === 0 && offres.length === 0 && (
-                                <EmptyContentMessage message={t("dashboard.no_recent_activity")} />
-                            )}
-                        </div>
-                    )}
-                </div>
+                <RecentActivitySection
+                    cvs={cvs}
+                    offres={offres}
+                    isInitialLoading={isInitialLoading}
+                    user={user}
+                    onViewCv={viewCvInList}
+                    onViewOffer={viewOfferInList}
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
@@ -154,7 +109,7 @@ const GestionnaireHome = ({user}) => {
                             </h2>
                             <button
                                 type="button"
-                                onClick={() => navigate(`/gestionnaire/cvs/attente?cvId=${cv.id}`)}
+                                onClick={() => navigate("/gestionnaire/cvs/attente")}
                                 className="text-xs font-semibold text-blue-600 hover:underline hover:underline-offset-4"
                             >
                                 {t("dashboard.view_all")} ({cvs.length})
@@ -186,7 +141,7 @@ const GestionnaireHome = ({user}) => {
                             </h2>
                             <button
                                 type="button"
-                                onClick={() => navigate(`/gestionnaire/offers/attente?offerId=${offer.id}`)}
+                                onClick={() => navigate("/gestionnaire/offers/attente")}
                                 className="text-xs font-semibold text-green-600 hover:underline hover:underline-offset-4"
                             >
                                 {t("dashboard.view_all_feminine")} ({offres.length})

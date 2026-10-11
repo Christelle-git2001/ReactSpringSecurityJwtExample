@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export function useGestionnaireItems({
     fetchItems,
@@ -8,8 +8,9 @@ export function useGestionnaireItems({
     targetElementPrefix,
     onError,
 }) {
+    const location = useLocation();
     const [searchParams] = useSearchParams();
-    const targetItemId = Number(searchParams.get(targetParamName));
+    const targetItemId = Number(location.state?.targetItemId || searchParams.get(targetParamName));
     const [items, setItems] = useState([]);
 
     const reloadItems = useCallback(async () => {
