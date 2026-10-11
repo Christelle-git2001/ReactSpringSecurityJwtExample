@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import CvCard from "../../component/Design/Cards/CvCard.jsx";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
-import {approuverCv, getOffresEnAttente, getTousLesCvs, refuserCv} from "../../api/gestionnaire.jsx";
+import {approuverCv, getOffresEnAttente, getCvsEnAttente, refuserCv} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import {isNewSince} from "../../utils/isNewItem.jsx";
@@ -14,25 +14,43 @@ const GestionnaireHome = ({user}) => {
     const [offres, setOffres] = useState([]);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        chargerCvs();
-        getOffresEnAttente().then((res) => {setOffres(res);})
-            .catch((err) => console.log(err));
-    }, []);
-
     const handleView = (offer) => {
         navigate(`/gestionnaire/offres/details`, { state: { offer, from:"/gestionnaire" } });
     };
 
-    const chargerCvs = async () => {
+    const chargerCvs = useCallback(async () => {
         try {
-            const data = await getTousLesCvs();
+            const data = await getCvsEnAttente();
             setCvs(data);
             setError(null);
         } catch (err) {
             setError("error.generic");
         }
-    };
+    }, []);
+
+    const chargerOffres = useCallback(async () => {
+        try {
+            const data = await getOffresEnAttente();
+            setOffres(data || []);
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
+
+    const chargerDonnees = useCallback(() => {
+        chargerCvs();
+        chargerOffres();
+    }, [chargerCvs, chargerOffres]);
+
+    useEffect(() => {
+        chargerDonnees();
+
+        const intervalId = setInterval(() => {
+            chargerDonnees();
+        }, 10000);
+
+        return () => clearInterval(intervalId);
+    }, [chargerDonnees]);
 
     const handleApprove = async (id) => {
         try {

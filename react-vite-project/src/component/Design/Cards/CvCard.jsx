@@ -84,35 +84,34 @@ function CvCard({ cv, onApprove, onReject, isNew = false }) {
                 </div>
             </div>
 
-                <div className="mt-6 border-t border-gray-100 pt-4">
-                    <ul className="flex flex-col gap-2 text-xs">
-                        <li>
-                            <strong className="text-[#043462]">
-                                {t("cv.upload_date")}
-                            </strong>{" "}
-                            : {formaterDate(cv.uploadDate)}
-                        </li>
-                    </ul>
+            <div className="mt-6 border-t border-gray-100 pt-4">
+                <ul className="flex flex-col gap-2 text-xs">
+                    <li>
+                        <strong className="text-[#043462]">
+                            {t("cv.upload_date")}
+                        </strong>{" "}
+                        : {formaterDate(cv.uploadDate)}
+                    </li>
+                </ul>
 
-                    {cv.rejectionComment && (
-                        <div className="mt-4">
-                            <p className="text-xs font-bold text-[#043462]">
-                                {t("cv.previous_rejection_comment")}
-                            </p>
-                            <p className="mt-1 whitespace-pre-line rounded-lg bg-gray-50/70 px-3 py-2 text-sm text-gray-800">
-                                {cv.rejectionComment}
-                            </p>
-                        </div>
-                    )}
-
+                {cv.rejectionComment && (
                     <div className="mt-4">
-                        <ShowDocument
-                            fileName={cv?.fileName}
-                            loadPdfResponse={() => obtenirCvPDFGestionnaire(cv?.id)}
-                        />
+                        <p className="text-xs font-bold text-[#043462]">
+                            {t("cv.previous_rejection_comment")}
+                        </p>
+                        <p className="mt-1 whitespace-pre-line rounded-lg bg-gray-50/70 px-3 py-2 text-sm text-gray-800">
+                            {cv.rejectionComment}
+                        </p>
                     </div>
-                </div>
+                )}
 
+                <div className="mt-4">
+                    <ShowDocument
+                        fileName={cv?.fileName}
+                        loadPdfResponse={() => obtenirCvPDFGestionnaire(cv?.id)}
+                    />
+                </div>
+            </div>
 
             {showCommentaire && !isFinalStatus && (
                 <div className="mt-4 border-t border-red-200 pt-4">

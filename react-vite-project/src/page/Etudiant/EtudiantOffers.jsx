@@ -62,6 +62,11 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
 
     useEffect(() => {
         chargerOffres();
+
+        const intervalId = setInterval(() => {
+            chargerOffres();
+        }, 10000);
+        return () => clearInterval(intervalId);
     }, [chargerOffres]);
 
     return (

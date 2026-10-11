@@ -5,7 +5,6 @@ import { getOffresEmployeur } from "../../api/employeur.jsx";
 import {useOutletContext} from "react-router-dom";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 
 const EmployeurHome = ({user}) => {
     const { t } = useTranslation();
