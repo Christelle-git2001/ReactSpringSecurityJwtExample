@@ -1,18 +1,150 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useOutletContext } from "react-router-dom";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
-import {useTranslation} from "react-i18next";
-import EtudiantOffers from "./EtudiantOffers.jsx";
+import OffreEtudiantCard from "../../component/Design/Cards/OffreEtudiantCard.jsx";
+import SearchBar from "../../component/Design/SearchBar.jsx";
+import FilterBar from "../../component/Design/FilterBar.jsx";
+import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
+import { obtenirOffres } from "../../api/etudiant.jsx";
+import { getDepartmentKey } from "../../utils/departementConverter.js";
+import { isNewSince } from "../../utils/isNewItem.jsx";
 
-const EtudiantHome = ({user}) => {
+const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
+    const { openDrawer } = useOutletContext();
 
-    return(
-      <div className={"h-full px-4 sm:px-6 lg:px-8 py-6"}>
-        <CvOnLandingPage />
-        <h1 className={"welcome-message"}>{t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true"></span></h1>
-        <div className="w-full">
-            <EtudiantOffers user={user} showFilters={false} />
+    const [offres, setOffres] = useState([]);
+    const [selectedTown, setSelectedTown] = useState("TOUS");
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const {
+        searchTerm,
+        setSearchTerm,
+        offresFiltrees: offresFiltreesHook,
+    } = useOffreFilters(offres);
+
+    const handleView = async (offer) => {
+        openDrawer(<OffreDetailsDrawerContent offer={offer} />);
+    };
+
+    const availableTowns = useMemo(() => {
+        const towns = offres
+            .map((o) => o?.employeur?.town)
+            .filter(Boolean);
+        return [...new Set(towns)];
+    }, [offres]);
+
+    const offresFinales = useMemo(() => {
+        return offresFiltreesHook.filter((offer) => {
+            if (selectedTown === "TOUS") return true;
+            return offer?.employeur?.town === selectedTown;
+        });
+    }, [offresFiltreesHook, selectedTown]);
+
+    const chargerOffres = useCallback(async () => {
+        if (!user?.department) return;
+
+        setError(null);
+        try {
+            const data = await obtenirOffres(getDepartmentKey(user.department));
+            setOffres(data || []);
+        } catch (error) {
+            console.error("Erreur lors du chargement des offres:", error);
+            setError("etudiant.offers.error");
+        } finally {
+            setIsInitialLoading(false);
+        }
+    }, [user?.department]);
+
+    useEffect(() => {
+        chargerOffres();
+
+        const intervalId = setInterval(() => {
+            chargerOffres();
+        }, 10000);
+        return () => clearInterval(intervalId);
+    }, [chargerOffres]);
+
+    return (
+        <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
+            <CvOnLandingPage />
+
+            <div className="w-full max-w-7xl">
+                <h1 className="welcome-message text-left">
+                    {t("home.welcome")} {user?.firstName} {user?.lastName}{" "}
+                    <span aria-hidden="true"></span>
+                </h1>
+            </div>
+
+            <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
+                <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    onClear={() => setSearchTerm("")}
+                />
+
+                <FilterBar
+                    selectedTown={selectedTown}
+                    onTownChange={setSelectedTown}
+                    availableTowns={availableTowns}
+                />
+            </div>
+
+            <div className="w-full max-w-7xl">
+                <div className="collapse collapse-arrow bg-transparent">
+                    <input type="checkbox" className="peer" defaultChecked />
+
+                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("nav.view_offers")}
+                    </div>
+
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="w-full px-2 sm:px-4 pb-8">
+                            {isInitialLoading && (
+                                <div className="flex justify-center py-8">
+                                    <span className="loading loading-spinner loading-lg" />
+                                </div>
+                            )}
+
+                            {!isInitialLoading && error && (
+                                <EmptyContentMessage
+                                    message={t("etudiant.offers.cv_approval_required")}
+                                    textClassName="text-gray-500 font-medium"
+                                />
+                            )}
+
+                            {!isInitialLoading && !error && (
+                                offresFinales.length === 0 ? (
+                                    <EmptyContentMessage
+                                        message={
+                                            offres.length === 0
+                                                ? t("offre.no_offers")
+                                                : t("offre.no_matching_offers")
+                                        }
+                                    />
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full mt-4">
+                                        {offresFinales.map((offer) => (
+                                            <OffreEtudiantCard
+                                                key={offer.id}
+                                                offer={offer}
+                                                onView={handleView}
+                                                isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
+                                            />
+                                        ))}
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-  );
-}
+    );
+};
+
 export default EtudiantHome;

@@ -1,26 +1,78 @@
-import {FiArrowRight} from "react-icons/fi";
-import {Link} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
+import { useTranslation } from "react-i18next";
+import EtudiantOffers from "./EtudiantOffers.jsx";
+import FilterBar from "../../component/Design/FilterBar.jsx";
+import { getOffresEtudiant } from "../../api/etudiant.jsx"; // <-- tu dois avoir cette API
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 
-const CardEtudiant = ({ title, description, Icon, linkTo }) => {
+const EtudiantHome = ({ user }) => {
+    const { t } = useTranslation();
+
+    const [offres, setOffres] = useState([]);
+
+    // Charger les offres étudiant
+    useEffect(() => {
+        getOffresEtudiant()
+            .then((res) => setOffres(res))
+            .catch((err) => console.error(err));
+    }, []);
+
+    // Filtrage uniquement par lieu
+    const {
+        selectedTown,
+        setSelectedTown,
+        availableTowns,
+        offresFiltrees,
+    } = useOffreFilters(offres, { filterByTownOnly: true });
+
     return (
-        <div className="card m-5 lg:card-side bg-base-100 shadow-sm flex h-64">
-            <div className="flex items-center justify-center lg:w-1/3 h-full bg-[#0FFFDF]/30 text-[#043462]">
-                {Icon && <Icon className="w-20 h-20" />}
-            </div>
-            <div className="card-body flex flex-col justify-between">
-                <h2 className="card-title text-center">{title}</h2>
-                <p className="flex-grow">{description}</p>
+        <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
 
-                <div className="card-actions justify-end">
-                    <Link
-                        to={linkTo}
-                        className="w-full rounded-full bg-[#0FFFDF]/30 flex items-center justify-center">
-                        <FiArrowRight className="size-6 my-1.5 text-[#043462]" />
-                    </Link>
+            {/* CV */}
+            <div className="w-full max-w-7xl mb-6">
+                <CvOnLandingPage />
+            </div>
+
+            {/* TITRE */}
+            <div className="w-full max-w-7xl">
+                <h1 className="welcome-message text-left">
+                    {t("home.welcome")} {user?.firstName} {user?.lastName}
+                </h1>
+            </div>
+
+            {/* FILTRE PAR LIEU */}
+            <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
+                <FilterBar
+                    selectedTown={selectedTown}
+                    onTownChange={setSelectedTown}
+                    availableTowns={availableTowns}
+                    selectedStatus={undefined}
+                    selectedDomain={undefined}
+                    className="bg-transparent border-none shadow-none"
+                />
+            </div>
+
+            {/* OFFRES ÉTUDIANT — collapse style employeur */}
+            <div className="w-full max-w-7xl">
+                <div className="collapse collapse-arrow bg-transparent">
+                    <input type="checkbox" className="peer" defaultChecked />
+
+                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("nav.view_offers")}
+                    </div>
+
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <EtudiantOffers
+                            user={user}
+                            filteredOffers={offresFiltrees}
+                        />
+                    </div>
                 </div>
             </div>
+
         </div>
     );
 };
 
-export default CardEtudiant;
+export default EtudiantHome;
