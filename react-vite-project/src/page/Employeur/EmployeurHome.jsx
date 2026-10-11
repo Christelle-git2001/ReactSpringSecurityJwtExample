@@ -1,50 +1,107 @@
-import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import { getOffresEmployeur } from "../../api/employeur.jsx";
-import {useOutletContext} from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import SearchBar from "../../component/Design/SearchBar.jsx";
+import FilterBar from "../../component/Design/FilterBar.jsx";
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
-const EmployeurHome = ({user}) => {
+const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
-    const [offresEnAttente, setOffresEnAttente] = useState([]);
-
     const { openDrawer } = useOutletContext();
+    const navigate = useNavigate();
 
-    const handleView = (offer) => {
+    const [offres, setOffres] = useState([]);
+
+    const {
+        searchTerm,
+        setSearchTerm,
+        selectedStatus,
+        setSelectedStatus,
+        selectedDomain,
+        setSelectedDomain,
+        availableDomains,
+        offresFiltrees,
+    } = useOffreFilters(offres);
+
+    const handleView = async (offer) => {
         openDrawer(<OffreDetailsDrawerContent offer={offer} />);
+    };
+
+    const handleEdit = (offer) => {
+        navigate("/employeur/offres/modifier", {
+            state: { offer }
+        });
     };
 
     useEffect(() => {
         getOffresEmployeur()
-            .then((offres) => {
-                const enAttente = (offres || []).filter(
-                    (offer) => offer.statut === "EN_ATTENTE"
-                );
-                setOffresEnAttente(enAttente);
-            })
+            .then((res) => setOffres(res))
             .catch((err) => console.error(err));
     }, []);
 
-    return(
-        <div className={"pt-5 h-full"}>
-            <h1 className={"welcome-message"}>{t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span></h1>
-            <h2 className="text-2xl font-bold text-[#043462] mb-6 text-center">{t("offre.pending_offers")}</h2>
+    return (
+        <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
+            <div className="w-full max-w-7xl">
+                <h1 className="welcome-message text-left">
+                    {t("home.welcome")} {user?.firstName} {user?.lastName}
+                </h1>
+            </div>
+            <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
+                <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    onClear={() => setSearchTerm("")}
+                />
 
-            {offresEnAttente.length === 0 ? (
-                <EmptyContentMessage message={t("offre.no_pending_offers")} />
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full">
-                    {offresEnAttente.map((offer) => (
-                        <OffreStageCard
-                            key={offer.id}
-                            offer={offer}
-                            onView={handleView}
-                        />
-                    ))}
+                <FilterBar
+                    selectedStatus={selectedStatus}
+                    onStatusChange={setSelectedStatus}
+                    selectedDomain={selectedDomain}
+                    onDomainChange={setSelectedDomain}
+                    availableDomains={availableDomains}
+                />
+            </div>
+            <div className="w-full max-w-7xl">
+                <div className="collapse collapse-arrow bg-transparent">
+                    <input type="checkbox" className="peer" defaultChecked />
+
+                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("nav.view_offers")}
+                    </div>
+
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="w-full px-2 sm:px-4 pb-8">
+
+                            {offresFiltrees.length === 0 ? (
+                                <EmptyContentMessage
+                                    message={
+                                        offres.length === 0
+                                            ? t("offre.no_offers")
+                                            : t("offre.no_matching_offers")
+                                    }
+                                />
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full mt-4">
+                                    {offresFiltrees.map((offer) => (
+                                        <OffreStageCard
+                                            key={offer.id}
+                                            offer={offer}
+                                            onView={handleView}
+                                            onEdit={handleEdit}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
                 </div>
-            )}
+            </div>
+
         </div>
     );
 };
