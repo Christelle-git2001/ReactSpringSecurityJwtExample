@@ -77,7 +77,6 @@ function OfferDetails({ offre: offreProp }) {
 
     return (
         <div className="w-full max-w-2xl mx-auto p-4 md:p-8">
-            {/* Remplacement de <form> par <div> */}
             <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8">
                 <h2 className="mb-6 text-xl font-bold text-[#043462]">
                     {t("offre.details_title")}
