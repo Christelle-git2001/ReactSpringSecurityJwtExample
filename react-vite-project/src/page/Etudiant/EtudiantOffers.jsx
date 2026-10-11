@@ -17,6 +17,8 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
     const [selectedTown, setSelectedTown] = useState("TOUS");
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null)
+    const showInitialSpinner = showFilters;
+    const hasDepartment = Boolean(user?.department);
 
     const { openDrawer } = useOutletContext();
 
@@ -45,28 +47,31 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
     }, [offresFiltreesHook, selectedTown]);
 
     const chargerOffres = useCallback(async () => {
-        if (!user?.department) return
+        if (!user?.department) return;
 
-        setError(null);
         try {
             const data = await obtenirOffres(getDepartmentKey(user.department));
             setOffres(data || []);
+            setError(null);
         } catch (error) {
             console.error("Erreur lors du chargement des offres:", error);
             setError("etudiant.offers.error");
-        } finally {
-            setIsInitialLoading(false);
         }
     }, [user?.department]);
 
     useEffect(() => {
-        chargerOffres();
+        if (!hasDepartment) {
+            setIsInitialLoading(true);
+            return;
+        }
+
+        chargerOffres().finally(() => setIsInitialLoading(false));
 
         const intervalId = setInterval(() => {
             chargerOffres();
         }, 10000);
         return () => clearInterval(intervalId);
-    }, [chargerOffres]);
+    }, [chargerOffres, hasDepartment]);
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center">
@@ -86,20 +91,20 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
             )}
 
             <div className="w-full">
-                {isInitialLoading && (
+                {isInitialLoading && showInitialSpinner && (
                     <div className="flex justify-center py-8">
                         <span className="loading loading-spinner loading-lg" />
                     </div>
                 )}
 
-                {!isInitialLoading && error && (
+                {!isInitialLoading && hasDepartment && error && (
                     <EmptyContentMessage
                         message={t("etudiant.offers.cv_approval_required")}
                         textClassName="text-gray-500 font-medium"
                     />
                 )}
 
-                {!isInitialLoading && !error && (
+                {!isInitialLoading && hasDepartment && !error && (
                     offresFinales.length === 0 ? (
                         <EmptyContentMessage
                             message={
