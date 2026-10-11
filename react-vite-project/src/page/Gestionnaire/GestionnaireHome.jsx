@@ -5,6 +5,7 @@ import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import {approuverCv, getOffresEnAttente, getTousLesCvs, refuserCv} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import {isNewSince} from "../../utils/isNewItem.jsx";
 
 const GestionnaireHome = ({user}) => {
     const { t } = useTranslation();
@@ -61,7 +62,13 @@ const GestionnaireHome = ({user}) => {
                     <EmptyContentMessage message={t("cv.none_pending")} />
                 )}
                 {cvs.map((cv) => (
-                    <CvCard key={cv.id} cv={cv} onApprove={handleApprove} onReject={handleReject} />
+                    <CvCard
+                        key={cv.id}
+                        cv={cv}
+                        onApprove={handleApprove}
+                        onReject={handleReject}
+                        isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
+                    />
                 ))}
             </div>
 
@@ -71,7 +78,12 @@ const GestionnaireHome = ({user}) => {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center w-full">
                 {offres.map((offer) => (
-                    <OffreStageCard key={offer.id} offer={offer} onView={handleView} />
+                    <OffreStageCard
+                        key={offer.id}
+                        offer={offer}
+                        onView={handleView}
+                        isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
+                    />
                 ))}
             </div>
 

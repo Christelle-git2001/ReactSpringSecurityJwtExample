@@ -86,7 +86,8 @@
     "keep_file_note": "Laissez vide si vous ne souhaitez pas modifier le document actuel."
   },
   "common": {
-    "not_provided": "Non renseigné"
+    "not_provided": "Non renseigné",
+    "new_label" : "Nouveau"
   },
   "actions": {
     "active": "Actif",

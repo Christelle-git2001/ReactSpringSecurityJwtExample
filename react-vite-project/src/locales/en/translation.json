@@ -86,7 +86,8 @@
     "keep_file_note": "Leave empty if you do not want to modify the current document."
   },
   "common": {
-    "not_provided": "Not provided"
+    "not_provided": "Not provided",
+    "new_label" : "New"
   },
   "actions": {
     "active": "Active",

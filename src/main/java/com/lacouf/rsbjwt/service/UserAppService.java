@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -27,6 +28,15 @@ public class UserAppService {
     public String authenticateUser(LoginDTO loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password()));
+
+        UserApp user = userAppRepository
+                .findUserAppByEmail(loginDto.email())
+                .orElseThrow(UserNotFoundException::new);
+
+        user.setPreviousLoginAt(user.getLastLoginAt());
+        user.setLastLoginAt(LocalDateTime.now());
+        userAppRepository.save(user);
+
         final String token = jwtTokenProvider.generateToken(authentication);
         System.out.println("JWT Token " + token);
         return token;

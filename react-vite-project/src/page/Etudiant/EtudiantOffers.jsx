@@ -9,19 +9,22 @@ import { getDepartmentKey } from "../../utils/departementConverter.js";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import {useOutletContext} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import {isNewSince} from "../../utils/isNewItem.jsx";
 
 const EtudiantOffers = ({ user, showFilters = true }) => {
     const { t } = useTranslation();
     const [offres, setOffres] = useState([]);
     const [selectedTown, setSelectedTown] = useState("TOUS");
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null)
+
+    const { openDrawer } = useOutletContext();
 
     const {
         searchTerm,
         setSearchTerm,
         offresFiltrees: offresFiltreesHook,
     } = useOffreFilters(offres);
-
-    const { openDrawer } = useOutletContext();
 
     const handleView = async (offer) => {
         openDrawer(<OffreDetailsDrawerContent offer={offer} />);
@@ -108,6 +111,7 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
                                     key={offer.id}
                                     offer={offer}
                                     onView={handleView}
+                                    isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
                                 />
                             ))}
                         </div>

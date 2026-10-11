@@ -5,8 +5,9 @@ import { formaterDate, formaterTailleFichier } from "../../../utils/cvFormatters
 import ShowDocument from "../../PDF/ShowDocument.jsx";
 import { obtenirCvPDFGestionnaire } from "../../../api/gestionnaire.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import NewLabel from "../NewLabel.jsx";
 
-function CvCard({ cv, onApprove, onReject }) {
+function CvCard({ cv, onApprove, onReject, isNew = false }) {
     const { t } = useTranslation();
     const [error, setError] = useState(null);
     const [showCommentaire, setShowCommentaire] = useState(false);
@@ -43,7 +44,9 @@ function CvCard({ cv, onApprove, onReject }) {
     };
 
     return (
-        <div className="rounded-xl border border-base-300 bg-base-100 p-5 mt-5 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+        <div className="relative overflow-visible rounded-xl border border-base-300 bg-base-100 p-5 mt-5 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <NewLabel isNew={isNew} />
+
             <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                     <div className="mb-2">
@@ -83,13 +86,6 @@ function CvCard({ cv, onApprove, onReject }) {
 
                 <div className="mt-6 border-t border-gray-100 pt-4">
                     <ul className="flex flex-col gap-2 text-xs">
-                        <li>
-                            <strong className="text-[#043462]">
-                                {t("cv. file_size")}
-                            </strong>{" "}
-                            : {formaterTailleFichier(cv.fileSize)}
-                        </li>
-
                         <li>
                             <strong className="text-[#043462]">
                                 {t("cv.upload_date")}

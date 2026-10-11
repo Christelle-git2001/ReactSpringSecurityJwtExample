@@ -1,10 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react"
-import CardEtudiant from "../../component/Design/Cards/OffreStageCard.jsx";
+import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import { getOffresEmployeur } from "../../api/employeur.jsx";
 import {useOutletContext} from "react-router-dom";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 
 const EmployeurHome = ({user}) => {
     const { t } = useTranslation();
@@ -37,7 +38,7 @@ const EmployeurHome = ({user}) => {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full">
                     {offresEnAttente.map((offer) => (
-                        <CardEtudiant
+                        <OffreStageCard
                             key={offer.id}
                             offer={offer}
                             onView={handleView}
