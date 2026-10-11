@@ -4,6 +4,7 @@ import CardEtudiant from "../../component/Design/Cards/OffreStageCard.jsx";
 import { getOffresEmployeur } from "../../api/employeur.jsx";
 import {useOutletContext} from "react-router-dom";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
+import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
 const EmployeurHome = ({user}) => {
     const { t } = useTranslation();
@@ -32,9 +33,7 @@ const EmployeurHome = ({user}) => {
             <h2 className="text-2xl font-bold text-[#043462] mb-6 text-center">{t("offre.pending_offers")}</h2>
 
             {offresEnAttente.length === 0 ? (
-                <p className="text-gray-500 font-medium text-center">
-                    {t("offre.no_pending_offers")}
-                </p>
+                <EmptyContentMessage message={t("offre.no_pending_offers")} />
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full">
                     {offresEnAttente.map((offer) => (

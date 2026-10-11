@@ -8,6 +8,7 @@ import { obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import {useOutletContext} from "react-router-dom";
+import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
 const ViewOffers = ({ user, showFilters = true }) => {
     const { t } = useTranslation();
@@ -84,22 +85,21 @@ const ViewOffers = ({ user, showFilters = true }) => {
                 )}
 
                 {etat === "erreur" && (
-                    <div className="items-center flex justify-center w-full py-8">
-                        <p className="text-red-500 font-medium">
-                            {t("etudiant.offers.error") || t("offre.no_offers")}
-                        </p>
-                    </div>
+                    <EmptyContentMessage
+                        message={t("etudiant.offers.error")}
+                        textClassName="text-red-500 font-medium"
+                    />
                 )}
 
                 {etat === "ok" && (
                     offresFinales.length === 0 ? (
-                        <div className="items-center flex justify-center w-full py-8">
-                            <p className="text-gray-500 font-medium">
-                                {offres.length === 0
+                        <EmptyContentMessage
+                            message={
+                                offres.length === 0
                                     ? t("offre.no_offers")
-                                    : t("offre.no_matching_offers")}
-                            </p>
-                        </div>
+                                    : t("offre.no_matching_offers")
+                            }
+                        />
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full">
                             {offresFinales.map((offer) => (

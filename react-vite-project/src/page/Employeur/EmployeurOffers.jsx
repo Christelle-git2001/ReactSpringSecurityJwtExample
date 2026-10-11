@@ -7,6 +7,7 @@ import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import OffreDetailsDrawerContent  from "../../component/Offer/OffreDetailsDrawerContent.jsx";
+import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
 const EmployeurOffers = () => {
     const { t } = useTranslation();
@@ -61,13 +62,13 @@ const EmployeurOffers = () => {
             </div>
             <div className="w-full px-2 sm:px-4 pb-8">
                 {offresFiltrees.length === 0 ? (
-                    <div className="items-center flex justify-center w-full py-8">
-                        <p className="text-gray-500 font-medium">
-                            {offres.length === 0
+                    <EmptyContentMessage
+                        message={
+                            offres.length === 0
                                 ? t("offre.no_offers")
-                                : t("offre.no_matching_offers")}
-                        </p>
-                    </div>
+                                : t("offre.no_matching_offers")
+                        }
+                    />
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full">
                         {offresFiltrees.map((offer) => (

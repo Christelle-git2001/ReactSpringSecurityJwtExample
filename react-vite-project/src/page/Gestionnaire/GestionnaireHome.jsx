@@ -4,6 +4,7 @@ import CvCard from "../../component/Design/Cards/CvCard.jsx";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import {approuverCv, getOffresEnAttente, getTousLesCvs, refuserCv} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
+import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
 const GestionnaireHome = ({user}) => {
     const { t } = useTranslation();
@@ -57,7 +58,7 @@ const GestionnaireHome = ({user}) => {
 
             <div className="space-y-4 w-full max-w-4xl mx-auto mb-10">
                 {cvs.length === 0 && !error && (
-                    <p className="text-center opacity-70">{t("cv.none_pending")}</p>
+                    <EmptyContentMessage message={t("cv.none_pending")} />
                 )}
                 {cvs.map((cv) => (
                     <CvCard key={cv.id} cv={cv} onApprove={handleApprove} onReject={handleReject} />
@@ -66,7 +67,7 @@ const GestionnaireHome = ({user}) => {
 
             <h2 className="text-2xl font-bold mb-4 text-center">{t("offre.pending_offers")}</h2>
             {offres.length === 0 && (
-                <p className="text-center opacity-70">{t("offre.no_offers")}</p>
+                <EmptyContentMessage message={t("offre.no_offers")} />
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center w-full">
                 {offres.map((offer) => (
