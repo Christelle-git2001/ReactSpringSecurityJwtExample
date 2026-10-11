@@ -79,6 +79,14 @@ public class GestionnaireService {
                 .toList();
     }
 
+    public List<OffreDeStageDTO> getToutesLesOffres() {
+        return offreDeStageRepository
+                .findAll()
+                .stream()
+                .map(OffreDeStageDTO::of)
+                .toList();
+    }
+
     @Transactional
     public OffreDeStageDTO approuverOffre (Long id)
             throws OffreIntrouvableException, OffreNonEnAttenteException {

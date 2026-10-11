@@ -43,6 +43,12 @@ public class GestionnaireController {
         return ResponseEntity.ok(offres);
     }
 
+    @GetMapping("/offres/toutes")
+    public ResponseEntity<List<OffreDeStageDTO>> getToutesLesOffres() {
+        List<OffreDeStageDTO> offres = gestionnaireService.getToutesLesOffres();
+        return ResponseEntity.ok(offres);
+    }
+
     @PutMapping("/offres/{id}/approuver")
     public ResponseEntity<OffreDeStageDTO> approveOffer(
             @PathVariable Long id
