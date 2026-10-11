@@ -1,14 +1,23 @@
 import { useTranslation } from "react-i18next";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import DashboardSummaryCard from "../../component/Design/Cards/Dashboard/DashboardSummaryCard.jsx";
 import DashboardCvItem from "../../component/Design/Cards/Dashboard/DashboardCvItem.jsx";
 import DashboardOfferItem from "../../component/Design/Cards/Dashboard/DashboardOfferItem.jsx";
-import RecentActivitySection from "../../component/Design/Cards/Dashboard/RecentActivitySection.jsx";
 import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import {isNewSince} from "../../utils/isNewItem.jsx";
 import {FaBriefcase, FaFileAlt} from "react-icons/fa";
+import {FiChevronDown, FiChevronUp} from "react-icons/fi";
+
+const trierParDateDesc = (items, getDate) => {
+    return [...items].sort((itemA, itemB) => {
+        const dateA = new Date(getDate(itemA) || 0).getTime();
+        const dateB = new Date(getDate(itemB) || 0).getTime();
+
+        return dateB - dateA;
+    });
+};
 
 const GestionnaireHome = ({user}) => {
     const { t } = useTranslation();
@@ -17,6 +26,17 @@ const GestionnaireHome = ({user}) => {
     const [offres, setOffres] = useState([]);
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [showRecentActivity, setShowRecentActivity] = useState(true);
+
+    const cvsRecents = useMemo(
+        () => trierParDateDesc(cvs, (cv) => cv.uploadDate),
+        [cvs]
+    );
+
+    const offresRecentes = useMemo(
+        () => trierParDateDesc(offres, (offer) => offer.createdAt),
+        [offres]
+    );
 
     const viewCvInList = (cv) => {
         navigate("/gestionnaire/cvs/attente", { state: { targetItemId: cv.id } });
@@ -92,14 +112,60 @@ const GestionnaireHome = ({user}) => {
                     />
                 </div>
 
-                <RecentActivitySection
-                    cvs={cvs}
-                    offres={offres}
-                    isInitialLoading={isInitialLoading}
-                    user={user}
-                    onViewCv={viewCvInList}
-                    onViewOffer={viewOfferInList}
-                />
+                <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                        <h2 className="text-lg font-bold text-[#043462]">
+                            {t("dashboard.recent_activity")}
+                        </h2>
+                        <button
+                            type="button"
+                            onClick={() => setShowRecentActivity((current) => !current)}
+                            className="btn btn-circle btn-sm border-none bg-gray-50 text-[#043462] hover:bg-gray-100"
+                            aria-label={
+                                showRecentActivity
+                                    ? t("actions.collapse")
+                                    : t("actions.expand")
+                            }
+                        >
+                            {showRecentActivity ? (
+                                <FiChevronUp className="size-4" />
+                            ) : (
+                                <FiChevronDown className="size-4" />
+                            )}
+                        </button>
+                    </div>
+                    <div className="mb-4 h-px w-full bg-[#043462]" />
+
+                    {showRecentActivity && (
+                        <div className="space-y-3">
+                            {cvsRecents.slice(0, 3).map((cv) => (
+                                <DashboardCvItem
+                                    key={`cv-${cv.id}`}
+                                    cv={cv}
+                                    onClick={() => viewCvInList(cv)}
+                                    variant="row"
+                                    isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
+                                    actionLabel={t("dashboard.view_cv")}
+                                />
+                            ))}
+
+                            {offresRecentes.slice(0, 3).map((offer) => (
+                                <DashboardOfferItem
+                                    key={`offer-${offer.id}`}
+                                    offer={offer}
+                                    onClick={() => viewOfferInList(offer)}
+                                    variant="row"
+                                    isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
+                                    actionLabel={t("dashboard.view_offer")}
+                                />
+                            ))}
+
+                            {!isInitialLoading && cvs.length === 0 && offres.length === 0 && (
+                                <EmptyContentMessage message={t("dashboard.no_recent_activity")} />
+                            )}
+                        </div>
+                    )}
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
@@ -122,7 +188,7 @@ const GestionnaireHome = ({user}) => {
                                 <EmptyContentMessage message={t("cv.none_pending")} />
                             )}
 
-                            {cvs.slice(0, 3).map((cv) => (
+                            {cvsRecents.slice(0, 3).map((cv) => (
                                 <DashboardCvItem
                                     key={cv.id}
                                     cv={cv}
@@ -154,7 +220,7 @@ const GestionnaireHome = ({user}) => {
                                 <EmptyContentMessage message={t("offre.no_offers")} />
                             )}
 
-                            {offres.slice(0, 3).map((offer) => (
+                            {offresRecentes.slice(0, 3).map((offer) => (
                                 <DashboardOfferItem
                                     key={offer.id}
                                     offer={offer}
