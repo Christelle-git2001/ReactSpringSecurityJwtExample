@@ -91,9 +91,9 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15),
-                LocalDate.of(2026, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
 
         offreDeStage = OffreDeStage.builder()
@@ -102,9 +102,9 @@ public class EmployeurServiceTest {
                 .salary(19.25)
                 .domain(Departement.INFORMATIQUE)
                 .statut(Statut.EN_ATTENTE)
-                .startDate(LocalDate.of(2026, 10, 1))
-                .endDate(LocalDate.of(2026, 10, 15))
-                .displayEndDate(LocalDate.of(2026, 10, 1).minusDays(15))
+                .startDate(LocalDate.of(2029, 10, 1))
+                .endDate(LocalDate.of(2029, 10, 15))
+                .displayEndDate(LocalDate.of(2029, 10, 1).minusDays(15))
                 .employeur(employeur)
                 .build();
         ReflectionTestUtils.setField(offreDeStage, "id", 1L);
@@ -175,9 +175,9 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 15),
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15).minusDays(15)
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15).minusDays(15)
         );
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
@@ -194,9 +194,9 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2027, 01, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 01, 1).minusDays(15)
         );
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
@@ -214,9 +214,9 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2027, 02, 1),
-                LocalDate.of(2027, 02, 26),
-                LocalDate.of(2027, 02, 15)
+                LocalDate.of(2029, 02, 1),
+                LocalDate.of(2029, 02, 26),
+                LocalDate.of(2029, 02, 15)
         );
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
@@ -233,8 +233,8 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2027, 02, 1),
-                LocalDate.of(2027, 02, 26),
+                LocalDate.of(2029, 02, 1),
+                LocalDate.of(2029, 02, 26),
                 LocalDate.now().minusDays(1)
         );
 
