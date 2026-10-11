@@ -6,7 +6,7 @@ import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
-import {getStatusConfig} from "../../../utils/getStatusConfig.jsx";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import NewLabel from "../NewLabel.jsx";
 
 function OffreStageCard({ offer, onView, onEdit, isNew = false }) {
@@ -42,7 +42,7 @@ function OffreStageCard({ offer, onView, onEdit, isNew = false }) {
 
     return (
         <>
-            <div className="card w-96 bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                 <NewLabel isNew={isNew} />
 
                 <div className="card-body">
@@ -63,7 +63,6 @@ function OffreStageCard({ offer, onView, onEdit, isNew = false }) {
                                 type="button"
                                 onClick={() => onEdit?.(offer)}
                                 className="btn btn-ghost btn-xs btn-circle text-base-content/70 hover:text-primary"
-                                aria-label={t("offre.edit")}
                             >
                                 <FiEdit className="size-4" />
                             </button>
