@@ -48,6 +48,7 @@ function RecentActivityBoardItem({
                 className="w-full flex items-center justify-between rounded-lg p-3 text-left hover:bg-gray-50"
                 aria-label={ariaLabel}
             >
+                <NewLabel isNew={isNew} />
                 <div className="flex min-w-0 items-center gap-3">
                     <div className={`size-10 shrink-0 rounded-full flex items-center justify-center ${styles.icon}`}>
                         {icon}
