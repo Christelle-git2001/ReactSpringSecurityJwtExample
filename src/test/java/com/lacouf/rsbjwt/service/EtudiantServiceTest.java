@@ -389,8 +389,9 @@ public class EtudiantServiceTest {
         offre.setDescription("Développement d'applications");
         offre.setSalary(25.0);
         offre.setDomain(Departement.INFORMATIQUE);
-        offre.setStartDate(LocalDate.of(2026, 1, 1));
-        offre.setEndDate(LocalDate.of(2026, 4, 30));
+        offre.setStartDate(LocalDate.of(2029, 1, 1));
+        offre.setEndDate(LocalDate.of(2029, 4, 30));
+        offre.setDisplayEndDate(LocalDate.of(2029, 1, 1).minusDays(15));
         offre.setStatut(Statut.ACCEPTEE);
         offre.setEmployeur(employeur);
 

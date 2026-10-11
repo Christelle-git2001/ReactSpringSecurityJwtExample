@@ -31,8 +31,8 @@ public class CvEtudiant {
     @Column
     private String rejectionComment;
 
-    @ManyToOne
-    @JoinColumn(name = "etudiant_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "etudiant_id", nullable = false, unique = true)
     private Etudiant etudiant;
 
     @Builder

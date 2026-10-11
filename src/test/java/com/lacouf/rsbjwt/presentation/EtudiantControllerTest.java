@@ -87,7 +87,8 @@ public class EtudiantControllerTest {
                 "christelle@gmail.com",
                 "2226252",
                 "438-297-8191",
-                "INFORMATIQUE"
+                "INFORMATIQUE",
+                null
         );
     }
 
@@ -101,7 +102,8 @@ public class EtudiantControllerTest {
                 "christelle@gmail.com",
                 "2226252",
                 "438-297-8191",
-                "INFORMATIQUE"
+                "INFORMATIQUE",
+                null
         );
 
         when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
@@ -279,10 +281,11 @@ public class EtudiantControllerTest {
                 "Développement d'applications",
                 25.0,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 4, 30),
-                LocalDate.of(2026, 1, 1).minusDays(15),
+                LocalDate.of(2029, 1, 1),
+                LocalDate.of(2029, 4, 30),
+                LocalDate.of(2029, 1, 1).minusDays(15),
                 Statut.ACCEPTEE,
+                null,
                 null,
                 null,
                 null

@@ -5,7 +5,9 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -46,6 +48,13 @@ public class OffreDeStage {
     private String fileName;
     private String storagePath;
 
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     @ManyToOne
     @JoinColumn(name = "employeur_id")
     private Employeur employeur;
@@ -65,7 +74,8 @@ public class OffreDeStage {
             String fileName,
             String storagePath,
             Employeur employeur,
-            String rejectionComment
+            String rejectionComment,
+            LocalDateTime createdAt
     ) {
         this.title = title;
         this.description = description;
@@ -79,6 +89,6 @@ public class OffreDeStage {
         this.employeur = employeur;
         this.storagePath = storagePath;
         this.rejectionComment = rejectionComment;
+        this.createdAt = createdAt;
     }
-
 }

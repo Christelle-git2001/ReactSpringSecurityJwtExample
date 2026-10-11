@@ -1,78 +1,89 @@
-import React, { useState, useEffect } from "react";
-import {getOffresEnAttente} from "../../api/gestionnaire.jsx";
+import { useCallback, useState } from "react";
+import { getToutesLesOffres } from "../../api/gestionnaire.jsx";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import Card from "../../component/Design/Cards/Card.jsx";
+import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
-import {useOffreFilters} from "../../utils/useOffreFilters.jsx";
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import AddOfferRapide from "../../config/AddOfferRapide.jsx";
+import GestionnaireItemsPage, { useGestionnaireItems } from "../../utils/GestionnaireItemsPage.jsx";
 
 const GestionnaireOffers = () => {
-    const { t } = useTranslation();
-    const [offres, setOffres] = useState([]);
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        getOffresEnAttente().then((res) => {setOffres(res);})
-            .catch((err) => console.log(err));
+    const handleLoadError = useCallback((err) => {
+        setError(err ? "error.generic" : null);
     }, []);
 
+    const {
+        items: offres,
+        reloadItems: chargerOffres,
+        targetItemId: targetOfferId,
+    } = useGestionnaireItems({
+        fetchItems: getToutesLesOffres,
+        targetParamName: "offerId",
+        targetElementPrefix: "offer",
+        onError: handleLoadError,
+    });
+
     const handleView = (offer) => {
-        navigate(`/gestionnaire/offres/details`, { state: { offer, from:"/gestionnaire/offersy" } });
+        navigate("/gestionnaire/offres/details", { state: { offer, from: "/gestionnaire/offers" } });
     };
 
     const {
         searchTerm,
         setSearchTerm,
+        selectedStatus,
+        setSelectedStatus,
         selectedDomain,
         setSelectedDomain,
         availableDomains,
         offresFiltrees,
     } = useOffreFilters(offres);
 
-
+    const offresAffichees = targetOfferId && !offresFiltrees.some((offer) => offer.id === targetOfferId)
+        ? [
+            ...offres.filter((offer) => offer.id === targetOfferId),
+            ...offresFiltrees,
+        ]
+        : offresFiltrees;
 
     return (
-        <>
-            <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center">
-                <div className="w-full max-w-4xl space-y-4 mb-6">
+        <GestionnaireItemsPage
+            controls={
+                <>
                     <SearchBar
                         value={searchTerm}
                         onChange={setSearchTerm}
                         onClear={() => setSearchTerm("")}
                     />
                     <FilterBar
+                        selectedStatus={selectedStatus}
+                        onStatusChange={setSelectedStatus}
                         selectedDomain={selectedDomain}
                         onDomainChange={setSelectedDomain}
                         availableDomains={availableDomains}
                     />
-                </div>
-                <div className="w-full">
-                    <AddOfferRapide/>
-                    {offresFiltrees.length === 0 ? (
-                        <div className="items-center flex justify-center w-full py-8">
-                            <p className="text-gray-500 font-medium">
-                                {offres.length === 0
-                                    ? t("offre.no_offers")
-                                    : t("offre.no_matching_offers")}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full ">
-                            {offresFiltrees.map((offer) => (
-                                <Card
-                                    key={offer.id}
-                                    offer={offer}
-                                    onView={handleView}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-            </div>
-        </>
+                </>
+            }
+            errorMessage={error}
+            items={offres}
+            displayedItems={offresAffichees}
+            targetItemId={targetOfferId}
+            targetElementPrefix="offer"
+            emptyItemsMessageKey="offre.no_offers"
+            emptyFilteredMessageKey="offre.no_matching_offers"
+            beforeList={<AddOfferRapide onCreated={chargerOffres}/>}
+            listClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center justify-items-center w-full"
+            renderItem={(offer) => (
+                <OffreStageCard
+                    offer={offer}
+                    onView={handleView}
+                />
+            )}
+        />
     );
 }
+
 export default GestionnaireOffers;

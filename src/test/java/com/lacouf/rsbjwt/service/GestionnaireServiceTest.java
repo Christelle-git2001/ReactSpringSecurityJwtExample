@@ -21,10 +21,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -37,8 +34,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class GestionnaireServiceTest {
@@ -62,7 +57,7 @@ class GestionnaireServiceTest {
 
     @InjectMocks
     private GestionnaireService gestionnaireService;
-    private GestionnaireDto gestionnaireDto;
+    private GestionnaireDTO gestionnaireDto;
     private Gestionnaire gestionnaire;
     private CvEtudiant cvEtudiant;
     private Etudiant etudiant;
@@ -70,7 +65,7 @@ class GestionnaireServiceTest {
 
     @BeforeEach
     void setUp(){
-        gestionnaireDto = new GestionnaireDto(-6L,"Laurent","losange","Laurent.Losange@hotmail.com","458-458-4584","5858");
+        gestionnaireDto = new GestionnaireDTO(-6L,"Laurent","losange","Laurent.Losange@hotmail.com","458-458-4584","5858", null);
         gestionnaire = new Gestionnaire(1L,"Laurent","losange","Laurent.Losange@hotmail.com","5858","458-458-4584");
         gestionnaire.setId(1L);
         etudiant = new Etudiant("pascal","losange","pascal.losange@hotmail.com","585-585-5858", Departement.INFORMATIQUE,"5858585","5858");
@@ -102,7 +97,7 @@ class GestionnaireServiceTest {
     void doitCreerCompteGestionnaire() throws EmailExistantException, NumeroTelephoneExistantException {
         when(gestionnaireRepository.save(any(Gestionnaire.class))).thenReturn(gestionnaire);
 
-        GestionnaireDto gestionnaireDtoBD = gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+        GestionnaireDTO gestionnaireDtoBD = gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
 
         assertThat(gestionnaireDtoBD).isNotNull().satisfies(dto -> {
                 assertThat(dto.email()).isEqualTo(gestionnaire.getEmail());

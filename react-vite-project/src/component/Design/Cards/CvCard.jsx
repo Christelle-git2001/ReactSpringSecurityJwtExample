@@ -1,12 +1,13 @@
 import React, {useState} from "react";
-import Button from "../Design/Button.jsx";
+import Button from "../Button.jsx";
 import { useTranslation } from "react-i18next";
-import { formaterDate, formaterTailleFichier } from "../../utils/cvFormatters.jsx";
-import ShowDocument from "../PDF/ShowDocument.jsx";
-import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
-import { getCvStatusConfig } from "../../utils/cvStatusConfig.jsx";
+import { formaterDate, formaterTailleFichier } from "../../../utils/cvFormatters.jsx";
+import ShowDocument from "../../PDF/ShowDocument.jsx";
+import { obtenirCvPDFGestionnaire } from "../../../api/gestionnaire.jsx";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import NewLabel from "../NewLabel.jsx";
 
-function CvCard({ cv, onApprove, onReject }) {
+function CvCard({ cv, onApprove, onReject, isNew = false }) {
     const { t } = useTranslation();
     const [error, setError] = useState(null);
     const [showCommentaire, setShowCommentaire] = useState(false);
@@ -16,7 +17,7 @@ function CvCard({ cv, onApprove, onReject }) {
     const isRejected = cv.statut === "REFUSEE";
     const isFinalStatus = isAccepted || isRejected;
 
-    const status = getCvStatusConfig(cv?.statut, t);
+    const status = getStatusConfig(cv?.statut, t, "cv");
 
     const getStudentName = () => {
         if (cv.etudiant?.firstName || cv.etudiant?.lastName) {
@@ -43,11 +44,13 @@ function CvCard({ cv, onApprove, onReject }) {
     };
 
     return (
-        <div className="rounded-xl border border-base-300 bg-base-100 p-5 mt-5 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
-            <div className="flex items-start justify-between gap-4">
+        <div className="relative overflow-visible rounded-xl border border-base-300 bg-base-100 p-5 mt-5 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <NewLabel isNew={isNew} />
+
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
                 <div className="min-w-0 flex-1">
                     <div className="mb-2">
-                        <span className={`badge badge-xs ${status.className}`}>
+                        <span className={`badge badge-xs h-auto min-h-6 max-w-full shrink-0 whitespace-normal px-2 py-1 text-center leading-tight ${status.className}`}>
                             {status.label}
                         </span>
                     </div>
@@ -56,16 +59,20 @@ function CvCard({ cv, onApprove, onReject }) {
                     </p>
 
                     <p className="mt-1 text-sm text-gray-600">
+                        {cv.etudiant?.department || t("cv.department_unknown", "Département inconnu")}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-600">
                         {cv.fileName || t("cv.file_without_name")}
                     </p>
                 </div>
 
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto">
                     <Button
                         type="button"
                         onClick={handleReject}
                         disabled={isFinalStatus}
-                        className="bg-red-600 text-white cursor-pointer hover:bg-red-700"
+                        className="shrink-0 bg-red-600 text-white cursor-pointer hover:bg-red-700"
                     >
                         {t("actions.reject")}
                     </Button>
@@ -74,49 +81,41 @@ function CvCard({ cv, onApprove, onReject }) {
                         type="button"
                         onClick={handleApprove}
                         disabled={isFinalStatus}
-                        className="bg-green-600 text-white cursor-pointer hover:bg-green-800"
+                        className="shrink-0 bg-green-600 text-white cursor-pointer hover:bg-green-800"
                     >
                         {t("actions.approve")}
                     </Button>
                 </div>
             </div>
 
-                <div className="mt-6 border-t border-gray-100 pt-4">
-                    <ul className="flex flex-col gap-2 text-xs">
-                        <li>
-                            <strong className="text-[#043462]">
-                                {t("cv. file_size")}
-                            </strong>{" "}
-                            : {formaterTailleFichier(cv.fileSize)}
-                        </li>
+            <div className="mt-6 border-t border-gray-100 pt-4">
+                <ul className="flex flex-col gap-2 text-xs">
+                    <li>
+                        <strong className="text-[#043462]">
+                            {t("cv.upload_date")}
+                        </strong>{" "}
+                        : {formaterDate(cv.uploadDate)}
+                    </li>
+                </ul>
 
-                        <li>
-                            <strong className="text-[#043462]">
-                                {t("cv.upload_date")}
-                            </strong>{" "}
-                            : {formaterDate(cv.uploadDate)}
-                        </li>
-                    </ul>
-
-                    {cv.rejectionComment && (
-                        <div className="mt-4">
-                            <p className="text-xs font-bold text-[#043462]">
-                                {t("cv.previous_rejection_comment")}
-                            </p>
-                            <p className="mt-1 whitespace-pre-line rounded-lg bg-gray-50/70 px-3 py-2 text-sm text-gray-800">
-                                {cv.rejectionComment}
-                            </p>
-                        </div>
-                    )}
-
+                {cv.rejectionComment && (
                     <div className="mt-4">
-                        <ShowDocument
-                            fileName={cv?.fileName}
-                            loadPdfResponse={() => obtenirCvPDFGestionnaire(cv?.id)}
-                        />
+                        <p className="text-xs font-bold text-[#043462]">
+                            {t("cv.previous_rejection_comment")}
+                        </p>
+                        <p className="mt-1 whitespace-pre-line rounded-lg bg-gray-50/70 px-3 py-2 text-sm text-gray-800">
+                            {cv.rejectionComment}
+                        </p>
                     </div>
-                </div>
+                )}
 
+                <div className="mt-4">
+                    <ShowDocument
+                        fileName={cv?.fileName}
+                        loadPdfResponse={() => obtenirCvPDFGestionnaire(cv?.id)}
+                    />
+                </div>
+            </div>
 
             {showCommentaire && !isFinalStatus && (
                 <div className="mt-4 border-t border-red-200 pt-4">

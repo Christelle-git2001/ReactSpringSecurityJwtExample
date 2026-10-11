@@ -76,7 +76,7 @@ public class EmployeurService {
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException {
+            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
         Employeur employeur = getEmployeurByEmail(email);
 
         validerDates(creationOffreDeStageDTO);
@@ -147,7 +147,11 @@ public class EmployeurService {
 
     private void validerDates(CreationOffreDeStageDTO dto)
             throws DateFinAvantDateDebutException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException {
+            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+
+        if (dto.startDate().isBefore(LocalDate.now())) {
+            throw new DateDebutAvantAujourdhuiException();
+        }
 
         if (!dto.endDate().isAfter(dto.startDate())) {
             throw new DateFinAvantDateDebutException();
@@ -171,7 +175,7 @@ public class EmployeurService {
     ) throws DateFinAvantDateDebutException,
             IOException,
             FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
-            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException {
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
 
 
         Employeur employeur = getEmployeurByEmail(email);

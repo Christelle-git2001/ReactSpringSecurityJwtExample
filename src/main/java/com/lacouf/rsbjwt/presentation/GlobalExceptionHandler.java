@@ -97,8 +97,36 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+
+    @ExceptionHandler(DateDebutAvantAujourdhuiException.class)
+    public ResponseEntity<ErreurDTO> handleDateDebutAvantAujourdhuiException(
+            DateDebutAvantAujourdhuiException e
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
     @ExceptionHandler(DateFinAvantDateDebutException.class)
     public ResponseEntity<ErreurDTO> handleDateFinAvantDateDebutException(DateFinAvantDateDebutException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(DateFinAffichageAvantAujourdhuiException.class)
+    public ResponseEntity<ErreurDTO> handleDateFinAffichageAvantAujourdhuiException(
+            DateFinAffichageAvantAujourdhuiException e
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(DateFinAffichageApresDateDebutException.class)
+    public ResponseEntity<ErreurDTO> handleDateFinAffichageApresDateDebutException(
+            DateFinAffichageApresDateDebutException e
+    ) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErreurDTO(e.getMessage()));

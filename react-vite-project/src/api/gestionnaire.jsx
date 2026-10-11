@@ -15,6 +15,12 @@ export async function getOffresEnAttente() {
     });
 }
 
+export async function getToutesLesOffres() {
+    return fetchJson("/gestionnaire/offres/toutes", {
+        method: "GET",
+    });
+}
+
 export async function approuverOffre(id) {
     return fetchJson(`/gestionnaire/offres/${id}/approuver`, {
         method: "PUT",
