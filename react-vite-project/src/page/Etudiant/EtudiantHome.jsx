@@ -1,6 +1,6 @@
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
 import {useTranslation} from "react-i18next";
-import ViewOffers from "./ViewOffers.jsx";
+import EtudiantOffers from "./EtudiantOffers.jsx";
 
 const EtudiantHome = ({user}) => {
     const { t } = useTranslation();
@@ -10,7 +10,7 @@ const EtudiantHome = ({user}) => {
         <CvOnLandingPage />
         <h1 className={"text-4xl mb-10 text-center"}>{t("home.welcome")} {user?.firstName} {user?.lastName}</h1>
         <div className="w-full">
-            <ViewOffers user={user} showFilters={false} />
+            <EtudiantOffers user={user} showFilters={false} />
         </div>
     </div>
   );

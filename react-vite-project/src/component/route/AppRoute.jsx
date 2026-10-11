@@ -17,7 +17,7 @@ import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx
 import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
 import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
-import ViewOffers from "../../page/Etudiant/ViewOffers.jsx";
+import EtudiantOffers from "../../page/Etudiant/EtudiantOffers.jsx";
 import EmployeurOffers from "../../page/Employeur/EmployeurOffers.jsx";
 import GestionnaireOffers from "../../page/Gestionnaire/GestionnaireOffers.jsx";
 
@@ -62,7 +62,7 @@ export default function AppRoutes({
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/>
-                <Route path="/etudiant/offers" element={<ViewOffers user={user}/>}/>
+                <Route path="/etudiant/offers" element={<EtudiantOffers user={user}/>}/>
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>
                 <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>
                 <Route path="/employeur" element={<EmployeurHome  user={user}/>} />
@@ -76,7 +76,6 @@ export default function AppRoutes({
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
-
         </Routes>
     );
 }

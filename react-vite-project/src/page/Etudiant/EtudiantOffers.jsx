@@ -10,10 +10,9 @@ import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerC
 import {useOutletContext} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
-const ViewOffers = ({ user, showFilters = true }) => {
+const EtudiantOffers = ({ user, showFilters = true }) => {
     const { t } = useTranslation();
     const [offres, setOffres] = useState([]);
-    const [etat, setEtat] = useState("chargement");
     const [selectedTown, setSelectedTown] = useState("TOUS");
 
     const {
@@ -44,21 +43,23 @@ const ViewOffers = ({ user, showFilters = true }) => {
 
     const chargerOffres = useCallback(async () => {
         if (!user?.department) return
-        setEtat("chargement");
+
+        setIsLoading(true);
+        setError(null);
         try {
             const data = await obtenirOffres(getDepartmentKey(user.department));
             setOffres(data || []);
-            setEtat("ok");
         } catch (error) {
             console.error("Erreur lors du chargement des offres:", error);
-            setEtat("erreur");
+            setError("etudiant.offers.error");
+        } finally {
+            setIsLoading(false);
         }
     }, [user?.department]);
 
     useEffect(() => {
         chargerOffres();
     }, [chargerOffres]);
-
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center">
@@ -78,20 +79,20 @@ const ViewOffers = ({ user, showFilters = true }) => {
             )}
 
             <div className="w-full">
-                {etat === "chargement" && (
+                {isLoading && (
                     <div className="flex justify-center py-8">
                         <span className="loading loading-spinner loading-lg" />
                     </div>
                 )}
 
-                {etat === "erreur" && (
+                {!isLoading && error && (
                     <EmptyContentMessage
                         message={t("etudiant.offers.error")}
                         textClassName="text-red-500 font-medium"
                     />
                 )}
 
-                {etat === "ok" && (
+                {!isLoading && !error && (
                     offresFinales.length === 0 ? (
                         <EmptyContentMessage
                             message={
@@ -117,4 +118,4 @@ const ViewOffers = ({ user, showFilters = true }) => {
     );
 };
 
-export default ViewOffers;
+export default EtudiantOffers;
