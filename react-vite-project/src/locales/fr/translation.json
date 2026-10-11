@@ -212,7 +212,8 @@
     "logout": "Déconnexion",
     "add_offer": "Créer une offre",
     "view_offers": "Offres de stage",
-    "created_offers": "Offres créees"
+    "created_offers": "Offres créees",
+    "history": "Historique"
   },
   "status": {
     "tous": "Tous",
@@ -228,6 +229,23 @@
   "home": {
     "welcome": "Bienvenue"
   },
+  "dashboard": {
+    "manager_subtitle": "Suivi des CV et des offres de stage en attente.",
+    "pending_cvs_count": "CV en attente",
+    "pending_offers_count": "Offres en attente",
+    "view_pending_cvs": "Voir les CV en attente",
+    "view_pending_offers": "Voir les offres en attente",
+    "recent_activity": "Activité récente",
+    "no_recent_activity": "Aucune activité récente",
+    "view_all": "Voir tous",
+    "view_all_feminine": "Voir toutes",
+    "recent_offer_submitted": "Nouvelle offre de stage",
+    "offer_without_title": "Offre sans titre",
+    "view_cv_details": "Voir les détails du CV",
+    "view_offer_details": "Voir les détails de l'offre",
+    "view_cv": "Voir CV",
+    "view_offer": "Voir offre"
+  },
   "etudiant": {
     "card": {
       "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
@@ -236,7 +254,7 @@
       "cvs" :""
     },
     "popup":{
-      "popup_description":"S'il vous plaît, téléversez un CV valide et attendez qu'il soit approuvé par un gestionnaire avant de pouvoir accéder aux offres de stage.",
+      "popup_description":"Ajoutez un CV et attendez son approbation pour consulter les offres.",
       "popup_title":"Curriculum Vitae requis"
     },
     "offers":{
@@ -245,7 +263,7 @@
       "domain_filter": "Filtrer par domaine",
       "salary_filter": "Filtrer par salaire",
       "no_offers": "Aucune offre disponible",
-      "error" : "Merci d'ajouté un CV (validé) avant de voir les offres",
+      "cv_approval_required": "Votre CV doit être approuvé avant de pouvoir consulter les offres.",
       "details_button": "Détails",
       "apply_button": "Postuler",
       "fromTo": "à"

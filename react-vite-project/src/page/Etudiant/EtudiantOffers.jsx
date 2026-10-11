@@ -95,8 +95,8 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
 
                 {!isLoading && error && (
                     <EmptyContentMessage
-                        message={t("etudiant.offers.error")}
-                        textClassName="text-red-500 font-medium"
+                        message={t("etudiant.offers.cv_approval_required")}
+                        textClassName="text-gray-500 font-medium"
                     />
                 )}
 

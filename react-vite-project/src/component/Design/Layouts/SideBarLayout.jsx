@@ -22,9 +22,11 @@ function SideBarLayout({ user, openDrawer }) {
         { path: "/employeur/offers", label: t("nav.created_offers"), roles: ["EMPLOYEUR"], icon: <FiBriefcase className="size-4 my-1.5" /> },
 
         { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: "/gestionnaire/account", label: t("nav.account"), roles: null, icon: <FiUser className="size-4 my-1.5" />},
-        //{ path: "/gestionnaire/historique", label: t("nav.history"), roles: null, icon: <FiClock className="size-4 my-1.5" />},
-        {path: "/gestionnaire/cvs", label: "CVs", roles: ["GESTIONNAIRE"], icon: <FiFileText className="size-4 my-1.5" />},
+        { path: "/gestionnaire/account", label: t("nav.account"), roles:["GESTIONNAIRE"], icon: <FiUser className="size-4 my-1.5" />},
+        { path: "/gestionnaire/historique", label: t("nav.history"), roles:["GESTIONNAIRE"], icon: <FiClock className="size-4 my-1.5" />},
+
+        { path: "/professeur", label: t("nav.home"), roles:["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/professeur/account", label: t("nav.account"), roles: ["PROFESSEUR"], icon: <FiUser className="size-4 my-1.5" /> },
         { path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),
             roles: null,

@@ -4,7 +4,7 @@ import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import { useTranslation } from "react-i18next";
 import logo from "../../../assets/logo.png";
 
-function Header({ user, sidebarOpen }) {
+function Header({ sidebarOpen }) {
     const { t } = useTranslation();
 
     const tooltipText = sidebarOpen

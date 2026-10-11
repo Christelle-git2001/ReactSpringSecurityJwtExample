@@ -1,11 +1,14 @@
 import { useTranslation } from "react-i18next";
 import {useCallback, useEffect, useState} from "react";
-import CvCard from "../../component/Design/Cards/CvCard.jsx";
-import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
-import {approuverCv, getOffresEnAttente, getCvsEnAttente, refuserCv} from "../../api/gestionnaire.jsx";
+import DashboardSummaryCard from "../../component/Design/Cards/DashboardSummaryCard.jsx";
+import DashboardCvItem from "../../component/Design/Cards/DashboardCvItem.jsx";
+import DashboardOfferItem from "../../component/Design/Cards/DashboardOfferItem.jsx";
+import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import {isNewSince} from "../../utils/isNewItem.jsx";
+import {FaBriefcase, FaFileAlt} from "react-icons/fa";
+import {FiChevronDown, FiChevronUp} from "react-icons/fi";
 
 const GestionnaireHome = ({user}) => {
     const { t } = useTranslation();
@@ -13,9 +16,11 @@ const GestionnaireHome = ({user}) => {
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
     const [error, setError] = useState(null);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [showRecentActivity, setShowRecentActivity] = useState(true);
 
     const handleView = (offer) => {
-        navigate(`/gestionnaire/offres/details`, { state: { offer, from:"/gestionnaire" } });
+        navigate("/gestionnaire/offres/details", { state: { offer, from: "/gestionnaire" } });
     };
 
     const chargerCvs = useCallback(async () => {
@@ -37,13 +42,15 @@ const GestionnaireHome = ({user}) => {
         }
     }, []);
 
-    const chargerDonnees = useCallback(() => {
-        chargerCvs();
-        chargerOffres();
+    const chargerDonnees = useCallback(async () => {
+        await Promise.all([
+            chargerCvs(),
+            chargerOffres(),
+        ]);
     }, [chargerCvs, chargerOffres]);
 
     useEffect(() => {
-        chargerDonnees();
+        chargerDonnees().finally(() => setIsInitialLoading(false));
 
         const intervalId = setInterval(() => {
             chargerDonnees();
@@ -52,60 +59,157 @@ const GestionnaireHome = ({user}) => {
         return () => clearInterval(intervalId);
     }, [chargerDonnees]);
 
-    const handleApprove = async (id) => {
-        try {
-            await approuverCv(id);
-            await chargerCvs();
-        } catch (err) {
-            setError("error.generic");
-        }
-    };
+    return (
+        <div className="pt-5 h-full">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
+                <div>
+                    <h1 className="text-4xl font-bold text-[#043462]">
+                        {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span>
+                    </h1>
+                    <p className="mt-2 text-sm text-gray-500">
+                        {t("dashboard.manager_subtitle")}
+                    </p>
+                </div>
 
-    const handleReject = async (id, comment) => {
-        try {
-            await refuserCv(id, comment);
-            await chargerCvs();
-        } catch (err) {
-            setError("error.generic");
-        }
-    };
-
-    return(
-        <div className={"pt-5 h-full"}>
-            <h1 className={"text-4xl mb-10 text-center"}>{t("home.welcome")} {user?.firstName} {user?.lastName}</h1>
-            <h2 className="text-2xl font-bold mb-4 text-center">{t("cv.pending_cvs_title")}</h2>
-
-            <div className="space-y-4 w-full max-w-4xl mx-auto mb-10">
-                {cvs.length === 0 && !error && (
-                    <EmptyContentMessage message={t("cv.none_pending")} />
-                )}
-                {cvs.map((cv) => (
-                    <CvCard
-                        key={cv.id}
-                        cv={cv}
-                        onApprove={handleApprove}
-                        onReject={handleReject}
-                        isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <DashboardSummaryCard
+                        icon={<FaFileAlt className="size-6" />}
+                        value={cvs.length}
+                        label={t("dashboard.pending_cvs_count")}
+                        tone="blue"
+                        ariaLabel={t("dashboard.view_pending_cvs")}
                     />
-                ))}
-            </div>
 
-            <h2 className="text-2xl font-bold mb-4 text-center">{t("offre.pending_offers")}</h2>
-            {offres.length === 0 && (
-                <EmptyContentMessage message={t("offre.no_offers")} />
-            )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center w-full">
-                {offres.map((offer) => (
-                    <OffreStageCard
-                        key={offer.id}
-                        offer={offer}
-                        onView={handleView}
-                        isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
+                    <DashboardSummaryCard
+                        icon={<FaBriefcase className="size-6" />}
+                        value={offres.length}
+                        label={t("dashboard.pending_offers_count")}
+                        tone="green"
+                        ariaLabel={t("dashboard.view_pending_offers")}
                     />
-                ))}
-            </div>
+                </div>
 
+                <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                        <h2 className="text-lg font-bold text-[#043462]">
+                            {t("dashboard.recent_activity")}
+                        </h2>
+                        <button
+                            type="button"
+                            onClick={() => setShowRecentActivity((current) => !current)}
+                            className="btn btn-circle btn-sm border-none bg-gray-50 text-[#043462] hover:bg-gray-100"
+                            aria-label={
+                                showRecentActivity
+                                    ? t("actions.collapse")
+                                    : t("actions.expand")
+                            }
+                        >
+                            {showRecentActivity ? (
+                                <FiChevronUp className="size-4" />
+                            ) : (
+                                <FiChevronDown className="size-4" />
+                            )}
+                        </button>
+                    </div>
+                    <div className="mb-4 h-px w-full bg-[#043462]" />
+
+                    {showRecentActivity && (
+                        <div className="space-y-3">
+                            {cvs.slice(0, 2).map((cv) => (
+                                <DashboardCvItem
+                                    key={`cv-${cv.id}`}
+                                    cv={cv}
+                                    onClick={() => navigate("/gestionnaire/cvs")}
+                                    variant="row"
+                                    actionLabel={t("dashboard.view_cv")}
+                                />
+                            ))}
+
+                            {offres.slice(0, 2).map((offer) => (
+                                <DashboardOfferItem
+                                    key={`offer-${offer.id}`}
+                                    offer={offer}
+                                    onClick={() => handleView(offer)}
+                                    variant="row"
+                                    actionLabel={t("dashboard.view_offer")}
+                                />
+                            ))}
+
+                            {!isInitialLoading && cvs.length === 0 && offres.length === 0 && (
+                                <EmptyContentMessage message={t("dashboard.no_recent_activity")} />
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="font-bold text-[#043462]">
+                                {t("cv.pending_cvs_title")}
+                            </h2>
+                            <button
+                                type="button"
+                                onClick={() => navigate("/gestionnaire/cvs")}
+                                className="text-xs font-semibold text-blue-600 hover:underline hover:underline-offset-4"
+                            >
+                                {t("dashboard.view_all")} ({cvs.length})
+                            </button>
+                        </div>
+                        <div className="mb-4 h-px w-full bg-[#043462]" />
+
+                        <div className="space-y-3">
+                            {!isInitialLoading && cvs.length === 0 && !error && (
+                                <EmptyContentMessage message={t("cv.none_pending")} />
+                            )}
+
+                            {cvs.slice(0, 3).map((cv) => (
+                                <DashboardCvItem
+                                    key={cv.id}
+                                    cv={cv}
+                                    onClick={() => navigate("/gestionnaire/cvs")}
+                                    isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
+                                    actionLabel={t("dashboard.view_cv")}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="font-bold text-[#043462]">
+                                {t("offre.pending_offers")}
+                            </h2>
+                            <button
+                                type="button"
+                                onClick={() => navigate("/gestionnaire/offers")}
+                                className="text-xs font-semibold text-green-600 hover:underline hover:underline-offset-4"
+                            >
+                                {t("dashboard.view_all_feminine")} ({offres.length})
+                            </button>
+                        </div>
+                        <div className="mb-4 h-px w-full bg-[#043462]" />
+
+                        <div className="space-y-3">
+                            {!isInitialLoading && offres.length === 0 && (
+                                <EmptyContentMessage message={t("offre.no_offers")} />
+                            )}
+
+                            {offres.slice(0, 3).map((offer) => (
+                                <DashboardOfferItem
+                                    key={offer.id}
+                                    offer={offer}
+                                    onClick={() => handleView(offer)}
+                                    isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
+                                    actionLabel={t("dashboard.view_offer")}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
+
 export default GestionnaireHome;

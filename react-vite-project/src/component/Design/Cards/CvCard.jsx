@@ -47,10 +47,10 @@ function CvCard({ cv, onApprove, onReject, isNew = false }) {
         <div className="relative overflow-visible rounded-xl border border-base-300 bg-base-100 p-5 mt-5 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
             <NewLabel isNew={isNew} />
 
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
                 <div className="min-w-0 flex-1">
                     <div className="mb-2">
-                        <span className={`badge badge-xs ${status.className}`}>
+                        <span className={`badge badge-xs h-auto min-h-6 max-w-full shrink-0 whitespace-normal px-2 py-1 text-center leading-tight ${status.className}`}>
                             {status.label}
                         </span>
                     </div>
@@ -63,12 +63,12 @@ function CvCard({ cv, onApprove, onReject, isNew = false }) {
                     </p>
                 </div>
 
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto">
                     <Button
                         type="button"
                         onClick={handleReject}
                         disabled={isFinalStatus}
-                        className="bg-red-600 text-white cursor-pointer hover:bg-red-700"
+                        className="shrink-0 bg-red-600 text-white cursor-pointer hover:bg-red-700"
                     >
                         {t("actions.reject")}
                     </Button>
@@ -77,7 +77,7 @@ function CvCard({ cv, onApprove, onReject, isNew = false }) {
                         type="button"
                         onClick={handleApprove}
                         disabled={isFinalStatus}
-                        className="bg-green-600 text-white cursor-pointer hover:bg-green-800"
+                        className="shrink-0 bg-green-600 text-white cursor-pointer hover:bg-green-800"
                     >
                         {t("actions.approve")}
                     </Button>

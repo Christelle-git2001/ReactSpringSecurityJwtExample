@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { approuverCv, getTousLesCvs, refuserCv } from "../../api/gestionnaire.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 
-function GestionnaireCvs() {
+function GestionnaireHistorique() {
     const { t } = useTranslation();
     const [selectedStatus, setSelectedStatus] = useState("EN_ATTENTE");
     const [searchTerm, setSearchTerm] = useState("");
@@ -100,4 +100,4 @@ function GestionnaireCvs() {
     );
 }
 
-export default GestionnaireCvs;
+export default GestionnaireHistorique;
