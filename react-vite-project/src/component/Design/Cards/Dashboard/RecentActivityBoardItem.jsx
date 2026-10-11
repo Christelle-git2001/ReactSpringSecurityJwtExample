@@ -45,10 +45,10 @@ function RecentActivityBoardItem({
             <button
                 type="button"
                 onClick={onClick}
-                className="w-full flex items-center justify-between rounded-lg p-3 text-left hover:bg-gray-50"
+                className="relative w-full flex items-center justify-between rounded-lg p-3 text-left hover:bg-gray-50"
                 aria-label={ariaLabel}
             >
-                <NewLabel isNew={isNew} />
+                <NewLabel isNew={isNew} size="sm" className="-top-2 left-2" />
                 <div className="flex min-w-0 items-center gap-3">
                     <div className={`size-10 shrink-0 rounded-full flex items-center justify-center ${styles.icon}`}>
                         {icon}

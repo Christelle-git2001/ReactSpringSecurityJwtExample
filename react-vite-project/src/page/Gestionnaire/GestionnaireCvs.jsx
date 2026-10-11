@@ -4,8 +4,9 @@ import { approuverCv, getTousLesCvs, refuserCv } from "../../api/gestionnaire.js
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import GestionnaireItemsPage, { useGestionnaireItems } from "../../utils/GestionnaireItemsPage.jsx";
+import { isNewSince } from "../../utils/isNewItem.jsx";
 
-function GestionnaireCvs() {
+function GestionnaireCvs({ user }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("TOUS");
     const [selectedDomain, setSelectedDomain] = useState("TOUS");
@@ -99,6 +100,7 @@ function GestionnaireCvs() {
                     cv={cv}
                     onApprove={handleApprove}
                     onReject={handleReject}
+                    isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
                 />
             )}
         />

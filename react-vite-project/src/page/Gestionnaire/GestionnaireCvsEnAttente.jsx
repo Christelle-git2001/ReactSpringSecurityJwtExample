@@ -3,8 +3,9 @@ import { useCallback, useMemo, useState } from "react";
 import { approuverCv, getCvsEnAttente, refuserCv } from "../../api/gestionnaire.jsx";
 import SearchBar from "../../component/Design/SearchBar.jsx";
 import GestionnaireItemsPage, { useGestionnaireItems } from "../../utils/GestionnaireItemsPage.jsx";
+import { isNewSince } from "../../utils/isNewItem.jsx";
 
-function GestionnaireCvsEnAttente() {
+function GestionnaireCvsEnAttente({ user }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [error, setError] = useState(null);
 
@@ -74,6 +75,7 @@ function GestionnaireCvsEnAttente() {
                     cv={cv}
                     onApprove={handleApprove}
                     onReject={handleReject}
+                    isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
                 />
             )}
         />

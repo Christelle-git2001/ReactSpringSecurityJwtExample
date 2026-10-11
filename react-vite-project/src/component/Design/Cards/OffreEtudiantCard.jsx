@@ -30,7 +30,7 @@ function OffreEtudiantCard({ offer, onView, isNew = false }) {
 
     return (
         <>
-            <div className="card w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card relative overflow-visible w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                 <NewLabel isNew={isNew} />
 
                 <div className="card-body">
