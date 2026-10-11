@@ -15,7 +15,7 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
     const { t } = useTranslation();
     const [offres, setOffres] = useState([]);
     const [selectedTown, setSelectedTown] = useState("TOUS");
-    const [isLoading, setIsLoading] = useState(true);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null)
 
     const { openDrawer } = useOutletContext();
@@ -47,7 +47,6 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
     const chargerOffres = useCallback(async () => {
         if (!user?.department) return
 
-        setIsLoading(true);
         setError(null);
         try {
             const data = await obtenirOffres(getDepartmentKey(user.department));
@@ -56,7 +55,7 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
             console.error("Erreur lors du chargement des offres:", error);
             setError("etudiant.offers.error");
         } finally {
-            setIsLoading(false);
+            setIsInitialLoading(false);
         }
     }, [user?.department]);
 
@@ -87,20 +86,20 @@ const EtudiantOffers = ({ user, showFilters = true }) => {
             )}
 
             <div className="w-full">
-                {isLoading && (
+                {isInitialLoading && (
                     <div className="flex justify-center py-8">
                         <span className="loading loading-spinner loading-lg" />
                     </div>
                 )}
 
-                {!isLoading && error && (
+                {!isInitialLoading && error && (
                     <EmptyContentMessage
                         message={t("etudiant.offers.cv_approval_required")}
                         textClassName="text-gray-500 font-medium"
                     />
                 )}
 
-                {!isLoading && !error && (
+                {!isInitialLoading && !error && (
                     offresFinales.length === 0 ? (
                         <EmptyContentMessage
                             message={
