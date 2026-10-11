@@ -41,7 +41,7 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public GestionnaireDto creerCompteGestionnaire(GestionnaireDto gestionnaireDto) throws EmailExistantException, NumeroTelephoneExistantException {
+    public GestionnaireDTO creerCompteGestionnaire(GestionnaireDTO gestionnaireDto) throws EmailExistantException, NumeroTelephoneExistantException {
         validerInscriptionGestionnaire(gestionnaireDto);
         Gestionnaire gestionnaire = Gestionnaire.builder()
                 .firstName(gestionnaireDto.firstName())
@@ -50,7 +50,7 @@ public class GestionnaireService {
                 .phoneNumber(gestionnaireDto.phoneNumber())
                 .password(passwordEncoder.encode(gestionnaireDto.password()))
                 .build();
-        return GestionnaireDto.create(gestionnaireRepository.save(gestionnaire));
+        return GestionnaireDTO.create(gestionnaireRepository.save(gestionnaire));
     }
 
     public List<SecteurEmployeurDTO> getAllSecteurs() {
@@ -161,7 +161,7 @@ public class GestionnaireService {
         );
     }
 
-    private void validerInscriptionGestionnaire(GestionnaireDto gestionnaireDto)  throws EmailExistantException, NumeroTelephoneExistantException{
+    private void validerInscriptionGestionnaire(GestionnaireDTO gestionnaireDto)  throws EmailExistantException, NumeroTelephoneExistantException{
         if (userAppRepository.findUserAppByEmail(
                 gestionnaireDto.email()).isPresent()) {
             throw new EmailExistantException();

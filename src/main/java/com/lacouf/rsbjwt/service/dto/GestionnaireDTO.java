@@ -5,7 +5,7 @@ import com.lacouf.rsbjwt.model.Gestionnaire;
 import lombok.Builder;
 
 @Builder
-public record GestionnaireDto(
+public record GestionnaireDTO(
         long id,
         String firstName,
         String lastName,
@@ -14,12 +14,12 @@ public record GestionnaireDto(
         String password
 ) implements UserDTO {
 
-    public static GestionnaireDto create(Gestionnaire gestionnaire) {
+    public static GestionnaireDTO create(Gestionnaire gestionnaire) {
         if (gestionnaire == null) {
             return empty();
         }
 
-        return GestionnaireDto.builder()
+        return GestionnaireDTO.builder()
                 .id(gestionnaire.getId())
                 .firstName(gestionnaire.getFirstName())
                 .lastName(gestionnaire.getLastName())
@@ -28,8 +28,8 @@ public record GestionnaireDto(
                 .build();
     }
 
-    public static GestionnaireDto empty() {
-        return new GestionnaireDto(0L, "", "", "", "","");
+    public static GestionnaireDTO empty() {
+        return new GestionnaireDTO(0L, "", "", "", "","");
     }
 
     @Override

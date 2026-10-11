@@ -44,11 +44,11 @@ public class UserAppService {
         };
     }
 
-    private GestionnaireDto getGestionnaireDto(Long id) {
+    private GestionnaireDTO getGestionnaireDto(Long id) {
         final Optional<Gestionnaire> gestionnaireOptional = gestionnaireRepository.findById(id);
         return gestionnaireOptional.isPresent() ?
-                GestionnaireDto.create(gestionnaireOptional.get()) :
-                GestionnaireDto.empty();
+                GestionnaireDTO.create(gestionnaireOptional.get()) :
+                GestionnaireDTO.empty();
     }
 
     private EtudiantDTO getEtudiantDTO(Long id) {
