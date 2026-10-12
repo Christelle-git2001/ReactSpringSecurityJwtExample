@@ -1,39 +1,27 @@
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {useCallback, useEffect, useState} from "react";
-import DashboardSummaryCard from "../../component/Design/Cards/Dashboard/DashboardSummaryCard.jsx";
-import DashboardCvItem from "../../component/Design/Cards/Dashboard/DashboardCvItem.jsx";
-import DashboardOfferItem from "../../component/Design/Cards/Dashboard/DashboardOfferItem.jsx";
-import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getCvsEnAttente, getOffresEnAttente } from "../../api/gestionnaire.jsx";
+import SearchBar from "../../component/Design/SearchBar.jsx";
+import FilterBar from "../../component/Design/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import {isNewSince} from "../../utils/isNewItem.jsx";
-import {FaBriefcase, FaFileAlt} from "react-icons/fa";
-import {FiChevronDown, FiChevronUp} from "react-icons/fi";
+import CvCard from "../../component/Design/Cards/CvCard.jsx";
+import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
+import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 
-const GestionnaireHome = ({user}) => {
+const GestionnaireHome = ({ user }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
-    const [error, setError] = useState(null);
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
-    const [showRecentActivity, setShowRecentActivity] = useState(true);
-
-    const viewCvInList = (cv) => {
-        navigate(`/gestionnaire/cvs/attente?cvId=${cv.id}`);
-    };
-
-    const viewOfferInList = (offer) => {
-        navigate(`/gestionnaire/offers/attente?offerId=${offer.id}`);
-    };
 
     const chargerCvs = useCallback(async () => {
         try {
             const data = await getCvsEnAttente();
-            setCvs(data);
-            setError(null);
+            setCvs(data || []);
         } catch (err) {
-            setError("error.generic");
+            console.error("Erreur lors du chargement des CVs:", err);
         }
     }, []);
 
@@ -42,19 +30,16 @@ const GestionnaireHome = ({user}) => {
             const data = await getOffresEnAttente();
             setOffres(data || []);
         } catch (err) {
-            console.log(err);
+            console.error("Erreur lors du chargement des offres:", err);
         }
     }, []);
 
     const chargerDonnees = useCallback(async () => {
-        await Promise.all([
-            chargerCvs(),
-            chargerOffres(),
-        ]);
+        await Promise.all([chargerCvs(), chargerOffres()]);
     }, [chargerCvs, chargerOffres]);
 
     useEffect(() => {
-        chargerDonnees().finally(() => setIsInitialLoading(false));
+        chargerDonnees();
 
         const intervalId = setInterval(() => {
             chargerDonnees();
@@ -63,157 +48,120 @@ const GestionnaireHome = ({user}) => {
         return () => clearInterval(intervalId);
     }, [chargerDonnees]);
 
+    const handleViewOffer = (offer) => {
+        navigate("/gestionnaire/offres/details", {
+            state: { offer, from: "/gestionnaire" }
+        });
+    };
+
+    const handleViewCv = (cv) => {
+        navigate("/gestionnaire/cvs/details", {
+            state: { cv, from: "/gestionnaire" }
+        });
+    };
+
+    const {
+        searchTerm,
+        setSearchTerm,
+        selectedDomain,
+        setSelectedDomain,
+        availableDomains,
+        offresFiltrees,
+        cvsFiltres,
+    } = useOffreFilters(offres, cvs);
+
     return (
-        <div className="pt-5 h-full">
-            <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
-                <div>
-                    <h1 className="text-4xl font-bold text-[#043462]">
-                        {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span>
-                    </h1>
-                    <p className="mt-2 text-sm text-gray-500">
-                        {t("dashboard.manager_subtitle")}
-                    </p>
-                </div>
+        <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
+            <div className="w-full max-w-7xl">
+                <h1 className="welcome-message text-left text-4xl font-bold text-[#043462]">
+                    {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true"></span>
+                </h1>
+                <p className="mt-2 text-sm text-gray-500">
+                    {t("dashboard.manager_subtitle")}
+                </p>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <DashboardSummaryCard
-                        icon={<FaFileAlt className="size-6" />}
-                        value={cvs.length}
-                        label={t("dashboard.pending_cvs_count")}
-                        tone="blue"
-                        ariaLabel={t("dashboard.view_pending_cvs")}
-                    />
+            <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
+                <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    onClear={() => setSearchTerm("")}
+                />
 
-                    <DashboardSummaryCard
-                        icon={<FaBriefcase className="size-6" />}
-                        value={offres.length}
-                        label={t("dashboard.pending_offers_count")}
-                        tone="green"
-                        ariaLabel={t("dashboard.view_pending_offers")}
-                    />
-                </div>
+                <FilterBar
+                    selectedDomain={selectedDomain}
+                    onDomainChange={setSelectedDomain}
+                    availableDomains={availableDomains}
+                />
+            </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                        <h2 className="text-lg font-bold text-[#043462]">
-                            {t("dashboard.recent_activity")}
-                        </h2>
-                        <button
-                            type="button"
-                            onClick={() => setShowRecentActivity((current) => !current)}
-                            className="btn btn-circle btn-sm border-none bg-gray-50 text-[#043462] hover:bg-gray-100"
-                            aria-label={
-                                showRecentActivity
-                                    ? t("actions.collapse")
-                                    : t("actions.expand")
-                            }
-                        >
-                            {showRecentActivity ? (
-                                <FiChevronUp className="size-4" />
+            <div className="w-full max-w-7xl space-y-6">
+                <div className="collapse collapse-arrow bg-transparent">
+                    <input type="checkbox" className="peer" defaultChecked />
+
+                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("offre.pending_offers")} ({offresFiltrees.length})
+                    </div>
+
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="w-full pb-8">
+                            {offresFiltrees.length === 0 ? (
+                                <EmptyContentMessage
+                                    message={
+                                        offres.length === 0
+                                            ? t("offre.no_offers")
+                                            : t("offre.no_matching_offers")
+                                    }
+                                />
                             ) : (
-                                <FiChevronDown className="size-4" />
-                            )}
-                        </button>
-                    </div>
-                    <div className="mb-4 h-px w-full bg-[#043462]" />
-
-                    {showRecentActivity && (
-                        <div className="space-y-3">
-                            {cvs.slice(0, 2).map((cv) => (
-                                <DashboardCvItem
-                                    key={`cv-${cv.id}`}
-                                    cv={cv}
-                                    onClick={() => viewCvInList(cv)}
-                                    variant="row"
-                                    actionLabel={t("dashboard.view_cv")}
-                                />
-                            ))}
-
-                            {offres.slice(0, 2).map((offer) => (
-                                <DashboardOfferItem
-                                    key={`offer-${offer.id}`}
-                                    offer={offer}
-                                    onClick={() => viewOfferInList(offer)}
-                                    variant="row"
-                                    actionLabel={t("dashboard.view_offer")}
-                                />
-                            ))}
-
-                            {!isInitialLoading && cvs.length === 0 && offres.length === 0 && (
-                                <EmptyContentMessage message={t("dashboard.no_recent_activity")} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full mt-4">
+                                    {offresFiltrees.map((offer) => (
+                                        <OffreStageCard
+                                            key={offer.id}
+                                            offer={offer}
+                                            onView={handleViewOffer}
+                                            showPdfActions={false}
+                                        />
+                                    ))}
+                                </div>
                             )}
                         </div>
-                    )}
+                    </div>
                 </div>
+                <div className="collapse collapse-arrow bg-transparent">
+                    <input type="checkbox" className="peer" defaultChecked />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-[#043462]">
-                                {t("cv.pending_cvs_title")}
-                            </h2>
-                            <button
-                                type="button"
-                                onClick={() => navigate(`/gestionnaire/cvs/attente?cvId=${cv.id}`)}
-                                className="text-xs font-semibold text-blue-600 hover:underline hover:underline-offset-4"
-                            >
-                                {t("dashboard.view_all")} ({cvs.length})
-                            </button>
-                        </div>
-                        <div className="mb-4 h-px w-full bg-[#043462]" />
-
-                        <div className="space-y-3">
-                            {!isInitialLoading && cvs.length === 0 && !error && (
-                                <EmptyContentMessage message={t("cv.none_pending")} />
-                            )}
-
-                            {cvs.slice(0, 3).map((cv) => (
-                                <DashboardCvItem
-                                    key={cv.id}
-                                    cv={cv}
-                                    onClick={() => viewCvInList(cv)}
-                                    isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
-                                    actionLabel={t("dashboard.view_cv")}
-                                />
-                            ))}
-                        </div>
+                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("cv.pending_cvs_title")} ({cvsFiltres.length})
                     </div>
 
-                    <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-[#043462]">
-                                {t("offre.pending_offers")}
-                            </h2>
-                            <button
-                                type="button"
-                                onClick={() => navigate(`/gestionnaire/offers/attente?offerId=${offer.id}`)}
-                                className="text-xs font-semibold text-green-600 hover:underline hover:underline-offset-4"
-                            >
-                                {t("dashboard.view_all_feminine")} ({offres.length})
-                            </button>
-                        </div>
-                        <div className="mb-4 h-px w-full bg-[#043462]" />
-
-                        <div className="space-y-3">
-                            {!isInitialLoading && offres.length === 0 && (
-                                <EmptyContentMessage message={t("offre.no_offers")} />
-                            )}
-
-                            {offres.slice(0, 3).map((offer) => (
-                                <DashboardOfferItem
-                                    key={offer.id}
-                                    offer={offer}
-                                    onClick={() => viewOfferInList(offer)}
-                                    isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
-                                    actionLabel={t("dashboard.view_offer")}
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="w-full pb-8">
+                            {cvsFiltres.length === 0 ? (
+                                <EmptyContentMessage
+                                    message={
+                                        cvs.length === 0
+                                            ? t("cv.none_pending")
+                                            : t("cv.no_matching_cvs", "Aucun CV ne correspond aux critères de recherche.")
+                                    }
                                 />
-                            ))}
+                            ) : (
+                                <div className="space-y-4 w-full max-w-3xl mt-4">
+                                    {cvsFiltres.map((cv) => (
+                                        <CvCard
+                                            key={cv.id}
+                                            cv={cv}
+                                            onView={handleViewCv}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default GestionnaireHome;
