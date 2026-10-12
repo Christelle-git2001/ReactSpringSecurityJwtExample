@@ -1,11 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaBriefcase } from "react-icons/fa";
-import { getDepartmentKey } from "../../../../utils/departementConverter.js";
-import { getStatusConfig } from "../../../../utils/getStatusConfig.jsx";
-import RecentActivityBoardItem from "./RecentActivityBoardItem.jsx";
+import { getDepartmentKey } from "../../../utils/departementConverter.js";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import NotificationDropdown from "../Notifications/NotificationDropdown.jsx";
 
-function DashboardOfferItem({ offer, onClick, isNew = false, variant = "card", actionLabel }) {
+function OfferListItem({ offer, onClick, isNew = false, variant = "card", actionLabel }) {
     const { t } = useTranslation();
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
@@ -14,7 +14,7 @@ function DashboardOfferItem({ offer, onClick, isNew = false, variant = "card", a
     const status = getStatusConfig(offer?.statut || offer?.status, t);
 
     return (
-        <RecentActivityBoardItem
+        <NotificationDropdown
             icon={<FaBriefcase className="size-5" />}
             title={offer?.title || t("dashboard.offer_without_title")}
             subtitle={offer?.employeur?.businessName || offer?.businessName || translatedDepartment}
@@ -31,4 +31,4 @@ function DashboardOfferItem({ offer, onClick, isNew = false, variant = "card", a
     );
 }
 
-export default DashboardOfferItem;
+export default OfferListItem;

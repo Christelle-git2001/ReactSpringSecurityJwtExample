@@ -195,7 +195,9 @@
     "view_cv_details": "View resume details",
     "view_offer_details": "View offer details",
     "view_cv": "View resume",
-    "view_offer": "View offer"
+    "view_offer": "View offer",
+    "view_more": "View more",
+    "view_less": "View less"
   },
   "etudiant": {
     "card": {
@@ -310,6 +312,7 @@
   },
   "cv": {
     "pending_title": "Curriculums Vitae",
+    "details_title": "Resume details",
     "none_pending": "No CV pending.",
     "student_unknown": "Unknown student",
     "file_without_name": "Unnamed CV",
@@ -322,6 +325,10 @@
     "status": "Status",
     "previous_rejection_comment": "Rejection comment : ",
     "cv_already_approved": "Your CV has already been approved. You can no longer replace it.",
-    "pending_cvs_title" : "Cvs pending approval"
+    "pending_cvs_title" : "Cvs pending approval",
+    "errors": {
+      "rejection_required": "The rejection reason is required.",
+      "api_generic": "An error occurred while submitting."
+    }
   }
 }

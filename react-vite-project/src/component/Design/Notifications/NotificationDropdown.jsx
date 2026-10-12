@@ -1,5 +1,5 @@
 import React from "react";
-import NewLabel from "../../NewLabel.jsx";
+import NewLabel from "../NewLabel.jsx";
 import { FiChevronRight } from "react-icons/fi";
 
 const toneClasses = {
@@ -23,7 +23,7 @@ const toneClasses = {
     },
 };
 
-function RecentActivityBoardItem({
+function NotificationDropdown({
     icon,
     title,
     subtitle,
@@ -143,4 +143,4 @@ function RecentActivityBoardItem({
     );
 }
 
-export default RecentActivityBoardItem;
+export default NotificationDropdown;

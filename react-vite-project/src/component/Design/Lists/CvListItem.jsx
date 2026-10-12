@@ -1,18 +1,18 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaFileAlt } from "react-icons/fa";
-import { formaterDate } from "../../../../utils/cvFormatters.jsx";
-import { getStatusConfig } from "../../../../utils/getStatusConfig.jsx";
-import RecentActivityBoardItem from "./RecentActivityBoardItem.jsx";
+import { formaterDate } from "../../../utils/cvFormatters.jsx";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import NotificationDropdown from "../Notifications/NotificationDropdown.jsx";
 
-function DashboardCvItem({ cv, onClick, isNew = false, variant = "card", actionLabel }) {
+function CvListItem({ cv, onClick, isNew = false, variant = "card", actionLabel }) {
     const { t } = useTranslation();
     const status = getStatusConfig(cv?.statut, t, "cv");
 
     const studentName = `${cv?.etudiant?.firstName || ""} ${cv?.etudiant?.lastName || ""}`.trim();
 
     return (
-        <RecentActivityBoardItem
+        <NotificationDropdown
             icon={<FaFileAlt className="size-5" />}
             title={studentName || t("cv.student_unknown")}
             subtitle={cv?.fileName || t("cv.file_without_name")}
@@ -29,4 +29,4 @@ function DashboardCvItem({ cv, onClick, isNew = false, variant = "card", actionL
     );
 }
 
-export default DashboardCvItem;
+export default CvListItem;
