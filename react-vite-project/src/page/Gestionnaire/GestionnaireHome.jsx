@@ -74,12 +74,6 @@ const GestionnaireHome = ({user}) => {
 
     useEffect(() => {
         chargerDonnees().finally(() => setIsInitialLoading(false));
-
-        const intervalId = setInterval(() => {
-            chargerDonnees();
-        }, 10000);
-
-        return () => clearInterval(intervalId);
     }, [chargerDonnees]);
 
     return (
