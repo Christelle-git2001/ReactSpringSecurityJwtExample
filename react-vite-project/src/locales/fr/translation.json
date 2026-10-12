@@ -206,6 +206,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
+    "cv": "Téléverser CV",
     "home": "Accueil",
     "account": "Compte",
     "login": "Connexion",

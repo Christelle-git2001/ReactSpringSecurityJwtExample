@@ -309,6 +309,7 @@
     "clear": "Clear search"
   },
   "cv": {
+    "cv": "Upload CV",
     "read" : "Read",
     "pending_title": "Curriculums Vitae",
     "none_pending": "No CV pending.",
