@@ -23,7 +23,7 @@ function App() {
         addEmployeur(employeur, setMessage, setError, navigate);
 
     return (
-        <>
+        <div className="max-h-screen">
             <AppRoutes
                 user={user}
                 error={error}
@@ -37,7 +37,7 @@ function App() {
                 openDrawer={setDrawerContent}
             />
             <Drawer id="my-drawer-5" content={drawerContent} />
-        </>
+        </div>
     );
 }
 

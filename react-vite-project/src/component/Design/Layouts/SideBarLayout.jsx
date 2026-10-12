@@ -1,32 +1,46 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiFileText, FiBriefcase, FiClock} from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiClock } from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
+import Drawer from "./../Drawer.jsx";
 
-function SideBarLayout({ user, openDrawer }) {
+function SideBarLayout({ user }) {
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [drawerContent, setDrawerContent] = useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const openDrawer = (content) => {
+        setDrawerContent(content);
+        setIsDrawerOpen(true);
+    };
+
+    const closeDrawer = () => {
+        setIsDrawerOpen(false);
+        setDrawerContent(null);
+    };
 
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
     const role = rawRole?.toString().replace("ROLE_", "");
 
     const NAV_ITEMS = [
-        { path: "/etudiant", label: t("nav.home"), roles:["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/etudiant/account", label: t("nav.account"), roles: ["ETUDIANT"], icon: <FiUser className="size-4 my-1.5" /> },
 
-        { path: "/employeur", label: t("nav.home"), roles:["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/employeur", label: t("nav.home"), roles: ["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur/account", label: t("nav.account"), roles: ["EMPLOYEUR"], icon: <FiUser className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
 
-        { path: "/gestionnaire", label: t("nav.home"), roles:["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: "/gestionnaire/account", label: t("nav.account"), roles:["GESTIONNAIRE"], icon: <FiUser className="size-4 my-1.5" />},
-        { path: "/gestionnaire/historique", label: t("nav.history"), roles:["GESTIONNAIRE"], icon: <FiClock className="size-4 my-1.5" />},
+        { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/gestionnaire/account", label: t("nav.account"), roles: ["GESTIONNAIRE"], icon: <FiUser className="size-4 my-1.5" /> },
+        { path: "/gestionnaire/historique", label: t("nav.history"), roles: ["GESTIONNAIRE"], icon: <FiClock className="size-4 my-1.5" /> },
 
-        { path: "/professeur", label: t("nav.home"), roles:["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/professeur/account", label: t("nav.account"), roles: ["PROFESSEUR"], icon: <FiUser className="size-4 my-1.5" /> },
-        { path: user?.isLoggedIn ? "/logout" : "/login",
+        {
+            path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),
             roles: null,
             icon: user?.isLoggedIn ? <FiLogOut className="size-4 my-1.5" /> : <FiLogIn className="size-4 my-1.5" />
@@ -45,14 +59,16 @@ function SideBarLayout({ user, openDrawer }) {
                 onChange={(event) => setSidebarOpen(event.target.checked)}
             />
 
-            <div className="drawer-content">
+            <div className="drawer-content flex flex-col min-h-screen">
                 <Header user={user} sidebarOpen={sidebarOpen} />
 
-                <div className="min-h-screen p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex flex-col w-full">
-                    <Outlet context={{ openDrawer }} />
+                <div className="flex-1 p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
+                    <div className="flex-1 overflow-y-auto">
+                        <Outlet context={{ openDrawer, closeDrawer }} />
+                    </div>
+                    <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} content={drawerContent} />
                 </div>
             </div>
-
             <div className="drawer-side is-drawer-close:overflow-visible bg-[#043462] text-white">
                 <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
 
@@ -71,9 +87,11 @@ function SideBarLayout({ user, openDrawer }) {
                     <ul className="menu w-full grow">
                         {visibleItems.map(item => (
                             <li key={item.path}>
-                                <Link to={item.path}
-                                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-[#00CCCB] hover:text-white"
-                                      data-tip={item.label}>
+                                <Link
+                                    to={item.path}
+                                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-[#00CCCB] hover:text-white"
+                                    data-tip={item.label}
+                                >
                                     {item.icon}
                                     <span className="is-drawer-close:hidden">{item.label}</span>
                                 </Link>
