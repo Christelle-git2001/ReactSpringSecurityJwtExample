@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -30,6 +31,8 @@ public abstract class UserApp  {
     private Credentials credentials;
     private LocalDateTime lastLoginAt;
     private LocalDateTime previousLoginAt;
+    @OneToMany(mappedBy = "destinataire")
+    private List<Notification> notifications;
 
     public UserApp(String firstName, String lastName, String phoneNumber, Credentials credentials) {
         this.firstName = firstName;
