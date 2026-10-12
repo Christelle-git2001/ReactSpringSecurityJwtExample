@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Entity
@@ -27,6 +28,8 @@ public abstract class UserApp  {
     private String phoneNumber;
     @Embedded
     private Credentials credentials;
+    private LocalDateTime lastLoginAt;
+    private LocalDateTime previousLoginAt;
 
     public UserApp(String firstName, String lastName, String phoneNumber, Credentials credentials) {
         this.firstName = firstName;

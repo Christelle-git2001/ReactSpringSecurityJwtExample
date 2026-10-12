@@ -11,32 +11,33 @@
     }
 }
 
-
 @theme {
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
-
 
 h1 {
     color: #043462;
 }
 
 .primary-submit {
-    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors;
-    background: #0ee1cc;
-    cursor : pointer;
+    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors cursor-pointer bg-[#0ee1cc] enabled:hover:bg-[#043462];
 }
 
-.primary-submit:not(:disabled):hover {
-    background: #043462;
+button:disabled, [role="button"]:disabled {
+    @apply cursor-not-allowed opacity-50;
 }
 
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+button, .btn, [role="button"] {
+    @apply cursor-pointer;
 }
 
-button:disabled:hover {
-    opacity: 0.5;
+button:disabled,
+.btn:disabled,
+[role="button"]:disabled {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.welcome-message {
+    @apply text-3xl font-bold text-[#043462];
 }

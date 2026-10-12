@@ -17,7 +17,7 @@
 }
 
 .circleDesign-top-right {
-    @apply h-[190px] w-[190px] top-[-90px] right-[-60px] opacity-[0.45];
+    @apply h-[190px] w-[190px] top-[-90px] left-[-60px] opacity-[0.45];
 }
 
 .circleDesign-bottom-left-1 {

@@ -24,5 +24,8 @@ public record CreationOffreDeStageDTO(
         LocalDate startDate,
 
         @NotNull(message = "validation.endDate.required")
-        LocalDate endDate
+        LocalDate endDate,
+
+        @NotNull(message = "validation.displayEndDate.required")
+        LocalDate displayEndDate
 ) {}

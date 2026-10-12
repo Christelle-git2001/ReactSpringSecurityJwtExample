@@ -91,8 +91,9 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
 
         offreDeStage = OffreDeStage.builder()
@@ -101,8 +102,9 @@ public class EmployeurServiceTest {
                 .salary(19.25)
                 .domain(Departement.INFORMATIQUE)
                 .statut(Statut.EN_ATTENTE)
-                .startDate(LocalDate.of(2026, 10, 1))
-                .endDate(LocalDate.of(2026, 10, 15))
+                .startDate(LocalDate.of(2029, 10, 1))
+                .endDate(LocalDate.of(2029, 10, 15))
+                .displayEndDate(LocalDate.of(2029, 10, 1).minusDays(15))
                 .employeur(employeur)
                 .build();
         ReflectionTestUtils.setField(offreDeStage, "id", 1L);
@@ -173,8 +175,9 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 15),
-                LocalDate.of(2026, 10, 1)
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15).minusDays(15)
         );
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
@@ -191,13 +194,52 @@ public class EmployeurServiceTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 1)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 01, 1).minusDays(15)
         );
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
                 .isInstanceOf(DateFinAvantDateDebutException.class);
 
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+
+    @Test
+    void doitLancerExceptionQuandDateFinAffichageApresDateDebut() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                Departement.INFORMATIQUE,
+                LocalDate.of(2029, 02, 1),
+                LocalDate.of(2029, 02, 26),
+                LocalDate.of(2029, 02, 15)
+        );
+
+        assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(DateFinAffichageApresDateDebutException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandDateFinAffichageAvantAujourdhui() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        creationOffreDeStageDTO = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                Departement.INFORMATIQUE,
+                LocalDate.of(2029, 02, 1),
+                LocalDate.of(2029, 02, 26),
+                LocalDate.now().minusDays(1)
+        );
+
+        assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(DateFinAffichageAvantAujourdhuiException.class);
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
     }
 
@@ -258,7 +300,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws Exception {
+    void doitModifierOffreDeStage() throws Exception, DateFinAffichageApresDateDebutException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
         when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);

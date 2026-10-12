@@ -62,7 +62,8 @@ public class GestionnaireControllerTest {
                 "christelle@gmail.com",
                 "2226252",
                 "438-297-8191",
-                "INFORMATIQUE"
+                "INFORMATIQUE",
+                null
         );
     }
 
@@ -124,8 +125,10 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 Statut.EN_ATTENTE,
                 "offre.pdf",
+                null,
                 null,
                 null
         );
@@ -154,8 +157,10 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 Statut.ACCEPTEE,
                 "offre.pdf",
+                null,
                 null,
                 null
         );
@@ -187,11 +192,12 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 Statut.REFUSEE,
                 "offre.pdf",
                 null,
-                commentaire
-
+                commentaire,
+                null
         );
 
         when(gestionnaireService.refuserOffre(1L, commentaire))

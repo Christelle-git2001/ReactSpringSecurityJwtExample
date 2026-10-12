@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record OffreDeStageDTO(
         long id,
@@ -13,10 +14,12 @@ public record OffreDeStageDTO(
         Departement domain,
         LocalDate startDate,
         LocalDate endDate,
+        LocalDate  displayEndDate,
         Statut statut,
         String fileName,
         EmployeurDTO employeur,
-        String rejectionComment
+        String rejectionComment,
+        LocalDateTime createdAt
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
@@ -28,16 +31,20 @@ public record OffreDeStageDTO(
                 offre.getDomain(),
                 offre.getStartDate(),
                 offre.getEndDate(),
+                offre.getDisplayEndDate(),
                 offre.getStatut(),
                 offre.getFileName(),
                 EmployeurDTO.of(offre.getEmployeur()),
-                offre.getRejectionComment()
+                offre.getRejectionComment(),
+                offre.getCreatedAt()
         );
     }
 
     public static OffreDeStageDTO empty() {
         return new OffreDeStageDTO(
                 0L,
+                null,
+                null,
                 null,
                 null,
                 null,

@@ -71,9 +71,11 @@ public class EmployeurControllerTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15),
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15),
                 Statut.EN_ATTENTE,
+                null,
                 null,
                 null,
                 null
@@ -84,8 +86,9 @@ public class EmployeurControllerTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
 
 
@@ -104,7 +107,8 @@ public class EmployeurControllerTest {
               "Gerard.Robert@hotmail.com",
               "Mercier",
               "Gerard inc",
-              SecteurActivite.AEROSPATIAL
+              SecteurActivite.AEROSPATIAL,
+              null
         );
         when(employeurService.creeCompteEmployeur(any(InscriptionEmployeurDTO.class))).thenReturn(employeurDTO);
 
@@ -175,17 +179,16 @@ public class EmployeurControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // Test OffreDeStage
-
     @Test
-    void doitCreerOffreDeStageAvecFichierPdf() throws Exception {
+    void doitCreerOffreDeStageAvecFichierPdf() throws Exception, DateFinAffichageApresDateDebutException {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -193,7 +196,6 @@ public class EmployeurControllerTest {
                 MediaType.APPLICATION_JSON_VALUE,
                 objectMapper.writeValueAsBytes(creationOffreDeStageDTO)
         );
-        // Le nom "fichier" doit être identique à @RequestPart("fichier") dans le contrôleur
         MockMultipartFile fichier = new MockMultipartFile(
                 "file",
                 "offre.pdf",
@@ -217,8 +219,9 @@ public class EmployeurControllerTest {
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -234,14 +237,15 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitRetournerUnsupportedMediaTypeQuandMauvaisTypeDeFichier() throws Exception {
+    void doitRetournerUnsupportedMediaTypeQuandMauvaisTypeDeFichier() throws Exception, DateFinAffichageApresDateDebutException {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -267,14 +271,15 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitRetournerPayloadTooLargeQuandFichierTropVolumineux() throws Exception {
+    void doitRetournerPayloadTooLargeQuandFichierTropVolumineux() throws Exception, DateFinAffichageApresDateDebutException {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -300,14 +305,15 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitRetournerUnprocessableEntityQuandFichierCorrompu() throws Exception {
+    void doitRetournerUnprocessableEntityQuandFichierCorrompu() throws Exception, DateFinAffichageApresDateDebutException {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 1),
-                LocalDate.of(2026, 10, 15)
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -333,14 +339,15 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitRetournerBadRequestQuandDateFinAvantDateDebut() throws Exception {
+    void doitRetournerBadRequestQuandDateFinAvantDateDebut() throws Exception, DateFinAffichageApresDateDebutException {
         CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
                 19.25,
                 Departement.INFORMATIQUE,
-                LocalDate.of(2026, 10, 15),
-                LocalDate.of(2026, 10, 1)
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 1).minusDays(15)
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -367,7 +374,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws Exception {
+    void doitModifierOffreDeStage() throws Exception, DateFinAffichageApresDateDebutException {
         when(employeurService.modifierOffre(any(), any(), any(), any())).thenReturn(offreDeStageDTO);
 
         mockMvc.perform(multipart(HttpMethod.PUT, "/employeur/offres/1")
@@ -376,5 +383,4 @@ public class EmployeurControllerTest {
                         .principal(principal))
                 .andExpect(status().isOk());
     }
-
 }

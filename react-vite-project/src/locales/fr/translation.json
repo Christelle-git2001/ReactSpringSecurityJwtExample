@@ -52,8 +52,9 @@
     "salary": "Salaire",
     "description": "Description",
     "description_required": "Veuillez entrer une description.",
-    "start_date": "Date de début",
-    "end_date": "Date de fin",
+    "start_date": "Date de début de stage",
+    "end_date": "Date de fin de stage",
+    "display_end_date": "Date de fin d'affichage de l'offre",
     "document": "Document supplémentaire (PDF)",
     "choose_file": "Choisir un fichier",
     "cancel": "Annuler",
@@ -67,7 +68,11 @@
       "startDate_required": "Veuillez sélectionner une date de début.",
       "endDate_required": "Veuillez sélectionner une date de fin.",
       "file_required": "Veuillez sélectionner un document PDF.",
-      "endDate_invalid": "La date de fin doit être après la date de début."
+      "endDate_invalid": "La date de fin doit être après la date de début.",
+      "display_end_date_required": "Veuillez sélectionner une date de fin d'affichage de l'offre.",
+      "start_date_before_today": "La date de début ne peut pas être avant aujourd'hui.",
+      "display_end_date_after_start_date": "La date de fin d'affichage de l'offre doit être avant ou égale à la date de début du stage.",
+      "display_end_date_before_today": "La date de fin d'affichage de l'offre ne peut pas être dans le passé."
     }
   },
   "edit_offer": {
@@ -81,7 +86,8 @@
     "keep_file_note": "Laissez vide si vous ne souhaitez pas modifier le document actuel."
   },
   "common": {
-    "not_provided": "Non renseigné"
+    "not_provided": "Non renseigné",
+    "new_label": "Nouveau"
   },
   "actions": {
     "active": "Actif",
@@ -98,16 +104,18 @@
     "expand": "Développer"
   },
   "search": {
-    "placeholder": "Rechercher...",
+    "placeholder": "Rechercher par titre et description...",
     "clear": "Effacer la recherche"
   },
   "offre": {
-    "employeur" : "Entreprise ",
-    "lieu" : "Lieu",
+    "employeur": "Entreprise ",
+    "lieu": "Lieu",
     "statut": "Statut",
-    "document_error" : "Document indisponible",
+    "document_error": "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
     "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
+    "pending_offers": "Offres de stage en attente d'approbation",
+    "no_pending_offers": "Aucune offre en attente d'approbation",
     "details_title": "Détails de l'offre",
     "offer_title": "Titre de l'offre",
     "domaine": "Domaine",
@@ -116,6 +124,7 @@
     "description": "Description",
     "date_debut": "Date de début",
     "date_fin": "Date de fin",
+    "date_fin_affichage": "Date de fin d'affichage",
     "document": "Document",
     "view_document": "Voir le document PDF",
     "no_document": "Aucun document joint",
@@ -197,20 +206,23 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
+    "cv": "Téléverser CV",
     "home": "Accueil",
     "account": "Compte",
     "login": "Connexion",
     "logout": "Déconnexion",
     "add_offer": "Créer une offre",
-    "view_offers": "Offres de stage"
+    "view_offers": "Offres de stage",
+    "created_offers": "Offres créees",
+    "history": "History"
   },
   "status": {
     "tous": "Tous",
-    "en_attente": "En attente",
+    "en_attente": "En attente d'approbation",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
-    "cv_accepte" : "Accepté",
-    "cv_refuse" : "Refusé",
+    "cv_accepte": "Accepté",
+    "cv_refuse": "Refusé",
     "cvs_acceptes": "Acceptés",
     "cvs_refuses": "Refusés",
     "employer_added": "Employeur ajouté avec succès."
@@ -218,20 +230,43 @@
   "home": {
     "welcome": "Bienvenue"
   },
+  "dashboard": {
+    "manager_subtitle": "Suivi des CV et des offres de stage en attente.",
+    "pending_cvs_count": "CV en attente",
+    "pending_offers_count": "Offres en attente",
+    "view_pending_cvs": "Voir les CV en attente",
+    "view_pending_offers": "Voir les offres en attente",
+    "recent_activity": "Activité récente",
+    "no_recent_activity": "Aucune activité récente",
+    "view_all": "Voir tous",
+    "view_all_feminine": "Voir toutes",
+    "recent_offer_submitted": "Nouvelle offre de stage",
+    "offer_without_title": "Offre sans titre",
+    "view_cv_details": "Voir les détails du CV",
+    "view_offer_details": "Voir les détails de l'offre",
+    "view_cv": "Voir CV",
+    "view_offer": "Voir offre",
+    "view_more": "Voir plus",
+    "view_less": "Voir moins"
+  },
   "etudiant": {
     "card": {
       "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
       "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. ",
-      "new_offer" : "",
-      "cvs" :""
+      "new_offer": "",
+      "cvs": ""
     },
-    "offers":{
+    "popup": {
+      "popup_description": "Ajoutez un CV et attendez son approbation pour consulter les offres.",
+      "popup_title": "Curriculum Vitae requis"
+    },
+    "offers": {
       "page_title": "Offres de stage",
       "title_filter": "Filtrer par titre",
       "domain_filter": "Filtrer par domaine",
       "salary_filter": "Filtrer par salaire",
       "no_offers": "Aucune offre disponible",
-      "error" : "Merci d'ajouté un CV (validé) avant de voir les offres",
+      "cv_approval_required": "Votre CV doit être approuvé avant de pouvoir consulter les offres.",
       "details_button": "Détails",
       "apply_button": "Postuler",
       "fromTo": "à"
@@ -242,8 +277,8 @@
   },
   "employeur": {
     "card": {
-      "view_offers" : "Consultez vos offres créées, leur statut ainsi que leurs informations",
-      "new_offer" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+      "view_offers": "Consultez vos offres créées, leur statut ainsi que leurs informations",
+      "new_offer": "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
     }
   },
   "gestionnaire": {
@@ -278,7 +313,9 @@
     "doesntExist": "Aucune Session trouvée"
   },
   "cv": {
+    "read": "Lire",
     "pending_title": "Curriculums Vitae",
+    "details_title": "Détails du CV",
     "none_pending": "Aucun CV en attente.",
     "student_unknown": "Étudiant inconnu",
     "file_without_name": "CV sans nom",
@@ -290,6 +327,11 @@
     "upload_date": "Date de téléversement",
     "status": "Statut",
     "previous_rejection_comment": "Commentaire de refus : ",
-    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer."
+    "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer.",
+    "pending_cvs_title": "Cvs en attente d'approbation",
+    "errors": {
+      "rejection_required": "Le motif du refus est obligatoire.",
+      "api_generic": "Une erreur est survenue lors de l'envoi."
+    }
   }
 }

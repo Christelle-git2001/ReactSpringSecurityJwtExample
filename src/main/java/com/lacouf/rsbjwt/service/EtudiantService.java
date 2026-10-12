@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -184,9 +185,10 @@ public class EtudiantService {
             throw new CurriculumVitaeNonApprouveException();
         }
 
-        return offreDeStageRepository.findAllByStatutAndDomain(
+        return offreDeStageRepository.findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
                         Statut.ACCEPTEE,
-                        departement
+                        departement,
+                        LocalDate.now()
                 )
                 .stream()
                 .map(OffreDeStageDTO::of)
