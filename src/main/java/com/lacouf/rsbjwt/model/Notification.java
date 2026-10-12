@@ -8,8 +8,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -38,9 +42,12 @@ public class Notification {
     private Role role;
     @Column(nullable = false)
     private boolean estLu;
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, String> variables = new HashMap<>();
 
     @Builder
-    public Notification(String titre, String description, NotificationType notificationType,LocalDateTime dateCreaction,String urlCible,UserApp destinataire, Role role ){
+    public Notification(String titre, String description, NotificationType notificationType, LocalDateTime dateCreaction, String urlCible, UserApp destinataire, Role role, Map<String, String> variables) {
         this.titre = titre;
         this.description = description;
         this.notificationType = notificationType;
@@ -49,5 +56,8 @@ public class Notification {
         this.destinataire = destinataire;
         this.estLu = false;
         this.role = role;
+        if (variables != null) {
+            this.variables = variables;
+        }
     }
 }

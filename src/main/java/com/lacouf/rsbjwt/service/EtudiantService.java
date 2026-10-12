@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
@@ -11,6 +12,7 @@ import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
@@ -36,15 +38,17 @@ public class EtudiantService {
     private final PasswordEncoder passwordEncoder;
     private final Path STORAGE_CV = Paths.get("uploads", "cvs");
     private final OffreDeStageRepository offreDeStageRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
-                           OffreDeStageRepository offreDeStageRepository) {
+                           OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -107,8 +111,9 @@ public class EtudiantService {
         supprimerAncienCv(cv, filePath);
 
         remplirInformationsCv(cv, file, filePath);
-
-        return CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
+        CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
+        eventPublisher.publishEvent(new NouveauCvTeleverser(cv));
+        return cvEtudiantDTO;
     }
 
     public CvEtudiantDTO getCv(String email)

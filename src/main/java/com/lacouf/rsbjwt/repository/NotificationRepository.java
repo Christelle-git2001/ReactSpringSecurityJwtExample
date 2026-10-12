@@ -1,4 +1,7 @@
 package com.lacouf.rsbjwt.repository;
 
-public interface NotificationRepository {
+import com.lacouf.rsbjwt.model.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface NotificationRepository extends JpaRepository<Notification,Long> {
 }
