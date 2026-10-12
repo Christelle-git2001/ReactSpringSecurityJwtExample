@@ -87,7 +87,7 @@
   },
   "common": {
     "not_provided": "Non renseigné",
-    "new_label" : "Nouveau"
+    "new_label": "Nouveau"
   },
   "actions": {
     "active": "Actif",
@@ -108,10 +108,10 @@
     "clear": "Effacer la recherche"
   },
   "offre": {
-    "employeur" : "Entreprise ",
-    "lieu" : "Lieu",
+    "employeur": "Entreprise ",
+    "lieu": "Lieu",
     "statut": "Statut",
-    "document_error" : "Document indisponible",
+    "document_error": "Document indisponible",
     "no_offers": "Aucune offre disponible pour le moment.",
     "no_matching_offers": "Aucune offre ne correspond à vos filtres.",
     "pending_offers": "Offres de stage en attente d'approbation",
@@ -128,7 +128,7 @@
     "document": "Document",
     "view_document": "Voir le document PDF",
     "no_document": "Aucun document joint",
-    "details": "Lire la description",
+    "details": "Voir les détails",
     "edit": "Modifier",
     "rejection_comment": "Raison du refus",
     "rejection_placeholder": "Veuillez entrer le motif du refus...",
@@ -206,6 +206,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
+    "cv": "Téléverser CV",
     "home": "Accueil",
     "account": "Compte",
     "login": "Connexion",
@@ -220,8 +221,8 @@
     "en_attente": "En attente d'approbation",
     "acceptee": "Acceptée",
     "refusee": "Refusée",
-    "cv_accepte" : "Accepté",
-    "cv_refuse" : "Refusé",
+    "cv_accepte": "Accepté",
+    "cv_refuse": "Refusé",
     "cvs_acceptes": "Acceptés",
     "cvs_refuses": "Refusés",
     "employer_added": "Employeur ajouté avec succès."
@@ -252,14 +253,14 @@
     "card": {
       "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
       "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. ",
-      "new_offer" : "",
-      "cvs" :""
+      "new_offer": "",
+      "cvs": ""
     },
-    "popup":{
-      "popup_description":"Ajoutez un CV et attendez son approbation pour consulter les offres.",
-      "popup_title":"Curriculum Vitae requis"
+    "popup": {
+      "popup_description": "Ajoutez un CV et attendez son approbation pour consulter les offres.",
+      "popup_title": "Curriculum Vitae requis"
     },
-    "offers":{
+    "offers": {
       "page_title": "Offres de stage",
       "title_filter": "Filtrer par titre",
       "domain_filter": "Filtrer par domaine",
@@ -276,8 +277,8 @@
   },
   "employeur": {
     "card": {
-      "view_offers" : "Consultez vos offres créées, leur statut ainsi que leurs informations",
-      "new_offer" : "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
+      "view_offers": "Consultez vos offres créées, leur statut ainsi que leurs informations",
+      "new_offer": "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
     }
   },
   "gestionnaire": {
@@ -312,6 +313,7 @@
     "doesntExist": "Aucune Session trouvée"
   },
   "cv": {
+    "read": "Lire",
     "pending_title": "Curriculums Vitae",
     "details_title": "Détails du CV",
     "none_pending": "Aucun CV en attente.",
@@ -326,7 +328,7 @@
     "status": "Statut",
     "previous_rejection_comment": "Commentaire de refus : ",
     "cv_already_approved": "Votre CV a déjà été approuvé. Vous ne pouvez plus le remplacer.",
-    "pending_cvs_title" : "Cvs en attente d'approbation",
+    "pending_cvs_title": "Cvs en attente d'approbation",
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."

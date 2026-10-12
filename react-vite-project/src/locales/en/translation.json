@@ -87,7 +87,7 @@
   },
   "common": {
     "not_provided": "Not provided",
-    "new_label" : "New"
+    "new_label": "New"
   },
   "actions": {
     "active": "Active",
@@ -206,11 +206,11 @@
       "new_offer": "",
       "cvs": ""
     },
-    "popup":{
-      "popup_description":"Add a resume and wait for approval to view offers.",
-      "popup_title":"Curriculum Vitae required"
+    "popup": {
+      "popup_description": "Add a resume and wait for approval to view offers.",
+      "popup_title": "Curriculum Vitae required"
     },
-    "offers":{
+    "offers": {
       "page_title": "Internship Offers",
       "title_filter": "Filter by title",
       "domain_filter": "Filter by domain",
@@ -226,8 +226,8 @@
   },
   "employeur": {
     "card": {
-      "view_offers" : "View your created offers, their status, and details",
-      "new_offer" : "Create a new internship offer to allow students to join your company!"
+      "view_offers": "View your created offers, their status, and details",
+      "new_offer": "Create a new internship offer to allow students to join your company!"
     }
   },
   "gestionnaire": {
@@ -266,10 +266,10 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
-    "employeur" : "Company",
-    "lieu" : "Location",
+    "employeur": "Company",
+    "lieu": "Location",
     "period": "Period",
-    "document_error" : "Document unavailable",
+    "document_error": "Document unavailable",
     "no_offers": "No offers available at the moment.",
     "details_title": "Offer Details",
     "offer_title": "Job Title",
@@ -286,7 +286,7 @@
     "no_matching_offers": "No offers match your filters.",
     "pending_offers": "Offers pending approval",
     "no_pending_offers": "No offers pending approval",
-    "details": "Read description",
+    "details": "See details",
     "edit": "Edit",
     "description": "Description",
     "rejection_comment": "Rejection reason",
@@ -301,8 +301,8 @@
     "en_attente": "Pending approval",
     "acceptee": "Accepted",
     "refusee": "Rejected",
-    "cv_accepte" : "Accepted",
-    "cv_refuse" : "Rejected",
+    "cv_accepte": "Accepted",
+    "cv_refuse": "Rejected",
     "cvs_acceptes": "Accepted",
     "cvs_refuses": "Rejected"
   },
@@ -311,8 +311,9 @@
     "clear": "Clear search"
   },
   "cv": {
+    "cv": "Upload CV",
+    "read": "Read",
     "pending_title": "Curriculums Vitae",
-    "details_title": "Resume details",
     "none_pending": "No CV pending.",
     "student_unknown": "Unknown student",
     "file_without_name": "Unnamed CV",
@@ -325,7 +326,8 @@
     "status": "Status",
     "previous_rejection_comment": "Rejection comment : ",
     "cv_already_approved": "Your CV has already been approved. You can no longer replace it.",
-    "pending_cvs_title" : "Cvs pending approval",
+    "pending_cvs_title": "Cvs pending approval",
+    "details_title": "CV Details",
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."

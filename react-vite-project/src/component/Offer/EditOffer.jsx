@@ -31,7 +31,7 @@ function EditOffer() {
             requireFile={false}
             onSubmit={(dto, file) =>
                 modifierOffreEmployeur(offer.id, dto, file).then(() =>
-                    navigate("/employeur/offers")
+                    navigate("/employeur")
                 )
             }
             onCancel={() => navigate("/employeur")}

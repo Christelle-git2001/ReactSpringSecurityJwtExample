@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiClock } from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiClock, FiFile } from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
@@ -27,18 +27,11 @@ function SideBarLayout({ user }) {
 
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: "/etudiant/account", label: t("nav.account"), roles: ["ETUDIANT"], icon: <FiUser className="size-4 my-1.5" /> },
-
+        { path: "/etudiant/cv", label: t("nav.cv"), roles: ["ETUDIANT"], icon: <FiFile className="size-4 my-1.5" /> },
         { path: "/employeur", label: t("nav.home"), roles: ["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: "/employeur/account", label: t("nav.account"), roles: ["EMPLOYEUR"], icon: <FiUser className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
-
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: "/gestionnaire/account", label: t("nav.account"), roles: ["GESTIONNAIRE"], icon: <FiUser className="size-4 my-1.5" /> },
-        { path: "/gestionnaire/historique", label: t("nav.history"), roles: ["GESTIONNAIRE"], icon: <FiClock className="size-4 my-1.5" /> },
-
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
-        { path: "/professeur/account", label: t("nav.account"), roles: ["PROFESSEUR"], icon: <FiUser className="size-4 my-1.5" /> },
         {
             path: user?.isLoggedIn ? "/logout" : "/login",
             label: user?.isLoggedIn ? t("nav.logout") : t("nav.login"),

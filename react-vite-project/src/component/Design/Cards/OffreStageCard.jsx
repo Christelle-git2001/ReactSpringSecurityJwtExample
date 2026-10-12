@@ -7,11 +7,9 @@ import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
-import NewLabel from "../NewLabel.jsx";
 
-function OffreStageCard({ offer, onView, onEdit, isNew = false }) {
+function OffreStageCard({ offer, onView, onEdit, isNew = false, showPdfActions = true }) {
     const { t } = useTranslation();
-
     const {
         pdfUrl,
         dialogRef,
@@ -43,19 +41,18 @@ function OffreStageCard({ offer, onView, onEdit, isNew = false }) {
     return (
         <>
             <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
-                <NewLabel isNew={isNew} />
-
                 <div className="card-body">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">
                             <span className={`badge badge-xs ${status.className}`}>
                                 {status.label}
                             </span>
-
-                            <PdfActionButtons
-                                onView={viewPDF}
-                                onDownload={() => gererTelechargement(offer?.fileName)}
-                            />
+                            {showPdfActions && (
+                                <PdfActionButtons
+                                    onView={viewPDF}
+                                    onDownload={() => gererTelechargement(offer?.fileName)}
+                                />
+                            )}
                         </div>
 
                         {canEdit && (
@@ -95,11 +92,13 @@ function OffreStageCard({ offer, onView, onEdit, isNew = false }) {
                     )}
                 </div>
 
-                <PdfPreviewDialog
-                    dialogRef={dialogRef}
-                    pdfUrl={pdfUrl}
-                    onClose={fermerModal}
-                />
+                {showPdfActions && (
+                    <PdfPreviewDialog
+                        dialogRef={dialogRef}
+                        pdfUrl={pdfUrl}
+                        onClose={fermerModal}
+                    />
+                )}
             </div>
         </>
     );
