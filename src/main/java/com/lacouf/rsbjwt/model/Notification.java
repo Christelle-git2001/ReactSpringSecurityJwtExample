@@ -1,6 +1,8 @@
 package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.NotificationType;
+import com.lacouf.rsbjwt.model.auth.Role;
+import com.lacouf.rsbjwt.validator.ValidNotificationRecipient;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@ValidNotificationRecipient
 public class Notification {
     @Id
     @GeneratedValue
@@ -29,13 +32,15 @@ public class Notification {
     @Column(nullable = false)
     private String urlCible;
     @ManyToOne
-    @JoinColumn(name = "user_app_id", nullable = false)
+    @JoinColumn(name = "user_app_id")
     private UserApp destinataire;
+    @Column
+    private Role role;
     @Column(nullable = false)
     private boolean estLu;
 
     @Builder
-    public Notification(String titre, String description, NotificationType notificationType,LocalDateTime dateCreaction,String urlCible,UserApp destinataire ){
+    public Notification(String titre, String description, NotificationType notificationType,LocalDateTime dateCreaction,String urlCible,UserApp destinataire, Role role ){
         this.titre = titre;
         this.description = description;
         this.notificationType = notificationType;
@@ -43,5 +48,6 @@ public class Notification {
         this.urlCible = urlCible;
         this.destinataire = destinataire;
         this.estLu = false;
+        this.role = role;
     }
 }
