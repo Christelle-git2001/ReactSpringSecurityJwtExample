@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
 import { useTranslation } from "react-i18next";
-import EtudiantOffers from "./EtudiantOffers.jsx";
+//import EtudiantOffers from "./EtudiantOffers.jsx";
 import FilterBar from "../../component/Design/FilterBar.jsx";
 import { getOffresEtudiant } from "../../api/etudiant.jsx"; // <-- tu dois avoir cette API
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
@@ -63,10 +63,7 @@ const EtudiantHome = ({ user }) => {
                     </div>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
-                        <EtudiantOffers
-                            user={user}
-                            filteredOffers={offresFiltrees}
-                        />
+
                     </div>
                 </div>
             </div>
