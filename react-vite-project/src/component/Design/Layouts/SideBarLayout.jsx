@@ -91,6 +91,7 @@ function SideBarLayout({ user }) {
                                     to={item.path}
                                     className="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-[#00CCCB] hover:text-white"
                                     data-tip={item.label}
+                                    onClick={() => setSidebarOpen(false)}
                                 >
                                     {item.icon}
                                     <span className="is-drawer-close:hidden">{item.label}</span>
