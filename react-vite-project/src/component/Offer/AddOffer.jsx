@@ -12,7 +12,7 @@ function AddOffer() {
             submitLabelKey="add_offer.submit"
             requireFile={true}
             onSubmit={(dto, file) =>
-                creerOffreEmployeur(dto, file).then(() => navigate("/employeur/offers"))
+                creerOffreEmployeur(dto, file).then(() => navigate("/employeur"))
             }
             onCancel={() => navigate("/employeur")}
         />
