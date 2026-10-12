@@ -5,11 +5,14 @@ import DashboardSection from "../../component/Design/Dashboard/DashboardSection.
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
+import SearchBar from "../../component/Design/SearchBar.jsx";
+import FilterBar from "../../component/Design/FilterBar.jsx";
 import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import {isNewSince} from "../../utils/isNewItem.jsx";
 import {FaBriefcase, FaFileAlt} from "react-icons/fa";
+import {useOffreFilters} from "../../utils/useOffreFilters.jsx";
 
 const trierParDateDesc = (items, getDate) => {
     return [...items].sort((itemA, itemB) => {
@@ -28,15 +31,39 @@ const GestionnaireHome = ({user}) => {
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const cvsRecents = useMemo(
-        () => trierParDateDesc(cvs, (cv) => cv.uploadDate),
-        [cvs]
+    const {
+        searchTerm,
+        setSearchTerm,
+        selectedDomain,
+        setSelectedDomain,
+        availableDomains,
+        offresFiltrees,
+        cvsFiltres,
+    } = useOffreFilters(offres, cvs);
+
+    const cvsFiltresRecents = useMemo(
+        () => trierParDateDesc(cvsFiltres, (cv) => cv.uploadDate),
+        [cvsFiltres]
     );
 
-    const offresRecentes = useMemo(
-        () => trierParDateDesc(offres, (offer) => offer.createdAt),
-        [offres]
+    const offresFiltreesRecentes = useMemo(
+        () => trierParDateDesc(offresFiltrees, (offer) => offer.createdAt),
+        [offresFiltrees]
     );
+
+    const hasActiveFilters = searchTerm.trim() !== "" || selectedDomain !== "TOUS";
+
+    const getSectionCountLabel = (filteredCount, totalCount, singularKey, pluralKey = singularKey) => {
+        if (hasActiveFilters) {
+            return t(filteredCount > 1 ? "dashboard.results_count" : "dashboard.result_count", {
+                count: filteredCount
+            });
+        }
+
+        return t(totalCount > 1 ? pluralKey : singularKey, { count: totalCount });
+    };
+
+    const sectionCountClassName = "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#043462]";
 
     const handleViewCv = (cv) => {
         navigate("/gestionnaire/cvs/details", {
@@ -92,32 +119,58 @@ const GestionnaireHome = ({user}) => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    onClear={() => setSearchTerm("")}
+                    placeholder={t("dashboard.search_placeholder")}
+                    className="mx-auto max-w-4xl"
+                />
+
+                <FilterBar
+                    selectedDomain={selectedDomain}
+                    onDomainChange={setSelectedDomain}
+                    availableDomains={availableDomains}
+                    className="mx-auto max-w-4xl"
+                />
+
+                <div className="flex w-full flex-wrap justify-start gap-4">
                     <DashboardSummaryCard
-                        icon={<FaFileAlt className="size-6" />}
+                        icon={<FaFileAlt className="size-5" />}
                         value={cvs.length}
                         label={t("dashboard.pending_cvs_count")}
                         tone="blue"
                         ariaLabel={t("dashboard.view_pending_cvs")}
+                        className="w-full sm:w-[260px]"
                     />
 
                     <DashboardSummaryCard
-                        icon={<FaBriefcase className="size-6" />}
+                        icon={<FaBriefcase className="size-5" />}
                         value={offres.length}
                         label={t("dashboard.pending_offers_count")}
                         tone="green"
                         ariaLabel={t("dashboard.view_pending_offers")}
+                        className="w-full sm:w-[260px]"
                     />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <DashboardSection title={`${t("cv.pending_cvs_title")} (${cvs.length})`}>
-                        {!isInitialLoading && cvs.length === 0 && !error ? (
-                            <EmptyContentMessage message={t("cv.none_pending")} />
+                <div className="flex flex-col gap-5 pb-4">
+                    <DashboardSection
+                        title={t("cv.pending_cvs_title")}
+                        headerAction={
+                            <span className={sectionCountClassName}>
+                                {getSectionCountLabel(cvsFiltresRecents.length, cvs.length, "dashboard.cv_count", "dashboard.cv_count_plural")}
+                            </span>
+                        }
+                    >
+                        {!isInitialLoading && cvsFiltresRecents.length === 0 && !error ? (
+                            <EmptyContentMessage
+                                message={cvs.length === 0 ? t("cv.none_pending") : t("offre.no_matching_offers")}
+                            />
                         ) : (
                             <ExpandableList
-                                items={cvsRecents}
-                                limit={6}
+                                items={cvsFiltresRecents}
+                                limit={3}
                                 expandLabel={t("dashboard.view_more", "Voir plus")}
                                 collapseLabel={t("dashboard.view_less", "Voir moins")}
                                 renderItem={(cv) => (
@@ -132,13 +185,22 @@ const GestionnaireHome = ({user}) => {
                         )}
                     </DashboardSection>
 
-                    <DashboardSection title={`${t("offre.pending_offers")} (${offres.length})`}>
-                        {!isInitialLoading && offres.length === 0 ? (
-                            <EmptyContentMessage message={t("offre.no_offers")} />
+                    <DashboardSection
+                        title={t("offre.pending_offers")}
+                        headerAction={
+                            <span className={sectionCountClassName}>
+                                {getSectionCountLabel(offresFiltreesRecentes.length, offres.length, "dashboard.offer_count", "dashboard.offer_count_plural")}
+                            </span>
+                        }
+                    >
+                        {!isInitialLoading && offresFiltreesRecentes.length === 0 ? (
+                            <EmptyContentMessage
+                                message={offres.length === 0 ? t("offre.no_offers") : t("offre.no_matching_offers")}
+                            />
                         ) : (
                             <ExpandableList
-                                items={offresRecentes}
-                                limit={6}
+                                items={offresFiltreesRecentes}
+                                limit={3}
                                 expandLabel={t("dashboard.view_more", "Voir plus")}
                                 collapseLabel={t("dashboard.view_less", "Voir moins")}
                                 renderItem={(offer) => (

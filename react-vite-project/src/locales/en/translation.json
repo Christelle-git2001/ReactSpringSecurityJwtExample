@@ -175,7 +175,13 @@
     "add_offer": "Add offer",
     "view_offers": "Internship offers",
     "created_offers": "Created offers",
-    "history": "History"
+    "history": "History",
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "sidebar": {
+    "collapse": "Collapse menu",
+    "expand": "Expand menu"
   },
   "home": {
     "welcome": "Welcome"
@@ -184,6 +190,13 @@
     "manager_subtitle": "Track pending resumes and internship offers.",
     "pending_cvs_count": "Pending resumes",
     "pending_offers_count": "Pending offers",
+    "search_placeholder": "Search for a resume, offer, student, or company...",
+    "result_count": "{{count}} result",
+    "results_count": "{{count}} results",
+    "cv_count": "{{count}} resume",
+    "cv_count_plural": "{{count}} resumes",
+    "offer_count": "{{count}} offer",
+    "offer_count_plural": "{{count}} offers",
     "view_pending_cvs": "View pending resumes",
     "view_pending_offers": "View pending offers",
     "recent_activity": "Recent activity",
