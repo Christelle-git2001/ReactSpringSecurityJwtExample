@@ -35,7 +35,6 @@ function SideBarLayout({ user }) {
 
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/account", label: t("nav.account"), roles: ["GESTIONNAIRE"], icon: <FiUser className="size-4 my-1.5" /> },
-        { path: "/gestionnaire/historique", label: t("nav.history"), roles: ["GESTIONNAIRE"], icon: <FiClock className="size-4 my-1.5" /> },
 
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/professeur/account", label: t("nav.account"), roles: ["PROFESSEUR"], icon: <FiUser className="size-4 my-1.5" /> },

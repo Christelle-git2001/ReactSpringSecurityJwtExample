@@ -284,7 +284,7 @@
     "no_matching_offers": "No offers match your filters.",
     "pending_offers": "Offers pending approval",
     "no_pending_offers": "No offers pending approval",
-    "details": "Read description",
+    "details": "See details",
     "edit": "Edit",
     "description": "Description",
     "rejection_comment": "Rejection reason",
@@ -309,6 +309,7 @@
     "clear": "Clear search"
   },
   "cv": {
+    "read" : "Read",
     "pending_title": "Curriculums Vitae",
     "none_pending": "No CV pending.",
     "student_unknown": "Unknown student",
@@ -322,6 +323,7 @@
     "status": "Status",
     "previous_rejection_comment": "Rejection comment : ",
     "cv_already_approved": "Your CV has already been approved. You can no longer replace it.",
-    "pending_cvs_title" : "Cvs pending approval"
+    "pending_cvs_title" : "Cvs pending approval",
+    "details_title" : "CV Details"
   }
 }

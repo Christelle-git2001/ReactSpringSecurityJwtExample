@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { useTranslation } from "react-i18next";
 import { FiX } from "react-icons/fi";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export const PDFContent = ({ cvUrlAAffiche, width }) => {
+export const PDFContent = ({ cvUrlAAffiche, enablePageScroll = false }) => {
     const { t } = useTranslation();
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
+
+    const containerRef = useRef(null);
+    const [containerWidth, setContainerWidth] = useState(null);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (containerRef.current) {
+                // On enlève moins de padding (ex: 16px au lieu de 32px) pour laisser le document plus large
+                setContainerWidth(containerRef.current.clientWidth - 16);
+            }
+        };
+
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
 
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages);
@@ -23,14 +39,14 @@ export const PDFContent = ({ cvUrlAAffiche, width }) => {
     }
 
     return (
-        <div className="flex flex-col items-center border p-4 rounded-xl shadow-xs bg-base-100 overflow-hidden w-full">
-            <div className="w-full flex justify-center overflow-auto max-h-[70vh]">
+        <div ref={containerRef} className="flex flex-col items-center border p-4 rounded-xl shadow-xs bg-base-100 w-full overflow-hidden">
+            <div className={`w-full flex justify-center max-w-full ${enablePageScroll ? 'overflow-hidden' : 'overflow-auto max-h-[70vh]'}`}>
                 <Document file={cvUrlAAffiche} onLoadSuccess={onDocumentLoadSuccess}>
                     <Page
                         pageNumber={pageNumber}
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
-                        width={width || Math.min(window.innerWidth * 0.7, 800)}
+                        width={containerWidth ? Math.min(containerWidth, 900) : 800}
                     />
                 </Document>
             </div>
