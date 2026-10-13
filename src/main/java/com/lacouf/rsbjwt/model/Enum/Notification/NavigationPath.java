@@ -11,7 +11,7 @@ public enum NavigationPath {
 
     public String build(String... params) {
         String result = pattern;
-        for (Object param : params) {
+        for (String param : params) {
             result = result.replaceFirst("\\{[^}]+}", String.valueOf(param));
         }
         return result;
