@@ -1,4 +1,4 @@
-package com.lacouf.rsbjwt.model.Enum;
+package com.lacouf.rsbjwt.model.Enum.Notification;
 
 
 public enum NotificationType {

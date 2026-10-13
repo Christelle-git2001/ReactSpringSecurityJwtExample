@@ -4,7 +4,8 @@ import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Enum.NotificationType;
+import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
+import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
@@ -45,7 +46,7 @@ public class SystemeService {
                 .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
                 .dateCreaction(LocalDateTime.now())
                 .urlCible("/cv/" + cv.getId() + "/download")
-                .variables(Map.of("nomEtudiant",etudiant.getFirstName() + " " + etudiant.getLastName()))
+                .variables(Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }

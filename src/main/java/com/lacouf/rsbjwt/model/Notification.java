@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.model;
 
-import com.lacouf.rsbjwt.model.Enum.NotificationType;
+import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
+import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.validator.ValidNotificationRecipient;
 import jakarta.persistence.*;
@@ -44,10 +45,10 @@ public class Notification {
     private boolean estLu;
     @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, String> variables = new HashMap<>();
+    private Map<VariableMapKey, String> variables = new HashMap<>();
 
     @Builder
-    public Notification(String titre, String description, NotificationType notificationType, LocalDateTime dateCreaction, String urlCible, UserApp destinataire, Role role, Map<String, String> variables) {
+    public Notification(String titre, String description, NotificationType notificationType, LocalDateTime dateCreaction, String urlCible, UserApp destinataire, Role role, Map<VariableMapKey, String> variables) {
         this.titre = titre;
         this.description = description;
         this.notificationType = notificationType;
