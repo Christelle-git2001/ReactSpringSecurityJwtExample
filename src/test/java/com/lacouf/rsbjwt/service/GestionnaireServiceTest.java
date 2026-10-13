@@ -604,4 +604,26 @@ class GestionnaireServiceTest {
 
         }
     }
+
+    @Test
+    void doitRetournerToutesLesOffres() {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(1L);
+        offre.setTitle("Développeur Java");
+        offre.setStatut(Statut.EN_ATTENTE);
+        offre.setEmployeur(creerEmployeurTest());
+
+        when(offreDeStageRepository.findAll())
+                .thenReturn(List.of(offre));
+
+        List<OffreDeStageDTO> result = gestionnaireService.getToutesLesOffres();
+
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .extracting(OffreDeStageDTO::id, OffreDeStageDTO::title)
+                .containsExactly(1L, "Développeur Java");
+
+        verify(offreDeStageRepository).findAll();
+    }
 }
