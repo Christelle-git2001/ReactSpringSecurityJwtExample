@@ -13,19 +13,19 @@ const toneClasses = {
     },
 };
 
-function DashboardSummaryCard({ icon, value, label, tone = "blue", onClick, ariaLabel, actionLabel }) {
+function DashboardSummaryCard({ icon, value, label, tone = "blue", onClick, ariaLabel, actionLabel, className = "" }) {
     const styles = toneClasses[tone] || toneClasses.blue;
 
     return (
-        <div className={`rounded-xl border ${styles.border} bg-white shadow-sm p-5 flex items-center justify-between`}>
-            <div className="flex items-center gap-4">
-                <div className={`size-14 rounded-xl flex items-center justify-center ${styles.icon}`}>
+        <div className={`rounded-xl border ${styles.border} bg-white shadow-sm p-4 flex items-center justify-between ${className}`}>
+            <div className="flex items-center gap-3">
+                <div className={`size-11 rounded-xl flex items-center justify-center ${styles.icon}`}>
                     {icon}
                 </div>
 
                 <div>
-                    <p className="text-3xl font-bold text-[#043462]">{value}</p>
-                    <p className="text-sm font-semibold text-gray-600">{label}</p>
+                    <p className="text-2xl font-bold leading-tight text-[#043462]">{value}</p>
+                    <p className="text-xs font-semibold text-gray-600">{label}</p>
                 </div>
             </div>
 

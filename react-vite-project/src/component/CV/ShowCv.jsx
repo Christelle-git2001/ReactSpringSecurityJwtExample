@@ -98,7 +98,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
                 )}
                 {currentError && (
                     <div className="mt-1">
-                        <p className="text-xs text-red-500">{t(curentError)}</p>
+                        <p className="text-xs text-red-500">{t(currentError)}</p>
                     </div>
                 )}
             </div>

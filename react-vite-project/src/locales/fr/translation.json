@@ -214,7 +214,13 @@
     "add_offer": "Créer une offre",
     "view_offers": "Offres de stage",
     "created_offers": "Offres créees",
-    "history": "History"
+    "history": "History",
+    "collapse": "Réduire",
+    "expand": "Développer"
+  },
+  "sidebar": {
+    "collapse": "Réduire le menu",
+    "expand": "Développer le menu"
   },
   "status": {
     "tous": "Tous",
@@ -234,6 +240,12 @@
     "manager_subtitle": "Suivi des CV et des offres de stage en attente.",
     "pending_cvs_count": "CV en attente",
     "pending_offers_count": "Offres en attente",
+    "search_placeholder": "Rechercher un CV, une offre, un étudiant ou une entreprise...",
+    "result_count": "{{count}} résultat",
+    "results_count": "{{count}} résultats",
+    "cv_count": "{{count}} CV",
+    "offer_count": "{{count}} offre",
+    "offer_count_plural": "{{count}} offres",
     "view_pending_cvs": "Voir les CV en attente",
     "view_pending_offers": "Voir les offres en attente",
     "recent_activity": "Activité récente",

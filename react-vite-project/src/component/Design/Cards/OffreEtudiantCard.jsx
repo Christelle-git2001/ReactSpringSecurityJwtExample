@@ -4,9 +4,8 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
-import NewLabel from "../NewLabel.jsx";
 
-function OffreEtudiantCard({ offer, onView, isNew = false }) {
+function OffreEtudiantCard({ offer, onView }) {
     const { t } = useTranslation();
 
     const offre = [
@@ -30,9 +29,7 @@ function OffreEtudiantCard({ offer, onView, isNew = false }) {
 
     return (
         <>
-            <div className="card relative overflow-visible w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
-                <NewLabel isNew={isNew} />
-
+            <div className="card w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                 <div className="card-body">
                     <PdfActionButtons
                         onView={viewPDF}

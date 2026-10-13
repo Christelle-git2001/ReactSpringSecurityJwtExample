@@ -17,7 +17,6 @@ import AccountGestionnaire from "../../page/Gestionnaire/AccountGestionnaire.jsx
 import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
 import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
-import GestionnaireCvsEnAttente from "../../page/Gestionnaire/GestionnaireCvsEnAttente.jsx";
 import CVDetails from "../CV/CVDetails.jsx";
 
 export default function AppRoutes({
@@ -60,7 +59,7 @@ export default function AppRoutes({
                 <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
-                <Route path="/etudiant/account" element={<AccountEtudiant user={user}/>}/>
+                <Route path="/etudiant/cv" element={<AccountEtudiant user={user}/>}/>
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>
                 <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>
                 <Route path="/employeur" element={<EmployeurHome  user={user}/>} />
@@ -69,7 +68,6 @@ export default function AppRoutes({
                 <Route path="/professeur" element={<ProfesseurHome />} />
                 <Route path="/gestionnaire" element={<GestionnaireHome  user={user}/>} />
                 <Route path="/gestionnaire/cvs" element={<GestionnaireCvs user={user} />} />
-                <Route path="/gestionnaire/cvs/attente" element={<GestionnaireCvsEnAttente user={user} />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/gestionnaire/cvs/details" element={<CVDetails/>} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
