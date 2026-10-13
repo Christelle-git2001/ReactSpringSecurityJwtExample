@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiChevronDown } from "react-icons/fi";
 
 const ExpandableList = ({
@@ -6,12 +7,15 @@ const ExpandableList = ({
     limit = 6,
     renderItem,
     getKey = (item) => item.id,
-    expandLabel = "Voir plus",
-    collapseLabel = "Voir moins",
+    expandLabel,
+    collapseLabel,
 }) => {
-    const [expanded, setExpanded] = useState(false);
+    const { t } = useTranslation();
+    const [expanded, setExpanded] = useState(true);
     const hasMore = items.length > limit;
-    const visibleItems = expanded ? items : items.slice(0, limit);
+    const visibleItems = expanded ? items : [];
+    const resolvedExpandLabel = expandLabel || t("dashboard.view_more");
+    const resolvedCollapseLabel = collapseLabel || t("dashboard.view_less");
 
     return (
         <div className="space-y-3">
@@ -28,7 +32,7 @@ const ExpandableList = ({
                     onClick={() => setExpanded((previous) => !previous)}
                     className="flex w-full cursor-pointer items-center justify-center gap-2 py-2 text-sm font-semibold text-[#043462]"
                 >
-                    {expanded ? collapseLabel : expandLabel}
+                    {expanded ? resolvedCollapseLabel : resolvedExpandLabel}
                     <FiChevronDown
                         aria-hidden="true"
                         className={`size-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}

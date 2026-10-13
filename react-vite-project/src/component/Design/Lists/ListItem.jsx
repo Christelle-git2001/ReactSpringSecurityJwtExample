@@ -1,5 +1,4 @@
 import React from "react";
-import NewLabel from "../NewLabel.jsx";
 import { FiChevronRight } from "react-icons/fi";
 
 const toneClasses = {
@@ -23,14 +22,14 @@ const toneClasses = {
     },
 };
 
-function NotificationDropdown({
+function ListItem({
     icon,
     title,
     subtitle,
     meta,
+    detailRows = [],
     badge,
     badgeClassName,
-    isNew = false,
     tone = "blue",
     variant = "card",
     actionLabel,
@@ -48,7 +47,6 @@ function NotificationDropdown({
                 className="relative w-full flex items-center justify-between rounded-lg p-3 text-left hover:bg-gray-50"
                 aria-label={ariaLabel}
             >
-                <NewLabel isNew={isNew} size="sm" className="-top-2 left-2" />
                 <div className="flex min-w-0 items-center gap-3">
                     <div className={`size-10 shrink-0 rounded-full flex items-center justify-center ${styles.icon}`}>
                         {icon}
@@ -59,12 +57,12 @@ function NotificationDropdown({
                             {title}
                         </p>
                         {subtitle && (
-                            <p className="truncate text-xs text-gray-500">
+                            <p className="truncate text-xs font-semibold text-[#043462]">
                                 {subtitle}
                             </p>
                         )}
                         {meta && (
-                            <p className="truncate text-xs text-gray-400">
+                            <p className="truncate text-xs font-medium text-gray-600">
                                 {meta}
                             </p>
                         )}
@@ -93,11 +91,9 @@ function NotificationDropdown({
     }
 
     return (
-        <div className={`relative overflow-visible rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient}`}>
-            <NewLabel isNew={isNew} />
-
-            <div className="flex items-center justify-between gap-3">
-                <div className="flex min-w-0 flex-1 items-center gap-3">
+        <div className={`rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient}`}>
+            <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
                     <div className={`size-11 shrink-0 rounded-xl flex items-center justify-center ${styles.icon}`}>
                         {icon}
                     </div>
@@ -115,15 +111,26 @@ function NotificationDropdown({
                         </div>
 
                         {subtitle && (
-                            <p className="mt-1 truncate text-xs font-medium text-gray-500">
+                            <p className="mt-1 truncate text-xs font-semibold text-[#043462]">
                                 {subtitle}
                             </p>
                         )}
 
                         {meta && (
-                            <p className="mt-1 truncate text-xs text-gray-400">
+                            <p className="mt-1 truncate text-xs font-medium text-gray-600">
                                 {meta}
                             </p>
+                        )}
+
+                        {detailRows.length > 0 && (
+                            <dl className="mt-3 grid gap-2 text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4">
+                                {detailRows.map(({ label, value }) => (
+                                    <div key={label} className="min-w-0">
+                                        <dt className="font-bold text-[#043462]">{label}</dt>
+                                        <dd className="truncate font-medium">{value}</dd>
+                                    </div>
+                                ))}
+                            </dl>
                         )}
                     </div>
                 </div>
@@ -143,4 +150,4 @@ function NotificationDropdown({
     );
 }
 
-export default NotificationDropdown;
+export default ListItem;
