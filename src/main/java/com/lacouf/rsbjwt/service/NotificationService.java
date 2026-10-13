@@ -51,8 +51,7 @@ public class NotificationService {
     }
 
     public List<NotificationDTO> recevoirNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
-        UserApp userApp = userAppRepository.findById(id)
-                .orElseThrow(UtilisateurIntrouvableException::new);
+        UserApp userApp = verifierEtRecupererUtilisateur(id);
         Role role = userApp.getRole();
         List<Notification> notifications = switch (role) {
             case GESTIONNAIRE -> notificationRepository.getNotificationByRole(role);
@@ -75,5 +74,20 @@ public class NotificationService {
         NotificationDTO notificationDTO = NotificationDTO.of(notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new));
         notificationRepository.deleteById(id);
         return notificationDTO;
+    }
+
+    public Long compterNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
+        UserApp userApp = verifierEtRecupererUtilisateur(id);
+        Role role = userApp.getRole();
+       return switch (role) {
+            case GESTIONNAIRE -> notificationRepository.totalByRole(role);
+            case ETUDIANT, PROFESSEUR, EMPLOYEUR -> notificationRepository.totalByUser(userApp);
+            case null -> throw new AucunRoleDefini();
+        };
+    }
+
+    private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
+        return userAppRepository.findById(id)
+                .orElseThrow(UtilisateurIntrouvableException::new);
     }
 }

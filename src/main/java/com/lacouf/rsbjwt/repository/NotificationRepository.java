@@ -18,4 +18,8 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     @Modifying
     @Query("UPDATE Notification AS n SET n.estLu = TRUE WHERE n.id == :id")
     Optional<Notification> setEstLue(Long id);
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.role = :role")
+    Long totalByRole(Role role);
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.destinataire = :userApp")
+    Long totalByUser(UserApp userApp);
 }
