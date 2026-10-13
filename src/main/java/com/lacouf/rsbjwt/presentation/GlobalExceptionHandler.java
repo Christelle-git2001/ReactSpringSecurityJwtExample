@@ -217,4 +217,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(NotificationNonTrouvee.class)
+    public ResponseEntity<ErreurDTO> handleNotificationNonTrouvee(NotificationNonTrouvee e){
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
+    }
+
 }

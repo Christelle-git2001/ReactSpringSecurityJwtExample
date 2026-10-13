@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
+import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.NotificationType;
@@ -17,10 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,6 +34,7 @@ public class NotificationService {
     }
 
     @EventListener
+    @Transactional
     public void handleNouveauCVTeleverser(NouveauCvTeleverser event){
         CvEtudiant cv = event.cv();
         Etudiant etudiant = cv.getEtudiant();
@@ -62,5 +62,18 @@ public class NotificationService {
         return notifications.stream()
                 .map(NotificationDTO::of)
                 .toList();
+    }
+
+    @Transactional
+    public NotificationDTO setNotificationLue(Long id) throws NotificationNonTrouvee {
+        Notification notification = notificationRepository.setEstLue(id).orElseThrow(NotificationNonTrouvee::new);
+        return NotificationDTO.of(notification);
+    }
+
+    @Transactional
+    public NotificationDTO supprimerNotification(Long id) throws NotificationNonTrouvee {
+        NotificationDTO notificationDTO = NotificationDTO.of(notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new));
+        notificationRepository.deleteById(id);
+        return notificationDTO;
     }
 }
