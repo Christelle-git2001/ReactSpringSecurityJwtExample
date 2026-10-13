@@ -279,6 +279,7 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "apply": "Apply",
     "employeur": "Company",
     "lieu": "Location",
     "period": "Period",

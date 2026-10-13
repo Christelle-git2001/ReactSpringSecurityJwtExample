@@ -4,6 +4,7 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
+import  "../../../css/EtudiantHome.css"
 import NewLabel from "../NewLabel.jsx";
 
 function OffreEtudiantCard({ offer, onView, isNew = false }) {
@@ -56,7 +57,7 @@ function OffreEtudiantCard({ offer, onView, isNew = false }) {
 
                     <label
                         htmlFor="my-drawer-5"
-                        className="btn bg-[#66E5E4] btn-block text-[#043462]"
+                        className="bouton"
                         onClick={() => onView?.(offer)}
                     >
                         {t("offre.details")}
