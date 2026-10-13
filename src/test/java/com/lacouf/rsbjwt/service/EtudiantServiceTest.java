@@ -212,6 +212,25 @@ public class EtudiantServiceTest {
     }
 
     @Test
+    void doitLancerExceptionMatriculeNonConforme() {
+        inscriptionEtudiantDTO = new InscriptionEtudiantDTO(
+                "Christelle",
+                "Altineus",
+                "438-297-8191",
+                "christelle@gmail.com",
+                "22262523",
+                "INFORMATIQUE",
+                "111111",
+                "222222"
+        );
+        assertThatThrownBy(() ->
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO)
+        ).isInstanceOf(MatriculeNonConforme.class);
+
+        verify(etudiantRepository, never()).save(any(Etudiant.class));
+    }
+
+    @Test
     void doitTeleverserCv() throws Exception{
         MockMultipartFile file = new MockMultipartFile(
                 "file",

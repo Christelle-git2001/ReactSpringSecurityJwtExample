@@ -52,7 +52,7 @@ public class EtudiantService {
     }
 
     @Transactional
-    public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException, NumeroTelephoneExistantException {
+    public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException, NumeroTelephoneExistantException, MatriculeNonConforme {
         validerInscriptionEtudiant(inscriptionEtudiantDto);
         Departement departement = StockageFichierUtils.normaliserDepartement(inscriptionEtudiantDto.department()) ;
 
@@ -69,7 +69,11 @@ public class EtudiantService {
         return EtudiantDTO.of(etudiantRepository.save(etudiant));
     }
 
-    private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto)  throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException{
+    private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException, MatriculeNonConforme {
+
+        if(inscriptionEtudiantDto.matricule().length() != 7){
+            throw new MatriculeNonConforme();
+        }
 
         if (!inscriptionEtudiantDto.password()
                 .equals(inscriptionEtudiantDto.passwordConfirmation())) {
