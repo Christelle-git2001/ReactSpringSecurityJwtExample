@@ -38,7 +38,7 @@ public class NotificationController {
         return ResponseEntity.ok(notificationDTO);
     }
 
-    @GetMapping("/user/{id}/compteur")
+    @GetMapping("/utilisateur/{id}/compteur")
     public ResponseEntity<Long> compterNotifications(@PathVariable Long id) throws UtilisateurIntrouvableException, AucunRoleDefini {
         long count = notificationService.compterNotifications(id);
         return ResponseEntity.ok(count);
