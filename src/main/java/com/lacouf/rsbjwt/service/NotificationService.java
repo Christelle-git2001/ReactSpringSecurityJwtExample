@@ -24,12 +24,12 @@ import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
-public class SystemeService {
+public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserAppRepository userAppRepository;
 
-    public SystemeService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
+    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
     }

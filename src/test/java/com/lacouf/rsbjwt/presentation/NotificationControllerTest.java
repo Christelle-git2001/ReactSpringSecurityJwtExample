@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
-import com.lacouf.rsbjwt.service.SystemeService;
+import com.lacouf.rsbjwt.service.NotificationService;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,12 +25,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class SystemeControllerTest {
+public class NotificationControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
     @MockitoBean
-    private SystemeService systemeService;
+    private NotificationService notificationService;
 
     private MockMvc mockMvc;
 
@@ -46,7 +46,7 @@ public class SystemeControllerTest {
     @Test
     void doitRetourneeListeNotificationDtoStatusOk() throws Exception {
         List<NotificationDTO> notificationDTOList = List.of(notificationDTO);
-        when(systemeService.recevoirNotifications(1L)).thenReturn(notificationDTOList);
+        when(notificationService.recevoirNotifications(1L)).thenReturn(notificationDTOList);
         mockMvc.perform(get("/notification/utilisateur/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].titre").value(notificationDTO.titre()))
@@ -57,7 +57,7 @@ public class SystemeControllerTest {
     @Test
     void doitRetournerNotificationDTOLueStatusOK() throws Exception {
         notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),"etudiant/1/cv",true, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean François Castonguay"));
-        when(systemeService.setNotificationLue(1L)).thenReturn(notificationDTO);
+        when(notificationService.setNotificationLue(1L)).thenReturn(notificationDTO);
         mockMvc.perform(put("/notification/1/lu"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.titre").value(notificationDTO.titre()))
@@ -68,7 +68,7 @@ public class SystemeControllerTest {
 
     @Test
     void doitRetournerNotificationDTOSupprimerStatusOK() throws Exception {
-        when(systemeService.supprimerNotification(1L)).thenReturn(notificationDTO);
+        when(notificationService.supprimerNotification(1L)).thenReturn(notificationDTO);
         mockMvc.perform(delete("/notification/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.titre").value(notificationDTO.titre()))
@@ -82,7 +82,7 @@ public class SystemeControllerTest {
         List<NotificationDTO> notificationDTOList = new java.util.ArrayList<>(List.of(notificationDTO));
         notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),"etudiant/1/cv",false, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean Moustache Castonguay"));
         notificationDTOList.add(notificationDTO);
-        when(systemeService.compterNotifications(1L)).thenReturn((long) notificationDTOList.size());
+        when(notificationService.compterNotifications(1L)).thenReturn((long) notificationDTOList.size());
         mockMvc.perform(get("/notification/utilisateur/1/compteur"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(notificationDTOList.size()));
