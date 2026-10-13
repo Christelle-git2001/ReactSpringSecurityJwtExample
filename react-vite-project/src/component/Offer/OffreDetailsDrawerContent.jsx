@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 
-function OffreDetailsDrawerContent({ offer }) {
+function OffreDetailsDrawerContent({ offer, showStatus= true }) {
     const { t } = useTranslation();
 
     const departmentKey = getDepartmentKey(offer?.domain);
@@ -18,12 +18,13 @@ function OffreDetailsDrawerContent({ offer }) {
                 <div className="flex justify-between items-start">
                     <h2 className="text-xl font-bold">{offer.title}</h2>
 
-                    <span className={`badge ${status.className} text-white`}>
+                    {showStatus && ( <span className={`badge ${status.className} text-white`}>
                         {status.label}
                     </span>
+                    )}
                 </div>
 
-                {offer.statut === "REFUSEE" && offer.rejectionComment && (
+                {showStatus && offer.statut === "REFUSEE" && offer.rejectionComment && (
                     <div className="bg-red-50 border-red-500 p-3 rounded">
                         <p className="text-sm font-semibold text-red-700">
                             {t("offre.rejection_comment")}
