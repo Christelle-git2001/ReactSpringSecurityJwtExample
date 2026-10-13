@@ -23,12 +23,12 @@ import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
-public class NotificationService {
+public class SystemeService {
 
     private final NotificationRepository notificationRepository;
     private final UserAppRepository userAppRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
+    public SystemeService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
     }
@@ -42,7 +42,7 @@ public class NotificationService {
                 .titre("notification.gestionnaire.televerserCV.title")
                 .description("notification.gestionnaire.televerserCV.description")
                 .role(Role.GESTIONNAIRE)
-                .notificationType(NotificationType.CVATTENTEVALIDATION)
+                .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
                 .dateCreaction(LocalDateTime.now())
                 .urlCible("/cv/" + cv.getId() + "/download")
                 .variables(Map.of("nomEtudiant",etudiant.getFirstName() + " " + etudiant.getLastName()))

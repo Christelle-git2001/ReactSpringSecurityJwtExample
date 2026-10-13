@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.model.Enum;
 
 
 public enum NotificationType {
-    CVATTENTEVALIDATION("Un CV est en attente de votre validation");
+    CV_ATTENTE_VALIDATION("Un CV est en attente de votre validation");
 
     private final String label;
 

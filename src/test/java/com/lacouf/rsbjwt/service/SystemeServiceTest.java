@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NotificationServiceTest {
+public class SystemeServiceTest {
     @Mock
     private NotificationRepository notificationRepository;
 
@@ -44,16 +44,16 @@ public class NotificationServiceTest {
     private Notification notificationWithUser;
 
     @InjectMocks
-    private NotificationService notificationService;
+    private SystemeService systemeService;
 
     @BeforeEach
     void init(){
         etudiant = new Etudiant("Jean","Dupuis","Jean.Dupuis@hotmail.com","438-956-5858", Departement.INFORMATIQUE,"8585858","YOYO");
         cvEtudiant = new CvEtudiant("JeanDupuisTutorial","application/pdf",200L,"uploads/cvs/JeanDupuis.pdf", LocalDateTime.now(),etudiant);
         nouveauCvTeleverser = new NouveauCvTeleverser(cvEtudiant);
-        notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CVATTENTEVALIDATION,LocalDateTime.now(),"/cv/1/download",null, Role.GESTIONNAIRE, Map.of("notificationOf.name","Jean Dupont"));
+        notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",null, Role.GESTIONNAIRE, Map.of("notificationOf.name","Jean Dupont"));
         notificationWithoutUser.setId(1L);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CVATTENTEVALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of("",""));
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of("",""));
         notificationWithUser.setId(2L);
         gestionnaire = new Gestionnaire(3L,"Patrick","Mesange","Patrick.Mesange@hotmail.com","NoNeed","450-254-5874");
         gestionnaire.setId(3L);
@@ -63,7 +63,7 @@ public class NotificationServiceTest {
     void doitCreerNotification(){
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
 
-        NotificationDTO notificationDTO = notificationService.handleNouveauCVTeleverser(nouveauCvTeleverser);
+        NotificationDTO notificationDTO = systemeService.handleNouveauCVTeleverser(nouveauCvTeleverser);
 
         assertThat(notificationDTO).isNotNull();
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
@@ -75,7 +75,7 @@ public class NotificationServiceTest {
         when(notificationRepository.getNotificationByRole(Role.GESTIONNAIRE)).thenReturn(List.of(notificationWithoutUser));
         when(userAppRepository.findById(gestionnaire.getId())).thenReturn(Optional.of(gestionnaire));
 
-        List<NotificationDTO> notificationDTOList = notificationService.recevoirNotifications(gestionnaire.getId());
+        List<NotificationDTO> notificationDTOList = systemeService.recevoirNotifications(gestionnaire.getId());
 
         assertThat(notificationDTOList.size()).isEqualTo(1);
         NotificationDTO notificationDTO = notificationDTOList.getFirst();
@@ -90,7 +90,7 @@ public class NotificationServiceTest {
         when(notificationRepository.getNotificationByDestinataire(any(Etudiant.class))).thenReturn(List.of(notificationWithUser));
         when(userAppRepository.findById(etudiant.getId())).thenReturn(Optional.of(etudiant));
 
-        List<NotificationDTO> notificationDTOList = notificationService.recevoirNotifications(etudiant.getId());
+        List<NotificationDTO> notificationDTOList = systemeService.recevoirNotifications(etudiant.getId());
 
         assertThat(notificationDTOList.size()).isEqualTo(1);
         NotificationDTO notificationDTO = notificationDTOList.getFirst();
@@ -106,7 +106,7 @@ public class NotificationServiceTest {
         when(utilisateurSansRole.getRole()).thenReturn(null);
         when(userAppRepository.findById(5L)).thenReturn(Optional.of(utilisateurSansRole));
 
-       assertThatThrownBy(() -> notificationService.recevoirNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
+       assertThatThrownBy(() -> systemeService.recevoirNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
        verify(userAppRepository).findById(5L);
     }
 
@@ -115,7 +115,7 @@ public class NotificationServiceTest {
         notificationWithoutUser.setEstLu(true);
         when(notificationRepository.setEstLue(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
 
-        NotificationDTO notificationDTO = notificationService.setNotificationLue(notificationWithoutUser.getId());
+        NotificationDTO notificationDTO = systemeService.setNotificationLue(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
         assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
@@ -125,14 +125,14 @@ public class NotificationServiceTest {
 
     @Test
     void doitEnvoyerNotificationNonTrouveeSetNotificationLue() {
-        assertThatThrownBy(() -> notificationService.setNotificationLue(5L)).isInstanceOf(NotificationNonTrouvee.class);
+        assertThatThrownBy(() -> systemeService.setNotificationLue(5L)).isInstanceOf(NotificationNonTrouvee.class);
     }
 
     @Test
     void doitSupprimerNotification() throws NotificationNonTrouvee {
         when(notificationRepository.findById(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
 
-        NotificationDTO notificationDTO = notificationService.supprimerNotification(notificationWithoutUser.getId());
+        NotificationDTO notificationDTO = systemeService.supprimerNotification(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
         assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
@@ -143,7 +143,7 @@ public class NotificationServiceTest {
 
     @Test
     void doitEnvoyerNotificationNonTrouveeSupprimerNotification() {
-        assertThatThrownBy(() -> notificationService.supprimerNotification(notificationWithoutUser.getId())).isInstanceOf(NotificationNonTrouvee.class);
+        assertThatThrownBy(() -> systemeService.supprimerNotification(notificationWithoutUser.getId())).isInstanceOf(NotificationNonTrouvee.class);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class NotificationServiceTest {
         when(notificationRepository.totalByRole(Role.GESTIONNAIRE)).thenReturn((long) notifications.size());
         when(userAppRepository.findById(gestionnaire.getId())).thenReturn(Optional.of(gestionnaire));
 
-        Long nombreDeNotification = notificationService.compterNotifications(gestionnaire.getId());
+        Long nombreDeNotification = systemeService.compterNotifications(gestionnaire.getId());
 
         assertThat(nombreDeNotification).isEqualTo(notifications.size());
         verify(notificationRepository).totalByRole(Role.GESTIONNAIRE);
@@ -165,7 +165,7 @@ public class NotificationServiceTest {
         when(notificationRepository.totalByUser(etudiant)).thenReturn((long) notifications.size());
         when(userAppRepository.findById(etudiant.getId())).thenReturn(Optional.of(etudiant));
 
-        Long nombreDeNotification = notificationService.compterNotifications(etudiant.getId());
+        Long nombreDeNotification = systemeService.compterNotifications(etudiant.getId());
 
         assertThat(nombreDeNotification).isEqualTo(notifications.size());
         verify(notificationRepository, never()).totalByRole(Role.GESTIONNAIRE);
@@ -178,7 +178,7 @@ public class NotificationServiceTest {
         when(utilisateurSansRole.getRole()).thenReturn(null);
         when(userAppRepository.findById(5L)).thenReturn(Optional.of(utilisateurSansRole));
 
-        assertThatThrownBy(() -> notificationService.compterNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
+        assertThatThrownBy(() -> systemeService.compterNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
         verify(userAppRepository).findById(5L);
     }
 }
