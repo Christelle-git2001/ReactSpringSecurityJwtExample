@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/notification")
+@CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
     private final NotificationService notificationService;
 
@@ -19,13 +20,13 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/utilisateur/{id}")
     public ResponseEntity<List<NotificationDTO>> recevoirNotifications(@PathVariable Long id) throws UtilisateurIntrouvableException, AucunRoleDefini {
         List<NotificationDTO> notificationDTOS = notificationService.recevoirNotifications(id);
         return ResponseEntity.ok(notificationDTOS);
     }
 
-    @PutMapping("/lu/{id}")
+    @PutMapping("/{id}/lu")
     public ResponseEntity<NotificationDTO> mettreNotificationLue(@PathVariable Long id) throws NotificationNonTrouvee {
         NotificationDTO notificationDTO = notificationService.setNotificationLue(id);
         return ResponseEntity.ok(notificationDTO);
