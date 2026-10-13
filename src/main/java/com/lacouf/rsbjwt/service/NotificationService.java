@@ -35,7 +35,7 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-    public void handleNouveauCVTeleverser(NouveauCvTeleverser event){
+    public NotificationDTO handleNouveauCVTeleverser(NouveauCvTeleverser event){
         CvEtudiant cv = event.cv();
         Etudiant etudiant = cv.getEtudiant();
         Notification notification = Notification.builder()
@@ -47,7 +47,7 @@ public class NotificationService {
                 .urlCible("/cv/" + cv.getId() + "/download")
                 .variables(Map.of("nomEtudiant",etudiant.getFirstName() + " " + etudiant.getLastName()))
                 .build();
-        notificationRepository.save(notification);
+        return NotificationDTO.of(notificationRepository.save(notification));
     }
 
     public List<NotificationDTO> recevoirNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {

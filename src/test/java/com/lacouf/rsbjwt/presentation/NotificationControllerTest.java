@@ -37,15 +37,12 @@ public class NotificationControllerTest {
 
     private MockMvc mockMvc;
 
-    private JsonMapper jsonMapper;
-
     private NotificationDTO notificationDTO;
 
     @BeforeEach
     void init(){
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
-        jsonMapper = JsonMapper.builder().build();
         notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CVATTENTEVALIDATION, LocalDateTime.now(),"etudiant/1/cv",false, Map.of("etudiant.name","Jean François Castonguay"));
     }
 
