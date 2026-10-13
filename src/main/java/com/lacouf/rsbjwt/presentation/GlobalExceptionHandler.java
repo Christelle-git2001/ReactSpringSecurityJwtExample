@@ -204,4 +204,25 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErreurDTO(e.getMessage()));
     }
+
+    @ExceptionHandler(OffreDeStageIndisponibleException.class)
+    public ResponseEntity<ErreurDTO> handleOffreDeStageIndisponibleException(
+            OffreDeStageIndisponibleException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+
+    @ExceptionHandler(CandidatureDejaExistanteException.class)
+    public ResponseEntity<ErreurDTO> handleCandidatureDejaExistanteException(
+            CandidatureDejaExistanteException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+
 }
