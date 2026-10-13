@@ -23,6 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -60,6 +62,9 @@ public class EtudiantServiceTest {
 
     @Mock
     private OffreDeStageRepository offreDeStageRepository;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
@@ -489,6 +494,43 @@ public class EtudiantServiceTest {
                         any(Statut.class),
                         any(Departement.class),
                         any(LocalDate.class));
+    }
+
+    @Test
+    void doitTelechargerFichierCv() throws Exception {
+        Path fichier = Paths.get("uploads", "cvs", "cv.pdf");
+        Files.createDirectories(fichier.getParent());
+        Files.writeString(fichier, "contenu du cv pour test");
+
+        CvEtudiant cv = CvEtudiant.builder()
+                .fileName("cv.pdf")
+                .storagePath(fichier.toString())
+                .etudiant(etudiant)
+                .build();
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        Resource result = etudiantService.telechargerCv("steveJean@gmail.com");
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+    @Test
+    void doitLancerExceptionFichierIntrouvableLorsDuTelechargement() {
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.telechargerCv("steveJean@gmail.com"))
+                .isInstanceOf(FichierIntrouvableException.class);
     }
 }
 
