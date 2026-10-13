@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
+import React from "react";
+import label from "daisyui/components/label/index.js";
 
 function OffreDetailsDrawerContent({ offer, showStatus= true }) {
     const { t } = useTranslation();
@@ -49,6 +51,16 @@ function OffreDetailsDrawerContent({ offer, showStatus= true }) {
                     <strong>{t("offre.description")} :</strong><br />
                     {offer.description}
                 </p>
+
+                { !showStatus && (<label
+                    htmlFor="my-drawer-5"
+                    className="bouton"
+                    onClick={() => onView?.(offer)}
+                >
+                    {t("offre.apply")}
+                </label>
+                )}
+
             </div>
         </div>
     );

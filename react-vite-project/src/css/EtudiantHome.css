@@ -1,0 +1,5 @@
+@reference "../index.css";
+
+.bouton{
+    @apply btn bg-[#66E5E4] btn-block text-[#043462]
+}
