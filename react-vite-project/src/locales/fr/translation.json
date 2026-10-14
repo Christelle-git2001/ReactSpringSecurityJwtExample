@@ -108,6 +108,8 @@
     "clear": "Effacer la recherche"
   },
   "offre": {
+    "already_applied": "Vous avez déjà postulé",
+    "apply": "Postuler",
     "employeur": "Entreprise ",
     "lieu": "Lieu",
     "statut": "Statut",

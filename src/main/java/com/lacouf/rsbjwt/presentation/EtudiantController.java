@@ -73,4 +73,28 @@ public class EtudiantController {
         throws EtudiantIntrouvableException, CurriculumVitaeNonApprouveException, CurriculumVitaeIntrouvable{
         return ResponseEntity.ok(etudiantService.getOffresDisponibles(departement, authentication.getName()));
     }
+
+    @PostMapping("/offres/{offreId}/postuler")
+    public ResponseEntity<CandidatureDTO> postuler(@PathVariable Long offreId,
+                                                  Authentication authentication)
+        throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException,
+            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
+        CandidatureDTO candidatureDTO = etudiantService.postuler(offreId, authentication.getName());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);
+
+    }
+
+    @GetMapping("/mesCandidatures")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEtudiant(
+            Authentication authentication)
+            throws EtudiantIntrouvableException {
+
+        List<CandidatureDTO> candidatures =
+                etudiantService.getCandidaturesEtudiant(
+                        authentication.getName()
+                );
+
+        return ResponseEntity.ok(candidatures);
+    }
 }

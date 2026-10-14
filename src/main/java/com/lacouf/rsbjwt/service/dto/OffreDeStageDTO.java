@@ -55,6 +55,7 @@ public record OffreDeStageDTO(
                 null,
                 null,
                 null
+
         );
     }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long> {
     List<OffreDeStage> findByStatut(Statut statut);
     List<OffreDeStage> findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(Statut statut, Departement domain, LocalDate date);
+
 }

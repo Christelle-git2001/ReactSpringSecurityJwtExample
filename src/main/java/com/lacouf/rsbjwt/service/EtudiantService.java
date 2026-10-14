@@ -1,22 +1,18 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
-import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,16 +35,19 @@ public class EtudiantService {
     private final Path STORAGE_CV = Paths.get("uploads", "cvs");
     private final OffreDeStageRepository offreDeStageRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CandidatureRepository candidatureRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
-                           OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher) {
+                           OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
+                           CandidatureRepository candidatureRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
         this.eventPublisher = eventPublisher;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
@@ -203,4 +202,50 @@ public class EtudiantService {
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
+
+    @Transactional
+    public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
+            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
+
+        Etudiant etudiant = trouverEtudiantParEmail(etudiantEmail);
+
+        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cv.getStatut() != Statut.ACCEPTEE) {
+            throw new CurriculumVitaeNonApprouveException();
+        }
+
+        OffreDeStage offre = offreDeStageRepository.findById(offreId)
+                .orElseThrow(OffreIntrouvableException::new);
+
+        if (offre.getStatut() != Statut.ACCEPTEE
+                || offre.getDisplayEndDate().isBefore(LocalDate.now())) {
+            throw new OffreDeStageIndisponibleException();
+        }
+
+        if (candidatureRepository.existsByEtudiantAndOffreDeStage(
+                etudiant, offre)) {
+            throw new CandidatureDejaExistanteException();
+        }
+
+        Candidature candidature = new Candidature(etudiant, offre);
+
+        Candidature candidatureEnregistree =
+                candidatureRepository.save(candidature);
+
+        return CandidatureDTO.of(candidatureEnregistree);
+
+    }
+
+    public List<CandidatureDTO> getCandidaturesEtudiant(String email)
+            throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return candidatureRepository.findByEtudiant(etudiant)
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
 }

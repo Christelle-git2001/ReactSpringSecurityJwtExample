@@ -279,6 +279,8 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "already_applied": "You have already applied",
+    "apply": "Apply",
     "employeur": "Company",
     "lieu": "Location",
     "period": "Period",

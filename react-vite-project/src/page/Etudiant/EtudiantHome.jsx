@@ -28,7 +28,7 @@ const EtudiantHome = ({ user }) => {
     } = useOffreFilters(offres);
 
     const handleView = async (offer) => {
-        openDrawer(<OffreDetailsDrawerContent offer={offer} />);
+        openDrawer(<OffreDetailsDrawerContent offer={offer} showStatus={false} />);
     };
 
     const availableTowns = useMemo(() => {
