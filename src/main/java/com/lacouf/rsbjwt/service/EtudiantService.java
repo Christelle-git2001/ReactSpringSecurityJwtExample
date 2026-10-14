@@ -189,10 +189,7 @@ public class EtudiantService {
                         LocalDate.now()
                 )
                 .stream()
-                .map(offre -> OffreDeStageDTO.of(
-                    offre, candidatureRepository.existsByEtudiantAndOffreDeStage(etudiant, offre)
-                        )
-                )
+                .map(OffreDeStageDTO::of)
                 .toList();
     }
 
@@ -222,6 +219,16 @@ public class EtudiantService {
 
         return CandidatureDTO.of(candidatureEnregistree);
 
+    }
+
+    public List<CandidatureDTO> getCandidaturesEtudiant(String email)
+            throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return candidatureRepository.findByEtudiant(etudiant)
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
     }
 
 }

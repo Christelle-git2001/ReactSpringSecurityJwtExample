@@ -83,4 +83,17 @@ public class EtudiantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);
 
     }
+
+    @GetMapping("/mesCandidatures")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEtudiant(
+            Authentication authentication)
+            throws EtudiantIntrouvableException {
+
+        List<CandidatureDTO> candidatures =
+                etudiantService.getCandidaturesEtudiant(
+                        authentication.getName()
+                );
+
+        return ResponseEntity.ok(candidatures);
+    }
 }

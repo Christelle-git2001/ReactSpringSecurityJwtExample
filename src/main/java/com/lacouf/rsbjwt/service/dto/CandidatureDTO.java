@@ -8,6 +8,7 @@ public record CandidatureDTO(
         Long id,
         Long offreId,
         LocalDateTime dateCandidature) {
+
         public static CandidatureDTO of(Candidature candidature) {
             return new CandidatureDTO(
                     candidature.getId(),
