@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173")
-@Profile("dev")
+@Profile({"dev","test"})
 public class DevAuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final GestionnaireRepository gestionnaireRepository;
