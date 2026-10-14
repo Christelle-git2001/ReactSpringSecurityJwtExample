@@ -189,7 +189,10 @@ public class EtudiantService {
                         LocalDate.now()
                 )
                 .stream()
-                .map(OffreDeStageDTO::of)
+                .map(offre -> OffreDeStageDTO.of(
+                    offre, candidatureRepository.existsByEtudiantAndOffreDeStage(etudiant, offre)
+                        )
+                )
                 .toList();
     }
 
