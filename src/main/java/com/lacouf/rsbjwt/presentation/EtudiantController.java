@@ -28,7 +28,7 @@ public class EtudiantController {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException,MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException {
+    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException, MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException, MatriculeNonConforme {
         EtudiantDTO etudiantDto = etudiantService.creerCompteEtudiant(inscriptionEtudiantDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(etudiantDto);
     }

@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ExtendWith(MockitoExtension.class)
 class GestionnaireServiceTest {
@@ -604,5 +603,27 @@ class GestionnaireServiceTest {
                     .isEqualTo(pdfVide.getContentAsByteArray().length);
 
         }
+    }
+
+    @Test
+    void doitRetournerToutesLesOffres() {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(1L);
+        offre.setTitle("Développeur Java");
+        offre.setStatut(Statut.EN_ATTENTE);
+        offre.setEmployeur(creerEmployeurTest());
+
+        when(offreDeStageRepository.findAll())
+                .thenReturn(List.of(offre));
+
+        List<OffreDeStageDTO> result = gestionnaireService.getToutesLesOffres();
+
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .extracting(OffreDeStageDTO::id, OffreDeStageDTO::title)
+                .containsExactly(1L, "Développeur Java");
+
+        verify(offreDeStageRepository).findAll();
     }
 }

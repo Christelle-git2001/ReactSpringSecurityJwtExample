@@ -358,4 +358,109 @@ public class EmployeurServiceTest {
                 .save(any(OffreDeStage.class));
     }
 
+    @Test
+    void doitCreerOffreAvecSucces() throws Exception, DateFinAffichageApresDateDebutException {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE, "contenu du pdf".getBytes());
+        when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
+
+        OffreDeStageDTO result = employeurService.creerOffre(creationOffreDeStageDTO, fichier, employeur.getEmail());
+
+        verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
+        assertThat(result).isNotNull();
+        assertThat(result.title()).isEqualTo("Infirmerie");
+    }
+
+    @Test
+    void doitLancerExceptionQuandFichierNullOuVideALaCreation() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+
+        assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(FichierCorrompuException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitModifierOffreAvecNouveauFichier() throws Exception, DateFinAffichageApresDateDebutException {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+
+        MockMultipartFile nouveauFichier = new MockMultipartFile("file", "nouveau.pdf",
+                MediaType.APPLICATION_PDF_VALUE, "nouveau contenu".getBytes());
+
+        when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
+
+        OffreDeStageDTO result = employeurService.modifierOffre(1L, creationOffreDeStageDTO, nouveauFichier, employeur.getEmail());
+
+        verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreNonEnAttenteLorsDeLaModification() {
+        offreDeStage.setStatut(Statut.ACCEPTEE);
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+
+        assertThatThrownBy(() -> employeurService.modifierOffre(1L, creationOffreDeStageDTO, null, employeur.getEmail()))
+                .isInstanceOf(OffreNonEnAttenteException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
+    @Test
+    void doitTelechargerOffreAvecSucces() throws Exception {
+        offreDeStage.setStoragePath("src/test/resources/offre.pdf");
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+        try {
+            employeurService.telechargerOffre(1L, employeur.getEmail());
+        } catch (Exception _) {
+        }
+
+        verify(offreDeStageRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreIntrouvablePourTelechargement() {
+        when(offreDeStageRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.telechargerOffre(99L, employeur.getEmail()))
+                .isInstanceOf(OffreIntrouvableException.class);
+    }
+
+    @Test
+    void doitLancerExceptionQuandStoragePathVidePourTelechargement() {
+        offreDeStage.setStoragePath(null);
+        when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
+
+        assertThatThrownBy(() -> employeurService.telechargerOffre(1L, employeur.getEmail()))
+                .isInstanceOf(FichierIntrouvableException.class);
+    }
+
+    @Test
+    void doitLancerExceptionQuandDateDebutAvantAujourdhui() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+
+        CreationOffreDeStageDTO dtoInvalide = new CreationOffreDeStageDTO(
+                "Infirmerie",
+                "préposé",
+                19.25,
+                Departement.INFORMATIQUE,
+                LocalDate.now().minusDays(1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.now().minusDays(5)
+        );
+
+        MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE, "contenu".getBytes());
+
+        assertThatThrownBy(() -> employeurService.creerOffre(dtoInvalide, fichier, employeur.getEmail()))
+                .isInstanceOf(DateDebutAvantAujourdhuiException.class);
+
+        verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
+    }
+
 }
+

@@ -1,7 +1,11 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.lacouf.rsbjwt.Exception.*;
@@ -382,5 +386,30 @@ public class EmployeurControllerTest {
                                 objectMapper.writeValueAsBytes(creationOffreDeStageDTO)))
                         .principal(principal))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void doitTelechargerDocumentOffre() throws Exception {
+        Resource resource = new ByteArrayResource("contenu du pdf".getBytes());
+        Authentication authentication = new UsernamePasswordAuthenticationToken("employeur@test.com", null);
+
+        when(employeurService.telechargerOffre(1L, "employeur@test.com"))
+                .thenReturn(resource);
+
+        mockMvc.perform(get("/employeur/offres/1/download")
+                        .principal(authentication))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandOffreOuFichierIntrouvablePourTelechargement() throws Exception {
+        Authentication authentication = new UsernamePasswordAuthenticationToken("employeur@test.com", null);
+
+        when(employeurService.telechargerOffre(1L, "employeur@test.com"))
+                .thenThrow(new FichierIntrouvableException());
+
+        mockMvc.perform(get("/employeur/offres/1/download")
+                        .principal(authentication))
+                .andExpect(status().isNotFound());
     }
 }

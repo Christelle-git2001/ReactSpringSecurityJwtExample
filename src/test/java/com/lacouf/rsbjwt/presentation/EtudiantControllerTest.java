@@ -179,6 +179,17 @@ public class EtudiantControllerTest {
     }
 
     @Test
+    void doitRetournerMatriculeNonConforme() throws Exception {
+        when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
+                .thenThrow(new MatriculeNonConforme());
+
+        mockMvc.perform(post("/etudiant/inscription")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inscriptionEtudiantDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void doitTeleverserCv() throws Exception {
         CvEtudiantDTO cvDTO = new CvEtudiantDTO(
                 1L,
