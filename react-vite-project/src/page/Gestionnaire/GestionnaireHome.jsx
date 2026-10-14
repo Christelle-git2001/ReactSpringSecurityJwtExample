@@ -10,7 +10,6 @@ import FilterBar from "../../component/Design/FilterBar.jsx";
 import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import {isNewSince} from "../../utils/isNewItem.jsx";
 import {FaBriefcase, FaFileAlt} from "react-icons/fa";
 import {useOffreFilters} from "../../utils/useOffreFilters.jsx";
 
@@ -177,7 +176,6 @@ const GestionnaireHome = ({user}) => {
                                     <CvListItem
                                         cv={cv}
                                         onClick={() => handleViewCv(cv)}
-                                        isNew={isNewSince(cv.uploadDate, user?.previousLoginAt)}
                                         actionLabel={t("dashboard.view_cv")}
                                     />
                                 )}
@@ -207,7 +205,6 @@ const GestionnaireHome = ({user}) => {
                                     <OfferListItem
                                         offer={offer}
                                         onClick={() => handleViewOffer(offer)}
-                                        isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
                                         actionLabel={t("dashboard.view_offer")}
                                     />
                                 )}

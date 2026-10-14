@@ -362,4 +362,76 @@ public class GestionnaireControllerTest {
 
         assertThat(mvcResult.getResponse().getContentAsByteArray()).isEmpty();
     }
+
+    @Test
+    void doitRetournerTousLesCvs() throws Exception {
+        CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(
+                1L,
+                etudiantDTO,
+                "cv.pdf",
+                "application/pdf",
+                18L,
+                LocalDateTime.now(),
+                Statut.EN_ATTENTE,
+                ""
+        );
+
+        when(gestionnaireService.getTousLesCvs()).thenReturn(List.of(cvEtudiantDTO));
+
+        MvcResult mvcResult = mockMvc.perform(get("/gestionnaire/cvs")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].fileName").value("cv.pdf"))
+                .andReturn();
+
+        String jsonResponse = mvcResult.getResponse().getContentAsString();
+        List<CvEtudiantDTO> resultat = jsonMapper.readValue(
+                jsonResponse,
+                new TypeReference<List<CvEtudiantDTO>>() {}
+        );
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.getFirst().fileName()).isEqualTo("cv.pdf");
+    }
+
+    @Test
+    void doitRetournerToutesLesOffres() throws Exception {
+        OffreDeStageDTO offre = new OffreDeStageDTO(
+                1L,
+                "Développeur Java",
+                "Développement d'une application web",
+                25.0,
+                null,
+                null,
+                null,
+                null,
+                Statut.EN_ATTENTE,
+                "offre.pdf",
+                null,
+                null,
+                null
+        );
+
+        when(gestionnaireService.getToutesLesOffres()).thenReturn(List.of(offre));
+
+        MvcResult mvcResult = mockMvc.perform(get("/gestionnaire/offres/toutes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Développeur Java"))
+                .andExpect(jsonPath("$[0].statut").value("EN_ATTENTE"))
+                .andReturn();
+
+        String jsonResponse = mvcResult.getResponse().getContentAsString();
+        List<OffreDeStageDTO> resultat = jsonMapper.readValue(
+                jsonResponse,
+                new TypeReference<List<OffreDeStageDTO>>() {}
+        );
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.getFirst().title()).isEqualTo("Développeur Java");
+    }
 }

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { formaterDate } from "../../../utils/cvFormatters.jsx";
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 
-function CvCard({ cv, onView, isNew = false }) {
+function CvCard({ cv, onView }) {
     const { t } = useTranslation();
 
     const getStudentName = () => {

@@ -6,9 +6,11 @@ import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,21 +34,24 @@ public class EtudiantService {
     private final PasswordEncoder passwordEncoder;
     private final Path STORAGE_CV = Paths.get("uploads", "cvs");
     private final OffreDeStageRepository offreDeStageRepository;
+    private final ApplicationEventPublisher eventPublisher;
     private final CandidatureRepository candidatureRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
-                           OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository) {
+                           OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
+                           CandidatureRepository candidatureRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
+        this.eventPublisher = eventPublisher;
         this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
-    public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException, NumeroTelephoneExistantException {
+    public EtudiantDTO creerCompteEtudiant (InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, DepartementInvalideException, NumeroTelephoneExistantException, MatriculeNonConforme {
         validerInscriptionEtudiant(inscriptionEtudiantDto);
         Departement departement = StockageFichierUtils.normaliserDepartement(inscriptionEtudiantDto.department()) ;
 
@@ -63,7 +68,11 @@ public class EtudiantService {
         return EtudiantDTO.of(etudiantRepository.save(etudiant));
     }
 
-    private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto)  throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException{
+    private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException, MatriculeNonConforme {
+
+        if(inscriptionEtudiantDto.matricule().length() != 7){
+            throw new MatriculeNonConforme();
+        }
 
         if (!inscriptionEtudiantDto.password()
                 .equals(inscriptionEtudiantDto.passwordConfirmation())) {
@@ -105,8 +114,9 @@ public class EtudiantService {
         supprimerAncienCv(cv, filePath);
 
         remplirInformationsCv(cv, file, filePath);
-
-        return CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
+        CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
+        eventPublisher.publishEvent(new NouveauCvTeleverser(cv));
+        return cvEtudiantDTO;
     }
 
     public CvEtudiantDTO getCv(String email)
@@ -195,9 +205,16 @@ public class EtudiantService {
 
     @Transactional
     public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
-        OffreDeStageIndisponibleException, CandidatureDejaExistanteException {
+            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
 
         Etudiant etudiant = trouverEtudiantParEmail(etudiantEmail);
+
+        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cv.getStatut() != Statut.ACCEPTEE) {
+            throw new CurriculumVitaeNonApprouveException();
+        }
 
         OffreDeStage offre = offreDeStageRepository.findById(offreId)
                 .orElseThrow(OffreIntrouvableException::new);
@@ -219,6 +236,16 @@ public class EtudiantService {
 
         return CandidatureDTO.of(candidatureEnregistree);
 
+    }
+
+    public List<CandidatureDTO> getCandidaturesEtudiant(String email)
+            throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return candidatureRepository.findByEtudiant(etudiant)
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
     }
 
 }

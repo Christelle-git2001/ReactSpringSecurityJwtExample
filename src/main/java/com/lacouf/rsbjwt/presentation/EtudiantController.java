@@ -28,7 +28,7 @@ public class EtudiantController {
     }
 
     @PostMapping("/inscription")
-    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException,MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException {
+    public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException, MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException, MatriculeNonConforme {
         EtudiantDTO etudiantDto = etudiantService.creerCompteEtudiant(inscriptionEtudiantDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(etudiantDto);
     }
@@ -77,10 +77,24 @@ public class EtudiantController {
     @PostMapping("/offres/{offreId}/postuler")
     public ResponseEntity<CandidatureDTO> postuler(@PathVariable Long offreId,
                                                   Authentication authentication)
-        throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException, CandidatureDejaExistanteException {
+        throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException,
+            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
         CandidatureDTO candidatureDTO = etudiantService.postuler(offreId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);
 
+    }
+
+    @GetMapping("/mesCandidatures")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEtudiant(
+            Authentication authentication)
+            throws EtudiantIntrouvableException {
+
+        List<CandidatureDTO> candidatures =
+                etudiantService.getCandidaturesEtudiant(
+                        authentication.getName()
+                );
+
+        return ResponseEntity.ok(candidatures);
     }
 }

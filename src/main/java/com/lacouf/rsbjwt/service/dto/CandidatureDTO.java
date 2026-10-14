@@ -5,12 +5,15 @@ import com.lacouf.rsbjwt.model.Candidature;
 import java.time.LocalDateTime;
 
 public record CandidatureDTO(
-        Long id,
+        long id,
+        long etudiantId,
         Long offreId,
         LocalDateTime dateCandidature) {
+
         public static CandidatureDTO of(Candidature candidature) {
             return new CandidatureDTO(
                     candidature.getId(),
+                    candidature.getEtudiant().getId(),
                     candidature.getOffreDeStage().getId(),
                     candidature.getDateCandidature()
             );

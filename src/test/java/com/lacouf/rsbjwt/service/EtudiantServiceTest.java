@@ -1,21 +1,12 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -60,6 +53,12 @@ public class EtudiantServiceTest {
 
     @Mock
     private OffreDeStageRepository offreDeStageRepository;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Mock
+    private CandidatureRepository candidatureRepository;
 
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
@@ -202,6 +201,25 @@ public class EtudiantServiceTest {
         assertThatThrownBy(() ->
                 etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO)
         ).isInstanceOf(NumeroTelephoneExistantException.class);
+
+        verify(etudiantRepository, never()).save(any(Etudiant.class));
+    }
+
+    @Test
+    void doitLancerExceptionMatriculeNonConforme() {
+        inscriptionEtudiantDTO = new InscriptionEtudiantDTO(
+                "Christelle",
+                "Altineus",
+                "438-297-8191",
+                "christelle@gmail.com",
+                "22262523",
+                "INFORMATIQUE",
+                "111111",
+                "222222"
+        );
+        assertThatThrownBy(() ->
+                etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO)
+        ).isInstanceOf(MatriculeNonConforme.class);
 
         verify(etudiantRepository, never()).save(any(Etudiant.class));
     }
@@ -490,6 +508,243 @@ public class EtudiantServiceTest {
                         any(Departement.class),
                         any(LocalDate.class));
     }
+
+    @Test
+    void doitTelechargerFichierCv() throws Exception {
+        Path fichier = Paths.get("uploads", "cvs", "cv.pdf");
+        Files.createDirectories(fichier.getParent());
+        Files.writeString(fichier, "contenu du cv pour test");
+
+        CvEtudiant cv = CvEtudiant.builder()
+                .fileName("cv.pdf")
+                .storagePath(fichier.toString())
+                .etudiant(etudiant)
+                .build();
+
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        Resource result = etudiantService.telechargerCv("steveJean@gmail.com");
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+    @Test
+    void doitLancerExceptionFichierIntrouvableLorsDuTelechargement() {
+        when(etudiantRepository.findByCredentialsEmail("steveJean@gmail.com"))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.telechargerCv("steveJean@gmail.com"))
+                .isInstanceOf(FichierIntrouvableException.class);
+    }
+
+    @Test
+    void doitRetournerCandidaturesDeEtudiant() throws Exception {
+        etudiant.setId(2L);
+
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(10L);
+
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(1L);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(candidatureRepository.findByEtudiant(etudiant))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> result =
+                etudiantService.getCandidaturesEtudiant(etudiant.getEmail());
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).id()).isEqualTo(1L);
+        assertThat(result.get(0).etudiantId()).isEqualTo(2L);
+        assertThat(result.get(0).offreId()).isEqualTo(10L);
+
+        verify(candidatureRepository).findByEtudiant(etudiant);
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneCandidature() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(candidatureRepository.findByEtudiant(etudiant))
+                .thenReturn(List.of());
+
+        List<CandidatureDTO> result =
+                etudiantService.getCandidaturesEtudiant(etudiant.getEmail());
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void doitLancerExceptionQuandEtudiantIntrouvablePourCandidatures() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.getCandidaturesEtudiant(etudiant.getEmail()))
+                .isInstanceOf(EtudiantIntrouvableException.class);
+
+        verify(candidatureRepository, never()).findByEtudiant(any(Etudiant.class));
+    }
+
+    @Test
+    void doitPostulerAUneOffre() throws Exception {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(10L);
+        offre.setStatut(Statut.ACCEPTEE);
+        offre.setDisplayEndDate(LocalDate.now().plusDays(10));
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findById(10L))
+                .thenReturn(Optional.of(offre));
+
+        when(candidatureRepository.existsByEtudiantAndOffreDeStage(
+                etudiant, offre))
+                .thenReturn(false);
+
+        when(candidatureRepository.save(any(Candidature.class)))
+                .thenAnswer(invocation -> {
+                    Candidature candidature = invocation.getArgument(0);
+                    candidature.setId(1L);
+                    return candidature;
+                });
+
+        CandidatureDTO result =
+                etudiantService.postuler(10L, etudiant.getEmail());
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.offreId()).isEqualTo(10L);
+
+        verify(candidatureRepository).save(any(Candidature.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandEtudiantIntrouvablePourPostuler() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(EtudiantIntrouvableException.class);
+
+        verify(offreDeStageRepository, never()).findById(anyLong());
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreIntrouvable() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findById(10L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(OffreIntrouvableException.class);
+
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandOffreExpiree() {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(10L);
+        offre.setStatut(Statut.ACCEPTEE);
+        offre.setDisplayEndDate(LocalDate.now().minusDays(1));
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findById(10L))
+                .thenReturn(Optional.of(offre));
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(OffreDeStageIndisponibleException.class);
+
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+    }
+
+
+    @Test
+    void doitRefuserCandidatureSiCvIntrouvable() throws Exception {
+        etudiant.setId(2L);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(offreDeStageRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    void doitRefuserCandidatureSiCvNonApprouve() throws Exception {
+        etudiant.setId(2L);
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setStatut(Statut.EN_ATTENTE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(CurriculumVitaeNonApprouveException.class);
+
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(offreDeStageRepository, never()).findById(anyLong());
+    }
+
 }
 
 

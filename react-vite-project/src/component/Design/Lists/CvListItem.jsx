@@ -6,7 +6,7 @@ import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import ListItem from "./ListItem.jsx";
 
-function CvListItem({ cv, onClick, isNew = false, variant = "card", actionLabel }) {
+function CvListItem({ cv, onClick, variant = "card", actionLabel }) {
     const { t } = useTranslation();
     const status = getStatusConfig(cv?.statut, t, "cv");
 
@@ -24,8 +24,6 @@ function CvListItem({ cv, onClick, isNew = false, variant = "card", actionLabel 
             meta={cv?.uploadDate ? formaterDate(cv.uploadDate) : null}
             badge={status.label}
             badgeClassName={status.className}
-            isNew={isNew}
-            newLabelSize="sm"
             tone="blue"
             variant={variant}
             actionLabel={actionLabel}
