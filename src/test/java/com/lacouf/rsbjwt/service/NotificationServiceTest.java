@@ -8,7 +8,7 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
+import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -41,7 +41,7 @@ public class NotificationServiceTest {
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
     private Gestionnaire gestionnaire;
-    private NouveauCvTeleverser nouveauCvTeleverser;
+    private NouveauCvTeleverserEvent nouveauCvTeleverserEvent;
     private Notification notificationWithoutUser;
     private Notification notificationWithUser;
 
@@ -52,7 +52,7 @@ public class NotificationServiceTest {
     void init(){
         etudiant = new Etudiant("Jean","Dupuis","Jean.Dupuis@hotmail.com","438-956-5858", Departement.INFORMATIQUE,"8585858","YOYO");
         cvEtudiant = new CvEtudiant("JeanDupuisTutorial","application/pdf",200L,"uploads/cvs/JeanDupuis.pdf", LocalDateTime.now(),etudiant);
-        nouveauCvTeleverser = new NouveauCvTeleverser(cvEtudiant);
+        nouveauCvTeleverserEvent = new NouveauCvTeleverserEvent(cvEtudiant);
         notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",null, Role.GESTIONNAIRE, Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()));
         notificationWithoutUser.setId(1L);
         notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, new HashMap<>());
@@ -65,7 +65,7 @@ public class NotificationServiceTest {
     void doitCreerNotification(){
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
 
-        NotificationDTO notificationDTO = notificationService.handleNouveauCVTeleverser(nouveauCvTeleverser);
+        NotificationDTO notificationDTO = notificationService.handleNouveauCVTeleverser(nouveauCvTeleverserEvent);
 
         assertThat(notificationDTO).isNotNull();
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
