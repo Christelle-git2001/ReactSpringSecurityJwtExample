@@ -608,6 +608,12 @@ public class EtudiantServiceTest {
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
 
         when(offreDeStageRepository.findById(10L))
                 .thenReturn(Optional.of(offre));
@@ -638,6 +644,10 @@ public class EtudiantServiceTest {
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.empty());
 
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
         assertThatThrownBy(() ->
                 etudiantService.postuler(10L, etudiant.getEmail()))
                 .isInstanceOf(EtudiantIntrouvableException.class);
@@ -650,6 +660,13 @@ public class EtudiantServiceTest {
     void doitLancerExceptionQuandOffreIntrouvable() {
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
 
         when(offreDeStageRepository.findById(10L))
                 .thenReturn(Optional.empty());
@@ -670,6 +687,13 @@ public class EtudiantServiceTest {
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
 
         when(offreDeStageRepository.findById(10L))
                 .thenReturn(Optional.of(offre));
