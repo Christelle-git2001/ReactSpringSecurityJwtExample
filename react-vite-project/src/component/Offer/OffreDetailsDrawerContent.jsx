@@ -8,7 +8,6 @@ import "../../css/EtudiantHome.css"
 function OffreDetailsDrawerContent({ offer, showStatus= true,hasApplied = false,onApplied }) {
     const { t } = useTranslation();
     const [applied, setApplied] = React.useState(false);
-    const [error, setError] = React.useState(null);
 
     useEffect(() => {
         setApplied(hasApplied);
