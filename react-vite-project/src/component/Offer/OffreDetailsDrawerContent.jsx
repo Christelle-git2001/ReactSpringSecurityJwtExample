@@ -5,7 +5,7 @@ import React from "react";
 import label from "daisyui/components/label/index.js";
 import {postulerOffre} from "../../api/etudiant.jsx";
 
-function OffreDetailsDrawerContent({ offer, showStatus= true,user }) {
+function OffreDetailsDrawerContent({ offer, showStatus= true }) {
     const { t } = useTranslation();
     const [justApplied, setJustApplied] = React.useState(false);
     const hasApplied = offer?.dejaPostule || justApplied;
@@ -77,7 +77,7 @@ function OffreDetailsDrawerContent({ offer, showStatus= true,user }) {
                             </p>
                         ) : (
                             <label
-                                className="btn btn-block bg-[#66E5E4] text-[#043462]"
+                                className="bouton"
                                 onClick={handleApply}
                             >
                                 {t("offre.apply")}
