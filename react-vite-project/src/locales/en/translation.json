@@ -345,5 +345,13 @@
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications"
+  },
+  "drawer": {
+    "details": "Details",
+    "close": "Close"
   }
 }

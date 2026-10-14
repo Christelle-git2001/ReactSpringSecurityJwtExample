@@ -1,7 +1,9 @@
 import React from "react";
 import { FiX } from "react-icons/fi";
+import {useTranslation} from "react-i18next";
 
 function Drawer({ isOpen, onClose, content }) {
+    const { t } = useTranslation();
     return (
         <div
             className={`transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full bg-[#D9B8FF] shadow-xl rounded-l-lg border-l border-purple-300 ${
@@ -10,12 +12,12 @@ function Drawer({ isOpen, onClose, content }) {
         >
             <div className="w-80 flex flex-col h-full">
                 <div className="p-3 flex justify-between items-center border-b border-purple-300/60">
-                    <span className="font-bold text-[#043462] text-lg">Détails</span>
+                    <span className="font-bold text-[#043462] text-lg">{t("drawer.details")}</span>
                     <button
                         type="button"
                         onClick={onClose}
                         className="btn btn-sm btn-circle btn-ghost text-[#043462] hover:bg-[#043462] hover:text-white"
-                        aria-label="Fermer"
+                        aria-label={t("drawer.close")}
                     >
                         <FiX className="size-5" />
                     </button>

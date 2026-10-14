@@ -345,5 +345,13 @@
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification"
+  },
+  "drawer": {
+    "details": "Détails",
+    "close": "Fermer"
   }
 }
