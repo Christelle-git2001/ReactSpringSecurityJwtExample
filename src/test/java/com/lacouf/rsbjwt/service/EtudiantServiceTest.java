@@ -548,10 +548,13 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRetournerCandidaturesDeEtudiant() throws Exception {
+        etudiant.setId(2L);
+
         OffreDeStage offre = new OffreDeStage();
         offre.setId(10L);
 
         Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(1L);
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
@@ -563,6 +566,8 @@ public class EtudiantServiceTest {
                 etudiantService.getCandidaturesEtudiant(etudiant.getEmail());
 
         assertThat(result).hasSize(1);
+        assertThat(result.get(0).id()).isEqualTo(1L);
+        assertThat(result.get(0).etudiantId()).isEqualTo(2L);
         assertThat(result.get(0).offreId()).isEqualTo(10L);
 
         verify(candidatureRepository).findByEtudiant(etudiant);
@@ -675,6 +680,47 @@ public class EtudiantServiceTest {
 
         verify(candidatureRepository, never()).save(any(Candidature.class));
     }
+
+
+    @Test
+    void doitRefuserCandidatureSiCvIntrouvable() throws Exception {
+        etudiant.setId(2L);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(offreDeStageRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    void doitRefuserCandidatureSiCvNonApprouve() throws Exception {
+        etudiant.setId(2L);
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setStatut(Statut.EN_ATTENTE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(CurriculumVitaeNonApprouveException.class);
+
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(offreDeStageRepository, never()).findById(anyLong());
+    }
+
 }
 
 

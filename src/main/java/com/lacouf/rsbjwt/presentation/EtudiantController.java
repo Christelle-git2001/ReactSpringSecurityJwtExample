@@ -77,7 +77,8 @@ public class EtudiantController {
     @PostMapping("/offres/{offreId}/postuler")
     public ResponseEntity<CandidatureDTO> postuler(@PathVariable Long offreId,
                                                   Authentication authentication)
-        throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException, CandidatureDejaExistanteException {
+        throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException,
+            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
         CandidatureDTO candidatureDTO = etudiantService.postuler(offreId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);

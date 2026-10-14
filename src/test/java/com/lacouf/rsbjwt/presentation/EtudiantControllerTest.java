@@ -369,6 +369,7 @@ public class EtudiantControllerTest {
     void doitRetournerLesCandidaturesEtudiant() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(
                 1L,
+                1L,
                 10L,
                 LocalDateTime.now()
         );
@@ -417,6 +418,7 @@ public class EtudiantControllerTest {
     @Test
     void doitPostulerAUneOffre() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(
+                1L,
                 1L,
                 10L,
                 LocalDateTime.now()

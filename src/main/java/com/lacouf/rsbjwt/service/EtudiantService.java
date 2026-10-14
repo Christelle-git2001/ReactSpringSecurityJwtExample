@@ -205,9 +205,16 @@ public class EtudiantService {
 
     @Transactional
     public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
-            OffreDeStageIndisponibleException, CandidatureDejaExistanteException {
+            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
 
         Etudiant etudiant = trouverEtudiantParEmail(etudiantEmail);
+
+        CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
+                .orElseThrow(CurriculumVitaeIntrouvable::new);
+
+        if (cv.getStatut() != Statut.ACCEPTEE) {
+            throw new CurriculumVitaeNonApprouveException();
+        }
 
         OffreDeStage offre = offreDeStageRepository.findById(offreId)
                 .orElseThrow(OffreIntrouvableException::new);
