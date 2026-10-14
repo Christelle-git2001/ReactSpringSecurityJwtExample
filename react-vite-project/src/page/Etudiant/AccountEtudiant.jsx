@@ -2,9 +2,22 @@ import { useTranslation } from "react-i18next";
 import ProfileField from "../../component/Design/ProfileField.jsx";
 import {getDepartmentKey} from "../../utils/departementConverter.js";
 import CurriculumVitaeZone from "../../component/CV/CurriculumVitaeZone.jsx";
+import {useEffect} from "react";
 
 const AccountEtudiant = ({user}) => {
     const { t } = useTranslation();
+    useEffect(() => {
+        if (location.hash) {
+            const elementId = location.hash.replace('#', '');
+            const element = document.getElementById(elementId);
+
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+        }
+    }, [location]);
     return (
        <div className={"p-10 w-full"}>
            <div className="max-w-4xl mx-auto p-6 bg-base-100 rounded-2xl shadow-sm border border-base-200 text-center">
@@ -51,7 +64,7 @@ const AccountEtudiant = ({user}) => {
                <h2 className="text-2xl font-bold text-[#043462] border-b p-4 mb-6">
                    {t("account.info.professional")}
                </h2>
-               <div className="grid grid-cols-12">
+               <div className="grid grid-cols-12" id="televerser">
                    <div className={"col-span-12"}>
                        <ProfileField label={"Curriculum Vitae"} result={<CurriculumVitaeZone/>}/>
                    </div>

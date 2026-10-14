@@ -9,10 +9,12 @@ import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @DiscriminatorValue("PROFESSEUR")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Professeur extends UserApp{
     @Column(unique = true, nullable = false)
