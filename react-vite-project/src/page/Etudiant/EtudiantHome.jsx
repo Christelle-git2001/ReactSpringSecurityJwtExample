@@ -8,9 +8,8 @@ import FilterBar from "../../component/Design/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
-import { obtenirOffres } from "../../api/etudiant.jsx";
+import {canditureEtudiant, obtenirOffres} from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
-import { isNewSince } from "../../utils/isNewItem.jsx";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
@@ -21,6 +20,13 @@ const EtudiantHome = ({ user }) => {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
+    const [idsPostules, setIdsPostules] = useState([]);
+
+    useEffect(() => {
+        canditureEtudiant()
+            .then((liste) => setIdsPostules(liste.map((c) => c.offreId)))
+            .catch((console.error))
+    }, []);
 
     const {
         searchTerm,
@@ -29,7 +35,15 @@ const EtudiantHome = ({ user }) => {
     } = useOffreFilters(offres);
 
     const handleView = async (offer) => {
-        openDrawer(<OffreDetailsDrawerContent offer={offer} showStatus={false} />);
+        openDrawer(<OffreDetailsDrawerContent
+            offer={offer}
+            showStatus={false}
+            hasApplied={idsPostules.includes(offer.id)}
+            onApplied={(id) => setIdsPostules((prev) =>
+                prev.includes(id) ? prev : [...prev, id]
+            )}
+
+        />);
     };
 
     const availableTowns = useMemo(() => {
@@ -126,7 +140,6 @@ const EtudiantHome = ({ user }) => {
                                                 key={offer.id}
                                                 offer={offer}
                                                 onView={handleView}
-                                                isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
                                             />
                                         ))}
                                     </div>

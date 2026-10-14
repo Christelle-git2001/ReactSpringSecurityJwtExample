@@ -1,26 +1,29 @@
 import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
-import React from "react";
+import React, {useEffect} from "react";
 import label from "daisyui/components/label/index.js";
 import {postulerOffre} from "../../api/etudiant.jsx";
+import "../../css/EtudiantHome.css"
 
-function OffreDetailsDrawerContent({ offer, showStatus= true }) {
+function OffreDetailsDrawerContent({ offer, showStatus= true,hasApplied = false,onApplied }) {
     const { t } = useTranslation();
-    const [justApplied, setJustApplied] = React.useState(false);
-    const hasApplied = offer?.dejaPostule || justApplied;
+    const [applied, setApplied] = React.useState(false);
+    const [error, setError] = React.useState(null);
 
+    useEffect(() => {
+        setApplied(hasApplied);
+    }, [hasApplied]);
 
-    React.useEffect(() => { setJustApplied(false); }, [offer?.id]);
     const handleApply = async () => {
-        setJustApplied(true);
+        onApplied?.(offer.id);
         try {
             await postulerOffre(offer.id);
+            setApplied(true);
+            onApplied?.(offer.id);
         } catch (error) {
             console.error("Erreur lors de la candidature à l'offre:", error);
             setError("etudiant.offers.apply_error");
-        } finally {
-            setIsApplying(false);
         }
     }
 
@@ -71,7 +74,7 @@ function OffreDetailsDrawerContent({ offer, showStatus= true }) {
 
                 {!showStatus && (
                     <div className="pt-4 border-t">
-                        {hasApplied ? (
+                        {applied ? (
                             <p className="text-center font-semibold text-red-600">
                                 {t("offre.already_applied")}
                             </p>
