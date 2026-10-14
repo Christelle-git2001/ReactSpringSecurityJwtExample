@@ -76,15 +76,13 @@ function OffreDetailsDrawerContent({ offer, showStatus= true,user }) {
                                 {t("offre.already_applied")}
                             </p>
                         ) : (
-                            <button
-                                type="button"
+                            <label
                                 className="btn btn-block bg-[#66E5E4] text-[#043462]"
                                 onClick={handleApply}
-                                disabled={hasApplied}
                             >
                                 {t("offre.apply")}
 
-                            </button>
+                            </label>
                         )}
                     </div>
                 )}
