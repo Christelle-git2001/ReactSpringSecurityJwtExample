@@ -3,9 +3,26 @@ import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import React from "react";
 import label from "daisyui/components/label/index.js";
+import {postulerOffre} from "../../api/etudiant.jsx";
 
-function OffreDetailsDrawerContent({ offer, showStatus= true }) {
+function OffreDetailsDrawerContent({ offer, showStatus= true,user }) {
     const { t } = useTranslation();
+    const [justApplied, setJustApplied] = React.useState(false);
+    const hasApplied = offer?.dejaPostule || justApplied;
+
+
+    React.useEffect(() => { setJustApplied(false); }, [offer?.id]);
+    const handleApply = async () => {
+        setJustApplied(true);
+        try {
+            await postulerOffre(offer.id);
+        } catch (error) {
+            console.error("Erreur lors de la candidature à l'offre:", error);
+            setError("etudiant.offers.apply_error");
+        } finally {
+            setIsApplying(false);
+        }
+    }
 
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
@@ -52,13 +69,24 @@ function OffreDetailsDrawerContent({ offer, showStatus= true }) {
                     {offer.description}
                 </p>
 
-                { !showStatus && (<label
-                    htmlFor="my-drawer-5"
-                    className="bouton"
-                    onClick={() => onView?.(offer)}
-                >
-                    {t("offre.apply")}
-                </label>
+                {!showStatus && (
+                    <div className="pt-4 border-t">
+                        {hasApplied ? (
+                            <p className="text-center font-semibold text-red-600">
+                                {t("offre.already_applied")}
+                            </p>
+                        ) : (
+                            <button
+                                type="button"
+                                className="btn btn-block bg-[#66E5E4] text-[#043462]"
+                                onClick={handleApply}
+                                disabled={hasApplied}
+                            >
+                                {t("offre.apply")}
+
+                            </button>
+                        )}
+                    </div>
                 )}
 
             </div>
