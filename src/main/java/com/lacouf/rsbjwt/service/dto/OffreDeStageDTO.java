@@ -19,10 +19,15 @@ public record OffreDeStageDTO(
         String fileName,
         EmployeurDTO employeur,
         String rejectionComment,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean dejaPostule
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
+        return of(offre, false);
+    }
+
+    public static OffreDeStageDTO of(OffreDeStage offre, boolean dejaPostule) {
         return new OffreDeStageDTO(
                 offre.getId(),
                 offre.getTitle(),
@@ -36,7 +41,8 @@ public record OffreDeStageDTO(
                 offre.getFileName(),
                 EmployeurDTO.of(offre.getEmployeur()),
                 offre.getRejectionComment(),
-                offre.getCreatedAt()
+                offre.getCreatedAt(),
+                dejaPostule
         );
     }
 
@@ -54,7 +60,8 @@ public record OffreDeStageDTO(
                 null,
                 null,
                 null,
-                null
+                null,
+                false
         );
     }
 }
