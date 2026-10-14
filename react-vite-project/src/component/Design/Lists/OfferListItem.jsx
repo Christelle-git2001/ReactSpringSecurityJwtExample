@@ -10,7 +10,7 @@ const formaterSalaire = (salary, t) => {
     return `${salary} ${t("offre.hourly_rate_suffix")}`;
 };
 
-function OfferListItem({ offer, onClick, isNew = false, variant = "card", actionLabel }) {
+function OfferListItem({ offer, onClick, variant = "card", actionLabel }) {
     const { t } = useTranslation();
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
@@ -35,8 +35,6 @@ function OfferListItem({ offer, onClick, isNew = false, variant = "card", action
             detailRows={detailRows}
             badge={status.label}
             badgeClassName={status.className}
-            isNew={isNew}
-            newLabelSize="sm"
             tone="green"
             variant={variant}
             actionLabel={actionLabel}

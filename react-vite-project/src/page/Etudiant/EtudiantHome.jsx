@@ -10,7 +10,6 @@ import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerC
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import { obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
-import { isNewSince } from "../../utils/isNewItem.jsx";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
@@ -126,7 +125,6 @@ const EtudiantHome = ({ user }) => {
                                                 key={offer.id}
                                                 offer={offer}
                                                 onView={handleView}
-                                                isNew={isNewSince(offer.createdAt, user?.previousLoginAt)}
                                             />
                                         ))}
                                     </div>

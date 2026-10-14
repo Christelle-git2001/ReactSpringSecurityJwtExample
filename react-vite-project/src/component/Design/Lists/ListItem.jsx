@@ -1,5 +1,4 @@
 import React from "react";
-import NewLabel from "../NewLabel.jsx";
 import { FiChevronRight } from "react-icons/fi";
 
 const toneClasses = {
@@ -31,8 +30,6 @@ function ListItem({
     detailRows = [],
     badge,
     badgeClassName,
-    isNew = false,
-    newLabelSize = "md",
     tone = "blue",
     variant = "card",
     actionLabel,
@@ -50,7 +47,6 @@ function ListItem({
                 className="relative w-full flex items-center justify-between rounded-lg p-3 text-left hover:bg-gray-50"
                 aria-label={ariaLabel}
             >
-                <NewLabel isNew={isNew} size="sm" className="-top-2 left-2" />
                 <div className="flex min-w-0 items-center gap-3">
                     <div className={`size-10 shrink-0 rounded-full flex items-center justify-center ${styles.icon}`}>
                         {icon}
@@ -95,9 +91,7 @@ function ListItem({
     }
 
     return (
-        <div className={`relative overflow-visible rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient}`}>
-            <NewLabel isNew={isNew} size={newLabelSize} />
-
+        <div className={`rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient}`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-1 items-start gap-3">
                     <div className={`size-11 shrink-0 rounded-xl flex items-center justify-center ${styles.icon}`}>
