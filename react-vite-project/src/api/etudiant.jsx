@@ -32,6 +32,14 @@ export async function postulerOffre(offreId) {
   });
 }
 
+export async function canditureEtudiant() {
+  const token = getToken();
+  return fetchJson(`/etudiant/mesCandidatures`, {
+    method: "GET",
+    headers: { "Authorization": `Bearer ${token}`}
+    })
+  }
+
   export async function obtenirCvInfo(){
   const token = getToken();
     return fetchJson("/etudiant/cv", {
