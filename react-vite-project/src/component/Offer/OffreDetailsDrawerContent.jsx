@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import React, {useEffect} from "react";
-import label from "daisyui/components/label/index.js";
 import {postulerOffre} from "../../api/etudiant.jsx";
 import "../../css/EtudiantHome.css"
 
