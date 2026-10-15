@@ -1,16 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
-import React, {useEffect} from "react";
-import {postulerOffre} from "../../api/etudiant.jsx";
 import "../../css/EtudiantHome.css"
-import Button from "../Design/Button.jsx";
 import PostulerButton from "../Design/PostulerButton.jsx";
 
 function OffreDetailsDrawerContent({ offer, showStatus= true,hasApplied = false,onApplied }) {
     const { t } = useTranslation();
-    const [applied, setApplied] = React.useState(false);
-
 
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
