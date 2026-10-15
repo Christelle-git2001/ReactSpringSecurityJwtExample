@@ -113,7 +113,11 @@ public class EmployeurService {
     }
 
     @Transactional(readOnly = true)
-    public List<OffreDeStageDTO> obtenirOffres(String email) {
+    public List<OffreDeStageDTO> obtenirOffres() {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
 
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
@@ -125,6 +129,7 @@ public class EmployeurService {
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
+
 
     public Resource telechargerOffre(Long id, String email)
             throws OffreIntrouvableException, FichierIntrouvableException {
@@ -226,7 +231,7 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(offre.getEmployeur().getId().equals(employeur.getId())){
+        if(!offre.getEmployeur().getId().equals(employeur.getId())){
             throw new OffreNonAutoriseeException();
         }
 

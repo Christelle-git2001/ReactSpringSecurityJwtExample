@@ -53,7 +53,7 @@ public class EmployeurController {
     public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur(
             @AuthenticationPrincipal String email
     ) {
-        List<OffreDeStageDTO> offres = employeurService.obtenirOffres(email);
+        List<OffreDeStageDTO> offres = employeurService.obtenirOffres();
         return ResponseEntity.ok(offres);
     }
 

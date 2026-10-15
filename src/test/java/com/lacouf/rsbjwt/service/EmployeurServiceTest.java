@@ -22,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -108,6 +110,11 @@ public class EmployeurServiceTest {
                 .employeur(employeur)
                 .build();
         ReflectionTestUtils.setField(offreDeStage, "id", 1L);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+
     }
 
     @Test
@@ -164,8 +171,6 @@ public class EmployeurServiceTest {
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }
-
-    // Offre de Stage
 
     @Test
     void doitLancerExceptionQuandDateFinAvantDateDebut() {
@@ -281,20 +286,30 @@ public class EmployeurServiceTest {
 
     @Test
     void doitRetournerLesOffresDeLEmployeur() {
-        employeur.setOffres(List.of(offreDeStage));
-        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
 
-        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+        employeur.setOffres(List.of(offreDeStage));
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres();
 
         assertThat(result).hasSize(1);
     }
 
+
     @Test
     void doitRetournerListeVideQuandAucuneOffre() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+
         employeur.setOffres(List.of());
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
 
-        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres();
 
         assertThat(result).isEmpty();
     }
