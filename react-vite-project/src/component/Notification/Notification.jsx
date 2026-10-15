@@ -5,10 +5,6 @@ export default function Notification() {
 
     return (
         <section className="space-y-4">
-            <h2 className="text-lg font-bold text-[#043462]">
-                {t("notifications.title")}
-            </h2>
-
             <p className="text-sm text-gray-600">
                 {t("notifications.empty")}
             </p>

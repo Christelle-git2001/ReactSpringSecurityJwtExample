@@ -12,9 +12,11 @@ function SideBarLayout({ user }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [drawerContent, setDrawerContent] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [drawerTitle, setDrawerTitle] = useState("drawer.details");
 
-    const openDrawer = (content) => {
+    const openDrawer = (content, title = "drawer.details") => {
         setDrawerContent(content);
+        setDrawerTitle(title);
         setIsDrawerOpen(true);
     };
 
@@ -60,7 +62,7 @@ function SideBarLayout({ user }) {
                     <div className="flex-1 overflow-y-auto">
                         <Outlet context={{ openDrawer, closeDrawer }} />
                     </div>
-                    <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} content={drawerContent} />
+                    <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} content={drawerContent} title={drawerTitle}/>
                 </div>
             </div>
             <div className="drawer-side is-drawer-close:overflow-visible bg-[#043462] text-white">
@@ -88,7 +90,7 @@ function SideBarLayout({ user }) {
                                     data-tip={t("notifications.title")}
                                     aria-label={t("notifications.title")}
                                     onClick={() => {
-                                        openDrawer(<Notification />);
+                                        openDrawer(<Notification />, "notifications.title");
                                         setSidebarOpen(false);
                                     }}
                                 >
