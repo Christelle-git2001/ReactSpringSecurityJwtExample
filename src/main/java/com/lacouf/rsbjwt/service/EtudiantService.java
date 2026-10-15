@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.lacouf.rsbjwt.repository.NotificationRepository;
+import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,16 +41,19 @@ public class EtudiantService {
     private final Path STORAGE_CV = Paths.get("uploads", "cvs");
     private final OffreDeStageRepository offreDeStageRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final NotificationRepository notificationRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
-                           OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher) {
+                           OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
+                           NotificationRepository notificationRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
         this.eventPublisher = eventPublisher;
+        this.notificationRepository = notificationRepository;
     }
 
     @Transactional
@@ -136,15 +141,23 @@ public class EtudiantService {
         return StockageFichierUtils.chargerFichier(Paths.get(cv.getStoragePath()));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = SuppressionFichierEchoueeException.class)
     public void supprimerCv(String email)
             throws EtudiantIntrouvableException, FichierIntrouvableException,
             SuppressionFichierEchoueeException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
+        notificationRepository.deleteByUrlCible(
+                NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId())
+                )
+        );
+
+        etudiant.setCv(null);
         cvEtudiantRepository.delete(cv);
+        cvEtudiantRepository.flush();
+
+        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
     }
 
     private void supprimerAncienCv(CvEtudiant cv, Path newPath)

@@ -150,7 +150,7 @@ function CvDetails({ cv: cvProp }) {
                         type="button"
                         disabled={isPdfLoading || !pdfBlobUrl}
                         onClick={() => declencherTelechargement(pdfBlobUrl, cv?.fileName || "cv.pdf")}
-                        className="mr-auto flex items-center gap-2 bg-[#043462] text-white hover:bg-[#06508f] disabled:opacity-50"
+                        className="mr-auto flex cursor-pointer items-center gap-2 bg-[#043462] text-white enabled:hover:bg-[#00CCCB] enabled:hover:text-[#043462] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <FaDownload aria-hidden="true" />
                         {t("pdfVisio.download")}

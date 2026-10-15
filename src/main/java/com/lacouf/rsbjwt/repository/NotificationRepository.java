@@ -22,4 +22,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     Long totalByRole(Role role);
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.destinataire = :userApp")
     Long totalByUser(UserApp userApp);
+
+    void deleteByUrlCible(String urlCible);
 }

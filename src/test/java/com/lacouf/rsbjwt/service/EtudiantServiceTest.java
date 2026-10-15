@@ -8,10 +8,7 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
@@ -65,6 +62,9 @@ public class EtudiantServiceTest {
 
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Mock
+    private NotificationRepository notificationRepository;
 
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
@@ -552,9 +552,3 @@ public class EtudiantServiceTest {
                 .isInstanceOf(FichierIntrouvableException.class);
     }
 }
-
-
-
-
-
-
