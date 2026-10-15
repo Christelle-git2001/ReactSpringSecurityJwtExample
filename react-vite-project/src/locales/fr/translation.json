@@ -348,7 +348,9 @@
   },
   "notifications": {
     "title": "Notifications",
-    "empty": "Aucune notification"
+    "empty": "Aucune notification",
+    "load_error": "Impossible de charger les notifications.",
+    "new_cv": "Un nouveau CV est en attente de validation."
   },
   "drawer": {
     "details": "Détails",

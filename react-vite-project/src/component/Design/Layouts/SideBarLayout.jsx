@@ -90,7 +90,7 @@ function SideBarLayout({ user }) {
                                     data-tip={t("notifications.title")}
                                     aria-label={t("notifications.title")}
                                     onClick={() => {
-                                        openDrawer(<Notification />, "notifications.title");
+                                        openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
                                         setSidebarOpen(false);
                                     }}
                                 >
