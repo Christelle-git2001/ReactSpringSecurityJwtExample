@@ -7,12 +7,14 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,14 +32,16 @@ public class GestionnaireService {
     private final UserAppRepository userAppRepository;
     private final GestionnaireRepository gestionnaireRepository;
     private final CvEtudiantRepository cvEtudiantRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository ){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository, ApplicationEventPublisher applicationEventPublisher){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
         this.userAppRepository = userAppRepository;
         this.gestionnaireRepository = gestionnaireRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Transactional
@@ -138,16 +142,14 @@ public class GestionnaireService {
     @Transactional
     public CvEtudiantDTO approuverCurriculumVitae(Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
         CvEtudiant cvEtudiant = cvEtudiantRepository.findById(id).orElseThrow(CurriculumVitaeIntrouvable::new);
-
         if (cvEtudiant.getStatut() != Statut.EN_ATTENTE)
             throw new CurriculumVitaeNonEnAttente();
 
         cvEtudiant.setStatut(Statut.ACCEPTEE);
         cvEtudiant.setRejectionComment(null);
-
-        return CvEtudiantDTO.of(
-                cvEtudiantRepository.save(cvEtudiant)
-        );
+        CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
+        applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut()));
+        return cvEtudiantDTO;
     }
 
     @Transactional
@@ -163,10 +165,9 @@ public class GestionnaireService {
 
         cvEtudiant.setStatut(Statut.REFUSEE);
         cvEtudiant.setRejectionComment(commentaire);
-
-        return CvEtudiantDTO.of(
-                cvEtudiantRepository.save(cvEtudiant)
-        );
+        CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
+        applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut()));
+        return cvEtudiantDTO;
     }
 
     private void validerInscriptionGestionnaire(GestionnaireDTO gestionnaireDto)  throws EmailExistantException, NumeroTelephoneExistantException{
