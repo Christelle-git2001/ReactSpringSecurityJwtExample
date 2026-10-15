@@ -347,5 +347,13 @@
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
     }
+  },
+  "candidature": {
+    "student_unknown": "Étudiant inconnu",
+    "department_unknown": "Département inconnu",
+    "offer_title": "Titre de l'offre",
+    "employer": "Employeur",
+    "date": "Date de candidature",
+    "read": "Voir la candidature"
   }
 }
