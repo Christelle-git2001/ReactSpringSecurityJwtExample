@@ -1,9 +1,7 @@
 package com.lacouf.rsbjwt.model.Enum.Notification;
 
 public enum NavigationPath {
-    GESTIONNAIRE_CV_details("/gestionnaire/cvs/details"),
     ETUDIANT_CV("/etudiant/cv"),
-    GESTIONNAIRE_CV_ID_DOWNLOAD("/gestionnaire/cv/{id}/download"),
     GESTIONNAIRE_CV_DETAILS("/gestionnaire/cvs/details?cvId={id}");
 
     private final String pattern;

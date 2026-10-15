@@ -65,9 +65,6 @@ public class EtudiantServiceTest {
     @Mock
     private CandidatureRepository candidatureRepository;
 
-    @Mock
-    private NotificationRepository notificationRepository;
-
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
     Employeur employeur;

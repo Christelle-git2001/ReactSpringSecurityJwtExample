@@ -5,11 +5,13 @@ import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -87,6 +89,18 @@ public class NotificationServiceTest {
         assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isNotEmpty();
         assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isEqualTo(notificationWithUser.getVariables().get(VariableMapKey.STATUT_FICHIER));
         assertThat(notificationDTO.id()).isEqualTo(notificationWithUser.getId());
+    }
+
+    @Test
+    void doitSupprimerNotificationLorsCvSupprimer() {
+        String expectedUrl = NavigationPath.GESTIONNAIRE_CV_DETAILS.build("1");
+
+
+        CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
+
+        notificationService.handleCvSupprimerSoNotification(event);
+
+        verify(notificationRepository, times(1)).deleteByUrlCible(expectedUrl);
     }
 
     @Test
