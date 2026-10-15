@@ -246,6 +246,7 @@
     "result_count": "{{count}} résultat",
     "results_count": "{{count}} résultats",
     "cv_count": "{{count}} CV",
+    "cv_count_plural": "{{count}} CVs",
     "offer_count": "{{count}} offre",
     "offer_count_plural": "{{count}} offres",
     "view_pending_cvs": "Voir les CV en attente",
@@ -350,15 +351,23 @@
   },
   "notifications": {
     "title": "Notifications",
+    "generic_message": "Vous avez reçu une nouvelle notification.",
     "empty": "Aucune notification",
     "load_error": "Impossible de charger les notifications.",
-    "new_cv": "Un nouveau CV est en attente de validation.",
     "cv_unavailable": "Le CV associé à cette notification n’est plus disponible.",
     "open_error": "Impossible d’ouvrir le CV. Veuillez réessayer.",
     "read_error": "Impossible de marquer la notification comme lue.",
     "sort_by_date": "Trier par date",
     "newest_first": "Plus récentes d’abord",
     "oldest_first": "Plus anciennes d’abord"
+  },
+  "notification": {
+    "gestionnaire": {
+      "televerserCV": {
+        "title": "Nouveau CV à valider",
+        "description": "{{ETUDIANT_NOM}} a téléversé un CV."
+      }
+    }
   },
   "drawer": {
     "details": "Détails",

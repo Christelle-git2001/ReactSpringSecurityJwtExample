@@ -133,11 +133,14 @@ export default function Notification({ userId, onClose }) {
                 <ul className="space-y-1 p-2">
                     {notificationsTriees.map(notification => {
                         const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
-                        const titre = isCv
-                            ? notification.variables?.ETUDIANT_NOM || t("notifications.title")
-                            : t(notification.titre, {
-                                defaultValue: t("notifications.title"),
-                            });
+                        const titre = t(notification.titre, {
+                            ...notification.variables,
+                            defaultValue: t("notifications.title"),
+                        });
+                        const description = t(notification.description, {
+                            ...notification.variables,
+                            defaultValue: t("notifications.generic_message"),
+                        });
 
                         return (
                             <li
@@ -153,11 +156,7 @@ export default function Notification({ userId, onClose }) {
                                         ? <FiFileText className="size-5" />
                                         : <FiBell className="size-5" />}
                                     title={titre}
-                                    subtitle={isCv
-                                        ? t("notifications.new_cv")
-                                        : t(notification.description, {
-                                            defaultValue: t("notifications.generic_message"),
-                                        })}
+                                    subtitle={description}
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
