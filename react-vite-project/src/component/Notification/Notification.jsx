@@ -4,6 +4,7 @@ import { getNotifications, marquerNotificationLue } from "../../api/notification
 import { FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { getTousLesCvs } from "../../api/gestionnaire.jsx";
+import ListItem from "../Design/Lists/ListItem.jsx";
 
 export default function Notification({ userId, onClose }) {
     const { t, i18n } = useTranslation();
@@ -114,48 +115,37 @@ export default function Notification({ userId, onClose }) {
                 <ul className="space-y-1 p-2">
                     {notifications.map(notification => {
                         const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
-                        const date = formaterDate(notification.dateNotifiee);
+                        const titre = isCv
+                            ? notification.variables?.ETUDIANT_NOM || t("notifications.title")
+                            : t(notification.titre, {
+                                defaultValue: t("notifications.title"),
+                            });
 
                         return (
                             <li
                                 key={notification.id}
-                                className={`flex gap-3 rounded-xl border-b border-slate-100 p-3 ${
-                                    notification.estLu ? "bg-white" : "bg-blue-50"
-                                }`}
+                                className="rounded-xl border-b border-slate-100 bg-blue-50"
                             >
-                                <button
-                                    type="button"
-                                    onClick={() => ouvrirCv(notification)}
-                                    className="flex w-full gap-3 text-left"
-                                >
-                                    <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-blue-100 text-blue-600" aria-hidden="true">
-                                        {isCv ? <FiFileText className="size-5" /> : <FiBell className="size-5" />}
-                                    </div>
-
-                                    <div className="min-w-0 flex-1 space-y-1">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <p className="break-words text-sm font-bold">
-                                                {isCv
-                                                    ? notification.variables?.ETUDIANT_NOM || t("notifications.title")
-                                                    : t(notification.titre, { defaultValue: t("notifications.title") })}
-                                            </p>
-                                        </div>
-                                        <p className="text-sm font-normal leading-relaxed text-[#043462]">
-                                            {isCv
-                                                ? t("notifications.new_cv")
-                                                : t(notification.description, { defaultValue: t("notifications.generic_message") })}
-                                        </p>
-                                        {date && (
-                                            <time dateTime={notification.dateNotifiee} className="block text-[11px] text-slate-500">
-                                                {date}
-                                            </time>
-                                        )}
-                                    </div>
-
-                                    {!notification.estLu && (
-                                        <span aria-hidden="true" className="mt-2 size-2 shrink-0 rounded-full bg-blue-600" />
-                                    )}
-                                </button>
+                                <ListItem
+                                    wrapText
+                                    showChevron={false}
+                                    variant="row"
+                                    tone="blue"
+                                    icon={isCv
+                                        ? <FiFileText className="size-5" />
+                                        : <FiBell className="size-5" />}
+                                    title={titre}
+                                    subtitle={isCv
+                                        ? t("notifications.new_cv")
+                                        : t(notification.description, {
+                                            defaultValue: t("notifications.generic_message"),
+                                        })}
+                                    meta={formaterDate(notification.dateNotifiee)}
+                                    ariaLabel={titre}
+                                    onClick={() => {
+                                        if (isCv) ouvrirCv(notification);
+                                    }}
+                                />
                             </li>
                         );
                     })}
