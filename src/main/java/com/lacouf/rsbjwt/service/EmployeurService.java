@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -126,6 +128,7 @@ public class EmployeurService {
 
         return employeur.getOffres()
                 .stream()
+                .filter(offreDeStage -> offreDeStage.getDisplayEndDate().isBefore(LocalDate.now()))
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -241,7 +244,20 @@ public class EmployeurService {
                 .toList();
     }
 
-    public List<CandidatureDTO> getAllCandidatures(){
-        return null ;
+    List<CandidatureDTO> getAllCandidatures() {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UserNotFoundException::new);
+
+        return employeur.getOffres()
+                .stream()
+                .flatMap(offre -> offre.getCandidatures().stream())
+                .map(CandidatureDTO::of)
+                .toList();
     }
+
 }
