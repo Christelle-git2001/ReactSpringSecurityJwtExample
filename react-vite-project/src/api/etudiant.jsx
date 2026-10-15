@@ -21,6 +21,17 @@ export async function televerserCV(file) {
   });
 }
 
+export async function postulerOffre(offreId) {
+  const token = getToken();
+  return fetchJson(`/etudiant/offres/${offreId}/postuler`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+  });
+}
+
   export async function obtenirCvInfo(){
   const token = getToken();
     return fetchJson("/etudiant/cv", {

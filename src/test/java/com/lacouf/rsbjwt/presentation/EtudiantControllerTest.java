@@ -38,6 +38,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -359,5 +363,112 @@ public class EtudiantControllerTest {
                                 .principal(authentication)
                 )
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void doitRetournerLesCandidaturesEtudiant() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(
+                1L,
+                1L,
+                10L,
+                LocalDateTime.now()
+        );
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.getCandidaturesEtudiant(
+                "christelle@gmail.com"))
+                .thenReturn(List.of(candidature));
+
+        mockMvc.perform(get("/etudiant/mesCandidatures")
+                        .principal(authentication))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].offreId").value(10));
+
+        verify(etudiantService, times(1))
+                .getCandidaturesEtudiant("christelle@gmail.com");
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneCandidature() throws Exception {
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.getCandidaturesEtudiant(
+                "christelle@gmail.com"))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/etudiant/mesCandidatures")
+                        .principal(authentication))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void doitPostulerAUneOffre() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(
+                1L,
+                1L,
+                10L,
+                LocalDateTime.now()
+        );
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.postuler(10L, "christelle@gmail.com"))
+                .thenReturn(candidature);
+
+        mockMvc.perform(post("/etudiant/offres/10/postuler")
+                        .principal(authentication))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.offreId").value(10));
+    }
+
+    @Test
+    void doitRetournerConflictQuandCandidatureDejaExistante() throws Exception {
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.postuler(10L, "christelle@gmail.com"))
+                .thenThrow(new CandidatureDejaExistanteException());
+
+        mockMvc.perform(post("/etudiant/offres/10/postuler")
+                        .principal(authentication))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void doitRetournerConflictQuandOffreIndisponible() throws Exception {
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.postuler(10L, "christelle@gmail.com"))
+                .thenThrow(new OffreDeStageIndisponibleException());
+
+        mockMvc.perform(post("/etudiant/offres/10/postuler")
+                        .principal(authentication))
+                .andExpect(status().isConflict());
     }
 }

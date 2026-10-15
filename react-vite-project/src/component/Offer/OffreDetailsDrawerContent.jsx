@@ -1,9 +1,28 @@
 import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
+import React from "react";
+import label from "daisyui/components/label/index.js";
+import {postulerOffre} from "../../api/etudiant.jsx";
 
-function OffreDetailsDrawerContent({ offer }) {
+function OffreDetailsDrawerContent({ offer, showStatus= true }) {
     const { t } = useTranslation();
+    const [justApplied, setJustApplied] = React.useState(false);
+    const hasApplied = offer?.dejaPostule || justApplied;
+
+
+    React.useEffect(() => { setJustApplied(false); }, [offer?.id]);
+    const handleApply = async () => {
+        setJustApplied(true);
+        try {
+            await postulerOffre(offer.id);
+        } catch (error) {
+            console.error("Erreur lors de la candidature à l'offre:", error);
+            setError("etudiant.offers.apply_error");
+        } finally {
+            setIsApplying(false);
+        }
+    }
 
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
@@ -18,12 +37,13 @@ function OffreDetailsDrawerContent({ offer }) {
                 <div className="flex justify-between items-start">
                     <h2 className="text-xl font-bold">{offer.title}</h2>
 
-                    <span className={`badge ${status.className} text-white`}>
+                    {showStatus && ( <span className={`badge ${status.className} text-white`}>
                         {status.label}
                     </span>
+                    )}
                 </div>
 
-                {offer.statut === "REFUSEE" && offer.rejectionComment && (
+                {showStatus && offer.statut === "REFUSEE" && offer.rejectionComment && (
                     <div className="bg-red-50 border-red-500 p-3 rounded">
                         <p className="text-sm font-semibold text-red-700">
                             {t("offre.rejection_comment")}
@@ -48,6 +68,25 @@ function OffreDetailsDrawerContent({ offer }) {
                     <strong>{t("offre.description")} :</strong><br />
                     {offer.description}
                 </p>
+
+                {!showStatus && (
+                    <div className="pt-4 border-t">
+                        {hasApplied ? (
+                            <p className="text-center font-semibold text-red-600">
+                                {t("offre.already_applied")}
+                            </p>
+                        ) : (
+                            <label
+                                className="bouton"
+                                onClick={handleApply}
+                            >
+                                {t("offre.apply")}
+
+                            </label>
+                        )}
+                    </div>
+                )}
+
             </div>
         </div>
     );

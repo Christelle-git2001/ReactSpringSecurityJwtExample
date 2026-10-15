@@ -7,11 +7,13 @@ import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
+import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -37,7 +39,7 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-    public NotificationDTO handleNouveauCVTeleverser(NouveauCvTeleverser event){
+    public NotificationDTO handleNouveauCVTeleverser(NouveauCvTeleverserEvent event){
         CvEtudiant cv = event.cv();
         Etudiant etudiant = cv.getEtudiant();
         Notification notification = Notification.builder()
@@ -48,6 +50,24 @@ public class NotificationService {
                 .dateCreaction(LocalDateTime.now())
                 .urlCible(NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId())))
                 .variables(Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()))
+                .build();
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleCvStatutModifieEvent(CvStatutModifieEvent event){
+        Statut statut = event.statut();
+        UserApp destinataire = event.destinataire();
+        Notification notification = Notification.builder()
+                .titre("notification.etudiant.validation.title")
+                .description("notification.etudiant.validation.description")
+                .notificationType(NotificationType.CV_STATUT_CHANGE)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(NavigationPath.ETUDIANT_CV.build())
+                .role(Role.ETUDIANT)
+                .destinataire(destinataire)
+                .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
