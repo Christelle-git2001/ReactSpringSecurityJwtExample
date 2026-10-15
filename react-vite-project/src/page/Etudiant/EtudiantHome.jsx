@@ -140,6 +140,10 @@ const EtudiantHome = ({ user }) => {
                                                 key={offer.id}
                                                 offer={offer}
                                                 onView={handleView}
+                                                hasApplied={idsPostules.includes(offer.id)}
+                                                onApplied={(id) => setIdsPostules((prev) =>
+                                                    prev.includes(id) ? prev : [...prev, id]
+                                                )}
                                             />
                                         ))}
                                     </div>

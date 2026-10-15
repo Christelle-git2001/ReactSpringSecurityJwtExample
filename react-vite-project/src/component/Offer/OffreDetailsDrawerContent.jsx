@@ -4,26 +4,13 @@ import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import React, {useEffect} from "react";
 import {postulerOffre} from "../../api/etudiant.jsx";
 import "../../css/EtudiantHome.css"
+import Button from "../Design/Button.jsx";
+import PostulerButton from "../Design/PostulerButton.jsx";
 
 function OffreDetailsDrawerContent({ offer, showStatus= true,hasApplied = false,onApplied }) {
     const { t } = useTranslation();
     const [applied, setApplied] = React.useState(false);
 
-    useEffect(() => {
-        setApplied(hasApplied);
-    }, [hasApplied]);
-
-    const handleApply = async () => {
-        onApplied?.(offer.id);
-        try {
-            await postulerOffre(offer.id);
-            setApplied(true);
-            onApplied?.(offer.id);
-        } catch (error) {
-            console.error("Erreur lors de la candidature à l'offre:", error);
-            setError("etudiant.offers.apply_error");
-        }
-    }
 
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
@@ -72,22 +59,13 @@ function OffreDetailsDrawerContent({ offer, showStatus= true,hasApplied = false,
 
                 {!showStatus && (
                     <div className="pt-4 border-t">
-                        {applied ? (
-                            <p className="text-center font-semibold text-red-600">
-                                {t("offre.already_applied")}
-                            </p>
-                        ) : (
-                            <label
-                                className="bouton"
-                                onClick={handleApply}
-                            >
-                                {t("offre.apply")}
-
-                            </label>
-                        )}
+                        <PostulerButton
+                            offerId={offer.id}
+                            hasApplied={hasApplied}
+                            onApplied={onApplied}
+                        />
                     </div>
                 )}
-
             </div>
         </div>
     );
