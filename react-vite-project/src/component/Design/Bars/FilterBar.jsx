@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FiFilter } from "react-icons/fi";
-import { getDepartmentKey } from "../../utils/departementConverter.js";
+import { getDepartmentKey } from "../../../utils/departementConverter.js";
 
 export default function FilterBar({selectedStatus, onStatusChange, selectedDomain, onDomainChange, availableDomains = [], selectedTown, onTownChange, availableTowns = [], className = "", statusLabels = {}}) {
     const { t } = useTranslation();

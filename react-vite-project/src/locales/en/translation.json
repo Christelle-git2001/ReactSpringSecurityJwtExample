@@ -168,6 +168,8 @@
     "employer_added": "Employer added successfully."
   },
   "nav": {
+    "applications": "Applications",
+    "cv": "Upload CV",
     "home": "Home",
     "account": "Account",
     "login": "Login",
@@ -347,5 +349,13 @@
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
     }
+  },
+  "candidature": {
+    "student_unknown": "Unknown student",
+    "department_unknown": "Unknown department",
+    "offer_title": "Offer title",
+    "employer": "Employer",
+    "date": "Application date",
+    "read": "Read application"
   }
 }

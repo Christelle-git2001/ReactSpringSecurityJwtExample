@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useOutletContext } from "react-router-dom";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
 import OffreEtudiantCard from "../../component/Design/Cards/OffreEtudiantCard.jsx";
-import SearchBar from "../../component/Design/SearchBar.jsx";
-import FilterBar from "../../component/Design/FilterBar.jsx";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars//FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
-import { obtenirOffres } from "../../api/etudiant.jsx";
+import {obtenirCandidaturesEtudiant, obtenirOffres} from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 
 const EtudiantHome = ({ user }) => {
@@ -20,6 +20,13 @@ const EtudiantHome = ({ user }) => {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
+    const [idsPostules, setIdsPostules] = useState([]);
+
+    useEffect(() => {
+        obtenirCandidaturesEtudiant()
+            .then((liste) => setIdsPostules(liste.map((c) => c.offreId)))
+            .catch((console.error))
+    }, []);
 
     const {
         searchTerm,
@@ -28,7 +35,15 @@ const EtudiantHome = ({ user }) => {
     } = useOffreFilters(offres);
 
     const handleView = async (offer) => {
-        openDrawer(<OffreDetailsDrawerContent offer={offer} showStatus={false} />);
+        openDrawer(<OffreDetailsDrawerContent
+            offer={offer}
+            showStatus={false}
+            hasApplied={idsPostules.includes(offer.id)}
+            onApplied={(id) => setIdsPostules((prev) =>
+                prev.includes(id) ? prev : [...prev, id]
+            )}
+
+        />);
     };
 
     const availableTowns = useMemo(() => {
@@ -125,6 +140,10 @@ const EtudiantHome = ({ user }) => {
                                                 key={offer.id}
                                                 offer={offer}
                                                 onView={handleView}
+                                                hasApplied={idsPostules.includes(offer.id)}
+                                                onApplied={(id) => setIdsPostules((prev) =>
+                                                    prev.includes(id) ? prev : [...prev, id]
+                                                )}
                                             />
                                         ))}
                                     </div>
