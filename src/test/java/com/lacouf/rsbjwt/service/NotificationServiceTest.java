@@ -11,6 +11,7 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -214,5 +215,39 @@ public class NotificationServiceTest {
 
         assertThatThrownBy(() -> notificationService.compterNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
         verify(userAppRepository).findById(5L);
+    }
+
+    @Test
+    void doitCreerNotificationLorsDuneNouvelleOffreTeleversee() {
+        OffreDeStage offre = mock(OffreDeStage.class);
+        when(offre.getTitle()).thenReturn("Développeur frontend");
+
+        Notification notificationSauvegardee = new Notification(
+                "notification.gestionnaire.offre.title",
+                "notification.gestionnaire.offre.description",
+                NotificationType.OFFRE_ATTENTE_VALIDATION,
+                LocalDateTime.now(),
+                "/gestionnaire/offres/details",
+                null,
+                Role.GESTIONNAIRE,
+                Map.of(VariableMapKey.OFFRE_TITRE, "Développeur frontend")
+        );
+        notificationSauvegardee.setId(10L);
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notificationSauvegardee);
+
+        NouvelleOffreTeleverseeEvent event =
+                new NouvelleOffreTeleverseeEvent(offre);
+
+        NotificationDTO resultat =
+                notificationService.handleNouvelleOffreTeleversee(event);
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.id()).isEqualTo(10L);
+        assertThat(resultat.variables())
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Développeur frontend");
+
+        verify(notificationRepository).save(any(Notification.class));
     }
 }

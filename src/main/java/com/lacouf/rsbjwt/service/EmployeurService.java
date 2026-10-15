@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -13,6 +14,7 @@ import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,17 +36,19 @@ public class EmployeurService {
     private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
+    private final ApplicationEventPublisher eventPublisher;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
-            OffreDeStageRepository offreDeStageRepository
+            OffreDeStageRepository offreDeStageRepository,ApplicationEventPublisher eventPublisher
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -107,7 +111,15 @@ public class EmployeurService {
                 .storagePath(storagePath)
                 .employeur(employeur)
                 .build();
-        return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
+
+        OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
+
+        eventPublisher.publishEvent(
+                new NouvelleOffreTeleverseeEvent(offreEnregistree)
+        );
+
+        return OffreDeStageDTO.of(offreEnregistree);
+
     }
 
     @Transactional(readOnly = true)
