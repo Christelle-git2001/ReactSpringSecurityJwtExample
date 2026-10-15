@@ -69,7 +69,7 @@ public class NotificationService {
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
-        return NotificationDTO.of(notification);
+        return NotificationDTO.of(notificationRepository.save(notification));
     }
 
     public List<NotificationDTO> recevoirNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
