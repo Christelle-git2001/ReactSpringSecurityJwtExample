@@ -353,7 +353,10 @@
     "new_cv": "Un nouveau CV est en attente de validation.",
     "cv_unavailable": "Le CV associé à cette notification n’est plus disponible.",
     "open_error": "Impossible d’ouvrir le CV. Veuillez réessayer.",
-    "read_error": "Impossible de marquer la notification comme lue."
+    "read_error": "Impossible de marquer la notification comme lue.",
+    "sort_by_date": "Trier par date",
+    "newest_first": "Plus récentes d’abord",
+    "oldest_first": "Plus anciennes d’abord"
   },
   "drawer": {
     "details": "Détails",

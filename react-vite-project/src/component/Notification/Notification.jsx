@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import { FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
+import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { getTousLesCvs } from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
@@ -10,6 +10,7 @@ export default function Notification({ userId, onClose }) {
     const { t, i18n } = useTranslation();
     const [notifications, setNotifications] = useState([]);
     const [error, setError] = useState(null);
+    const [sortOrder, setSortOrder] = useState("desc");
 
     const navigate = useNavigate();
 
@@ -62,8 +63,6 @@ export default function Notification({ userId, onClose }) {
                 if (notificationsStillDisplayed) {
                     setNotifications(
                         (data ?? []).filter(notification => !notification.estLu)
-                            .sort((a, b) => (b.dateNotifiee ?? "").localeCompare(a.dateNotifiee ?? "")
-                        )
                     );
                 }
             } catch {
@@ -91,8 +90,27 @@ export default function Notification({ userId, onClose }) {
         }).format(date);
     };
 
+    const notificationsTriees = [...notifications].sort((a, b) => {
+        const comparaison = (a.dateNotifiee ?? "").localeCompare(b.dateNotifiee ?? "");
+        return sortOrder === "asc" ? comparaison : -comparaison;
+    });
+
     return (
         <section className="-m-4 min-h-full bg-white text-[#043462]">
+            <div className="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
+                <button
+                    type="button"
+                    onClick={() => setSortOrder(current => current === "desc" ? "asc" : "desc")}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600"
+                    title={t("notifications.sort_by_date")}
+                    aria-label={t(sortOrder === "desc" ? "notifications.oldest_first" : "notifications.newest_first")}
+                >
+                    {sortOrder === "desc"
+                        ? <FiArrowDown className="size-4" aria-hidden="true" />
+                        : <FiArrowUp className="size-4" aria-hidden="true" />}
+                    {t(sortOrder === "desc" ? "notifications.newest_first" : "notifications.oldest_first")}
+                </button>
+            </div>
             {error ? (
                 <div className="space-y-3 p-4">
                     <button
@@ -113,7 +131,7 @@ export default function Notification({ userId, onClose }) {
                 </p>
             ) : (
                 <ul className="space-y-1 p-2">
-                    {notifications.map(notification => {
+                    {notificationsTriees.map(notification => {
                         const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
                         const titre = isCv
                             ? notification.variables?.ETUDIANT_NOM || t("notifications.title")
