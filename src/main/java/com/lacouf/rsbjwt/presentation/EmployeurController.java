@@ -58,7 +58,7 @@ public class EmployeurController {
         return ResponseEntity.ok(candidatures);
     }
 
-    @GetMapping("/candidatures/{id}")
+    @GetMapping("/offres/{id}/candidatures")
     public ResponseEntity<List<CandidatureDTO>> obtenirCandidaturesParOffre(
             @PathVariable("id") Long offreId
     ) throws OffreIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
