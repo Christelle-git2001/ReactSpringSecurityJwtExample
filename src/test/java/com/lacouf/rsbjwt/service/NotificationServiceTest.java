@@ -5,7 +5,7 @@ import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -93,7 +93,7 @@ public class NotificationServiceTest {
 
     @Test
     void doitSupprimerNotificationLorsCvSupprimer() {
-        String expectedUrl = NavigationPath.GESTIONNAIRE_CV_DETAILS.build("1");
+        String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
 
 
         CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
