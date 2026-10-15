@@ -6,6 +6,7 @@ import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -37,7 +38,6 @@ public class EtudiantService {
     private final Path STORAGE_CV = Paths.get("uploads", "cvs");
     private final OffreDeStageRepository offreDeStageRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final NotificationRepository notificationRepository;
     private final CandidatureRepository candidatureRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
@@ -50,7 +50,6 @@ public class EtudiantService {
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
         this.eventPublisher = eventPublisher;
-        this.notificationRepository = notificationRepository;
         this.candidatureRepository = candidatureRepository;
     }
 
@@ -146,10 +145,8 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-        notificationRepository.deleteByUrlCible(
-                NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId())
-                )
-        );
+       eventPublisher.publishEvent(new CvSupprimerSoNotification(NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId()))));
+
 
         etudiant.setCv(null);
         cvEtudiantRepository.delete(cv);

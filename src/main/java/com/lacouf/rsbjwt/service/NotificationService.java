@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -70,6 +71,12 @@ public class NotificationService {
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+   public void handleCvSupprimerSoNotification(CvSupprimerSoNotification event){
+        notificationRepository.deleteByUrlCible(event.navigationPath());
     }
 
     public List<NotificationDTO> recevoirNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
