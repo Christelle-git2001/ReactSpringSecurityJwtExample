@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.model;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class Candidature {
     @Column(nullable = false)
     private LocalDateTime dateCandidature;
 
+    @Builder
     public Candidature(Etudiant etudiant, OffreDeStage offreDeStage) {
         this.etudiant = etudiant;
         this.offreDeStage = offreDeStage;

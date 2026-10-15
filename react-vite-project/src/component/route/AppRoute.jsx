@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import PublicLayout from "../Design/Layouts/PublicLayout.jsx";
-import MainContainer from "../Design/MainContainer";
 import LoginForm from "../auth/LoginForm";
 import InscriptionHome from "../../page/InscriptionHome.jsx";
 import Logout from "../auth/Logout";
@@ -56,7 +55,6 @@ export default function AppRoutes({
             </Route>
 
             <Route element={<SideBarLayout user={user} openDrawer={openDrawer} />}>
-                <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/cv" element={<AccountEtudiant user={user}/>}/>

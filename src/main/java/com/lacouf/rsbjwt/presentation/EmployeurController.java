@@ -2,10 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,16 +47,28 @@ public class EmployeurController {
     }
 
     @GetMapping("/offres")
-    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur(
-            @AuthenticationPrincipal String email
-    ) {
-        List<OffreDeStageDTO> offres = employeurService.obtenirOffres(email);
+    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur() {
+        List<OffreDeStageDTO> offres = employeurService.obtenirOffres();
         return ResponseEntity.ok(offres);
+    }
+
+    @GetMapping("/candidatures")
+    public ResponseEntity<List<CandidatureDTO>> obtenirCandidatures() throws UtilisateurIntrouvableException {
+        List<CandidatureDTO> candidatures = employeurService.obtenirCandidatures();
+        return ResponseEntity.ok(candidatures);
+    }
+
+    @GetMapping("/offres/{id}/candidatures")
+    public ResponseEntity<List<CandidatureDTO>> obtenirCandidaturesParOffre(
+            @PathVariable("id") Long offreId
+    ) throws OffreIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+        List<CandidatureDTO> candidatures = employeurService.getCandidaturesParOffre(offreId);
+        return ResponseEntity.ok(candidatures);
     }
 
     @PutMapping("/offres/{id}")
     public ResponseEntity<OffreDeStageDTO> modifierOffre(
-            @PathVariable Long id,
+            @PathVariable("id") Long offreId,
             @Valid @RequestPart("offre") CreationOffreDeStageDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal
@@ -68,7 +77,7 @@ public class EmployeurController {
             OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException,
             DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
         OffreDeStageDTO offreDTO =
-                employeurService.modifierOffre(id, dto, file, principal.getName());
+                employeurService.modifierOffre(offreId, dto, file, principal.getName());
 
         return ResponseEntity.ok(offreDTO);
     }

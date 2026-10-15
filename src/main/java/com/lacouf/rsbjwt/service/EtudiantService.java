@@ -6,7 +6,7 @@ import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
+import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -115,7 +115,7 @@ public class EtudiantService {
 
         remplirInformationsCv(cv, file, filePath);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cv));
-        eventPublisher.publishEvent(new NouveauCvTeleverser(cv));
+        eventPublisher.publishEvent(new NouveauCvTeleverserEvent(cv));
         return cvEtudiantDTO;
     }
 

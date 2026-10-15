@@ -32,6 +32,19 @@ export async function getOffresEmployeur() {
     });
 }
 
+export async function getCandidaturesEmployeur() {
+    return fetchJson("/employeur/candidatures", {
+        method: "GET",
+    });
+}
+
+export async function getCandidaturesOffre(id) {
+    return fetchJson(`/employeur/offres/${id}/candidatures`, {
+        method: "GET",
+        headers: headers,
+    });
+}
+
 export async function modifierOffreEmployeur(id, dto, file) {
     const formData = new FormData();
 

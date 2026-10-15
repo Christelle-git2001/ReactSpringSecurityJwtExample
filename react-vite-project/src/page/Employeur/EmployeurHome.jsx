@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
-import { getOffresEmployeur } from "../../api/employeur.jsx";
+import CandidatureCard from "../../component/Design/Cards/CandidatureCard.jsx";
+import { getOffresEmployeur , getCandidaturesEmployeur} from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
-import SearchBar from "../../component/Design/SearchBar.jsx";
-import FilterBar from "../../component/Design/FilterBar.jsx";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
@@ -15,6 +16,7 @@ const EmployeurHome = ({ user }) => {
     const navigate = useNavigate();
 
     const [offres, setOffres] = useState([]);
+    const [candidatures, setCandidatures] = useState([]);
 
     const {
         searchTerm,
@@ -40,6 +42,12 @@ const EmployeurHome = ({ user }) => {
     useEffect(() => {
         getOffresEmployeur()
             .then((res) => setOffres(res))
+            .catch((err) => console.error(err));
+    }, []);
+
+    useEffect(() => {
+        getCandidaturesEmployeur()
+            .then((res) => setCandidatures(res))
             .catch((err) => console.error(err));
     }, []);
 
@@ -97,6 +105,26 @@ const EmployeurHome = ({ user }) => {
                                 </div>
                             )}
 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="w-full max-w-7xl">
+                <div className="collapse collapse-arrow bg-transparent">
+                    <input type="checkbox" className="peer" defaultChecked />
+
+                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("nav.view_offers")}
+                    </div>
+
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="w-full px-2 sm:px-4 pb-8">
+                            {candidatures.map((candidature) => (
+                                <CandidatureCard
+                                    Key={candidature.id}
+                                    candidature={candidature}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>

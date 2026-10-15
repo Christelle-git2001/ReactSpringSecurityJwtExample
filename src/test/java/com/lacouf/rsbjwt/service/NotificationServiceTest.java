@@ -7,8 +7,10 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
+import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverser;
+import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -41,7 +43,6 @@ public class NotificationServiceTest {
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
     private Gestionnaire gestionnaire;
-    private NouveauCvTeleverser nouveauCvTeleverser;
     private Notification notificationWithoutUser;
     private Notification notificationWithUser;
 
@@ -52,7 +53,6 @@ public class NotificationServiceTest {
     void init(){
         etudiant = new Etudiant("Jean","Dupuis","Jean.Dupuis@hotmail.com","438-956-5858", Departement.INFORMATIQUE,"8585858","YOYO");
         cvEtudiant = new CvEtudiant("JeanDupuisTutorial","application/pdf",200L,"uploads/cvs/JeanDupuis.pdf", LocalDateTime.now(),etudiant);
-        nouveauCvTeleverser = new NouveauCvTeleverser(cvEtudiant);
         notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",null, Role.GESTIONNAIRE, Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()));
         notificationWithoutUser.setId(1L);
         notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, new HashMap<>());
@@ -62,14 +62,46 @@ public class NotificationServiceTest {
     }
 
     @Test
-    void doitCreerNotification(){
+    void doitCreerNotificationLorsDunNouveauCVTeleverser(){
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
+        NouveauCvTeleverserEvent nouveauCvTeleverserEvent = new NouveauCvTeleverserEvent(cvEtudiant);
 
-        NotificationDTO notificationDTO = notificationService.handleNouveauCVTeleverser(nouveauCvTeleverser);
+        NotificationDTO notificationDTO = notificationService.handleNouveauCVTeleverser(nouveauCvTeleverserEvent);
 
         assertThat(notificationDTO).isNotNull();
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
-        assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isNotEmpty();
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isEqualTo(notificationWithoutUser.getVariables().get(VariableMapKey.ETUDIANT_NOM));
+    }
+
+    @Test
+    void doitCreerUneNotificationLorsValidationCvApprouver(){
+        cvEtudiant.setStatut(Statut.ACCEPTEE);
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
+        notificationWithUser.setId(4L);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
+        CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
+        NotificationDTO notificationDTO = notificationService.handleCvStatutModifieEvent(cvStatutModifieEvent);
+
+        assertThat(notificationDTO).isNotNull();
+        assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isNotEmpty();
+        assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isEqualTo(notificationWithUser.getVariables().get(VariableMapKey.STATUT_FICHIER));
+        assertThat(notificationDTO.id()).isEqualTo(notificationWithUser.getId());
+    }
+
+    @Test
+    void doitCreerUneNotificationLorsValidationCvRefuser(){
+        cvEtudiant.setStatut(Statut.REFUSEE);
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
+        notificationWithUser.setId(4L);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
+        CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
+        NotificationDTO notificationDTO = notificationService.handleCvStatutModifieEvent(cvStatutModifieEvent);
+
+        assertThat(notificationDTO).isNotNull();
+        assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isNotEmpty();
+        assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isEqualTo(notificationWithUser.getVariables().get(VariableMapKey.STATUT_FICHIER));
+        assertThat(notificationDTO.id()).isEqualTo(notificationWithUser.getId());
     }
 
     @Test
@@ -82,7 +114,8 @@ public class NotificationServiceTest {
         assertThat(notificationDTOList.size()).isEqualTo(1);
         NotificationDTO notificationDTO = notificationDTOList.getFirst();
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
-        assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isNotEmpty();
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isEqualTo(notificationWithoutUser.getVariables().get(VariableMapKey.ETUDIANT_NOM));
         verify(notificationRepository).getNotificationByRole(Role.GESTIONNAIRE);
         verify(notificationRepository, never()).getNotificationByDestinataire(etudiant);
     }
@@ -97,8 +130,7 @@ public class NotificationServiceTest {
         assertThat(notificationDTOList.size()).isEqualTo(1);
         NotificationDTO notificationDTO = notificationDTOList.getFirst();
         assertThat(notificationDTO.id()).isEqualTo(notificationWithUser.getId());
-        assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithUser.getVariables().get("notificationOf.name"));
-        verify(notificationRepository, never()).getNotificationByRole(Role.GESTIONNAIRE);
+        assertThat(notificationDTO.variables()).isEmpty();
         verify(notificationRepository).getNotificationByDestinataire(etudiant);
     }
 
@@ -120,8 +152,8 @@ public class NotificationServiceTest {
         NotificationDTO notificationDTO = notificationService.setNotificationLue(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
-        assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
-        assertThat(notificationDTO.estLu()).isTrue();
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isNotEmpty();
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isEqualTo(notificationWithoutUser.getVariables().get(VariableMapKey.ETUDIANT_NOM));        assertThat(notificationDTO.estLu()).isTrue();
         verify(notificationRepository).setEstLue(notificationWithoutUser.getId());
     }
 
@@ -137,8 +169,8 @@ public class NotificationServiceTest {
         NotificationDTO notificationDTO = notificationService.supprimerNotification(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
-        assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
-        assertThat(notificationDTO.estLu()).isFalse();
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isNotEmpty();
+        assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isEqualTo(notificationWithoutUser.getVariables().get(VariableMapKey.ETUDIANT_NOM));        assertThat(notificationDTO.estLu()).isFalse();
         verify(notificationRepository).findById(notificationWithoutUser.getId());
         verify(notificationRepository).deleteById(notificationWithoutUser.getId());
     }
