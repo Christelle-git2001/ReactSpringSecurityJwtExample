@@ -43,7 +43,7 @@ function SideBarLayout({ user }) {
     const visibleItems = NAV_ITEMS.filter(item => !item.roles || item.roles.includes(role));
 
     return (
-        <div className="drawer lg:drawer-open">
+        <div className="drawer lg:drawer-open h-screen overflow-hidden">
             <input
                 id="my-drawer-4"
                 type="checkbox"
@@ -52,10 +52,10 @@ function SideBarLayout({ user }) {
                 onChange={(event) => setSidebarOpen(event.target.checked)}
             />
 
-            <div className="drawer-content flex flex-col min-h-screen">
+            <div className="drawer-content flex flex-col h-screen">
                 <Header user={user} sidebarOpen={sidebarOpen} />
 
-                <div className="flex-1 p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
+                <div className="flex-1 flex overflow-hidden p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
                     <div className="flex-1 overflow-y-auto">
                         <Outlet context={{ openDrawer, closeDrawer }} />
                     </div>
