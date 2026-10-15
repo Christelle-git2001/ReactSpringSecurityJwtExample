@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { approuverCv, refuserCv, obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
+import { FaDownload } from "react-icons/fa";
+import { declencherTelechargement } from "../../utils/filesUtils.jsx";
 
 function CvDetails({ cv: cvProp }) {
     const location = useLocation();
@@ -143,7 +145,17 @@ function CvDetails({ cv: cvProp }) {
                     </div>
                 )}
 
-                <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-5">
+                <div className="mt-4 flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-5">
+                    <Button
+                        type="button"
+                        disabled={isPdfLoading || !pdfBlobUrl}
+                        onClick={() => declencherTelechargement(pdfBlobUrl, cv?.fileName || "cv.pdf")}
+                        className="mr-auto flex items-center gap-2 bg-[#043462] text-white hover:bg-[#06508f] disabled:opacity-50"
+                    >
+                        <FaDownload aria-hidden="true" />
+                        {t("pdfVisio.download")}
+                    </Button>
+
                     <Button
                         type="button"
                         disabled={isLoading}

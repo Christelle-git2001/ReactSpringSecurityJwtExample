@@ -350,7 +350,9 @@
     "title": "Notifications",
     "empty": "Aucune notification",
     "load_error": "Impossible de charger les notifications.",
-    "new_cv": "Un nouveau CV est en attente de validation."
+    "new_cv": "Un nouveau CV est en attente de validation.",
+    "cv_unavailable": "Le CV associé à cette notification n’est plus disponible.",
+    "open_error": "Impossible d’ouvrir le CV. Veuillez réessayer."
   },
   "drawer": {
     "details": "Détails",

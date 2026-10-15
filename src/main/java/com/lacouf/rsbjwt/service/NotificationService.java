@@ -46,7 +46,7 @@ public class NotificationService {
                 .role(Role.GESTIONNAIRE)
                 .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(NavigationPath.GESTIONNAIRE_CV_ID_DOWNLOAD.build(String.valueOf(etudiant.getId())))
+                .urlCible(NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId())))
                 .variables(Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
