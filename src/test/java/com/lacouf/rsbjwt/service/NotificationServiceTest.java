@@ -114,20 +114,24 @@ public class NotificationServiceTest {
 
     @Test
     void doitMettreNotificationALue() throws NotificationNonTrouvee {
-        notificationWithoutUser.setEstLu(true);
-        when(notificationRepository.setEstLue(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
+        when(notificationRepository.findById(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
+        when(notificationRepository.save(notificationWithoutUser)).thenReturn(notificationWithoutUser);
 
         NotificationDTO notificationDTO = notificationService.setNotificationLue(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
         assertThat(notificationDTO.variables().get("notificationOf.name")).isEqualTo(notificationWithoutUser.getVariables().get("notificationOf.name"));
         assertThat(notificationDTO.estLu()).isTrue();
-        verify(notificationRepository).setEstLue(notificationWithoutUser.getId());
+        verify(notificationRepository).save(notificationWithoutUser);
     }
 
     @Test
     void doitEnvoyerNotificationNonTrouveeSetNotificationLue() {
+        when(notificationRepository.findById(5L))
+                .thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> notificationService.setNotificationLue(5L)).isInstanceOf(NotificationNonTrouvee.class);
+        verify(notificationRepository, never()).save(any(Notification.class));
     }
 
     @Test

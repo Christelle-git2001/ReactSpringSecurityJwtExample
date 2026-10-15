@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
-import { getNotifications } from "../../api/notification.jsx";
+import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { getTousLesCvs } from "../../api/gestionnaire.jsx";
@@ -26,6 +26,19 @@ export default function Notification({ userId, onClose }) {
                 return;
             }
 
+            if (!notification.estLu) {
+                try {
+                    await marquerNotificationLue(notification.id);
+
+                    setNotifications(current =>
+                        current.filter(item => item.id !== notification.id)
+                    );
+                } catch {
+                    setError("notifications.read_error");
+                    return;
+                }
+            }
+
             onClose?.();
             navigate(notification.urlCible, {
                 state: { cv, from: "/gestionnaire" },
@@ -47,8 +60,8 @@ export default function Notification({ userId, onClose }) {
 
                 if (notificationsStillDisplayed) {
                     setNotifications(
-                        [...(data ?? [])].sort((a, b) =>
-                            (b.dateNotifiee ?? "").localeCompare(a.dateNotifiee ?? "")
+                        (data ?? []).filter(notification => !notification.estLu)
+                            .sort((a, b) => (b.dateNotifiee ?? "").localeCompare(a.dateNotifiee ?? "")
                         )
                     );
                 }

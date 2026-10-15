@@ -67,8 +67,9 @@ public class NotificationService {
 
     @Transactional
     public NotificationDTO setNotificationLue(Long id) throws NotificationNonTrouvee {
-        Notification notification = notificationRepository.setEstLue(id).orElseThrow(NotificationNonTrouvee::new);
-        return NotificationDTO.of(notification);
+        Notification notification = notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new);
+        notification.setEstLu(true);
+        return NotificationDTO.of(notificationRepository.save(notification));
     }
 
     @Transactional

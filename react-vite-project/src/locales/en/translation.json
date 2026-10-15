@@ -352,7 +352,8 @@
     "load_error": "Unable to load notifications.",
     "new_cv": "A new CV is awaiting validation.",
     "cv_unavailable": "The CV associated with this notification is no longer available.",
-    "open_error": "Unable to open the CV. Please try again."
+    "open_error": "Unable to open the CV. Please try again.",
+    "read_error": "Unable to mark the notification as read."
   },
   "drawer": {
     "details": "Details",
