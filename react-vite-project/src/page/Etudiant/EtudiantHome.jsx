@@ -8,7 +8,7 @@ import FilterBar from "../../component/Design/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
-import {canditureEtudiant, obtenirOffres} from "../../api/etudiant.jsx";
+import {candidaterEtudiant, obtenirOffres} from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 
 const EtudiantHome = ({ user }) => {
@@ -23,7 +23,7 @@ const EtudiantHome = ({ user }) => {
     const [idsPostules, setIdsPostules] = useState([]);
 
     useEffect(() => {
-        canditureEtudiant()
+        candidaterEtudiant()
             .then((liste) => setIdsPostules(liste.map((c) => c.offreId)))
             .catch((console.error))
     }, []);

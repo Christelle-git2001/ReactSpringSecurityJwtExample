@@ -32,7 +32,7 @@ export async function postulerOffre(offreId) {
   });
 }
 
-export async function canditureEtudiant() {
+export async function candidaterEtudiant() {
   const token = getToken();
   return fetchJson(`/etudiant/mesCandidatures`, {
     method: "GET",
