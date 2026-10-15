@@ -134,7 +134,7 @@ const EtudiantHome = ({ user }) => {
                                         }
                                     />
                                 ) : (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full mt-4">
+                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full mt-4">
                                         {offresFinales.map((offer) => (
                                             <OffreEtudiantCard
                                                 key={offer.id}
