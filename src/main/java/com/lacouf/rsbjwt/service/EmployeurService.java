@@ -128,7 +128,6 @@ public class EmployeurService {
 
         return employeur.getOffres()
                 .stream()
-                .filter(offreDeStage -> offreDeStage.getDisplayEndDate().isBefore(LocalDate.now()))
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -222,7 +221,7 @@ public class EmployeurService {
         );
     }
 
-    public List<CandidatureDTO> getCandidaturesParOffre(Long offreId) throws OffreIntrouvableException, OffreNonAutoriseeException {
+    public List<CandidatureDTO> getCandidaturesParOffre(Long offreId) throws OffreIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
 
         OffreDeStage offre = offreDeStageRepository.findById(offreId)
                 .orElseThrow(OffreIntrouvableException::new);
@@ -232,7 +231,7 @@ public class EmployeurService {
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UtilisateurIntrouvableException::new);
 
         if(!offre.getEmployeur().getId().equals(employeur.getId())){
             throw new OffreNonAutoriseeException();
@@ -244,20 +243,23 @@ public class EmployeurService {
                 .toList();
     }
 
-    List<CandidatureDTO> getAllCandidatures() {
+    public List<CandidatureDTO> obtenirCandidatures() throws UtilisateurIntrouvableException {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UtilisateurIntrouvableException::new);
 
-        return employeur.getOffres()
+        List<Candidature> candidatures =
+                candidatureRepository.findByOffreDeStage_Employeur(employeur);
+
+        return candidatures
                 .stream()
-                .flatMap(offre -> offre.getCandidatures().stream())
                 .map(CandidatureDTO::of)
                 .toList();
     }
+
 
 }
