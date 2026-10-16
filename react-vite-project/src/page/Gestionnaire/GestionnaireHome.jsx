@@ -5,8 +5,8 @@ import DashboardSection from "../../component/Design/Dashboard/DashboardSection.
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
-import SearchBar from "../../component/Design/SearchBar.jsx";
-import FilterBar from "../../component/Design/FilterBar.jsx";
+import SearchBar from "../../component/Design/Bars//SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars//FilterBar.jsx";
 import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
 import {useNavigate} from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";

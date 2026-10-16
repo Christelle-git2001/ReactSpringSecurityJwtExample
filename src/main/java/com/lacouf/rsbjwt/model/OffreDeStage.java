@@ -8,6 +8,8 @@ import lombok.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -60,6 +62,10 @@ public class OffreDeStage {
     private Employeur employeur;
 
     private String rejectionComment;
+
+    @OneToMany(mappedBy = "offreDeStage", cascade = CascadeType.ALL)
+    private List<Candidature> candidatures = new ArrayList<>();
+
 
     @Builder
     public OffreDeStage(
