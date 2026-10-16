@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import CandidatureCard from "../../component/Design/Cards/CandidatureCard.jsx";
-import { getOffresEmployeur , getCandidaturesEmployeur} from "../../api/employeur.jsx";
+import { getOffresEmployeur, getCandidaturesEmployeur } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
+import { useFilters } from "../../utils/useFilters.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 
@@ -17,17 +17,43 @@ const EmployeurHome = ({ user }) => {
 
     const [offres, setOffres] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [selectedOfferId, setSelectedOfferId] = useState(null);
 
-    const {
-        searchTerm,
-        setSearchTerm,
-        selectedStatus,
-        setSelectedStatus,
-        selectedDomain,
-        setSelectedDomain,
-        availableDomains,
-        offresFiltrees,
-    } = useOffreFilters(offres);
+    const offreFilters = useFilters(offres, {
+        getDomain: (o) => o.domain,
+        getStatus: (o) => o.statut,
+        getSearchableText: (o) => `${o.title} ${o.description}`,
+    });
+
+    const candidatureFilters = useFilters(candidatures, {
+        getDomain: (c) => c.etudiantDepartment,
+        getSearchableText: (c) => `${c.etudiantFirstName || ""} ${c.etudiantLastName || ""} ${c.offreTitle || ""}`,
+    });
+
+    const filteredOffres = offreFilters.itemsFiltres.filter((o) => {
+        if (!selectedOfferId || selectedOfferId === "TOUS") return true;
+        return o.id === selectedOfferId;
+    });
+
+    const filteredCandidatures = candidatureFilters.itemsFiltres.filter((c) => {
+        if (!selectedOfferId || selectedOfferId === "TOUS") return true;
+        return c.offreId === selectedOfferId;
+    });
+
+    const handleSearchChange = (term) => {
+        offreFilters.setSearchTerm(term);
+        candidatureFilters.setSearchTerm(term);
+    };
+
+    const handleDomainChange = (domain) => {
+        offreFilters.setSelectedDomain(domain);
+        candidatureFilters.setSelectedDomain(domain);
+    };
+
+    const handleStatusChange = (status) => {
+        offreFilters.setSelectedStatus(status);
+        candidatureFilters.setSelectedStatus(status);
+    };
 
     const handleView = async (offer) => {
         openDrawer(<OffreDetailsDrawerContent offer={offer} />);
@@ -37,6 +63,26 @@ const EmployeurHome = ({ user }) => {
         navigate("/employeur/offres/modifier", {
             state: { offer }
         });
+    };
+
+    const handleViewCandidature = (candidature) => {
+        const matchedOffer = offres.find((o) => o.id === candidature.offreId);
+        navigate(`/employeur/candidatures/details`, {
+            state: {
+                candidature,
+                offer: matchedOffer,
+                from: "/employeur"
+            }
+        });
+    };
+
+    const handleViewOfferFromCandidature = (candidature) => {
+        const matchedOffer = offres.find((o) => o.id === candidature.offreId);
+        if (matchedOffer) {
+            openDrawer(<OffreDetailsDrawerContent offer={matchedOffer} />);
+        } else {
+            console.warn("Offre non trouvée pour l'ID :", candidature.offreId);
+        }
     };
 
     useEffect(() => {
@@ -51,6 +97,10 @@ const EmployeurHome = ({ user }) => {
             .catch((err) => console.error(err));
     }, []);
 
+    const combinedDomains = Array.from(
+        new Set([...offreFilters.availableDomains, ...candidatureFilters.availableDomains])
+    );
+
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
             <div className="w-full max-w-7xl">
@@ -60,17 +110,20 @@ const EmployeurHome = ({ user }) => {
             </div>
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    onClear={() => setSearchTerm("")}
+                    value={offreFilters.searchTerm}
+                    onChange={handleSearchChange}
+                    onClear={() => handleSearchChange("")}
                 />
 
                 <FilterBar
-                    selectedStatus={selectedStatus}
-                    onStatusChange={setSelectedStatus}
-                    selectedDomain={selectedDomain}
-                    onDomainChange={setSelectedDomain}
-                    availableDomains={availableDomains}
+                    selectedStatus={offreFilters.selectedStatus}
+                    onStatusChange={handleStatusChange}
+                    selectedDomain={offreFilters.selectedDomain}
+                    onDomainChange={handleDomainChange}
+                    availableDomains={combinedDomains}
+                    selectedOfferId={selectedOfferId}
+                    onOfferChange={setSelectedOfferId}
+                    availableOffers={offres}
                 />
             </div>
             <div className="w-full max-w-7xl">
@@ -78,13 +131,13 @@ const EmployeurHome = ({ user }) => {
                     <input type="checkbox" className="peer" defaultChecked />
 
                     <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("nav.view_offers")}
+                         <span> {t("nav.view_offers")} </span>
+                        <span> ({filteredOffres.length}) </span>
                     </div>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8">
-
-                            {offresFiltrees.length === 0 ? (
+                            {filteredOffres.length === 0 ? (
                                 <EmptyContentMessage
                                     message={
                                         offres.length === 0
@@ -93,43 +146,57 @@ const EmployeurHome = ({ user }) => {
                                     }
                                 />
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full mt-4">
-                                    {offresFiltrees.map((offer) => (
+                                <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full mt-4">
+                                    {filteredOffres.map((offer) => (
                                         <OffreStageCard
                                             key={offer.id}
                                             offer={offer}
+                                            candidatures={candidatures}
                                             onView={handleView}
                                             onEdit={handleEdit}
                                         />
                                     ))}
                                 </div>
                             )}
-
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="w-full max-w-7xl">
+            <div id="candidatures-section" className="w-full max-w-7xl mt-4">
                 <div className="collapse collapse-arrow bg-transparent">
                     <input type="checkbox" className="peer" defaultChecked />
 
                     <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("nav.view_offers")}
+                        <span> {t("candidature.list_title")} </span>
+                        <span> ({filteredCandidatures.length}) </span>
                     </div>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8">
-                            {candidatures.map((candidature) => (
-                                <CandidatureCard
-                                    Key={candidature.id}
-                                    candidature={candidature}
+                            {filteredCandidatures.length === 0 ? (
+                                <EmptyContentMessage
+                                    message={
+                                        candidatures.length === 0
+                                            ? t("candidature.no_candidatures")
+                                            : t("candidature.no_matching_candidatures")
+                                    }
                                 />
-                            ))}
+                            ) : (
+                                <div className="flex flex-col gap-3 mt-4">
+                                    {filteredCandidatures.map((candidature) => (
+                                        <CandidatureCard
+                                            key={candidature.id}
+                                            candidature={candidature}
+                                            onView={handleViewCandidature}
+                                            onViewOffer={handleViewOfferFromCandidature}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };

@@ -3,17 +3,33 @@ import { useTranslation } from "react-i18next";
 import { FiFilter } from "react-icons/fi";
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 
-export default function FilterBar({selectedStatus, onStatusChange, selectedDomain, onDomainChange, availableDomains = [], selectedTown, onTownChange, availableTowns = [], className = "", statusLabels = {}}) {
+export default function FilterBar({
+                                      selectedStatus,
+                                      onStatusChange,
+                                      selectedDomain,
+                                      onDomainChange,
+                                      availableDomains = [],
+                                      selectedTown,
+                                      onTownChange,
+                                      availableTowns = [],
+                                      selectedOfferId,
+                                      onOfferChange,
+                                      availableOffers = [],
+                                      className = "",
+                                      statusLabels = {}
+                                  }) {
     const { t } = useTranslation();
 
     const showStatusFilter = selectedStatus !== undefined && onStatusChange;
     const showDomainFilter = availableDomains.length > 0 && onDomainChange;
     const showTownFilter = availableTowns.length > 0 && onTownChange;
+    const showOfferFilter = availableOffers.length > 0 && onOfferChange;
 
     const isFilterActive =
         (showStatusFilter && selectedStatus !== "TOUS") ||
         (showDomainFilter && selectedDomain !== "TOUS") ||
-        (showTownFilter && selectedTown !== "TOUS");
+        (showTownFilter && selectedTown !== "TOUS") ||
+        (showOfferFilter && selectedOfferId !== null && selectedOfferId !== "TOUS");
 
     return (
         <div className={`w-full collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm ${className}`}>
@@ -101,6 +117,7 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
                         </form>
                     </div>
                 )}
+
                 {showTownFilter && (
                     <div className="space-y-2 pt-2 border-t border-base-200">
                         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
@@ -135,6 +152,45 @@ export default function FilterBar({selectedStatus, onStatusChange, selectedDomai
                                 type="reset"
                                 value="×"
                                 onClick={() => onTownChange("TOUS")}
+                            />
+                        </form>
+                    </div>
+                )}
+
+                {showOfferFilter && (
+                    <div className="space-y-2 pt-2 border-t border-base-200">
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+                            {t("candidature.position")}
+                        </span>
+
+                        <form className="filter flex flex-wrap gap-2">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    className="btn btn-xs"
+                                    checked={selectedOfferId === null || selectedOfferId === "TOUS"}
+                                    onChange={() => onOfferChange(null)}
+                                    aria-label={t("status.tous") ?? "Tous"}
+                                />
+                            </label>
+
+                            {availableOffers.map((offer) => (
+                                <label key={offer.id}>
+                                    <input
+                                        type="checkbox"
+                                        className="btn btn-xs"
+                                        checked={selectedOfferId === offer.id}
+                                        onChange={() => onOfferChange(offer.id)}
+                                        aria-label={offer.title}
+                                    />
+                                </label>
+                            ))}
+
+                            <input
+                                className="btn btn-square btn-xs"
+                                type="reset"
+                                value="×"
+                                onClick={() => onOfferChange(null)}
                             />
                         </form>
                     </div>

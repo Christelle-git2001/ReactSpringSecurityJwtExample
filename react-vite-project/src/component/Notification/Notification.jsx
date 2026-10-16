@@ -3,8 +3,12 @@ import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { getTousLesCvs } from "../../api/gestionnaire.jsx";
+import { obtenirCvGestionnaire } from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
+
+const ROUTES_PAR_TYPE = {
+    CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
+};
 
 export default function Notification({ userId, onClose }) {
     const { t, i18n } = useTranslation();
@@ -15,13 +19,11 @@ export default function Notification({ userId, onClose }) {
     const navigate = useNavigate();
 
     const ouvrirCv = async (notification) => {
-        try {
-            const cvId = new URLSearchParams(
-                notification.urlCible.split("?")[1]
-            ).get("cvId");
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        if (!destination) return;
 
-            const cvs = await getTousLesCvs();
-            const cv = cvs.find(cv => String(cv.id) === cvId);
+        try {
+            const cv = await obtenirCvGestionnaire(notification.urlCible);
 
             if (!cv) {
                 setError("notifications.cv_unavailable");
@@ -42,11 +44,13 @@ export default function Notification({ userId, onClose }) {
             }
 
             onClose?.();
-            navigate(notification.urlCible, {
+            navigate(destination, {
                 state: { cv, from: "/gestionnaire" },
             });
-        } catch {
-            setError("notifications.open_error");
+        } catch (err) {
+            setError(err?.status === 404
+                ? "notifications.cv_unavailable"
+                : "notifications.open_error");
         }
     };
 

@@ -351,11 +351,41 @@
     }
   },
   "candidature": {
+    "position": "Job Title",
     "student_unknown": "Unknown student",
     "department_unknown": "Unknown department",
     "offer_title": "Offer title",
+    "offer_unknown": "Offer not specified",
     "employer": "Employer",
     "date": "Application date",
-    "read": "Read application"
+    "read": "Read application",
+    "list_title": "Received applications",
+    "details_title": "Application details",
+    "no_candidatures": "No applications received yet.",
+    "no_matching_candidatures": "No applications match your search."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "generic_message": "You have received a new notification.",
+    "empty": "No notifications",
+    "load_error": "Unable to load notifications.",
+    "cv_unavailable": "The CV associated with this notification is no longer available.",
+    "open_error": "Unable to open the CV. Please try again.",
+    "read_error": "Unable to mark the notification as read.",
+    "sort_by_date": "Sort by date",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first"
+  },
+  "notification": {
+    "gestionnaire": {
+      "televerserCV": {
+        "title": "New CV to review",
+        "description": "{{ETUDIANT_NOM}} has uploaded a CV."
+      }
+    }
+  },
+  "drawer": {
+    "details": "Details",
+    "close": "Close"
   }
 }
