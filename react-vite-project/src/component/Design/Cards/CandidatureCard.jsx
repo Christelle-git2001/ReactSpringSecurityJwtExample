@@ -25,9 +25,6 @@ function CandidatureCard({ candidature, onView, onViewOffer }) {
                 </div>
             </div>
             <div className="flex flex-col md:border-x md:border-gray-100 md:px-6 my-2 md:my-0">
-                <span className="text-[10px] uppercase font-semibold text-gray-400">
-                    {t("candidature.offer_title")}
-                </span>
                 {onViewOffer ? (
                     <button
                         type="button"
