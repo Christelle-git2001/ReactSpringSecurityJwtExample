@@ -4,7 +4,7 @@ import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -49,7 +49,7 @@ public class NotificationService {
                 .role(Role.GESTIONNAIRE)
                 .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId())))
+                .urlCible(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build((String.valueOf(cv.getId()))))
                 .variables(Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
@@ -65,7 +65,7 @@ public class NotificationService {
                 .description("notification.etudiant.validation.description")
                 .notificationType(NotificationType.CV_STATUT_CHANGE)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(NavigationPath.ETUDIANT_CV.build())
+                .urlCible(ControllerPath.ETUDIANT_CV.build())
                 .role(Role.ETUDIANT)
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))

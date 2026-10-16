@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
@@ -19,7 +20,6 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
-import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -145,7 +145,7 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-       eventPublisher.publishEvent(new CvSupprimerSoNotification(NavigationPath.GESTIONNAIRE_CV_DETAILS.build(String.valueOf(cv.getId()))));
+       eventPublisher.publishEvent(new CvSupprimerSoNotification(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
 
 
         etudiant.setCv(null);
