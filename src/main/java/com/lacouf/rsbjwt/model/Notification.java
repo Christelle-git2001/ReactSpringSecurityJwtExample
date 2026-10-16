@@ -34,6 +34,8 @@ public class Notification {
     private NotificationType notificationType;
     @Column(nullable = false)
     private LocalDateTime dateNotifiee;
+    @Column(nullable = false)
+    private String urlCible;
     @ManyToOne
     @JoinColumn(name = "user_app_id")
     private UserApp destinataire;
@@ -46,11 +48,12 @@ public class Notification {
     private Map<VariableMapKey, String> variables = new HashMap<>();
 
     @Builder
-    public Notification(String titre, String description, NotificationType notificationType, LocalDateTime dateCreaction, UserApp destinataire, Role role, Map<VariableMapKey, String> variables) {
+    public Notification(String titre, String description, NotificationType notificationType, LocalDateTime dateCreaction, String urlCible, UserApp destinataire, Role role, Map<VariableMapKey, String> variables) {
         this.titre = titre;
         this.description = description;
         this.notificationType = notificationType;
         this.dateNotifiee = dateCreaction;
+        this.urlCible = urlCible;
         this.destinataire = destinataire;
         this.estLu = false;
         this.role = role;

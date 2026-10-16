@@ -450,4 +450,33 @@ public class GestionnaireControllerTest {
         assertThat(resultat).hasSize(1);
         assertThat(resultat.getFirst().title()).isEqualTo("Développeur Java");
     }
+
+    @Test
+    void doitRetournerUneOffreParId() throws Exception {
+        OffreDeStageDTO offre = new OffreDeStageDTO(
+                1L,
+                "Développeur Java",
+                "Développement d'une application web",
+                25.0,
+                null,
+                null,
+                null,
+                null,
+                Statut.EN_ATTENTE,
+                "offre.pdf",
+                null,
+                null,
+                null
+        );
+
+        when(gestionnaireService.getOffreParId(1L))
+                .thenReturn(offre);
+
+        mockMvc.perform(get("/gestionnaire/offres/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Développeur Java"))
+                .andExpect(jsonPath("$.statut").value("EN_ATTENTE"));
+    }
 }

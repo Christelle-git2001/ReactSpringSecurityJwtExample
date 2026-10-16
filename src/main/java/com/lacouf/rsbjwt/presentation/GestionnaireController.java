@@ -108,7 +108,11 @@ public class GestionnaireController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"cv.pdf\"")
                 .body(resource);
+    }
 
-
+    @GetMapping("/offres/{id}")
+    public OffreDeStageDTO getOffreParId(@PathVariable Long id)
+            throws OffreIntrouvableException {
+        return gestionnaireService.getOffreParId(id);
     }
 }

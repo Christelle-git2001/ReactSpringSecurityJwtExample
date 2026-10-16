@@ -199,4 +199,12 @@ public class GestionnaireService {
 
         return StockageFichierUtils.chargerFichier(Path.of(cv.getStoragePath()));
     }
+
+    public OffreDeStageDTO getOffreParId(Long id)
+            throws OffreIntrouvableException {
+        OffreDeStage offre = offreDeStageRepository.findById(id)
+                .orElseThrow(OffreIntrouvableException::new);
+
+        return OffreDeStageDTO.of(offre);
+    }
 }
