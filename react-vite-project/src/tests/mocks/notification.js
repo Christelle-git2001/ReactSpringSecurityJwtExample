@@ -8,7 +8,7 @@ export function creerNotificationsMock() {
             variables: { ETUDIANT_NOM: "Mercedes Belle" },
             estLu: false,
             dateNotifiee: "2026-10-12T11:01:00",
-            urlCible: "/gestionnaire/cvs/details?cvId=10",
+            urlCible: "/gestionnaire/cv/10",
         },
         {
             id: 2,
@@ -18,7 +18,7 @@ export function creerNotificationsMock() {
             variables: { ETUDIANT_NOM: "Junior Belle" },
             estLu: false,
             dateNotifiee: "2026-10-13T09:45:00",
-            urlCible: "/gestionnaire/cvs/details?cvId=20",
+            urlCible: "/gestionnaire/cv/20",
         },
         {
             id: 3,
@@ -28,7 +28,7 @@ export function creerNotificationsMock() {
             variables: { ETUDIANT_NOM: "Ouriela Belle" },
             estLu: true,
             dateNotifiee: "2026-10-11T08:00:00",
-            urlCible: "/gestionnaire/cvs/details?cvId=30",
+            urlCible: "/gestionnaire/cv/30",
         },
     ];
 }
