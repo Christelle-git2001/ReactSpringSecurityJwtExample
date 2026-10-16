@@ -2,7 +2,7 @@ import { createInstance } from "i18next";
 import { getNotifications } from "../../../api/notification.jsx";
 import traductionFr from "../../../locales/fr/translation.json";
 import { creerNotificationsMock } from "../../mocks/notification.js";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
@@ -46,6 +46,68 @@ function afficherNotifications() {
 }
 
 describe("Notification - comportements communs", () => {
+    it("recharge les notifications quand userId change", async () => {
+        const { rerender } = render(
+            <I18nextProvider i18n={testI18n}>
+                <MemoryRouter>
+                    <Notification userId={5} />
+                </MemoryRouter>
+            </I18nextProvider>
+        );
+
+        await screen.findByText("Mercedes Belle a téléversé un CV.");
+        expect(getNotifications).toHaveBeenCalledWith(5);
+        getNotifications.mockResolvedValue([]);
+
+        await act(async () => {
+            rerender(
+                <I18nextProvider i18n={testI18n}>
+                    <MemoryRouter>
+                        <Notification userId={10} />
+                    </MemoryRouter>
+                </I18nextProvider>
+            );
+        });
+
+        await waitFor(() => {
+            expect(getNotifications).toHaveBeenCalledWith(10);
+            expect(screen.queryByText("Mercedes Belle a téléversé un CV.")).not.toBeInTheDocument();
+        });
+        expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
+        expect(screen.getByText("Aucune notification")).toBeInTheDocument();
+    });
+
+    it("gère une réponse null de l'API", async () => {
+        getNotifications.mockResolvedValue(null);
+
+        await act(async () => {
+            afficherNotifications();
+        });
+
+        expect(getNotifications).toHaveBeenCalledWith(5);
+        expect(screen.getByText("Aucune notification")).toBeInTheDocument();
+        expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+
+    it("revient à la liste après une erreur sans recharger les notifications", async () => {
+        getNotifications.mockRejectedValue(new Error("Erreur serveur"));
+        afficherNotifications();
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            traductionFr.notifications.load_error
+        );
+        expect(getNotifications).toHaveBeenCalledTimes(1);
+
+        fireEvent.click(screen.getByRole("button", {
+            name: traductionFr.actions.back,
+        }));
+
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+        expect(screen.getByText("Aucune notification")).toBeInTheDocument();
+        expect(getNotifications).toHaveBeenCalledTimes(1);
+    });
+
     it("affiche les notifications les plus récentes en premier", async () => {
         afficherNotifications();
 

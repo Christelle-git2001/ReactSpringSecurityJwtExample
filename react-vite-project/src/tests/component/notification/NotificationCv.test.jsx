@@ -49,14 +49,15 @@ beforeEach(async () => {
     }));
 });
 
-function afficherNotifications() {
-    return render(
+function afficherNotifications(onClose = jest.fn()) {
+    render(
         <I18nextProvider i18n={testI18n}>
             <MemoryRouter>
-                <Notification userId={5} onClose={jest.fn()} />
+                <Notification userId={5} onClose={onClose} />
             </MemoryRouter>
         </I18nextProvider>
     );
+    return { onClose };
 }
 
 describe("Notification de nouveau CV (gestionnaire)", () => {
@@ -92,8 +93,8 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
         expect(marquerNotificationLue).not.toHaveBeenCalled();
     });
 
-    it("charge le CV cible et ouvre la page de details avec ses donnees", async () => {
-        afficherNotifications();
+    it("ouvre le CV, marque la notification comme lue et demande la fermeture du Drawer", async () => {
+        const { onClose } = afficherNotifications();
 
         const description = await screen.findByText("Junior Belle a téléversé un CV.");
         fireEvent.click(within(description.closest("li")).getByRole("button", {
@@ -106,6 +107,9 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
         ));
         expect(obtenirCvGestionnaire).toHaveBeenCalledWith("/gestionnaire/cv/20");
         expect(marquerNotificationLue).toHaveBeenCalledWith(2);
+        expect(onClose).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("Junior Belle a téléversé un CV.")).not.toBeInTheDocument();
+        expect(screen.getByText("Mercedes Belle a téléversé un CV.")).toBeInTheDocument();
     });
 
     it("conserve la notification et reste sur place si le CV est introuvable", async () => {
