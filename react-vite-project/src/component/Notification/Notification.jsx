@@ -4,10 +4,23 @@ import { getNotifications, marquerNotificationLue } from "../../api/notification
 import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { obtenirCvGestionnaire } from "../../api/gestionnaire.jsx";
+import {getToutesLesOffres} from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
+    OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
+};
+
+const CONFIG_PAR_TYPE = {
+    CV_ATTENTE_VALIDATION: {
+        icon: <FiFileText className="size-5" />,
+        tone: "blue",
+    },
+    OFFRE_ATTENTE_VALIDATION: {
+        icon: <FiBell className="size-5" />,
+        color: "green",
+    },
 };
 
 export default function Notification({ userId, onClose }) {
@@ -53,6 +66,7 @@ export default function Notification({ userId, onClose }) {
                 : "notifications.open_error");
         }
     };
+
 
     useEffect(() => {
         let notificationsStillDisplayed = true;
@@ -137,6 +151,11 @@ export default function Notification({ userId, onClose }) {
                 <ul className="space-y-1 p-2">
                     {notificationsTriees.map(notification => {
                         const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
+                        const isOffre = notification.notificationType === "OFFRE_ATTENTE_VALIDATION";
+
+                        const config = CONFIG_PAR_TYPE[notification.notificationType] ;
+
+
                         const titre = t(notification.titre, {
                             ...notification.variables,
                             defaultValue: t("notifications.title"),
@@ -155,16 +174,16 @@ export default function Notification({ userId, onClose }) {
                                     wrapText
                                     showChevron={false}
                                     variant="row"
-                                    tone="blue"
-                                    icon={isCv
-                                        ? <FiFileText className="size-5" />
-                                        : <FiBell className="size-5" />}
+                                    tone={config?.tone}
+                                    icon={config?.icon}
                                     title={titre}
                                     subtitle={description}
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
                                         if (isCv) ouvrirCv(notification);
+                                        else if
+                                        (isOffre) ouvrirOffre(notification);
                                     }}
                                 />
                             </li>
