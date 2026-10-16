@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBell, FiFileText } from "react-icons/fi";
+import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { obtenirCvGestionnaire } from "../../api/gestionnaire.jsx";
 import {getToutesLesOffres} from "../../api/gestionnaire.jsx";
@@ -18,8 +18,8 @@ const CONFIG_PAR_TYPE = {
         tone: "blue",
     },
     OFFRE_ATTENTE_VALIDATION: {
-        icon: <FiBell className="size-5" />,
-        color: "green",
+        icon: <FiBriefcase  className="size-5" />,
+        tone: "green",
     },
 };
 
@@ -66,6 +66,41 @@ export default function Notification({ userId, onClose }) {
                 : "notifications.open_error");
         }
     };
+
+    const ouvrirOffre = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        if (!destination) return;
+
+        try {
+            const offre = await getToutesLesOffres(notification.urlCible);
+
+            if (!offre) {
+                setError("notifications.cv_unavailable");
+                return;
+            }
+            if (!notification.estLu) {
+                try {
+                    await marquerNotificationLue(notification.id);
+
+                    setNotifications(current =>
+                        current.filter(item => item.id !== notification.id)
+                    );
+                } catch {
+                    setError("notifications.read_error");
+                    return;
+                }
+            }
+
+            onClose?.();
+            navigate(destination, {
+                state: { from: "/gestionnaire" },
+            });
+        } catch (err) {
+            setError(err?.status === 404
+                ? "notifications.cv_unavailable"
+                : "notifications.open_error");
+        }
+    }
 
 
     useEffect(() => {
