@@ -1,64 +1,63 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { formaterDate } from "../../../utils/cvFormatters.jsx";
-import { getDepartmentKey } from "../../../utils/departementConverter.js";
 
-function CandidatureCard({ candidature, onView }) {
+function CandidatureCard({ candidature, onView, onViewOffer }) {
     const { t } = useTranslation();
 
     const getStudentName = () => {
-        if (candidature.etudiantFirstName || candidature.etudiantLastName) {
+        if (candidature?.etudiantFirstName || candidature?.etudiantLastName) {
             return `${candidature.etudiantFirstName || ""} ${candidature.etudiantLastName || ""}`.trim();
         }
         return t("candidature.student_unknown");
     };
 
-    const departmentRaw = candidature.etudiantDepartment;
-    const departmentKey = getDepartmentKey(departmentRaw);
-    const translatedDepartment = departmentRaw
-        ? (departmentKey ? t(`departement.${departmentKey}`, departmentRaw) : departmentRaw)
-        : t("candidature.department_unknown");
-
     return (
-        <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white px-5 py-2 shadow-xs transition-all hover:shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
-                <div className="flex flex-col min-w-0">
-                    <h3 className="text-base font-bold text-[#043462] truncate">
+        <div className="rounded-2xl border border-gray-200 bg-white p-3  transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#043462]/10 text-[#043462] font-bold text-lg">
+                    {getStudentName().charAt(0)}
+                </div>
+                <div className="flex flex-col">
+                    <h3 className="text-base font-bold text-[#043462]">
                         {getStudentName()}
                     </h3>
-
-                    <p className="mt-1 text-xs text-gray-500 font-medium">
-                        {translatedDepartment}
+                </div>
+            </div>
+            <div className="flex flex-col md:border-x md:border-gray-100 md:px-6 my-2 md:my-0">
+                {onViewOffer ? (
+                    <button
+                        type="button"
+                        onClick={() => onViewOffer(candidature)}
+                        className="text-sm font-semibold text-[#043462] hover:text-[#00CCCB] hover:underline text-left cursor-pointer bg-transparent border-none p-0"
+                    >
+                        {candidature?.offreTitle || t("candidature.offer_unknown")}
+                    </button>
+                ) : (
+                    <p className="text-sm font-semibold text-gray-800">
+                        {candidature?.offreTitle || t("candidature.offer_unknown")}
                     </p>
-
-                    <p className="mt-1 text-xs text-gray-500 font-medium">
-                        {t("candidature.offer_title")} : {candidature.offreTitle}
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-500 font-medium">
-                        {t("candidature.employer")} : {candidature.employeurBusinessName}
-                    </p>
+                )}
+            </div>
+            <div className="flex items-center justify-between md:justify-end gap-6 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100 shrink-0">
+                <div className="text-xs text-gray-500">
+                    <span className="block text-[10px] uppercase font-semibold text-gray-400">
+                        {t("candidature.date")}
+                    </span>
+                    <span className="text-gray-700 font-medium">
+                        {formaterDate(candidature?.dateCandidature)}
+                    </span>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0">
-                    <div className="text-xs text-gray-500">
-                        <span className="font-semibold text-[#043462]">
-                            {t("candidature.date")} :
-                        </span>{" "}
-                        {formaterDate(candidature.dateCandidature)}
-                    </div>
-
-                    {onView && (
-                        <button
-                            type="button"
-                            onClick={() => onView(candidature)}
-                            className="btn btn-sm bg-[#66E5E4] text-[#043462] hover:bg-[#52d2d1] border-none font-semibold px-4"
-                        >
-                            {t("candidature.read")}
-                        </button>
-                    )}
-                </div>
+                {onView && (
+                    <button
+                        type="button"
+                        onClick={() => onView(candidature)}
+                        className="btn btn-sm bg-[#043462] text-white hover:bg-[#032545] border-none font-semibold px-5 rounded-lg shadow-sm"
+                    >
+                        {t("candidature.read")}
+                    </button>
+                )}
             </div>
         </div>
     );
