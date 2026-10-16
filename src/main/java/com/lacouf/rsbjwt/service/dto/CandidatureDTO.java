@@ -1,7 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.Candidature;
-
 import java.time.LocalDateTime;
 
 public record CandidatureDTO(
@@ -13,9 +12,11 @@ public record CandidatureDTO(
         Long offreId,
         String offreTitle,
         String employeurBusinessName,
-        LocalDateTime dateCandidature
+        LocalDateTime dateCandidature,
+        Long cvId
 ) {
     public static CandidatureDTO of(Candidature candidature) {
+
         return new CandidatureDTO(
                 candidature.getId(),
                 candidature.getEtudiant().getId(),
@@ -25,7 +26,8 @@ public record CandidatureDTO(
                 candidature.getOffreDeStage().getId(),
                 candidature.getOffreDeStage().getTitle(),
                 candidature.getOffreDeStage().getEmployeur().getBusinessName(),
-                candidature.getDateCandidature()
+                candidature.getDateCandidature(),
+                candidature.getEtudiant().getCv().getId()
         );
     }
 }
