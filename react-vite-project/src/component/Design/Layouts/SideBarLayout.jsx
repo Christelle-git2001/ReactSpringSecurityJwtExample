@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiClock, FiFile, FiBell } from "react-icons/fi";
@@ -7,6 +7,7 @@ import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
 import Notification from "../../Notification/Notification.jsx";
+import { getNotifications } from "../../../api/notification.jsx";
 
 function SideBarLayout({ user }) {
     const { t } = useTranslation();
@@ -28,6 +29,33 @@ function SideBarLayout({ user }) {
 
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
     const role = rawRole?.toString().replace("ROLE_", "");
+
+    const [nombreNotifications, setNombreNotifications] = useState(0);
+
+    useEffect(() => {
+        let actif = true;
+
+        if (!user?.isLoggedIn || role !== "GESTIONNAIRE") {
+            setNombreNotifications(0);
+            return;
+        }
+
+        getNotifications(user.id)
+            .then(data => {
+                if (actif) {
+                    setNombreNotifications(
+                        (data ?? []).filter(notification => !notification.estLu).length
+                    );
+                }
+            })
+            .catch(() => {
+                if (actif) setNombreNotifications(0);
+            });
+
+        return () => {
+            actif = false;
+        };
+    }, [user?.id, user?.isLoggedIn, role, isDrawerOpen]);
 
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
@@ -96,7 +124,14 @@ function SideBarLayout({ user }) {
                                         setSidebarOpen(false);
                                     }}
                                 >
-                                    <FiBell className="size-4 my-1.5" />
+                                    <span className="relative inline-flex">
+                                        <FiBell className="size-4 my-1.5" />
+                                        {nombreNotifications > 0 && (
+                                            <span className="absolute -right-2 -top-1 rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                                                {nombreNotifications}
+                                            </span>
+                                        )}
+                                    </span>
                                     <span className="is-drawer-close:hidden">
                                     {t("notifications.title")}
                                 </span>
