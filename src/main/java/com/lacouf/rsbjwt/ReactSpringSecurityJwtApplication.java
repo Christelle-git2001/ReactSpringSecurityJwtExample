@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt;
 
+import com.lacouf.rsbjwt.Exception.DateFinAffichageApresDateDebutException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.repository.*;
@@ -12,7 +13,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @SpringBootApplication
@@ -20,7 +26,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     // TODO Remplacer les classe biblio par les classe appropriee
     private final GestionnaireRepository gestionnaireRepository;
     private final EtudiantRepository etudiantRepository;
-   // private final ProfesseurRepository professeurRepository;
     private final UserAppRepository userAppRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -36,7 +41,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                                              EmployeurRepository employeurRepository, GestionnaireService gestionnaireService) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
-       // this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.etudiantService = etudiantService;
@@ -52,12 +56,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        InscriptionEtudiantDTO inscriptionEtudiantDTO = new InscriptionEtudiantDTO("Jeremy","Parkour", "450-659-2541", "HAHA@hotmail.com", "1886454", Departement.INFORMATIQUE.name(), "BONJOUR","BONJOUR");
-//        etudiantService.creerCompteEtudiant(inscriptionEtudiantDTO);
-//       CreationOffreDeStageDTO creationOffreDeStageDTO = new CreationOffreDeStageDTO("Infirmerie","préposé",19.25,Departement.INFORMATIQUE,LocalDate.of(2026,10,1),LocalDate.of(2026,10,15));
-
-       //InscriptionEmployeurDTO inscriptionEmployeurDTO2 = new InscriptionEmployeurDTO("Jean","Dupont","444-555-6666","sisi@gmail.com","Clinique Test",SecteurActivite.FINANCE.name(),SecteurActivite.AEROSPATIAL,"Test1234!","Test1234!");
-       //employeurService.creeCompteEmployeur(inscriptionEmployeurDTO2);
 
         GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed", LocalDateTime.now());
         gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
@@ -67,42 +65,62 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
-/*        Employeur employeurTest = employeurRepository.save(
-                Employeur.builder()
-                        .firstName("Jean")
-                        .lastName("Dupont")
-                        .email("employeur@test.com")
-                        .password(passwordEncoder.encode("Test1234!"))
-                        .phone("450-000-0000")
-                        .town("Montréal")
-                        .businessName("Clinique Test")
-                        .businessSector(SecteurActivite.FINANCE)
-                        .build()
-        );
-*/
-        //employeurService.creerOffre(creationOffreDeStageDTO,null,employeurTest.getEmail());
-        /*
-        emprunteurRepository.save(
-                Emprunteur.builder()
-                        .firstName("Isidor")
-                        .lastName("Teurteur")
-                        .email("ll@l.com")
-                        .password(passwordEncoder.encode("bib"))
-                        .since(LocalDate.of(2020, 10,20))
-                        .build()
-        );
-        preposeRepository.save(
-                Prepose.builder()
-                        .firstName("Chandeuse")
-                        .lastName("Lixor")
-                        .email("lll@l.com")
-                        .password(passwordEncoder.encode("bib"))
-                        .passeKey("12345")
-                        .build()
-        );
-        final Optional<UserApp> userAppByEmail = userAppRepository.findUserAppByEmail("l@l.com");
-        userAppByEmail.ifPresent(userApp -> System.out.println("user " + userAppByEmail));*/
 
-        //}
-}
+        String minimalPdf = "%PDF-1.4\n" +
+                "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
+                "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 144] >> endobj\n" +
+                "xref\n" +
+                "0 4\n" +
+                "0000000000 65535 f \n" +
+                "0000000010 00000 n \n" +
+                "0000000053 00000 n \n" +
+                "0000000100 00000 n \n" +
+                "trailer << /Size 4 /Root 1 0 R >>\n" +
+                "startxref\n" +
+                "147\n" +
+                "%%EOF";
+
+        MultipartFile fakePdf = new MockMultipartFile(
+                "file",
+                "offre.pdf",
+                "application/pdf",
+                minimalPdf.getBytes()
+        );
+
+        String employeurEmail = "Roger.Malinois@hotmail.com";
+
+        CreationOffreDeStageDTO dto1 = new CreationOffreDeStageDTO(
+                "Développeur Web Junior",
+                "Développement front-end et back-end, revue de code, CI/CD.",
+                22.50,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(10),   // Début dans 10 jours
+                LocalDate.now().plusMonths(3),  // Fin dans 3 mois
+                LocalDate.now().plusDays(7)     // Affichage jusqu'à 3 jours avant le début
+        );
+
+        try {
+            employeurService.creerOffre(dto1, fakePdf, employeurEmail);
+        } catch (DateFinAffichageApresDateDebutException e) {
+            System.out.println(e.getMessage());
+        }
+
+        CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
+                "Technicien Support Informatique",
+                "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
+                20.00,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(5),    // Début dans 5 jours
+                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
+                LocalDate.now().plusDays(3)     // Affichage jusqu'à 2 jours avant le début
+        );
+
+        try {
+            employeurService.creerOffre(dto2, fakePdf, employeurEmail);
+        } catch (DateFinAffichageApresDateDebutException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
 }
