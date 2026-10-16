@@ -81,6 +81,11 @@ public class GestionnaireController {
         return ResponseEntity.ok(gestionnaireService.getTousLesCvs());
     }
 
+    @GetMapping("/cv/{id}")
+    public ResponseEntity<CvEtudiantDTO> getCVParId(@PathVariable Long id) throws CurriculumVitaeIntrouvable {
+        return ResponseEntity.ok(gestionnaireService.getCvParId(id));
+    }
+
     @PutMapping("/cv/{id}/approuver")
     public ResponseEntity<CvEtudiantDTO> approuverCurriculumVitae(@PathVariable Long id) throws CurriculumVitaeIntrouvable, CurriculumVitaeNonEnAttente {
         CvEtudiantDTO cvEtudiantDTO = gestionnaireService.approuverCurriculumVitae(id);
