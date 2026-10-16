@@ -1,19 +1,19 @@
 import { createInstance } from "i18next";
-import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import { obtenirCvGestionnaire } from "../../api/gestionnaire.jsx";
-import traductionFr from "../../locales/fr/translation.json";
-import { creerNotificationsMock, creerCvsMock } from "../mocks/notification.js";
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { getNotifications, marquerNotificationLue } from "../../../api/notification.jsx";
+import { obtenirCvGestionnaire } from "../../../api/gestionnaire.jsx";
+import traductionFr from "../../../locales/fr/translation.json";
+import { creerNotificationsMock, creerCvsMock } from "../../mocks/notification.js";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
-import Notification from "../../component/Notification/Notification.jsx";
+import Notification from "../../../component/Notification/Notification.jsx";
 
-jest.mock("../../api/notification.jsx", () => ({
+jest.mock("../../../api/notification.jsx", () => ({
     getNotifications: jest.fn(),
     marquerNotificationLue: jest.fn(),
 }));
 
-jest.mock("../../api/gestionnaire.jsx", () => ({
+jest.mock("../../../api/gestionnaire.jsx", () => ({
     obtenirCvGestionnaire: jest.fn(),
 }));
 
@@ -59,39 +59,7 @@ function afficherNotifications() {
     );
 }
 
-describe("Notification", () => {
-    it("affiche les notifications les plus récentes en premier", async () => {
-        afficherNotifications();
-
-        const items = await screen.findAllByRole("listitem");
-
-        expect(items[0]).toHaveTextContent("Junior Belle");
-        expect(items[1]).toHaveTextContent("Mercedes Belle");
-    });
-
-    it("inverse le tri des notifications au clic", async () => {
-        afficherNotifications();
-
-        await screen.findAllByRole("listitem");
-        fireEvent.click(screen.getByRole("button", {
-            name: traductionFr.notifications.oldest_first,
-        }));
-
-        const items = screen.getAllByRole("listitem");
-        expect(items[0]).toHaveTextContent("Mercedes Belle");
-        expect(items[1]).toHaveTextContent("Junior Belle");
-    });
-
-    it("affiche une erreur si le chargement des notifications échoue", async () => {
-        getNotifications.mockRejectedValue(new Error("Erreur serveur"));
-        afficherNotifications();
-
-        expect(await screen.findByRole("alert")).toHaveTextContent(
-            traductionFr.notifications.load_error
-        );
-        expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
-    });
-
+describe("Notification de nouveau CV (gestionnaire)", () => {
     it("ne navigue pas si le marquage comme lu échoue", async () => {
         marquerNotificationLue.mockRejectedValue(new Error("Erreur serveur"));
         afficherNotifications();
@@ -174,31 +142,4 @@ describe("Notification", () => {
         expect(getNotifications).toHaveBeenCalledWith(5);
     });
 
-    it("masque les notifications déjà lues", async () => {
-        afficherNotifications();
-
-        await screen.findByText("Mercedes Belle a téléversé un CV.");
-
-        expect(
-            screen.queryByText("Ouriela Belle a téléversé un CV.")
-        ).not.toBeInTheDocument();
-
-        expect(screen.getAllByRole("listitem")).toHaveLength(2);
-    });
-
-    it("affiche un message quand l’API ne retourne aucune notification", async () => {
-        getNotifications.mockResolvedValue([]);
-
-        await act(async () => {
-            afficherNotifications();
-        });
-
-        expect(getNotifications).toHaveBeenCalledWith(5);
-
-        expect(
-            screen.getByText("Aucune notification")
-        ).toBeInTheDocument();
-
-        expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
-    });
 });
