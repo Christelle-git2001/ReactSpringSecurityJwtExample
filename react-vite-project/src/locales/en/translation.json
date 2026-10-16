@@ -351,6 +351,7 @@
     }
   },
   "candidature": {
+    "position": "Job Title",
     "student_unknown": "Unknown student",
     "department_unknown": "Unknown department",
     "offer_title": "Offer title",

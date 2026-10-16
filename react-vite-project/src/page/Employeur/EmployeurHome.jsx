@@ -17,6 +17,7 @@ const EmployeurHome = ({ user }) => {
 
     const [offres, setOffres] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [selectedOfferId, setSelectedOfferId] = useState(null);
 
     const offreFilters = useFilters(offres, {
         getDomain: (o) => o.domain,
@@ -27,6 +28,16 @@ const EmployeurHome = ({ user }) => {
     const candidatureFilters = useFilters(candidatures, {
         getDomain: (c) => c.etudiantDepartment,
         getSearchableText: (c) => `${c.etudiantFirstName || ""} ${c.etudiantLastName || ""} ${c.offreTitle || ""}`,
+    });
+
+    const filteredOffres = offreFilters.itemsFiltres.filter((o) => {
+        if (!selectedOfferId || selectedOfferId === "TOUS") return true;
+        return o.id === selectedOfferId;
+    });
+
+    const filteredCandidatures = candidatureFilters.itemsFiltres.filter((c) => {
+        if (!selectedOfferId || selectedOfferId === "TOUS") return true;
+        return c.offreId === selectedOfferId;
     });
 
     const handleSearchChange = (term) => {
@@ -97,7 +108,6 @@ const EmployeurHome = ({ user }) => {
                     {t("home.welcome")} {user?.firstName} {user?.lastName}
                 </h1>
             </div>
-
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <SearchBar
                     value={offreFilters.searchTerm}
@@ -111,6 +121,9 @@ const EmployeurHome = ({ user }) => {
                     selectedDomain={offreFilters.selectedDomain}
                     onDomainChange={handleDomainChange}
                     availableDomains={combinedDomains}
+                    selectedOfferId={selectedOfferId}
+                    onOfferChange={setSelectedOfferId}
+                    availableOffers={offres}
                 />
             </div>
             <div className="w-full max-w-7xl">
@@ -118,12 +131,13 @@ const EmployeurHome = ({ user }) => {
                     <input type="checkbox" className="peer" defaultChecked />
 
                     <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("nav.view_offers")}
+                         <span> {t("nav.view_offers")} </span>
+                        <span> ({filteredOffres.length}) </span>
                     </div>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8">
-                            {offreFilters.itemsFiltres.length === 0 ? (
+                            {filteredOffres.length === 0 ? (
                                 <EmptyContentMessage
                                     message={
                                         offres.length === 0
@@ -133,7 +147,7 @@ const EmployeurHome = ({ user }) => {
                                 />
                             ) : (
                                 <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full mt-4">
-                                    {offreFilters.itemsFiltres.map((offer) => (
+                                    {filteredOffres.map((offer) => (
                                         <OffreStageCard
                                             key={offer.id}
                                             offer={offer}
@@ -148,17 +162,18 @@ const EmployeurHome = ({ user }) => {
                     </div>
                 </div>
             </div>
-            <div className="w-full max-w-7xl mt-4">
+            <div id="candidatures-section" className="w-full max-w-7xl mt-4">
                 <div className="collapse collapse-arrow bg-transparent">
                     <input type="checkbox" className="peer" defaultChecked />
 
                     <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("candidature.list_title")}
+                        <span> {t("candidature.list_title")} </span>
+                        <span> ({filteredCandidatures.length}) </span>
                     </div>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8">
-                            {candidatureFilters.itemsFiltres.length === 0 ? (
+                            {filteredCandidatures.length === 0 ? (
                                 <EmptyContentMessage
                                     message={
                                         candidatures.length === 0
@@ -168,7 +183,7 @@ const EmployeurHome = ({ user }) => {
                                 />
                             ) : (
                                 <div className="flex flex-col gap-3 mt-4">
-                                    {candidatureFilters.itemsFiltres.map((candidature) => (
+                                    {filteredCandidatures.map((candidature) => (
                                         <CandidatureCard
                                             key={candidature.id}
                                             candidature={candidature}
@@ -182,7 +197,6 @@ const EmployeurHome = ({ user }) => {
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };
