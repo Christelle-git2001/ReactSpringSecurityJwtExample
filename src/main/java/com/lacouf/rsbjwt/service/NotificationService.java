@@ -4,7 +4,6 @@ import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.Notification.NavigationPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -18,7 +17,6 @@ import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,8 +45,9 @@ public class NotificationService {
                 .role(Role.GESTIONNAIRE)
                 .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(NavigationPath.GESTIONNAIRE_CV_details.build(String.valueOf(etudiant.getId())))
-                .variables(Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()))
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.CV_ID, String.valueOf(cv.getId())))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
@@ -63,7 +62,6 @@ public class NotificationService {
                 .description("notification.etudiant.validation.description")
                 .notificationType(NotificationType.CV_STATUT_CHANGE)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(NavigationPath.ETUDIANT_CV.build())
                 .role(Role.ETUDIANT)
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
@@ -112,7 +110,7 @@ public class NotificationService {
                 .orElseThrow(UtilisateurIntrouvableException::new);
     }
 
-    @TransactionalEventListener
+    @EventListener
     @Transactional
     public NotificationDTO handleNouvelleOffreTeleversee(
             NouvelleOffreTeleverseeEvent event) {
@@ -125,10 +123,10 @@ public class NotificationService {
                 .role(Role.GESTIONNAIRE)
                 .notificationType(NotificationType.OFFRE_ATTENTE_VALIDATION)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(NavigationPath.GESTIONNAIRE_OFFRE_details.build())
                 .variables(Map.of(
-                        VariableMapKey.OFFRE_TITRE,
-                        offre.getTitle()))
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle()
+                ))
                 .build();
 
         return NotificationDTO.of(notificationRepository.save(notification));

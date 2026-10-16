@@ -40,7 +40,7 @@ public class NotificationControllerTest {
     void init(){
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
-        notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),"etudiant/1/cv",false, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean François Castonguay"));
+        notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),false, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean François Castonguay"));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class NotificationControllerTest {
 
     @Test
     void doitRetournerNotificationDTOLueStatusOK() throws Exception {
-        notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),"etudiant/1/cv",true, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean François Castonguay"));
+        notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),true, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean François Castonguay"));
         when(notificationService.setNotificationLue(1L)).thenReturn(notificationDTO);
         mockMvc.perform(put("/notification/1/lu"))
                 .andExpect(status().isOk())
@@ -80,7 +80,7 @@ public class NotificationControllerTest {
     @Test
     void doitRetournerNombreNotificationStatusOk() throws Exception {
         List<NotificationDTO> notificationDTOList = new java.util.ArrayList<>(List.of(notificationDTO));
-        notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),"etudiant/1/cv",false, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean Moustache Castonguay"));
+        notificationDTO = new NotificationDTO(-8,"notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION, LocalDateTime.now(),false, Map.of(VariableMapKey.ETUDIANT_NOM,"Jean Moustache Castonguay"));
         notificationDTOList.add(notificationDTO);
         when(notificationService.compterNotifications(1L)).thenReturn((long) notificationDTOList.size());
         mockMvc.perform(get("/notification/utilisateur/1/compteur"))

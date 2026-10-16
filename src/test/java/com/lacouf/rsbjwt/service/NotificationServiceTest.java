@@ -54,9 +54,9 @@ public class NotificationServiceTest {
     void init(){
         etudiant = new Etudiant("Jean","Dupuis","Jean.Dupuis@hotmail.com","438-956-5858", Departement.INFORMATIQUE,"8585858","YOYO");
         cvEtudiant = new CvEtudiant("JeanDupuisTutorial","application/pdf",200L,"uploads/cvs/JeanDupuis.pdf", LocalDateTime.now(),etudiant);
-        notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",null, Role.GESTIONNAIRE, Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()));
+        notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),null, Role.GESTIONNAIRE, Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()));
         notificationWithoutUser.setId(1L);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, new HashMap<>());
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),etudiant, Role.ETUDIANT, new HashMap<>());
         notificationWithUser.setId(2L);
         gestionnaire = new Gestionnaire(3L,"Patrick","Mesange","Patrick.Mesange@hotmail.com","NoNeed","450-254-5874");
         gestionnaire.setId(3L);
@@ -78,7 +78,7 @@ public class NotificationServiceTest {
     @Test
     void doitCreerUneNotificationLorsValidationCvApprouver(){
         cvEtudiant.setStatut(Statut.ACCEPTEE);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
         notificationWithUser.setId(4L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
         CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
@@ -93,7 +93,7 @@ public class NotificationServiceTest {
     @Test
     void doitCreerUneNotificationLorsValidationCvRefuser(){
         cvEtudiant.setStatut(Statut.REFUSEE);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
         notificationWithUser.setId(4L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
         CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
@@ -227,7 +227,6 @@ public class NotificationServiceTest {
                 "notification.gestionnaire.offre.description",
                 NotificationType.OFFRE_ATTENTE_VALIDATION,
                 LocalDateTime.now(),
-                "/gestionnaire/offres/details",
                 null,
                 Role.GESTIONNAIRE,
                 Map.of(VariableMapKey.OFFRE_TITRE, "Développeur frontend")
