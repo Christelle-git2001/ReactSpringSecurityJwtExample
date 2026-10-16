@@ -58,7 +58,7 @@ function SideBarLayout({ user }) {
                 <Header user={user} sidebarOpen={sidebarOpen} />
 
                 <div className="flex-1 flex overflow-hidden p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
                         <Outlet context={{ openDrawer, closeDrawer }} />
                     </div>
                     <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} content={drawerContent} />
