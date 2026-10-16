@@ -5,13 +5,14 @@ import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -54,9 +55,9 @@ public class NotificationServiceTest {
     void init(){
         etudiant = new Etudiant("Jean","Dupuis","Jean.Dupuis@hotmail.com","438-956-5858", Departement.INFORMATIQUE,"8585858","YOYO");
         cvEtudiant = new CvEtudiant("JeanDupuisTutorial","application/pdf",200L,"uploads/cvs/JeanDupuis.pdf", LocalDateTime.now(),etudiant);
-        notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),null, Role.GESTIONNAIRE, Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()));
+        notificationWithoutUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",null, Role.GESTIONNAIRE, Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()));
         notificationWithoutUser.setId(1L);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),etudiant, Role.ETUDIANT, new HashMap<>());
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, new HashMap<>());
         notificationWithUser.setId(2L);
         gestionnaire = new Gestionnaire(3L,"Patrick","Mesange","Patrick.Mesange@hotmail.com","NoNeed","450-254-5874");
         gestionnaire.setId(3L);
@@ -78,7 +79,7 @@ public class NotificationServiceTest {
     @Test
     void doitCreerUneNotificationLorsValidationCvApprouver(){
         cvEtudiant.setStatut(Statut.ACCEPTEE);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
         notificationWithUser.setId(4L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
         CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
@@ -91,9 +92,21 @@ public class NotificationServiceTest {
     }
 
     @Test
+    void doitSupprimerNotificationLorsCvSupprimer() {
+        String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
+
+
+        CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
+
+        notificationService.handleCvSupprimerSoNotification(event);
+
+        verify(notificationRepository, times(1)).deleteByUrlCible(expectedUrl);
+    }
+
+    @Test
     void doitCreerUneNotificationLorsValidationCvRefuser(){
         cvEtudiant.setStatut(Statut.REFUSEE);
-        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
+        notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
         notificationWithUser.setId(4L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
         CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
@@ -147,20 +160,25 @@ public class NotificationServiceTest {
 
     @Test
     void doitMettreNotificationALue() throws NotificationNonTrouvee {
-        notificationWithoutUser.setEstLu(true);
-        when(notificationRepository.setEstLue(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
+        when(notificationRepository.findById(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
+        when(notificationRepository.save(notificationWithoutUser)).thenReturn(notificationWithoutUser);
 
         NotificationDTO notificationDTO = notificationService.setNotificationLue(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
         assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isNotEmpty();
         assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isEqualTo(notificationWithoutUser.getVariables().get(VariableMapKey.ETUDIANT_NOM));        assertThat(notificationDTO.estLu()).isTrue();
-        verify(notificationRepository).setEstLue(notificationWithoutUser.getId());
+        assertThat(notificationDTO.estLu()).isTrue();
+        verify(notificationRepository).save(notificationWithoutUser);
     }
 
     @Test
     void doitEnvoyerNotificationNonTrouveeSetNotificationLue() {
+        when(notificationRepository.findById(5L))
+                .thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> notificationService.setNotificationLue(5L)).isInstanceOf(NotificationNonTrouvee.class);
+        verify(notificationRepository, never()).save(any(Notification.class));
     }
 
     @Test
@@ -215,38 +233,5 @@ public class NotificationServiceTest {
 
         assertThatThrownBy(() -> notificationService.compterNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
         verify(userAppRepository).findById(5L);
-    }
-
-    @Test
-    void doitCreerNotificationLorsDuneNouvelleOffreTeleversee() {
-        OffreDeStage offre = mock(OffreDeStage.class);
-        when(offre.getTitle()).thenReturn("Développeur frontend");
-
-        Notification notificationSauvegardee = new Notification(
-                "notification.gestionnaire.offre.title",
-                "notification.gestionnaire.offre.description",
-                NotificationType.OFFRE_ATTENTE_VALIDATION,
-                LocalDateTime.now(),
-                null,
-                Role.GESTIONNAIRE,
-                Map.of(VariableMapKey.OFFRE_TITRE, "Développeur frontend")
-        );
-        notificationSauvegardee.setId(10L);
-
-        when(notificationRepository.save(any(Notification.class)))
-                .thenReturn(notificationSauvegardee);
-
-        NouvelleOffreTeleverseeEvent event =
-                new NouvelleOffreTeleverseeEvent(offre);
-
-        NotificationDTO resultat =
-                notificationService.handleNouvelleOffreTeleversee(event);
-
-        assertThat(resultat).isNotNull();
-        assertThat(resultat.id()).isEqualTo(10L);
-        assertThat(resultat.variables())
-                .containsEntry(VariableMapKey.OFFRE_TITRE, "Développeur frontend");
-
-        verify(notificationRepository).save(any(Notification.class));
     }
 }

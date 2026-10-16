@@ -1,19 +1,22 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiClock, FiFile } from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiUser, FiClock, FiFile, FiBell } from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
+import Notification from "../../Notification/Notification.jsx";
 
 function SideBarLayout({ user }) {
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [drawerContent, setDrawerContent] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [drawerTitle, setDrawerTitle] = useState("drawer.details");
 
-    const openDrawer = (content) => {
+    const openDrawer = (content, title = "drawer.details") => {
         setDrawerContent(content);
+        setDrawerTitle(title);
         setIsDrawerOpen(true);
     };
 
@@ -59,7 +62,7 @@ function SideBarLayout({ user }) {
                     <div className="flex-1 overflow-y-auto">
                         <Outlet context={{ openDrawer, closeDrawer }} />
                     </div>
-                    <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} content={drawerContent} />
+                    <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} content={drawerContent} title={drawerTitle}/>
                 </div>
             </div>
             <div className="drawer-side is-drawer-close:overflow-visible bg-[#043462] text-white">
@@ -78,6 +81,27 @@ function SideBarLayout({ user }) {
 
                 <div className="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">
                     <ul className="menu w-full grow">
+
+                        {user?.isLoggedIn && role === "GESTIONNAIRE" && (
+                            <li>
+                                <button
+                                    type="button"
+                                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-[#00CCCB] hover:text-white"
+                                    data-tip={t("notifications.title")}
+                                    aria-label={t("notifications.title")}
+                                    onClick={() => {
+                                        openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
+                                        setSidebarOpen(false);
+                                    }}
+                                >
+                                    <FiBell className="size-4 my-1.5" />
+                                    <span className="is-drawer-close:hidden">
+                                    {t("notifications.title")}
+                                </span>
+                                </button>
+                            </li>
+                        )}
+
                         {visibleItems.map(item => (
                             <li key={item.path}>
                                 <Link

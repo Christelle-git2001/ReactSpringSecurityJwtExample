@@ -347,5 +347,29 @@
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "generic_message": "You have received a new notification.",
+    "empty": "No notifications",
+    "load_error": "Unable to load notifications.",
+    "cv_unavailable": "The CV associated with this notification is no longer available.",
+    "open_error": "Unable to open the CV. Please try again.",
+    "read_error": "Unable to mark the notification as read.",
+    "sort_by_date": "Sort by date",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first"
+  },
+  "notification": {
+    "gestionnaire": {
+      "televerserCV": {
+        "title": "New CV to review",
+        "description": "{{ETUDIANT_NOM}} has uploaded a CV."
+      }
+    }
+  },
+  "drawer": {
+    "details": "Details",
+    "close": "Close"
   }
 }

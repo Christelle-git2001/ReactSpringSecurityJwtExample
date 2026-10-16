@@ -483,6 +483,25 @@ class GestionnaireServiceTest {
     }
 
     @Test
+    void doitRetournerUnCvParID() throws CurriculumVitaeIntrouvable {
+        when(cvEtudiantRepository.findById(cvEtudiant.getId())).thenReturn(Optional.of(cvEtudiant));
+
+        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.getCvParId(cvEtudiant.getId());
+
+        assertThat(cvEtudiantDTO.id()).isEqualTo(cvEtudiant.getId());
+        assertThat(cvEtudiantDTO.statut()).isEqualTo(cvEtudiant.getStatut());
+        assertThat(cvEtudiantDTO.fileName()).isEqualTo(cvEtudiant.getFileName());
+        verify(cvEtudiantRepository).findById(cvEtudiantDTO.id());
+    }
+
+    @Test
+    void doitRetournerCvNotFound() {
+        assertThatThrownBy(() -> gestionnaireService.getCvParId(-5L)).isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+        verify(cvEtudiantRepository,never()).findById(cvEtudiant.getId());
+    }
+
+    @Test
     void doitLeverExceptionSiCurriculumVitaeNonEnAttenteRefuser(){
         cvEtudiant.setStatut(Statut.REFUSEE);
         when(cvEtudiantRepository.findById(1L)).thenReturn(Optional.of(cvEtudiant));

@@ -1,4 +1,4 @@
-import { fetchJson } from "./http.jsx";
+import { fetchApi, fetchJson } from "./http.jsx";
 
 export async function inscrireEtudiant(etudiant) {
   return fetchJson("/etudiant/inscription", {
@@ -61,13 +61,9 @@ export async function obtenirCvPDF(){
 }
 
 export async function suppressionCv(){
-  const token = getToken();
-  return fetch("http://localhost:8080/etudiant/cv", {
-    method : "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    },
-  })
+  return fetchApi("/etudiant/cv", {
+    method: "DELETE",
+  });
 }
 
 function getToken(){
@@ -79,4 +75,3 @@ function getToken(){
   }
   return token;
 }
-

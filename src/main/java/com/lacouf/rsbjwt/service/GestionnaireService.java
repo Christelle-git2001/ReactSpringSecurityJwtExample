@@ -189,6 +189,10 @@ public class GestionnaireService {
                 .toList();
     }
 
+    public CvEtudiantDTO getCvParId(Long idCv) throws CurriculumVitaeIntrouvable {
+        return CvEtudiantDTO.of(cvEtudiantRepository.findById(idCv).orElseThrow(CurriculumVitaeIntrouvable::new));
+    }
+
     public Resource telechargerCvParId(Long id) throws CurriculumVitaeIntrouvable, FichierIntrouvableException {
         CvEtudiant cv = cvEtudiantRepository.findById(id)
                 .orElseThrow(CurriculumVitaeIntrouvable::new);

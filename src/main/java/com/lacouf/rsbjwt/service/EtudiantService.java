@@ -3,9 +3,11 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.lacouf.rsbjwt.repository.NotificationRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,7 +43,7 @@ public class EtudiantService {
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
-                           CandidatureRepository candidatureRepository) {
+                           NotificationRepository notificationRepository, CandidatureRepository candidatureRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -135,15 +138,21 @@ public class EtudiantService {
         return StockageFichierUtils.chargerFichier(Paths.get(cv.getStoragePath()));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = SuppressionFichierEchoueeException.class)
     public void supprimerCv(String email)
             throws EtudiantIntrouvableException, FichierIntrouvableException,
             SuppressionFichierEchoueeException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
+       eventPublisher.publishEvent(new CvSupprimerSoNotification(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
+
+
+        etudiant.setCv(null);
         cvEtudiantRepository.delete(cv);
+        cvEtudiantRepository.flush();
+
+        StockageFichierUtils.supprimerFichier(Paths.get(cv.getStoragePath()));
     }
 
     private void supprimerAncienCv(CvEtudiant cv, Path newPath)
