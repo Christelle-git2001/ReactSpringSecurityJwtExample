@@ -1,4 +1,3 @@
-import { beforeAll, beforeEach, describe, vi, expect, it } from "vitest";
 import { createInstance } from "i18next";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { obtenirCvGestionnaire } from "../../api/gestionnaire.jsx";
@@ -9,20 +8,20 @@ import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../component/Notification/Notification.jsx";
 
-vi.mock("../../api/notification.jsx", () => ({
-    getNotifications: vi.fn(),
-    marquerNotificationLue: vi.fn(),
+jest.mock("../../api/notification.jsx", () => ({
+    getNotifications: jest.fn(),
+    marquerNotificationLue: jest.fn(),
 }));
 
-vi.mock("../../api/gestionnaire.jsx", () => ({
-    obtenirCvGestionnaire: vi.fn(),
+jest.mock("../../api/gestionnaire.jsx", () => ({
+    obtenirCvGestionnaire: jest.fn(),
 }));
 
-const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
+const mockNavigate = jest.fn();
 
-vi.mock("react-router-dom", async (importOriginal) => ({
-    ...await importOriginal(),
-    useNavigate: () => navigate,
+jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
+    useNavigate: () => mockNavigate,
 }));
 
 const testI18n = createInstance();
@@ -37,7 +36,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-    vi.resetAllMocks();
+    jest.resetAllMocks();
     await testI18n.changeLanguage("fr");
 
     getNotifications.mockResolvedValue(creerNotificationsMock());
@@ -54,7 +53,7 @@ function afficherNotifications() {
     return render(
         <I18nextProvider i18n={testI18n}>
             <MemoryRouter>
-                <Notification userId={5} onClose={vi.fn()} />
+                <Notification userId={5} onClose={jest.fn()} />
             </MemoryRouter>
         </I18nextProvider>
     );
@@ -67,7 +66,7 @@ describe("Notification", () => {
         const items = await screen.findAllByRole("listitem");
         fireEvent.click(items[0].querySelector("button"));
 
-        await waitFor(() => expect(navigate).toHaveBeenCalledWith(
+        await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith(
             "/gestionnaire/cvs/details",
             { state: { cv: creerCvsMock()[1], from: "/gestionnaire" } }
         ));
@@ -85,7 +84,7 @@ describe("Notification", () => {
         expect(await screen.findByRole("alert")).toHaveTextContent(
             traductionFr.notifications.cv_unavailable
         );
-        expect(navigate).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
         expect(marquerNotificationLue).not.toHaveBeenCalled();
     });
 
