@@ -1,8 +1,8 @@
 import CvCard from "../../component/Design/Cards/CvCard.jsx";
 import { useCallback, useMemo, useState } from "react";
 import { approuverCv, getTousLesCvs, refuserCv } from "../../api/gestionnaire.jsx";
-import SearchBar from "../../component/Design/SearchBar.jsx";
-import FilterBar from "../../component/Design/FilterBar.jsx";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design//Bars/FilterBar.jsx";
 import GestionnaireItemsPage, { useGestionnaireItems } from "../../utils/GestionnaireItemsPage.jsx";
 
 function GestionnaireCvs() {

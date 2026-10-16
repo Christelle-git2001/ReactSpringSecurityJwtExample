@@ -371,7 +371,7 @@ public class EmployeurControllerTest {
 
     @Test
     void doitRetournerLesOffresDeLEmployeur() throws Exception {
-        when(employeurService.obtenirOffres(any())).thenReturn(List.of(offreDeStageDTO));
+        when(employeurService.obtenirOffres()).thenReturn(List.of(offreDeStageDTO));
 
         mockMvc.perform(get("/employeur/offres"))
                 .andExpect(status().isOk());

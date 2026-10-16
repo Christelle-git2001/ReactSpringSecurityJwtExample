@@ -1,21 +1,19 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,20 +34,21 @@ public class EmployeurService {
     private final UserAppRepository userAppRepository;
     private final PasswordEncoder passwordEncoder;
     private final OffreDeStageRepository offreDeStageRepository;
+    private final CandidatureRepository candidatureRepository ;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
-    private final ApplicationEventPublisher eventPublisher;
+
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
-            OffreDeStageRepository offreDeStageRepository,ApplicationEventPublisher eventPublisher
+            OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
-        this.eventPublisher = eventPublisher;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
@@ -111,19 +111,15 @@ public class EmployeurService {
                 .storagePath(storagePath)
                 .employeur(employeur)
                 .build();
-
-        OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
-
-        eventPublisher.publishEvent(
-                new NouvelleOffreTeleverseeEvent(offreEnregistree)
-        );
-
-        return OffreDeStageDTO.of(offreEnregistree);
-
+        return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
     }
 
     @Transactional(readOnly = true)
-    public List<OffreDeStageDTO> obtenirOffres(String email) {
+    public List<OffreDeStageDTO> obtenirOffres() {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
 
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
@@ -135,6 +131,7 @@ public class EmployeurService {
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
+
 
     public Resource telechargerOffre(Long id, String email)
             throws OffreIntrouvableException, FichierIntrouvableException {
@@ -223,4 +220,46 @@ public class EmployeurService {
                 offreDeStageRepository.save(offre)
         );
     }
+
+    public List<CandidatureDTO> getCandidaturesParOffre(Long offreId) throws OffreIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+
+        OffreDeStage offre = offreDeStageRepository.findById(offreId)
+                .orElseThrow(OffreIntrouvableException::new);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName() ;
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        if(!offre.getEmployeur().getId().equals(employeur.getId())){
+            throw new OffreNonAutoriseeException();
+        }
+
+        return candidatureRepository.findByOffreDeStage(offre)
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
+    public List<CandidatureDTO> obtenirCandidatures() throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Candidature> candidatures =
+                candidatureRepository.findByOffreDeStage_Employeur(employeur);
+
+        return candidatures
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
+
 }

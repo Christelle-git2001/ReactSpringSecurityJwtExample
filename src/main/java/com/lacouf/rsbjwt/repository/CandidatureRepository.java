@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.repository;
 
 import com.lacouf.rsbjwt.model.Candidature;
+import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,7 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     List<Candidature> findByOffreDeStage(OffreDeStage offreDeStage);
 
     List<Candidature> findByEtudiant(Etudiant etudiant);
+
+    List<Candidature> findByOffreDeStage_Employeur(Employeur employeur);
+
 }
