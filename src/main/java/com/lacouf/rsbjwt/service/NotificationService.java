@@ -15,6 +15,7 @@ import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -32,10 +33,13 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserAppRepository userAppRepository;
+    private final EtudiantRepository etudiantRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
+    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
+                               EtudiantRepository etudiantRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
+        this.etudiantRepository = etudiantRepository;
     }
 
     @EventListener

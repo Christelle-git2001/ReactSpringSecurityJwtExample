@@ -2,7 +2,10 @@ package com.lacouf.rsbjwt.model.Enum.Notification;
 
 public enum ControllerPath {
     ETUDIANT_CV("/etudiant/cv"), //TODO a modifier sans la US-68
-    GESTIONNAIRE_CV_ID_DETAIL("/gestionnaire/cv/{id}");
+    GESTIONNAIRE_CV_ID_DETAIL("/gestionnaire/cv/{id}"),
+
+
+    ETUDIANT_OFFRES("/etudiant"); //a ajuster dans le FE pour que l'etudiant ouvre directement l'offre
 
     private final String pattern;
 
