@@ -366,7 +366,7 @@
   },
   "notifications": {
     "title": "Notifications",
-    "generic_message": "You have received a new notification.",
+    "generic_message": "You have received an new offer to validate .",
     "empty": "No notifications",
     "load_error": "Unable to load notifications.",
     "cv_unavailable": "The CV associated with this notification is no longer available.",

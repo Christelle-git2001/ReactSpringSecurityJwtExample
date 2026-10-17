@@ -366,7 +366,7 @@
   },
   "notifications": {
     "title": "Notifications",
-    "generic_message": "Vous avez reçu une nouvelle notification.",
+    "generic_message": "Vous avez reçu une nouvelle offre à valider.",
     "empty": "Aucune notification",
     "load_error": "Impossible de charger les notifications.",
     "cv_unavailable": "Le CV associé à cette notification n’est plus disponible.",
