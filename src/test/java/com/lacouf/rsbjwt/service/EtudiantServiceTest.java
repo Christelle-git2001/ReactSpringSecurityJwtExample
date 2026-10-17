@@ -610,12 +610,17 @@ public class EtudiantServiceTest {
         offre.setId(10L);
         offre.setStatut(Statut.ACCEPTEE);
         offre.setDisplayEndDate(LocalDate.now().plusDays(10));
+        offre.setEmployeur(employeur);
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
+
         CvEtudiant cv = new CvEtudiant();
+        cv.setId(5L);
         cv.setEtudiant(etudiant);
         cv.setStatut(Statut.ACCEPTEE);
+
+        etudiant.setCv(cv);
 
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
@@ -640,6 +645,7 @@ public class EtudiantServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.offreId()).isEqualTo(10L);
+        assertThat(result.cvId()).isEqualTo(5L);
 
         verify(candidatureRepository).save(any(Candidature.class));
     }
