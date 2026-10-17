@@ -15,6 +15,9 @@ import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.Candidature;
+import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -119,5 +122,33 @@ public class NotificationService {
     private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
         return userAppRepository.findById(id)
                 .orElseThrow(UtilisateurIntrouvableException::new);
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleNouvelleCandidatureEvent(NouvelleCandidatureEvent event) {
+            Candidature candidature = event.candidature();
+            OffreDeStage offre = candidature.getOffreDeStage();
+            Etudiant etudiant = candidature.getEtudiant();
+
+            Notification notification = Notification.builder()
+                    .titre("notification.employeur.nouvelleCandidature.title")
+                    .description("notification.employeur.nouvelleCandidature.description")
+                    .notificationType(NotificationType.NOUVELLE_CANDIDATURE)
+                    .role(Role.EMPLOYEUR)
+                    .destinataire(offre.getEmployeur())
+                    .dateCreaction(LocalDateTime.now())
+                    .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
+                    .variables(Map.of(
+                            VariableMapKey.ETUDIANT_NOM,
+                            etudiant.getFirstName() + " " + etudiant.getLastName(),
+                            VariableMapKey.OFFRE_TITRE,
+                            offre.getTitle()
+                    ))
+                    .build();
+
+            return NotificationDTO.of(
+                    notificationRepository.save(notification)
+            );
     }
 }

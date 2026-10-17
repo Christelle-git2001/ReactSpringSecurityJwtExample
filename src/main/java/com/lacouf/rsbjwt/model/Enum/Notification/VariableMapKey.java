@@ -7,4 +7,5 @@ public enum VariableMapKey {
     EMPLOYEUR_NOM,
     STATUT_FICHIER,
     COMPAGNIE_NOM,
+    OFFRE_TITRE,
 }
