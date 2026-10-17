@@ -19,8 +19,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
 
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(true);
-
-    const cvId = candidature?.cvId || candidature?.cv?.id || candidature?.id;
+    const cvId = candidature?.cvId ;
 
     useEffect(() => {
         let isMounted = true;

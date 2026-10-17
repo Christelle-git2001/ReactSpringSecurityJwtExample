@@ -359,7 +359,7 @@
     "employer": "Employer",
     "date": "Application date",
     "read": "Read application",
-    "list_title": "Received applications",
+    "list_title": "Applications ",
     "details_title": "Application details",
     "no_candidatures": "No applications received yet.",
     "no_matching_candidatures": "No applications match your search."

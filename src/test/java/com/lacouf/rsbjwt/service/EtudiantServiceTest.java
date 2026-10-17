@@ -615,9 +615,13 @@ public class EtudiantServiceTest {
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
+
         CvEtudiant cv = new CvEtudiant();
+        cv.setId(5L);
         cv.setEtudiant(etudiant);
         cv.setStatut(Statut.ACCEPTEE);
+
+        etudiant.setCv(cv);
 
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
@@ -642,6 +646,7 @@ public class EtudiantServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.offreId()).isEqualTo(10L);
+        assertThat(result.cvId()).isEqualTo(5L);
 
         verify(candidatureRepository).save(any(Candidature.class));
     }

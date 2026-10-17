@@ -377,7 +377,8 @@ public class EtudiantControllerTest {
                 10L,
                 "Développeur Web",
                 "TechCorp",
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                1L
         );
 
         Authentication authentication =
@@ -438,7 +439,8 @@ public class EtudiantControllerTest {
                 10L,
                 "Développeur Web",
                 "TechCorp",
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                1L
         );
 
         Authentication authentication =
