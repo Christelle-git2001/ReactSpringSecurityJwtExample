@@ -73,7 +73,7 @@ export default function Notification({ userId, onClose }) {
         try {
             const offre = await obtenirOffreGestionnaire(notification.urlCible);
             if (!offre) {
-                setError("notifications.cv_unavailable");
+                setError("notifications.offer_unavailable");
                 return;
             }
             if (!notification.estLu) {
@@ -95,7 +95,7 @@ export default function Notification({ userId, onClose }) {
             });
         } catch (err) {
             setError(err?.status === 404
-                ? "notifications.cv_unavailable"
+                ? "notifications.offer_unavailable"
                 : "notifications.open_error");
         }
     }
@@ -191,11 +191,11 @@ export default function Notification({ userId, onClose }) {
 
                         const titre = t(notification.titre, {
                             ...notification.variables,
-                            defaultValue: t("notifications.title"),
+                            defaultValue: t("notification.gestionnaire.soumettreOffre.title"),
                         });
                         const description = t(notification.description, {
                             ...notification.variables,
-                            defaultValue: t("notifications.generic_message"),
+                            defaultValue: t("notification.gestionnaire.soumettreOffre.description"),
                         });
 
                         return (

@@ -370,6 +370,7 @@
     "empty": "Aucune notification",
     "load_error": "Impossible de charger les notifications.",
     "cv_unavailable": "Le CV associé à cette notification n’est plus disponible.",
+    "offer_unavailable": "L’offre associée à cette notification n’est plus disponible.",
     "open_error": "Impossible d’ouvrir le CV. Veuillez réessayer.",
     "read_error": "Impossible de marquer la notification comme lue.",
     "sort_by_date": "Trier par date",
@@ -381,7 +382,11 @@
       "televerserCV": {
         "title": "Nouveau CV à valider",
         "description": "{{ETUDIANT_NOM}} a téléversé un CV."
-      }
+      },
+        "soumettreOffre": {
+            "title": "Nouvelle offre à valider",
+            "description": "Une nouvelle offre de stage pour le poste de '{{OFFRE_TITRE}}' a été soumise."
+        }
     }
   },
   "drawer": {
