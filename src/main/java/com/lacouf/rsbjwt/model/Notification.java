@@ -43,7 +43,7 @@ public class Notification {
     private Role role;
     @Column(nullable = false)
     private boolean estLu;
-    @Column(columnDefinition = "jsonb")
+    //@Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<VariableMapKey, String> variables = new HashMap<>();
 
