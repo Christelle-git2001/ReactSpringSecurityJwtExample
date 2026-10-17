@@ -191,11 +191,11 @@ export default function Notification({ userId, onClose }) {
 
                         const titre = t(notification.titre, {
                             ...notification.variables,
-                            defaultValue: t("notifications.title"),
+                            defaultValue: t("notification.gestionnaire.soumettreOffre.title"),
                         });
                         const description = t(notification.description, {
                             ...notification.variables,
-                            defaultValue: t("notifications.generic_message"),
+                            defaultValue: t("notification.gestionnaire.soumettreOffre.description"),
                         });
 
                         return (

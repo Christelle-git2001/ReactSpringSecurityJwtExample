@@ -381,7 +381,11 @@
       "televerserCV": {
         "title": "Nouveau CV à valider",
         "description": "{{ETUDIANT_NOM}} a téléversé un CV."
-      }
+      },
+        "soumettreOffre": {
+            "title": "Nouvelle offre à valider",
+            "description": "Une nouvelle offre de stage pour le poste de '{{OFFRE_TITRE}}' a été soumise."
+        }
     }
   },
   "drawer": {

@@ -365,8 +365,6 @@
     "no_matching_candidatures": "No applications match your search."
   },
   "notifications": {
-    "title": "Notifications",
-    "generic_message": "You have received an new offer to validate .",
     "empty": "No notifications",
     "load_error": "Unable to load notifications.",
     "cv_unavailable": "The CV associated with this notification is no longer available.",
@@ -381,6 +379,10 @@
       "televerserCV": {
         "title": "New CV to review",
         "description": "{{ETUDIANT_NOM}} has uploaded a CV."
+      },
+      "soumettreOffre": {
+        "title": "New internship offer to review",
+        "description": "A new internship offer for the position '{{OFFRE_TITRE}}' has been submitted"
       }
     }
   },
