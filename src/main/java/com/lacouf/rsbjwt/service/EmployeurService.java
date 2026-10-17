@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -12,6 +13,7 @@ import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,19 +38,21 @@ public class EmployeurService {
     private final OffreDeStageRepository offreDeStageRepository;
     private final CandidatureRepository candidatureRepository ;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
-
+    private final ApplicationEventPublisher eventPublisher;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
-            OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository
+            OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
         this.candidatureRepository = candidatureRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -111,7 +115,13 @@ public class EmployeurService {
                 .storagePath(storagePath)
                 .employeur(employeur)
                 .build();
-        return OffreDeStageDTO.of(offreDeStageRepository.save(offre));
+        OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
+
+        eventPublisher.publishEvent(
+                new NouvelleOffreTeleverseeEvent(offreEnregistree)
+        );
+
+        return OffreDeStageDTO.of(offreEnregistree);
     }
 
     @Transactional(readOnly = true)

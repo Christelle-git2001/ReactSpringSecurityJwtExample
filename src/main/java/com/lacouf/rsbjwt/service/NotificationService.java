@@ -3,20 +3,16 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
-import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.Notification;
-import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
-import com.lacouf.rsbjwt.model.Candidature;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
@@ -122,6 +118,30 @@ public class NotificationService {
     private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
         return userAppRepository.findById(id)
                 .orElseThrow(UtilisateurIntrouvableException::new);
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleNouvelleOffreTeleversee(
+            NouvelleOffreTeleverseeEvent event) {
+
+        OffreDeStage offre = event.offre();
+
+        Notification notification = Notification.builder()
+                .titre("notification.gestionnaire.offre.title")
+                .description("notification.gestionnaire.offre.description")
+                .role(Role.GESTIONNAIRE)
+                .notificationType(NotificationType.OFFRE_ATTENTE_VALIDATION)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                        .build(String.valueOf(offre.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
     }
 
     @EventListener

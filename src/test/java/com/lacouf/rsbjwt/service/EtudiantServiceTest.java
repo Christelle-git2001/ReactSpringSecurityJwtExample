@@ -560,6 +560,7 @@ public class EtudiantServiceTest {
 
         Candidature candidature = new Candidature(etudiant, offre);
         candidature.setId(1L);
+        offre.setEmployeur(employeur);
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
