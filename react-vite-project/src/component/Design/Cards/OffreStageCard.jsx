@@ -8,7 +8,7 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 
-function OffreStageCard({ offer, candidatures = [], onView, onEdit, isNew = false, showPdfActions = true }) {
+function OffreStageCard({ offer, candidatures = [], onView, onEdit = false, showPdfActions = true }) {
     const { t } = useTranslation();
     const {
         pdfUrl,
