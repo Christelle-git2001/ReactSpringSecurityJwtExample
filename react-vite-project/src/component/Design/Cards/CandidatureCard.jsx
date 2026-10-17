@@ -13,7 +13,7 @@ function CandidatureCard({ candidature, onView, onViewOffer }) {
     };
 
     return (
-        <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="rounded-2xl border border-gray-200 bg-white p-3  transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#043462]/10 text-[#043462] font-bold text-lg">
                     {getStudentName().charAt(0)}
@@ -25,9 +25,6 @@ function CandidatureCard({ candidature, onView, onViewOffer }) {
                 </div>
             </div>
             <div className="flex flex-col md:border-x md:border-gray-100 md:px-6 my-2 md:my-0">
-                <span className="text-[10px] uppercase font-semibold text-gray-400">
-                    {t("candidature.offer_title")}
-                </span>
                 {onViewOffer ? (
                     <button
                         type="button"
