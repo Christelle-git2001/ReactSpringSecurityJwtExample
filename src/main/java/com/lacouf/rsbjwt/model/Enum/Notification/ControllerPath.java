@@ -1,12 +1,12 @@
 package com.lacouf.rsbjwt.model.Enum.Notification;
 
-public enum NavigationPath {
-    GESTIONNAIRE_CV_details("/gestionnaire/cvs/details"),
-    ETUDIANT_CV("/etudiant/cv");
+public enum ControllerPath {
+    ETUDIANT_CV("/etudiant/cv"), //TODO a modifier sans la US-68
+    GESTIONNAIRE_CV_ID_DETAIL("/gestionnaire/cv/{id}");
 
     private final String pattern;
 
-    NavigationPath(String pattern) {
+    ControllerPath(String pattern) {
         this.pattern = pattern;
     }
 

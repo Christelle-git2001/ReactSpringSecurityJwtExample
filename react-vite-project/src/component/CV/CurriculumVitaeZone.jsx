@@ -14,6 +14,11 @@ const CurriculumVitaeZone = () => {
         setRefreshTrigger(prev => prev + 1);
     };
 
+    const handleCvSupprime = () => {
+        setCv(null);
+        setError(null);
+    };
+
     const chargerCv = async () => {
         try {
             const data = await obtenirCvInfo();
@@ -53,7 +58,7 @@ const CurriculumVitaeZone = () => {
 
             <ShowCv
                 cv={cv}
-                onCvDeleted={handleCvAjoute}
+                onCvDeleted={handleCvSupprime}
             />
         </div>
     );

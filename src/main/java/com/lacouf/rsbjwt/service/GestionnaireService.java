@@ -3,11 +3,13 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -149,6 +151,8 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(null);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut()));
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotification(
+                ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
 
@@ -167,6 +171,8 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(commentaire);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut()));
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotification(
+                ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
 
@@ -187,6 +193,10 @@ public class GestionnaireService {
                 .stream()
                 .map(CvEtudiantDTO::of)
                 .toList();
+    }
+
+    public CvEtudiantDTO getCvParId(Long idCv) throws CurriculumVitaeIntrouvable {
+        return CvEtudiantDTO.of(cvEtudiantRepository.findById(idCv).orElseThrow(CurriculumVitaeIntrouvable::new));
     }
 
     public Resource telechargerCvParId(Long id) throws CurriculumVitaeIntrouvable, FichierIntrouvableException {

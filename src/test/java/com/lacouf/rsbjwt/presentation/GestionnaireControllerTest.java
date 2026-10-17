@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.lacouf.rsbjwt.Exception.CurriculumVitaeIntrouvable;
 import com.lacouf.rsbjwt.Exception.FichierIntrouvableException;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -30,6 +31,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -144,6 +146,20 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$[0].title").value("Développeur Java"))
                 .andExpect(jsonPath("$[0].statut").value("EN_ATTENTE"))
                 .andExpect(jsonPath("$[0].fileName").value("offre.pdf"));
+    }
+
+    @Test
+    void doitRetournerUnCvParID() throws Exception {
+        CvEtudiantDTO cvEtudiantDTO = new CvEtudiantDTO(8L,etudiantDTO,"FileName","application/PDF",8L,LocalDateTime.now(),Statut.EN_ATTENTE, "");
+        when(gestionnaireService.getCvParId(8L)).thenReturn(cvEtudiantDTO);
+
+        mockMvc.perform(get("/gestionnaire/cv/8")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fileName").value(cvEtudiantDTO.fileName()))
+                .andExpect(jsonPath("$.statut").value(Statut.EN_ATTENTE.name()))
+                .andExpect(jsonPath("$.id").value(cvEtudiantDTO.id()));
     }
 
     @Test
