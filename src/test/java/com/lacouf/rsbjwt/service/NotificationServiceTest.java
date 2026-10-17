@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -233,5 +234,52 @@ public class NotificationServiceTest {
 
         assertThatThrownBy(() -> notificationService.compterNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
         verify(userAppRepository).findById(5L);
+    }
+
+    @Test
+    void doitCreerUneNotificationLorsNouvelleOffreTeleversee() {
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        offre.setId(10L);
+
+        Notification notification = new Notification(
+                "notification.titre",
+                "notification.description",
+                NotificationType.OFFRE_ATTENTE_VALIDATION,
+                LocalDateTime.now(),
+                ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build("10"),
+                null,
+                Role.GESTIONNAIRE,
+                Map.of(
+                        VariableMapKey.OFFRE_ID, "10",
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                )
+        );
+
+        notification.setId(5L);
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notification);
+
+        NouvelleOffreTeleverseeEvent event =
+                new NouvelleOffreTeleverseeEvent(offre);
+
+        NotificationDTO notificationDTO =
+                notificationService.handleNouvelleOffreTeleversee(event);
+
+        assertThat(notificationDTO).isNotNull();
+        assertThat(notificationDTO.id()).isEqualTo(notification.getId());
+        assertThat(notificationDTO.variables().get(VariableMapKey.OFFRE_ID))
+                .isEqualTo("10");
+        assertThat(notificationDTO.variables().get(VariableMapKey.OFFRE_TITRE))
+                .isEqualTo("Développeur frontend");
+
+        verify(notificationRepository).save(any(Notification.class));
     }
 }

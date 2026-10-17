@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class EmployeurServiceTest {
@@ -56,6 +56,9 @@ public class EmployeurServiceTest {
 
     @InjectMocks
     private EmployeurService employeurService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
