@@ -368,6 +368,7 @@
     "empty": "No notifications",
     "load_error": "Unable to load notifications.",
     "cv_unavailable": "The CV associated with this notification is no longer available.",
+    "offer_unavailable": "The offer associated with this notification is no longer available.",
     "open_error": "Unable to open the CV. Please try again.",
     "read_error": "Unable to mark the notification as read.",
     "sort_by_date": "Sort by date",

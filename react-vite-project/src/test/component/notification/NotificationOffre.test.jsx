@@ -68,7 +68,7 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         marquerNotificationLue.mockRejectedValue(new Error("Erreur serveur"));
         afficherNotifications();
 
-        const description = await screen.findByText("Malinois inc a soumis une nouvelle offre.");
+        const description = await screen.findByText("Une nouvelle offre de stage pour le poste de 'Stage en développement' a été soumise.");
         fireEvent.click(within(description.closest("li")).getByRole("button", {
             name: "Nouvelle offre à valider",
         }));
@@ -76,7 +76,7 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         expect(await screen.findByRole("alert")).toHaveTextContent(
             traductionFr.notifications.read_error
         );
-        expect(marquerNotificationLue).toHaveBeenCalledWith(1); // à adapter selon votre mock
+        expect(marquerNotificationLue).toHaveBeenCalledWith(4);
         expect(mockNavigate).not.toHaveBeenCalled();
     });
 
@@ -84,7 +84,7 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         obtenirOffreGestionnaire.mockRejectedValue(new Error("Erreur serveur"));
         afficherNotifications();
 
-        const description = await screen.findByText("Malinois inc a soumis une nouvelle offre.");
+        const description = await screen.findByText("Une nouvelle offre de stage pour le poste de 'Stage en développement' a été soumise.");
         fireEvent.click(within(description.closest("li")).getByRole("button", {
             name: "Nouvelle offre à valider",
         }));
@@ -99,7 +99,7 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
     it("ouvre l'offre, marque la notification comme lue et demande la fermeture du Drawer", async () => {
         const { onClose } = afficherNotifications();
 
-        const description = await screen.findByText("Malinois inc a soumis une nouvelle offre.");
+        const description = await screen.findByText("Une nouvelle offre de stage pour le poste de 'Stage en développement' a été soumise.");
         fireEvent.click(within(description.closest("li")).getByRole("button", {
             name: "Nouvelle offre à valider",
         }));
@@ -109,22 +109,22 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
             { state: { offer: creerOffresMock()[0], from: "/gestionnaire" } }
         ));
         expect(obtenirOffreGestionnaire).toHaveBeenCalledWith("/gestionnaire/offres/1");
-        expect(marquerNotificationLue).toHaveBeenCalledWith(1);
+        expect(marquerNotificationLue).toHaveBeenCalledWith(4);
         expect(onClose).toHaveBeenCalledTimes(1);
-        expect(screen.queryByText("Malinois inc a soumis une nouvelle offre.")).not.toBeInTheDocument();
+        expect(screen.queryByText("Une nouvelle offre de stage pour le poste de 'Stage en développement' a été soumise.")).not.toBeInTheDocument();
     });
 
     it("conserve la notification et reste sur place si l'offre est introuvable", async () => {
         obtenirOffreGestionnaire.mockRejectedValue(Object.assign(new Error(), { status: 404 }));
         afficherNotifications();
 
-        const description = await screen.findByText("Malinois inc a soumis une nouvelle offre.");
+        const description = await screen.findByText("Une nouvelle offre de stage pour le poste de 'Stage en développement' a été soumise.");
         fireEvent.click(within(description.closest("li")).getByRole("button", {
             name: "Nouvelle offre à valider",
         }));
 
         expect(await screen.findByRole("alert")).toHaveTextContent(
-            traductionFr.notifications.offre_unavailable
+            traductionFr.notifications.offer_unavailable
         );
         expect(mockNavigate).not.toHaveBeenCalled();
         expect(marquerNotificationLue).not.toHaveBeenCalled();
@@ -134,12 +134,12 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         afficherNotifications();
 
         expect(
-            await screen.findByText("Malinois inc a soumis une nouvelle offre.")
+            await screen.findByText("Une nouvelle offre de stage pour le poste de 'Stage en développement' a été soumise.")
         ).toBeInTheDocument();
 
         expect(
             screen.getAllByText("Nouvelle offre à valider")
-        ).toHaveLength(2);
+        ).toHaveLength(1);
 
         expect(getNotifications).toHaveBeenCalledWith(5);
     });
