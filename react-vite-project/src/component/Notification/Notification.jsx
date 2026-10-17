@@ -3,8 +3,7 @@ import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { obtenirCvGestionnaire } from "../../api/gestionnaire.jsx";
-import {getToutesLesOffres} from "../../api/gestionnaire.jsx";
+import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
 
 const ROUTES_PAR_TYPE = {
@@ -72,8 +71,7 @@ export default function Notification({ userId, onClose }) {
         if (!destination) return;
 
         try {
-            const offre = await getToutesLesOffres(notification.urlCible);
-
+            const offre = await obtenirOffreGestionnaire(notification.urlCible);
             if (!offre) {
                 setError("notifications.cv_unavailable");
                 return;
@@ -93,7 +91,7 @@ export default function Notification({ userId, onClose }) {
 
             onClose?.();
             navigate(destination, {
-                state: { from: "/gestionnaire" },
+                state: { offer:offre ,from: "/gestionnaire" },
             });
         } catch (err) {
             setError(err?.status === 404

@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.model.Notification;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public record NotificationDTO(long id, String titre, String description, NotificationType notificationType, LocalDateTime dateNotifiee, boolean estLu, Map<VariableMapKey, String> variables) {
+public record NotificationDTO(long id, String titre, String description, NotificationType notificationType, LocalDateTime dateNotifiee, String urlCible, boolean estLu, Map<VariableMapKey, String> variables) {
 
     public static NotificationDTO of(Notification notification){
         return new NotificationDTO(
@@ -16,6 +16,7 @@ public record NotificationDTO(long id, String titre, String description, Notific
                 notification.getDescription(),
                 notification.getNotificationType(),
                 notification.getDateNotifiee(),
+                notification.getUrlCible(),
                 notification.isEstLu(),
                 notification.getVariables()
         );
