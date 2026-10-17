@@ -52,7 +52,12 @@ export function obtenirCvGestionnaire(apiPath) {
     return fetchJson(apiPath);
 }
 
-export async function approuverCv(id, commentText) {
+export function obtenirOffreGestionnaire(apiPath) {
+    return fetchJson(apiPath,
+        {method: "GET"});
+}
+
+export async function approuverCv(id) {
     return fetchJson(`/gestionnaire/cv/${id}/approuver`, {
         method: "PUT",
     });
