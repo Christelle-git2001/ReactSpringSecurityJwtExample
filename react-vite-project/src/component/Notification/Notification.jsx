@@ -73,7 +73,7 @@ export default function Notification({ userId, onClose }) {
         try {
             const offre = await obtenirOffreGestionnaire(notification.urlCible);
             if (!offre) {
-                setError("notifications.cv_unavailable");
+                setError("notifications.offer_unavailable");
                 return;
             }
             if (!notification.estLu) {
@@ -95,7 +95,7 @@ export default function Notification({ userId, onClose }) {
             });
         } catch (err) {
             setError(err?.status === 404
-                ? "notifications.cv_unavailable"
+                ? "notifications.offer_unavailable"
                 : "notifications.open_error");
         }
     }
