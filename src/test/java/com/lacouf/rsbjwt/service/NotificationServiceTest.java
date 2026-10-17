@@ -10,10 +10,8 @@ import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.model.event.*;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -42,6 +40,9 @@ public class NotificationServiceTest {
 
     @Mock
     private UserAppRepository userAppRepository;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
 
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
@@ -282,4 +283,56 @@ public class NotificationServiceTest {
 
         verify(notificationRepository).save(any(Notification.class));
     }
+
+
+    @Test
+    void doitCreerUneNotificationLorsApprobationNouvelleOffre() {
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .domain(Departement.INFORMATIQUE)
+                .statut(Statut.ACCEPTEE)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        offre.setId(10L);
+
+        Notification notification = new Notification(
+                "notification.etudiant.nouvelleOffre.titre",
+                "notification.etudiant.nouvelleOffre.description",
+                NotificationType.NOUVELLE_OFFRE_STAGE,
+                LocalDateTime.now(),
+                ControllerPath.ETUDIANT_OFFRES.build(),
+                etudiant,
+                Role.ETUDIANT,
+                Map.of(
+                        VariableMapKey.OFFRE_ID, "10",
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                )
+        );
+
+        notification.setId(6L);
+
+        when(etudiantRepository.findAllByDepartmentAndCv_Statut(
+                Departement.INFORMATIQUE,
+                Statut.ACCEPTEE
+        )).thenReturn(List.of(etudiant));
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notification);
+
+        OffreDeStageApprouveeEvent event =
+                new OffreDeStageApprouveeEvent(offre);
+
+        notificationService.handleOffreDeStageApprouvee(event);
+
+        verify(etudiantRepository).findAllByDepartmentAndCv_Statut(
+                Departement.INFORMATIQUE,
+                Statut.ACCEPTEE
+        );
+
+        verify(notificationRepository).save(any(Notification.class));
+    }
+
 }
