@@ -4,8 +4,9 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
+import PostulerButton from "../PostulerButton.jsx";
 
-function OffreEtudiantCard({ offer, onView }) {
+function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
     const { t } = useTranslation();
 
     const offre = [
@@ -29,7 +30,7 @@ function OffreEtudiantCard({ offer, onView }) {
 
     return (
         <>
-            <div className="card w-96 bg-base-100 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                 <div className="card-body">
                     <PdfActionButtons
                         onView={viewPDF}
@@ -58,6 +59,11 @@ function OffreEtudiantCard({ offer, onView }) {
                     >
                         {t("offre.details")}
                     </label>
+                    <PostulerButton
+                        offerId={offer.id}
+                        hasApplied={hasApplied}
+                        onApplied={onApplied}
+                    />
                 </div>
                 <PdfPreviewDialog
                     dialogRef={dialogRef}

@@ -6,6 +6,11 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -555,6 +560,7 @@ public class EtudiantServiceTest {
 
         Candidature candidature = new Candidature(etudiant, offre);
         candidature.setId(1L);
+        offre.setEmployeur(employeur);
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
@@ -605,12 +611,17 @@ public class EtudiantServiceTest {
         offre.setId(10L);
         offre.setStatut(Statut.ACCEPTEE);
         offre.setDisplayEndDate(LocalDate.now().plusDays(10));
+        offre.setEmployeur(employeur);
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
+
         CvEtudiant cv = new CvEtudiant();
+        cv.setId(5L);
         cv.setEtudiant(etudiant);
         cv.setStatut(Statut.ACCEPTEE);
+
+        etudiant.setCv(cv);
 
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
@@ -635,6 +646,7 @@ public class EtudiantServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.offreId()).isEqualTo(10L);
+        assertThat(result.cvId()).isEqualTo(5L);
 
         verify(candidatureRepository).save(any(Candidature.class));
     }
@@ -746,9 +758,3 @@ public class EtudiantServiceTest {
     }
 
 }
-
-
-
-
-
-

@@ -3,11 +3,14 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
+import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -34,7 +37,8 @@ public class GestionnaireService {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository, ApplicationEventPublisher applicationEventPublisher){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
+                               ApplicationEventPublisher applicationEventPublisher){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -104,9 +108,13 @@ public class GestionnaireService {
         offre.setStatut(Statut.ACCEPTEE);
         offre.setRejectionComment(null);
 
-        return OffreDeStageDTO.of(
-                offreDeStageRepository.save(offre)
+        OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
+
+        applicationEventPublisher.publishEvent(
+                new OffreDeStageApprouveeEvent(offreEnregistree)
         );
+
+        return OffreDeStageDTO.of(offreEnregistree);
 
     }
 
@@ -149,6 +157,8 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(null);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut()));
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotification(
+                ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
 
@@ -167,6 +177,8 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(commentaire);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut()));
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotification(
+                ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
 
@@ -198,5 +210,13 @@ public class GestionnaireService {
                 .orElseThrow(CurriculumVitaeIntrouvable::new);
 
         return StockageFichierUtils.chargerFichier(Path.of(cv.getStoragePath()));
+    }
+
+    public OffreDeStageDTO getOffreParId(Long id)
+            throws OffreIntrouvableException {
+        OffreDeStage offre = offreDeStageRepository.findById(id)
+                .orElseThrow(OffreIntrouvableException::new);
+
+        return OffreDeStageDTO.of(offre);
     }
 }

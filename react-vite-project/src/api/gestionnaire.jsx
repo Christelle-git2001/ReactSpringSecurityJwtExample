@@ -48,7 +48,16 @@ export async function getTousLesCvs() {
     return fetchJson("/gestionnaire/cvs");
 }
 
-export async function approuverCv(id, commentText) {
+export function obtenirCvGestionnaire(apiPath) {
+    return fetchJson(apiPath);
+}
+
+export function obtenirOffreGestionnaire(apiPath) {
+    return fetchJson(apiPath,
+        {method: "GET"});
+}
+
+export async function approuverCv(id) {
     return fetchJson(`/gestionnaire/cv/${id}/approuver`, {
         method: "PUT",
     });

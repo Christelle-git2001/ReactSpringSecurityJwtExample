@@ -1,17 +1,17 @@
 import { useTranslation } from "react-i18next";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DashboardSummaryCard from "../../component/Design/Dashboard/DashboardSummaryCard.jsx";
 import DashboardSection from "../../component/Design/Dashboard/DashboardSection.jsx";
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
-import SearchBar from "../../component/Design/SearchBar.jsx";
-import FilterBar from "../../component/Design/FilterBar.jsx";
-import {getOffresEnAttente, getCvsEnAttente} from "../../api/gestionnaire.jsx";
-import {useNavigate} from "react-router-dom";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
+import { getOffresEnAttente, getCvsEnAttente } from "../../api/gestionnaire.jsx";
+import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import {FaBriefcase, FaFileAlt} from "react-icons/fa";
-import {useOffreFilters} from "../../utils/useOffreFilters.jsx";
+import { FaBriefcase, FaFileAlt } from "react-icons/fa";
+import { useFilters } from "../../utils/useFilters.jsx";
 
 const trierParDateDesc = (items, getDate) => {
     return [...items].sort((itemA, itemB) => {
@@ -22,7 +22,7 @@ const trierParDateDesc = (items, getDate) => {
     });
 };
 
-const GestionnaireHome = ({user}) => {
+const GestionnaireHome = ({ user }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [cvs, setCvs] = useState([]);
@@ -30,27 +30,44 @@ const GestionnaireHome = ({user}) => {
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const {
-        searchTerm,
-        setSearchTerm,
-        selectedDomain,
-        setSelectedDomain,
-        availableDomains,
-        offresFiltrees,
-        cvsFiltres,
-    } = useOffreFilters(offres, cvs);
+    const cvFilters = useFilters(cvs, {
+        getDomain: (cv) => cv.etudiant?.department,
+        getSearchableText: (cv) => `${cv.etudiant?.firstName || ""} ${cv.etudiant?.lastName || ""} ${cv.fileName || ""}`,
+    });
+
+    const offreFilters = useFilters(offres, {
+        getDomain: (o) => o.domain,
+        getStatus: (o) => o.statut,
+        getSearchableText: (o) => `${o.title || ""} ${o.description || ""}`,
+    });
+
+    const handleSearchChange = (term) => {
+        cvFilters.setSearchTerm(term);
+        offreFilters.setSearchTerm(term);
+    };
+
+    const handleDomainChange = (domain) => {
+        cvFilters.setSelectedDomain(domain);
+        offreFilters.setSelectedDomain(domain);
+    };
+
+    const combinedDomains = useMemo(() => {
+        return Array.from(
+            new Set([...cvFilters.availableDomains, ...offreFilters.availableDomains])
+        );
+    }, [cvFilters.availableDomains, offreFilters.availableDomains]);
 
     const cvsFiltresRecents = useMemo(
-        () => trierParDateDesc(cvsFiltres, (cv) => cv.uploadDate),
-        [cvsFiltres]
+        () => trierParDateDesc(cvFilters.itemsFiltres, (cv) => cv.uploadDate),
+        [cvFilters.itemsFiltres]
     );
 
     const offresFiltreesRecentes = useMemo(
-        () => trierParDateDesc(offresFiltrees, (offer) => offer.createdAt),
-        [offresFiltrees]
+        () => trierParDateDesc(offreFilters.itemsFiltres, (offer) => offer.createdAt),
+        [offreFilters.itemsFiltres]
     );
 
-    const hasActiveFilters = searchTerm.trim() !== "" || selectedDomain !== "TOUS";
+    const hasActiveFilters = cvFilters.searchTerm.trim() !== "" || cvFilters.selectedDomain !== "TOUS";
 
     const getSectionCountLabel = (filteredCount, totalCount, singularKey, pluralKey = singularKey) => {
         if (hasActiveFilters) {
@@ -79,7 +96,7 @@ const GestionnaireHome = ({user}) => {
     const chargerCvs = useCallback(async () => {
         try {
             const data = await getCvsEnAttente();
-            setCvs(data);
+            setCvs(data || []);
             setError(null);
         } catch (err) {
             setError("error.generic");
@@ -119,17 +136,17 @@ const GestionnaireHome = ({user}) => {
                 </div>
 
                 <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    onClear={() => setSearchTerm("")}
+                    value={cvFilters.searchTerm}
+                    onChange={handleSearchChange}
+                    onClear={() => handleSearchChange("")}
                     placeholder={t("dashboard.search_placeholder")}
                     className="mx-auto max-w-4xl"
                 />
 
                 <FilterBar
-                    selectedDomain={selectedDomain}
-                    onDomainChange={setSelectedDomain}
-                    availableDomains={availableDomains}
+                    selectedDomain={cvFilters.selectedDomain}
+                    onDomainChange={handleDomainChange}
+                    availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
 
@@ -215,6 +232,6 @@ const GestionnaireHome = ({user}) => {
             </div>
         </div>
     );
-}
+};
 
 export default GestionnaireHome;

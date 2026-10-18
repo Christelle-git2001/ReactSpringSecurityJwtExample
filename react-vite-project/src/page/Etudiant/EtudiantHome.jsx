@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOutletContext } from "react-router-dom";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
 import OffreEtudiantCard from "../../component/Design/Cards/OffreEtudiantCard.jsx";
-import SearchBar from "../../component/Design/SearchBar.jsx";
-import FilterBar from "../../component/Design/FilterBar.jsx";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
-import { useOffreFilters } from "../../utils/useOffreFilters.jsx";
-import { obtenirOffres } from "../../api/etudiant.jsx";
+import { useFilters } from "../../utils/useFilters.jsx";
+import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 
 const EtudiantHome = ({ user }) => {
@@ -16,34 +16,35 @@ const EtudiantHome = ({ user }) => {
     const { openDrawer } = useOutletContext();
 
     const [offres, setOffres] = useState([]);
-    const [selectedTown, setSelectedTown] = useState("TOUS");
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
+    const [idsPostules, setIdsPostules] = useState([]);
+    const offreFilters = useFilters(offres, {
+        getDomain: (o) => o.domain,
+        getTown: (o) => o?.employeur?.town,
+        getStatus: (o) => o.statut,
+        getSearchableText: (o) => `${o.title || ""} ${o.description || ""} ${o?.employeur?.businessName || ""}`,
+    });
 
-    const {
-        searchTerm,
-        setSearchTerm,
-        offresFiltrees: offresFiltreesHook,
-    } = useOffreFilters(offres);
+    useEffect(() => {
+        obtenirCandidaturesEtudiant()
+            .then((liste) => setIdsPostules(liste.map((c) => c.offreId)))
+            .catch(console.error);
+    }, []);
 
     const handleView = async (offer) => {
-        openDrawer(<OffreDetailsDrawerContent offer={offer} showStatus={false} />);
+        openDrawer(
+            <OffreDetailsDrawerContent
+                offer={offer}
+                showStatus={false}
+                hasApplied={idsPostules.includes(offer.id)}
+                onApplied={(id) =>
+                    setIdsPostules((prev) => (prev.includes(id) ? prev : [...prev, id]))
+                }
+            />
+        );
     };
-
-    const availableTowns = useMemo(() => {
-        const towns = offres
-            .map((o) => o?.employeur?.town)
-            .filter(Boolean);
-        return [...new Set(towns)];
-    }, [offres]);
-
-    const offresFinales = useMemo(() => {
-        return offresFiltreesHook.filter((offer) => {
-            if (selectedTown === "TOUS") return true;
-            return offer?.employeur?.town === selectedTown;
-        });
-    }, [offresFiltreesHook, selectedTown]);
 
     const chargerOffres = useCallback(async () => {
         if (!user?.department) return;
@@ -74,21 +75,19 @@ const EtudiantHome = ({ user }) => {
             <div className="w-full max-w-7xl">
                 <h1 className="welcome-message text-left">
                     {t("home.welcome")} {user?.firstName} {user?.lastName}{" "}
-                    <span aria-hidden="true"></span>
                 </h1>
             </div>
-
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    onClear={() => setSearchTerm("")}
+                    value={offreFilters.searchTerm}
+                    onChange={offreFilters.setSearchTerm}
+                    onClear={() => offreFilters.setSearchTerm("")}
                 />
 
                 <FilterBar
-                    selectedTown={selectedTown}
-                    onTownChange={setSelectedTown}
-                    availableTowns={availableTowns}
+                    selectedTown={offreFilters.selectedTown}
+                    onTownChange={offreFilters.setSelectedTown}
+                    availableTowns={offreFilters.availableTowns}
                 />
             </div>
 
@@ -110,7 +109,7 @@ const EtudiantHome = ({ user }) => {
                             )}
 
                             {!isInitialLoading && hasDepartment && !error && (
-                                offresFinales.length === 0 ? (
+                                offreFilters.itemsFiltres.length === 0 ? (
                                     <EmptyContentMessage
                                         message={
                                             offres.length === 0
@@ -119,12 +118,18 @@ const EtudiantHome = ({ user }) => {
                                         }
                                     />
                                 ) : (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center w-full mt-4">
-                                        {offresFinales.map((offer) => (
+                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full mt-4">
+                                        {offreFilters.itemsFiltres.map((offer) => (
                                             <OffreEtudiantCard
                                                 key={offer.id}
                                                 offer={offer}
                                                 onView={handleView}
+                                                hasApplied={idsPostules.includes(offer.id)}
+                                                onApplied={(id) =>
+                                                    setIdsPostules((prev) =>
+                                                        prev.includes(id) ? prev : [...prev, id]
+                                                    )
+                                                }
                                             />
                                         ))}
                                     </div>

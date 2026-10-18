@@ -33,6 +33,8 @@ function ListItem({
     tone = "blue",
     variant = "card",
     actionLabel,
+    showChevron = true,
+    wrapText = false,
     onClick,
     ariaLabel,
 }) {
@@ -57,7 +59,7 @@ function ListItem({
                             {title}
                         </p>
                         {subtitle && (
-                            <p className="truncate text-xs font-semibold text-[#043462]">
+                            <p className={`text-xs font-semibold text-[#043462] ${wrapText ? "whitespace-normal break-words" : "truncate"}`}>
                                 {subtitle}
                             </p>
                         )}
@@ -80,11 +82,11 @@ function ListItem({
                         <span className={`btn btn-xs rounded-lg border-none bg-white/80 px-3 ${styles.action}`}>
                             {actionLabel}
                         </span>
-                    ) : (
+                    ) : showChevron ? (
                         <span className={`grid size-8 place-items-center rounded-full bg-white/80 ${styles.action}`}>
                             <FiChevronRight className="size-4" />
                         </span>
-                    )}
+                    ) : null}
                 </div>
             </button>
         );

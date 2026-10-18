@@ -8,7 +8,7 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 
-function OffreStageCard({ offer, onView, onEdit, isNew = false, showPdfActions = true }) {
+function OffreStageCard({ offer, candidatures = [], onView, onEdit = false, showPdfActions = true }) {
     const { t } = useTranslation();
     const {
         pdfUrl,
@@ -30,12 +30,14 @@ function OffreStageCard({ offer, onView, onEdit, isNew = false, showPdfActions =
         ? t(`departement.${departmentKey}`, offer?.domain)
         : offer?.domain;
 
+    const nombreCandidatures = candidatures.filter(c => c.offreId === offer?.id).length;
+
     const offre = [
         { label: t("offre.domaine"), value: translatedDepartment },
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
         { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
-        { label: t("offre.document"), value: offer?.fileName || "-" },
+        {label: t("candidature.list_title"), value: `${nombreCandidatures}`},
     ];
 
     return (

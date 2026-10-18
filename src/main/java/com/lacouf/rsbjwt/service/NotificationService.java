@@ -3,7 +3,7 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
-import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
@@ -12,9 +12,8 @@ import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.*;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -32,10 +31,13 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserAppRepository userAppRepository;
+    private final EtudiantRepository etudiantRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
+    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
+                               EtudiantRepository etudiantRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
+        this.etudiantRepository = etudiantRepository;
     }
 
     @EventListener
@@ -65,7 +67,6 @@ public class NotificationService {
                 .description("notification.etudiant.validation.description")
                 .notificationType(NotificationType.CV_STATUT_CHANGE)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(ControllerPath.ETUDIANT_CV.build())
                 .role(Role.ETUDIANT)
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
@@ -90,6 +91,64 @@ public class NotificationService {
         return notifications.stream()
                 .map(NotificationDTO::of)
                 .toList();
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleNouvelleOffreTeleversee(
+            NouvelleOffreTeleverseeEvent event) {
+
+        OffreDeStage offre = event.offre();
+
+        Notification notification = Notification.builder()
+                .titre("notification.gestionnaire.offre.title")
+                .description("notification.gestionnaire.offre.description")
+                .role(Role.GESTIONNAIRE)
+                .notificationType(NotificationType.OFFRE_ATTENTE_VALIDATION)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                        .build(String.valueOf(offre.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+
+
+    @EventListener
+    @Transactional
+    public void handleOffreDeStageApprouvee(OffreDeStageApprouveeEvent event) {
+        OffreDeStage offre = event.offre();
+
+        List<Etudiant> etudiants =
+                etudiantRepository.findAllByDepartmentAndCv_Statut(
+                        offre.getDomain(),
+                        Statut.ACCEPTEE
+                );
+
+        for (Etudiant etudiant : etudiants) {
+            Notification notification = new Notification(
+                    "notification.etudiant.nouvelleOffre.titre",
+                    "notification.etudiant.nouvelleOffre.description",
+                    NotificationType.NOUVELLE_OFFRE_STAGE,
+                    LocalDateTime.now(),
+                    ControllerPath.ETUDIANT_OFFRES.build(),
+                    etudiant,
+                    Role.ETUDIANT,
+                    Map.of(
+                            VariableMapKey.OFFRE_ID,
+                            String.valueOf(offre.getId()),
+                            VariableMapKey.OFFRE_TITRE,
+                            offre.getTitle()
+                    )
+            );
+
+            notificationRepository.save(notification);
+        }
     }
 
     @Transactional
@@ -120,4 +179,7 @@ public class NotificationService {
         return userAppRepository.findById(id)
                 .orElseThrow(UtilisateurIntrouvableException::new);
     }
+
+
+
 }

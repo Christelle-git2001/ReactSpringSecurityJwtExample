@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import PublicLayout from "../Design/Layouts/PublicLayout.jsx";
-import MainContainer from "../Design/MainContainer";
 import LoginForm from "../auth/LoginForm";
 import InscriptionHome from "../../page/InscriptionHome.jsx";
 import Logout from "../auth/Logout";
@@ -18,6 +17,7 @@ import EditOffer from "../Offer/EditOffer.jsx";
 import OfferDetails from "../Offer/OfferDetails.jsx";
 import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
 import CVDetails from "../CV/CVDetails.jsx";
+import CandidatureDetails from "../Candidature/CandidatureDetails.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -56,20 +56,24 @@ export default function AppRoutes({
             </Route>
 
             <Route element={<SideBarLayout user={user} openDrawer={openDrawer} />}>
-                <Route path="/home" element={<MainContainer setError={setError} />} />
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/cv" element={<AccountEtudiant user={user}/>}/>
+
+                <Route path="/employeur" element={<EmployeurHome user={user}/>} />
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>
-                <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>
-                <Route path="/employeur" element={<EmployeurHome  user={user}/>} />
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
+                <Route path="/employeur/candidatures/details" element={<CandidatureDetails />} />
+
                 <Route path="/professeur" element={<ProfesseurHome />} />
-                <Route path="/gestionnaire" element={<GestionnaireHome  user={user}/>} />
+
+                <Route path="/gestionnaire" element={<GestionnaireHome user={user}/>} />
+                <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>
                 <Route path="/gestionnaire/cvs" element={<GestionnaireCvs user={user} />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/gestionnaire/cvs/details" element={<CVDetails/>} />
+
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
         </Routes>

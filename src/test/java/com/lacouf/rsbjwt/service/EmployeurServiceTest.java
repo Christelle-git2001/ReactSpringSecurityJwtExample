@@ -1,18 +1,15 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,12 +17,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class EmployeurServiceTest {
@@ -47,21 +49,30 @@ public class EmployeurServiceTest {
     private UserAppRepository userAppRepository;
 
     @Mock
+    private CandidatureRepository candidatureRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private EmployeurService employeurService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     CreationOffreDeStageDTO creationOffreDeStageDTO;
     Employeur employeur;
     OffreDeStage offreDeStage;
+    Candidature candidature ;
+    Etudiant etudiant ;
+    CvEtudiant cvEtudiant ;
 
 
 
     @BeforeEach
-    void init(){
+    void init() {
         inscriptionEmployeurDTO = new InscriptionEmployeurDTO(
                 "Gerard",
                 "Robert",
@@ -86,6 +97,29 @@ public class EmployeurServiceTest {
 
         employeur.setId(1L);
 
+        etudiant = Etudiant.builder()
+                .email("etudiant@test.com")
+                .firstName("Etudiant")
+                .lastName("Test")
+                .department(Departement.INFORMATIQUE)
+                .matricule("1234789")
+                .phoneNumber("123-999-1234")
+                .password("Test123!")
+                .build();
+        etudiant.setId(1L);
+
+        cvEtudiant = CvEtudiant.builder()
+                .fileName("cv.pdf")
+                .contentType("application/pdf")
+                .fileSize(10L)
+                .storagePath("uploads/cvs/cv.pdf")
+                .uploadDate(LocalDateTime.now())
+                .etudiant(etudiant)
+                .build();
+
+        cvEtudiant.setId(1L);
+        cvEtudiant.setStatut(Statut.ACCEPTEE);
+
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
                 "préposé",
@@ -108,6 +142,19 @@ public class EmployeurServiceTest {
                 .employeur(employeur)
                 .build();
         ReflectionTestUtils.setField(offreDeStage, "id", 1L);
+
+        candidature = Candidature.builder()
+                .etudiant(etudiant)
+                .offreDeStage(offreDeStage)
+                .build();
+        ReflectionTestUtils.setField(candidature, "id", 1L);
+
+        offreDeStage.setCandidatures(List.of(candidature));
+        employeur.setOffres(List.of(offreDeStage));
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
     }
 
     @Test
@@ -164,8 +211,6 @@ public class EmployeurServiceTest {
 
         verify(employeurRepository, never()).save(any(Employeur.class));
     }
-
-    // Offre de Stage
 
     @Test
     void doitLancerExceptionQuandDateFinAvantDateDebut() {
@@ -281,26 +326,77 @@ public class EmployeurServiceTest {
 
     @Test
     void doitRetournerLesOffresDeLEmployeur() {
-        employeur.setOffres(List.of(offreDeStage));
-        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
 
-        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+        employeur.setOffres(List.of(offreDeStage));
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres();
 
         assertThat(result).hasSize(1);
     }
 
     @Test
+    void doitRetournerLesCandidaturesParOffre() throws OffreIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        offreDeStage.setStatut(Statut.ACCEPTEE);
+        when(offreDeStageRepository.findById(offreDeStage.getId()))
+                .thenReturn(Optional.of(offreDeStage));
+
+        when(candidatureRepository.findByOffreDeStage(offreDeStage))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> result =
+                employeurService.getCandidaturesParOffre(offreDeStage.getId());
+
+        assertThat(result).hasSize(1);
+    }
+
+
+    @Test
+    void doitRetournerLesCandidaturesDeLEmployeur() throws UtilisateurIntrouvableException {
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(candidatureRepository.findByOffreDeStage_Employeur(employeur))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> result = employeurService.obtenirCandidatures();
+
+        assertThat(result).hasSize(1);
+    }
+
+
+
+    @Test
     void doitRetournerListeVideQuandAucuneOffre() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+
         employeur.setOffres(List.of());
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
 
-        List<OffreDeStageDTO> result = employeurService.obtenirOffres(employeur.getEmail());
+        List<OffreDeStageDTO> result = employeurService.obtenirOffres();
 
         assertThat(result).isEmpty();
     }
 
     @Test
-    void doitModifierOffreDeStage() throws Exception, DateFinAffichageApresDateDebutException {
+    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateDebutAvantAujourdhuiException, FichierTropVolumineuxException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
         when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);

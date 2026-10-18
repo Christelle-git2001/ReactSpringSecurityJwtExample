@@ -1,28 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
-import React from "react";
-import label from "daisyui/components/label/index.js";
-import {postulerOffre} from "../../api/etudiant.jsx";
+import "../../css/EtudiantHome.css"
+import PostulerButton from "../Design/PostulerButton.jsx";
 
-function OffreDetailsDrawerContent({ offer, showStatus= true }) {
+function OffreDetailsDrawerContent({ offer, showStatus= true,hasApplied = false,onApplied }) {
     const { t } = useTranslation();
-    const [justApplied, setJustApplied] = React.useState(false);
-    const hasApplied = offer?.dejaPostule || justApplied;
-
-
-    React.useEffect(() => { setJustApplied(false); }, [offer?.id]);
-    const handleApply = async () => {
-        setJustApplied(true);
-        try {
-            await postulerOffre(offer.id);
-        } catch (error) {
-            console.error("Erreur lors de la candidature à l'offre:", error);
-            setError("etudiant.offers.apply_error");
-        } finally {
-            setIsApplying(false);
-        }
-    }
 
     const departmentKey = getDepartmentKey(offer?.domain);
     const translatedDepartment = departmentKey
@@ -71,22 +54,13 @@ function OffreDetailsDrawerContent({ offer, showStatus= true }) {
 
                 {!showStatus && (
                     <div className="pt-4 border-t">
-                        {hasApplied ? (
-                            <p className="text-center font-semibold text-red-600">
-                                {t("offre.already_applied")}
-                            </p>
-                        ) : (
-                            <label
-                                className="bouton"
-                                onClick={handleApply}
-                            >
-                                {t("offre.apply")}
-
-                            </label>
-                        )}
+                        <PostulerButton
+                            offerId={offer.id}
+                            hasApplied={hasApplied}
+                            onApplied={onApplied}
+                        />
                     </div>
                 )}
-
             </div>
         </div>
     );

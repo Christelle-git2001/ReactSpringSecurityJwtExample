@@ -367,11 +367,18 @@ public class EtudiantControllerTest {
 
     @Test
     void doitRetournerLesCandidaturesEtudiant() throws Exception {
+
         CandidatureDTO candidature = new CandidatureDTO(
                 1L,
                 1L,
+                "Christelle",
+                "Test",
+                "INFORMATIQUE",
                 10L,
-                LocalDateTime.now()
+                "Développeur Web",
+                "TechCorp",
+                LocalDateTime.now(),
+                1L
         );
 
         Authentication authentication =
@@ -380,8 +387,7 @@ public class EtudiantControllerTest {
                         null
                 );
 
-        when(etudiantService.getCandidaturesEtudiant(
-                "christelle@gmail.com"))
+        when(etudiantService.getCandidaturesEtudiant("christelle@gmail.com"))
                 .thenReturn(List.of(candidature));
 
         mockMvc.perform(get("/etudiant/mesCandidatures")
@@ -390,11 +396,17 @@ public class EtudiantControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].offreId").value(10));
+                .andExpect(jsonPath("$[0].offreId").value(10))
+                .andExpect(jsonPath("$[0].etudiantFirstName").value("Christelle"))
+                .andExpect(jsonPath("$[0].etudiantLastName").value("Test"))
+                .andExpect(jsonPath("$[0].etudiantDepartment").value("INFORMATIQUE"))
+                .andExpect(jsonPath("$[0].offreTitle").value("Développeur Web"))
+                .andExpect(jsonPath("$[0].employeurBusinessName").value("TechCorp"));
 
         verify(etudiantService, times(1))
                 .getCandidaturesEtudiant("christelle@gmail.com");
     }
+
 
     @Test
     void doitRetournerListeVideQuandAucuneCandidature() throws Exception {
@@ -417,11 +429,18 @@ public class EtudiantControllerTest {
 
     @Test
     void doitPostulerAUneOffre() throws Exception {
+
         CandidatureDTO candidature = new CandidatureDTO(
                 1L,
                 1L,
+                "Christelle",
+                "Test",
+                "INFORMATIQUE",
                 10L,
-                LocalDateTime.now()
+                "Développeur Web",
+                "TechCorp",
+                LocalDateTime.now(),
+                1L
         );
 
         Authentication authentication =
@@ -437,8 +456,12 @@ public class EtudiantControllerTest {
                         .principal(authentication))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.offreId").value(10));
+                .andExpect(jsonPath("$.offreId").value(10))
+                .andExpect(jsonPath("$.etudiantFirstName").value("Christelle"))
+                .andExpect(jsonPath("$.offreTitle").value("Développeur Web"))
+                .andExpect(jsonPath("$.employeurBusinessName").value("TechCorp"));
     }
+
 
     @Test
     void doitRetournerConflictQuandCandidatureDejaExistante() throws Exception {

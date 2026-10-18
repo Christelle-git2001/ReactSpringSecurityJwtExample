@@ -5,12 +5,13 @@ import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.*;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -39,6 +40,9 @@ public class NotificationServiceTest {
 
     @Mock
     private UserAppRepository userAppRepository;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
 
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
@@ -87,6 +91,18 @@ public class NotificationServiceTest {
         assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isNotEmpty();
         assertThat(notificationDTO.variables().get(VariableMapKey.STATUT_FICHIER)).isEqualTo(notificationWithUser.getVariables().get(VariableMapKey.STATUT_FICHIER));
         assertThat(notificationDTO.id()).isEqualTo(notificationWithUser.getId());
+    }
+
+    @Test
+    void doitSupprimerNotificationLorsCvSupprimer() {
+        String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
+
+
+        CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
+
+        notificationService.handleCvSupprimerSoNotification(event);
+
+        verify(notificationRepository, times(1)).deleteByUrlCible(expectedUrl);
     }
 
     @Test
@@ -146,20 +162,25 @@ public class NotificationServiceTest {
 
     @Test
     void doitMettreNotificationALue() throws NotificationNonTrouvee {
-        notificationWithoutUser.setEstLu(true);
-        when(notificationRepository.setEstLue(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
+        when(notificationRepository.findById(notificationWithoutUser.getId())).thenReturn(Optional.of(notificationWithoutUser));
+        when(notificationRepository.save(notificationWithoutUser)).thenReturn(notificationWithoutUser);
 
         NotificationDTO notificationDTO = notificationService.setNotificationLue(notificationWithoutUser.getId());
 
         assertThat(notificationDTO.id()).isEqualTo(notificationWithoutUser.getId());
         assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isNotEmpty();
         assertThat(notificationDTO.variables().get(VariableMapKey.ETUDIANT_NOM)).isEqualTo(notificationWithoutUser.getVariables().get(VariableMapKey.ETUDIANT_NOM));        assertThat(notificationDTO.estLu()).isTrue();
-        verify(notificationRepository).setEstLue(notificationWithoutUser.getId());
+        assertThat(notificationDTO.estLu()).isTrue();
+        verify(notificationRepository).save(notificationWithoutUser);
     }
 
     @Test
     void doitEnvoyerNotificationNonTrouveeSetNotificationLue() {
+        when(notificationRepository.findById(5L))
+                .thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> notificationService.setNotificationLue(5L)).isInstanceOf(NotificationNonTrouvee.class);
+        verify(notificationRepository, never()).save(any(Notification.class));
     }
 
     @Test
@@ -215,4 +236,103 @@ public class NotificationServiceTest {
         assertThatThrownBy(() -> notificationService.compterNotifications(5L)).isInstanceOf(AucunRoleDefini.class);
         verify(userAppRepository).findById(5L);
     }
+
+    @Test
+    void doitCreerUneNotificationLorsNouvelleOffreTeleversee() {
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        offre.setId(10L);
+
+        Notification notification = new Notification(
+                "notification.titre",
+                "notification.description",
+                NotificationType.OFFRE_ATTENTE_VALIDATION,
+                LocalDateTime.now(),
+                ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build("10"),
+                null,
+                Role.GESTIONNAIRE,
+                Map.of(
+                        VariableMapKey.OFFRE_ID, "10",
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                )
+        );
+
+        notification.setId(5L);
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notification);
+
+        NouvelleOffreTeleverseeEvent event =
+                new NouvelleOffreTeleverseeEvent(offre);
+
+        NotificationDTO notificationDTO =
+                notificationService.handleNouvelleOffreTeleversee(event);
+
+        assertThat(notificationDTO).isNotNull();
+        assertThat(notificationDTO.id()).isEqualTo(notification.getId());
+        assertThat(notificationDTO.variables().get(VariableMapKey.OFFRE_ID))
+                .isEqualTo("10");
+        assertThat(notificationDTO.variables().get(VariableMapKey.OFFRE_TITRE))
+                .isEqualTo("Développeur frontend");
+
+        verify(notificationRepository).save(any(Notification.class));
+    }
+
+
+    @Test
+    void doitCreerUneNotificationLorsApprobationNouvelleOffre() {
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .domain(Departement.INFORMATIQUE)
+                .statut(Statut.ACCEPTEE)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        offre.setId(10L);
+
+        Notification notification = new Notification(
+                "notification.etudiant.nouvelleOffre.titre",
+                "notification.etudiant.nouvelleOffre.description",
+                NotificationType.NOUVELLE_OFFRE_STAGE,
+                LocalDateTime.now(),
+                ControllerPath.ETUDIANT_OFFRES.build(),
+                etudiant,
+                Role.ETUDIANT,
+                Map.of(
+                        VariableMapKey.OFFRE_ID, "10",
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                )
+        );
+
+        notification.setId(6L);
+
+        when(etudiantRepository.findAllByDepartmentAndCv_Statut(
+                Departement.INFORMATIQUE,
+                Statut.ACCEPTEE
+        )).thenReturn(List.of(etudiant));
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notification);
+
+        OffreDeStageApprouveeEvent event =
+                new OffreDeStageApprouveeEvent(offre);
+
+        notificationService.handleOffreDeStageApprouvee(event);
+
+        verify(etudiantRepository).findAllByDepartmentAndCv_Statut(
+                Departement.INFORMATIQUE,
+                Statut.ACCEPTEE
+        );
+
+        verify(notificationRepository).save(any(Notification.class));
+    }
+
 }

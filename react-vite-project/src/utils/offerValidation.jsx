@@ -1,5 +1,10 @@
 export const validateOfferForm = ({ title, domain, salary, description, startDate, endDate, displayEndDate, file, requireFile = false }) => {
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const today = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0"),
+    ].join("-");
     const errors = {};
 
     if (!title) errors.title = "add_offer.errors.title_required";
