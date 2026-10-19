@@ -9,6 +9,7 @@ import ListItem from "../Design/Lists/ListItem.jsx";
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
+    NOUVELLE_OFFRE_STAGE: "/etudiant",
 };
 
 const CONFIG_PAR_TYPE = {
@@ -18,6 +19,10 @@ const CONFIG_PAR_TYPE = {
     },
     OFFRE_ATTENTE_VALIDATION: {
         icon: <FiBriefcase  className="size-5" />,
+        tone: "green",
+    },
+    NOUVELLE_OFFRE_STAGE: {
+        icon: <FiBriefcase className="size-5" />,
         tone: "green",
     },
 };
@@ -99,6 +104,39 @@ export default function Notification({ userId, onClose }) {
                 : "notifications.open_error");
         }
     }
+
+
+    const ouvrirNouvelleOffre = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        const offreId = notification.variables?.OFFRE_ID;
+
+        if (!destination || !offreId) {
+            setError("notifications.open_error");
+            return;
+        }
+
+        try {
+            if (!notification.estLu) {
+                await marquerNotificationLue(notification.id);
+
+                setNotifications(current =>
+                    current.filter(item => item.id !== notification.id)
+                );
+            }
+
+            onClose?.();
+
+            navigate(destination, {
+                state: {
+                    offreId,
+                    from: "/etudiant",
+                },
+            });
+        } catch {
+            setError("notifications.read_error");
+        }
+    };
+
 
 
     useEffect(() => {
@@ -214,10 +252,17 @@ export default function Notification({ userId, onClose }) {
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
-                                        if (isCv) ouvrirCv(notification);
-                                        else if
-                                        (isOffre) ouvrirOffre(notification);
+                                        if (isCv) {
+                                            ouvrirCv(notification);
+                                        } else if (isOffre) {
+                                            ouvrirOffre(notification);
+                                        } else if (
+                                            notification.notificationType === "NOUVELLE_OFFRE_STAGE"
+                                        ) {
+                                            ouvrirNouvelleOffre(notification);
+                                        }
                                     }}
+
                                 />
                             </li>
                         );

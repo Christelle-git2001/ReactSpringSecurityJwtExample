@@ -10,10 +10,14 @@ import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerC
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
     const { openDrawer } = useOutletContext();
+
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const [offres, setOffres] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -45,6 +49,33 @@ const EtudiantHome = ({ user }) => {
             />
         );
     };
+
+
+    const ouvrirOffreParId = useCallback((offreId) => {
+        const offre = offres.find(
+            (item) => String(item.id) === String(offreId)
+        );
+
+        if (offre) {
+            handleView(offre);
+        }
+    }, [offres, idsPostules, openDrawer]);
+
+
+
+    useEffect(() => {
+        const offreId = location.state?.offreId;
+
+        if (!offreId || isInitialLoading) return;
+
+        ouvrirOffreParId(offreId);
+
+        navigate(location.pathname, {
+            replace: true,
+            state: null,
+        });
+    }, [location.state, location.pathname, isInitialLoading, offres, navigate,ouvrirOffreParId,]);
+
 
     const chargerOffres = useCallback(async () => {
         if (!user?.department) return;
