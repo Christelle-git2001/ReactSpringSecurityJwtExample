@@ -236,7 +236,6 @@ export default function Notification({ userId, onClose }) {
                             : notification.notificationType;
                         const config = CONFIG_PAR_TYPE[configKey];
 
-                        console.log(notification.titre)
                         const titre = t(notification.titre, {
                             ...notification.variables,
                             defaultValue: t("notifications.title"),

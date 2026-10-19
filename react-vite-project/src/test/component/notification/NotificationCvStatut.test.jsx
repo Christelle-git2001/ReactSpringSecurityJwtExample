@@ -2,7 +2,7 @@ import { createInstance } from "i18next";
 import { getNotifications, marquerNotificationLue } from "../../../api/notification.jsx";
 import traductionFr from "../../../locales/fr/translation.json";
 import traductionEn from "../../../locales/en/translation.json";
-import {  fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {findByText, fireEvent, render, screen, waitFor} from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
@@ -223,5 +223,108 @@ describe("Notification - CV_STATUT_CHANGE", () => {
         expect(await screen.findByText(/Your CV has been accepted/i)).toBeInTheDocument();
     });
 
+    it("n'ouvre pas la page et affiche une erreur si le marquage comme lu échoue lors du clic sur une notification de statut", async () => {
+        const mockNotifications = [
+            {
+                id: 1,
+                notificationType: "CV_STATUT_CHANGE",
+                titre: "notification.etudiant.validation.title_acceptee",
+                description: "notification.etudiant.validation.description_acceptee",
+                dateNotifiee: "2026-10-14T10:00:00",
+                estLu: false,
+                variables: {
+                    STATUT_FICHIER: "ACCEPTEE"
+                }
+            }
+        ];
+
+        getNotifications.mockResolvedValue(mockNotifications);
+        marquerNotificationLue.mockRejectedValue(new Error("Erreur serveur"));
+
+        const onCloseMock = jest.fn();
+        afficherNotifications(5, onCloseMock);
+
+        const item = await screen.findByText(/votre cv a été accepté/i);
+        fireEvent.click(item);
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            traductionFr.notifications.read_error
+        );
+        expect(marquerNotificationLue).toHaveBeenCalledWith(1);
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(onCloseMock).not.toHaveBeenCalled();
+    });
+
+    it("utilise la configuration par défaut (fallback) si le statut du fichier est absent ou inconnu", async () => {
+        const mockNotifications = [
+            {
+                id: 3,
+                notificationType: "CV_STATUT_CHANGE",
+                titre: "notification.etudiant.validation.title_default",
+                description: "notification.etudiant.validation.description_default",
+                dateNotifiee: "2026-10-14T10:00:00",
+                estLu: false,
+                variables: {
+
+                }
+            }
+        ];
+
+        getNotifications.mockResolvedValue(mockNotifications);
+        marquerNotificationLue.mockResolvedValue({});
+
+        afficherNotifications();
+
+        await waitFor(() => {
+            expect(getNotifications).toHaveBeenCalled();
+        });
+        expect(await screen.findByText(/Vous avez reçu une nouvelle offre à valider./i)).toBeInTheDocument();
+        expect(await screen.findByText(/Notifications/i)).toBeInTheDocument();
+    });
+
+    it("retire uniquement la notification cliquée de la liste et conserve les autres non lues", async () => {
+        const mockNotifications = [
+            {
+                id: 10,
+                notificationType: "CV_STATUT_CHANGE",
+                titre: "notification.etudiant.validation.title_acceptee",
+                description: "notification.etudiant.validation.description_acceptee",
+                dateNotifiee: "2026-10-14T10:00:00",
+                estLu: false,
+                variables: { STATUT_FICHIER: "ACCEPTEE" }
+            },
+            {
+                id: 11,
+                notificationType: "CV_STATUT_CHANGE",
+                titre: "notification.etudiant.validation.title_refusee",
+                description: "notification.etudiant.validation.description_refusee",
+                dateNotifiee: "2026-10-14T09:00:00",
+                estLu: false,
+                variables: { STATUT_FICHIER: "REFUSEE" }
+            }
+        ];
+
+        getNotifications.mockResolvedValue(mockNotifications);
+        marquerNotificationLue.mockResolvedValue({});
+
+        afficherNotifications();
+
+        const itemAccepte = await screen.findByText(/votre cv a été accepté/i);
+        const itemRefuse = await screen.findByText(/votre cv a été refusé/i);
+
+        expect(itemAccepte).toBeInTheDocument();
+        expect(itemRefuse).toBeInTheDocument();
+
+        fireEvent.click(itemAccepte);
+
+        await waitFor(() => {
+            expect(marquerNotificationLue).toHaveBeenCalledWith(10);
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByText(/votre cv a été accepté/i)).not.toBeInTheDocument();
+            expect(screen.getByText(/votre cv a été refusé/i)).toBeInTheDocument();
+        });
+    });
 
 });
