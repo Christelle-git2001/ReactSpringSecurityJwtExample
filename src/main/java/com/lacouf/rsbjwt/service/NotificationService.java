@@ -77,7 +77,7 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-   public void handleCvSupprimerSoNotification(CvSupprimerSoNotification event){
+   public void handleCvSupprimerSoNotification(CvSupprimerSoNotificationGestionnaire event){
         notificationRepository.deleteByUrlCible(event.navigationPath());
     }
 
@@ -150,6 +150,13 @@ public class NotificationService {
 
             notificationRepository.save(notification);
         }
+    }
+
+    @EventListener
+    @Transactional
+    public void handleCvSupprimerSoNotificationEtudiant(CvSupprimerSoNotificationEtudiant event){
+        Etudiant etudiant = event.etudiant();
+        notificationRepository.deleteNotificationByNotificationTypeAndDestinataire(NotificationType.CV_STATUT_CHANGE,etudiant);
     }
 
     @Transactional

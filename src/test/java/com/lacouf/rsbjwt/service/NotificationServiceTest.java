@@ -98,7 +98,7 @@ public class NotificationServiceTest {
         String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
 
 
-        CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
+        CvSupprimerSoNotificationGestionnaire event = new CvSupprimerSoNotificationGestionnaire(expectedUrl);
 
         notificationService.handleCvSupprimerSoNotification(event);
 
