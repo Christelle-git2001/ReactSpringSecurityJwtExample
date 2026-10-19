@@ -8,6 +8,9 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.Notification;
+import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
@@ -60,12 +63,12 @@ public class NotificationService {
         Statut statut = event.statut();
         UserApp destinataire = event.destinataire();
         Notification notification = Notification.builder()
-                .titre("notification.etudiant.validation.title")
-                .description("notification.etudiant.validation.description")
+                .titre("notification.etudiant.validation.title_" + statut.name().toLowerCase())
+                .description("notification.etudiant.validation.description_" + statut.name().toLowerCase())
                 .notificationType(NotificationType.CV_STATUT_CHANGE)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(ControllerPath.ETUDIANT_CV.build())
                 .role(Role.ETUDIANT)
+                .urlCible("")
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
@@ -89,35 +92,6 @@ public class NotificationService {
         return notifications.stream()
                 .map(NotificationDTO::of)
                 .toList();
-    }
-
-    @Transactional
-    public NotificationDTO setNotificationLue(Long id) throws NotificationNonTrouvee {
-        Notification notification = notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new);
-        notification.setEstLu(true);
-        return NotificationDTO.of(notificationRepository.save(notification));
-    }
-
-    @Transactional
-    public NotificationDTO supprimerNotification(Long id) throws NotificationNonTrouvee {
-        NotificationDTO notificationDTO = NotificationDTO.of(notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new));
-        notificationRepository.deleteById(id);
-        return notificationDTO;
-    }
-
-    public Long compterNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
-        UserApp userApp = verifierEtRecupererUtilisateur(id);
-        Role role = userApp.getRole();
-       return switch (role) {
-            case GESTIONNAIRE -> notificationRepository.totalByRole(role);
-            case ETUDIANT, PROFESSEUR, EMPLOYEUR -> notificationRepository.totalByUser(userApp);
-            case null -> throw new AucunRoleDefini();
-        };
-    }
-
-    private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
-        return userAppRepository.findById(id)
-                .orElseThrow(UtilisateurIntrouvableException::new);
     }
 
     @EventListener
@@ -177,5 +151,36 @@ public class NotificationService {
             notificationRepository.save(notification);
         }
     }
+
+    @Transactional
+    public NotificationDTO setNotificationLue(Long id) throws NotificationNonTrouvee {
+        Notification notification = notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new);
+        notification.setEstLu(true);
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @Transactional
+    public NotificationDTO supprimerNotification(Long id) throws NotificationNonTrouvee {
+        NotificationDTO notificationDTO = NotificationDTO.of(notificationRepository.findById(id).orElseThrow(NotificationNonTrouvee::new));
+        notificationRepository.deleteById(id);
+        return notificationDTO;
+    }
+
+    public Long compterNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
+        UserApp userApp = verifierEtRecupererUtilisateur(id);
+        Role role = userApp.getRole();
+       return switch (role) {
+            case GESTIONNAIRE -> notificationRepository.totalByRole(role);
+            case ETUDIANT, PROFESSEUR, EMPLOYEUR -> notificationRepository.totalByUser(userApp);
+            case null -> throw new AucunRoleDefini();
+        };
+    }
+
+    private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
+        return userAppRepository.findById(id)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+    }
+
+
 
 }

@@ -5,10 +5,13 @@ import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "re
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
+import {ImCross} from "react-icons/im";
+import {FaCheck, FaQuestion} from "react-icons/fa";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
+    CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
 };
 
@@ -21,9 +24,21 @@ const CONFIG_PAR_TYPE = {
         icon: <FiBriefcase  className="size-5" />,
         tone: "green",
     },
+    CV_STATUT_CHANGE_REFUSEE: {
+        icon: <ImCross />,
+        tone : "red"
+    },
+    CV_STATUT_CHANGE_ACCEPTEE: {
+        icon : <FaCheck />,
+        tone : "green"
+    },
+    CV_STATUT_CHANGE: {
+        icon : <FaQuestion />,
+        tone : "yellow"
+    },
     NOUVELLE_OFFRE_STAGE: {
-        icon: <FiBriefcase className="size-5" />,
-        tone: "green",
+            icon: <FiBriefcase className="size-5" />,
+            tone: "green",
     },
 };
 
@@ -37,7 +52,10 @@ export default function Notification({ userId, onClose }) {
 
     const ouvrirCv = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if (!destination) return;
+        if (!destination){
+            setError("error.notification_path")
+            return
+        }
 
         try {
             const cv = await obtenirCvGestionnaire(notification.urlCible);
@@ -71,9 +89,34 @@ export default function Notification({ userId, onClose }) {
         }
     };
 
+    const ouvrirCvEtudiant = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        if(!destination){
+            setError("error.notification_path")
+            return
+        }
+        if (!notification.estLu) {
+            try {
+                await marquerNotificationLue(notification.id);
+
+                setNotifications(current =>
+                    current.filter(item => item.id !== notification.id)
+                );
+            } catch {
+                setError("notifications.read_error");
+                return;
+            }
+        }
+        onClose?.();
+        navigate(destination);
+    }
+
     const ouvrirOffre = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if (!destination) return;
+        if (!destination) {
+            setError("error.notification_path")
+            return
+        }
 
         try {
             const offre = await obtenirOffreGestionnaire(notification.urlCible);
@@ -105,37 +148,38 @@ export default function Notification({ userId, onClose }) {
         }
     }
 
-
     const ouvrirNouvelleOffre = async (notification) => {
-        const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        const offreId = notification.variables?.OFFRE_ID;
+            const destination = ROUTES_PAR_TYPE[notification.notificationType];
+            const offreId = notification.variables?.OFFRE_ID;
 
-        if (!destination || !offreId) {
-            setError("notifications.open_error");
-            return;
-        }
-
-        try {
-            if (!notification.estLu) {
-                await marquerNotificationLue(notification.id);
-
-                setNotifications(current =>
-                    current.filter(item => item.id !== notification.id)
-                );
+            if (!destination || !offreId) {
+                setError("notifications.open_error");
+                return;
             }
 
-            onClose?.();
+            try {
+                if (!notification.estLu) {
+                    await marquerNotificationLue(notification.id);
 
-            navigate(destination, {
-                state: {
-                    offreId,
-                    from: "/etudiant",
-                },
-            });
-        } catch {
-            setError("notifications.read_error");
-        }
-    };
+                    setNotifications(current =>
+                        current.filter(item => item.id !== notification.id)
+                    );
+                }
+
+                onClose?.();
+
+                navigate(destination, {
+                    state: {
+                        offreId,
+                        from: "/etudiant",
+                    },
+                });
+            } catch {
+                setError("notifications.read_error");
+            }
+        };
+
+
 
 
 
@@ -167,6 +211,7 @@ export default function Notification({ userId, onClose }) {
             notificationsStillDisplayed = false;
         };
     }, [userId]);
+
 
     const formaterDate = (value) => {
         if (!value) return null;
@@ -223,10 +268,14 @@ export default function Notification({ userId, onClose }) {
                     {notificationsTriees.map(notification => {
                         const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
                         const isOffre = notification.notificationType === "OFFRE_ATTENTE_VALIDATION";
+                        const isStatusChange = notification.notificationType === "CV_STATUT_CHANGE";
+                        const statut = notification.variables?.["STATUT_FICHIER"];
+                        const configKey = isStatusChange && statut
+                            ? `${notification.notificationType}_${statut}`
+                            : notification.notificationType;
+                        const config = CONFIG_PAR_TYPE[configKey];
 
-                        const config = CONFIG_PAR_TYPE[notification.notificationType] ;
-
-
+                        console.log(notification.titre)
                         const titre = t(notification.titre, {
                             ...notification.variables,
                             defaultValue: t("notifications.title"),
@@ -252,17 +301,17 @@ export default function Notification({ userId, onClose }) {
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
-                                        if (isCv) {
-                                            ouvrirCv(notification);
-                                        } else if (isOffre) {
-                                            ouvrirOffre(notification);
+                                        if (isCv) ouvrirCv(notification);
+                                        else if
+                                        (isOffre) ouvrirOffre(notification);
+                                        else if (isStatusChange) ouvrirCvEtudiant(notification);
                                         } else if (
                                             notification.notificationType === "NOUVELLE_OFFRE_STAGE"
-                                        ) {
-                                            ouvrirNouvelleOffre(notification);
-                                        }
-                                    }}
+                                            ) {ouvrirNouvelleOffre(notification);
 
+                                        }
+
+                                    }}
                                 />
                             </li>
                         );

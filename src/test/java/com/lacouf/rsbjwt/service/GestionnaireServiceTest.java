@@ -489,6 +489,28 @@ class GestionnaireServiceTest {
         verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.REFUSEE));
         verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotification(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1")));
+<<<<<<< Updated upstream
+=======
+    }
+
+    @Test
+    void doitRetournerUnCvParID() throws CurriculumVitaeIntrouvable {
+        when(cvEtudiantRepository.findById(cvEtudiant.getId())).thenReturn(Optional.of(cvEtudiant));
+
+        CvEtudiantDTO cvEtudiantDTO = gestionnaireService.getCvParId(cvEtudiant.getId());
+
+        assertThat(cvEtudiantDTO.id()).isEqualTo(cvEtudiant.getId());
+        assertThat(cvEtudiantDTO.statut()).isEqualTo(cvEtudiant.getStatut());
+        assertThat(cvEtudiantDTO.fileName()).isEqualTo(cvEtudiant.getFileName());
+        verify(cvEtudiantRepository).findById(cvEtudiantDTO.id());
+    }
+
+    @Test
+    void doitRetournerCvNotFound() {
+        assertThatThrownBy(() -> gestionnaireService.getCvParId(-5L)).isInstanceOf(CurriculumVitaeIntrouvable.class);
+
+        verify(cvEtudiantRepository,never()).findById(cvEtudiant.getId());
+>>>>>>> Stashed changes
     }
 
     @Test

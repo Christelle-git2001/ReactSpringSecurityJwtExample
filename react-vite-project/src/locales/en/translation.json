@@ -160,6 +160,7 @@
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
+    "notification_path": "The destination of this notification does not exist. Please try again later.",
     "rejection_comment_required": "A comment is required when rejecting a CV."
   },
   "success": {
@@ -348,6 +349,9 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
+    },
+    "toast" : {
+      "waiting_validation": "CV submitted, pending review."
     }
   },
   "candidature": {
@@ -381,6 +385,14 @@
       "televerserCV": {
         "title": "New CV to review",
         "description": "{{ETUDIANT_NOM}} has uploaded a CV."
+      }
+    },
+    "etudiant":{
+      "validation": {
+        "title_acceptee": "Your CV has been accepted",
+        "description_acceptee": "Congratulations, your CV has been validated!",
+        "title_refusee": "Your CV has been rejected",
+        "description_refusee": "To find out the reason for the refusal, please click on this notification."
       }
     }
   },
