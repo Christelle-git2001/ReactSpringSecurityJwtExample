@@ -25,6 +25,7 @@ function SideBarLayout({ user }) {
     const closeDrawer = () => {
         setIsDrawerOpen(false);
         setDrawerContent(null);
+        setDrawerTitle(null)
     };
 
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
@@ -120,7 +121,11 @@ function SideBarLayout({ user }) {
                                     data-tip={t("notifications.title")}
                                     aria-label={t("notifications.title")}
                                     onClick={() => {
-                                        openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
+                                        if (drawerTitle === "notifications.title") {
+                                            closeDrawer();
+                                        } else {
+                                            openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
+                                        }
                                         setSidebarOpen(false);
                                     }}
                                 >
