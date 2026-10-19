@@ -349,6 +349,9 @@
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
+    },
+    "toast": {
+      "waiting_validation": "CV envoyé, en attente de validation."
     }
   },
   "candidature": {

@@ -349,6 +349,9 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
+    },
+    "toast" : {
+      "waiting_validation": "CV submitted, pending review."
     }
   },
   "candidature": {

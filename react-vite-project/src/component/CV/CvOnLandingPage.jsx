@@ -32,7 +32,7 @@ const CvOnLandingPage = () => {
     };
 
     const afficherToast = () => {
-        toast.success("cv.waiting_validation",{
+        toast.success(t("cv.toast.waiting_validation"),{
             position: 'bottom-center',
             duration: 3000
         })
