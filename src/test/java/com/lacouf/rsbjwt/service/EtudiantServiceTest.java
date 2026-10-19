@@ -12,7 +12,6 @@ import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +22,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -30,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,12 +67,17 @@ public class EtudiantServiceTest {
     @Mock
     private CandidatureRepository candidatureRepository;
 
+    @TempDir
+    Path dossierCvTest;
+
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
     Employeur employeur;
 
     @BeforeEach
     void init() {
+        ReflectionTestUtils.setField(etudiantService, "STORAGE_CV", dossierCvTest);
+
         inscriptionEtudiantDTO = new InscriptionEtudiantDTO(
                 "Christelle",
                 "Altineus",
@@ -105,21 +112,6 @@ public class EtudiantServiceTest {
                 .build();
 
         employeur.setId(1L);
-    }
-
-    @AfterEach
-    void nettoyerFichiersCvDuDossierUploads() throws Exception {
-        Path dossier = Paths.get("uploads", "cvs");
-        if (Files.exists(dossier)) {
-            try (var fichiers = Files.list(dossier)) {
-                fichiers.forEach(path -> {
-                    try {
-                        Files.deleteIfExists(path);
-                    } catch (Exception ignored) {
-                    }
-                });
-            }
-        }
     }
 
     @Test
@@ -262,7 +254,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRemplacerAncienCv() throws Exception{
-        Path ancienFichier = Paths.get("uploads", "cvs", "ancien.pdf");
+        Path ancienFichier = dossierCvTest.resolve( "ancien.pdf");
         Files.createDirectories(ancienFichier.getParent());
         Files.writeString(ancienFichier, "ancien contenu");
 
@@ -345,7 +337,7 @@ public class EtudiantServiceTest {
                 .fileName("cv.pdf")
                 .contentType("application/pdf")
                 .fileSize(10L)
-                .storagePath("uploads/cvs/cv.pdf")
+                .storagePath(dossierCvTest.resolve("cv.pdf").toString())
                 .uploadDate(LocalDateTime.now())
                 .etudiant(etudiant)
                 .build();
@@ -378,7 +370,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitSupprimerCv() throws Exception {
-        Path fichier = Paths.get("uploads", "cvs", "cv.pdf");
+        Path fichier = dossierCvTest.resolve("cv.pdf");
         Files.createDirectories(fichier.getParent());
         Files.writeString(fichier, "contenu");
 
@@ -516,7 +508,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitTelechargerFichierCv() throws Exception {
-        Path fichier = Paths.get("uploads", "cvs", "cv.pdf");
+        Path fichier = dossierCvTest.resolve("cv.pdf");
         Files.createDirectories(fichier.getParent());
         Files.writeString(fichier, "contenu du cv pour test");
 
@@ -666,6 +658,8 @@ public class EtudiantServiceTest {
 
         verify(offreDeStageRepository, never()).findById(anyLong());
         verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(NouvelleCandidatureEvent.class));
     }
 
     @Test
@@ -688,6 +682,8 @@ public class EtudiantServiceTest {
                 .isInstanceOf(OffreIntrouvableException.class);
 
         verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(NouvelleCandidatureEvent.class));
     }
 
     @Test
@@ -715,6 +711,8 @@ public class EtudiantServiceTest {
                 .isInstanceOf(OffreDeStageIndisponibleException.class);
 
         verify(candidatureRepository, never()).save(any(Candidature.class));
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(NouvelleCandidatureEvent.class));
     }
 
 
@@ -734,6 +732,8 @@ public class EtudiantServiceTest {
 
         verify(candidatureRepository, never()).save(any(Candidature.class));
         verify(offreDeStageRepository, never()).findById(anyLong());
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(NouvelleCandidatureEvent.class));
     }
 
     @Test
@@ -755,6 +755,44 @@ public class EtudiantServiceTest {
 
         verify(candidatureRepository, never()).save(any(Candidature.class));
         verify(offreDeStageRepository, never()).findById(anyLong());
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(NouvelleCandidatureEvent.class));
     }
 
+    @Test
+    void doitRefuserCandidatureEnDoubleSansPublierEvenement() {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(10L);
+        offre.setStatut(Statut.ACCEPTEE);
+        offre.setDisplayEndDate(LocalDate.now().plusDays(10));
+        offre.setEmployeur(employeur);
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setId(5L);
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findById(10L))
+                .thenReturn(Optional.of(offre));
+
+        when(candidatureRepository.existsByEtudiantAndOffreDeStage(
+                etudiant, offre))
+                .thenReturn(true);
+
+        assertThatThrownBy(() ->
+                etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(CandidatureDejaExistanteException.class);
+
+        verify(candidatureRepository, never())
+                .save(any(Candidature.class));
+
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(NouvelleCandidatureEvent.class));
+    }
 }
