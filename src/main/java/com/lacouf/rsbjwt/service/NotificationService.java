@@ -63,11 +63,12 @@ public class NotificationService {
         Statut statut = event.statut();
         UserApp destinataire = event.destinataire();
         Notification notification = Notification.builder()
-                .titre("notification.etudiant.validation.title")
-                .description("notification.etudiant.validation.description")
+                .titre("notification.etudiant.validation.title_" + statut.name().toLowerCase())
+                .description("notification.etudiant.validation.description_" + statut.name().toLowerCase())
                 .notificationType(NotificationType.CV_STATUT_CHANGE)
                 .dateCreaction(LocalDateTime.now())
                 .role(Role.ETUDIANT)
+                .urlCible("")
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
