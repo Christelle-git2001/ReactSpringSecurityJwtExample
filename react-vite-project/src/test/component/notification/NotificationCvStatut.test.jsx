@@ -1,6 +1,7 @@
 import { createInstance } from "i18next";
 import { getNotifications, marquerNotificationLue } from "../../../api/notification.jsx";
 import traductionFr from "../../../locales/fr/translation.json";
+import traductionEn from "../../../locales/en/translation.json";
 import {  fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
@@ -24,7 +25,10 @@ beforeAll(async () => {
     await testI18n.init({
         lng: "fr",
         fallbackLng: "fr",
-        resources: { fr: { translation: traductionFr } },
+        resources: {
+            fr: { translation: traductionFr },
+            en: { translation: traductionEn }
+        },
         interpolation: { escapeValue: false },
     });
 });
@@ -196,6 +200,27 @@ describe("Notification - CV_STATUT_CHANGE", () => {
             expect(mockNavigate).toHaveBeenCalledWith("/etudiant/cv#televerser");
             expect(onCloseMock).toHaveBeenCalledTimes(1);
         });
+    });
+
+    it("affiche correctement le texte en anglais lorsque la langue change", async () => {
+        await testI18n.changeLanguage("en");
+
+        const mockNotifications = [
+            {
+                id: 1,
+                notificationType: "CV_STATUT_CHANGE",
+                titre: "notification.etudiant.validation.title_acceptee",
+                description: "notification.etudiant.validation.description_acceptee",
+                dateNotifiee: "2026-10-14T10:00:00",
+                estLu: false,
+                variables: { STATUT_FICHIER: "ACCEPTEE" }
+            }
+        ];
+
+        getNotifications.mockResolvedValue(mockNotifications);
+        afficherNotifications();
+
+        expect(await screen.findByText(/Your CV has been accepted/i)).toBeInTheDocument();
     });
 
 
