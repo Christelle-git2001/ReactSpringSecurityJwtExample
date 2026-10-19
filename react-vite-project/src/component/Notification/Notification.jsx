@@ -84,7 +84,7 @@ export default function Notification({ userId, onClose }) {
         }
     };
 
-    const ouvrirCVEtudaint = async (notification) => {
+    const ouvrirCvEtudiant = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
         if(!destination){
             setError("error.notification_path")
@@ -265,7 +265,7 @@ export default function Notification({ userId, onClose }) {
                                         if (isCv) ouvrirCv(notification);
                                         else if
                                         (isOffre) ouvrirOffre(notification);
-                                        else if (isStatusChange) ouvrirCVEtudaint(notification);
+                                        else if (isStatusChange) ouvrirCvEtudiant(notification);
 
                                     }}
                                 />
