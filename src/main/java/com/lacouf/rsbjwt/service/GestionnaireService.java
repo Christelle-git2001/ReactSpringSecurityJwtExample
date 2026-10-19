@@ -10,6 +10,7 @@ import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
+import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -36,7 +37,8 @@ public class GestionnaireService {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository, ApplicationEventPublisher applicationEventPublisher){
+    public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
+                               ApplicationEventPublisher applicationEventPublisher){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -106,9 +108,13 @@ public class GestionnaireService {
         offre.setStatut(Statut.ACCEPTEE);
         offre.setRejectionComment(null);
 
-        return OffreDeStageDTO.of(
-                offreDeStageRepository.save(offre)
+        OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
+
+        applicationEventPublisher.publishEvent(
+                new OffreDeStageApprouveeEvent(offreEnregistree)
         );
+
+        return OffreDeStageDTO.of(offreEnregistree);
 
     }
 

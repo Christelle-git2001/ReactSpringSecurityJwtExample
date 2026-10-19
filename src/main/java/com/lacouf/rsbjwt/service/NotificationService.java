@@ -9,11 +9,8 @@ import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
+import com.lacouf.rsbjwt.model.event.*;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -31,10 +28,13 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserAppRepository userAppRepository;
+    private final EtudiantRepository etudiantRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository) {
+    public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
+                               EtudiantRepository etudiantRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
+        this.etudiantRepository = etudiantRepository;
     }
 
     @EventListener
@@ -142,6 +142,38 @@ public class NotificationService {
                 .build();
 
         return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public void handleOffreDeStageApprouvee(OffreDeStageApprouveeEvent event) {
+        OffreDeStage offre = event.offre();
+
+        List<Etudiant> etudiants =
+                etudiantRepository.findAllByDepartmentAndCv_Statut(
+                        offre.getDomain(),
+                        Statut.ACCEPTEE
+                );
+
+        for (Etudiant etudiant : etudiants) {
+            Notification notification = new Notification(
+                    "notification.etudiant.nouvelleOffre.titre",
+                    "notification.etudiant.nouvelleOffre.description",
+                    NotificationType.NOUVELLE_OFFRE_STAGE,
+                    LocalDateTime.now(),
+                    ControllerPath.ETUDIANT_OFFRES.build(),
+                    etudiant,
+                    Role.ETUDIANT,
+                    Map.of(
+                            VariableMapKey.OFFRE_ID,
+                            String.valueOf(offre.getId()),
+                            VariableMapKey.OFFRE_TITRE,
+                            offre.getTitle()
+                    )
+            );
+
+            notificationRepository.save(notification);
+        }
     }
 
     @EventListener
