@@ -368,9 +368,10 @@
     "title": "Notifications",
     "generic_message": "You have received an new offer to validate .",
     "empty": "No notifications",
+    "offre_unavailable": "The offer associated with this notification is no longer available.",
     "load_error": "Unable to load notifications.",
     "cv_unavailable": "The CV associated with this notification is no longer available.",
-    "open_error": "Unable to open the CV. Please try again.",
+    "open_error": "Unable to open the document. Please try again.",
     "read_error": "Unable to mark the notification as read.",
     "sort_by_date": "Sort by date",
     "newest_first": "Newest first",
@@ -378,6 +379,10 @@
   },
   "notification": {
     "gestionnaire": {
+      "offre": {
+        "title": "New offer to review",
+        "description": "The offer “{{OFFRE_TITRE}}” is awaiting review."
+      },
       "televerserCV": {
         "title": "New CV to review",
         "description": "{{ETUDIANT_NOM}} has uploaded a CV."

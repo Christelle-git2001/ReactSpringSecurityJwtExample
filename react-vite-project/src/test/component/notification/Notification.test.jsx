@@ -113,8 +113,10 @@ describe("Notification - comportements communs", () => {
 
         const items = await screen.findAllByRole("listitem");
 
-        expect(items[0]).toHaveTextContent("Junior Belle");
-        expect(items[1]).toHaveTextContent("Mercedes Belle");
+        expect(items).toHaveLength(3);
+        expect(items[0]).toHaveTextContent("Stage en développement");
+        expect(items[1]).toHaveTextContent("Junior Belle");
+        expect(items[2]).toHaveTextContent("Mercedes Belle");
     });
 
     it("inverse le tri des notifications au clic", async () => {
@@ -128,6 +130,7 @@ describe("Notification - comportements communs", () => {
         const items = screen.getAllByRole("listitem");
         expect(items[0]).toHaveTextContent("Mercedes Belle");
         expect(items[1]).toHaveTextContent("Junior Belle");
+        expect(items[2]).toHaveTextContent("Stage en développement");
     });
 
     it("affiche une erreur si le chargement des notifications échoue", async () => {
@@ -149,7 +152,7 @@ describe("Notification - comportements communs", () => {
             screen.queryByText("Ouriela Belle a téléversé un CV.")
         ).not.toBeInTheDocument();
 
-        expect(screen.getAllByRole("listitem")).toHaveLength(2);
+        expect(screen.getAllByRole("listitem")).toHaveLength(3);
     });
 
     it("affiche un message quand l’API ne retourne aucune notification", async () => {

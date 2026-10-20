@@ -368,9 +368,10 @@
     "title": "Notifications",
     "generic_message": "Vous avez reçu une nouvelle offre à valider.",
     "empty": "Aucune notification",
+    "offre_unavailable": "L’offre associée à cette notification n’est plus disponible.",
     "load_error": "Impossible de charger les notifications.",
     "cv_unavailable": "Le CV associé à cette notification n’est plus disponible.",
-    "open_error": "Impossible d’ouvrir le CV. Veuillez réessayer.",
+    "open_error": "Impossible d’ouvrir le document. Veuillez réessayer.",
     "read_error": "Impossible de marquer la notification comme lue.",
     "sort_by_date": "Trier par date",
     "newest_first": "Plus récentes d’abord",
@@ -378,6 +379,10 @@
   },
   "notification": {
     "gestionnaire": {
+      "offre": {
+        "title": "Nouvelle offre à valider",
+        "description": "L'offre « {{OFFRE_TITRE}} » est en attente de validation."
+      },
       "televerserCV": {
         "title": "Nouveau CV à valider",
         "description": "{{ETUDIANT_NOM}} a téléversé un CV."
