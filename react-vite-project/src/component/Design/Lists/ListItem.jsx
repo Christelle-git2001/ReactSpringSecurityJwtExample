@@ -51,6 +51,7 @@ function ListItem({
     tone = "blue",
     variant = "card",
     actionLabel,
+    actionClassName,
     showChevron = true,
     wrapText = false,
     onClick,
@@ -159,7 +160,7 @@ function ListItem({
                     <button
                         type="button"
                         onClick={onClick}
-                        className={`btn btn-sm shrink-0 border-none bg-white/80 ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${styles.action}`}
+                        className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
                         aria-label={ariaLabel}
                     >
                         {actionLabel || <FiChevronRight className="size-4" />}

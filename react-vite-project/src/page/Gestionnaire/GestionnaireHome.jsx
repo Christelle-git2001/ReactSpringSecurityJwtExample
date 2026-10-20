@@ -128,7 +128,7 @@ const GestionnaireHome = ({ user }) => {
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
                 <div>
                     <h1 className="text-4xl font-bold text-[#043462]">
-                        {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span>
+                        {t("home.welcome")} {user?.firstName} {user?.lastName}
                     </h1>
                     <p className="mt-2 text-sm text-gray-500">
                         {t("dashboard.manager_subtitle")}
@@ -194,6 +194,7 @@ const GestionnaireHome = ({ user }) => {
                                         cv={cv}
                                         onClick={() => handleViewCv(cv)}
                                         actionLabel={t("dashboard.view_cv")}
+                                        actionClassName="bg-blue-600 text-white hover:bg-blue-700"
                                     />
                                 )}
                             />
@@ -223,6 +224,7 @@ const GestionnaireHome = ({ user }) => {
                                         offer={offer}
                                         onClick={() => handleViewOffer(offer)}
                                         actionLabel={t("dashboard.view_offer")}
+                                        actionClassName="bg-green-600 text-white hover:bg-green-700"
                                     />
                                 )}
                             />
