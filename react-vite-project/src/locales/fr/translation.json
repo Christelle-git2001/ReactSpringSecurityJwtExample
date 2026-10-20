@@ -197,6 +197,7 @@
     "department_invalid": "Le département sélectionné est invalide.",
     "user_not_found": "Utilisateur introuvable.",
     "generic": "Une erreur est survenue. Veuillez réessayer.",
+    "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
     "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
   },
   "success": {
@@ -348,6 +349,9 @@
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
+    },
+    "toast": {
+      "waiting_validation": "CV envoyé, en attente de validation."
     }
   },
   "candidature": {
@@ -386,6 +390,14 @@
       "televerserCV": {
         "title": "Nouveau CV à valider",
         "description": "{{ETUDIANT_NOM}} a téléversé un CV."
+      }
+    },
+    "etudiant":{
+      "validation": {
+        "title_acceptee": "Votre CV a été accepté",
+        "description_acceptee": "Félicitations, votre CV a été validé !",
+        "title_refusee": "Votre CV a été refusé",
+        "description_refusee": "Pour connaître les motifs du refus, veuillez consulter cette notification."
       }
     }
   },
