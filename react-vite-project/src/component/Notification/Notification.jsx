@@ -5,10 +5,13 @@ import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "re
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
+import {ImCross} from "react-icons/im";
+import {FaCheck, FaQuestion} from "react-icons/fa";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
+    CV_STATUT_CHANGE: "/etudiant/cv#televerser"
 };
 
 const CONFIG_PAR_TYPE = {
@@ -20,6 +23,18 @@ const CONFIG_PAR_TYPE = {
         icon: <FiBriefcase  className="size-5" />,
         tone: "green",
     },
+    CV_STATUT_CHANGE_REFUSEE: {
+        icon: <ImCross />,
+        tone : "red"
+    },
+    CV_STATUT_CHANGE_ACCEPTEE: {
+        icon : <FaCheck />,
+        tone : "green"
+    },
+    CV_STATUT_CHANGE: {
+        icon : <FaQuestion />,
+        tone : "yellow"
+    }
 };
 
 export default function Notification({ userId, onClose }) {
@@ -32,7 +47,10 @@ export default function Notification({ userId, onClose }) {
 
     const ouvrirCv = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if (!destination) return;
+        if (!destination){
+            setError("error.notification_path")
+            return
+        }
 
         try {
             const cv = await obtenirCvGestionnaire(notification.urlCible);
@@ -66,14 +84,39 @@ export default function Notification({ userId, onClose }) {
         }
     };
 
+    const ouvrirCvEtudiant = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        if(!destination){
+            setError("error.notification_path")
+            return
+        }
+        if (!notification.estLu) {
+            try {
+                await marquerNotificationLue(notification.id);
+
+                setNotifications(current =>
+                    current.filter(item => item.id !== notification.id)
+                );
+            } catch {
+                setError("notifications.read_error");
+                return;
+            }
+        }
+        onClose?.();
+        navigate(destination);
+    }
+
     const ouvrirOffre = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if (!destination) return;
+        if (!destination) {
+            setError("error.notification_path")
+            return
+        }
 
         try {
             const offre = await obtenirOffreGestionnaire(notification.urlCible);
             if (!offre) {
-                setError("notifications.cv_unavailable");
+                setError("notifications.offre_unavailable");
                 return;
             }
             if (!notification.estLu) {
@@ -95,7 +138,7 @@ export default function Notification({ userId, onClose }) {
             });
         } catch (err) {
             setError(err?.status === 404
-                ? "notifications.cv_unavailable"
+                ? "notifications.offre_unavailable"
                 : "notifications.open_error");
         }
     }
@@ -129,6 +172,7 @@ export default function Notification({ userId, onClose }) {
             notificationsStillDisplayed = false;
         };
     }, [userId]);
+
 
     const formaterDate = (value) => {
         if (!value) return null;
@@ -185,9 +229,12 @@ export default function Notification({ userId, onClose }) {
                     {notificationsTriees.map(notification => {
                         const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
                         const isOffre = notification.notificationType === "OFFRE_ATTENTE_VALIDATION";
-
-                        const config = CONFIG_PAR_TYPE[notification.notificationType] ;
-
+                        const isStatusChange = notification.notificationType === "CV_STATUT_CHANGE";
+                        const statut = notification.variables?.["STATUT_FICHIER"];
+                        const configKey = isStatusChange && statut
+                            ? `${notification.notificationType}_${statut}`
+                            : notification.notificationType;
+                        const config = CONFIG_PAR_TYPE[configKey];
 
                         const titre = t(notification.titre, {
                             ...notification.variables,
@@ -217,6 +264,8 @@ export default function Notification({ userId, onClose }) {
                                         if (isCv) ouvrirCv(notification);
                                         else if
                                         (isOffre) ouvrirOffre(notification);
+                                        else if (isStatusChange) ouvrirCvEtudiant(notification);
+
                                     }}
                                 />
                             </li>

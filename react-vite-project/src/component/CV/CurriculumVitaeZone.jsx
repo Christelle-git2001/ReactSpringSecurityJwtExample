@@ -4,7 +4,7 @@ import AjoutCV from "./AjoutCV.jsx";
 import ShowCv from "./ShowCv.jsx";
 import { obtenirCvInfo } from "../../api/etudiant.jsx";
 
-const CurriculumVitaeZone = () => {
+const CurriculumVitaeZone = ({onSend}) => {
     const { t } = useTranslation();
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [cv, setCv] = useState(null);
@@ -12,9 +12,11 @@ const CurriculumVitaeZone = () => {
 
     const handleCvAjoute = () => {
         setRefreshTrigger(prev => prev + 1);
+        onSend?.();
     };
 
     const handleCvSupprime = () => {
+
         setCv(null);
         setError(null);
     };

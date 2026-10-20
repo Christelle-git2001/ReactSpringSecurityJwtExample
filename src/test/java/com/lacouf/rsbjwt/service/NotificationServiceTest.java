@@ -10,10 +10,8 @@ import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.auth.Role;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
-import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.model.event.*;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -21,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -43,9 +42,14 @@ public class NotificationServiceTest {
     @Mock
     private UserAppRepository userAppRepository;
 
+    @Mock
+    private EtudiantRepository etudiantRepository;
+
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
     private Gestionnaire gestionnaire;
+    private Employeur employeur;
+    private Notification notificationEmployeur;
     private Notification notificationWithoutUser;
     private Notification notificationWithUser;
 
@@ -62,6 +66,75 @@ public class NotificationServiceTest {
         notificationWithUser.setId(2L);
         gestionnaire = new Gestionnaire(3L,"Patrick","Mesange","Patrick.Mesange@hotmail.com","NoNeed","450-254-5874");
         gestionnaire.setId(3L);
+        employeur = Employeur.builder()
+                .firstName("Roger")
+                .lastName("Malinois")
+                .email("Roger.Malinois@hotmail.com")
+                .password("test")
+                .build();
+        employeur.setId(10L);
+        notificationEmployeur = new Notification(
+                "notification.employeur.nouvelleCandidature.title",
+                "notification.employeur.nouvelleCandidature.description",
+                NotificationType.NOUVELLE_CANDIDATURE,
+                LocalDateTime.now(), "/employeur", employeur, Role.EMPLOYEUR,
+                Map.of(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
+                        VariableMapKey.OFFRE_TITRE, "Developpeur Java"));
+        notificationEmployeur.setId(40L);
+    }
+
+    @Test
+    void doitCreerNotificationPourEmployeurLorsNouvelleCandidature() {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(20L);
+        offre.setTitle("Developpeur Java");
+        offre.setEmployeur(employeur);
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(30L);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationEmployeur);
+
+        NotificationDTO notificationDTO = notificationService.handleNouvelleCandidatureEvent(
+                new NouvelleCandidatureEvent(candidature));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(employeur);
+        assertThat(notification.getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.NOUVELLE_CANDIDATURE);
+        assertThat(notification.getTitre()).isEqualTo("notification.employeur.nouvelleCandidature.title");
+        assertThat(notification.getDescription()).isEqualTo("notification.employeur.nouvelleCandidature.description");
+        assertThat(notification.getUrlCible()).isEqualTo("/employeur");
+        assertThat(notification.getVariables()).isEqualTo(notificationEmployeur.getVariables());
+        assertThat(notification.isEstLu()).isFalse();
+        assertThat(notification.getDateNotifiee()).isNotNull();
+        assertThat(notificationDTO).isEqualTo(NotificationDTO.of(notificationEmployeur));
+    }
+
+    @Test
+    void doitRecevoirNotificationsParDestinatairePourEmployeur() throws UtilisateurIntrouvableException, AucunRoleDefini {
+        when(userAppRepository.findById(employeur.getId())).thenReturn(Optional.of(employeur));
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(notificationEmployeur));
+
+        List<NotificationDTO> notificationDTOList = notificationService.recevoirNotifications(employeur.getId());
+
+        assertThat(notificationDTOList.size()).isEqualTo(1);
+        assertThat(notificationDTOList.getFirst()).isEqualTo(NotificationDTO.of(notificationEmployeur));
+        verify(notificationRepository).getNotificationByDestinataire(employeur);
+        verify(notificationRepository, never()).getNotificationByRole(any());
+    }
+
+    @Test
+    void doitCompterNotificationsParDestinatairePourEmployeur() throws UtilisateurIntrouvableException, AucunRoleDefini {
+        when(userAppRepository.findById(employeur.getId())).thenReturn(Optional.of(employeur));
+        when(notificationRepository.totalByUser(employeur)).thenReturn(2L);
+
+        Long nombreDeNotification = notificationService.compterNotifications(employeur.getId());
+
+        assertThat(nombreDeNotification).isEqualTo(2L);
+        verify(notificationRepository).totalByUser(employeur);
+        verify(notificationRepository, never()).totalByRole(any());
     }
 
     @Test
@@ -97,7 +170,7 @@ public class NotificationServiceTest {
         String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
 
 
-        CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
+        CvSupprimerSoNotificationGestionnaire event = new CvSupprimerSoNotificationGestionnaire(expectedUrl);
 
         notificationService.handleCvSupprimerSoNotification(event);
 
@@ -282,4 +355,56 @@ public class NotificationServiceTest {
 
         verify(notificationRepository).save(any(Notification.class));
     }
+
+
+    @Test
+    void doitCreerUneNotificationLorsApprobationNouvelleOffre() {
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .domain(Departement.INFORMATIQUE)
+                .statut(Statut.ACCEPTEE)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        offre.setId(10L);
+
+        Notification notification = new Notification(
+                "notification.etudiant.nouvelleOffre.titre",
+                "notification.etudiant.nouvelleOffre.description",
+                NotificationType.NOUVELLE_OFFRE_STAGE,
+                LocalDateTime.now(),
+                ControllerPath.ETUDIANT_OFFRES.build(),
+                etudiant,
+                Role.ETUDIANT,
+                Map.of(
+                        VariableMapKey.OFFRE_ID, "10",
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                )
+        );
+
+        notification.setId(6L);
+
+        when(etudiantRepository.findAllByDepartmentAndCv_Statut(
+                Departement.INFORMATIQUE,
+                Statut.ACCEPTEE
+        )).thenReturn(List.of(etudiant));
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notification);
+
+        OffreDeStageApprouveeEvent event =
+                new OffreDeStageApprouveeEvent(offre);
+
+        notificationService.handleOffreDeStageApprouvee(event);
+
+        verify(etudiantRepository).findAllByDepartmentAndCv_Statut(
+                Departement.INFORMATIQUE,
+                Statut.ACCEPTEE
+        );
+
+        verify(notificationRepository).save(any(Notification.class));
+    }
+
 }
