@@ -231,8 +231,8 @@ public class NotificationService {
                     .variables(Map.of(
                             VariableMapKey.ETUDIANT_NOM,
                             etudiant.getFirstName() + " " + etudiant.getLastName(),
-                            VariableMapKey.OFFRE_TITRE,
-                            offre.getTitle()
+                            VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                            VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
                     ))
                     .build();
 
