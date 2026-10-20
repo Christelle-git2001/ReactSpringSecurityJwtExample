@@ -11,6 +11,7 @@ import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { useLocation, useNavigate } from "react-router-dom";
+import {getNotifications,marquerNotificationLue} from "../../api/notification.jsx";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
@@ -37,7 +38,27 @@ const EtudiantHome = ({ user }) => {
             .catch(console.error);
     }, []);
 
+
+    const marquerNotificationOffreCommeLue = async (offreId) => {
+        try {
+            const notifications = await getNotifications(user.id);
+            const notification = notifications.find((item) =>
+                item.notificationType === "NOUVELLE_OFFRE_STAGE" &&
+                String(item.variables?.OFFRE_ID) === String(offreId) &&
+                !item.estLu
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+            }
+        } catch (error) {
+            console.error("Erreur lors du marquage :", error);
+        }
+    };
+
+
     const handleView = async (offer) => {
+        await marquerNotificationOffreCommeLue(offer.id);
         openDrawer(
             <OffreDetailsDrawerContent
                 offer={offer}
@@ -59,7 +80,7 @@ const EtudiantHome = ({ user }) => {
         if (offre) {
             handleView(offre);
         }
-    }, [offres, idsPostules, openDrawer]);
+    }, [offres, handleView]);
 
 
 
