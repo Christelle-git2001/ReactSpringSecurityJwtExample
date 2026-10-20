@@ -383,7 +383,7 @@
       },
       "soumettreOffre": {
         "title": "New internship offer to review",
-        "description": "A new internship offer for the position '{{OFFRE_TITRE}}' has been submitted"
+        "description": "A new internship offer or the position of '{{OFFRE_TITRE}}' at the company: '{{EMPLOYEUR_NOM}}' has been submitted"
       }
     }
   },

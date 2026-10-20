@@ -385,7 +385,7 @@
       },
         "soumettreOffre": {
             "title": "Nouvelle offre à valider",
-            "description": "Une nouvelle offre de stage pour le poste de '{{OFFRE_TITRE}}' a été soumise."
+            "description": "Une nouvelle offre de stage pour le poste de '{{OFFRE_TITRE}}' de la compagnie : '{{EMPLOYEUR_NOM}}' a été soumise."
         }
     }
   },

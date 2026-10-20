@@ -125,6 +125,7 @@ public class NotificationService {
             NouvelleOffreTeleverseeEvent event) {
 
         OffreDeStage offre = event.offre();
+        Employeur employeur = offre.getEmployeur();
 
         Notification notification = Notification.builder()
                 .titre("notification.gestionnaire.offre.title")
@@ -136,7 +137,8 @@ public class NotificationService {
                         .build(String.valueOf(offre.getId())))
                 .variables(Map.of(
                         VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
-                        VariableMapKey.OFFRE_TITRE, offre.getTitle()
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.EMPLOYEUR_NOM, employeur.getBusinessName()
                 ))
                 .build();
 
