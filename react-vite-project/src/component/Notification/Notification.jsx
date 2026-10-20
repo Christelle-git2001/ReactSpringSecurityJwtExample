@@ -11,7 +11,8 @@ import {FaCheck, FaQuestion} from "react-icons/fa";
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
-    CV_STATUT_CHANGE: "/etudiant/cv#televerser"
+    CV_STATUT_CHANGE: "/etudiant/cv#televerser",
+    NOUVELLE_OFFRE_STAGE: "/etudiant",
 };
 
 const CONFIG_PAR_TYPE = {
@@ -34,7 +35,11 @@ const CONFIG_PAR_TYPE = {
     CV_STATUT_CHANGE: {
         icon : <FaQuestion />,
         tone : "yellow"
-    }
+    },
+    NOUVELLE_OFFRE_STAGE: {
+            icon: <FiBriefcase className="size-5" />,
+            tone: "green",
+    },
 };
 
 export default function Notification({ userId, onClose }) {
@@ -142,6 +147,40 @@ export default function Notification({ userId, onClose }) {
                 : "notifications.open_error");
         }
     }
+
+    const ouvrirNouvelleOffre = async (notification) => {
+            const destination = ROUTES_PAR_TYPE[notification.notificationType];
+            const offreId = notification.variables?.OFFRE_ID;
+
+            if (!destination || !offreId) {
+                setError("notifications.open_error");
+                return;
+            }
+
+            try {
+                if (!notification.estLu) {
+                    await marquerNotificationLue(notification.id);
+
+                    setNotifications(current =>
+                        current.filter(item => item.id !== notification.id)
+                    );
+                }
+
+                onClose?.();
+
+                navigate(destination, {
+                    state: {
+                        offreId,
+                        from: "/etudiant",
+                    },
+                });
+            } catch {
+                setError("notifications.read_error");
+            }
+        };
+
+
+
 
 
     useEffect(() => {
@@ -261,12 +300,19 @@ export default function Notification({ userId, onClose }) {
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
-                                        if (isCv) ouvrirCv(notification);
-                                        else if
-                                        (isOffre) ouvrirOffre(notification);
-                                        else if (isStatusChange) ouvrirCvEtudiant(notification);
-
-                                    }}
+                                        if (isCv) {
+                                            ouvrirCv(notification);
+                                        } else if (isOffre) {
+                                            ouvrirOffre(notification);
+                                        } else if (isStatusChange) {
+                                            ouvrirCvEtudiant(notification);
+                                        } else if (
+                                            notification.notificationType === "NOUVELLE_OFFRE_STAGE"
+                                        ) {
+                                            ouvrirNouvelleOffre(notification);
+                                        }
+                                    }
+                                }
                                 />
                             </li>
                         );

@@ -398,6 +398,10 @@
         "description_acceptee": "Félicitations, votre CV a été validé !",
         "title_refusee": "Votre CV a été refusé",
         "description_refusee": "Pour connaître les motifs du refus, veuillez consulter cette notification."
+      },
+      "nouvelleOffre": {
+        "titre": "Nouvelle offre de stage",
+        "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
       }
     }
   },

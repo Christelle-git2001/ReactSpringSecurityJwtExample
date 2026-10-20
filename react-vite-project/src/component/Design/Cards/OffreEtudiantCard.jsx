@@ -46,9 +46,16 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
                         onDownload={() => gererTelechargement(offer?.fileName)}
                     />
 
-                    <div className="flex justify-between items-baseline mt-2">
-                        <h2 className="text-2l font-bold text-[#043462]">{offer?.title}</h2>
-                        <span className="text-2l font-bold">{offer?.salary} $ / h</span>
+                    <div className="flex justify-between items-center gap-2 mt-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h2 className="text-2l font-bold text-[#043462]">
+                                {offer?.title}
+                            </h2>
+                        </div>
+
+                        <span className="text-2l font-bold shrink-0">
+                            {offer?.salary} $ / h
+                        </span>
                     </div>
 
                     <ul className="mt-6 flex flex-col gap-2 text-xs">

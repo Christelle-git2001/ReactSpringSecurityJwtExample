@@ -71,6 +71,7 @@ public class NotificationServiceTest {
                 .lastName("Malinois")
                 .email("Roger.Malinois@hotmail.com")
                 .password("test")
+                .businessName("Malinois Inc")
                 .build();
         employeur.setId(10L);
         notificationEmployeur = new Notification(
@@ -362,6 +363,7 @@ public class NotificationServiceTest {
         OffreDeStage offre = OffreDeStage.builder()
                 .title("Développeur frontend")
                 .description("Développement d'une application web")
+                .employeur(employeur)
                 .salary(25.0)
                 .domain(Departement.INFORMATIQUE)
                 .statut(Statut.ACCEPTEE)
@@ -380,7 +382,8 @@ public class NotificationServiceTest {
                 Role.ETUDIANT,
                 Map.of(
                         VariableMapKey.OFFRE_ID, "10",
-                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend",
+                        VariableMapKey.EMPLOYEUR_NOM, employeur.getBusinessName()
                 )
         );
 
