@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.repository;
 
+import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
+import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
@@ -21,4 +23,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     Long totalByUser(UserApp userApp);
 
     void deleteByUrlCible(String urlCible);
+
+    void deleteNotificationByNotificationTypeAndDestinataire(NotificationType notificationType, UserApp destinataire);
 }

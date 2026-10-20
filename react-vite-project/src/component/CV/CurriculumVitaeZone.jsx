@@ -16,6 +16,7 @@ const CurriculumVitaeZone = ({onSend}) => {
     };
 
     const handleCvSupprime = () => {
+
         setCv(null);
         setError(null);
     };
