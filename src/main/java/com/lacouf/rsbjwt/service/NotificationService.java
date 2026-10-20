@@ -144,7 +144,9 @@ public class NotificationService {
                             VariableMapKey.OFFRE_ID,
                             String.valueOf(offre.getId()),
                             VariableMapKey.OFFRE_TITRE,
-                            offre.getTitle()
+                            offre.getTitle(),
+                            VariableMapKey.ENTREPRISE_NOM,
+                            offre.getEmployeur().getBusinessName()
                     )
             );
 

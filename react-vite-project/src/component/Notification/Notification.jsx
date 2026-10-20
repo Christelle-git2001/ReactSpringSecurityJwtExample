@@ -301,17 +301,19 @@ export default function Notification({ userId, onClose }) {
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
-                                        if (isCv) ouvrirCv(notification);
-                                        else if
-                                        (isOffre) ouvrirOffre(notification);
-                                        else if (isStatusChange) ouvrirCvEtudiant(notification);
+                                        if (isCv) {
+                                            ouvrirCv(notification);
+                                        } else if (isOffre) {
+                                            ouvrirOffre(notification);
+                                        } else if (isStatusChange) {
+                                            ouvrirCvEtudiant(notification);
                                         } else if (
                                             notification.notificationType === "NOUVELLE_OFFRE_STAGE"
-                                            ) {ouvrirNouvelleOffre(notification);
-
+                                        ) {
+                                            ouvrirNouvelleOffre(notification);
                                         }
-
-                                    }}
+                                    }
+                                }
                                 />
                             </li>
                         );

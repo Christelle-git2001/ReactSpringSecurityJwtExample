@@ -393,7 +393,13 @@
         "description_acceptee": "Congratulations, your CV has been validated!",
         "title_refusee": "Your CV has been rejected",
         "description_refusee": "To find out the reason for the refusal, please click on this notification."
+      },
+
+      "nouvelleOffre": {
+        "titre": "New Internship Opportunity",
+        "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
       }
+
     }
   },
   "drawer": {
