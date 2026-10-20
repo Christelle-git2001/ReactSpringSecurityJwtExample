@@ -1,8 +1,12 @@
 package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.Exception.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.*;
 //import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.service.EmployeurService;
@@ -121,6 +125,33 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
+
+        CreationOffreDeStageDTO dto3 = new CreationOffreDeStageDTO(
+                "Technician Reseaux",
+                "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
+                20.00,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(5),    // Début dans 5 jours
+                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
+                LocalDate.now().minusDays(2)     // Affichage -2 jour
+        );
+        Employeur employeur = employeurRepository.findByEmail("Roger.Malinois@hotmail.com").orElseThrow(EmployeurIntrouvable::new);
+        OffreDeStage offreDeStage = new OffreDeStage("Technician Reseaux",
+                "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
+                20.0,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(5),    // Début dans 5 jours
+                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
+                LocalDate.now().minusDays(2),    // Affichage -2 jour
+                Statut.ACCEPTEE,
+                 "offre.pdf",
+                "uploads/offres",
+                employeur,
+                "",
+                LocalDateTime.now()
+        );
+
+       offreDeStageRepository.save(offreDeStage);
 
     }
 }
