@@ -198,7 +198,10 @@ export default function Notification({ userId, onClose }) {
                         (data ?? []).filter(notification => !notification.estLu)
                     );
                 }
-            } catch {
+            } catch (err) {
+                if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                    navigate("/login");
+                }
                 if (notificationsStillDisplayed) {
                     setError("notifications.load_error");
                 }

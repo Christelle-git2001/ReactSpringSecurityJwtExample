@@ -30,9 +30,15 @@ function EditOffer() {
             currentFileName={offer.fileName}
             requireFile={false}
             onSubmit={(dto, file) =>
-                modifierOffreEmployeur(offer.id, dto, file).then(() =>
-                    navigate("/employeur")
-                )
+                modifierOffreEmployeur(offer.id, dto, file)
+                    .then(() => {
+                        navigate("/employeur");
+                    })
+                    .catch((err) => {
+                        if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                            navigate("/login");
+                        }
+                    })
             }
             onCancel={() => navigate("/employeur")}
         />

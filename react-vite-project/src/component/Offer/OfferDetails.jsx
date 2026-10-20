@@ -60,9 +60,14 @@ function OfferDetails({ offre: offreProp }) {
             }
         } catch (err) {
             console.error("Erreur lors de la mise à jour de l'offre:", err);
-            setErrors({
-                api: t("offre.errors.api_generic")
-            });
+            if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                navigate("/login");
+            }
+            else {
+                setErrors({
+                    api: t("offre.errors.api_generic")
+                });
+            }
         } finally {
             setIsLoading(false);
         }
