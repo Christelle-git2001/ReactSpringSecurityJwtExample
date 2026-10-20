@@ -4,6 +4,7 @@ import { getNotifications, marquerNotificationLue } from "../../api/notification
 import {FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
+import { getCandidaturesEmployeur } from "../../api/employeur.jsx"
 import ListItem from "../Design/Lists/ListItem.jsx";
 import {ImCross} from "react-icons/im";
 import {FaCheck, FaQuestion} from "react-icons/fa";
@@ -186,6 +187,7 @@ export default function Notification({ userId, onClose }) {
 
     const ouvrirCandidature = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        const candidatureId = notification.variables?.CANDIDATURE_ID;
 
         if (!destination) {
             setError("error.notification_path");
@@ -193,6 +195,9 @@ export default function Notification({ userId, onClose }) {
         }
 
         try {
+            const candidatures = await getCandidaturesEmployeur();
+            const candidature = candidatures.find(c => c.id === Number(candidatureId));
+
             if (!notification.estLu) {
                 await marquerNotificationLue(notification.id);
                 setNotifications(current =>
@@ -201,7 +206,12 @@ export default function Notification({ userId, onClose }) {
             }
 
             onClose?.();
-            navigate(destination);
+            navigate(destination,{
+                state: {
+                    candidature,
+                    from: "/employeur",
+                },
+            });
         } catch {
             setError("notifications.read_error");
         }
