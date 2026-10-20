@@ -5,6 +5,7 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
+import {FaCheckCircle} from "react-icons/fa";
 
 function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
     const { t } = useTranslation();
@@ -31,6 +32,14 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
     return (
         <>
             <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+
+                {hasApplied && (
+                    <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 shadow-sm border border-green-200">
+                        <FaCheckCircle className="size-3.5" />
+                        <span>{t("offre.application_sent", "Candidature envoyée")}</span>
+                    </div>
+                )}
+
                 <div className="card-body">
                     <PdfActionButtons
                         onView={viewPDF}

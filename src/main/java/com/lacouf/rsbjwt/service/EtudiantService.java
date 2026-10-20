@@ -10,6 +10,7 @@ import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationEtudiant;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -248,8 +249,11 @@ public class EtudiantService {
         Candidature candidatureEnregistree =
                 candidatureRepository.save(candidature);
 
-        return CandidatureDTO.of(candidatureEnregistree);
+        eventPublisher.publishEvent(
+                new NouvelleCandidatureEvent(candidatureEnregistree)
+        );
 
+        return CandidatureDTO.of(candidatureEnregistree);
     }
 
     public List<CandidatureDTO> getCandidaturesEtudiant(String email)

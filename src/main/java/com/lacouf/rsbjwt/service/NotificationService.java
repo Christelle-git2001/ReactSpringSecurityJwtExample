@@ -77,6 +77,29 @@ public class NotificationService {
 
     @EventListener
     @Transactional
+    public NotificationDTO handleOffreStatutModifie(OffreStatutModifieEvent event) {
+        OffreDeStage offre = event.offre();
+        UserApp destinataire = event.destinataire();
+
+        Notification notification = Notification.builder()
+                .titre("notification.employeur.validation.title_" + event.statut().name().toLowerCase())
+                .description("notification.employeur.validation.description_" + event.statut().name().toLowerCase())
+                .notificationType(NotificationType.OFFRE_STATUT_CHANGE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .urlCible("/employeur/offres")
+                .destinataire(destinataire)
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.STATUT_FICHIER, event.statut().name()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
    public void handleCvSupprimerSoNotification(CvSupprimerSoNotificationGestionnaire event){
         notificationRepository.deleteByUrlCible(event.navigationPath());
     }
@@ -117,8 +140,6 @@ public class NotificationService {
 
         return NotificationDTO.of(notificationRepository.save(notification));
     }
-
-
 
     @EventListener
     @Transactional
@@ -192,4 +213,31 @@ public class NotificationService {
 
 
 
+    @EventListener
+    @Transactional
+    public NotificationDTO handleNouvelleCandidatureEvent(NouvelleCandidatureEvent event) {
+            Candidature candidature = event.candidature();
+            OffreDeStage offre = candidature.getOffreDeStage();
+            Etudiant etudiant = candidature.getEtudiant();
+
+            Notification notification = Notification.builder()
+                    .titre("notification.employeur.nouvelleCandidature.title")
+                    .description("notification.employeur.nouvelleCandidature.description")
+                    .notificationType(NotificationType.NOUVELLE_CANDIDATURE)
+                    .role(Role.EMPLOYEUR)
+                    .destinataire(offre.getEmployeur())
+                    .dateCreaction(LocalDateTime.now())
+                    .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
+                    .variables(Map.of(
+                            VariableMapKey.ETUDIANT_NOM,
+                            etudiant.getFirstName() + " " + etudiant.getLastName(),
+                            VariableMapKey.OFFRE_TITRE,
+                            offre.getTitle()
+                    ))
+                    .build();
+
+            return NotificationDTO.of(
+                    notificationRepository.save(notification)
+            );
+    }
 }
