@@ -1,20 +1,16 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Gestionnaire;
-import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
-import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
-import com.lacouf.rsbjwt.repository.GestionnaireRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,8 +18,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,9 +36,12 @@ public class GestionnaireService {
     private final GestionnaireRepository gestionnaireRepository;
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final EmployeurRepository employeurRepository;
+    private final EtudiantRepository etudiantRepository;
+    private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
-                               ApplicationEventPublisher applicationEventPublisher){
+                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -46,6 +49,8 @@ public class GestionnaireService {
         this.gestionnaireRepository = gestionnaireRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.employeurRepository = employeurRepository;
+        this.etudiantRepository = etudiantRepository;
     }
 
     @Transactional
@@ -219,4 +224,87 @@ public class GestionnaireService {
 
         return OffreDeStageDTO.of(offre);
     }
+
+    @Transactional
+    public OffreDeStageDTO creerOffreCiblee(
+            CreationOffreCibleeDTO creationOffreCibleeDTO,
+            MultipartFile file
+    ) throws FichierCorrompuException, FichierTypeInvalideException, IOException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateFinAvantDateDebutException, DateDebutAvantAujourdhuiException, UtilisateurIntrouvableException {
+
+        Employeur employeur = employeurRepository.findById(creationOffreCibleeDTO.employeurId())
+                .orElseThrow(() -> new UtilisateurIntrouvableException());
+
+        Etudiant etudiant = etudiantRepository.findById(creationOffreCibleeDTO.etudiantId())
+                .orElseThrow(() -> new UtilisateurIntrouvableException());
+
+        validerDates(creationOffreCibleeDTO);
+
+        if (file == null || file.isEmpty()) {
+            throw new FichierCorrompuException();
+        }
+
+        Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
+        String storagePath = path.toString();
+        String fileName = file.getOriginalFilename();
+
+        OffreCiblee offre = OffreCiblee.builder()
+                .title(creationOffreCibleeDTO.title())
+                .description(creationOffreCibleeDTO.description())
+                .salary(creationOffreCibleeDTO.salary())
+                .domain(creationOffreCibleeDTO.domain())
+                .startDate(creationOffreCibleeDTO.startDate())
+                .endDate(creationOffreCibleeDTO.endDate())
+                .displayEndDate(creationOffreCibleeDTO.displayEndDate())
+                .statut(Statut.EN_ATTENTE)
+                .fileName(fileName)
+                .storagePath(storagePath)
+                .employeur(employeur)
+                .isTarget(true)
+                .etudiant(etudiant)
+                .build();
+
+        OffreCiblee saved = offreDeStageRepository.save(offre);
+
+        applicationEventPublisher.publishEvent(new NouvelleOffreTeleverseeEvent(saved));
+
+        return OffreDeStageDTO.of(saved);
+    }
+
+    private void validerDates(CreationOffreCibleeDTO creationOffreCibleeDTO)
+            throws DateFinAvantDateDebutException, DateFinAffichageAvantAujourdhuiException,
+            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+
+        if (creationOffreCibleeDTO.startDate().isBefore(LocalDate.now())) {
+            throw new DateDebutAvantAujourdhuiException();
+        }
+
+        if (!creationOffreCibleeDTO.endDate().isAfter(creationOffreCibleeDTO.startDate())) {
+            throw new DateFinAvantDateDebutException();
+        }
+
+        if (creationOffreCibleeDTO.displayEndDate().isBefore(LocalDate.now())) {
+            throw new DateFinAffichageAvantAujourdhuiException();
+        }
+
+        if (creationOffreCibleeDTO.displayEndDate().isAfter(creationOffreCibleeDTO.startDate())) {
+            throw new DateFinAffichageApresDateDebutException();
+        }
+    }
+
+    public List<EtudiantDTO> getAllEtudiants() {
+        return etudiantRepository.findAll()
+                .stream()
+                .map(EtudiantDTO::of)
+                .toList();
+    }
+
+    public List<EmployeurDTO> getAllEmployeurs() {
+        return employeurRepository.findAll()
+                .stream()
+                .map(EmployeurDTO::of)
+                .toList();
+    }
+
+
+
 }
