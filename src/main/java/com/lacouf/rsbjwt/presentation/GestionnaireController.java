@@ -3,13 +3,17 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.*;
+import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -114,5 +118,26 @@ public class GestionnaireController {
     public OffreDeStageDTO getOffreParId(@PathVariable Long id)
             throws OffreIntrouvableException {
         return gestionnaireService.getOffreParId(id);
+    }
+
+    @GetMapping("/employeurs")
+    public List<EmployeurDTO> getAllEmployeurs(){
+        return gestionnaireService.getAllEmployeurs();
+    }
+
+    @GetMapping("/etudiants")
+    public List<EtudiantDTO> getAllEtudiants(){
+        return gestionnaireService.getAllEtudiants();
+    }
+
+    @PostMapping(value = "/offres", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<OffreDeStageDTO> creerOffreCiblee(
+            @Valid @RequestPart("offre") CreationOffreCibleeDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
+            FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
+            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException, UtilisateurIntrouvableException {
+        OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
 }
