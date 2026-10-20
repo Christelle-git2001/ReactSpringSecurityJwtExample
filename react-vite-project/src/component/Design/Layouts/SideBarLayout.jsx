@@ -36,7 +36,7 @@ function SideBarLayout({ user }) {
     useEffect(() => {
         let actif = true;
 
-        if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT"].includes(role)) {
+        if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role)) {
             setNombreNotifications(0);
             return;
         }
@@ -113,7 +113,7 @@ function SideBarLayout({ user }) {
                 <div className="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">
                     <ul className="menu w-full grow">
 
-                        {user?.isLoggedIn && ["GESTIONNAIRE", "ETUDIANT"].includes(role) && (
+                        {user?.isLoggedIn && ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role) && (
                             <li>
                                 <button
                                     type="button"
