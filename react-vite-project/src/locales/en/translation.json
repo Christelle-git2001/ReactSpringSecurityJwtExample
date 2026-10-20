@@ -282,6 +282,7 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "application_sent": "Application sent",
     "already_applied": "You have already applied",
     "apply": "Apply",
     "employeur": "Company",

@@ -36,7 +36,7 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
                 {hasApplied && (
                     <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 shadow-sm border border-green-200">
                         <FaCheckCircle className="size-3.5" />
-                        <span>{t("offre.application_sent", "Candidature envoyée")}</span>
+                        <span>{t("offre.application_sent")}</span>
                     </div>
                 )}
 
