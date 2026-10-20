@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -47,6 +48,8 @@ public class NotificationServiceTest {
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
     private Gestionnaire gestionnaire;
+    private Employeur employeur;
+    private Notification notificationEmployeur;
     private Notification notificationWithoutUser;
     private Notification notificationWithUser;
 
@@ -63,6 +66,75 @@ public class NotificationServiceTest {
         notificationWithUser.setId(2L);
         gestionnaire = new Gestionnaire(3L,"Patrick","Mesange","Patrick.Mesange@hotmail.com","NoNeed","450-254-5874");
         gestionnaire.setId(3L);
+        employeur = Employeur.builder()
+                .firstName("Roger")
+                .lastName("Malinois")
+                .email("Roger.Malinois@hotmail.com")
+                .password("test")
+                .build();
+        employeur.setId(10L);
+        notificationEmployeur = new Notification(
+                "notification.employeur.nouvelleCandidature.title",
+                "notification.employeur.nouvelleCandidature.description",
+                NotificationType.NOUVELLE_CANDIDATURE,
+                LocalDateTime.now(), "/employeur", employeur, Role.EMPLOYEUR,
+                Map.of(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
+                        VariableMapKey.OFFRE_TITRE, "Developpeur Java"));
+        notificationEmployeur.setId(40L);
+    }
+
+    @Test
+    void doitCreerNotificationPourEmployeurLorsNouvelleCandidature() {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(20L);
+        offre.setTitle("Developpeur Java");
+        offre.setEmployeur(employeur);
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(30L);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationEmployeur);
+
+        NotificationDTO notificationDTO = notificationService.handleNouvelleCandidatureEvent(
+                new NouvelleCandidatureEvent(candidature));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(employeur);
+        assertThat(notification.getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.NOUVELLE_CANDIDATURE);
+        assertThat(notification.getTitre()).isEqualTo("notification.employeur.nouvelleCandidature.title");
+        assertThat(notification.getDescription()).isEqualTo("notification.employeur.nouvelleCandidature.description");
+        assertThat(notification.getUrlCible()).isEqualTo("/employeur");
+        assertThat(notification.getVariables()).isEqualTo(notificationEmployeur.getVariables());
+        assertThat(notification.isEstLu()).isFalse();
+        assertThat(notification.getDateNotifiee()).isNotNull();
+        assertThat(notificationDTO).isEqualTo(NotificationDTO.of(notificationEmployeur));
+    }
+
+    @Test
+    void doitRecevoirNotificationsParDestinatairePourEmployeur() throws UtilisateurIntrouvableException, AucunRoleDefini {
+        when(userAppRepository.findById(employeur.getId())).thenReturn(Optional.of(employeur));
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(notificationEmployeur));
+
+        List<NotificationDTO> notificationDTOList = notificationService.recevoirNotifications(employeur.getId());
+
+        assertThat(notificationDTOList.size()).isEqualTo(1);
+        assertThat(notificationDTOList.getFirst()).isEqualTo(NotificationDTO.of(notificationEmployeur));
+        verify(notificationRepository).getNotificationByDestinataire(employeur);
+        verify(notificationRepository, never()).getNotificationByRole(any());
+    }
+
+    @Test
+    void doitCompterNotificationsParDestinatairePourEmployeur() throws UtilisateurIntrouvableException, AucunRoleDefini {
+        when(userAppRepository.findById(employeur.getId())).thenReturn(Optional.of(employeur));
+        when(notificationRepository.totalByUser(employeur)).thenReturn(2L);
+
+        Long nombreDeNotification = notificationService.compterNotifications(employeur.getId());
+
+        assertThat(nombreDeNotification).isEqualTo(2L);
+        verify(notificationRepository).totalByUser(employeur);
+        verify(notificationRepository, never()).totalByRole(any());
     }
 
     @Test
@@ -98,7 +170,7 @@ public class NotificationServiceTest {
         String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
 
 
-        CvSupprimerSoNotification event = new CvSupprimerSoNotification(expectedUrl);
+        CvSupprimerSoNotificationGestionnaire event = new CvSupprimerSoNotificationGestionnaire(expectedUrl);
 
         notificationService.handleCvSupprimerSoNotification(event);
 

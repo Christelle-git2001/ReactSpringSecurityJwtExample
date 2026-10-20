@@ -5,6 +5,7 @@ import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 import { addEtudiant, addProfesseur, addEmployeur } from "./utils/userService.js";
 import Drawer from "./component/Design/Drawer.jsx";
+import {Toaster} from "react-hot-toast";
 
 function App() {
     const { user, setUser, error, setError } = useAuth();
@@ -37,6 +38,7 @@ function App() {
                 openDrawer={setDrawerContent}
             />
             <Drawer id="my-drawer-5" content={drawerContent} />
+            <Toaster />
         </div>
     );
 }

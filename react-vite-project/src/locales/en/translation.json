@@ -160,6 +160,7 @@
     "department_invalid": "The selected department is invalid.",
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
+    "notification_path": "The destination of this notification does not exist. Please try again later.",
     "rejection_comment_required": "A comment is required when rejecting a CV."
   },
   "success": {
@@ -348,6 +349,9 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
+    },
+    "toast" : {
+      "waiting_validation": "CV submitted, pending review."
     }
   },
   "candidature": {
@@ -368,9 +372,10 @@
     "title": "Notifications",
     "generic_message": "You have received an new offer to validate .",
     "empty": "No notifications",
+    "offre_unavailable": "The offer associated with this notification is no longer available.",
     "load_error": "Unable to load notifications.",
     "cv_unavailable": "The CV associated with this notification is no longer available.",
-    "open_error": "Unable to open the CV. Please try again.",
+    "open_error": "Unable to open the document. Please try again.",
     "read_error": "Unable to mark the notification as read.",
     "sort_by_date": "Sort by date",
     "newest_first": "Newest first",
@@ -378,9 +383,21 @@
   },
   "notification": {
     "gestionnaire": {
+      "offre": {
+        "title": "New offer to review",
+        "description": "The offer “{{OFFRE_TITRE}}” is awaiting review."
+      },
       "televerserCV": {
         "title": "New CV to review",
         "description": "{{ETUDIANT_NOM}} has uploaded a CV."
+      }
+    },
+    "etudiant":{
+      "validation": {
+        "title_acceptee": "Your CV has been accepted",
+        "description_acceptee": "Congratulations, your CV has been validated!",
+        "title_refusee": "Your CV has been rejected",
+        "description_refusee": "To find out the reason for the refusal, please click on this notification."
       }
     }
   },

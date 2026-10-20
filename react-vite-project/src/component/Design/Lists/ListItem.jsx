@@ -20,6 +20,24 @@ const toneClasses = {
         action: "text-amber-600 hover:bg-amber-50",
         gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
     },
+    red: {
+        border: "border-base-300",
+        icon: "bg-red-100 text-red-600",
+        action: "text-red-600 hover:bg-red-950",
+        gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
+    },
+    yellow: {
+        border: "border-base-300",
+        icon: "bg-yellow-100 text-yellow-600",
+        action: "text-yellow-600 hover:bg-yellow-950",
+        gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
+    },
+    navy: {
+        border: "border-base-300",
+        icon: "bg-navy-100 text-navy-600",
+        action: "text-navy-600 hover:bg-navy-50",
+        gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
+    }
 };
 
 function ListItem({

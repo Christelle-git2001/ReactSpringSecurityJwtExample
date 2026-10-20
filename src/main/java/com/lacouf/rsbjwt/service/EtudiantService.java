@@ -7,8 +7,10 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationEtudiant;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -114,6 +116,9 @@ public class EtudiantService {
             throw new CurriculumVitaeDejaApprouveException();
         }
 
+        if (cv.getId() != null && cv.getStatut() == Statut.REFUSEE)
+            eventPublisher.publishEvent(new CvSupprimerSoNotificationEtudiant(etudiant));
+
         supprimerAncienCv(cv, filePath);
 
         remplirInformationsCv(cv, file, filePath);
@@ -145,8 +150,9 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-       eventPublisher.publishEvent(new CvSupprimerSoNotification(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
-
+       eventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
+       if (cv.getStatut() != Statut.ACCEPTEE)
+           eventPublisher.publishEvent(new CvSupprimerSoNotificationEtudiant(etudiant));
 
         etudiant.setCv(null);
         cvEtudiantRepository.delete(cv);
@@ -243,8 +249,11 @@ public class EtudiantService {
         Candidature candidatureEnregistree =
                 candidatureRepository.save(candidature);
 
-        return CandidatureDTO.of(candidatureEnregistree);
+        eventPublisher.publishEvent(
+                new NouvelleCandidatureEvent(candidatureEnregistree)
+        );
 
+        return CandidatureDTO.of(candidatureEnregistree);
     }
 
     public List<CandidatureDTO> getCandidaturesEtudiant(String email)

@@ -1,3 +1,6 @@
 {
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "react-hot-toast": "^2.6.1"
+  }
 }

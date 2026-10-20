@@ -2,23 +2,42 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { obtenirCvInfo } from "../../api/etudiant.jsx";
 import CurriculumVitaeZone from "./CurriculumVitaeZone.jsx";
+import toast from "react-hot-toast";
 
 const CvOnLandingPage = () => {
     const { t } = useTranslation();
     const [ouvert, setOuvert] = useState(false);
+    const [error,setError] = useState("")
+    const [cv,setCV] = useState();
 
-    useEffect(() => {
-
-        obtenirCvInfo()
-            .catch((e) => {
-                if (e.status === 404) setOuvert(true);
-            });
+    useEffect( () => {
+        const fetchData = async() => {
+            const data = await obtenirCvInfo()
+                .catch((e) => {
+                    if (e.status === 404) {
+                        setOuvert(true);
+                    } else {
+                        setOuvert(true);
+                        setError("error.generic")
+                    }
+                });
+            if (data.statut === "REFUSEE")
+                setOuvert(true);
+        }
+        fetchData();
     }, []);
 
     const fermer = () => {
         setOuvert(false);
     };
 
+    const afficherToast = () => {
+        toast.success(t("cv.toast.waiting_validation"),{
+            position: 'bottom-center',
+            duration: 3000
+        })
+        fermer();
+    }
 
     if (!ouvert) return null;
 
@@ -29,7 +48,16 @@ const CvOnLandingPage = () => {
                 <h3 className="font-bold text-lg text-center">{t("etudiant.popup.popup_title")}</h3>
                 <p className="py-4 text-center">{t("etudiant.popup.popup_description")}</p>
                 <div className="modal-action">
-                <CurriculumVitaeZone/>
+                    {error ?
+                        (
+                            <p role="alert" className="text-sm text-red-700">
+                                {t(error)}
+                            </p>
+                        )
+                        :
+                        (
+                            <CurriculumVitaeZone onSend={afficherToast}/>
+                        )}
                 </div>
             </div>
         </dialog>

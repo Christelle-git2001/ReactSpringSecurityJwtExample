@@ -35,7 +35,7 @@ function PostulerButton({ offerId, hasApplied = false, onApplied }) {
 
     if (applied) {
         return (
-            <p className="text-center font-semibold text-red-600 py-2">
+            <p className="text-center font-semibold text-green-700 py-2">
                 {t("offre.already_applied")}
             </p>
         );
