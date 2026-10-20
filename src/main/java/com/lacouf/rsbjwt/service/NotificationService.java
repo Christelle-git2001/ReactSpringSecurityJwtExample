@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
+import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
@@ -15,8 +16,10 @@ import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
+import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
+import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +75,29 @@ public class NotificationService {
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleOffreStatutModifie(OffreStatutModifieEvent event) {
+        OffreDeStage offre = event.offre();
+        UserApp destinataire = event.destinataire();
+
+        Notification notification = Notification.builder()
+                .titre("notification.employeur.validation.title_" + event.statut().name().toLowerCase())
+                .description("notification.employeur.validation.description_" + event.statut().name().toLowerCase())
+                .notificationType(NotificationType.OFFRE_STATUT_CHANGE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .urlCible("/employeur/offres")
+                .destinataire(destinataire)
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.STATUT_FICHIER, event.statut().name()
+                ))
+                .build();
+
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 
