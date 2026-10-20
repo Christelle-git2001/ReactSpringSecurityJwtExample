@@ -6,9 +6,9 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder; // Import SuperBuilder
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,15 +17,13 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("OFFRE_CIBLEE")
 @Getter
 @NoArgsConstructor
+@SuperBuilder // <-- Change @Builder to @SuperBuilder
 public class OffreCiblee extends OffreDeStage {
 
-    private Boolean isTarget;
-
     @ManyToOne
-    @JoinColumn(name = "etudiant_id", nullable = false)
+    @JoinColumn(name = "etudiant_id", nullable = true)
     private Etudiant etudiant;
 
-    @Builder
     public OffreCiblee(
             String title,
             String description,
@@ -40,14 +38,11 @@ public class OffreCiblee extends OffreDeStage {
             Employeur employeur,
             String rejectionComment,
             LocalDateTime createdAt,
-            Boolean isTarget,
             Etudiant etudiant
     ) {
         super(title, description, salary, domain, startDate, endDate, displayEndDate,
                 statut, fileName, storagePath, employeur, rejectionComment, createdAt);
 
-        this.isTarget = isTarget;
         this.etudiant = etudiant;
     }
 }
-

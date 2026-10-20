@@ -82,7 +82,8 @@ public class EmployeurControllerTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                false
         );
 
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(

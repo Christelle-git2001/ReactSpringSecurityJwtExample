@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString
+@SuperBuilder
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type_offre")
 public class OffreDeStage {
@@ -67,7 +69,7 @@ public class OffreDeStage {
     @OneToMany(mappedBy = "offreDeStage", cascade = CascadeType.ALL)
     private List<Candidature> candidatures = new ArrayList<>();
 
-    @Builder
+
     public OffreDeStage(
             String title,
             String description,

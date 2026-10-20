@@ -259,7 +259,6 @@ public class GestionnaireService {
                 .fileName(fileName)
                 .storagePath(storagePath)
                 .employeur(employeur)
-                .isTarget(true)
                 .etudiant(etudiant)
                 .build();
 
