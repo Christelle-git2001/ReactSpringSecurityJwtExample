@@ -126,15 +126,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             System.out.println(e.getMessage());
         }
 
-        CreationOffreDeStageDTO dto3 = new CreationOffreDeStageDTO(
-                "Technician Reseaux",
-                "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
-                20.00,
-                Departement.INFORMATIQUE,
-                LocalDate.now().plusDays(5),    // Début dans 5 jours
-                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
-                LocalDate.now().minusDays(2)     // Affichage -2 jour
-        );
         Employeur employeur = employeurRepository.findByEmail("Roger.Malinois@hotmail.com").orElseThrow(EmployeurIntrouvable::new);
         OffreDeStage offreDeStage = new OffreDeStage("Technician Reseaux",
                 "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
