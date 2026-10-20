@@ -382,6 +382,12 @@
     "oldest_first": "Plus anciennes d’abord"
   },
   "notification": {
+    "employeur": {
+      "nouvelleCandidature": {
+        "title": "Nouvelle candidature",
+        "description": "{{ETUDIANT_NOM}} a postulé à votre offre : {{OFFRE_TITRE}}"
+      }
+    },
     "gestionnaire": {
       "offre": {
         "title": "Nouvelle offre à valider",

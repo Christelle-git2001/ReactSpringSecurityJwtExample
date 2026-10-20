@@ -382,6 +382,12 @@
     "oldest_first": "Oldest first"
   },
   "notification": {
+    "employeur": {
+      "nouvelleCandidature": {
+        "title": "New application received",
+        "description": "{{ETUDIANT_NOM}} has applied to your offer : {{OFFRE_TITRE}}"
+      }
+    },
     "gestionnaire": {
       "offre": {
         "title": "New offer to review",
