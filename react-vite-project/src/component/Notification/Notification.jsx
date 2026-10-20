@@ -13,7 +13,7 @@ const ROUTES_PAR_TYPE = {
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
-    NOUVELLE_CANDIDATURE: "/employeur"
+    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details"
 };
 
 const CONFIG_PAR_TYPE = {
@@ -184,9 +184,28 @@ export default function Notification({ userId, onClose }) {
             }
         };
 
+    const ouvrirCandidature = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
 
+        if (!destination) {
+            setError("error.notification_path");
+            return;
+        }
 
+        try {
+            if (!notification.estLu) {
+                await marquerNotificationLue(notification.id);
+                setNotifications(current =>
+                    current.filter(item => item.id !== notification.id)
+                );
+            }
 
+            onClose?.();
+            navigate(destination);
+        } catch {
+            setError("notifications.read_error");
+        }
+    };
 
     useEffect(() => {
         let notificationsStillDisplayed = true;
@@ -315,6 +334,9 @@ export default function Notification({ userId, onClose }) {
                                             notification.notificationType === "NOUVELLE_OFFRE_STAGE"
                                         ) {
                                             ouvrirNouvelleOffre(notification);
+                                        }
+                                        else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+                                            ouvrirCandidature(notification);
                                         }
                                     }
                                 }
