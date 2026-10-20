@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "react-icons/fi";
+import {FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import ListItem from "../Design/Lists/ListItem.jsx";
@@ -13,6 +13,7 @@ const ROUTES_PAR_TYPE = {
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
+    NOUVELLE_CANDIDATURE: "/employeur"
 };
 
 const CONFIG_PAR_TYPE = {
@@ -39,6 +40,10 @@ const CONFIG_PAR_TYPE = {
     NOUVELLE_OFFRE_STAGE: {
             icon: <FiBriefcase className="size-5" />,
             tone: "green",
+    },
+    NOUVELLE_CANDIDATURE: {
+        icon: <FiUserPlus className="size-5" />,
+        tone: "yellow",
     },
 };
 
