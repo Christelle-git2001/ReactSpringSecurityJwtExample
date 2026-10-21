@@ -32,18 +32,6 @@ function OffreDetailsDrawerContent({ offer, showStatus = true, hasApplied = fals
         <div className="space-y-4 p-2">
             <div className="relative bg-base-100 p-4 rounded-lg shadow-md space-y-4">
 
-                {isTargeted && (
-                    <div className="flex justify-end mb-2">
-                        <span
-                            title={targetedLabelText}
-                            className="max-w-[160px] truncate badge bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5 px-3 py-1 text-xs font-semibold shadow-sm"
-                        >
-                            <FiStar className="size-3.5 shrink-0 text-amber-600 fill-amber-500" />
-                            <span className="truncate">{targetedLabelText}</span>
-                        </span>
-                    </div>
-                )}
-
                 <div className="flex justify-between items-start gap-3">
                     <h2 className="text-xl font-bold text-[#043462] break-words flex-1">
                         {offer?.title}
