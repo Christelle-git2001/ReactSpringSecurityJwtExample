@@ -18,6 +18,7 @@ import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @SpringBootApplication
 public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
@@ -34,7 +36,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final EtudiantRepository etudiantRepository;
     private final UserAppRepository userAppRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
     private final EtudiantService etudiantService;
     private final OffreDeStageRepository offreDeStageRepository;
     private final EmployeurRepository employeurRepository;
@@ -43,13 +45,13 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
 
     public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
-                                             UserAppRepository userAppRepository, PasswordEncoder passwordEncoder, EtudiantService etudiantService,
+                                             UserAppRepository userAppRepository,  Environment environment, EtudiantService etudiantService,
                                              OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
                                              EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.environment = environment;
         this.etudiantService = etudiantService;
         this.employeurService = employeurService;
         this.offreDeStageRepository = offreDeStageRepository;
@@ -64,6 +66,9 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        if (Arrays.asList(environment.getActiveProfiles()).contains("test")) {
+            return;
+        }
 
         GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed", LocalDateTime.now());
         gestionnaireService.creerCompteGestionnaire(gestionnaireDto);

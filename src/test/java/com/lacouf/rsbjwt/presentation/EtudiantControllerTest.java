@@ -57,6 +57,8 @@ public class EtudiantControllerTest {
     @MockitoBean
     private EtudiantService etudiantService;
 
+
+
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper;
