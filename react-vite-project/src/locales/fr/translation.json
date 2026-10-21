@@ -115,6 +115,8 @@
     "clear": "Effacer la recherche"
   },
   "offre": {
+    "targeted": "Ciblée",
+    "targeted_badge": "Offre ciblée",
     "already_applied": "Vous avez déjà postulé",
     "apply": "Postuler",
     "employeur": "Entreprise ",

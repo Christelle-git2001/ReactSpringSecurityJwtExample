@@ -288,6 +288,8 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "targeted": "Targeted",
+    "targeted_badge": "Targeted offer",
     "already_applied": "You have already applied",
     "apply": "Apply",
     "employeur": "Company",

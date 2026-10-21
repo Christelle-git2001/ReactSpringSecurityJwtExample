@@ -5,6 +5,7 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
+import { FiStar } from "react-icons/fi";
 
 function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
     const { t } = useTranslation();
@@ -30,7 +31,15 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
 
     return (
         <>
-            <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+
+                {offer?.isTarget && (
+                    <span className="absolute top-3 right-3 badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1">
+                        <FiStar className="size-3 text-amber-600" />
+                        {t("offre.targeted")}
+                    </span>
+                )}
+
                 <div className="card-body">
                     <PdfActionButtons
                         onView={viewPDF}
@@ -59,12 +68,14 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
                     >
                         {t("offre.details")}
                     </label>
+
                     <PostulerButton
                         offerId={offer.id}
                         hasApplied={hasApplied}
                         onApplied={onApplied}
                     />
                 </div>
+
                 <PdfPreviewDialog
                     dialogRef={dialogRef}
                     pdfUrl={pdfUrl}
