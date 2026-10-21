@@ -11,6 +11,7 @@ import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
 import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
+import com.lacouf.rsbjwt.model.event.OffreSupprimerSoNotificationGestionnaire;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -110,9 +111,8 @@ public class GestionnaireService {
 
         OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
 
-        applicationEventPublisher.publishEvent(
-                new OffreDeStageApprouveeEvent(offreEnregistree)
-        );
+        applicationEventPublisher.publishEvent(new OffreSupprimerSoNotificationGestionnaire(
+                ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build(String.valueOf(offre.getId()))));
 
         return OffreDeStageDTO.of(offreEnregistree);
 
@@ -135,9 +135,12 @@ public class GestionnaireService {
         offre.setStatut(Statut.REFUSEE);
         offre.setRejectionComment(commentaire);
 
-        return OffreDeStageDTO.of(
+         OffreDeStageDTO.of(
                 offreDeStageRepository.save(offre)
         );
+        applicationEventPublisher.publishEvent(new OffreSupprimerSoNotificationGestionnaire(
+                ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build(String.valueOf(offre.getId()))));
+        return OffreDeStageDTO.of(offre);
     }
 
     public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){

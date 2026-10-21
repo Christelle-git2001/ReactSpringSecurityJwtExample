@@ -104,6 +104,12 @@ public class NotificationService {
         notificationRepository.deleteByUrlCible(event.navigationPath());
     }
 
+    @EventListener
+    @Transactional
+    public void handleOffreSupprimerSoNotification(OffreSupprimerSoNotificationGestionnaire event) {
+        notificationRepository.deleteByUrlCible(event.navigationPath());
+    }
+
     public List<NotificationDTO> recevoirNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
         UserApp userApp = verifierEtRecupererUtilisateur(id);
         Role role = userApp.getRole();
