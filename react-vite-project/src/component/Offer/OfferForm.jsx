@@ -5,7 +5,7 @@ import { getDepartements, getEmployeurs, getEtudiants } from "../../api/gestionn
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { validateOfferForm } from "../../utils/offerValidation.jsx";
 
-const TAILLE_MAX_OCTETS = 10 * 1024 * 1024; // 10 MB
+const TAILLE_MAX_OCTETS = 10 * 1024 * 1024;
 
 function OfferForm({
                        mode = "add",
@@ -15,6 +15,7 @@ function OfferForm({
                        currentFileName = "",
                        requireFile = false,
                        targeted = false,
+                       readOnlyTargetFields = false,
                        onSubmit,
                        onCancel,
                    }) {
@@ -138,8 +139,9 @@ function OfferForm({
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
         const displayEndDate = formData.get("displayEndDate");
-        const employeurId = formData.get("employeurId");
-        const etudiantId = formData.get("etudiantId");
+
+        const employeurId = targeted ? selectedEmployeur : formData.get("employeurId");
+        const etudiantId = targeted ? selectedEtudiant : formData.get("etudiantId");
 
         const newErrors = validateOfferForm({
             title,
@@ -225,12 +227,13 @@ function OfferForm({
                                         name="employeurId"
                                         value={selectedEmployeur}
                                         onChange={(e) => setSelectedEmployeur(e.target.value)}
-                                        className={inputStyle(errors.employeurId)}
+                                        disabled={readOnlyTargetFields}
+                                        className={inputStyle(errors.employeurId, readOnlyTargetFields)}
                                     >
                                         <option value="">{t("add_offer.select_company")}</option>
                                         {employeurs.map((emp) => (
                                             <option key={emp.id} value={emp.id}>
-                                                {emp.firstName} {emp.lastName} ({emp.businessName})
+                                                 {emp.businessName}
                                             </option>
                                         ))}
                                     </select>
@@ -252,7 +255,8 @@ function OfferForm({
                                         name="etudiantId"
                                         value={selectedEtudiant}
                                         onChange={handleEtudiantChange}
-                                        className={inputStyle(errors.etudiantId)}
+                                        disabled={readOnlyTargetFields}
+                                        className={inputStyle(errors.etudiantId, readOnlyTargetFields)}
                                     >
                                         <option value="">{t("add_offer.select_student")}</option>
                                         {etudiants.map((etud) => (

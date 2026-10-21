@@ -37,6 +37,7 @@ function EditOffer() {
             currentFileName={offer.fileName}
             requireFile={false}
             targeted={isTargeted}
+            readOnlyTargetFields={isTargeted}
             onSubmit={(dto, file) =>
                 modifierOffreEmployeur(offer.id, dto, file).then(() =>
                     navigate("/employeur")

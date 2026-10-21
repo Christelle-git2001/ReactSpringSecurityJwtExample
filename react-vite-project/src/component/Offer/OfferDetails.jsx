@@ -80,15 +80,13 @@ function OfferDetails({ offre: offreProp }) {
 
 
     const employeurDisplay = offre?.employeur
-        ? `${offre.employeur.firstName} ${offre.employeur.lastName}${
-            offre.employeur.businessName ? ` (${offre.employeur.businessName})` : ""
+        ? `${
+            offre.employeur.businessName ? ` ${offre.employeur.businessName}` : ""
         }`
         : null;
 
     const etudiantDisplay = offre?.etudiant
-        ? `${offre.etudiant.firstName} ${offre.etudiant.lastName}${
-            offre.etudiant.matricule ? ` (${offre.etudiant.matricule})` : ""
-        }`
+        ? `${offre.etudiant.firstName} ${offre.etudiant.lastName}`
         : null;
 
     return (
