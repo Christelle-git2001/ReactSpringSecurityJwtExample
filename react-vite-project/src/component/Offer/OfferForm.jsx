@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../Design/Button.jsx";
-import { getDepartements } from "../../api/gestionnaire.jsx";
+import { getDepartements, getEmployeurs, getEtudiants } from "../../api/gestionnaire.jsx";
+import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { validateOfferForm } from "../../utils/offerValidation.jsx";
 
 const TAILLE_MAX_OCTETS = 10 * 1024 * 1024;
@@ -13,6 +14,7 @@ function OfferForm({
                        initialValues = {},
                        currentFileName = "",
                        requireFile = false,
+                       targeted = false,
                        onSubmit,
                        onCancel,
                    }) {
@@ -20,42 +22,83 @@ function OfferForm({
 
     const [errors, setErrors] = useState({});
     const [departements, setDepartements] = useState([]);
+    const [employeurs, setEmployeurs] = useState([]);
+    const [etudiants, setEtudiants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedDomain, setSelectedDomain] = useState("");
+    const [selectedEmployeur, setSelectedEmployeur] = useState("");
+    const [selectedEtudiant, setSelectedEtudiant] = useState("");
     const [fileName, setFileName] = useState("");
 
     const isEdit = mode === "edit";
 
     useEffect(() => {
-        getDepartements()
-            .then((data) => {
-                setDepartements(data);
+        const fetchInitialData = async () => {
+            try {
+                const deps = await getDepartements();
+                setDepartements(deps);
 
                 const currentDomain =
                     typeof initialValues.domain === "object"
                         ? initialValues.domain?.name
                         : initialValues.domain;
 
-                const matchingDomain = data.find(
+                const matchingDomain = deps.find(
                     (d) =>
                         d.name?.toString().toUpperCase() ===
                         currentDomain?.toString().toUpperCase()
                 );
 
                 setSelectedDomain(
-                    matchingDomain
-                        ? matchingDomain.name
-                        : currentDomain || ""
+                    matchingDomain ? matchingDomain.name : currentDomain || ""
                 );
-            })
-            .finally(() => setLoading(false));
-    }, [initialValues.domain]);
 
-    const inputStyle = (hasError) =>
+                if (targeted) {
+                    const [empList, etudList] = await Promise.all([
+                        getEmployeurs(),
+                        getEtudiants(),
+                    ]);
+                    setEmployeurs(empList);
+                    setEtudiants(etudList);
+                }
+            } catch (err) {
+                console.error("Erreur lors du chargement des données:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInitialData();
+    }, [initialValues.domain, targeted]);
+
+    const handleEtudiantChange = (e) => {
+        const etudiantId = e.target.value;
+        setSelectedEtudiant(etudiantId);
+
+        if (targeted) {
+            if (etudiantId) {
+                const foundEtudiant = etudiants.find(
+                    (etud) => Number(etud.id) === Number(etudiantId)
+                );
+
+                if (foundEtudiant) {
+                    const studentDept = foundEtudiant.department || foundEtudiant.domain;
+                    const normalizedDept = getDepartmentKey(studentDept);
+                    setSelectedDomain(normalizedDept || "");
+                }
+            } else {
+                setSelectedDomain("");
+            }
+        }
+    };
+
+    const inputStyle = (hasError, isDisabled = false) =>
         `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none focus:ring-2 ${
-            hasError
-                ? "border-red-500 focus:ring-red-200"
-                : "border-gray-300 focus:border-[#0ee1cc] focus:ring-[#0ee1cc]/20"
+            isDisabled
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
+                : hasError
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-300 focus:border-[#0ee1cc] focus:ring-[#0ee1cc]/20"
         }`;
 
     const handleSubmit = async (e) => {
@@ -66,12 +109,14 @@ function OfferForm({
         const file = fileInput?.name ? fileInput : null;
 
         const title = formData.get("title");
-        const domain = formData.get("domain");
+        const domain = targeted ? selectedDomain : formData.get("domain");
         const salary = formData.get("salary");
         const description = formData.get("description");
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
         const displayEndDate = formData.get("displayEndDate");
+        const employeurId = formData.get("employeurId");
+        const etudiantId = formData.get("etudiantId");
 
         const newErrors = validateOfferForm({
             title,
@@ -84,6 +129,11 @@ function OfferForm({
             file,
             requireFile,
         });
+
+        if (targeted) {
+            if (!employeurId) newErrors.employeurId = "add_offer.errors.select_company";
+            if (!etudiantId) newErrors.etudiantId = "add_offer.errors.select_student";
+        }
 
         if (file && file.size <= 0) {
             newErrors.file = "pdfVisio.lowFiles";
@@ -106,6 +156,10 @@ function OfferForm({
             startDate,
             endDate,
             displayEndDate,
+            ...(targeted && {
+                employeurId: Number(employeurId),
+                etudiantId: Number(etudiantId),
+            }),
         };
 
         setErrors({});
@@ -136,15 +190,69 @@ function OfferForm({
                 )}
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {targeted && (
+                        <>
+                            <div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label htmlFor="employeurId" className="text-sm font-semibold text-[#043462]">
+                                        {t("add_offer.targeted_company")}
+                                    </label>
+                                    <select
+                                        id="employeurId"
+                                        name="employeurId"
+                                        value={selectedEmployeur}
+                                        onChange={(e) => setSelectedEmployeur(e.target.value)}
+                                        className={inputStyle(errors.employeurId)}
+                                    >
+                                        <option value="">{t("add_offer.select_company")}</option>
+                                        {employeurs.map((emp) => (
+                                            <option key={emp.id} value={emp.id}>
+                                                {emp.firstName} {emp.lastName} ({emp.businessName})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.employeurId && (
+                                        <span className="text-xs font-medium text-red-500">
+                                            {t(errors.employeurId)}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label htmlFor="etudiantId" className="text-sm font-semibold text-[#043462]">
+                                        {t("add_offer.targeted_student")}
+                                    </label>
+                                    <select
+                                        id="etudiantId"
+                                        name="etudiantId"
+                                        value={selectedEtudiant}
+                                        onChange={handleEtudiantChange}
+                                        className={inputStyle(errors.etudiantId)}
+                                    >
+                                        <option value="">{t("add_offer.select_student")}</option>
+                                        {etudiants.map((etud) => (
+                                            <option key={etud.id} value={etud.id}>
+                                                {etud.firstName} {etud.lastName} ({etud.matricule})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.etudiantId && (
+                                        <span className="text-xs font-medium text-red-500">
+                                            {t(errors.etudiantId)}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
+
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="title"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="title" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.offer_title")}
                             </label>
-
                             <input
                                 id="title"
                                 name="title"
@@ -152,62 +260,50 @@ function OfferForm({
                                 defaultValue={initialValues.title || ""}
                                 className={inputStyle(errors.title)}
                             />
-
                             {errors.title && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.title)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.title)}</span>
                             )}
                         </div>
                     </div>
 
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="domain"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="domain" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.domain")}
                             </label>
-
                             <select
                                 id="domain"
                                 name="domain"
                                 value={selectedDomain}
                                 onChange={(e) => setSelectedDomain(e.target.value)}
-                                disabled={loading}
-                                className={inputStyle(errors.domain)}
+                                disabled={loading || targeted}
+                                className={inputStyle(errors.domain, targeted)}
                             >
                                 <option value="">
                                     {loading
                                         ? t("add_offer.loading_domains")
                                         : t("add_offer.select_domain")}
                                 </option>
-
-                                {departements.map((d) => (
-                                    <option key={d.name} value={d.name}>
-                                        {t(`departement.${d.name}`)}
-                                    </option>
-                                ))}
+                                {departements.map((d) => {
+                                    const deptName = typeof d === "object" ? d.name : d;
+                                    return (
+                                        <option key={deptName} value={deptName}>
+                                            {t(`departement.${deptName}`)}
+                                        </option>
+                                    );
+                                })}
                             </select>
-
                             {errors.domain && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.domain)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.domain)}</span>
                             )}
                         </div>
                     </div>
 
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="salary"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="salary" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.salary")}
                             </label>
-
                             <input
                                 id="salary"
                                 name="salary"
@@ -217,24 +313,17 @@ function OfferForm({
                                 defaultValue={initialValues.salary || ""}
                                 className={inputStyle(errors.salary)}
                             />
-
                             {errors.salary && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.salary)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.salary)}</span>
                             )}
                         </div>
                     </div>
 
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="description"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="description" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.description")}
                             </label>
-
                             <textarea
                                 id="description"
                                 name="description"
@@ -242,24 +331,17 @@ function OfferForm({
                                 defaultValue={initialValues.description || ""}
                                 className={inputStyle(errors.description)}
                             />
-
                             {errors.description && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.description)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.description)}</span>
                             )}
                         </div>
                     </div>
 
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="startDate"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="startDate" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.start_date")}
                             </label>
-
                             <input
                                 id="startDate"
                                 name="startDate"
@@ -267,24 +349,17 @@ function OfferForm({
                                 defaultValue={initialValues.startDate || ""}
                                 className={inputStyle(errors.startDate)}
                             />
-
                             {errors.startDate && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.startDate)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.startDate)}</span>
                             )}
                         </div>
                     </div>
 
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="endDate"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="endDate" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.end_date")}
                             </label>
-
                             <input
                                 id="endDate"
                                 name="endDate"
@@ -292,24 +367,17 @@ function OfferForm({
                                 defaultValue={initialValues.endDate || ""}
                                 className={inputStyle(errors.endDate)}
                             />
-
                             {errors.endDate && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.endDate)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.endDate)}</span>
                             )}
                         </div>
                     </div>
 
                     <div>
                         <div className="flex flex-col gap-1.5">
-                            <label
-                                htmlFor="displayEndDate"
-                                className="text-sm font-semibold text-[#043462]"
-                            >
+                            <label htmlFor="displayEndDate" className="text-sm font-semibold text-[#043462]">
                                 {t("add_offer.display_end_date")}
                             </label>
-
                             <input
                                 id="displayEndDate"
                                 name="displayEndDate"
@@ -317,11 +385,8 @@ function OfferForm({
                                 defaultValue={initialValues.displayEndDate || ""}
                                 className={inputStyle(errors.displayEndDate)}
                             />
-
                             {errors.displayEndDate && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.displayEndDate)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.displayEndDate)}</span>
                             )}
                         </div>
                     </div>
@@ -333,7 +398,7 @@ function OfferForm({
                             </span>
 
                             {isEdit && currentFileName && (
-                                <p className="text-xs text-gray-600 mt-2">
+                                <p className="text-xs text-gray-600 mt-1">
                                     {t("edit_offer.current_file", "Fichier actuel :")}{" "}
                                     <span className="font-medium text-[#043462]">
                                         {currentFileName}
@@ -361,33 +426,23 @@ function OfferForm({
                             />
 
                             {isEdit && (
-                                <p className="text-xs text-gray-500 mt-2">
+                                <p className="text-xs text-gray-500 mt-1">
                                     {t("edit_offer.keep_file_note")}
                                 </p>
                             )}
 
                             {errors.file && (
-                                <span className="text-xs font-medium text-red-500">
-                                    {t(errors.file)}
-                                </span>
+                                <span className="text-xs font-medium text-red-500">{t(errors.file)}</span>
                             )}
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button
-                        type="button"
-                        onClick={onCancel}
-                        className="bg-gray-500 text-white hover:bg-gray-600"
-                    >
+                    <Button type="button" onClick={onCancel} className="bg-gray-500 text-white hover:bg-gray-600">
                         {t("add_offer.cancel")}
                     </Button>
-
-                    <Button
-                        type="submit"
-                        className="bg-[#043462] text-white hover:bg-[#03284d]"
-                    >
+                    <Button type="submit" className="bg-[#043462] text-white hover:bg-[#03284d]">
                         {t(submitLabelKey)}
                     </Button>
                 </div>

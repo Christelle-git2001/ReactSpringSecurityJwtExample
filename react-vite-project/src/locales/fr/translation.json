@@ -43,6 +43,11 @@
     "submit": "Créer le compte"
   },
   "add_offer": {
+    "targeted_student" : "Étudiant ciblé",
+    "targeted_company" : "Employeur",
+    "select_student" : "Sélectionner un étudiant",
+    "select_company" : "Sélectionner un employeur",
+    "targeted_offer" : "Créer une offre de stage ciblée",
     "title": "Ajouter une offre de stage",
     "subtitle": "Remplissez les informations de votre offre de stage.",
     "offer_title": "Titre de l'offre",
@@ -60,6 +65,8 @@
     "cancel": "Annuler",
     "submit": "Soumettre",
     "errors": {
+      "select_company" : "Veuillez sélectionner un employeur",
+      "select_student" : "Veuillez sélectionner un étudiant",
       "title_required": "Veuillez entrer le titre de l'offre.",
       "domain_required": "Veuillez sélectionner un domaine.",
       "salary_required": "Veuillez entrer le salaire.",

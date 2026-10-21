@@ -80,3 +80,33 @@ export async function obtenirCvPDFGestionnaire(id) {
         method: "GET",
     });
 }
+
+export async function creerOffreCibleeGestionnaire(dto, file) {
+    const formData = new FormData();
+
+    formData.append(
+        "offre",
+        new Blob([JSON.stringify(dto)], { type: "application/json" })
+    );
+
+    if (file) {
+        formData.append("file", file);
+    }
+
+    return fetchJson("/gestionnaire/offres", {
+        method: "POST",
+        body: formData,
+    });
+}
+
+export async function getEmployeurs() {
+    return fetchJson("/gestionnaire/employeurs", {
+        method: "GET",
+    });
+}
+
+export async function getEtudiants() {
+    return fetchJson("/gestionnaire/etudiants", {
+        method: "GET",
+    });
+}
