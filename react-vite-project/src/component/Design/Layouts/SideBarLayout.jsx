@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell } from "react-icons/fi";
-import { MdWorkOutline } from "react-icons/md";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
@@ -61,7 +60,6 @@ function SideBarLayout({ user }) {
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/etudiant/cv#televerser", label: t("nav.cv"), roles: ["ETUDIANT"], icon: <FiFile className="size-4 my-1.5" /> },
-        { path: "/etudiant/candidatures", label: t("nav.applications"), roles: ["ETUDIANT"], icon: <MdWorkOutline className="size-4 my-1.5" /> },
         { path: "/employeur", label: t("nav.home"), roles: ["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
