@@ -10,7 +10,6 @@ import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
-import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
 import com.lacouf.rsbjwt.model.event.OffreSupprimerSoNotificationGestionnaire;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
