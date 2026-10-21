@@ -86,6 +86,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 false
         );
     }
@@ -154,6 +155,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 false
         );
 
@@ -201,6 +203,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 false
         );
 
@@ -234,6 +237,7 @@ public class GestionnaireControllerTest {
                 null,
                 Statut.REFUSEE,
                 "offre.pdf",
+                null,
                 null,
                 commentaire,
                 null,
@@ -452,6 +456,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
+                null,
                 false
         );
 
@@ -489,6 +494,7 @@ public class GestionnaireControllerTest {
                 null,
                 Statut.EN_ATTENTE,
                 "offre.pdf",
+                null,
                 null,
                 null,
                 null,
