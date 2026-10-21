@@ -359,6 +359,7 @@ function OfferForm({
                             <textarea
                                 id="description"
                                 name="description"
+                                maxLength="255"
                                 rows="4"
                                 defaultValue={initialValues.description || ""}
                                 className={inputStyle(errors.description)}
