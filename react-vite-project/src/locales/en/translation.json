@@ -392,7 +392,7 @@
     "gestionnaire": {
       "offre": {
         "title": "New offer to review",
-        "description": "The offer “{{OFFRE_TITRE}}” is awaiting review."
+        "description": "The offer “{{OFFRE_TITRE}}” from “{{ENTREPRISE_NOM}}“ is awaiting review."
       },
       "televerserCV": {
         "title": "New CV to review",
