@@ -25,6 +25,7 @@ function SideBarLayout({ user }) {
     const closeDrawer = () => {
         setIsDrawerOpen(false);
         setDrawerContent(null);
+        setDrawerTitle(null)
     };
 
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
@@ -35,7 +36,7 @@ function SideBarLayout({ user }) {
     useEffect(() => {
         let actif = true;
 
-        if (!user?.isLoggedIn || role !== "GESTIONNAIRE") {
+        if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT"].includes(role)) {
             setNombreNotifications(0);
             return;
         }
@@ -113,7 +114,7 @@ function SideBarLayout({ user }) {
                 <div className="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">
                     <ul className="menu w-full grow">
 
-                        {user?.isLoggedIn && role === "GESTIONNAIRE" && (
+                        {user?.isLoggedIn && ["GESTIONNAIRE", "ETUDIANT"].includes(role) && (
                             <li>
                                 <button
                                     type="button"
@@ -121,7 +122,11 @@ function SideBarLayout({ user }) {
                                     data-tip={t("notifications.title")}
                                     aria-label={t("notifications.title")}
                                     onClick={() => {
-                                        openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
+                                        if (drawerTitle === "notifications.title") {
+                                            closeDrawer();
+                                        } else {
+                                            openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
+                                        }
                                         setSidebarOpen(false);
                                     }}
                                 >

@@ -9,5 +9,6 @@ public enum VariableMapKey {
     COMPAGNIE_NOM,
     OFFRE_TITRE,
     OFFRE_ID,
-    CV_ID
+    CV_ID,
+    ENTREPRISE_NOM
 }

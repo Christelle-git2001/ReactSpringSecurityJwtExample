@@ -12,7 +12,15 @@ function AddOffer() {
             submitLabelKey="add_offer.submit"
             requireFile={true}
             onSubmit={(dto, file) =>
-                creerOffreEmployeur(dto, file).then(() => navigate("/employeur"))
+                creerOffreEmployeur(dto, file)
+                    .then(() => {
+                        navigate("/employeur");
+                    })
+                    .catch((err) => {
+                        if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                            navigate("/login");
+                        }
+                    })
             }
             onCancel={() => navigate("/employeur")}
         />

@@ -41,6 +41,9 @@ function CvDetails({ cv: cvProp }) {
                     }
                 })
                 .catch((err) => {
+                    if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                        navigate("/login");
+                    }
                     console.error("Erreur lors du chargement du PDF:", err);
                 })
                 .finally(() => {
@@ -78,6 +81,9 @@ function CvDetails({ cv: cvProp }) {
             }
         } catch (err) {
             console.error("Erreur lors de la mise à jour du CV:", err);
+            if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                navigate("/login");
+            }
             setErrors({
                 api: t("cv.errors.api_generic")
             });

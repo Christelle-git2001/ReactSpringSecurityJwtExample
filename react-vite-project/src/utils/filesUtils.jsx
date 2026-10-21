@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import {useNavigate} from "react-router-dom";
+
 
 export const declencherTelechargement = (fileUrl, filename = "document.pdf") => {
     if (!fileUrl) return;
@@ -17,12 +19,17 @@ export function usePdfDocument({ loadPdfResponse, fileNameFallback = "document.p
     const [pdfUrl, setPdfUrl] = useState(null);
     const [error, setError] = useState(null);
     const dialogRef = useRef(null);
+    const navigate = useNavigate();
+
 
     const obtenirCVUrlPDF = async () => {
         try {
             const response = await
                 loadPdfResponse();
             if (!response.ok) {
+                if (response?.message === "UNAUTHORIZED" || response?.status === 401) {
+                    navigate("/login");
+                }
                 switch (response.status){
                     case 404:
                         setError("pdfVisio.noFileDetected");

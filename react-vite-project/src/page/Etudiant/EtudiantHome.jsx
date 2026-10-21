@@ -10,10 +10,15 @@ import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerC
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
+import { useLocation, useNavigate } from "react-router-dom";
+import {getNotifications,marquerNotificationLue} from "../../api/notification.jsx";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
     const { openDrawer } = useOutletContext();
+
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const [offres, setOffres] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -33,7 +38,27 @@ const EtudiantHome = ({ user }) => {
             .catch(console.error);
     }, []);
 
+
+    const marquerNotificationOffreCommeLue = async (offreId) => {
+        try {
+            const notifications = await getNotifications(user.id);
+            const notification = notifications.find((item) =>
+                item.notificationType === "NOUVELLE_OFFRE_STAGE" &&
+                String(item.variables?.OFFRE_ID) === String(offreId) &&
+                !item.estLu
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+            }
+        } catch (error) {
+            console.error("Erreur lors du marquage :", error);
+        }
+    };
+
+
     const handleView = async (offer) => {
+        await marquerNotificationOffreCommeLue(offer.id);
         openDrawer(
             <OffreDetailsDrawerContent
                 offer={offer}
@@ -45,6 +70,33 @@ const EtudiantHome = ({ user }) => {
             />
         );
     };
+
+
+    const ouvrirOffreParId = useCallback((offreId) => {
+        const offre = offres.find(
+            (item) => String(item.id) === String(offreId)
+        );
+
+        if (offre) {
+            handleView(offre);
+        }
+    }, [offres, handleView]);
+
+
+
+    useEffect(() => {
+        const offreId = location.state?.offreId;
+
+        if (!offreId || isInitialLoading) return;
+
+        ouvrirOffreParId(offreId);
+
+        navigate(location.pathname, {
+            replace: true,
+            state: null,
+        });
+    }, [location.state, location.pathname, isInitialLoading, offres, navigate,ouvrirOffreParId,]);
+
 
     const chargerOffres = useCallback(async () => {
         if (!user?.department) return;

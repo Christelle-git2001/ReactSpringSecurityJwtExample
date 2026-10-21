@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { postulerOffre } from "../../api/etudiant.jsx";
+import { useNavigate } from "react-router-dom";
 
 function PostulerButton({ offerId, hasApplied = false, onApplied }) {
     const { t } = useTranslation();
     const [applied, setApplied] = useState(hasApplied);
     const [isApplying, setIsApplying] = useState(false);
     const [error, setError] = useState(null);
-
+    const navigate = useNavigate();
     useEffect(() => {
         setApplied(hasApplied);
     }, [hasApplied]);
@@ -22,6 +23,9 @@ function PostulerButton({ offerId, hasApplied = false, onApplied }) {
             onApplied?.(offerId);
         } catch (err) {
             console.error("Erreur lors de la candidature:", err);
+            if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                navigate("/login");
+                }
             if (err?.status === 409) {
                 setApplied(true);
                 onApplied?.(offerId);
@@ -35,7 +39,7 @@ function PostulerButton({ offerId, hasApplied = false, onApplied }) {
 
     if (applied) {
         return (
-            <p className="text-center font-semibold text-red-600 py-2">
+            <p className="text-center font-semibold text-green-700 py-2">
                 {t("offre.already_applied")}
             </p>
         );

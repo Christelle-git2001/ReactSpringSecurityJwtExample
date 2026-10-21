@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotification;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -162,7 +162,7 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(null);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut()));
-        applicationEventPublisher.publishEvent(new CvSupprimerSoNotification(
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
@@ -182,7 +182,7 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(commentaire);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut()));
-        applicationEventPublisher.publishEvent(new CvSupprimerSoNotification(
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
