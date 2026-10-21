@@ -21,14 +21,22 @@ function EditOffer() {
         );
     }
 
+    const isTargeted = Boolean(offer.isTarget);
+    const initialValues = {
+        ...offer,
+        employeurId: offer.employeur?.id || offer.employeurId || "",
+        etudiantId: offer.etudiant?.id || offer.etudiantId || "",
+    };
+
     return (
         <OfferForm
             mode="edit"
             titleKey="edit_offer.title"
             submitLabelKey="edit_offer.save"
-            initialValues={offer}
+            initialValues={initialValues}
             currentFileName={offer.fileName}
             requireFile={false}
+            targeted={isTargeted}
             onSubmit={(dto, file) =>
                 modifierOffreEmployeur(offer.id, dto, file).then(() =>
                     navigate("/employeur")

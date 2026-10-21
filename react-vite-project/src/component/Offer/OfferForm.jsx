@@ -5,7 +5,7 @@ import { getDepartements, getEmployeurs, getEtudiants } from "../../api/gestionn
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { validateOfferForm } from "../../utils/offerValidation.jsx";
 
-const TAILLE_MAX_OCTETS = 10 * 1024 * 1024;
+const TAILLE_MAX_OCTETS = 10 * 1024 * 1024; // 10 MB
 
 function OfferForm({
                        mode = "add",
@@ -25,9 +25,14 @@ function OfferForm({
     const [employeurs, setEmployeurs] = useState([]);
     const [etudiants, setEtudiants] = useState([]);
     const [loading, setLoading] = useState(true);
+
     const [selectedDomain, setSelectedDomain] = useState("");
-    const [selectedEmployeur, setSelectedEmployeur] = useState("");
-    const [selectedEtudiant, setSelectedEtudiant] = useState("");
+    const [selectedEmployeur, setSelectedEmployeur] = useState(
+        initialValues.employeurId || initialValues.employeur?.id || ""
+    );
+    const [selectedEtudiant, setSelectedEtudiant] = useState(
+        initialValues.etudiantId || initialValues.etudiant?.id || ""
+    );
     const [fileName, setFileName] = useState("");
 
     const isEdit = mode === "edit";
@@ -38,21 +43,6 @@ function OfferForm({
                 const deps = await getDepartements();
                 setDepartements(deps);
 
-                const currentDomain =
-                    typeof initialValues.domain === "object"
-                        ? initialValues.domain?.name
-                        : initialValues.domain;
-
-                const matchingDomain = deps.find(
-                    (d) =>
-                        d.name?.toString().toUpperCase() ===
-                        currentDomain?.toString().toUpperCase()
-                );
-
-                setSelectedDomain(
-                    matchingDomain ? matchingDomain.name : currentDomain || ""
-                );
-
                 if (targeted) {
                     const [empList, etudList] = await Promise.all([
                         getEmployeurs(),
@@ -60,6 +50,39 @@ function OfferForm({
                     ]);
                     setEmployeurs(empList);
                     setEtudiants(etudList);
+
+                    const initEmpId = initialValues.employeurId || initialValues.employeur?.id;
+                    const initEtudId = initialValues.etudiantId || initialValues.etudiant?.id;
+
+                    if (initEmpId) {
+                        setSelectedEmployeur(initEmpId.toString());
+                    }
+
+                    if (initEtudId) {
+                        setSelectedEtudiant(initEtudId.toString());
+                        const foundEtudiant = etudList.find(
+                            (etud) => Number(etud.id) === Number(initEtudId)
+                        );
+                        if (foundEtudiant) {
+                            const studentDept = foundEtudiant.department || foundEtudiant.domain;
+                            setSelectedDomain(getDepartmentKey(studentDept) || "");
+                        }
+                    }
+                } else {
+                    const currentDomain =
+                        typeof initialValues.domain === "object"
+                            ? initialValues.domain?.name
+                            : initialValues.domain;
+
+                    const matchingDomain = deps.find(
+                        (d) =>
+                            d.name?.toString().toUpperCase() ===
+                            currentDomain?.toString().toUpperCase()
+                    );
+
+                    setSelectedDomain(
+                        matchingDomain ? matchingDomain.name : currentDomain || ""
+                    );
                 }
             } catch (err) {
                 console.error("Erreur lors du chargement des données:", err);
@@ -69,7 +92,7 @@ function OfferForm({
         };
 
         fetchInitialData();
-    }, [initialValues.domain, targeted]);
+    }, [initialValues, targeted]);
 
     const handleEtudiantChange = (e) => {
         const etudiantId = e.target.value;

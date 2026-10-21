@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FiStar } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { approuverOffre, refuserOffre } from "../../api/gestionnaire.jsx";
@@ -37,6 +38,8 @@ function OfferDetails({ offre: offreProp }) {
     const [isLoading, setIsLoading] = useState(false);
     const [showRefusalReason, setShowRefusalReason] = useState(false);
     const [rejectionComment, setRejectionComment] = useState("");
+
+    const isTargeted = Boolean(offre?.isTarget);
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -75,12 +78,34 @@ function OfferDetails({ offre: offreProp }) {
                 : "border-gray-300 focus:border-[#0ee1cc] focus:ring-[#0ee1cc]/20"
         }`;
 
+
+    const employeurDisplay = offre?.employeur
+        ? `${offre.employeur.firstName} ${offre.employeur.lastName}${
+            offre.employeur.businessName ? ` (${offre.employeur.businessName})` : ""
+        }`
+        : null;
+
+    const etudiantDisplay = offre?.etudiant
+        ? `${offre.etudiant.firstName} ${offre.etudiant.lastName}${
+            offre.etudiant.matricule ? ` (${offre.etudiant.matricule})` : ""
+        }`
+        : null;
+
     return (
         <div className="w-full max-w-2xl mx-auto p-4 md:p-8">
-            <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8">
-                <h2 className="mb-6 text-xl font-bold text-[#043462]">
-                    {t("offre.details_title")}
-                </h2>
+            <div className="relative w-full rounded-xl bg-white p-6 shadow-md md:p-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-[#043462]">
+                        {t("offre.details_title")}
+                    </h2>
+
+                    {isTargeted && (
+                        <div className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-300 shadow-sm">
+                            <FiStar className="size-3.5 fill-amber-500 text-amber-500" />
+                            <span>{t("offre.targeted")}</span>
+                        </div>
+                    )}
+                </div>
 
                 {errors.api && (
                     <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
@@ -89,12 +114,31 @@ function OfferDetails({ offre: offreProp }) {
                 )}
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {employeurDisplay && (
+                        <div className={isTargeted ? "" : "md:col-span-2"}>
+                            <ReadOnlyField
+                                label={t("add_offer.targeted_company")}
+                                value={employeurDisplay}
+                            />
+                        </div>
+                    )}
+
+                    {isTargeted && etudiantDisplay && (
+                        <div>
+                            <ReadOnlyField
+                                label={t("add_offer.targeted_student")}
+                                value={etudiantDisplay}
+                            />
+                        </div>
+                    )}
+
                     <div className="md:col-span-2">
                         <ReadOnlyField
                             label={t("offre.offer_title")}
                             value={offre?.title}
                         />
                     </div>
+
                     <div>
                         <ReadOnlyField
                             label={t("offre.domaine")}
@@ -105,12 +149,14 @@ function OfferDetails({ offre: offreProp }) {
                             }
                         />
                     </div>
+
                     <div>
                         <ReadOnlyField
                             label={t("offre.salary")}
                             value={offre?.salary ? `${offre.salary} $/h` : ""}
                         />
                     </div>
+
                     <div className="md:col-span-2">
                         <ReadOnlyField
                             label={t("offre.description")}
@@ -118,24 +164,28 @@ function OfferDetails({ offre: offreProp }) {
                             isMultiline
                         />
                     </div>
+
                     <div>
                         <ReadOnlyField
                             label={t("offre.date_debut")}
                             value={offre?.startDate}
                         />
                     </div>
+
                     <div>
                         <ReadOnlyField
                             label={t("offre.date_fin")}
                             value={offre?.endDate}
                         />
                     </div>
+
                     <div>
                         <ReadOnlyField
                             label={t("offre.date_fin_affichage")}
                             value={offre?.displayEndDate}
                         />
                     </div>
+
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">
                             <span className="text-sm font-semibold text-[#043462]">
@@ -150,6 +200,7 @@ function OfferDetails({ offre: offreProp }) {
                             </div>
                         </div>
                     </div>
+
                     {showRefusalReason && (
                         <div className="md:col-span-2">
                             <div className="flex flex-col gap-1.5 border-t border-red-200 pt-4 mt-2">
@@ -174,8 +225,8 @@ function OfferDetails({ offre: offreProp }) {
                             </div>
                         </div>
                     )}
-
                 </div>
+
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
                     <Button
                         type="button"
