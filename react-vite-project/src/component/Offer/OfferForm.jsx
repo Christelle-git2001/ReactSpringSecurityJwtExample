@@ -93,7 +93,12 @@ function OfferForm({
         };
 
         fetchInitialData();
-    }, [initialValues, targeted]);
+    }, [initialValues?.employeurId,
+        initialValues?.employeur?.id,
+        initialValues?.etudiantId,
+        initialValues?.etudiant?.id,
+        initialValues?.domain,
+        targeted,]);
 
     const handleEtudiantChange = (e) => {
         const etudiantId = e.target.value;
