@@ -6,6 +6,7 @@ import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.EmployeurRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -198,37 +199,36 @@ public class EmployeurService {
 
 
         Employeur employeur = getEmployeurByEmail(email);
-        OffreDeStage offre = offreDeStageRepository.findById(id)
+        OffreDeStage ancienneOffre = offreDeStageRepository.findById(id)
                 .orElseThrow(OffreIntrouvableException::new);
 
-        if (offre.getEmployeur() == null
-                || !offre.getEmployeur().getId().equals(employeur.getId())) {
+        if (ancienneOffre.getEmployeur() == null
+                || !ancienneOffre.getEmployeur().getId().equals(employeur.getId())) {
             throw new OffreNonAutoriseeException();
         }
 
-        if (offre.getStatut() != Statut.EN_ATTENTE) {
+        if (ancienneOffre.getStatut() != Statut.EN_ATTENTE) {
             throw new OffreNonEnAttenteException();
         }
 
         validerDates(dto);
 
-        offre.setTitle(dto.title());
-        offre.setDescription(dto.description());
-        offre.setSalary(dto.salary());
-        offre.setDomain(dto.domain());
-        offre.setStartDate(dto.startDate());
-        offre.setEndDate(dto.endDate());
-        offre.setDisplayEndDate(dto.displayEndDate());
+        ancienneOffre.setTitle(dto.title());
+        ancienneOffre.setDescription(dto.description());
+        ancienneOffre.setSalary(dto.salary());
+        ancienneOffre.setDomain(dto.domain());
+        ancienneOffre.setStartDate(dto.startDate());
+        ancienneOffre.setEndDate(dto.endDate());
+        ancienneOffre.setDisplayEndDate(dto.displayEndDate());
 
         if (file != null && !file.isEmpty()) {
             Path path = StockageFichierUtils.sauvegarderPdf(file, STORAGE_OFFRE);
-            offre.setStoragePath(path.toString());
-            offre.setFileName(file.getOriginalFilename());
+            ancienneOffre.setStoragePath(path.toString());
+            ancienneOffre.setFileName(file.getOriginalFilename());
         }
-
-        return OffreDeStageDTO.of(
-                offreDeStageRepository.save(offre)
-        );
+        OffreDeStage nouvelleOffre = offreDeStageRepository.save(ancienneOffre);
+        eventPublisher.publishEvent(new OffreModifierSoNotificationEvent(ancienneOffre,nouvelleOffre));
+        return OffreDeStageDTO.of(nouvelleOffre);
     }
 
     public List<CandidatureDTO> getCandidaturesParOffre(Long offreId) throws OffreIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {

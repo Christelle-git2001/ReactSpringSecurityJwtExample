@@ -9,8 +9,8 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
-import com.lacouf.rsbjwt.model.event.OffreSupprimerSoNotificationGestionnaire;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
+import com.lacouf.rsbjwt.model.event.OffreSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
@@ -110,7 +110,7 @@ public class GestionnaireService {
 
         OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
 
-        applicationEventPublisher.publishEvent(new OffreSupprimerSoNotificationGestionnaire(
+        applicationEventPublisher.publishEvent(new OffreSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build(String.valueOf(offre.getId()))));
 
         return OffreDeStageDTO.of(offreEnregistree);
@@ -137,7 +137,7 @@ public class GestionnaireService {
          OffreDeStageDTO.of(
                 offreDeStageRepository.save(offre)
         );
-        applicationEventPublisher.publishEvent(new OffreSupprimerSoNotificationGestionnaire(
+        applicationEventPublisher.publishEvent(new OffreSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build(String.valueOf(offre.getId()))));
         return OffreDeStageDTO.of(offre);
     }
@@ -159,7 +159,7 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(null);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut()));
-        applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
@@ -179,7 +179,7 @@ public class GestionnaireService {
         cvEtudiant.setRejectionComment(commentaire);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
         applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut()));
-        applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(
+        applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
     }
