@@ -3,8 +3,10 @@ import {useTranslation} from "react-i18next";
 import AjoutCV from "./AjoutCV.jsx";
 import ShowCv from "./ShowCv.jsx";
 import { obtenirCvInfo } from "../../api/etudiant.jsx";
+import {useNavigate} from "react-router-dom";
 
 const CurriculumVitaeZone = ({onSend}) => {
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [cv, setCv] = useState(null);
@@ -33,9 +35,8 @@ const CurriculumVitaeZone = ({onSend}) => {
                 return;
             }
 
-            if (error?.status === 401) {
-                setError("token.doesntExist");
-                return;
+            if (error?.message === "UNAUTHORIZED" || error?.status === 401) {
+                navigate("/login");
             }
 
             setError("error.generic");

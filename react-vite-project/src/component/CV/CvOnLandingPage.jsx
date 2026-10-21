@@ -3,20 +3,25 @@ import { useTranslation } from "react-i18next";
 import { obtenirCvInfo } from "../../api/etudiant.jsx";
 import CurriculumVitaeZone from "./CurriculumVitaeZone.jsx";
 import toast from "react-hot-toast";
+import {useNavigate} from "react-router-dom";
 
 const CvOnLandingPage = () => {
     const { t } = useTranslation();
     const [ouvert, setOuvert] = useState(false);
     const [error,setError] = useState("")
-    const [cv,setCV] = useState();
+    const navigate = useNavigate();
+
 
     useEffect( () => {
         const fetchData = async() => {
             const data = await obtenirCvInfo()
                 .catch((e) => {
-                    if (e.status === 404) {
+                    if (e?.status === 404) {
                         setOuvert(true);
-                    } else {
+                    } else if (e?.message === "UNAUTHORIZED" || e?.status === 401) {
+                        navigate("/login");
+                    }
+                    else {
                         setOuvert(true);
                         setError("error.generic")
                     }

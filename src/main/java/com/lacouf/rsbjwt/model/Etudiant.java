@@ -3,14 +3,14 @@ package com.lacouf.rsbjwt.model;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.auth.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("ETUDIANT")
@@ -25,6 +25,10 @@ public class Etudiant extends UserApp {
 
     @OneToOne(mappedBy = "etudiant")
     private CvEtudiant cv;
+
+    @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OffreCiblee> offresCiblees = new ArrayList<>();
+
 
     @Builder
     public Etudiant(String firstName, String lastName, String email, String phoneNumber,Departement department, String matricule,String password){

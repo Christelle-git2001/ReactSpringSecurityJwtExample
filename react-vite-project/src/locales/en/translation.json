@@ -43,6 +43,11 @@
     "submit": "Create account"
   },
   "add_offer": {
+    "targeted_student" : "Targeted student",
+    "targeted_company" : "Company",
+    "select_student" : "Choose a student",
+    "select_company" : "Choose a company",
+    "targeted_offer" : "Add an targeted internship offer",
     "title": "Add an internship offer",
     "subtitle": "Fill in the information for your internship offer.",
     "offer_title": "Offer title",
@@ -60,6 +65,8 @@
     "cancel": "Cancel",
     "submit": "Submit",
     "errors": {
+      "select_company" : "Please select a company",
+      "select_student" : "Please select a student",
       "title_required": "Please enter the offer title.",
       "domain_required": "Please select a domain.",
       "salary_required": "Please enter the salary.",
@@ -282,6 +289,8 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "targeted": "Targeted",
+    "targeted_badge": "Targeted offer",
     "already_applied": "You have already applied",
     "apply": "Apply",
     "employeur": "Company",

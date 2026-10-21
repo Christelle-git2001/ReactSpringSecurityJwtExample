@@ -88,14 +88,24 @@ const EmployeurHome = ({ user }) => {
     useEffect(() => {
         getOffresEmployeur()
             .then((res) => setOffres(res))
-            .catch((err) => console.error(err));
-    }, []);
+            .catch((err) => {
+                console.error("Erreur lors du chargement des offres:", err);
+                if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                    navigate("/login");
+                }
+            });
+    }, [navigate]);
 
     useEffect(() => {
         getCandidaturesEmployeur()
             .then((res) => setCandidatures(res))
-            .catch((err) => console.error(err));
-    }, []);
+            .catch((err) => {
+                console.error("Erreur lors du chargement des candidatures:", err);
+                if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                    navigate("/login");
+                }
+            });
+    }, [navigate]);
 
     const combinedDomains = Array.from(
         new Set([...offreFilters.availableDomains, ...candidatureFilters.availableDomains])

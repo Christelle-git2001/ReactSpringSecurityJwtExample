@@ -18,6 +18,7 @@ import OfferDetails from "../Offer/OfferDetails.jsx";
 import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
 import CVDetails from "../CV/CVDetails.jsx";
 import CandidatureDetails from "../Candidature/CandidatureDetails.jsx";
+import AddTargetedOffer from "../Offer/AddTargetedOffer.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -73,6 +74,7 @@ export default function AppRoutes({
                 <Route path="/gestionnaire/cvs" element={<GestionnaireCvs user={user} />} />
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/gestionnaire/cvs/details" element={<CVDetails/>} />
+                <Route path="/gestionnaire/offres/nouvelle-ciblee" element={<AddTargetedOffer />} />
 
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
