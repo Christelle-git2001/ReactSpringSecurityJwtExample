@@ -8,11 +8,9 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
-import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
-import com.lacouf.rsbjwt.repository.GestionnaireRepository;
+import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,9 +23,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.mockito.MockedStatic;
+import org.springframework.web.multipart.MultipartFile;
+
+import static org.mockito.Mockito.mockStatic;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +60,12 @@ class GestionnaireServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private EmployeurRepository employeurRepository;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
 
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
@@ -657,5 +668,59 @@ class GestionnaireServiceTest {
                 .containsExactly(1L, "Développeur Java");
 
         verify(offreDeStageRepository).findAll();
+    }
+
+    @Test
+    void doitCreerOffreCiblee() throws Exception, DateFinAffichageApresDateDebutException {
+        CreationOffreCibleeDTO dto = new CreationOffreCibleeDTO(
+                "Stage Cible Java",
+                "Description du stage ciblé",
+                30.0,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(2),
+                LocalDate.now().plusDays(30),
+                LocalDate.now().plusDays(1),
+                1L,
+                1L
+        );
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "offre.pdf",
+                "application/pdf",
+                "contenu pdf".getBytes()
+        );
+
+        Employeur employeur = creerEmployeurTest();
+        employeur.setId(1L);
+
+        Etudiant etudiant = new Etudiant("Pascal", "Losange", "pascal@test.com", "585-585-5858", Departement.INFORMATIQUE, "5858585", "5858");
+        etudiant.setId(1L);
+
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(employeur));
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        when(offreDeStageRepository.save(any(OffreCiblee.class)))
+                .thenAnswer(invocation -> {
+                    OffreCiblee offre = invocation.getArgument(0);
+                    offre.setId(10L);
+                    return offre;
+                });
+
+        try (MockedStatic<StockageFichierUtils> mockedUtils = mockStatic(StockageFichierUtils.class)) {
+            mockedUtils.when(() -> StockageFichierUtils.sauvegarderPdf(any(MultipartFile.class), any(Path.class)))
+                    .thenReturn(Paths.get("uploads/offres/offre.pdf"));
+
+            OffreDeStageDTO result = gestionnaireService.creerOffreCiblee(dto, file);
+
+            assertThat(result).isNotNull();
+            assertThat(result.title()).isEqualTo("Stage Cible Java");
+            assertThat(result.statut()).isEqualTo(Statut.EN_ATTENTE);
+
+            verify(employeurRepository).findById(1L);
+            verify(etudiantRepository).findById(1L);
+            verify(offreDeStageRepository).save(any(OffreCiblee.class));
+            verify(applicationEventPublisher).publishEvent(any(NouvelleOffreTeleverseeEvent.class));
+        }
     }
 }

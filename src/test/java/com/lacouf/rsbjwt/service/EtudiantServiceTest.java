@@ -420,7 +420,7 @@ public class EtudiantServiceTest {
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
 
-        when(offreDeStageRepository.findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
                 eq(Statut.ACCEPTEE),
                 eq(offre.getDomain()),
                 any(LocalDate.class)))
@@ -448,7 +448,7 @@ public class EtudiantServiceTest {
         when(cvEtudiantRepository.findByEtudiant(etudiant))
                 .thenReturn(Optional.of(cv));
 
-        when(offreDeStageRepository.findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
                 eq(Statut.ACCEPTEE),
                 eq(etudiant.getDepartment()),
                 any(LocalDate.class)))
@@ -468,7 +468,7 @@ public class EtudiantServiceTest {
                 .findByEtudiant(etudiant);
 
         verify(offreDeStageRepository)
-                .findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+                .findOffresGeneralesDisponibles(
                         eq(Statut.ACCEPTEE),
                         eq(etudiant.getDepartment()),
                         any(LocalDate.class));
@@ -500,7 +500,7 @@ public class EtudiantServiceTest {
                 .findByEtudiant(etudiant);
 
         verify(offreDeStageRepository, never())
-                .findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
+                .findOffresGeneralesDisponibles(
                         any(Statut.class),
                         any(Departement.class),
                         any(LocalDate.class));

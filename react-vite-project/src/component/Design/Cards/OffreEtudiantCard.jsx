@@ -5,14 +5,17 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
-import {FaCheckCircle} from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
+import { FiStar } from "react-icons/fi";
 
-function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
+function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
     const { t } = useTranslation();
 
+    const isTargeted = Boolean(offer?.isTarget);
+
     const offre = [
-        { label: t("offre.employeur"), value: offer?.employeur?.businessName},
-        { label: t("offre.lieu"), value: offer?.employeur?.town},
+        { label: t("offre.employeur"), value: offer?.employeur?.businessName },
+        { label: t("offre.lieu"), value: offer?.employeur?.town },
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
         { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
@@ -29,16 +32,37 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
         fileNameFallback: offer?.fileName || `offre_${offer?.id}.pdf`,
     });
 
+    const targetedLabelText = t("offre.targeted", "Ciblée");
+    const applicationSentText = t("offre.application_sent", "Candidature envoyée");
+
     return (
         <>
-            <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
 
-                {hasApplied && (
-                    <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 shadow-sm border border-green-200">
-                        <FaCheckCircle className="size-3.5" />
-                        <span>{t("offre.application_sent")}</span>
-                    </div>
-                )}
+                {/* Conteneur pour les badges en haut à droite */}
+                <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center justify-end gap-1.5 max-w-[80%]">
+                    {/* Badge Offre Ciblée */}
+                    {isTargeted && (
+                        <span
+                            title={targetedLabelText}
+                            className="max-w-[140px] truncate badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1 px-2.5 py-2 font-semibold shadow-sm"
+                        >
+                            <FiStar className="size-3 shrink-0 text-amber-600 fill-amber-500" />
+                            <span className="truncate">{targetedLabelText}</span>
+                        </span>
+                    )}
+
+                    {/* Badge Candidature Envoyée */}
+                    {hasApplied && (
+                        <div
+                            title={applicationSentText}
+                            className="max-w-[160px] truncate flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 shadow-sm border border-green-200"
+                        >
+                            <FaCheckCircle className="size-3.5 shrink-0" />
+                            <span className="truncate">{applicationSentText}</span>
+                        </div>
+                    )}
+                </div>
 
                 <div className="card-body">
                     <PdfActionButtons
@@ -47,13 +71,13 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
                     />
 
                     <div className="flex justify-between items-center gap-2 mt-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-2l font-bold text-[#043462]">
+                        <div className="flex items-center gap-2 flex-wrap flex-1">
+                            <h2 className="text-2xl font-bold text-[#043462] break-words">
                                 {offer?.title}
                             </h2>
                         </div>
 
-                        <span className="text-2l font-bold shrink-0">
+                        <span className="text-2xl font-bold shrink-0">
                             {offer?.salary} $ / h
                         </span>
                     </div>
@@ -75,12 +99,14 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
                     >
                         {t("offre.details")}
                     </label>
+
                     <PostulerButton
-                        offerId={offer.id}
+                        offerId={offer?.id}
                         hasApplied={hasApplied}
                         onApplied={onApplied}
                     />
                 </div>
+
                 <PdfPreviewDialog
                     dialogRef={dialogRef}
                     pdfUrl={pdfUrl}

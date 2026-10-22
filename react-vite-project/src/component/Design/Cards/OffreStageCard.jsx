@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit } from 'react-icons/fi';
+import { FiEdit, FiStar } from 'react-icons/fi';
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
@@ -37,12 +37,20 @@ function OffreStageCard({ offer, candidatures = [], onView, onEdit = false, show
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
         { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
-        {label: t("candidature.list_title"), value: `${nombreCandidatures}`},
+        { label: t("candidature.list_title"), value: `${nombreCandidatures}` },
     ];
 
     return (
         <>
-            <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+
+                {offer?.isTarget && (
+                    <span className="absolute top-3 right-3 badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1">
+                        <FiStar className="size-3 text-amber-600" />
+                                        {t("offre.targeted")}
+                    </span>
+                )}
+
                 <div className="card-body">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">

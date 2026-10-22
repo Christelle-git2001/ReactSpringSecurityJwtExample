@@ -1,6 +1,8 @@
 package com.lacouf.rsbjwt.service.dto;
-import com.lacouf.rsbjwt.model.Enum.Statut;
+
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.OffreCiblee;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 
 import java.time.LocalDate;
@@ -14,15 +16,23 @@ public record OffreDeStageDTO(
         Departement domain,
         LocalDate startDate,
         LocalDate endDate,
-        LocalDate  displayEndDate,
+        LocalDate displayEndDate,
         Statut statut,
         String fileName,
         EmployeurDTO employeur,
+        EtudiantDTO etudiant,
         String rejectionComment,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Boolean isTarget
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
+        EtudiantDTO etudiantDTO = null;
+
+        if (offre instanceof OffreCiblee offreCiblee && offreCiblee.getEtudiant() != null) {
+            etudiantDTO = EtudiantDTO.of(offreCiblee.getEtudiant());
+        }
+
         return new OffreDeStageDTO(
                 offre.getId(),
                 offre.getTitle(),
@@ -34,9 +44,11 @@ public record OffreDeStageDTO(
                 offre.getDisplayEndDate(),
                 offre.getStatut(),
                 offre.getFileName(),
-                EmployeurDTO.of(offre.getEmployeur()),
+                offre.getEmployeur() != null ? EmployeurDTO.of(offre.getEmployeur()) : null,
+                etudiantDTO,
                 offre.getRejectionComment(),
-                offre.getCreatedAt()
+                offre.getCreatedAt(),
+                offre instanceof OffreCiblee
         );
     }
 
@@ -54,8 +66,9 @@ public record OffreDeStageDTO(
                 null,
                 null,
                 null,
-                null
-
+                null,
+                null,
+                false
         );
     }
 }
