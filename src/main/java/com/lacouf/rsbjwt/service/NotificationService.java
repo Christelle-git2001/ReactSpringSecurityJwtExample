@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,15 +46,31 @@ public class NotificationService {
     public NotificationDTO handleNouveauCVTeleverser(NouveauCvTeleverserEvent event){
         CvEtudiant cv = event.cv();
         Etudiant etudiant = cv.getEtudiant();
-        Notification notification = Notification.builder()
-                .titre("notification.gestionnaire.televerserCV.title")
-                .description("notification.gestionnaire.televerserCV.description")
-                .role(Role.GESTIONNAIRE)
-                .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
-                .dateCreaction(LocalDateTime.now())
-                .urlCible(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build((String.valueOf(cv.getId()))))
-                .variables(Map.of(VariableMapKey.ETUDIANT_NOM,etudiant.getFirstName() + " " + etudiant.getLastName()))
-                .build();
+        String urlCible = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()));
+        Optional<Notification> optionalNotification = notificationRepository
+                .findByNotificationTypeAndUrlCible(NotificationType.CV_ATTENTE_VALIDATION, urlCible);
+        Notification notification;
+
+        if (optionalNotification.isPresent()) {
+            notification = optionalNotification.get();
+            notification.setDateNotifiee(LocalDateTime.now());
+            notification.setEstLu(false);
+            notification.setVariables(Map.of(
+                    VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName()
+            ));
+        } else {
+            notification = Notification.builder()
+                    .titre("notification.gestionnaire.televerserCV.title")
+                    .description("notification.gestionnaire.televerserCV.description")
+                    .role(Role.GESTIONNAIRE)
+                    .notificationType(NotificationType.CV_ATTENTE_VALIDATION)
+                    .dateCreaction(LocalDateTime.now())
+                    .urlCible(urlCible)
+                    .variables(Map.of(
+                            VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName()
+                    ))
+                    .build();
+        }
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 
