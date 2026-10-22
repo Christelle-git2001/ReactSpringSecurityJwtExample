@@ -56,8 +56,14 @@ const EmployeurHome = ({ user }) => {
         candidatureFilters.setSelectedStatus(status);
     };
 
-    const handleView = async (offer) => {
-        openDrawer(<OffreDetailsDrawerContent offer={offer} />);
+    const handleView = (offer) => {
+        openDrawer(
+            <OffreDetailsDrawerContent
+                offer={offer}
+                candidatures={candidatures}
+                userId={user?.id}
+            />
+        );
     };
 
     const handleEdit = (offer) => {

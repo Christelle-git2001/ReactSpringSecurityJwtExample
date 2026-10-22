@@ -37,7 +37,6 @@ function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
         <>
             <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
 
-                {/* Uniquement le badge d'offre ciblée en haut à droite */}
                 {isTargeted && (
                     <div className="absolute top-3 right-3 z-10">
                         <span
