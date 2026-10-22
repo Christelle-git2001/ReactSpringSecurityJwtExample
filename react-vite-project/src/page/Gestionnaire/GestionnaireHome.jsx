@@ -4,7 +4,6 @@ import DashboardSummaryCard from "../../component/Design/Dashboard/DashboardSumm
 import DashboardSection from "../../component/Design/Dashboard/DashboardSection.jsx";
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
-import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { getOffresEnAttente, getCvsEnAttente } from "../../api/gestionnaire.jsx";
@@ -194,6 +193,7 @@ const GestionnaireHome = ({ user }) => {
                 <div className="flex flex-col gap-5 pb-4">
                     <DashboardSection
                         title={t("cv.pending_cvs_title")}
+                        collapsible
                         headerAction={
                             <span className={sectionCountClassName}>
                                 {getSectionCountLabel(cvsFiltresRecents.length, cvs.length, "dashboard.cv_count", "dashboard.cv_count_plural")}
@@ -205,25 +205,23 @@ const GestionnaireHome = ({ user }) => {
                                 message={cvs.length === 0 ? t("cv.none_pending") : t("offre.no_matching_offers")}
                             />
                         ) : (
-                            <ExpandableList
-                                items={cvsFiltresRecents}
-                                limit={3}
-                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                collapseLabel={t("dashboard.view_less", "Voir moins")}
-                                renderItem={(cv) => (
+                            <div className="space-y-3">
+                                {cvsFiltresRecents.map((cv) => (
                                     <CvListItem
+                                        key={cv.id}
                                         cv={cv}
                                         onClick={() => handleViewCv(cv)}
                                         actionLabel={t("dashboard.view_cv")}
                                         actionClassName="bg-blue-600 text-white hover:bg-blue-700"
                                     />
-                                )}
-                            />
+                                ))}
+                            </div>
                         )}
                     </DashboardSection>
 
                     <DashboardSection
                         title={t("offre.pending_offers")}
+                        collapsible
                         headerAction={
                             <span className={sectionCountClassName}>
                                 {getSectionCountLabel(offresFiltreesRecentes.length, offres.length, "dashboard.offer_count", "dashboard.offer_count_plural")}
@@ -235,20 +233,17 @@ const GestionnaireHome = ({ user }) => {
                                 message={offres.length === 0 ? t("offre.no_offers") : t("offre.no_matching_offers")}
                             />
                         ) : (
-                            <ExpandableList
-                                items={offresFiltreesRecentes}
-                                limit={3}
-                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                collapseLabel={t("dashboard.view_less", "Voir moins")}
-                                renderItem={(offer) => (
+                            <div className="space-y-3">
+                                {offresFiltreesRecentes.map((offer) => (
                                     <OfferListItem
+                                        key={offer.id}
                                         offer={offer}
                                         onClick={() => handleViewOffer(offer)}
                                         actionLabel={t("dashboard.view_offer")}
                                         actionClassName="bg-green-600 text-white hover:bg-green-700"
                                     />
-                                )}
-                            />
+                                ))}
+                            </div>
                         )}
                     </DashboardSection>
                 </div>

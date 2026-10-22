@@ -8,8 +8,8 @@ function Header({ sidebarOpen }) {
     const { t } = useTranslation();
 
     const tooltipText = sidebarOpen
-        ? t("actions.collapse")
-        : t("actions.expand");
+        ? t("sidebar.collapse")
+        : t("sidebar.expand");
 
     return (
         <nav className="navbar w-full bg-gradient-to-r from-[#043462] via-[#2F4A7A] to-[#6C4CCF]">
