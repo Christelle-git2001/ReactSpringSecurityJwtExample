@@ -4,8 +4,9 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
+import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -143,7 +144,7 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-       eventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
+       eventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
 
 
         etudiant.setCv(null);
@@ -254,8 +255,9 @@ public class EtudiantService {
         Candidature candidatureEnregistree =
                 candidatureRepository.save(candidature);
 
-        return CandidatureDTO.of(candidatureEnregistree);
+        eventPublisher.publishEvent(new NouvelleCandidatureEvent(candidatureEnregistree));
 
+        return CandidatureDTO.of(candidatureEnregistree);
     }
 
     public List<CandidatureDTO> getCandidaturesEtudiant(String email)

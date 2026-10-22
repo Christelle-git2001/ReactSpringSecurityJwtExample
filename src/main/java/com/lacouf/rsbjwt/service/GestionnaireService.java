@@ -6,10 +6,7 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
-import com.lacouf.rsbjwt.model.event.OffreDeStageApprouveeEvent;
+import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -119,8 +116,13 @@ public class GestionnaireService {
                 new OffreDeStageApprouveeEvent(offreEnregistree)
         );
 
-        return OffreDeStageDTO.of(offreEnregistree);
+        applicationEventPublisher.publishEvent(
+                new OffreSupprimerSoNotificationGestionnaireEvent(
+                        ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build(String.valueOf(offre.getId()))
+                )
+        );
 
+        return OffreDeStageDTO.of(offreEnregistree);
     }
 
     @Transactional
@@ -140,9 +142,15 @@ public class GestionnaireService {
         offre.setStatut(Statut.REFUSEE);
         offre.setRejectionComment(commentaire);
 
-        return OffreDeStageDTO.of(
-                offreDeStageRepository.save(offre)
+        OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
+
+        applicationEventPublisher.publishEvent(
+                new OffreSupprimerSoNotificationGestionnaireEvent(
+                        ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL.build(String.valueOf(offre.getId()))
+                )
         );
+
+        return OffreDeStageDTO.of(offreEnregistree);
     }
 
     public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){
