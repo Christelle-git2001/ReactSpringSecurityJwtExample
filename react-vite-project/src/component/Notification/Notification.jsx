@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "react-icons/fi";
+import {FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
+import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx"
 import ListItem from "../Design/Lists/ListItem.jsx";
 import {ImCross} from "react-icons/im";
 import {FaCheck, FaQuestion} from "react-icons/fa";
@@ -13,6 +14,7 @@ const ROUTES_PAR_TYPE = {
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
+    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details"
 };
 
 const CONFIG_PAR_TYPE = {
@@ -39,6 +41,10 @@ const CONFIG_PAR_TYPE = {
     NOUVELLE_OFFRE_STAGE: {
             icon: <FiBriefcase className="size-5" />,
             tone: "green",
+    },
+    NOUVELLE_CANDIDATURE: {
+        icon: <FiUserPlus className="size-5" />,
+        tone: "yellow",
     },
 };
 
@@ -179,9 +185,55 @@ export default function Notification({ userId, onClose }) {
             }
         };
 
+    const ouvrirCandidature = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        const candidatureId = notification.variables?.CANDIDATURE_ID;
 
+        if (!destination) {
+            setError("error.notification_path");
+            return;
+        }
 
+        let candidature;
+        let offer;
 
+        try {
+            const candidatures = await getCandidaturesEmployeur();
+            candidature = candidatures.find(c => c.id === Number(candidatureId));
+
+            if (!candidature) {
+                setError("notifications.open_error");
+                return;
+            }
+
+            const offres = await getOffresEmployeur();
+            offer = offres.find(o => String(o.id) === String(candidature.offreId));
+            } catch {
+                setError("notifications.open_error");
+                return;
+            }
+
+        if (!notification.estLu) {
+            try {
+                await marquerNotificationLue(notification.id);
+                setNotifications(current =>
+                    current.filter(item => item.id !== notification.id)
+                );
+            } catch {
+                setError("notifications.read_error");
+                return;
+            }
+        }
+
+            onClose?.();
+            navigate(destination,{
+                state: {
+                    candidature,
+                    offer,
+                    from: "/employeur",
+                },
+            });
+    };
 
     useEffect(() => {
         let notificationsStillDisplayed = true;
@@ -313,6 +365,9 @@ export default function Notification({ userId, onClose }) {
                                             notification.notificationType === "NOUVELLE_OFFRE_STAGE"
                                         ) {
                                             ouvrirNouvelleOffre(notification);
+                                        }
+                                        else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+                                            ouvrirCandidature(notification);
                                         }
                                     }
                                 }

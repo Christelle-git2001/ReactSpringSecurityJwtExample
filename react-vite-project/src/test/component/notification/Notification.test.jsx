@@ -32,13 +32,12 @@ beforeEach(async () => {
     await testI18n.changeLanguage("fr");
 
     getNotifications.mockResolvedValue(creerNotificationsMock());
-
 });
 
 function afficherNotifications() {
     return render(
         <I18nextProvider i18n={testI18n}>
-            <MemoryRouter>
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Notification userId={5} onClose={jest.fn()} />
             </MemoryRouter>
         </I18nextProvider>
@@ -49,7 +48,7 @@ describe("Notification - comportements communs", () => {
     it("recharge les notifications quand userId change", async () => {
         const { rerender } = render(
             <I18nextProvider i18n={testI18n}>
-                <MemoryRouter>
+                <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <Notification userId={5} />
                 </MemoryRouter>
             </I18nextProvider>
@@ -62,7 +61,7 @@ describe("Notification - comportements communs", () => {
         await act(async () => {
             rerender(
                 <I18nextProvider i18n={testI18n}>
-                    <MemoryRouter>
+                    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                         <Notification userId={10} />
                     </MemoryRouter>
                 </I18nextProvider>
@@ -113,10 +112,11 @@ describe("Notification - comportements communs", () => {
 
         const items = await screen.findAllByRole("listitem");
 
-        expect(items).toHaveLength(3);
+        expect(items).toHaveLength(4);
         expect(items[0]).toHaveTextContent("Stage en développement");
-        expect(items[1]).toHaveTextContent("Junior Belle");
-        expect(items[2]).toHaveTextContent("Mercedes Belle");
+        expect(items[1]).toHaveTextContent("Nouvelle offre à valider");
+        expect(items[2]).toHaveTextContent("Junior Belle");
+        expect(items[3]).toHaveTextContent("Mercedes Belle");
     });
 
     it("inverse le tri des notifications au clic", async () => {
@@ -130,7 +130,8 @@ describe("Notification - comportements communs", () => {
         const items = screen.getAllByRole("listitem");
         expect(items[0]).toHaveTextContent("Mercedes Belle");
         expect(items[1]).toHaveTextContent("Junior Belle");
-        expect(items[2]).toHaveTextContent("Stage en développement");
+        expect(items[2]).toHaveTextContent("Nouvelle offre à valider");
+        expect(items[3]).toHaveTextContent("Stage en développement");
     });
 
     it("affiche une erreur si le chargement des notifications échoue", async () => {
@@ -152,7 +153,7 @@ describe("Notification - comportements communs", () => {
             screen.queryByText("Ouriela Belle a téléversé un CV.")
         ).not.toBeInTheDocument();
 
-        expect(screen.getAllByRole("listitem")).toHaveLength(3);
+        expect(screen.getAllByRole("listitem")).toHaveLength(4);
     });
 
     it("affiche un message quand l’API ne retourne aucune notification", async () => {

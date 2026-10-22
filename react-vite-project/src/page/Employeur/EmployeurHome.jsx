@@ -9,6 +9,7 @@ import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
@@ -55,8 +56,14 @@ const EmployeurHome = ({ user }) => {
         candidatureFilters.setSelectedStatus(status);
     };
 
-    const handleView = async (offer) => {
-        openDrawer(<OffreDetailsDrawerContent offer={offer} />);
+    const handleView = (offer) => {
+        openDrawer(
+            <OffreDetailsDrawerContent
+                offer={offer}
+                candidatures={candidatures}
+                userId={user?.id}
+            />
+        );
     };
 
     const handleEdit = (offer) => {
@@ -65,7 +72,28 @@ const EmployeurHome = ({ user }) => {
         });
     };
 
-    const handleViewCandidature = (candidature) => {
+    const marquerNotificationCandidatureCommeLue = async (candidatureId) => {
+        if (!user?.id) return;
+        try {
+            const notifications = await getNotifications(user.id);
+            const notification = notifications.find(
+                (item) =>
+                    item.notificationType === "NOUVELLE_CANDIDATURE" &&
+                    String(item.variables?.CANDIDATURE_ID) === String(candidatureId) &&
+                    !item.estLu
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+            }
+        } catch (error) {
+            console.error("Erreur lors du marquage de la notification :", error);
+        }
+    };
+
+    const handleViewCandidature = async (candidature) => {
+        await marquerNotificationCandidatureCommeLue(candidature.id);
+
         const matchedOffer = offres.find((o) => o.id === candidature.offreId);
         navigate(`/employeur/candidatures/details`, {
             state: {
@@ -141,7 +169,7 @@ const EmployeurHome = ({ user }) => {
                     <input type="checkbox" className="peer" defaultChecked />
 
                     <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                         <span> {t("nav.view_offers")} </span>
+                        <span> {t("nav.view_offers")} </span>
                         <span> ({filteredOffres.length}) </span>
                     </div>
 

@@ -115,6 +115,7 @@
     "clear": "Effacer la recherche"
   },
   "offre": {
+    "new": "Nouvelles Offres",
     "targeted": "Ciblée",
     "targeted_badge": "Offre ciblée",
     "already_applied": "Vous avez déjà postulé",
@@ -391,6 +392,12 @@
     "oldest_first": "Plus anciennes d’abord"
   },
   "notification": {
+    "employeur": {
+      "nouvelleCandidature": {
+        "title": "Nouvelle candidature",
+        "description": "{{ETUDIANT_NOM}} a postulé à votre offre : {{OFFRE_TITRE}}"
+      }
+    },
     "gestionnaire": {
       "offre": {
         "title": "Nouvelle offre à valider",

@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
@@ -455,7 +455,7 @@ class GestionnaireServiceTest {
         verify(cvEtudiantRepository).findById(1L);
         verify(cvEtudiantRepository).save(cvEtudiant);
         verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.ACCEPTEE));
-        verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotificationGestionnaire(
+        verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1")));
     }
 
@@ -498,7 +498,7 @@ class GestionnaireServiceTest {
         verify(cvEtudiantRepository).findById(1L);
         verify(cvEtudiantRepository).save(cvEtudiant);
         verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.REFUSEE));
-        verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotificationGestionnaire(
+        verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1")));
     }
 

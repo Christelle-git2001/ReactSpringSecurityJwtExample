@@ -1,12 +1,23 @@
 import { useTranslation } from "react-i18next";
 import { FiStar } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import "../../css/EtudiantHome.css";
 import PostulerButton from "../Design/PostulerButton.jsx";
+import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 
-function OffreDetailsDrawerContent({ offer, showStatus = true, hasApplied = false, onApplied }) {
+function OffreDetailsDrawerContent({
+                                       offer,
+                                       candidatures = [],
+                                       userId,
+                                       showStatus = true,
+                                       hasApplied = false,
+                                       onApplied,
+                                       onCloseDrawer
+                                   }) {
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     const isTargeted = Boolean(offer?.isTarget);
 
@@ -18,15 +29,45 @@ function OffreDetailsDrawerContent({ offer, showStatus = true, hasApplied = fals
     const status = getStatusConfig(offer?.statut, t);
 
     const employeurDisplay = offer?.employeur
-        ? `${offer.employeur.businessName ? ` ${offer.employeur.businessName}` : ""
-        }`
+        ? `${offer.employeur.businessName ? ` ${offer.employeur.businessName}` : ""}`
         : null;
 
     const etudiantDisplay = offer?.etudiant
         ? `${offer.etudiant.firstName} ${offer.etudiant.lastName}`
         : offer?.etudiantName;
 
-    const targetedLabelText = t("offre.targeted", "Offre ciblée");
+    const candidaturesOffre = candidatures.filter(c => c.offreId === offer?.id);
+
+    const marquerNotificationCommeLue = async (candidatureId) => {
+        if (!userId) return;
+        try {
+            const notifications = await getNotifications(userId);
+            const notification = notifications.find(
+                (item) =>
+                    item.notificationType === "NOUVELLE_CANDIDATURE" &&
+                    String(item.variables?.CANDIDATURE_ID) === String(candidatureId) &&
+                    !item.estLu
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+            }
+        } catch (error) {
+            console.error("Erreur lors du marquage de la notification :", error);
+        }
+    };
+
+    const handleSelectCandidature = async (candidature) => {
+        await marquerNotificationCommeLue(candidature.id);
+        onCloseDrawer?.();
+        navigate("/employeur/candidatures/details", {
+            state: {
+                candidature,
+                offer,
+                from: "/employeur"
+            }
+        });
+    };
 
     return (
         <div className="space-y-4 p-2">
@@ -36,7 +77,7 @@ function OffreDetailsDrawerContent({ offer, showStatus = true, hasApplied = fals
                     <h2 className="text-xl font-bold text-[#043462] break-words flex-1">
                         {offer?.title}
                     </h2>
-                    
+
                     {showStatus && (
                         <span
                             title={status.label}
@@ -87,6 +128,33 @@ function OffreDetailsDrawerContent({ offer, showStatus = true, hasApplied = fals
                     <strong className="text-[#043462]">{t("offre.description")} :</strong><br />
                     <span className="whitespace-pre-line text-gray-700 break-words">{offer?.description}</span>
                 </p>
+
+                {showStatus && (
+                    <div className="pt-4 border-t border-gray-100 space-y-2">
+                        <h3 className="font-bold text-sm text-[#043462]">
+                            {t("candidature.list_title")} ({candidaturesOffre.length})
+                        </h3>
+
+                        {candidaturesOffre.length === 0 ? (
+                            <p className="text-xs text-gray-500 italic">
+                                {t("candidature.no_candidatures")}
+                            </p>
+                        ) : (
+                            <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto">
+                                {candidaturesOffre.map((cand) => (
+                                    <button
+                                        key={cand.id}
+                                        type="button"
+                                        onClick={() => handleSelectCandidature(cand)}
+                                        className="text-left text-xs font-medium text-[#043462] hover:text-[#00CCCB] hover:underline p-1 rounded transition-colors"
+                                    >
+                                        {cand.etudiantFirstName} {cand.etudiantLastName}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {!showStatus && (
                     <div className="pt-4 border-t border-gray-100">

@@ -25,4 +25,9 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     void deleteByUrlCible(String urlCible);
 
     void deleteNotificationByNotificationTypeAndDestinataire(NotificationType notificationType, UserApp destinataire);
+
+    Optional<Notification> findByNotificationTypeAndUrlCible(
+            NotificationType notificationType,
+            String urlCible
+    );
 }

@@ -2,6 +2,19 @@ export function creerNotificationsMock() {
     return [
         {
             id: 1,
+            titre: "notification.employeur.nouvelleCandidature.title",
+            description: "notification.employeur.nouvelleCandidature.description",
+            notificationType: "NOUVELLE_CANDIDATURE",
+            variables: {
+                ETUDIANT_NOM: "Jean Tremblay",
+                OFFRE_TITRE: "Stage en développement",
+                CANDIDATURE_ID: "100"
+            },
+            estLu: false,
+            dateNotifiee: "2026-10-20T09:33:00",
+        },
+        {
+            id: 2,
             titre: "notification.gestionnaire.televerserCV.title",
             description: "notification.gestionnaire.televerserCV.description",
             notificationType: "CV_ATTENTE_VALIDATION",
@@ -11,7 +24,7 @@ export function creerNotificationsMock() {
             urlCible: "/gestionnaire/cv/10",
         },
         {
-            id: 2,
+            id: 3,
             titre: "notification.gestionnaire.televerserCV.title",
             description: "notification.gestionnaire.televerserCV.description",
             notificationType: "CV_ATTENTE_VALIDATION",
@@ -21,7 +34,7 @@ export function creerNotificationsMock() {
             urlCible: "/gestionnaire/cv/20",
         },
         {
-            id: 3,
+            id: 4,
             titre: "notification.gestionnaire.televerserCV.title",
             description: "notification.gestionnaire.televerserCV.description",
             notificationType: "CV_ATTENTE_VALIDATION",
@@ -63,5 +76,19 @@ export function creerOffresMock() {
             displayEndDate: "2025-12-01",
             fileName: "offre.pdf",
         },
+    ];
+}
+
+export function creerCandidaturesMock() {
+    return [
+        {
+            id: 100,
+            etudiantFirstName: "Jean",
+            etudiantLastName: "Tremblay",
+            etudiantDepartment: "INFORMATIQUE",
+            offreId: 1,
+            offreTitle: "Développeur Web",
+            statut: "EN_ATTENTE"
+        }
     ];
 }

@@ -92,6 +92,11 @@ public class NotificationServiceTest {
         offre.setEmployeur(employeur);
         Candidature candidature = new Candidature(etudiant, offre);
         candidature.setId(30L);
+        notificationEmployeur.setVariables(Map.of(
+                VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
+                VariableMapKey.OFFRE_TITRE, "Developpeur Java",
+                VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+        ));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationEmployeur);
 
         NotificationDTO notificationDTO = notificationService.handleNouvelleCandidatureEvent(
@@ -171,7 +176,7 @@ public class NotificationServiceTest {
         String expectedUrl = ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1");
 
 
-        CvSupprimerSoNotificationGestionnaire event = new CvSupprimerSoNotificationGestionnaire(expectedUrl);
+        CvSupprimerSoNotificationGestionnaireEvent event = new CvSupprimerSoNotificationGestionnaireEvent(expectedUrl);
 
         notificationService.handleCvSupprimerSoNotification(event);
 
@@ -318,6 +323,7 @@ public class NotificationServiceTest {
                 .salary(25.0)
                 .statut(Statut.EN_ATTENTE)
                 .createdAt(LocalDateTime.now())
+                .employeur(employeur)
                 .build();
 
         offre.setId(10L);
@@ -332,7 +338,8 @@ public class NotificationServiceTest {
                 Role.GESTIONNAIRE,
                 Map.of(
                         VariableMapKey.OFFRE_ID, "10",
-                        VariableMapKey.OFFRE_TITRE, "Développeur frontend"
+                        VariableMapKey.OFFRE_TITRE, "Développeur frontend",
+                        VariableMapKey.EMPLOYEUR_NOM, employeur.getBusinessName()
                 )
         );
 
@@ -409,5 +416,118 @@ public class NotificationServiceTest {
 
         verify(notificationRepository).save(any(Notification.class));
     }
+
+    @Test
+    void doitCreerUneNotificationLorsChamgementStatutOffre(){
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .employeur(employeur)
+                .build();
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationEmployeur);
+
+        NotificationDTO notificationDTO = notificationService.handleOffreStatutModifie(new OffreStatutModifieEvent(gestionnaire,offre.getStatut(),offre));
+
+        assertThat(notificationDTO.description()).isEqualTo(notificationEmployeur.getDescription());
+        assertThat(notificationDTO.variables()).isEqualTo(notificationEmployeur.getVariables());
+    }
+
+    @Test
+    void doitModifierUneNotificationLorsDeLaModificationOffre() throws NotificationNonTrouvee {
+        OffreDeStage ancienneOffre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .employeur(employeur)
+                .build();
+        OffreDeStage nouvelleOffre = OffreDeStage.builder()
+                .title("Développeur backend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .employeur(employeur)
+                .build();
+        String urlCible = ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                .build(String.valueOf(ancienneOffre.getId()));
+        when(notificationRepository.findByNotificationTypeAndUrlCible(
+                NotificationType.OFFRE_ATTENTE_VALIDATION, urlCible))
+                .thenReturn(Optional.of(notificationEmployeur));
+        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        when(notificationRepository.save(notificationCaptor.capture()))
+                .thenReturn(notificationEmployeur);
+
+        notificationService.handleOffreModifierSoNotification(
+                new OffreModifierSoNotificationEvent(ancienneOffre, nouvelleOffre)
+        );
+        Notification notificationSauvegardee = notificationCaptor.getValue();
+
+        assertThat(notificationSauvegardee.getDescription())
+                .isEqualTo(notificationEmployeur.getDescription());
+        assertThat(notificationSauvegardee.getVariables().get(VariableMapKey.OFFRE_TITRE))
+                .isEqualTo("Développeur backend");
+    }
+
+    @Test
+    void doitRenvoyerNotificationNontrouver() throws NotificationNonTrouvee {
+        OffreDeStage ancienneOffre = OffreDeStage.builder()
+                .title("Développeur frontend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .employeur(employeur)
+                .build();
+        OffreDeStage nouvelleOffre = OffreDeStage.builder()
+                .title("Développeur backend")
+                .description("Développement d'une application web")
+                .salary(25.0)
+                .statut(Statut.EN_ATTENTE)
+                .createdAt(LocalDateTime.now())
+                .employeur(employeur)
+                .build();
+        String urlCible = ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                .build(String.valueOf(ancienneOffre.getId()));
+
+        when(notificationRepository.findByNotificationTypeAndUrlCible(
+                NotificationType.OFFRE_ATTENTE_VALIDATION, urlCible))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> notificationService.handleOffreModifierSoNotification(
+                new OffreModifierSoNotificationEvent(ancienneOffre, nouvelleOffre)))
+                .isInstanceOf(NotificationNonTrouvee.class);
+
+    }
+
+    @Test
+    void doitSupprimerLaNotificationLorsDeLaSuppressionOffre() {
+        String navigationPath = "/gestionnaire/offres/12";
+        OffreSupprimerSoNotificationGestionnaireEvent event =
+                new OffreSupprimerSoNotificationGestionnaireEvent(navigationPath);
+
+        notificationService.handleOffreSupprimerSoNotification(event);
+
+        verify(notificationRepository).deleteByUrlCible(navigationPath);
+    }
+
+    @Test
+    void doitSupprimerLaNotificationCvEtudiant() {
+        CvSupprimerSoNotificationEtudiantEvent event =
+                new CvSupprimerSoNotificationEtudiantEvent(etudiant);
+
+        notificationService.handleCvSupprimerSoNotificationEtudiant(event);
+
+        verify(notificationRepository).deleteNotificationByNotificationTypeAndDestinataire(
+                NotificationType.CV_STATUT_CHANGE,
+                etudiant
+        );
+    }
+
+
 
 }
