@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell } from "react-icons/fi";
-import { MdWorkOutline } from "react-icons/md";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
@@ -36,7 +35,7 @@ function SideBarLayout({ user }) {
     useEffect(() => {
         let actif = true;
 
-        if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT"].includes(role)) {
+        if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role)) {
             setNombreNotifications(0);
             return;
         }
@@ -61,10 +60,10 @@ function SideBarLayout({ user }) {
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/etudiant/cv#televerser", label: t("nav.cv"), roles: ["ETUDIANT"], icon: <FiFile className="size-4 my-1.5" /> },
-        { path: "/etudiant/candidatures", label: t("nav.applications"), roles: ["ETUDIANT"], icon: <MdWorkOutline className="size-4 my-1.5" /> },
         { path: "/employeur", label: t("nav.home"), roles: ["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
+        { path: "/gestionnaire/offres/nouvelle-ciblee", label: t("nav.add_offer"), roles: ["GESTIONNAIRE"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         {
             path: user?.isLoggedIn ? "/logout" : "/login",
@@ -113,7 +112,7 @@ function SideBarLayout({ user }) {
                 <div className="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">
                     <ul className="menu w-full grow">
 
-                        {user?.isLoggedIn && ["GESTIONNAIRE", "ETUDIANT"].includes(role) && (
+                        {user?.isLoggedIn && ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role) && (
                             <li>
                                 <button
                                     type="button"

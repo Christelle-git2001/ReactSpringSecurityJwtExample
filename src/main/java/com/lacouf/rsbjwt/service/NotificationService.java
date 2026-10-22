@@ -77,7 +77,37 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-   public void handleCvSupprimerSoNotification(CvSupprimerSoNotificationGestionnaire event){
+    public NotificationDTO handleOffreStatutModifie(OffreStatutModifieEvent event) {
+        OffreDeStage offre = event.offre();
+        UserApp destinataire = event.destinataire();
+        Statut statut = event.statut();
+
+        Notification notification = Notification.builder()
+                .titre("notification.employeur.validation.title_" + statut.name().toLowerCase())
+                .description("notification.employeur.validation.description_" + statut.name().toLowerCase())
+                .notificationType(NotificationType.OFFRE_STATUT_CHANGE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .urlCible("/employeur/offres")
+                .destinataire(destinataire)
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.STATUT_FICHIER, event.statut().name()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+   public void handleCvSupprimerSoNotification(CvSupprimerSoNotificationGestionnaireEvent event){
+        notificationRepository.deleteByUrlCible(event.navigationPath());
+    }
+
+    @EventListener
+    @Transactional
+    public void handleOffreSupprimerSoNotification(OffreSupprimerSoNotificationGestionnaireEvent event) {
         notificationRepository.deleteByUrlCible(event.navigationPath());
     }
 
@@ -111,11 +141,31 @@ public class NotificationService {
                         .build(String.valueOf(offre.getId())))
                 .variables(Map.of(
                         VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
-                        VariableMapKey.OFFRE_TITRE, offre.getTitle()
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.ENTREPRISE_NOM,
+                        offre.getEmployeur().getBusinessName()
                 ))
                 .build();
 
         return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public void handleOffreModifierSoNotification(OffreModifierSoNotificationEvent event) throws NotificationNonTrouvee {
+        OffreDeStage ancienneOffre = event.ancienneOffre();
+        OffreDeStage nouvelleOffre = event.nouvelleOffre();
+        String urlCible = ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                .build(String.valueOf(ancienneOffre.getId()));
+        Notification notification = notificationRepository.findByNotificationTypeAndUrlCible(NotificationType.OFFRE_ATTENTE_VALIDATION,urlCible).orElseThrow(NotificationNonTrouvee::new);
+        notification.setVariables(Map.of(
+                VariableMapKey.OFFRE_ID, String.valueOf(nouvelleOffre.getId()),
+                VariableMapKey.OFFRE_TITRE, nouvelleOffre.getTitle(),
+                VariableMapKey.ENTREPRISE_NOM,
+                nouvelleOffre.getEmployeur().getBusinessName()
+        ));
+        notification.setDateNotifiee(LocalDateTime.now());
+        notificationRepository.save(notification);
     }
 
     @EventListener
@@ -142,7 +192,9 @@ public class NotificationService {
                             VariableMapKey.OFFRE_ID,
                             String.valueOf(offre.getId()),
                             VariableMapKey.OFFRE_TITRE,
-                            offre.getTitle()
+                            offre.getTitle(),
+                            VariableMapKey.ENTREPRISE_NOM,
+                            offre.getEmployeur().getBusinessName()
                     )
             );
 
@@ -152,7 +204,7 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-    public void handleCvSupprimerSoNotificationEtudiant(CvSupprimerSoNotificationEtudiant event){
+    public void handleCvSupprimerSoNotificationEtudiant(CvSupprimerSoNotificationEtudiantEvent event){
         Etudiant etudiant = event.etudiant();
         notificationRepository.deleteNotificationByNotificationTypeAndDestinataire(NotificationType.CV_STATUT_CHANGE,etudiant);
     }
@@ -206,8 +258,8 @@ public class NotificationService {
                     .variables(Map.of(
                             VariableMapKey.ETUDIANT_NOM,
                             etudiant.getFirstName() + " " + etudiant.getLastName(),
-                            VariableMapKey.OFFRE_TITRE,
-                            offre.getTitle()
+                            VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                            VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
                     ))
                     .build();
 

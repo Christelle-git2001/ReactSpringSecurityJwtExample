@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import { FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText } from "react-icons/fi";
+import {FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
+import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx"
 import ListItem from "../Design/Lists/ListItem.jsx";
 import {ImCross} from "react-icons/im";
 import {FaCheck, FaQuestion} from "react-icons/fa";
@@ -11,7 +12,9 @@ import {FaCheck, FaQuestion} from "react-icons/fa";
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
-    CV_STATUT_CHANGE: "/etudiant/cv#televerser"
+    CV_STATUT_CHANGE: "/etudiant/cv#televerser",
+    NOUVELLE_OFFRE_STAGE: "/etudiant",
+    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details"
 };
 
 const CONFIG_PAR_TYPE = {
@@ -34,7 +37,15 @@ const CONFIG_PAR_TYPE = {
     CV_STATUT_CHANGE: {
         icon : <FaQuestion />,
         tone : "yellow"
-    }
+    },
+    NOUVELLE_OFFRE_STAGE: {
+            icon: <FiBriefcase className="size-5" />,
+            tone: "green",
+    },
+    NOUVELLE_CANDIDATURE: {
+        icon: <FiUserPlus className="size-5" />,
+        tone: "yellow",
+    },
 };
 
 export default function Notification({ userId, onClose }) {
@@ -143,6 +154,86 @@ export default function Notification({ userId, onClose }) {
         }
     }
 
+    const ouvrirNouvelleOffre = async (notification) => {
+            const destination = ROUTES_PAR_TYPE[notification.notificationType];
+            const offreId = notification.variables?.OFFRE_ID;
+
+            if (!destination || !offreId) {
+                setError("notifications.open_error");
+                return;
+            }
+
+            try {
+                if (!notification.estLu) {
+                    await marquerNotificationLue(notification.id);
+
+                    setNotifications(current =>
+                        current.filter(item => item.id !== notification.id)
+                    );
+                }
+
+                onClose?.();
+
+                navigate(destination, {
+                    state: {
+                        offreId,
+                        from: "/etudiant",
+                    },
+                });
+            } catch {
+                setError("notifications.read_error");
+            }
+        };
+
+    const ouvrirCandidature = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        const candidatureId = notification.variables?.CANDIDATURE_ID;
+
+        if (!destination) {
+            setError("error.notification_path");
+            return;
+        }
+
+        let candidature;
+        let offer;
+
+        try {
+            const candidatures = await getCandidaturesEmployeur();
+            candidature = candidatures.find(c => c.id === Number(candidatureId));
+
+            if (!candidature) {
+                setError("notifications.open_error");
+                return;
+            }
+
+            const offres = await getOffresEmployeur();
+            offer = offres.find(o => String(o.id) === String(candidature.offreId));
+            } catch {
+                setError("notifications.open_error");
+                return;
+            }
+
+        if (!notification.estLu) {
+            try {
+                await marquerNotificationLue(notification.id);
+                setNotifications(current =>
+                    current.filter(item => item.id !== notification.id)
+                );
+            } catch {
+                setError("notifications.read_error");
+                return;
+            }
+        }
+
+            onClose?.();
+            navigate(destination,{
+                state: {
+                    candidature,
+                    offer,
+                    from: "/employeur",
+                },
+            });
+    };
 
     useEffect(() => {
         let notificationsStillDisplayed = true;
@@ -159,7 +250,10 @@ export default function Notification({ userId, onClose }) {
                         (data ?? []).filter(notification => !notification.estLu)
                     );
                 }
-            } catch {
+            } catch (err) {
+                if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
+                    navigate("/login");
+                }
                 if (notificationsStillDisplayed) {
                     setError("notifications.load_error");
                 }
@@ -261,12 +355,22 @@ export default function Notification({ userId, onClose }) {
                                     meta={formaterDate(notification.dateNotifiee)}
                                     ariaLabel={titre}
                                     onClick={() => {
-                                        if (isCv) ouvrirCv(notification);
-                                        else if
-                                        (isOffre) ouvrirOffre(notification);
-                                        else if (isStatusChange) ouvrirCvEtudiant(notification);
-
-                                    }}
+                                        if (isCv) {
+                                            ouvrirCv(notification);
+                                        } else if (isOffre) {
+                                            ouvrirOffre(notification);
+                                        } else if (isStatusChange) {
+                                            ouvrirCvEtudiant(notification);
+                                        } else if (
+                                            notification.notificationType === "NOUVELLE_OFFRE_STAGE"
+                                        ) {
+                                            ouvrirNouvelleOffre(notification);
+                                        }
+                                        else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+                                            ouvrirCandidature(notification);
+                                        }
+                                    }
+                                }
                                 />
                             </li>
                         );

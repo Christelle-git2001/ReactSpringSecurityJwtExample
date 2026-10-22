@@ -1,8 +1,14 @@
 package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.Exception.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.*;
 //import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.service.EmployeurService;
@@ -12,6 +18,7 @@ import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @SpringBootApplication
 public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
@@ -28,26 +36,28 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final EtudiantRepository etudiantRepository;
     private final UserAppRepository userAppRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
     private final EtudiantService etudiantService;
     private final OffreDeStageRepository offreDeStageRepository;
     private final EmployeurRepository employeurRepository;
     private final EmployeurService employeurService;
     private final GestionnaireService gestionnaireService;
+    private final CvEtudiantRepository cvEtudiantRepository;
 
     public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
-                                             UserAppRepository userAppRepository, PasswordEncoder passwordEncoder, EtudiantService etudiantService,
+                                             UserAppRepository userAppRepository,  Environment environment, EtudiantService etudiantService,
                                              OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
-                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService) {
+                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.environment = environment;
         this.etudiantService = etudiantService;
         this.employeurService = employeurService;
         this.offreDeStageRepository = offreDeStageRepository;
         this.employeurRepository = employeurRepository;
         this.gestionnaireService = gestionnaireService;
+        this.cvEtudiantRepository = cvEtudiantRepository;
     }
 
     public static void main(String[] args) {
@@ -56,12 +66,22 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        if (Arrays.asList(environment.getActiveProfiles()).contains("test")) {
+            return;
+        }
 
         GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed", LocalDateTime.now());
         gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
 
         InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO( "Sebastien","Castonguay","450-716-1217","Sebastien.Castonguay@hotmail.com","6565656",Departement.INFORMATIQUE.name(),"NoNeedButStillNeed","NoNeedButStillNeed");
         etudiantService.creerCompteEtudiant(etudiantDTO);
+
+        InscriptionEtudiantDTO etudiantBadCvDTO = new InscriptionEtudiantDTO(
+                "Marc", "Disparu", "450-999-8888", "Marc.Disparu@hotmail.com",
+                "9999999", Departement.INFORMATIQUE.name(), "NoNeed", "NoNeed"
+        );
+        etudiantService.creerCompteEtudiant(etudiantBadCvDTO);
+        Etudiant etudiantBadCv = etudiantRepository.findByMatricule("9999999").orElseThrow();
 
         InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
@@ -121,6 +141,29 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
+
+        Employeur employeur = employeurRepository.findByEmail("Roger.Malinois@hotmail.com").orElseThrow(EmployeurIntrouvable::new);
+        OffreDeStage offreDeStage = new OffreDeStage("Technician Reseaux",
+                "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
+                20.0,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(5),    // Début dans 5 jours
+                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
+                LocalDate.now().minusDays(2),    // Affichage -2 jour
+                Statut.ACCEPTEE,
+                 "offre.pdf",
+                "uploads/offres",
+                employeur,
+                "",
+                LocalDateTime.now()
+        );
+
+
+       offreDeStageRepository.save(offreDeStage);
+
+       CvEtudiant cvEtudiant = new CvEtudiant("CV_Marc_Disparu","application/pdf",1024L,"none",LocalDateTime.now(),etudiantBadCv);
+
+       cvEtudiantRepository.save(cvEtudiant);
 
     }
 }

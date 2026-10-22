@@ -1,10 +1,8 @@
 package com.lacouf.rsbjwt.presentation;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
-import com.lacouf.rsbjwt.Exception.CurriculumVitaeIntrouvable;
-import com.lacouf.rsbjwt.Exception.FichierIntrouvableException;
+import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.GestionnaireService;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -16,6 +14,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,10 +24,13 @@ import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -47,14 +49,17 @@ public class GestionnaireControllerTest {
     private MockMvc mockMvc;
 
     private JsonMapper jsonMapper;
+    private JsonMapper objectMapper;
 
     private EtudiantDTO etudiantDTO;
+    private OffreDeStageDTO offreDeStageDTO;
 
     @BeforeEach
     void init(){
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
         jsonMapper = JsonMapper.builder().build();
+        objectMapper = JsonMapper.builder().build();
 
         etudiantDTO = new EtudiantDTO(
                 1L,
@@ -65,6 +70,24 @@ public class GestionnaireControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null
+        );
+
+        offreDeStageDTO = new OffreDeStageDTO(
+                1L,
+                "Stage Ciblé Java",
+                "Description test",
+                25.0,
+                Departement.INFORMATIQUE,
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15),
+                Statut.EN_ATTENTE,
+                "offre.pdf",
+                null,
+                null,
+                null,
+                null,
+                false
         );
     }
 
@@ -131,7 +154,9 @@ public class GestionnaireControllerTest {
                 "offre.pdf",
                 null,
                 null,
-                null
+                null,
+                null,
+                false
         );
 
         when(gestionnaireService.getOffresEnAttente())
@@ -177,7 +202,9 @@ public class GestionnaireControllerTest {
                 "offre.pdf",
                 null,
                 null,
-                null
+                null,
+                null,
+                false
         );
 
         when(gestionnaireService.approuverOffre(1L))
@@ -211,8 +238,10 @@ public class GestionnaireControllerTest {
                 Statut.REFUSEE,
                 "offre.pdf",
                 null,
+                null,
                 commentaire,
-                null
+                null,
+                false
         );
 
         when(gestionnaireService.refuserOffre(1L, commentaire))
@@ -249,9 +278,9 @@ public class GestionnaireControllerTest {
 
         when(gestionnaireService.getCurriculumVitaeEnAttente()).thenReturn(List.of(cvEtudiantDTO));
 
-       MvcResult mvcResult =  mockMvc.perform(get("/gestionnaire/cvs/attente")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(cvEtudiantDTO)))
+        MvcResult mvcResult =  mockMvc.perform(get("/gestionnaire/cvs/attente")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(cvEtudiantDTO)))
                 .andExpect(status().isOk()).andReturn();
         String jsonResponse = mvcResult.getResponse().getContentAsString();
         List<CvEtudiantDTO> cvEtudiantDTOResult = jsonMapper.readValue(
@@ -426,7 +455,9 @@ public class GestionnaireControllerTest {
                 "offre.pdf",
                 null,
                 null,
-                null
+                null,
+                null,
+                false
         );
 
         when(gestionnaireService.getToutesLesOffres()).thenReturn(List.of(offre));
@@ -465,7 +496,9 @@ public class GestionnaireControllerTest {
                 "offre.pdf",
                 null,
                 null,
-                null
+                null,
+                null,
+                false
         );
 
         when(gestionnaireService.getOffreParId(1L))
@@ -477,5 +510,43 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("Développeur Java"))
                 .andExpect(jsonPath("$.statut").value("EN_ATTENTE"));
+    }
+
+    @Test
+    void doitCreerOffreCibleeAvecFichierPdf() throws DateFinAffichageApresDateDebutException, Exception {
+        CreationOffreCibleeDTO creationOffreCibleeDTO = new CreationOffreCibleeDTO(
+                "Stage Ciblé Java",
+                "Description test",
+                25.0,
+                Departement.INFORMATIQUE,
+                LocalDate.of(2029, 10, 1),
+                LocalDate.of(2029, 10, 15),
+                LocalDate.of(2029, 10, 1).minusDays(15),
+                1L,
+                1L
+        );
+
+        MockMultipartFile offrePart = new MockMultipartFile(
+                "offre",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreCibleeDTO)
+        );
+        MockMultipartFile fichierPart = new MockMultipartFile(
+                "file",
+                "offre.pdf",
+                MediaType.APPLICATION_PDF_VALUE,
+                "contenu du pdf".getBytes()
+        );
+
+        when(gestionnaireService.creerOffreCiblee(any(), any())).thenReturn(offreDeStageDTO);
+
+        mockMvc.perform(multipart("/gestionnaire/offres")
+                        .file(offrePart)
+                        .file(fichierPart))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(offreDeStageDTO.id()))
+                .andExpect(jsonPath("$.title").value(offreDeStageDTO.title()))
+                .andExpect(jsonPath("$.statut").value(Statut.EN_ATTENTE.name()));
     }
 }

@@ -1,14 +1,10 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Candidature;
-import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationEtudiant;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaire;
+import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -28,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -116,9 +113,6 @@ public class EtudiantService {
             throw new CurriculumVitaeDejaApprouveException();
         }
 
-        if (cv.getId() != null && cv.getStatut() == Statut.REFUSEE)
-            eventPublisher.publishEvent(new CvSupprimerSoNotificationEtudiant(etudiant));
-
         supprimerAncienCv(cv, filePath);
 
         remplirInformationsCv(cv, file, filePath);
@@ -150,9 +144,8 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         CvEtudiant cv = trouverCvParEtudiant(etudiant);
 
-       eventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaire(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
-       if (cv.getStatut() != Statut.ACCEPTEE)
-           eventPublisher.publishEvent(new CvSupprimerSoNotificationEtudiant(etudiant));
+       eventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cv.getId()))));
+
 
         etudiant.setCv(null);
         cvEtudiantRepository.delete(cv);
@@ -195,7 +188,7 @@ public class EtudiantService {
         cv.setRejectionComment(null);
     }
 
-    public List<OffreDeStageDTO> getOffresDisponibles( Departement departement, String email)
+    public List<OffreDeStageDTO> getOffresDisponibles(Departement departement, String email)
             throws EtudiantIntrouvableException,
             CurriculumVitaeNonApprouveException, CurriculumVitaeIntrouvable {
 
@@ -208,19 +201,26 @@ public class EtudiantService {
             throw new CurriculumVitaeNonApprouveException();
         }
 
-        return offreDeStageRepository.findAllByStatutAndDomainAndDisplayEndDateGreaterThanEqual(
-                        Statut.ACCEPTEE,
-                        departement,
-                        LocalDate.now()
-                )
-                .stream()
+        LocalDate aujourdHui = LocalDate.now();
+
+        List<OffreDeStage> offresGenerales = offreDeStageRepository
+                .findOffresGeneralesDisponibles(Statut.ACCEPTEE, departement, aujourdHui);
+
+        List<OffreCiblee> offresCiblees = offreDeStageRepository
+                .findOffresCibleesPourEtudiant(Statut.ACCEPTEE, departement, aujourdHui, etudiant);
+
+        List<OffreDeStage> toutesLesOffres = new ArrayList<>();
+        toutesLesOffres.addAll(offresGenerales);
+        toutesLesOffres.addAll(offresCiblees);
+        
+        return toutesLesOffres.stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
 
     @Transactional
     public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
-            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException {
+            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException, OffreNonAutoriseeException {
 
         Etudiant etudiant = trouverEtudiantParEmail(etudiantEmail);
 
@@ -239,6 +239,12 @@ public class EtudiantService {
             throw new OffreDeStageIndisponibleException();
         }
 
+        if (offre instanceof OffreCiblee offreCiblee) {
+            if (offreCiblee.getEtudiant() == null || !offreCiblee.getEtudiant().getId().equals(etudiant.getId())) {
+                throw new OffreNonAutoriseeException();
+            }
+        }
+
         if (candidatureRepository.existsByEtudiantAndOffreDeStage(
                 etudiant, offre)) {
             throw new CandidatureDejaExistanteException();
@@ -249,9 +255,7 @@ public class EtudiantService {
         Candidature candidatureEnregistree =
                 candidatureRepository.save(candidature);
 
-        eventPublisher.publishEvent(
-                new NouvelleCandidatureEvent(candidatureEnregistree)
-        );
+        eventPublisher.publishEvent(new NouvelleCandidatureEvent(candidatureEnregistree));
 
         return CandidatureDTO.of(candidatureEnregistree);
     }

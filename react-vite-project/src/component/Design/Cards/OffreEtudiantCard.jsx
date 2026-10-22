@@ -5,13 +5,17 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
+import { FaCheckCircle } from "react-icons/fa";
+import { FiStar } from "react-icons/fi";
 
-function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
+function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
     const { t } = useTranslation();
 
+    const isTargeted = Boolean(offer?.isTarget);
+
     const offre = [
-        { label: t("offre.employeur"), value: offer?.employeur?.businessName},
-        { label: t("offre.lieu"), value: offer?.employeur?.town},
+        { label: t("offre.employeur"), value: offer?.employeur?.businessName },
+        { label: t("offre.lieu"), value: offer?.employeur?.town },
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
         { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },
@@ -28,14 +32,45 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
         fileNameFallback: offer?.fileName || `offre_${offer?.id}.pdf`,
     });
 
+    const targetedLabelText = t("offre.targeted", "Ciblée");
+    const applicationSentText = t("offre.application_sent", "Candidature envoyée");
+
     return (
         <>
-            <div className="card w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+
+                {/* Badges d'état positionnés en haut à droite */}
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1">
+                    {isTargeted && (
+                        <span
+                            title={targetedLabelText}
+                            className="badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1"
+                        >
+                            <FiStar className="size-3 text-amber-600 fill-amber-500" />
+                            <span>{targetedLabelText}</span>
+                        </span>
+                    )}
+
+                    {hasApplied && (
+                        <span
+                            title={applicationSentText}
+                            className="badge badge-xs bg-green-100 text-green-700 border border-green-200 flex items-center gap-1"
+                        >
+                            <FaCheckCircle className="size-3 text-green-600" />
+                            <span>{applicationSentText}</span>
+                        </span>
+                    )}
+                </div>
+
                 <div className="card-body">
-                    <PdfActionButtons
-                        onView={viewPDF}
-                        onDownload={() => gererTelechargement(offer?.fileName)}
-                    />
+                    <div className="flex justify-between items-center">
+                        <div className="flex flex-col gap-2">
+                            <PdfActionButtons
+                                onView={viewPDF}
+                                onDownload={() => gererTelechargement(offer?.fileName)}
+                            />
+                        </div>
+                    </div>
 
                     <div className="flex justify-between items-baseline mt-2">
                         <h2 className="text-2l font-bold text-[#043462]">{offer?.title}</h2>
@@ -52,19 +87,23 @@ function OffreEtudiantCard({ offer, onView, hasApplied , onApplied }) {
                         ))}
                     </ul>
 
-                    <label
-                        htmlFor="my-drawer-5"
-                        className="btn bg-[#66E5E4] btn-block text-[#043462]"
-                        onClick={() => onView?.(offer)}
-                    >
-                        {t("offre.details")}
-                    </label>
+                    {onView && (
+                        <label
+                            htmlFor="my-drawer-5"
+                            className="btn bg-[#66E5E4] btn-block text-[#043462]"
+                            onClick={() => onView?.(offer)}
+                        >
+                            {t("offre.details")}
+                        </label>
+                    )}
+
                     <PostulerButton
-                        offerId={offer.id}
+                        offerId={offer?.id}
                         hasApplied={hasApplied}
                         onApplied={onApplied}
                     />
                 </div>
+
                 <PdfPreviewDialog
                     dialogRef={dialogRef}
                     pdfUrl={pdfUrl}

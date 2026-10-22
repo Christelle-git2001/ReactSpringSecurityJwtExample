@@ -8,6 +8,7 @@ import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { getOffresEnAttente, getCvsEnAttente } from "../../api/gestionnaire.jsx";
+import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { FaBriefcase, FaFileAlt } from "react-icons/fa";
@@ -81,15 +82,35 @@ const GestionnaireHome = ({ user }) => {
 
     const sectionCountClassName = "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#043462]";
 
-    const handleViewCv = (cv) => {
+    const marquerNotificationLueSiExiste = async (type, id) => {
+        try {
+            const notifications = await getNotifications(user.id);
+            const notification = notifications.find(
+                (n) =>
+                    n.notificationType === type &&
+                    !n.estLu &&
+                    String(n.urlCible).endsWith(`/${id}`)
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+            }
+        } catch (err) {
+            console.error("Erreur lors du marquage de la notification :", err);
+        }
+    };
+
+    const handleViewCv = async (cv) => {
+        await marquerNotificationLueSiExiste("CV_ATTENTE_VALIDATION", cv.id);
         navigate("/gestionnaire/cvs/details", {
-            state: { cv, from: "/gestionnaire" }
+            state: {cv, from: "/gestionnaire"}
         });
     };
 
-    const handleViewOffer = (offer) => {
+    const handleViewOffer = async (offer) => {
+        await marquerNotificationLueSiExiste("OFFRE_ATTENTE_VALIDATION", offer.id);
         navigate("/gestionnaire/offres/details", {
-            state: { offer, from: "/gestionnaire" }
+            state: {offer, from: "/gestionnaire"}
         });
     };
 

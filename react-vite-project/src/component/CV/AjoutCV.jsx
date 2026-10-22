@@ -1,11 +1,14 @@
 import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {televerserCV} from "../../api/etudiant.jsx";
+import {useNavigate} from "react-router-dom";
 
 const AjoutCV = ({onCvAjoute}) => {
     const { t } = useTranslation();
     const [erreur,setErreur] = useState("")
     const TAILLE_MAX_OCTETS = 10 * 1024 * 1024; // 10 MB en octets
+    const navigate = useNavigate();
+
 
     async function ajoutCVCall(e){
         const file = e.target.files[0];
@@ -28,8 +31,8 @@ const AjoutCV = ({onCvAjoute}) => {
                 setErreur("")
             }
         }catch (error){
-            if (error.status === 401){
-                setErreur("token.doesntExist")
+            if (error?.message === "UNAUTHORIZED" || error?.status === 401) {
+                navigate("/login");
             }
 
             if (error.status === 409) {
