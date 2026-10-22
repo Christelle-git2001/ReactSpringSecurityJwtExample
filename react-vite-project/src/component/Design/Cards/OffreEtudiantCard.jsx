@@ -5,7 +5,6 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
-import { FaCheckCircle } from "react-icons/fa";
 import { FiStar } from "react-icons/fi";
 
 function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
@@ -33,15 +32,14 @@ function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
     });
 
     const targetedLabelText = t("offre.targeted", "Ciblée");
-    const applicationSentText = t("offre.application_sent", "Candidature envoyée");
 
     return (
         <>
             <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
 
-                {/* Badges d'état positionnés en haut à droite */}
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-1">
-                    {isTargeted && (
+                {/* Uniquement le badge d'offre ciblée en haut à droite */}
+                {isTargeted && (
+                    <div className="absolute top-3 right-3 z-10">
                         <span
                             title={targetedLabelText}
                             className="badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1"
@@ -49,18 +47,8 @@ function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
                             <FiStar className="size-3 text-amber-600 fill-amber-500" />
                             <span>{targetedLabelText}</span>
                         </span>
-                    )}
-
-                    {hasApplied && (
-                        <span
-                            title={applicationSentText}
-                            className="badge badge-xs bg-green-100 text-green-700 border border-green-200 flex items-center gap-1"
-                        >
-                            <FaCheckCircle className="size-3 text-green-600" />
-                            <span>{applicationSentText}</span>
-                        </span>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 <div className="card-body">
                     <div className="flex justify-between items-center">
