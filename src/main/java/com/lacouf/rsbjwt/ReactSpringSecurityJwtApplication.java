@@ -86,6 +86,9 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         etudiantService.creerCompteEtudiant(etudiantBadCvDTO);
         Etudiant etudiantBadCv = etudiantRepository.findByMatricule("9999999").orElseThrow();
 
+        InscriptionEtudiantDTO etudiantNotifCvDTO = new InscriptionEtudiantDTO( "Christelle","Nouga","450-716-1288","chrisNouga@gmail.com","6565688",Departement.INFORMATIQUE.name(),"motdepasse","motdepasse");
+        etudiantService.creerCompteEtudiant(etudiantNotifCvDTO);
+
         InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
 
