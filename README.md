@@ -20,3 +20,15 @@ Nous conservons les mêmes points d'action que le sprint 2 et ajoutons les suiva
 3. Tous les plans de démo doivent avoir "reviewed".
 4. Relire l'énoncé du TP pour s'assurer que toutes nos stories respectent les exigences demandées.
 
+
+**Sprint 4**
+
+**-- Points d'action --**
+
+1. Faire les modifications attendues dans les 24 heures
+2. Lorsqu'on prend une décision qui impacte le UX du logiciel,communiquer et attendre la réaction de tous les membres de l'équipe dans les 24h  pour effectuer le changement
+
+**-- Définition de done : --**
+1- Tous les tests backend (et anciennement frontend) passend
+2- Toutes les tâches à part les plans de démo sont à "0" (heures restantes) dans JIRA.
+
