@@ -52,7 +52,7 @@ beforeEach(async () => {
 function afficherNotifications(onClose = jest.fn()) {
     render(
         <I18nextProvider i18n={testI18n}>
-            <MemoryRouter>
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Notification userId={5} onClose={onClose} />
             </MemoryRouter>
         </I18nextProvider>
@@ -73,7 +73,7 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
         expect(await screen.findByRole("alert")).toHaveTextContent(
             traductionFr.notifications.read_error
         );
-        expect(marquerNotificationLue).toHaveBeenCalledWith(2);
+        expect(marquerNotificationLue).toHaveBeenCalledWith(3);
         expect(mockNavigate).not.toHaveBeenCalled();
     });
 
@@ -106,7 +106,7 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
             { state: { cv: creerCvsMock()[1], from: "/gestionnaire" } }
         ));
         expect(obtenirCvGestionnaire).toHaveBeenCalledWith("/gestionnaire/cv/20");
-        expect(marquerNotificationLue).toHaveBeenCalledWith(2);
+        expect(marquerNotificationLue).toHaveBeenCalledWith(3);
         expect(onClose).toHaveBeenCalledTimes(1);
         expect(screen.queryByText("Junior Belle a téléversé un CV.")).not.toBeInTheDocument();
         expect(screen.getByText("Mercedes Belle a téléversé un CV.")).toBeInTheDocument();
@@ -145,5 +145,4 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
 
         expect(getNotifications).toHaveBeenCalledWith(5);
     });
-
 });
