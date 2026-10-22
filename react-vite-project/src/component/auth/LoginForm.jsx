@@ -9,6 +9,7 @@ import "../../css/Login.css";
 import ConnexionRapideGestionnaire from "../../config/ConnexionRapideGestionnaire.jsx";
 import ConnexionRapideStudent from "../../config/ConnexionRapideStudent.jsx";
 import ConnexionRapideEmployeur from "../../config/ConnexionRapideEmployeur.jsx";
+import ConnexionRapideStudentAdrien from "../../config/ConnexionRapideStudentAdrien.jsx";
 
 const LoginForm = ({ user, setError }) => {
     const navigate = useNavigate();
@@ -333,6 +334,7 @@ const LoginForm = ({ user, setError }) => {
                         <div className="flex justify-around">
                             <ConnexionRapideGestionnaire />
                             <ConnexionRapideStudent/>
+                            <ConnexionRapideStudentAdrien/>
                             <ConnexionRapideEmployeur/>
                         </div>
 

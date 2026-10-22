@@ -28,7 +28,7 @@ const ConnexionRapideStudent = () => {
                 className="bg-pink-500 p-5 rounded-3xl underline font-bold text-black transition-colors hover:text-blue-600 cursor-pointer"
                 onClick={connexion}
             >
-                Étudiant
+                Étudiant - Sebastien
             </button>
         </div>
     )
