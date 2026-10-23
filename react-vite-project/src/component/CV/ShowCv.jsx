@@ -39,7 +39,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
                     setDeleteError("etudiant.noCvFound");
                     break;
                 case 401:
-                    setDeleteError("token.doesntExist");
+                    navigate("/login")
                     break;
                 default:
                     setDeleteError("error.generic");
@@ -55,6 +55,9 @@ const ShowCv = ({ cv, onCvDeleted }) => {
             <div className="mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2">
                 {cv?.id ? (
                     <div className="flex justify-around w-full items-center h-full">
+                         <span className={`badge badge-lg ${status.className}`}>
+                        {status.label}
+                        </span>
                         <div>
                             {cv?.fileName}
                             <div className="text-xs uppercase font-semibold opacity-60">
@@ -105,15 +108,12 @@ const ShowCv = ({ cv, onCvDeleted }) => {
 
             {cv?.id && (
                 <div className=" rounded-lg px-3 py-2 text-left">
-                    <span className={`badge badge-xs ${status.className}`}>
-                        {status.label}
-                    </span>
                     {cv?.rejectionComment && (
                         <div className="mt-2">
-                            <p className="text-xs font-bold text-[#043462]">
+                            <p className=" font-bold text-[#043462]">
                                 {t("cv.previous_rejection_comment")}
                             </p>
-                            <p className="mt-1 whitespace-pre-line text-sm text-gray-800">
+                            <p className="mt-1 whitespace-pre-line text-gray-800">
                                 {cv.rejectionComment}
                             </p>
                         </div>
