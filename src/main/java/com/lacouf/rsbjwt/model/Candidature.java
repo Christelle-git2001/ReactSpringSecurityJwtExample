@@ -1,4 +1,5 @@
 package com.lacouf.rsbjwt.model;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,10 @@ public class Candidature {
 
     @Column(nullable = false)
     private LocalDateTime dateCandidature;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatutCandidature statut = StatutCandidature.SOUMISE;
 
     @Builder
     public Candidature(Etudiant etudiant, OffreDeStage offreDeStage) {
