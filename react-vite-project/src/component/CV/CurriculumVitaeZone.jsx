@@ -49,20 +49,22 @@ const CurriculumVitaeZone = ({onSend}) => {
 
     return (
         <div className="w-full">
-            {cv?.statut !== "ACCEPTEE" && (
-                <AjoutCV onCvAjoute={handleCvAjoute} />
-            )}
-
             {error && (
                 <p className="text-red-500 text-sm mt-2">
                     {t(error)}
                 </p>
             )}
-
-            <ShowCv
-                cv={cv}
-                onCvDeleted={handleCvSupprime}
-            />
+            <div className="divide-y-4 divide-teal-700 divide-solid">
+                {cv && (
+                    <ShowCv
+                        cv={cv}
+                        onCvDeleted={handleCvSupprime}
+                    />
+                )}
+                {(cv?.statut === "REFUSEE" || !cv) && (
+                    <AjoutCV onCvAjoute={handleCvAjoute}/>
+                )}
+            </div>
         </div>
     );
 

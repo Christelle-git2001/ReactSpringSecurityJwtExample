@@ -264,11 +264,18 @@
     "visualize": "Visualize PDF",
     "filesName": "File name",
     "choice": "Choose a file",
+    "modification" : "Modify the selected file",
     "download": "Download the PDF",
     "fichierInvalide": "Invalid file",
     "noFileDetected": "No file to read",
     "bigFiles": "Your file is too big, you need less than 10 mo",
-    "lowFiles": "Your file is corrupted, please select another file"
+    "lowFiles": "Your file is corrupted, please select another file",
+    "cvAttrib": {
+      "titleCvSelectionner": "Please verify the information before proceeding:",
+      "name" : "Name : ",
+      "size" : "Size : ",
+      "type": "File type : "
+    }
   },
   "account": {
     "info": {
@@ -361,7 +368,8 @@
       "api_generic": "An error occurred while submitting."
     },
     "toast" : {
-      "waiting_validation": "CV submitted, pending review."
+      "waiting_validation": "CV submitted, pending review.",
+      "dont_forget_CV" : "Please, dont forget to upload your CV !"
     }
   },
   "candidature": {

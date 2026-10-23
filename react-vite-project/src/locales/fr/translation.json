@@ -319,11 +319,18 @@
     "visualize": "Visualiser le PDF",
     "filesName": "Nom du fichier",
     "choice": "Sélectionner un fichier",
+    "modification" : "Modifiez le fichier choisi",
     "download": "Télécharger le PDF",
     "fichierInvalide": "Fichier Invalide",
     "noFileDetected": "Aucun fichier à lire",
     "bigFiles": "Votre fichier est trop volumineux. La taille maximale autorisée est de 10 Mo.",
-    "lowFiles": "Votre fichier est corrompus, réessayez."
+    "lowFiles": "Votre fichier est corrompus, réessayez.",
+    "cvAttrib": {
+      "titleCvSelectionner" : "Vérifiez les informations avant confirmation : ",
+      "name": "Nom : ",
+      "size": "Taille : ",
+      "type": "Format : "
+    }
   },
   "account": {
     "info": {
@@ -361,7 +368,8 @@
       "api_generic": "Une erreur est survenue lors de l'envoi."
     },
     "toast": {
-      "waiting_validation": "CV envoyé, en attente de validation."
+      "waiting_validation": "CV envoyé, en attente de validation.",
+      "dont_forget_CV" : "S'il-vous-plait, n'ouillez pas de téléverser votre CV !"
     }
   },
   "candidature": {

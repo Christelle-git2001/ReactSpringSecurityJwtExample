@@ -33,8 +33,14 @@ const CvOnLandingPage = () => {
 
     const fermer = () => {
         setOuvert(false);
+        console.log(isSubmitted)
         if (isSubmitted) {
             toast.success(t("cv.toast.waiting_validation"), {
+                position: 'bottom-center',
+                duration: 3000
+            });
+        }else {
+            toast.error(t("cv.toast.dont_forget_CV"), {
                 position: 'bottom-center',
                 duration: 3000
             });
@@ -45,15 +51,24 @@ const CvOnLandingPage = () => {
         setIsSubmitted(true);
     };
 
+    useEffect(() => {
+        console.log(isSubmitted, "THER2E");
+    }, [isSubmitted]);
+
     if (!ouvert) return null;
 
     return (
         <dialog className="modal modal-open">
-            <div className="modal-box bg-[radial-gradient(circle_at_top_left,#00CCCB33,transparent_70%)]">
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={fermer}>✕</button>
-
-                <h3 className="font-bold text-lg text-center">{t("etudiant.popup.popup_title")}</h3>
-                <p className="py-4 text-center">{t("etudiant.popup.popup_description")}</p>
+            <div className="modal-box w-full max-w-3xl bg-[radial-gradient(circle_at_top_left,#00CCCB33,transparent_70%)]">
+                <div className="grid grid-cols-12 mb-5">
+                    <div className="col-span-11 flex justify-center">
+                        <h3 className="font-bold text-lg text-center w-100">{t("etudiant.popup.popup_title")}</h3>
+                    </div>
+                    <div className="col-span-1">
+                        <button className="btn btn-error btn-sm btn-circle" onClick={fermer}>X</button>
+                    </div>
+                </div>
+                <p className="text-center">{t("etudiant.popup.popup_description")}</p>
 
                 <div className="modal-action">
                     {error ? (
