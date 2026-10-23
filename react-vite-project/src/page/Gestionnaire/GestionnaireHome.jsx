@@ -4,10 +4,10 @@ import DashboardSummaryCard from "../../component/Design/Dashboard/DashboardSumm
 import DashboardSection from "../../component/Design/Dashboard/DashboardSection.jsx";
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
-import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { getOffresEnAttente, getCvsEnAttente } from "../../api/gestionnaire.jsx";
+import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { FaBriefcase, FaFileAlt } from "react-icons/fa";
@@ -81,15 +81,35 @@ const GestionnaireHome = ({ user }) => {
 
     const sectionCountClassName = "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-[#043462]";
 
-    const handleViewCv = (cv) => {
+    const marquerNotificationLueSiExiste = async (type, id) => {
+        try {
+            const notifications = await getNotifications(user.id);
+            const notification = notifications.find(
+                (n) =>
+                    n.notificationType === type &&
+                    !n.estLu &&
+                    String(n.urlCible).endsWith(`/${id}`)
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+            }
+        } catch (err) {
+            console.error("Erreur lors du marquage de la notification :", err);
+        }
+    };
+
+    const handleViewCv = async (cv) => {
+        await marquerNotificationLueSiExiste("CV_ATTENTE_VALIDATION", cv.id);
         navigate("/gestionnaire/cvs/details", {
-            state: { cv, from: "/gestionnaire" }
+            state: {cv, from: "/gestionnaire"}
         });
     };
 
-    const handleViewOffer = (offer) => {
+    const handleViewOffer = async (offer) => {
+        await marquerNotificationLueSiExiste("OFFRE_ATTENTE_VALIDATION", offer.id);
         navigate("/gestionnaire/offres/details", {
-            state: { offer, from: "/gestionnaire" }
+            state: {offer, from: "/gestionnaire"}
         });
     };
 
@@ -128,7 +148,7 @@ const GestionnaireHome = ({ user }) => {
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
                 <div>
                     <h1 className="text-4xl font-bold text-[#043462]">
-                        {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span>
+                        {t("home.welcome")} {user?.firstName} {user?.lastName}
                     </h1>
                     <p className="mt-2 text-sm text-gray-500">
                         {t("dashboard.manager_subtitle")}
@@ -173,6 +193,7 @@ const GestionnaireHome = ({ user }) => {
                 <div className="flex flex-col gap-5 pb-4">
                     <DashboardSection
                         title={t("cv.pending_cvs_title")}
+                        collapsible
                         headerAction={
                             <span className={sectionCountClassName}>
                                 {getSectionCountLabel(cvsFiltresRecents.length, cvs.length, "dashboard.cv_count", "dashboard.cv_count_plural")}
@@ -184,24 +205,23 @@ const GestionnaireHome = ({ user }) => {
                                 message={cvs.length === 0 ? t("cv.none_pending") : t("offre.no_matching_offers")}
                             />
                         ) : (
-                            <ExpandableList
-                                items={cvsFiltresRecents}
-                                limit={3}
-                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                collapseLabel={t("dashboard.view_less", "Voir moins")}
-                                renderItem={(cv) => (
+                            <div className="space-y-3">
+                                {cvsFiltresRecents.map((cv) => (
                                     <CvListItem
+                                        key={cv.id}
                                         cv={cv}
                                         onClick={() => handleViewCv(cv)}
                                         actionLabel={t("dashboard.view_cv")}
+                                        actionClassName="bg-blue-600 text-white hover:bg-blue-700"
                                     />
-                                )}
-                            />
+                                ))}
+                            </div>
                         )}
                     </DashboardSection>
 
                     <DashboardSection
                         title={t("offre.pending_offers")}
+                        collapsible
                         headerAction={
                             <span className={sectionCountClassName}>
                                 {getSectionCountLabel(offresFiltreesRecentes.length, offres.length, "dashboard.offer_count", "dashboard.offer_count_plural")}
@@ -213,19 +233,17 @@ const GestionnaireHome = ({ user }) => {
                                 message={offres.length === 0 ? t("offre.no_offers") : t("offre.no_matching_offers")}
                             />
                         ) : (
-                            <ExpandableList
-                                items={offresFiltreesRecentes}
-                                limit={3}
-                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                collapseLabel={t("dashboard.view_less", "Voir moins")}
-                                renderItem={(offer) => (
+                            <div className="space-y-3">
+                                {offresFiltreesRecentes.map((offer) => (
                                     <OfferListItem
+                                        key={offer.id}
                                         offer={offer}
                                         onClick={() => handleViewOffer(offer)}
                                         actionLabel={t("dashboard.view_offer")}
+                                        actionClassName="bg-green-600 text-white hover:bg-green-700"
                                     />
-                                )}
-                            />
+                                ))}
+                            </div>
                         )}
                     </DashboardSection>
                 </div>
