@@ -33,7 +33,6 @@ const CvOnLandingPage = () => {
 
     const fermer = () => {
         setOuvert(false);
-        console.log(isSubmitted)
         if (isSubmitted) {
             toast.success(t("cv.toast.waiting_validation"), {
                 position: 'bottom-center',
@@ -50,10 +49,6 @@ const CvOnLandingPage = () => {
     const handleSend = () => {
         setIsSubmitted(true);
     };
-
-    useEffect(() => {
-        console.log(isSubmitted, "THER2E");
-    }, [isSubmitted]);
 
     if (!ouvert) return null;
 

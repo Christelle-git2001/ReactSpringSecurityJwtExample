@@ -86,8 +86,8 @@ const AjoutCV = ({onCvAjoute}) => {
                 </div>
             }
             <div className="flex justify-around  w-full mt-5">
-                <button type="button" onClick={annulation}  className="btn btn-error w-50">Annuler</button>
-                <button type="button" onClick={ajoutCVCall} className="btn btn-success w-50">Envoyer</button>
+                <button type="button" onClick={annulation}  className="btn btn-error w-50">{t("actions.cancel")}</button>
+                <button type="button" onClick={ajoutCVCall} className="btn btn-success w-50">{t("actions.upload")}</button>
             </div>
         </div>
     )
