@@ -17,12 +17,6 @@ public record ConvocationEntrevueDTO(
         @NotNull
         ModaliteEntrevue modalite,
 
-        String adresse,
-        String numeroBureau,
-        String lienVisioconference,
-        String plateformeReunion,
-        String instructionsComplementaires,
-
         @NotEmpty
         List<@NotNull @Valid PlageHoraireDTO> plagesHoraires
 ) {
@@ -34,11 +28,6 @@ public record ConvocationEntrevueDTO(
                         convocation.getId(),
                         convocation.getDateCreation(),
                         convocation.getModalite(),
-                        convocation.getAdresse(),
-                        convocation.getNumeroBureau(),
-                        convocation.getLienVisioconference(),
-                        convocation.getPlateformeReunion(),
-                        convocation.getInstructionsComplementaires(),
                         convocation.getPlagesHoraires()
                                 .stream()
                                 .map(plage -> new PlageHoraireDTO(

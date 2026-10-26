@@ -29,21 +29,13 @@ public class ConvocationEntrevue {
     @Column(nullable = false)
     private ModaliteEntrevue modalite;
 
-    private String adresse;
-    private String numeroBureau;
-    private String lienVisioconference;
-    private String plateformeReunion;
-
-    @Column(length = 2000)
-    private String instructionsComplementaires;
 
     @Column(nullable = false)
     private LocalDateTime dateCreation;
 
     @OneToMany(
             mappedBy = "convocation",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = CascadeType.ALL
     )
     private List<PlageHoraire> plagesHoraires = new ArrayList<>();
 

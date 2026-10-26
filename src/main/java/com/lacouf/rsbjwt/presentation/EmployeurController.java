@@ -95,4 +95,17 @@ public class EmployeurController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"offre.pdf\"")
                 .body(resource);
     }
+
+    @PostMapping("/convocations")
+    public ResponseEntity<ConvocationEntrevueDTO> creerConvocation(
+            @Valid @RequestBody CreationConvocationDTO dto
+    ) throws OffreNonAutoriseeException,
+            CandidatureIntrouvableException,
+            ConvocationExistanteException,
+            ConvocationInvalideException {
+
+        ConvocationEntrevueDTO convocation = employeurService.creerConvocation(dto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(convocation);
+    }
 }

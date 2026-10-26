@@ -248,4 +248,39 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+
+    @ExceptionHandler(CandidatureIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleCandidatureIntrouvableException(
+            CandidatureIntrouvableException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ConvocationExistanteException.class)
+    public ResponseEntity<ErreurDTO> handleConvocationExistanteException(
+            ConvocationExistanteException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ConvocationInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleConvocationInvalideException(
+            ConvocationInvalideException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+
 }

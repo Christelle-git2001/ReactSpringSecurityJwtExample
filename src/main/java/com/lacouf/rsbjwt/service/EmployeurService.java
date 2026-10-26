@@ -1,16 +1,13 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Candidature;
-import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.ModaliteEntrevue;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.EmployeurRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -26,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,13 +38,14 @@ public class EmployeurService {
     private final CandidatureRepository candidatureRepository ;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ApplicationEventPublisher eventPublisher;
+    private final ConvocationEntrevueRepository convocationRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
-            ApplicationEventPublisher eventPublisher
+            ApplicationEventPublisher eventPublisher, ConvocationEntrevueRepository convocationRepository
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
@@ -54,6 +53,7 @@ public class EmployeurService {
         this.offreDeStageRepository = offreDeStageRepository;
         this.candidatureRepository = candidatureRepository;
         this.eventPublisher = eventPublisher;
+        this.convocationRepository = convocationRepository;
     }
 
     @Transactional
@@ -271,5 +271,63 @@ public class EmployeurService {
                 .toList();
     }
 
+
+    @Transactional
+    public ConvocationEntrevueDTO creerConvocation(CreationConvocationDTO dto) throws OffreNonAutoriseeException, CandidatureIntrouvableException, ConvocationExistanteException, ConvocationInvalideException {
+        Long candidatureId = dto.candidatureId();
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (candidature.getOffreDeStage().getEmployeur() == null
+                || !candidature.getOffreDeStage()
+                .getEmployeur()
+                .getId()
+                .equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        if (convocationRepository.findByCandidatureId(candidatureId).isPresent()) {
+            throw new ConvocationExistanteException();
+        }
+
+        if (dto.modalite() == null || dto.plagesHoraires() == null
+                || dto.plagesHoraires().isEmpty()
+                || dto.plagesHoraires().stream().anyMatch(
+                plage -> plage == null
+                        || plage.dateHeureDebut() == null
+                        || plage.dureeMinutes() <= 0)) {
+            throw new ConvocationInvalideException();
+        }
+
+        ConvocationEntrevue convocation = new ConvocationEntrevue();
+        convocation.setCandidature(candidature);
+        convocation.setModalite(dto.modalite());
+        convocation.setDateCreation(LocalDateTime.now());
+
+        for (PlageHoraireDTO plageDTO : dto.plagesHoraires()) {
+            PlageHoraire plage = new PlageHoraire();
+            plage.setConvocation(convocation);
+            plage.setDateHeureDebut(plageDTO.dateHeureDebut());
+            plage.setDureeMinutes(plageDTO.dureeMinutes());
+
+            convocation.getPlagesHoraires().add(plage);
+        }
+
+        candidature.setStatut(StatutCandidature.CONVOCATION_ENVOYEE);
+
+        ConvocationEntrevue convocationEnregistree =
+                convocationRepository.save(convocation);
+
+        return ConvocationEntrevueDTO.of(convocationEnregistree);
+    }
 
 }
