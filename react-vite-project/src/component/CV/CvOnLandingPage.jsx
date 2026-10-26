@@ -9,7 +9,6 @@ const CvOnLandingPage = () => {
     const { t } = useTranslation();
     const [ouvert, setOuvert] = useState(false);
     const [error, setError] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,7 +30,7 @@ const CvOnLandingPage = () => {
         fetchData();
     }, [navigate]);
 
-    const fermer = () => {
+    const fermer = (isSubmitted = false) => {
         setOuvert(false);
         if (isSubmitted) {
             toast.success(t("cv.toast.waiting_validation"), {
@@ -47,7 +46,7 @@ const CvOnLandingPage = () => {
     };
 
     const handleSend = () => {
-        setIsSubmitted(true);
+        fermer(true);
     };
 
     if (!ouvert) return null;
@@ -60,7 +59,7 @@ const CvOnLandingPage = () => {
                         <h3 className="font-bold text-lg text-center w-100">{t("etudiant.popup.popup_title")}</h3>
                     </div>
                     <div className="col-span-1">
-                        <button className="btn btn-error btn-sm btn-circle" onClick={fermer}>X</button>
+                        <button className="btn btn-error btn-sm btn-circle" onClick={() => fermer(false)}>X</button>
                     </div>
                 </div>
                 <p className="text-center">{t("etudiant.popup.popup_description")}</p>
