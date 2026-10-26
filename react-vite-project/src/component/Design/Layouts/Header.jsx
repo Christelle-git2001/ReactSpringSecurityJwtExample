@@ -35,7 +35,6 @@ function Header({ sidebarOpen, user, notifications, onMarkAsRead, onShowAll }) {
                         <Notification
                             notifications={notifications}
                             onMarkAsRead={onMarkAsRead}
-                            onShowAll={onShowAll}
                         />
                     )}
                 </div>

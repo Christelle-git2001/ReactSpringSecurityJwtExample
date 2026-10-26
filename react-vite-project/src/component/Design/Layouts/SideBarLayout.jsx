@@ -88,17 +88,7 @@ function SideBarLayout({ user }) {
             />
 
             <div className="drawer-content flex flex-col h-screen">
-                <Header user={user} sidebarOpen={sidebarOpen} notifications={notifications} onMarkAsRead={handleMarkAsRead} onShowAll={
-                    () => {
-                        openDrawer(
-                            // On réutilise votre composant Notification complet pour la vue détaillée !
-                            // (Assurez-vous que le composant Notification accepte encore d'être utilisé comme ça,
-                            // sinon on fera une page dédiée plus tard)
-                            <div>Vue complète des notifications</div>,
-                            "notifications.title"
-                        );
-                    }
-                } />
+                <Header user={user} sidebarOpen={sidebarOpen} notifications={notifications} onMarkAsRead={handleMarkAsRead}/>
 
                 <div className="flex-1 flex overflow-hidden p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
                     <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
