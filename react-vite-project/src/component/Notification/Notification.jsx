@@ -1,7 +1,17 @@
 import { useTranslation } from "react-i18next";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import {FiArrowRight, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus, FiBell} from "react-icons/fi";
+import {
+    FiArrowRight,
+    FiArrowUp,
+    FiArrowLeft,
+    FiBriefcase,
+    FiFileText,
+    FiUserPlus,
+    FiBell,
+    FiX,
+    FiArrowDown
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx"
@@ -52,8 +62,15 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
     const { t, i18n } = useTranslation();
     const [error, setError] = useState(null);
     const [sortOrder, setSortOrder] = useState("desc");
-    const displayedNotifications = (notifications).slice(0, 5);
     const navigate = useNavigate();
+    const dropdownRef = useRef(null);
+
+
+    const closeNotification = () => {
+        if (dropdownRef.current) {
+            dropdownRef.current.removeAttribute("open");
+        }
+    };
 
     const formaterDate = (value) => {
         if (!value) return null;
@@ -65,6 +82,13 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
             timeStyle: "short",
         }).format(date);
     };
+
+    const notificationsTriees = [...notifications].sort((a, b) => {
+        const comparaison = (a.dateNotifiee ?? "").localeCompare(b.dateNotifiee ?? "");
+        return sortOrder === "asc" ? comparaison : -comparaison;
+    });
+
+    const displayedNotifications = notificationsTriees.slice(0, 5);
 
     const onClick = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
@@ -79,20 +103,17 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
             }
         }
 
-
+        closeNotification();
         if (destination) {
             navigate(destination);
         }
     };
 
-    const notificationsTriees = [...notifications].sort((a, b) => {
-        const comparaison = (a.dateNotifiee ?? "").localeCompare(b.dateNotifiee ?? "");
-        return sortOrder === "asc" ? comparaison : -comparaison;
-    });
+
 
     return (
-        <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+        <details ref={dropdownRef} className="dropdown dropdown-end">
+            <summary role="button" className="btn btn-ghost btn-circle">
                 <div className="indicator">
                     <FiBell className="size-5 text-white" />
                     {notifications.length > 0 && (
@@ -101,14 +122,35 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                         </span>
                     )}
                 </div>
-            </div>
+            </summary>
 
             <div
-                tabIndex={0}
                 className="dropdown-content z-[100] mt-3 w-80 rounded-box bg-base-100 shadow-xl border border-slate-100"
             >
                 <div className="p-3 border-b border-slate-100 flex justify-between items-center">
                     <h3 className="font-bold text-[#043462]">{t("notifications.title")}</h3>
+                    <div className="flex items-center gap-2">
+
+                        <button
+                            type="button"
+                            onClick={() => setSortOrder(current => current === "desc" ? "asc" : "desc")}
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600"
+                            title={t("notifications.sort_by_date")}
+                            aria-label={t(sortOrder === "desc" ? "notifications.oldest_first" : "notifications.newest_first")}
+                        >
+                            {sortOrder === "desc"
+                                ? <FiArrowDown className="size-4" aria-hidden="true" />
+                                : <FiArrowUp className="size-4" aria-hidden="true" />}
+                            {t(sortOrder === "desc" ? "notifications.newest_first" : "notifications.oldest_first")}
+                        </button>
+                    </div>
+                    <button
+                        onClick={closeNotification}
+                        className="btn btn-ghost btn-xs btn-circle text-slate-500 hover:bg-slate-200"
+                        aria-label="Fermer"
+                    >
+                        <FiX className="size-4" />
+                    </button>
                     {error && <span className="text-xs text-red-500">{error}</span>}
                 </div>
 
@@ -162,6 +204,6 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                     )}
                 </ul>
             </div>
-        </div>
+        </details>
     );
 }
