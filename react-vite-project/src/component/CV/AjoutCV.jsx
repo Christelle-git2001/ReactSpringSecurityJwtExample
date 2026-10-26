@@ -45,7 +45,6 @@ const AjoutCV = ({onCvAjoute}) => {
                     setErreur("cv.cv_already_approved");
                     return;
                 }
-                console.log(error)
                 setErreur("error.generic");
             }
         }
