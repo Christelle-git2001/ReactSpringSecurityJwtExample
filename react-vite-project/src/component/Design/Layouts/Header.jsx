@@ -3,8 +3,8 @@ import ThemeToggle from "../ThemeToggle.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import { useTranslation } from "react-i18next";
 import logo from "../../../assets/logo.png";
-
-function Header({ sidebarOpen }) {
+import Notification from "../../Notification/Notification.jsx";
+function Header({ sidebarOpen, user, notifications, onMarkAsRead, onShowAll }) {
     const { t } = useTranslation();
 
     const tooltipText = sidebarOpen
@@ -31,6 +31,13 @@ function Header({ sidebarOpen }) {
                 <div className="flex flex-wrap gap-6">
                     <ThemeToggle />
                     <LanguageSwitch />
+                    {user?.isLoggedIn && (
+                        <Notification
+                            notifications={notifications}
+                            onMarkAsRead={onMarkAsRead}
+                            onShowAll={onShowAll}
+                        />
+                    )}
                 </div>
             </div>
         </nav>
