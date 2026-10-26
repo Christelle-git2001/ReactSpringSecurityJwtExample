@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell } from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile } from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
-import Notification from "../../Notification/Notification.jsx";
 import { getNotifications } from "../../../api/notification.jsx";
 
 function SideBarLayout({ user }) {

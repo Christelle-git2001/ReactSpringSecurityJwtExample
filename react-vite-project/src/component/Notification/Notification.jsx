@@ -1,10 +1,8 @@
 import { useTranslation } from "react-i18next";
-import {useEffect, useRef, useState} from "react";
-import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
+import { useRef, useState} from "react";
+import { marquerNotificationLue } from "../../api/notification.jsx";
 import {
-    FiArrowRight,
     FiArrowUp,
-    FiArrowLeft,
     FiBriefcase,
     FiFileText,
     FiUserPlus,
@@ -13,9 +11,6 @@ import {
     FiArrowDown
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
-import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx"
-import ListItem from "../Design/Lists/ListItem.jsx";
 import {ImCross} from "react-icons/im";
 import {FaCheck, FaQuestion} from "react-icons/fa";
 
