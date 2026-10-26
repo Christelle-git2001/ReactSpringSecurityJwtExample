@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {useEffect, useState} from "react";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
-import {FiArrowDown, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus} from "react-icons/fi";
+import {FiArrowRight, FiArrowUp, FiArrowLeft, FiBriefcase, FiFileText, FiUserPlus, FiBell} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx"
@@ -48,225 +48,12 @@ const CONFIG_PAR_TYPE = {
     },
 };
 
-export default function Notification({ userId, onClose }) {
+export default function Notification({ notifications = [], onMarkAsRead }) {
     const { t, i18n } = useTranslation();
-    const [notifications, setNotifications] = useState([]);
     const [error, setError] = useState(null);
     const [sortOrder, setSortOrder] = useState("desc");
-
+    const displayedNotifications = (notifications).slice(0, 5);
     const navigate = useNavigate();
-
-    const ouvrirCv = async (notification) => {
-        const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if (!destination){
-            setError("error.notification_path")
-            return
-        }
-
-        try {
-            const cv = await obtenirCvGestionnaire(notification.urlCible);
-
-            if (!cv) {
-                setError("notifications.cv_unavailable");
-                return;
-            }
-
-            if (!notification.estLu) {
-                try {
-                    await marquerNotificationLue(notification.id);
-
-                    setNotifications(current =>
-                        current.filter(item => item.id !== notification.id)
-                    );
-                } catch {
-                    setError("notifications.read_error");
-                    return;
-                }
-            }
-
-            onClose?.();
-            navigate(destination, {
-                state: { cv, from: "/gestionnaire" },
-            });
-        } catch (err) {
-            setError(err?.status === 404
-                ? "notifications.cv_unavailable"
-                : "notifications.open_error");
-        }
-    };
-
-    const ouvrirCvEtudiant = async (notification) => {
-        const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if(!destination){
-            setError("error.notification_path")
-            return
-        }
-        if (!notification.estLu) {
-            try {
-                await marquerNotificationLue(notification.id);
-
-                setNotifications(current =>
-                    current.filter(item => item.id !== notification.id)
-                );
-            } catch {
-                setError("notifications.read_error");
-                return;
-            }
-        }
-        onClose?.();
-        navigate(destination);
-    }
-
-    const ouvrirOffre = async (notification) => {
-        const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        if (!destination) {
-            setError("error.notification_path")
-            return
-        }
-
-        try {
-            const offre = await obtenirOffreGestionnaire(notification.urlCible);
-            if (!offre) {
-                setError("notifications.offre_unavailable");
-                return;
-            }
-            if (!notification.estLu) {
-                try {
-                    await marquerNotificationLue(notification.id);
-
-                    setNotifications(current =>
-                        current.filter(item => item.id !== notification.id)
-                    );
-                } catch {
-                    setError("notifications.read_error");
-                    return;
-                }
-            }
-
-            onClose?.();
-            navigate(destination, {
-                state: { offer:offre ,from: "/gestionnaire" },
-            });
-        } catch (err) {
-            setError(err?.status === 404
-                ? "notifications.offre_unavailable"
-                : "notifications.open_error");
-        }
-    }
-
-    const ouvrirNouvelleOffre = async (notification) => {
-            const destination = ROUTES_PAR_TYPE[notification.notificationType];
-            const offreId = notification.variables?.OFFRE_ID;
-
-            if (!destination || !offreId) {
-                setError("notifications.open_error");
-                return;
-            }
-
-            try {
-                if (!notification.estLu) {
-                    await marquerNotificationLue(notification.id);
-
-                    setNotifications(current =>
-                        current.filter(item => item.id !== notification.id)
-                    );
-                }
-
-                onClose?.();
-
-                navigate(destination, {
-                    state: {
-                        offreId,
-                        from: "/etudiant",
-                    },
-                });
-            } catch {
-                setError("notifications.read_error");
-            }
-        };
-
-    const ouvrirCandidature = async (notification) => {
-        const destination = ROUTES_PAR_TYPE[notification.notificationType];
-        const candidatureId = notification.variables?.CANDIDATURE_ID;
-
-        if (!destination) {
-            setError("error.notification_path");
-            return;
-        }
-
-        let candidature;
-        let offer;
-
-        try {
-            const candidatures = await getCandidaturesEmployeur();
-            candidature = candidatures.find(c => c.id === Number(candidatureId));
-
-            if (!candidature) {
-                setError("notifications.open_error");
-                return;
-            }
-
-            const offres = await getOffresEmployeur();
-            offer = offres.find(o => String(o.id) === String(candidature.offreId));
-            } catch {
-                setError("notifications.open_error");
-                return;
-            }
-
-        if (!notification.estLu) {
-            try {
-                await marquerNotificationLue(notification.id);
-                setNotifications(current =>
-                    current.filter(item => item.id !== notification.id)
-                );
-            } catch {
-                setError("notifications.read_error");
-                return;
-            }
-        }
-
-            onClose?.();
-            navigate(destination,{
-                state: {
-                    candidature,
-                    offer,
-                    from: "/employeur",
-                },
-            });
-    };
-
-    useEffect(() => {
-        let notificationsStillDisplayed = true;
-
-        const chargerNotifications = async () => {
-            setError(null);
-            setNotifications([]);
-
-            try {
-                const data = await getNotifications(userId);
-
-                if (notificationsStillDisplayed) {
-                    setNotifications(
-                        (data ?? []).filter(notification => !notification.estLu)
-                    );
-                }
-            } catch (err) {
-                if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
-                    navigate("/login");
-                }
-                if (notificationsStillDisplayed) {
-                    setError("notifications.load_error");
-                }
-            }
-        };
-
-        chargerNotifications();
-
-        return () => {
-            notificationsStillDisplayed = false;
-        };
-    }, [userId]);
-
 
     const formaterDate = (value) => {
         if (!value) return null;
@@ -279,104 +66,102 @@ export default function Notification({ userId, onClose }) {
         }).format(date);
     };
 
+    const onClick = async (notification) => {
+        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+
+        if (!notification.estLu) {
+            try {
+                await marquerNotificationLue(notification.id);
+                onMarkAsRead(notification.id);
+            } catch {
+                setError(t("notifications.read_error"));
+                return;
+            }
+        }
+
+
+        if (destination) {
+            navigate(destination);
+        }
+    };
+
     const notificationsTriees = [...notifications].sort((a, b) => {
         const comparaison = (a.dateNotifiee ?? "").localeCompare(b.dateNotifiee ?? "");
         return sortOrder === "asc" ? comparaison : -comparaison;
     });
 
     return (
-        <section className="-m-4 min-h-full bg-white text-[#043462]">
-            <div className="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
-                <button
-                    type="button"
-                    onClick={() => setSortOrder(current => current === "desc" ? "asc" : "desc")}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600"
-                    title={t("notifications.sort_by_date")}
-                    aria-label={t(sortOrder === "desc" ? "notifications.oldest_first" : "notifications.newest_first")}
-                >
-                    {sortOrder === "desc"
-                        ? <FiArrowDown className="size-4" aria-hidden="true" />
-                        : <FiArrowUp className="size-4" aria-hidden="true" />}
-                    {t(sortOrder === "desc" ? "notifications.newest_first" : "notifications.oldest_first")}
-                </button>
-            </div>
-            {error ? (
-                <div className="space-y-3 p-4">
-                    <button
-                        type="button"
-                        onClick={() => setError(null)}
-                        className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-blue-50"
-                    >
-                        <FiArrowLeft aria-hidden="true" />
-                        {t("actions.back")}
-                    </button>
-                    <p role="alert" className="text-sm text-red-700">
-                        {t(error)}
-                    </p>
+        <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                <div className="indicator">
+                    <FiBell className="size-5 text-white" />
+                    {notifications.length > 0 && (
+                        <span className="badge badge-sm indicator-item bg-red-600 text-white border-none">
+                            {notifications.length}
+                        </span>
+                    )}
                 </div>
-            ) : notifications.length === 0 ? (
-                <p className="px-4 py-8 text-center text-sm text-slate-500">
-                    {t("notifications.empty")}
-                </p>
-            ) : (
-                <ul className="space-y-1 p-2">
-                    {notificationsTriees.map(notification => {
-                        const isCv = notification.notificationType === "CV_ATTENTE_VALIDATION";
-                        const isOffre = notification.notificationType === "OFFRE_ATTENTE_VALIDATION";
-                        const isStatusChange = notification.notificationType === "CV_STATUT_CHANGE";
-                        const statut = notification.variables?.["STATUT_FICHIER"];
-                        const configKey = isStatusChange && statut
-                            ? `${notification.notificationType}_${statut}`
-                            : notification.notificationType;
-                        const config = CONFIG_PAR_TYPE[configKey];
+            </div>
 
-                        const titre = t(notification.titre, {
-                            ...notification.variables,
-                            defaultValue: t("notifications.title"),
-                        });
-                        const description = t(notification.description, {
-                            ...notification.variables,
-                            defaultValue: t("notifications.generic_message"),
-                        });
+            <div
+                tabIndex={0}
+                className="dropdown-content z-[100] mt-3 w-80 rounded-box bg-base-100 shadow-xl border border-slate-100"
+            >
+                <div className="p-3 border-b border-slate-100 flex justify-between items-center">
+                    <h3 className="font-bold text-[#043462]">{t("notifications.title")}</h3>
+                    {error && <span className="text-xs text-red-500">{error}</span>}
+                </div>
 
-                        return (
-                            <li
-                                key={notification.id}
-                                className="rounded-xl border-b border-slate-100 bg-blue-50"
-                            >
-                                <ListItem
-                                    wrapText
-                                    showChevron={false}
-                                    variant="row"
-                                    tone={config?.tone}
-                                    icon={config?.icon}
-                                    title={titre}
-                                    subtitle={description}
-                                    meta={formaterDate(notification.dateNotifiee)}
-                                    ariaLabel={titre}
-                                    onClick={() => {
-                                        if (isCv) {
-                                            ouvrirCv(notification);
-                                        } else if (isOffre) {
-                                            ouvrirOffre(notification);
-                                        } else if (isStatusChange) {
-                                            ouvrirCvEtudiant(notification);
-                                        } else if (
-                                            notification.notificationType === "NOUVELLE_OFFRE_STAGE"
-                                        ) {
-                                            ouvrirNouvelleOffre(notification);
-                                        }
-                                        else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
-                                            ouvrirCandidature(notification);
-                                        }
-                                    }
-                                }
-                                />
-                            </li>
-                        );
-                    })}
+                <ul className="max-h-[350px] overflow-y-auto p-2 space-y-1">
+                    {displayedNotifications.length === 0 ? (
+                        <li className="p-4 text-center text-sm text-slate-500">
+                            {t("notifications.empty")}
+                        </li>
+                    ) : (
+                        displayedNotifications.map(notification => {
+                            const isStatusChange = notification.notificationType === "CV_STATUT_CHANGE";
+                            const statut = notification.variables?.["STATUT_FICHIER"];
+                            const configKey = isStatusChange && statut
+                                ? `${notification.notificationType}_${statut}`
+                                : notification.notificationType;
+                            const config = CONFIG_PAR_TYPE[configKey];
+
+                            const titre = t(notification.titre, {
+                                ...notification.variables,
+                                defaultValue: t("notifications.title"),
+                            });
+                            const description = t(notification.description, {
+                                ...notification.variables,
+                                defaultValue: t("notifications.generic_message"),
+                            });
+
+                            return (
+                                <li key={notification.id}>
+                                    <button
+                                        onClick={() => onClick(notification)}
+                                        className="w-full text-left flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className={`mt-0.5 p-1.5 rounded-full shrink-0 bg-${config?.tone}-100 text-${config?.tone}-600`}>
+                                            {config?.icon}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-semibold text-[#043462] truncate">
+                                                {titre}
+                                            </p>
+                                            <p className="text-xs text-slate-600 line-clamp-2">
+                                                {description}
+                                            </p>
+                                            <p className="text-[10px] text-slate-400 mt-1">
+                                                {formaterDate(notification.dateNotifiee)}
+                                            </p>
+                                        </div>
+                                    </button>
+                                </li>
+                            );
+                        })
+                    )}
                 </ul>
-            )}
-        </section>
+            </div>
+        </div>
     );
 }
