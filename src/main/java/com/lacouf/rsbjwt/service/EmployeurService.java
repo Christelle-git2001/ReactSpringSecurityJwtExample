@@ -37,14 +37,15 @@ public class EmployeurService {
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
-            ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository
-    ) {
+            ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
+            EntrevueRepository entrevueRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -52,6 +53,7 @@ public class EmployeurService {
         this.candidatureRepository = candidatureRepository;
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     @Transactional
@@ -353,5 +355,22 @@ public class EmployeurService {
         candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         candidatureRepository.save(candidature);
         return CandidatureDTO.of(candidature);
+    }
+
+    public List<EntrevueDTO> obtenirEntrevues() throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Entrevue> entrevues = null;
+
+        return entrevues
+                .stream()
+                .map(EntrevueDTO::of)
+                .toList();
     }
 }

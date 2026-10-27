@@ -123,4 +123,10 @@ public class EmployeurController {
                 employeurService.obtenirCandidaturesConvoquees()
         );
     }
+
+    @GetMapping("/entrevues")
+    public ResponseEntity<List<EntrevueDTO>> obtenirEntrevues() throws UtilisateurIntrouvableException {
+        List<EntrevueDTO> entrevues = employeurService.obtenirEntrevues();
+        return ResponseEntity.ok(entrevues);
+    }
 }
