@@ -370,7 +370,7 @@
     },
     "toast": {
       "waiting_validation": "CV envoyé, en attente de validation.",
-      "dont_forget_CV" : "S'il-vous-plait, n'ouillez pas de téléverser votre CV !"
+      "dont_forget_CV" : "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
   "candidature": {
@@ -433,5 +433,13 @@
   "drawer": {
     "details": "Détails",
     "close": "Fermer"
+  },
+  "documents": {
+    "verify_selected": "Vérifiez le document sélectionné :",
+    "preview": "Prévisualiser",
+    "download": "Télécharger",
+    "choose_another": "Choisir un autre fichier",
+    "replace": "Remplacer le document",
+    "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   }
 }

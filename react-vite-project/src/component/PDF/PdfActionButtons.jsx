@@ -2,29 +2,36 @@ import { IoEyeSharp } from "react-icons/io5";
 import { FaDownload } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
-function PdfActionButtons({ onView, onDownload }) {
+function PdfActionButtons({ onView, onDownload, variant = "default", disabled = false }) {
     const { t } = useTranslation();
+    const isCard = variant === "card";
+    const previewLabel = isCard ? t("documents.preview") : t("actions.view", "Visualiser");
+    const downloadLabel = isCard ? t("documents.download") : t("actions.download", "Télécharger");
 
     return (
-        <div className="flex justify-start gap-2 mb-2">
+        <div className={isCard ? "flex shrink-0 gap-3" : "flex justify-start gap-2 mb-2"}>
             <button
                 type="button"
-                className="btn btn-square btn-ghost btn-sm"
+                className={isCard ? "p-2 text-[#043462] cursor-pointer tooltip" : "btn btn-square btn-ghost btn-sm"}
                 onClick={onView}
-                title={t("actions.view", "Visualiser")}
-                aria-label={t("actions.view", "Visualiser")}
+                disabled={disabled}
+                title={previewLabel}
+                data-tip={isCard ? previewLabel : undefined}
+                aria-label={previewLabel}
             >
-                <IoEyeSharp className="w-5 h-5 text-teal-500 hover:text-black" />
+                <IoEyeSharp className={isCard ? "size-5" : "w-5 h-5 text-teal-500 hover:text-black"} aria-hidden="true" />
             </button>
 
             <button
                 type="button"
-                className="btn btn-square btn-ghost btn-sm"
+                className={isCard ? "p-2 text-[#043462] cursor-pointer tooltip" : "btn btn-square btn-ghost btn-sm"}
                 onClick={onDownload}
-                title={t("actions.download", "Télécharger")}
-                aria-label={t("actions.download", "Télécharger")}
+                disabled={disabled}
+                title={downloadLabel}
+                data-tip={isCard ? downloadLabel : undefined}
+                aria-label={downloadLabel}
             >
-                <FaDownload className="w-5 h-5 text-green-700 hover:text-black" />
+                <FaDownload className={isCard ? "size-5" : "w-5 h-5 text-green-700 hover:text-black"} aria-hidden="true" />
             </button>
         </div>
     );

@@ -371,7 +371,7 @@
     },
     "toast" : {
       "waiting_validation": "CV submitted, pending review.",
-      "dont_forget_CV" : "Please, dont forget to upload your CV !"
+      "dont_forget_CV" : "Please, don't forget to upload your CV !"
     }
   },
   "candidature": {
@@ -436,5 +436,21 @@
   "drawer": {
     "details": "Details",
     "close": "Close"
+  },
+  "documents": {
+    "verify_selected": "Check the selected document:",
+    "preview": "Preview",
+    "download": "Download",
+    "choose_another": "Choose another file",
+    "replace": "Replace the document",
+    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
+  },
+  "documents": {
+    "verify_selected": "Check the selected document:",
+    "preview": "Preview",
+    "download": "Download",
+    "choose_another": "Choose another file",
+    "replace": "Replace the document",
+    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
   }
 }

@@ -54,7 +54,7 @@ const CurriculumVitaeZone = ({onSend}) => {
                     {t(error)}
                 </p>
             )}
-            <div className="divide-y-4 divide-teal-700 divide-solid">
+            <div className="space-y-5">
                 {cv && (
                     <ShowCv
                         cv={cv}

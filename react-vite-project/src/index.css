@@ -63,6 +63,22 @@ button:disabled,
     @apply cursor-not-allowed opacity-50;
 }
 
+.document-card {
+    @apply flex flex-wrap items-center gap-4 rounded-xl p-5 max-[480px]:p-4;
+}
+
+.document-card-info {
+    @apply min-w-0 flex-1 text-left;
+}
+
+.document-card-name {
+    @apply break-all font-semibold text-[#043462];
+}
+
+.document-card-details {
+    @apply mt-1 text-sm text-gray-500;
+}
+
 .welcome-message {
     @apply text-3xl font-bold text-[#043462];
 }
