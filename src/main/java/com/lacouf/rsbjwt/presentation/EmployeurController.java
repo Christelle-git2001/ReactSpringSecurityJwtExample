@@ -108,4 +108,13 @@ public class EmployeurController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(convocation);
     }
+
+    @GetMapping("/candidatures/convoquees")
+    public ResponseEntity<List<CandidatureDTO>> obtenirCandidaturesConvoquees()
+            throws UtilisateurIntrouvableException {
+
+        return ResponseEntity.ok(
+                employeurService.obtenirCandidaturesConvoquees()
+        );
+    }
 }

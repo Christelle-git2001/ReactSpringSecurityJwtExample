@@ -271,6 +271,28 @@ public class EmployeurService {
                 .toList();
     }
 
+    public List<CandidatureDTO> obtenirCandidaturesConvoquees()
+            throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        return candidatureRepository
+                .findByStatutAndOffreDeStageEmployeurId(
+                        StatutCandidature.RETENUE_POUR_ENTREVUE,
+                        employeur.getId()
+                )
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
 
     @Transactional
     public ConvocationEntrevueDTO creerConvocation(CreationConvocationDTO dto) throws OffreNonAutoriseeException, CandidatureIntrouvableException, ConvocationExistanteException, ConvocationInvalideException {
@@ -322,7 +344,7 @@ public class EmployeurService {
             convocation.getPlagesHoraires().add(plage);
         }
 
-        candidature.setStatut(StatutCandidature.CONVOCATION_ENVOYEE);
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
 
         ConvocationEntrevue convocationEnregistree =
                 convocationRepository.save(convocation);

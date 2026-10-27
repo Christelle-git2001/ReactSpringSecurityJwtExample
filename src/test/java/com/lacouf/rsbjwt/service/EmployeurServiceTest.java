@@ -163,7 +163,7 @@ public class EmployeurServiceTest {
 
         return new CreationConvocationDTO(
                 candidature.getId(),
-                ModaliteEntrevue.DISTANCIEL,
+                ModaliteEntrevue.EN_LIGNE,
                 List.of(plage)
         );
     }
@@ -592,11 +592,11 @@ public class EmployeurServiceTest {
 
         assertThat(resultat).isNotNull();
         assertThat(resultat.id()).isEqualTo(1L);
-        assertThat(resultat.modalite()).isEqualTo(ModaliteEntrevue.DISTANCIEL);
+        assertThat(resultat.modalite()).isEqualTo(ModaliteEntrevue.EN_LIGNE);
         assertThat(resultat.plagesHoraires()).hasSize(1);
 
         assertThat(candidature.getStatut())
-                .isEqualTo(StatutCandidature.CONVOCATION_ENVOYEE);
+                .isEqualTo(StatutCandidature.RETENUE_POUR_ENTREVUE);
 
         verify(convocationRepository).save(any(ConvocationEntrevue.class));
     }
@@ -608,7 +608,7 @@ public class EmployeurServiceTest {
 
         CreationConvocationDTO dto = new CreationConvocationDTO(
                 99L,
-                ModaliteEntrevue.DISTANCIEL,
+                ModaliteEntrevue.EN_LIGNE,
                 List.of(new PlageHoraireDTO(
                         LocalDateTime.now().plusDays(7),
                         30
