@@ -159,6 +159,7 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "convocation_not_found": "Interview invitation not found.",
     "required": "This field is required.",
     "email_invalid": "Please enter a valid email address  | Ex : example@domain.com",
     "phone_invalid": "Please enter a valid phone number | Ex: 123-123-1234",

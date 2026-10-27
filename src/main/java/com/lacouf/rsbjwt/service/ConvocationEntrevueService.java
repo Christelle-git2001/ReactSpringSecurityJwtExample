@@ -1,10 +1,7 @@
 
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.CandidatureDejaExistanteException;
-import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.Exception.ConvocationInvalideException;
-import com.lacouf.rsbjwt.Exception.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.ConvocationEntrevue;
 import com.lacouf.rsbjwt.model.PlageHoraire;
@@ -20,6 +17,9 @@ import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.Exception.ConvocationIntrouvableException;
 
 import java.time.LocalDateTime;
 
@@ -93,6 +93,27 @@ public class ConvocationEntrevueService {
                 convocationRepository.save(convocation);
 
         return ConvocationEntrevueDTO.of(convocationEnregistree);
+    }
+
+    @Transactional
+    public ConvocationEntrevueDTO obtenirConvocationEtudiant(
+            Long convocationId,
+            String email
+    ) throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+
+        Etudiant etudiant = userAppRepository.findUserAppByEmail(email)
+                .filter(Etudiant.class::isInstance)
+                .map(Etudiant.class::cast)
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        ConvocationEntrevue convocation = convocationRepository
+                .findByIdAndCandidatureEtudiantId(
+                        convocationId,
+                        etudiant.getId()
+                )
+                .orElseThrow(ConvocationIntrouvableException::new);
+
+        return ConvocationEntrevueDTO.of(convocation);
     }
 
     private void validerModalite(ConvocationEntrevueDTO dto) throws ConvocationInvalideException {

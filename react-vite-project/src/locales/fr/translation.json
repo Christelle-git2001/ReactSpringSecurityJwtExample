@@ -198,6 +198,7 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
+    "convocation_not_found": "Convocation d’entrevue introuvable.",
     "required": "Ce champ est requis.",
     "email_invalid": "Veuillez entrer une adresse courriel valide | Ex : example@domain.com",
     "phone_invalid": "Veuillez entrer un numéro de téléphone valide | Ex: 123-123-1235",
