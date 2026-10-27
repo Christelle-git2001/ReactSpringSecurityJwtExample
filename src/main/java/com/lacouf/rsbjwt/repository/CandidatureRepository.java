@@ -17,4 +17,5 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findByOffreDeStage_Employeur(Employeur employeur);
 
+
 }
