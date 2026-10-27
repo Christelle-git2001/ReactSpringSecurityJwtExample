@@ -27,6 +27,9 @@ public class Employeur extends UserApp{
     @OneToMany(mappedBy = "employeur", cascade = CascadeType.ALL)
     private List<OffreDeStage> offres = new ArrayList<>();
 
+    @OneToMany(mappedBy = "entrevues", cascade = CascadeType.ALL)
+    private List<Entrevue> entrevues = new ArrayList<>();
+
 
     @Builder
     public Employeur(String firstName, String lastName, String phone, String email, String town, String businessName, SecteurActivite businessSector, String password

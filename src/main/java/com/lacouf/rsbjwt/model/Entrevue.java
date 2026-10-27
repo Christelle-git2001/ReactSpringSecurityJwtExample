@@ -32,4 +32,8 @@ public class Entrevue {
 
     @Column(nullable = false)
     private LocalDateTime dateCreation;
+
+    @ManyToOne
+    @JoinColumn(name = "employeur_id")
+    private Employeur employeur;
 }
