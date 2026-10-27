@@ -95,6 +95,13 @@ public class EmployeurController {
                 .body(resource);
     }
 
+
+    @PutMapping("/candidatures/{candidatureId}")
+    public ResponseEntity<CandidatureDTO> RetenirCandidaturePourEntrevue(@PathVariable Long candidatureId) throws CandidatureIntrouvableException {
+        CandidatureDTO candidatureDTO = employeurService.retenirCandidaturePourEntrevue(candidatureId);
+        return ResponseEntity.ok(candidatureDTO) ;
+    }
+
     @PostMapping("/entrevues")
     public ResponseEntity<EntrevueDTO> planifierEntrevues(
             @Valid @RequestBody CreationEntrevueDTO dto

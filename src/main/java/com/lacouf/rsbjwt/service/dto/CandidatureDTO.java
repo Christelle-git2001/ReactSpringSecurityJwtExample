@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +15,8 @@ public record CandidatureDTO(
         String offreTitle,
         String employeurBusinessName,
         LocalDateTime dateCandidature,
-        Long cvId
+        Long cvId,
+        StatutCandidature statut
 ) {
     public static CandidatureDTO of(Candidature candidature) {
         if (candidature == null) {
@@ -41,7 +43,8 @@ public record CandidatureDTO(
                 offre != null ? offre.getTitle() : null,
                 (offre != null && offre.getEmployeur() != null) ? offre.getEmployeur().getBusinessName() : null,
                 candidature.getDateCandidature(),
-                cvId
+                cvId,
+                candidature.getStatut()
         );
     }
 }

@@ -339,12 +339,19 @@ public class EmployeurService {
         entrevue.setFormat(dto.format());
         entrevue.setDateHeureEntrevue(dto.dateHeureEntrevue());
         entrevue.setDateCreation(LocalDateTime.now());
-
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
-
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
         return EntrevueDTO.of(entrevueEnregistree);
     }
 
+    @Transactional
+    public CandidatureDTO retenirCandidaturePourEntrevue(Long candidatureId) throws CandidatureIntrouvableException {
+        Candidature candidature = candidatureRepository
+                .findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
+
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        candidatureRepository.save(candidature);
+        return CandidatureDTO.of(candidature);
+    }
 }

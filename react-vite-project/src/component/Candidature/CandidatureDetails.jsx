@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
+import { retenirCandidaturePourEntrevue } from "../../api/employeur.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
 import OffreDetailsDrawerContent from "../Offer/OffreDetailsDrawerContent.jsx";
 
@@ -19,7 +20,13 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
 
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(true);
-    const cvId = candidature?.cvId ;
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [isRetenue, setIsRetenue] = useState(
+        candidature?.statut === "RETENUE_POUR_ENTREVUE"
+    );
+
+    const cvId = candidature?.cvId;
 
     useEffect(() => {
         let isMounted = true;
@@ -70,6 +77,21 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
         }
     };
 
+    const handleConvoquer = async () => {
+        if (!candidature?.id) return;
+
+        try {
+            setIsSubmitting(true);
+            await retenirCandidaturePourEntrevue(candidature.id);
+            setIsRetenue(true);
+            navigate("/employeur/entrevues");
+        } catch (error) {
+            console.error("Erreur lors de la mise en attente/retenue de la candidature :", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="w-full max-w-5xl mx-auto p-4 md:p-8">
             <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8 flex flex-col gap-6">
@@ -107,13 +129,26 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                         )}
                     </div>
                 </div>
+
                 <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-5">
                     <Button
                         type="button"
-                        onClick={() => navigate(retour)}
-                        className="bg-gray-500 text-white hover:bg-gray-600"
+                        onClick={handleConvoquer}
+                        disabled={isSubmitting || isRetenue}
+                        className={`text-white transition-colors ${
+                            isRetenue
+                                ? "bg-blue-200 cursor-not-allowed opacity-60"
+                                : "bg-blue-500 hover:bg-[#03284d]"
+                        }`}
                     >
-                        {t("actions.back")}
+                        {t("actions.interview", "Retenir pour entrevue")}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={() => navigate(retour)}
+                        className="bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    >
+                        {t("actions.back", "Retour")}
                     </Button>
                 </div>
             </div>
