@@ -91,33 +91,33 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                     </ul>
 
                     {offer?.description && (
-                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
-                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
+                        <div className="mt-2 text-xs">
+                            <p className="py-1 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
-                            </summary>
-                            <div className="collapse-content p-0">
+                            </p>
+                            <div className="p-0">
                                 <div className="mt-1 rounded-r-md border-l-[3px] border-[#00CCCB] bg-[#00CCCB]/5 px-3 py-2">
                                     <p className="leading-relaxed whitespace-pre-line break-words text-gray-700">
                                         {offer.description}
                                     </p>
                                 </div>
                             </div>
-                        </details>
+                        </div>
                     )}
 
                     {currentStatusKey === "REFUSEE" && offer?.rejectionComment && (
-                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
-                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-red-700">
+                        <div className="mt-2 text-xs">
+                            <p className="py-1 text-xs font-bold text-red-700">
                                 {t("offre.rejection_comment")}
-                            </summary>
-                            <div className="collapse-content p-0">
+                            </p>
+                            <div className="p-0">
                                 <div className="mt-1 bg-red-50 border border-red-200 p-3 rounded-lg">
                                     <p className="text-red-600 break-words">
                                         {offer.rejectionComment}
                                     </p>
                                 </div>
                             </div>
-                        </details>
+                        </div>
                     )}
 
                     <details className="collapse collapse-arrow mt-4 rounded-none border-t border-gray-200">
