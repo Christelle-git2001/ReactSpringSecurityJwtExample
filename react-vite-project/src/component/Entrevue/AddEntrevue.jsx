@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiClock } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
+import { validateEntrevueForm } from "../../utils/entrevueValidation.jsx";
 
 function AddEntrevue({ candidatures = [], onSave }) {
     const { t } = useTranslation();
@@ -12,6 +13,46 @@ function AddEntrevue({ candidatures = [], onSave }) {
     const [mode, setMode] = useState("EN_LIGNE");
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    const isDayPassed = currentHour > 18 || (currentHour === 18 && currentMinute > 0);
+
+    const formatDate = (d) => [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, "0"),
+        String(d.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    const todayStr = formatDate(now);
+
+    const minDateStr = isDayPassed ? formatDate(new Date(now.setDate(now.getDate() + 1))) : todayStr;
+
+    const getTimeSlots = () => {
+        const slots = [];
+        const currentTotalMinutes = date === todayStr ? currentHour * 60 + currentMinute : -1;
+
+        for (let hour = 8; hour <= 18; hour++) {
+            for (let minute = 0; minute < 60; minute += 15) {
+                if (hour === 18 && minute > 0) break;
+
+                const slotTotalMinutes = hour * 60 + minute;
+
+                if (date === todayStr && slotTotalMinutes <= currentTotalMinutes) {
+                    continue;
+                }
+
+                const formattedHour = String(hour).padStart(2, "0");
+                const formattedMinute = String(minute).padStart(2, "0");
+                slots.push(`${formattedHour}:${formattedMinute}`);
+            }
+        }
+        return slots;
+    };
+
+    const timeSlots = getTimeSlots();
 
     const inputStyle = (hasError) =>
         `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none focus:ring-2 ${
@@ -32,10 +73,12 @@ function AddEntrevue({ candidatures = [], onSave }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const newErrors = {};
-        if (!selectedCandidature) newErrors.candidature = "entrevue.errors.select_candidature";
-        if (!date) newErrors.date = "entrevue.errors.select_date";
-        if (!heure) newErrors.heure = "entrevue.errors.select_time";
+        const newErrors = validateEntrevueForm({
+            selectedCandidature,
+            date,
+            heure,
+            format: mode,
+        });
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -44,19 +87,20 @@ function AddEntrevue({ candidatures = [], onSave }) {
 
         setErrors({});
         setIsSubmitting(true);
-        const dateHeureFormatted = `${date}T${heure.length === 5 ? heure + ":00" : heure}`;
+
+        const dateHeureFormatted = `${date}T${heure}:00`;
         const entrevueDTO = {
             candidatureId: Number(selectedCandidature),
             format: mode,
-            dateHeureEntrevue: dateHeureFormatted
+            dateHeureEntrevue: dateHeureFormatted,
         };
 
         try {
             await onSave?.(entrevueDTO);
             resetForm();
         } catch (error) {
-            console.error("Erreur lors de la planification :", error);
-            setErrors({ submit: "entrevue.errors.submit_failed" });
+            console.error(error);
+            setErrors({ submit: error?.message || "entrevue.errors.submit_failed" });
         } finally {
             setIsSubmitting(false);
         }
@@ -111,11 +155,14 @@ function AddEntrevue({ candidatures = [], onSave }) {
                         id="mode"
                         value={mode}
                         onChange={(e) => setMode(e.target.value)}
-                        className={inputStyle(false)}
+                        className={inputStyle(errors.format)}
                     >
                         <option value="EN_LIGNE">{t("entrevue.mode_online", "En ligne (Visioconférence)")}</option>
                         <option value="PRESENTIEL">{t("entrevue.mode_onsite", "En présentiel")}</option>
                     </select>
+                    {errors.format && (
+                        <span className="text-xs font-medium text-red-500">{t(errors.format)}</span>
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-1.5">
@@ -125,8 +172,12 @@ function AddEntrevue({ candidatures = [], onSave }) {
                     <input
                         id="date"
                         type="date"
+                        min={minDateStr}
                         value={date}
-                        onChange={(e) => setDate(e.target.value)}
+                        onChange={(e) => {
+                            setDate(e.target.value);
+                            setHeure("");
+                        }}
                         className={inputStyle(errors.date)}
                     />
                     {errors.date && (
@@ -140,13 +191,21 @@ function AddEntrevue({ candidatures = [], onSave }) {
                             <FiClock className="size-3.5 text-[#043462]" />
                             {t("entrevue.time", "Heure")}
                         </label>
-                        <input
+                        <select
                             id="heure"
-                            type="time"
                             value={heure}
                             onChange={(e) => setHeure(e.target.value)}
                             className={inputStyle(errors.heure)}
-                        />
+                        >
+                            <option value="" disabled>
+                                --:--
+                            </option>
+                            {timeSlots.map((slot) => (
+                                <option key={slot} value={slot}>
+                                    {slot}
+                                </option>
+                            ))}
+                        </select>
                         {errors.heure && (
                             <span className="text-xs font-medium text-red-500">{t(errors.heure)}</span>
                         )}
