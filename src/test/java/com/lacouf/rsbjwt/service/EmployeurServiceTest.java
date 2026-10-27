@@ -2,13 +2,8 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.EmployeurRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.model.Enum.*;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,6 +54,9 @@ public class EmployeurServiceTest {
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private ConvocationEntrevueRepository convocationRepository;
 
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
@@ -154,6 +152,19 @@ public class EmployeurServiceTest {
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+    }
+
+    private CreationConvocationDTO creerDTOConvocationValide() {
+        PlageHoraireDTO plage = new PlageHoraireDTO(
+                LocalDateTime.now().plusDays(7),
+                30
+        );
+
+        return new CreationConvocationDTO(
+                candidature.getId(),
+                ModaliteEntrevue.DISTANCIEL,
+                List.of(plage)
         );
     }
 
@@ -557,6 +568,78 @@ public class EmployeurServiceTest {
 
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
     }
+
+    @Test
+    void doitCreerConvocationAvecSucces() throws Exception {
+        when(candidatureRepository.findById(candidature.getId()))
+                .thenReturn(Optional.of(candidature));
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.empty());
+
+        when(convocationRepository.save(any(ConvocationEntrevue.class)))
+                .thenAnswer(invocation -> {
+                    ConvocationEntrevue convocation = invocation.getArgument(0);
+                    convocation.setId(1L);
+                    return convocation;
+                });
+
+        ConvocationEntrevueDTO resultat =
+                employeurService.creerConvocation(creerDTOConvocationValide());
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.id()).isEqualTo(1L);
+        assertThat(resultat.modalite()).isEqualTo(ModaliteEntrevue.DISTANCIEL);
+        assertThat(resultat.plagesHoraires()).hasSize(1);
+
+        assertThat(candidature.getStatut())
+                .isEqualTo(StatutCandidature.CONVOCATION_ENVOYEE);
+
+        verify(convocationRepository).save(any(ConvocationEntrevue.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandCandidatureIntrouvable() {
+        when(candidatureRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        CreationConvocationDTO dto = new CreationConvocationDTO(
+                99L,
+                ModaliteEntrevue.DISTANCIEL,
+                List.of(new PlageHoraireDTO(
+                        LocalDateTime.now().plusDays(7),
+                        30
+                ))
+        );
+
+        assertThatThrownBy(() -> employeurService.creerConvocation(dto))
+                .isInstanceOf(CandidatureIntrouvableException.class);
+
+        verify(convocationRepository, never()).save(any(ConvocationEntrevue.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandConvocationExisteDeja() {
+        when(candidatureRepository.findById(candidature.getId()))
+                .thenReturn(Optional.of(candidature));
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.of(new ConvocationEntrevue()));
+
+        assertThatThrownBy(() ->
+                employeurService.creerConvocation(creerDTOConvocationValide()))
+                .isInstanceOf(ConvocationExistanteException.class);
+
+        verify(convocationRepository, never())
+                .save(any(ConvocationEntrevue.class));
+    }
+
 
 }
 

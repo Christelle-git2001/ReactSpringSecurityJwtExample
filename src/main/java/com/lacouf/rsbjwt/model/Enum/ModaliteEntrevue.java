@@ -3,5 +3,5 @@ package com.lacouf.rsbjwt.model.Enum;
 
 public enum ModaliteEntrevue {
     PRESENTIEL,
-    DISTANCIEL
+    EN_LIGNE
 }
