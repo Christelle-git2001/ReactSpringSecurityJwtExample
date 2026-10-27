@@ -57,7 +57,7 @@ function GestionEntrevue() {
                 </p>
             </div>
 
-            <div className="w-full h-full p-4 md:p-8 flex flex-col gap-6 items-center">
+            <div className="w-full h-full p-4 md:p-8 flex flex-col gap-16 items-center">
 
                 <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl justify-center lg:items-start">
 
@@ -67,7 +67,7 @@ function GestionEntrevue() {
                             onSave={handleAddEntrevue}
                         />
                     </div>
-
+                    <div className="hidden lg:block flex-1"></div>
                     <div className="w-full lg:max-w-xl">
                         <Agenda
                             entrevuesList={entrevuesList}
