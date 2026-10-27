@@ -231,11 +231,11 @@ function OfferDetails({ offre: offreProp }) {
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button variant="custom"
+                    <Button variant="secondary"
                         type="button"
                         disabled={isLoading}
                         onClick={() => navigate(retour)}
-                        className="bg-gray-500 text-white hover:bg-gray-600 disabled:opacity-50"
+                        className="disabled:opacity-50"
                     >
                         {t("actions.back")}
                     </Button>
@@ -260,7 +260,7 @@ function OfferDetails({ offre: offreProp }) {
                         </>
                     ) : (
                         <>
-                            <Button variant="custom"
+                            <Button variant="secondary"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => {
@@ -268,7 +268,7 @@ function OfferDetails({ offre: offreProp }) {
                                     setRejectionComment("");
                                     setErrors({});
                                 }}
-                                className="bg-gray-400 text-white hover:bg-gray-500 disabled:opacity-50"
+                                className="disabled:opacity-50"
                             >
                                 {t("actions.cancel_refusal")}
                             </Button>

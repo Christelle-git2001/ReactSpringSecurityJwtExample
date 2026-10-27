@@ -472,7 +472,7 @@ function OfferForm({
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button variant="custom" type="button" onClick={onCancel} className="bg-gray-500 text-white hover:bg-gray-600">
+                    <Button variant="secondary" type="button" onClick={onCancel}>
                         {t("add_offer.cancel")}
                     </Button>
                     <Button type="submit">

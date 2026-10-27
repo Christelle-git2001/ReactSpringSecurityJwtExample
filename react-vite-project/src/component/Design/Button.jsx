@@ -1,8 +1,9 @@
 const variantClasses = {
-    standard: "bg-[#043462] text-white enabled:hover:bg-[#03284d] focus-visible:outline-[#043462]",
-    success: "bg-green-600 text-white enabled:hover:bg-green-800 focus-visible:outline-green-600",
-    danger: "bg-red-600 text-white enabled:hover:bg-red-700 focus-visible:outline-red-600",
-    custom: "",
+    standard: "border-transparent bg-[#043462] text-white enabled:hover:bg-[#03284d] focus-visible:outline-[#043462]",
+    success: "border-transparent bg-green-600 text-white enabled:hover:bg-green-800 focus-visible:outline-green-600",
+    danger: "border-transparent bg-red-600 text-white enabled:hover:bg-red-700 focus-visible:outline-red-600",
+    secondary: "border-[#043462] bg-white text-[#043462] enabled:hover:bg-blue-50 focus-visible:outline-[#043462]",
+    custom: "border-transparent",
 };
 
 const sizeClasses = {
@@ -27,7 +28,7 @@ function Button({
             type={type}
             disabled={disabled || loading}
             aria-busy={loading || undefined}
-            className={`inline-flex items-center justify-center gap-2 rounded-md border border-transparent font-medium transition-colors enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 ${Object.hasOwn(variantClasses, variant) ? variantClasses[variant] : variantClasses.standard} ${sizeClasses[size] || sizeClasses.normal} ${className}`}
+            className={`inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-colors enabled:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 ${Object.hasOwn(variantClasses, variant) ? variantClasses[variant] : variantClasses.standard} ${sizeClasses[size] || sizeClasses.normal} ${className}`}
         >
             {loading && <span className="loading loading-spinner loading-sm" aria-hidden="true" />}
             {children}

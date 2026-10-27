@@ -162,11 +162,11 @@ function CvDetails({ cv: cvProp }) {
                         {t("pdfVisio.download")}
                     </button>
 
-                    <Button variant="custom"
+                    <Button variant="secondary"
                         type="button"
                         disabled={isLoading}
                         onClick={() => navigate(retour)}
-                        className="bg-gray-500 text-white hover:bg-gray-600 disabled:opacity-50"
+                        className="disabled:opacity-50"
                     >
                         {t("actions.back")}
                     </Button>
@@ -191,7 +191,7 @@ function CvDetails({ cv: cvProp }) {
                         </>
                     ) : (
                         <>
-                            <Button variant="custom"
+                            <Button variant="secondary"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => {
@@ -199,7 +199,7 @@ function CvDetails({ cv: cvProp }) {
                                     setRejectionComment("");
                                     setErrors({});
                                 }}
-                                className="bg-gray-400 text-white hover:bg-gray-500 disabled:opacity-50"
+                                className="disabled:opacity-50"
                             >
                                 {t("actions.cancel_refusal")}
                             </Button>

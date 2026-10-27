@@ -108,10 +108,9 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 </div>
                 <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button variant="custom"
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => navigate(retour)}
-                        className="bg-gray-500 text-white hover:bg-gray-600"
                     >
                         {t("actions.back")}
                     </Button>
