@@ -11,20 +11,27 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
     useEffect(() => {
         const calendarEl = calendarRef.current;
         if (!calendarEl) return;
+        if (selectedDate) {
+            calendarEl.value = selectedDate;
+        }
 
         const handleDateChange = (e) => {
-            onDateSelect?.(e.target.value);
+            const newDate = e.target.value;
+            onDateSelect?.(newDate || "");
         };
 
         calendarEl.addEventListener("change", handleDateChange);
         return () => {
             calendarEl.removeEventListener("change", handleDateChange);
         };
-    }, [onDateSelect]);
-
+    }, [onDateSelect, selectedDate]);
 
     const filteredEntrevues = selectedDate
-        ? entrevuesList.filter((entrevue) => entrevue.date === selectedDate)
+        ? entrevuesList.filter((entrevue) => {
+            if (!entrevue?.date) return false;
+            const formattedEntrevueDate = String(entrevue.date).trim().split("T")[0];
+            return formattedEntrevueDate === String(selectedDate).trim();
+        })
         : entrevuesList;
 
     return (
@@ -43,20 +50,26 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
 
 
             <div className="flex justify-center w-full">
-                <calendar-date
-                    ref={calendarRef}
-                    className="cally bg-white border border-gray-200 shadow-sm rounded-2xl p-3 w-full"
-                >
-                    <svg aria-label="Previous" className="fill-current size-4 text-[#043462]" slot="previous"
-                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
-                    </svg>
-                    <svg aria-label="Next" className="fill-current size-4 text-[#043462]" slot="next"
-                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
-                    </svg>
-                    <calendar-month></calendar-month>
-                </calendar-date>
+                <div className="w-full max-w-[600px] h-[360px] flex items-center justify-center">
+                    <calendar-date
+                        ref={calendarRef}
+                        value={selectedDate || ""}
+                        className="cally bg-white border border-gray-200 shadow-sm rounded-2xl p-3
+                       w-full h-full overflow-hidden flex flex-col"
+                    >
+                        <svg aria-label="Previous" className="fill-current size-4 text-[#043462]" slot="previous"
+                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                        </svg>
+
+                        <svg aria-label="Next" className="fill-current size-4 text-[#043462]" slot="next"
+                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+                        </svg>
+
+                        <calendar-month></calendar-month>
+                    </calendar-date>
+                </div>
             </div>
 
             <div className="flex flex-col gap-3">

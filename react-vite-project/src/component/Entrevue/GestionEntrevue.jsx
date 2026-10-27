@@ -58,10 +58,9 @@ function GestionEntrevue() {
             </div>
 
             <div className="w-full h-full p-4 md:p-8 flex flex-col gap-6 items-center">
-                {/* Contenu centré avec largeur max */}
+
                 <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl justify-center lg:items-start">
 
-                    {/* Formulaire */}
                     <div className="w-full lg:w-[420px] lg:h-fit lg:sticky lg:top-6 shrink-0">
                         <AddEntrevue
                             candidatures={candidaturesList}
@@ -69,7 +68,6 @@ function GestionEntrevue() {
                         />
                     </div>
 
-                    {/* Agenda */}
                     <div className="w-full lg:max-w-xl">
                         <Agenda
                             entrevuesList={entrevuesList}
