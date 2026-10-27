@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useOutletContext, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
 import OffreEtudiantCard from "../../component/Design/Cards/OffreEtudiantCard.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
@@ -14,7 +13,6 @@ import { getNotifications, marquerNotificationLue } from "../../api/notification
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
-    const { openDrawer } = useOutletContext();
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -60,7 +58,8 @@ const EtudiantHome = ({ user }) => {
         chargerNotificationsOffres();
     }, [chargerNotificationsOffres]);
 
-    const marquerNotificationOffreCommeLue = async (offreId) => {
+    const marquerNotificationOffreCommeLue = useCallback(async (offreId) => {
+        if (!user?.id) return;
         try {
             const notifications = await getNotifications(user.id);
             const notification = notifications.find(
@@ -79,21 +78,7 @@ const EtudiantHome = ({ user }) => {
         } catch (error) {
             console.error("Erreur lors du marquage :", error);
         }
-    };
-
-    const handleView = async (offer) => {
-        await marquerNotificationOffreCommeLue(offer.id);
-        openDrawer(
-            <OffreDetailsDrawerContent
-                offer={offer}
-                showStatus={false}
-                hasApplied={idsPostules.includes(offer.id)}
-                onApplied={(id) =>
-                    setIdsPostules((prev) => (prev.includes(id) ? prev : [...prev, id]))
-                }
-            />
-        );
-    };
+    }, [user?.id]);
 
     const ouvrirOffreParId = useCallback((offreId) => {
         const offre = offres.find(
@@ -101,9 +86,10 @@ const EtudiantHome = ({ user }) => {
         );
 
         if (offre) {
-            handleView(offre);
+            document.getElementById(`offre-${offre.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            marquerNotificationOffreCommeLue(offre.id);
         }
-    }, [offres, handleView]);
+    }, [offres, marquerNotificationOffreCommeLue]);
 
     useEffect(() => {
         const offreId = location.state?.offreId;
@@ -183,12 +169,11 @@ const EtudiantHome = ({ user }) => {
             </div>
 
             <div className="w-full max-w-7xl">
-                <div className="collapse collapse-arrow bg-transparent">
-                    <input type="checkbox" className="peer" defaultChecked />
+                <details open className="collapse collapse-arrow bg-transparent">
 
-                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
                         {t("nav.view_offers")}
-                    </div>
+                    </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
@@ -216,7 +201,7 @@ const EtudiantHome = ({ user }) => {
                                                     <OffreEtudiantCard
                                                         key={offer.id}
                                                         offer={offer}
-                                                        onView={handleView}
+                                                        onRead={marquerNotificationOffreCommeLue}
                                                         hasApplied={idsPostules.includes(offer.id)}
                                                         onApplied={(id) =>
                                                             setIdsPostules((prev) =>
@@ -244,7 +229,6 @@ const EtudiantHome = ({ user }) => {
                                                     <OffreEtudiantCard
                                                         key={offer.id}
                                                         offer={offer}
-                                                        onView={handleView}
                                                         hasApplied={idsPostules.includes(offer.id)}
                                                         onApplied={(id) =>
                                                             setIdsPostules((prev) =>
@@ -260,7 +244,7 @@ const EtudiantHome = ({ user }) => {
                             )}
                         </div>
                     </div>
-                </div>
+                </details>
             </div>
         </div>
     );

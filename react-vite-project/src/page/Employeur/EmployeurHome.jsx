@@ -56,16 +56,6 @@ const EmployeurHome = ({ user }) => {
         candidatureFilters.setSelectedStatus(status);
     };
 
-    const handleView = (offer) => {
-        openDrawer(
-            <OffreDetailsDrawerContent
-                offer={offer}
-                candidatures={candidatures}
-                userId={user?.id}
-            />
-        );
-    };
-
     const handleEdit = (offer) => {
         navigate("/employeur/offres/modifier", {
             state: { offer }
@@ -165,13 +155,12 @@ const EmployeurHome = ({ user }) => {
                 />
             </div>
             <div className="w-full max-w-7xl">
-                <div className="collapse collapse-arrow bg-transparent">
-                    <input type="checkbox" className="peer" defaultChecked />
+                <details open className="collapse collapse-arrow bg-transparent">
 
-                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
                         <span> {t("nav.view_offers")} </span>
                         <span> ({filteredOffres.length}) </span>
-                    </div>
+                    </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8">
@@ -184,13 +173,13 @@ const EmployeurHome = ({ user }) => {
                                     }
                                 />
                             ) : (
-                                <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full mt-4">
+                                <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full mt-4">
                                     {filteredOffres.map((offer) => (
                                         <OffreStageCard
                                             key={offer.id}
                                             offer={offer}
                                             candidatures={candidatures}
-                                            onView={handleView}
+                                            onViewCandidature={handleViewCandidature}
                                             onEdit={handleEdit}
                                         />
                                     ))}
@@ -198,16 +187,15 @@ const EmployeurHome = ({ user }) => {
                             )}
                         </div>
                     </div>
-                </div>
+                </details>
             </div>
             <div id="candidatures-section" className="w-full max-w-7xl mt-4">
-                <div className="collapse collapse-arrow bg-transparent">
-                    <input type="checkbox" className="peer" defaultChecked />
+                <details open className="collapse collapse-arrow bg-transparent">
 
-                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
                         <span> {t("candidature.list_title")} </span>
                         <span> ({filteredCandidatures.length}) </span>
-                    </div>
+                    </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="w-full px-2 sm:px-4 pb-8">
@@ -233,7 +221,7 @@ const EmployeurHome = ({ user }) => {
                             )}
                         </div>
                     </div>
-                </div>
+                </details>
             </div>
         </div>
     );

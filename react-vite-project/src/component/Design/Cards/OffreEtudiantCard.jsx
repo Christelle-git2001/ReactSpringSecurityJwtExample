@@ -7,7 +7,7 @@ import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
 import { FiStar } from "react-icons/fi";
 
-function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
+function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
     const { t } = useTranslation();
 
     const isTargeted = Boolean(offer?.isTarget);
@@ -35,7 +35,9 @@ function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
 
     return (
         <>
-            <div className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+            <div id={`offre-${offer?.id}`} onClick={(event) => {
+                if (!event.target.closest("button, summary")) onRead?.(offer?.id);
+            }} className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
 
                 {isTargeted && (
                     <div className="absolute top-3 right-3 z-10">
@@ -74,20 +76,28 @@ function OffreEtudiantCard({ offer, onView, hasApplied, onApplied }) {
                         ))}
                     </ul>
 
-                    {onView && (
-                        <label
-                            htmlFor="my-drawer-5"
-                            className="btn bg-[#66E5E4] btn-block text-[#043462]"
-                            onClick={() => onView?.(offer)}
-                        >
-                            {t("offre.details")}
-                        </label>
+                    {offer?.description && (
+                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
+                                {t("offre.description")}
+                            </summary>
+                            <div className="collapse-content p-0">
+                                <div className="mt-1 rounded-r-md border-l-[3px] border-[#00CCCB] bg-[#00CCCB]/5 px-3 py-2">
+                                    <p className="leading-relaxed whitespace-pre-line break-words text-gray-700">
+                                        {offer.description}
+                                    </p>
+                                </div>
+                            </div>
+                        </details>
                     )}
 
                     <PostulerButton
                         offerId={offer?.id}
                         hasApplied={hasApplied}
-                        onApplied={onApplied}
+                        onApplied={(id) => {
+                            onApplied?.(id);
+                            onRead?.(id);
+                        }}
                     />
                 </div>
 
