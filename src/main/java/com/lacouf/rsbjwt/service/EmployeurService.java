@@ -36,14 +36,14 @@ public class EmployeurService {
     private final CandidatureRepository candidatureRepository ;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ApplicationEventPublisher eventPublisher;
-    private final ConvocationEntrevueRepository convocationRepository;
+    private final EntrevueRepository convocationRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
-            ApplicationEventPublisher eventPublisher, ConvocationEntrevueRepository convocationRepository
+            ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository
     ) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
@@ -83,7 +83,7 @@ public class EmployeurService {
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
         Employeur employeur = getEmployeurByEmail(email);
 
         validerDates(creationOffreDeStageDTO);
@@ -165,10 +165,10 @@ public class EmployeurService {
 
     private void validerDates(CreationOffreDeStageDTO dto)
             throws DateFinAvantDateDebutException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
 
         if (dto.startDate().isBefore(LocalDate.now())) {
-            throw new DateDebutAvantAujourdhuiException();
+            throw new DateAvantAujourdhuiException();
         }
 
         if (!dto.endDate().isAfter(dto.startDate())) {
@@ -193,7 +193,7 @@ public class EmployeurService {
     ) throws DateFinAvantDateDebutException,
             IOException,
             FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
-            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
@@ -291,11 +291,15 @@ public class EmployeurService {
                 .toList();
     }
 
-
     @Transactional
-    public ConvocationEntrevueDTO creerConvocation(CreationConvocationDTO dto) throws OffreNonAutoriseeException, CandidatureIntrouvableException, ConvocationExistanteException, ConvocationInvalideException {
-        Long candidatureId = dto.candidatureId();
-        Candidature candidature = candidatureRepository.findById(candidatureId)
+    public EntrevueDTO creerConvocation(CreationEntrevueDTO dto)
+            throws OffreNonAutoriseeException,
+            CandidatureIntrouvableException,
+            ConvocationExistanteException,
+            DateAvantAujourdhuiException, ConvocationInvalideException {
+
+        Candidature candidature = candidatureRepository
+                .findById(dto.candidatureId())
                 .orElseThrow(CandidatureIntrouvableException::new);
 
         String email = SecurityContextHolder.getContext()
@@ -315,39 +319,32 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        if (convocationRepository.findByCandidatureId(candidatureId).isPresent()) {
+        if (convocationRepository
+                .findByCandidatureId(dto.candidatureId())
+                .isPresent()) {
             throw new ConvocationExistanteException();
         }
 
-        if (dto.format() == null || dto.plagesHoraires() == null
-                || dto.plagesHoraires().isEmpty()
-                || dto.plagesHoraires().stream().anyMatch(
-                plage -> plage == null
-                        || plage.dateHeureDebut() == null
-                        || plage.dureeMinutes() <= 0)) {
+        if (dto.format() == null) {
             throw new ConvocationInvalideException();
         }
 
-        ConvocationEntrevue convocation = new ConvocationEntrevue();
-        convocation.setCandidature(candidature);
-        convocation.setFormat(dto.format());
-        convocation.setDateCreation(LocalDateTime.now());
-
-        for (PlageHoraireDTO plageDTO : dto.plagesHoraires()) {
-            PlageHoraire plage = new PlageHoraire();
-            plage.setConvocation(convocation);
-            plage.setDateHeureDebut(plageDTO.dateHeureDebut());
-            plage.setDureeMinutes(plageDTO.dureeMinutes());
-
-            convocation.getPlagesHoraires().add(plage);
+        if (dto.dateHeureEntrevue() == null
+                || !dto.dateHeureEntrevue().isAfter(LocalDateTime.now())) {
+            throw new DateAvantAujourdhuiException();
         }
+
+        Entrevue entrevue = new Entrevue();
+        entrevue.setCandidature(candidature);
+        entrevue.setFormat(dto.format());
+        entrevue.setDateHeureEntrevue(dto.dateHeureEntrevue());
+        entrevue.setDateCreation(LocalDateTime.now());
 
         candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
 
-        ConvocationEntrevue convocationEnregistree =
-                convocationRepository.save(convocation);
+        Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
-        return ConvocationEntrevueDTO.of(convocationEnregistree);
+        return EntrevueDTO.of(entrevueEnregistree);
     }
 
 }

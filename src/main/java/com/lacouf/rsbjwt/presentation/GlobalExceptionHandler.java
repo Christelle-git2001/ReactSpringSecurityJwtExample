@@ -98,9 +98,9 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(DateDebutAvantAujourdhuiException.class)
+    @ExceptionHandler(DateAvantAujourdhuiException.class)
     public ResponseEntity<ErreurDTO> handleDateDebutAvantAujourdhuiException(
-            DateDebutAvantAujourdhuiException e
+            DateAvantAujourdhuiException e
     ) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

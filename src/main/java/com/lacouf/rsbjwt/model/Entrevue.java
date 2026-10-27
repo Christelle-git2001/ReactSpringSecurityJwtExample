@@ -8,14 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class ConvocationEntrevue {
+public class Entrevue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,14 +27,9 @@ public class ConvocationEntrevue {
     @Column(nullable = false)
     private FormatEntrevue format;
 
+    @Column(nullable = false)
+    private LocalDateTime dateHeureEntrevue;
 
     @Column(nullable = false)
     private LocalDateTime dateCreation;
-
-    @OneToMany(
-            mappedBy = "convocation",
-            cascade = CascadeType.ALL
-    )
-    private List<PlageHoraire> plagesHoraires = new ArrayList<>();
-
 }

@@ -27,16 +27,13 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
 import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
-import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -49,8 +46,8 @@ public class EmployeurControllerTest {
     private EmployeurService employeurService;
 
     private ObjectMapper objectMapper;
-    private CreationConvocationDTO creationConvocationDTO;
-    private ConvocationEntrevueDTO convocationEntrevueDTO;
+    private CreationEntrevueDTO creationConvocationDTO;
+    private EntrevueDTO convocationEntrevueDTO;
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     OffreDeStageDTO offreDeStageDTO;
@@ -110,17 +107,17 @@ public class EmployeurControllerTest {
                 30
         );
 
-        creationConvocationDTO = new CreationConvocationDTO(
+        creationConvocationDTO = new CreationEntrevueDTO(
                 1L,
                 FormatEntrevue.EN_LIGNE,
-                List.of(plageHoraireDTO)
+                LocalDateTime.now().plusDays(7)
         );
 
-        convocationEntrevueDTO = new ConvocationEntrevueDTO(
+        convocationEntrevueDTO = new EntrevueDTO(
                 1L,
                 LocalDateTime.now(),
                 FormatEntrevue.EN_LIGNE,
-                List.of(plageHoraireDTO)
+                LocalDateTime.now().plusDays(7)
         );
     }
 
@@ -439,10 +436,10 @@ public class EmployeurControllerTest {
     @Test
     void doitCreerConvocationAvecSucces() throws Exception {
         when(employeurService.creerConvocation(
-                any(CreationConvocationDTO.class)
+                any(CreationEntrevueDTO.class)
         )).thenReturn(convocationEntrevueDTO);
 
-        mockMvc.perform(post("/employeur/convocations")
+        mockMvc.perform(post("/employeur/entrevues")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 creationConvocationDTO
@@ -454,18 +451,13 @@ public class EmployeurControllerTest {
     @Test
     void doitRetournerBadRequestQuandCandidatureIdManquant() throws Exception {
         String jsonInvalide = """
-            {
-                "modalite": "DISTANCIEL",
-                "plagesHoraires": [
-                    {
-                        "dateHeureDebut": "2027-11-15T10:00:00",
-                        "dureeMinutes": 30
-                    }
-                ]
-            }
-            """;
+                {
+                    "format": "EN_LIGNE",
+                    "dateHeureEntrevue": "2027-11-15T10:00:00"
+                }
+                """;
 
-        mockMvc.perform(post("/employeur/convocations")
+        mockMvc.perform(post("/employeur/entrevues")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonInvalide)
                         .principal(principal))
@@ -475,10 +467,10 @@ public class EmployeurControllerTest {
     @Test
     void doitRetournerForbiddenQuandOffreNonAutorisee() throws Exception {
         when(employeurService.creerConvocation(
-                any(CreationConvocationDTO.class)
+                any(CreationEntrevueDTO.class)
         )).thenThrow(new OffreNonAutoriseeException());
 
-        mockMvc.perform(post("/employeur/convocations")
+        mockMvc.perform(post("/employeur/entrevues")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 creationConvocationDTO
@@ -490,10 +482,10 @@ public class EmployeurControllerTest {
     @Test
     void doitRetournerNotFoundQuandCandidatureIntrouvable() throws Exception {
         when(employeurService.creerConvocation(
-                any(CreationConvocationDTO.class)
+                any(CreationEntrevueDTO.class)
         )).thenThrow(new CandidatureIntrouvableException());
 
-        mockMvc.perform(post("/employeur/convocations")
+        mockMvc.perform(post("/employeur/entrevues")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 creationConvocationDTO
@@ -505,10 +497,10 @@ public class EmployeurControllerTest {
     @Test
     void doitRetournerConflictQuandConvocationExisteDeja() throws Exception {
         when(employeurService.creerConvocation(
-                any(CreationConvocationDTO.class)
+                any(CreationEntrevueDTO.class)
         )).thenThrow(new ConvocationExistanteException());
 
-        mockMvc.perform(post("/employeur/convocations")
+        mockMvc.perform(post("/employeur/entrevues")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 creationConvocationDTO
