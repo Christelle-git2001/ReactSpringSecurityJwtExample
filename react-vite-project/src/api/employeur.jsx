@@ -45,6 +45,12 @@ export async function PlanifierEntrevue(dto) {
     });
 }
 
+export async function getEntrevuesEmployeur() {
+    return fetchJson("/employeur/entrevues", {
+        method: "GET",
+    });
+}
+
 export async function retenirCandidaturePourEntrevue(candidatureId) {
     return fetchJson(`/employeur/candidatures/${candidatureId}`, {
         method: "PUT",

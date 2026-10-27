@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import AddEntrevue from "./AddEntrevue.jsx";
 import Agenda from "./Agenda";
-import { getCandidaturesRetenuesPourEntrevue, PlanifierEntrevue } from "../../api/employeur.jsx"
+import {
+    getCandidaturesRetenuesPourEntrevue,
+    PlanifierEntrevue,
+    getEntrevuesEmployeur
+} from "../../api/employeur.jsx";
 
 function GestionEntrevue() {
     const { t } = useTranslation();
@@ -10,38 +14,65 @@ function GestionEntrevue() {
 
     const [candidaturesList, setCandidaturesList] = useState([]);
     const [entrevuesList, setEntrevuesList] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const mapEntrevueDtoToUi = (dto) => {
+        const [datePart, timePart] = (dto.dateHeureEntrevue || "").split("T");
+
+        return {
+            id: dto.id,
+            candidatureId: dto.candidatureId,
+            candidatNom: dto.etudiantFirstName || dto.etudiantLastName
+                ? `${dto.etudiantFirstName || ""} ${dto.etudiantLastName || ""}`.trim()
+                : t("candidature.student_unknown", "Candidat inconnu"),
+            posteTitre: dto.offreTitle || t("candidature.offer_unknown", "Poste inconnu"),
+            date: datePart || "",
+            heure: timePart ? timePart.substring(0, 5) : "00:00",
+            duree: "30 min",
+            mode: dto.format || "EN_LIGNE",
+        };
+    };
 
     useEffect(() => {
-        getCandidaturesRetenuesPourEntrevue()
-            .then((data) => {
-                setCandidaturesList(data || []);
+        setLoading(true);
+        Promise.all([
+            getCandidaturesRetenuesPourEntrevue(),
+            getEntrevuesEmployeur()
+        ])
+            .then(([candidaturesData, entrevuesData]) => {
+                setCandidaturesList(candidaturesData || []);
+
+                const formattedEntrevues = (entrevuesData || []).map(mapEntrevueDtoToUi);
+                setEntrevuesList(formattedEntrevues);
             })
             .catch((err) => {
-                console.error("Erreur lors du chargement des candidatures :", err);
+                console.error("Erreur lors du chargement des données d'entrevue :", err);
+            })
+            .finally(() => {
+                setLoading(false);
             });
     }, []);
 
     const handleAddEntrevue = async (entrevueDTO) => {
         try {
             const nouvelleEntrevueCreee = await PlanifierEntrevue(entrevueDTO);
+
             const candidatureInfo = candidaturesList.find(
                 (c) => String(c.id) === String(entrevueDTO.candidatureId)
             );
 
-            const entrevuePourAgenda = {
-                id: nouvelleEntrevueCreee?.id || Date.now(),
-                candidatureId: entrevueDTO.candidatureId,
-                candidatNom: candidatureInfo
-                    ? `${candidatureInfo.etudiantFirstName || ""} ${candidatureInfo.etudiantLastName || ""}`.trim()
-                    : t("candidature.student_unknown", "Candidat inconnu"),
-                posteTitre: candidatureInfo?.offreTitle || t("candidature.offer_unknown", "Poste inconnu"),
-                date: entrevueDTO.dateHeureEntrevue.split("T")[0],
-                heure: entrevueDTO.dateHeureEntrevue.split("T")[1]?.substring(0, 5) || "10:00",
-                duree: "30 min",
-                mode: entrevueDTO.format,
-            };
+            const entrevuePourAgenda = mapEntrevueDtoToUi({
+                ...nouvelleEntrevueCreee,
+                etudiantFirstName: candidatureInfo?.etudiantFirstName,
+                etudiantLastName: candidatureInfo?.etudiantLastName,
+                offreTitle: candidatureInfo?.offreTitle,
+            });
 
             setEntrevuesList((prev) => [...prev, entrevuePourAgenda]);
+
+            setCandidaturesList((prev) =>
+                prev.filter((c) => String(c.id) !== String(entrevueDTO.candidatureId))
+            );
         } catch (error) {
             console.error("Erreur lors de la planification :", error);
             throw error;
@@ -70,11 +101,17 @@ function GestionEntrevue() {
                     </div>
                     <div className="hidden lg:block flex-1"></div>
                     <div className="w-full lg:max-w-xl">
-                        <Agenda
-                            entrevuesList={entrevuesList}
-                            selectedDate={selectedDate}
-                            onDateSelect={setSelectedDate}
-                        />
+                        {loading ? (
+                            <div className="flex items-center justify-center p-12 bg-white rounded-2xl border border-gray-200">
+                                <span className="loading loading-spinner loading-md text-[#043462]" />
+                            </div>
+                        ) : (
+                            <Agenda
+                                entrevuesList={entrevuesList}
+                                selectedDate={selectedDate}
+                                onDateSelect={setSelectedDate}
+                            />
+                        )}
                     </div>
 
                 </div>
