@@ -40,7 +40,7 @@ describe("test du bouton Postuler", () => {
         expect(boutonPostuler).toBeInTheDocument();
     });
 
-    it("devrait afficher le message de déjà postulé quand l'étudiant a déjà postulé", async () => {
+    it("devrait afficher le message de candidature envoyée quand l'étudiant a déjà postulé", async () => {
         render(
             <MemoryRouter>
                 <OffreDetailsDrawerContent
@@ -50,8 +50,8 @@ describe("test du bouton Postuler", () => {
                 />
             </MemoryRouter>
         );
-        const messageDejaPostule = screen.getByText("offre.already_applied");
-        expect(messageDejaPostule).toBeInTheDocument();
+        const messageCandidatureEnvoyee = screen.getByText("offre.application_received");
+        expect(messageCandidatureEnvoyee).toBeInTheDocument();
     });
 
     it("ne devrait pas afficher le bouton postuler quand l'étudiant a déjà postulé", async () => {

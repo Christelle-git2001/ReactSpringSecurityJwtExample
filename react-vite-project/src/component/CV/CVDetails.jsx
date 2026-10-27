@@ -152,17 +152,17 @@ function CvDetails({ cv: cvProp }) {
                 )}
 
                 <div className="mt-4 flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button
+                    <button
                         type="button"
                         disabled={isPdfLoading || !pdfBlobUrl}
                         onClick={() => declencherTelechargement(pdfBlobUrl, cv?.fileName || "cv.pdf")}
-                        className="mr-auto flex cursor-pointer items-center gap-2 bg-[#043462] text-white enabled:hover:bg-[#00CCCB] enabled:hover:text-[#043462] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center gap-2 rounded-md border border-transparent px-4 py-2 font-medium transition-colors mr-auto flex cursor-pointer items-center gap-2 bg-[#043462] text-white enabled:hover:bg-[#00CCCB] enabled:hover:text-[#043462] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <FaDownload aria-hidden="true" />
                         {t("pdfVisio.download")}
-                    </Button>
+                    </button>
 
-                    <Button
+                    <Button variant="custom"
                         type="button"
                         disabled={isLoading}
                         onClick={() => navigate(retour)}
@@ -173,27 +173,25 @@ function CvDetails({ cv: cvProp }) {
 
                     {!showRefusalReason ? (
                         <>
-                            <Button
+                            <Button variant="danger"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => setShowRefusalReason(true)}
-                                className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                             >
                                 {t("actions.reject")}
                             </Button>
 
-                            <Button
+                            <Button variant="success"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={handleSubmit}
-                                className="bg-green-600 text-white hover:bg-green-800 disabled:opacity-50"
                             >
                                 {isLoading ? t("actions.loading") : t("actions.approve")}
                             </Button>
                         </>
                     ) : (
                         <>
-                            <Button
+                            <Button variant="custom"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => {
@@ -206,11 +204,10 @@ function CvDetails({ cv: cvProp }) {
                                 {t("actions.cancel_refusal")}
                             </Button>
 
-                            <Button
+                            <Button variant="danger"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={handleSubmit}
-                                className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                             >
                                 {isLoading ? t("actions.loading") : t("actions.confirm_rejection")}
                             </Button>

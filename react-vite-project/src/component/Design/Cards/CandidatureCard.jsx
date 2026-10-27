@@ -53,7 +53,7 @@ function CandidatureCard({ candidature, onView, onViewOffer }) {
                     <button
                         type="button"
                         onClick={() => onView(candidature)}
-                        className="btn btn-sm bg-[#043462] text-white hover:bg-[#032545] border-none font-semibold px-5 rounded-lg shadow-sm"
+                        className="btn btn-sm shrink-0 border-none rounded-lg px-4 bg-[#043462] text-white hover:bg-[#03284d]"
                     >
                         {t("candidature.read")}
                     </button>

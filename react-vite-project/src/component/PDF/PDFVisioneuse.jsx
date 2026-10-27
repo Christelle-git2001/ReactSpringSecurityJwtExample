@@ -76,14 +76,16 @@ export const PDFContent = ({ cvUrlAAffiche, enablePageScroll = false }) => {
 };
 
 export const PDFVisioneuse = ({ cvUrlAAffiche, onClose }) => {
+    const { t } = useTranslation();
     return (
         <div className="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col bg-[radial-gradient(circle_at_top_left,#000CCB33,#00CCCFFF,#000CCB33)]">
             <button
+                className="close-button absolute right-2 top-2 z-10"
                 type="button"
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10"
                 onClick={onClose}
+                aria-label={t("drawer.close")}
             >
-                <FiX className="size-5" />
+                <FiX className="size-5" aria-hidden="true" />
             </button>
 
             <PDFContent cvUrlAAffiche={cvUrlAAffiche} />

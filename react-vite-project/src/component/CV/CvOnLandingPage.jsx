@@ -1,3 +1,4 @@
+import { FiX } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { obtenirCvInfo } from "../../api/etudiant.jsx";
@@ -54,13 +55,16 @@ const CvOnLandingPage = () => {
     return (
         <dialog className="modal modal-open">
             <div className="modal-box w-full max-w-3xl bg-[radial-gradient(circle_at_top_left,#00CCCB33,transparent_70%)]">
-                <div className="grid grid-cols-12 mb-5">
-                    <div className="col-span-11 flex justify-center">
-                        <h3 className="font-bold text-lg text-center w-100">{t("etudiant.popup.popup_title")}</h3>
-                    </div>
-                    <div className="col-span-1">
-                        <button className="btn btn-error btn-sm btn-circle" onClick={() => fermer(false)}>X</button>
-                    </div>
+                <div className="relative mb-5 flex min-h-10 items-center justify-center px-12">
+                    <h3 className="font-bold text-lg text-center">{t("etudiant.popup.popup_title")}</h3>
+                    <button
+                        type="button"
+                        className="close-button absolute right-0 top-0"
+                        onClick={() => fermer(false)}
+                        aria-label={t("drawer.close")}
+                    >
+                        <FiX className="size-5" aria-hidden="true" />
+                    </button>
                 </div>
                 <p className="text-center">{t("etudiant.popup.popup_description")}</p>
 

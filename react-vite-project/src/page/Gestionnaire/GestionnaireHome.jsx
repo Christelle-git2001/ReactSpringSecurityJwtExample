@@ -212,7 +212,7 @@ const GestionnaireHome = ({ user }) => {
                                         cv={cv}
                                         onClick={() => handleViewCv(cv)}
                                         actionLabel={t("dashboard.view_cv")}
-                                        actionClassName="bg-blue-600 text-white hover:bg-blue-700"
+                                        actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
                                     />
                                 ))}
                             </div>
@@ -240,7 +240,7 @@ const GestionnaireHome = ({ user }) => {
                                         offer={offer}
                                         onClick={() => handleViewOffer(offer)}
                                         actionLabel={t("dashboard.view_offer")}
-                                        actionClassName="bg-green-600 text-white hover:bg-green-700"
+                                        actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
                                     />
                                 ))}
                             </div>

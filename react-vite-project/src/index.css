@@ -21,7 +21,32 @@ h1 {
 }
 
 .primary-submit {
-    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors cursor-pointer bg-[#0ee1cc] enabled:hover:bg-[#043462];
+    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors cursor-pointer bg-[#043462] enabled:hover:bg-[#03284d];
+}
+
+.close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #043462;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.close-button:not(:disabled):hover {
+    background-color: #043462;
+    color: white;
+}
+
+.close-button:focus-visible {
+    outline: 2px solid #043462;
+    outline-offset: 2px;
 }
 
 button:disabled, [role="button"]:disabled {

@@ -231,7 +231,7 @@ function OfferDetails({ offre: offreProp }) {
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button
+                    <Button variant="custom"
                         type="button"
                         disabled={isLoading}
                         onClick={() => navigate(retour)}
@@ -242,27 +242,25 @@ function OfferDetails({ offre: offreProp }) {
 
                     {!showRefusalReason ? (
                         <>
-                            <Button
+                            <Button variant="danger"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => setShowRefusalReason(true)}
-                                className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                             >
                                 {t("actions.reject")}
                             </Button>
 
-                            <Button
+                            <Button variant="success"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={handleSubmit}
-                                className="bg-green-600 text-white hover:bg-green-800 disabled:opacity-50"
                             >
                                 {isLoading ? t("actions.loading") : t("actions.approve")}
                             </Button>
                         </>
                     ) : (
                         <>
-                            <Button
+                            <Button variant="custom"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={() => {
@@ -275,11 +273,10 @@ function OfferDetails({ offre: offreProp }) {
                                 {t("actions.cancel_refusal")}
                             </Button>
 
-                            <Button
+                            <Button variant="danger"
                                 type="button"
                                 disabled={isLoading}
                                 onClick={handleSubmit}
-                                className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                             >
                                 {isLoading ? t("actions.loading") : t("actions.confirm_rejection")}
                             </Button>

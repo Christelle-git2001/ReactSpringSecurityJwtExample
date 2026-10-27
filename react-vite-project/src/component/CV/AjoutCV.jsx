@@ -1,3 +1,4 @@
+import Button from "../Design/Button.jsx";
 import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {televerserCV} from "../../api/etudiant.jsx";
@@ -76,7 +77,7 @@ const AjoutCV = ({onCvAjoute}) => {
                 onChange={onCvSelection}
                 className="hidden"
             />
-            <label htmlFor="pdf-upload" className="btn btn-primary cursor-pointer w-1/2 mt-5">
+            <label htmlFor="pdf-upload" className="btn cursor-pointer w-1/2 mt-5 bg-[#043462] border-[#043462] text-white hover:bg-[#03284d] hover:border-[#03284d]">
                 {cv ? (<p>{t("pdfVisio.modification")}</p>):(<p>{t("pdfVisio.choice")}</p>)}
             </label>
             {erreur &&
@@ -85,8 +86,8 @@ const AjoutCV = ({onCvAjoute}) => {
                 </div>
             }
             <div className="flex justify-around  w-full mt-5">
-                <button type="button" onClick={annulation}  className="btn btn-error w-50">{t("actions.cancel")}</button>
-                <button type="button" onClick={ajoutCVCall} className="btn btn-success w-50">{t("actions.upload")}</button>
+                <Button variant="custom" type="button" onClick={annulation} className="w-50 bg-gray-500 text-white hover:bg-gray-600">{t("actions.cancel")}</Button>
+                <Button type="button" onClick={ajoutCVCall} className="w-50">{t("actions.upload")}</Button>
             </div>
         </div>
     )
