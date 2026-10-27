@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiClock, FiVideo } from "react-icons/fi";
+import { FiClock } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
 
 function AddEntrevue({ candidatures = [], onSave }) {
@@ -11,6 +11,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
     const [duree, setDuree] = useState("30");
     const [mode, setMode] = useState("EN_LIGNE");
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const inputStyle = (hasError) =>
         `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none focus:ring-2 ${
@@ -28,7 +29,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
         setErrors({});
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const newErrors = {};
@@ -42,35 +43,40 @@ function AddEntrevue({ candidatures = [], onSave }) {
         }
 
         setErrors({});
-
-        const candidatureInfo = candidatures.find((c) => String(c.id) === String(selectedCandidature));
-
-        const nouvelleEntrevue = {
-            id: Date.now(),
-            candidatureId: selectedCandidature,
-            candidatNom: candidatureInfo
-                ? `${candidatureInfo.etudiantFirstName || ""} ${candidatureInfo.etudiantLastName || ""}`.trim()
-                : t("candidature.student_unknown"),
-            posteTitre: candidatureInfo?.offreTitle || t("candidature.offer_unknown"),
-            date,
-            heure,
-            duree: `${duree} min`,
-            mode,
+        setIsSubmitting(true);
+        const dateHeureFormatted = `${date}T${heure.length === 5 ? heure + ":00" : heure}`;
+        const entrevueDTO = {
+            candidatureId: Number(selectedCandidature),
+            format: mode,
+            dateHeureEntrevue: dateHeureFormatted
         };
 
-        onSave?.(nouvelleEntrevue);
-        resetForm();
+        try {
+            await onSave?.(entrevueDTO);
+            resetForm();
+        } catch (error) {
+            console.error("Erreur lors de la planification :", error);
+            setErrors({ submit: "entrevue.errors.submit_failed" });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <form
             noValidate
             onSubmit={handleSubmit}
-            className="rounded-2xl bg-white p-6  border border-gray-200 flex flex-col gap-5 w-full"
+            className="rounded-2xl bg-white p-6 border border-gray-200 flex flex-col gap-5 w-full"
         >
             <h3 className="text-lg font-bold text-[#043462] border-b border-gray-100 pb-3">
                 {t("entrevue.add_title", "Planifier une entrevue")}
             </h3>
+
+            {errors.submit && (
+                <div className="text-xs font-medium text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                    {t(errors.submit, "Une erreur est survenue lors de l'enregistrement.")}
+                </div>
+            )}
 
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
@@ -96,6 +102,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
                         <span className="text-xs font-medium text-red-500">{t(errors.candidature)}</span>
                     )}
                 </div>
+
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="mode" className="text-sm font-semibold text-[#043462]">
                         {t("entrevue.mode", "Format")}
@@ -110,6 +117,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
                         <option value="PRESENTIEL">{t("entrevue.mode_onsite", "En présentiel")}</option>
                     </select>
                 </div>
+
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="date" className="text-sm font-semibold text-[#043462]">
                         {t("entrevue.date", "Date de l'entrevue")}
@@ -125,6 +133,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
                         <span className="text-xs font-medium text-red-500">{t(errors.date)}</span>
                     )}
                 </div>
+
                 <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="heure" className="text-sm font-semibold text-[#043462] flex items-center gap-1">
@@ -163,8 +172,12 @@ function AddEntrevue({ candidatures = [], onSave }) {
             </div>
 
             <div className="pt-3 border-t border-gray-100 flex justify-end">
-                <Button type="submit" className="bg-[#043462] text-white hover:bg-[#03284d] w-full sm:w-auto">
-                    {t("common.save", "Soumettre")}
+                <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-[#043462] text-white hover:bg-[#03284d] w-full sm:w-auto disabled:opacity-50"
+                >
+                    {isSubmitting ? t("common.loading", "Envoi...") : t("common.save", "Soumettre")}
                 </Button>
             </div>
         </form>
