@@ -30,13 +30,13 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
     return (
         <div className="bg-[#99F0EF] p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col gap-6 w-full">
 
-            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+            <div className="flex justify-between items-center border-b border-[#043462] pb-4">
                 <div>
                     <h2 className="text-xl font-bold text-[#043462]">
                         {t("agenda.title", "Agenda")}
                     </h2>
                 </div>
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#043462]/10 text-[#043462]">
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#043462] text-white">
                     {t("agenda.all_interviews", "Entrevues à venir : ")} {entrevuesList.length}
                 </span>
             </div>
@@ -61,11 +61,8 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
 
             <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        {selectedDate ? `${t("agenda.date_selected", "Entrevues du")} ${selectedDate}` : t("agenda.select_date_prompt", "Sélectionnez une date")}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                        ({filteredEntrevues.length})
+                    <span className="px-3 text-xs font-bold text-[#043462] uppercase tracking-wider">
+                        {selectedDate ? `${selectedDate}` : t("agenda.select_date_prompt", "Sélectionnez une date")}
                     </span>
                 </div>
 
