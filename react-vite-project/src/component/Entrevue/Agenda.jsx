@@ -75,7 +75,7 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
                             <Entrevue key={entrevue.id} entrevue={entrevue} />
                         ))
                     ) : (
-                        <div className="py-10 text-center text-gray-400 text-sm flex flex-col items-center justify-center gap-2 border border-dashed border-gray-200 rounded-xl">
+                        <div className="bg-white py-10 text-center text-gray-400 text-sm flex flex-col items-center justify-center gap-2 border border-dashed border-gray-200 rounded-xl">
                             <FiCalendar className="size-6 text-gray-300" />
                             {selectedDate
                                 ? t("agenda.no_interviews_date", "Aucune entrevue pour cette date.")
