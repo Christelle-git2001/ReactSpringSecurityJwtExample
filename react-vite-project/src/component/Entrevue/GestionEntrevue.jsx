@@ -46,9 +46,10 @@ function GestionEntrevue() {
     };
 
     return (
-        <div className="w-full h-full p-4 md:p-8 flex flex-col gap-6">
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold text-[#043462] flex items-center gap-2">
+        <div>
+
+            <div className="flex flex-col gap-1 text-start p-4">
+                <h1 className="text-2xl font-bold text-[#043462] flex items-start gap-2">
                     {t("gestion_entrevue.title", "Gestion des entrevues")}
                 </h1>
                 <p className="text-sm text-gray-500">
@@ -56,26 +57,28 @@ function GestionEntrevue() {
                 </p>
             </div>
 
-            {/* Layout principal */}
-            <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+            <div className="w-full h-full p-4 md:p-8 flex flex-col gap-6 items-center">
+                {/* Contenu centré avec largeur max */}
+                <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl justify-center lg:items-start">
 
-                {/* Le formulaire AddEntrevue est rendu STICKY sur les grands écrans */}
-                <div className="w-full lg:w-4/12 lg:sticky lg:top-6">
-                    <AddEntrevue
-                        candidatures={candidaturesList}
-                        onSave={handleAddEntrevue}
-                    />
+                    {/* Formulaire */}
+                    <div className="w-full lg:w-[420px] lg:h-fit lg:sticky lg:top-6 shrink-0">
+                        <AddEntrevue
+                            candidatures={candidaturesList}
+                            onSave={handleAddEntrevue}
+                        />
+                    </div>
+
+                    {/* Agenda */}
+                    <div className="w-full lg:max-w-xl">
+                        <Agenda
+                            entrevuesList={entrevuesList}
+                            selectedDate={selectedDate}
+                            onDateSelect={setSelectedDate}
+                        />
+                    </div>
+
                 </div>
-
-                {/* L'Agenda défile normalement à côté */}
-                <div className="w-full lg:w-8/12">
-                    <Agenda
-                        entrevuesList={entrevuesList}
-                        selectedDate={selectedDate}
-                        onDateSelect={setSelectedDate}
-                    />
-                </div>
-
             </div>
         </div>
     );
