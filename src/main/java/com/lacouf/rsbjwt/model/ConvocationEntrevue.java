@@ -1,7 +1,7 @@
 
 package com.lacouf.rsbjwt.model;
 
-import com.lacouf.rsbjwt.model.Enum.ModaliteEntrevue;
+import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ public class ConvocationEntrevue {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ModaliteEntrevue modalite;
+    private FormatEntrevue format;
 
 
     @Column(nullable = false)

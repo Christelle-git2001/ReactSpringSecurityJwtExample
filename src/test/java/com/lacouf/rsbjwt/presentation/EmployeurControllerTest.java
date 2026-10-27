@@ -1,7 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.ModaliteEntrevue;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -11,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +27,16 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
+import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -110,14 +112,14 @@ public class EmployeurControllerTest {
 
         creationConvocationDTO = new CreationConvocationDTO(
                 1L,
-                ModaliteEntrevue.DISTANCIEL,
+                FormatEntrevue.EN_LIGNE,
                 List.of(plageHoraireDTO)
         );
 
         convocationEntrevueDTO = new ConvocationEntrevueDTO(
                 1L,
                 LocalDateTime.now(),
-                ModaliteEntrevue.DISTANCIEL,
+                FormatEntrevue.EN_LIGNE,
                 List.of(plageHoraireDTO)
         );
     }
@@ -516,5 +518,40 @@ public class EmployeurControllerTest {
     }
 
 
+    @Test
+    void doitRetournerCandidaturesConvoquees() throws Exception {
+        CandidatureDTO candidatureDTO = new CandidatureDTO(
+                1L,
+                10L,
+                "Jean",
+                "Tremblay",
+                "INFORMATIQUE",
+                2L,
+                "Développeur web",
+                "Entreprise ABC",
+                LocalDateTime.now(),
+                null
+        );
+
+        when(employeurService.obtenirCandidaturesConvoquees())
+                .thenReturn(List.of(candidatureDTO));
+
+        mockMvc.perform(get("/employeur/candidatures/convoquees")
+                        .principal(principal))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void doitRetournerNotFoundQuandEmployeurIntrouvablePourCandidaturesConvoquees()
+            throws Exception {
+
+        when(employeurService.obtenirCandidaturesConvoquees())
+                .thenThrow(new UtilisateurIntrouvableException());
+
+        mockMvc.perform(get("/employeur/candidatures/convoquees")
+                        .principal(principal))
+                .andExpect(status().isNotFound());
+    }
 
 }

@@ -2,7 +2,6 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.ModaliteEntrevue;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
@@ -24,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -321,7 +319,7 @@ public class EmployeurService {
             throw new ConvocationExistanteException();
         }
 
-        if (dto.modalite() == null || dto.plagesHoraires() == null
+        if (dto.format() == null || dto.plagesHoraires() == null
                 || dto.plagesHoraires().isEmpty()
                 || dto.plagesHoraires().stream().anyMatch(
                 plage -> plage == null
@@ -332,7 +330,7 @@ public class EmployeurService {
 
         ConvocationEntrevue convocation = new ConvocationEntrevue();
         convocation.setCandidature(candidature);
-        convocation.setModalite(dto.modalite());
+        convocation.setFormat(dto.format());
         convocation.setDateCreation(LocalDateTime.now());
 
         for (PlageHoraireDTO plageDTO : dto.plagesHoraires()) {

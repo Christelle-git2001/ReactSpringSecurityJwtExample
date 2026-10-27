@@ -1,7 +1,7 @@
 
 package com.lacouf.rsbjwt.model.Enum;
 
-public enum ModaliteEntrevue {
+public enum FormatEntrevue {
     PRESENTIEL,
     EN_LIGNE
 }

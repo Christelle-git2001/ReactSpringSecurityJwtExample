@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -163,7 +162,7 @@ public class EmployeurServiceTest {
 
         return new CreationConvocationDTO(
                 candidature.getId(),
-                ModaliteEntrevue.EN_LIGNE,
+                FormatEntrevue.EN_LIGNE,
                 List.of(plage)
         );
     }
@@ -592,7 +591,7 @@ public class EmployeurServiceTest {
 
         assertThat(resultat).isNotNull();
         assertThat(resultat.id()).isEqualTo(1L);
-        assertThat(resultat.modalite()).isEqualTo(ModaliteEntrevue.EN_LIGNE);
+        assertThat(resultat.modalite()).isEqualTo(FormatEntrevue.EN_LIGNE);
         assertThat(resultat.plagesHoraires()).hasSize(1);
 
         assertThat(candidature.getStatut())
@@ -608,7 +607,7 @@ public class EmployeurServiceTest {
 
         CreationConvocationDTO dto = new CreationConvocationDTO(
                 99L,
-                ModaliteEntrevue.EN_LIGNE,
+                FormatEntrevue.EN_LIGNE,
                 List.of(new PlageHoraireDTO(
                         LocalDateTime.now().plusDays(7),
                         30
@@ -640,6 +639,31 @@ public class EmployeurServiceTest {
                 .save(any(ConvocationEntrevue.class));
     }
 
+    @Test
+    void doitRetournerCandidaturesConvoqueesDeLEmployeur() throws Exception {
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(candidatureRepository
+                .findByStatutAndOffreDeStageEmployeurId(
+                        StatutCandidature.RETENUE_POUR_ENTREVUE,
+                        employeur.getId()
+                ))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> resultat =
+                employeurService.obtenirCandidaturesConvoquees();
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(candidature.getId());
+
+        verify(candidatureRepository).findByStatutAndOffreDeStageEmployeurId(
+                StatutCandidature.RETENUE_POUR_ENTREVUE,
+                employeur.getId()
+        );
+    }
 
 }
 
