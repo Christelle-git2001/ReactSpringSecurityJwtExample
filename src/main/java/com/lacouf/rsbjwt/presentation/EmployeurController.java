@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
@@ -41,7 +40,7 @@ public class EmployeurController {
             Principal principal
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
         OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
@@ -75,7 +74,7 @@ public class EmployeurController {
     ) throws DateFinAvantDateDebutException,
             IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException,
             OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException,
-            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(offreId, dto, file, principal.getName());
 
@@ -96,17 +95,17 @@ public class EmployeurController {
                 .body(resource);
     }
 
-    @PostMapping("/convocations")
-    public ResponseEntity<ConvocationEntrevueDTO> creerConvocation(
-            @Valid @RequestBody CreationConvocationDTO dto
+    @PostMapping("/entrevues")
+    public ResponseEntity<EntrevueDTO> planifierEntrevues(
+            @Valid @RequestBody CreationEntrevueDTO dto
     ) throws OffreNonAutoriseeException,
-            CandidatureIntrouvableException,
-            ConvocationExistanteException,
-            ConvocationInvalideException {
+    CandidatureIntrouvableException,
+    ConvocationExistanteException,
+    DateAvantAujourdhuiException, ConvocationInvalideException {
 
-        ConvocationEntrevueDTO convocation = employeurService.creerConvocation(dto);
+        EntrevueDTO entrevue = employeurService.creerConvocation(dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(convocation);
+        return ResponseEntity.status(HttpStatus.CREATED).body(entrevue);
     }
 
     @GetMapping("/candidatures/convoquees")

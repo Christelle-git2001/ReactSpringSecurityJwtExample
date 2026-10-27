@@ -20,7 +20,7 @@ public class PlageHoraire {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "convocation_id", nullable = false)
-    private ConvocationEntrevue convocation;
+    private Entrevue convocation;
 
     @Column(nullable = false)
     private LocalDateTime dateHeureDebut;

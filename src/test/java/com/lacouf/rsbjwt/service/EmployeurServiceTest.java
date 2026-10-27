@@ -55,7 +55,7 @@ public class EmployeurServiceTest {
     private ApplicationEventPublisher eventPublisher;
 
     @Mock
-    private ConvocationEntrevueRepository convocationRepository;
+    private EntrevueRepository convocationRepository;
 
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
@@ -154,16 +154,11 @@ public class EmployeurServiceTest {
         );
     }
 
-    private CreationConvocationDTO creerDTOConvocationValide() {
-        PlageHoraireDTO plage = new PlageHoraireDTO(
-                LocalDateTime.now().plusDays(7),
-                30
-        );
-
-        return new CreationConvocationDTO(
+    private CreationEntrevueDTO creerDTOConvocationValide() {
+        return new CreationEntrevueDTO(
                 candidature.getId(),
                 FormatEntrevue.EN_LIGNE,
-                List.of(plage)
+                LocalDateTime.now().plusDays(7)
         );
     }
 
@@ -406,7 +401,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateDebutAvantAujourdhuiException, FichierTropVolumineuxException {
+    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, FichierTropVolumineuxException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
         when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
@@ -563,13 +558,13 @@ public class EmployeurServiceTest {
                 MediaType.APPLICATION_PDF_VALUE, "contenu".getBytes());
 
         assertThatThrownBy(() -> employeurService.creerOffre(dtoInvalide, fichier, employeur.getEmail()))
-                .isInstanceOf(DateDebutAvantAujourdhuiException.class);
+                .isInstanceOf(DateAvantAujourdhuiException.class);
 
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
     }
 
     @Test
-    void doitCreerConvocationAvecSucces() throws Exception {
+    void doitCreerEntrevueAvecSucces() throws Exception {
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
 
@@ -579,25 +574,28 @@ public class EmployeurServiceTest {
         when(convocationRepository.findByCandidatureId(candidature.getId()))
                 .thenReturn(Optional.empty());
 
-        when(convocationRepository.save(any(ConvocationEntrevue.class)))
+        when(convocationRepository.save(any(Entrevue.class)))
                 .thenAnswer(invocation -> {
-                    ConvocationEntrevue convocation = invocation.getArgument(0);
-                    convocation.setId(1L);
-                    return convocation;
+                    Entrevue entrevue = invocation.getArgument(0);
+                    entrevue.setId(1L);
+                    return entrevue;
                 });
 
-        ConvocationEntrevueDTO resultat =
-                employeurService.creerConvocation(creerDTOConvocationValide());
+        CreationEntrevueDTO dto = creerDTOConvocationValide();
+
+        EntrevueDTO resultat = employeurService.creerConvocation(dto);
 
         assertThat(resultat).isNotNull();
         assertThat(resultat.id()).isEqualTo(1L);
-        assertThat(resultat.modalite()).isEqualTo(FormatEntrevue.EN_LIGNE);
-        assertThat(resultat.plagesHoraires()).hasSize(1);
+        assertThat(resultat.format()).isEqualTo(FormatEntrevue.EN_LIGNE);
+        assertThat(resultat.dateHeureEntrevue())
+                .isEqualTo(dto.dateHeureEntrevue());
+        assertThat(resultat.dateCreation()).isNotNull();
 
         assertThat(candidature.getStatut())
                 .isEqualTo(StatutCandidature.RETENUE_POUR_ENTREVUE);
 
-        verify(convocationRepository).save(any(ConvocationEntrevue.class));
+        verify(convocationRepository).save(any(Entrevue.class));
     }
 
     @Test
@@ -605,19 +603,16 @@ public class EmployeurServiceTest {
         when(candidatureRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
-        CreationConvocationDTO dto = new CreationConvocationDTO(
+        CreationEntrevueDTO dto = new CreationEntrevueDTO(
                 99L,
                 FormatEntrevue.EN_LIGNE,
-                List.of(new PlageHoraireDTO(
-                        LocalDateTime.now().plusDays(7),
-                        30
-                ))
+                LocalDateTime.now().plusDays(7)
         );
 
         assertThatThrownBy(() -> employeurService.creerConvocation(dto))
                 .isInstanceOf(CandidatureIntrouvableException.class);
 
-        verify(convocationRepository, never()).save(any(ConvocationEntrevue.class));
+        verify(convocationRepository, never()).save(any(Entrevue.class));
     }
 
     @Test
@@ -629,14 +624,14 @@ public class EmployeurServiceTest {
                 .thenReturn(Optional.of(employeur));
 
         when(convocationRepository.findByCandidatureId(candidature.getId()))
-                .thenReturn(Optional.of(new ConvocationEntrevue()));
+                .thenReturn(Optional.of(new Entrevue()));
 
         assertThatThrownBy(() ->
                 employeurService.creerConvocation(creerDTOConvocationValide()))
                 .isInstanceOf(ConvocationExistanteException.class);
 
         verify(convocationRepository, never())
-                .save(any(ConvocationEntrevue.class));
+                .save(any(Entrevue.class));
     }
 
     @Test
@@ -664,6 +659,27 @@ public class EmployeurServiceTest {
                 employeur.getId()
         );
     }
+    @Test
+    void doitRefuserEntrevueQuandDateDansLePasse() {
+        when(candidatureRepository.findById(candidature.getId()))
+                .thenReturn(Optional.of(candidature));
 
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.empty());
+
+        CreationEntrevueDTO dto = new CreationEntrevueDTO(
+                candidature.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().minusDays(1)
+        );
+
+        assertThatThrownBy(() -> employeurService.creerConvocation(dto))
+                .isInstanceOf(DateAvantAujourdhuiException.class);
+
+        verify(convocationRepository, never()).save(any(Entrevue.class));
+    }
 }
 
