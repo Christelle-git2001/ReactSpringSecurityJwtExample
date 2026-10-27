@@ -2,7 +2,7 @@
 package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.ConvocationEntrevue;
-import com.lacouf.rsbjwt.model.Enum.ModaliteEntrevue;
+import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -15,13 +15,7 @@ public record ConvocationEntrevueDTO(
         LocalDateTime dateCreation,
 
         @NotNull
-        ModaliteEntrevue modalite,
-
-        String adresse,
-        String numeroBureau,
-        String lienVisioconference,
-        String plateformeReunion,
-        String instructionsComplementaires,
+        FormatEntrevue modalite,
 
         @NotEmpty
         List<@NotNull @Valid PlageHoraireDTO> plagesHoraires
@@ -33,12 +27,7 @@ public record ConvocationEntrevueDTO(
                 return new ConvocationEntrevueDTO(
                         convocation.getId(),
                         convocation.getDateCreation(),
-                        convocation.getModalite(),
-                        convocation.getAdresse(),
-                        convocation.getNumeroBureau(),
-                        convocation.getLienVisioconference(),
-                        convocation.getPlateformeReunion(),
-                        convocation.getInstructionsComplementaires(),
+                        convocation.getFormat(),
                         convocation.getPlagesHoraires()
                                 .stream()
                                 .map(plage -> new PlageHoraireDTO(
