@@ -57,7 +57,7 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                                 {status.label}
                             </span>
                             {showPdfActions && (
-                                <PdfActionButtons
+                                <PdfActionButtons variant="card" ghost
                                     onView={viewPDF}
                                     onDownload={() => gererTelechargement(offer?.fileName)}
                                 />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
 import CandidatureCard from "../../component/Design/Cards/CandidatureCard.jsx";
 import { getOffresEmployeur, getCandidaturesEmployeur } from "../../api/employeur.jsx";
@@ -7,13 +7,11 @@ import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
-import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
-    const { openDrawer } = useOutletContext();
     const navigate = useNavigate();
 
     const [offres, setOffres] = useState([]);
@@ -92,15 +90,6 @@ const EmployeurHome = ({ user }) => {
                 from: "/employeur"
             }
         });
-    };
-
-    const handleViewOfferFromCandidature = (candidature) => {
-        const matchedOffer = offres.find((o) => o.id === candidature.offreId);
-        if (matchedOffer) {
-            openDrawer(<OffreDetailsDrawerContent offer={matchedOffer} />);
-        } else {
-            console.warn("Offre non trouvée pour l'ID :", candidature.offreId);
-        }
     };
 
     useEffect(() => {
@@ -214,7 +203,7 @@ const EmployeurHome = ({ user }) => {
                                             key={candidature.id}
                                             candidature={candidature}
                                             onView={handleViewCandidature}
-                                            onViewOffer={handleViewOfferFromCandidature}
+                                            offer={offres.find(offer => offer.id === candidature.offreId)}
                                         />
                                     ))}
                                 </div>
