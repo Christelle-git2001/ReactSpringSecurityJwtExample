@@ -84,7 +84,9 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
             setIsSubmitting(true);
             await retenirCandidaturePourEntrevue(candidature.id);
             setIsRetenue(true);
-            navigate("/employeur/entrevues");
+            navigate("/employeur/entrevues", {
+                state: { selectedCandidatureId: candidature.id }
+            });
         } catch (error) {
             console.error("Erreur lors de la mise en attente/retenue de la candidature :", error);
         } finally {
@@ -141,14 +143,14 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                                 : "bg-blue-500 hover:bg-[#03284d]"
                         }`}
                     >
-                        {t("actions.interview", "Retenir pour entrevue")}
+                        {t("actions.interview")}
                     </Button>
                     <Button
                         type="button"
                         onClick={() => navigate(retour)}
                         className="bg-gray-200 text-gray-700 hover:bg-gray-300"
                     >
-                        {t("actions.back", "Retour")}
+                        {t("actions.back")}
                     </Button>
                 </div>
             </div>

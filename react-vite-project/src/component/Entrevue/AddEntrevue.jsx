@@ -1,18 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FiClock } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
 import { validateEntrevueForm } from "../../utils/entrevueValidation.jsx";
 
-function AddEntrevue({ candidatures = [], onSave }) {
+function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
     const { t } = useTranslation();
-    const [selectedCandidature, setSelectedCandidature] = useState("");
+    const [selectedCandidature, setSelectedCandidature] = useState(initialCandidatureId);
     const [date, setDate] = useState("");
     const [heure, setHeure] = useState("");
     const [duree, setDuree] = useState("30");
     const [mode, setMode] = useState("EN_LIGNE");
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (initialCandidatureId) {
+            setSelectedCandidature(String(initialCandidatureId));
+        }
+    }, [initialCandidatureId]);
 
     const now = new Date();
     const currentHour = now.getHours();

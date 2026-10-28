@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
+import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AddEntrevue from "./AddEntrevue.jsx";
 import Agenda from "./Agenda";
@@ -10,6 +11,8 @@ import {
 
 function GestionEntrevue() {
     const { t } = useTranslation();
+    const location = useLocation();
+    const preselectedCandidatureId = location.state?.selectedCandidatureId;
     const [selectedDate, setSelectedDate] = useState("");
 
     const [candidaturesList, setCandidaturesList] = useState([]);
@@ -96,6 +99,7 @@ function GestionEntrevue() {
                     <div className="w-full lg:w-[420px] lg:h-fit lg:sticky lg:top-6 shrink-0">
                         <AddEntrevue
                             candidatures={candidaturesList}
+                            initialCandidatureId={preselectedCandidatureId}
                             onSave={handleAddEntrevue}
                         />
                     </div>

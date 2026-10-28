@@ -99,6 +99,7 @@
     "save": "Submit"
   },
   "actions": {
+    "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",

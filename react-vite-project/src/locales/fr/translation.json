@@ -99,6 +99,7 @@
     "save": "Soumettre"
   },
   "actions": {
+    "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
