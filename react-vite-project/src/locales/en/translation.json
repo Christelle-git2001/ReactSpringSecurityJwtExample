@@ -369,6 +369,12 @@
     }
   },
   "candidature": {
+    "status": {
+      "soumise": "Application submitted",
+      "retenue": "Selected for interview",
+      "planifiee": "Interview scheduled",
+      "acceptee": "Accepted / Hired"
+    },
     "position": "Job Title",
     "student_unknown": "Unknown student",
     "department_unknown": "Unknown department",

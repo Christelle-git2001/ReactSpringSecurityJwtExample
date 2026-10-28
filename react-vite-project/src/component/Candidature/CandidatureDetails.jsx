@@ -6,6 +6,7 @@ import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { retenirCandidaturePourEntrevue } from "../../api/employeur.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
 import OffreDetailsDrawerContent from "../Offer/OffreDetailsDrawerContent.jsx";
+import CandidatureTimeline from "./CandidatureTimeline.jsx";
 
 function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, onOpenOffer }) {
     const location = useLocation();
@@ -95,6 +96,8 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
     };
 
     return (
+        <>
+        {candidature && <CandidatureTimeline statut={candidature.statut} />}
         <div className="w-full max-w-5xl mx-auto p-4 md:p-8">
             <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8 flex flex-col gap-6">
                 <div className="flex flex-col gap-1">
@@ -155,6 +158,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                 </div>
             </div>
         </div>
+        </>
     );
 }
 

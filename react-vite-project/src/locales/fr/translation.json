@@ -369,6 +369,12 @@
     }
   },
   "candidature": {
+    "status": {
+      "soumise": "Candidature soumise",
+      "retenue": "Retenue pour entrevue",
+      "planifiee": "Entrevue planifiée",
+      "acceptee": "Acceptée / Embauchée"
+    },
     "position": "Poste",
     "student_unknown": "Étudiant inconnu",
     "department_unknown": "Département inconnu",
