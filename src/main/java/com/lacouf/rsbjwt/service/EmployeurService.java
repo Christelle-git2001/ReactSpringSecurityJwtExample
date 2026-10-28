@@ -338,7 +338,6 @@ public class EmployeurService {
                 .candidature(candidature)
                 .format(dto.format())
                 .dateHeureEntrevue(dto.dateHeureEntrevue())
-                .employeur(employeur)
                 .dateCreation(LocalDateTime.now())
                 .build();
 

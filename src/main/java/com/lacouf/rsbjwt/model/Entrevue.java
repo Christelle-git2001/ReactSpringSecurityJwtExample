@@ -34,16 +34,11 @@ public class Entrevue {
     @Column(nullable = false)
     private LocalDateTime dateCreation;
 
-    @ManyToOne
-    @JoinColumn(name = "employeur_id")
-    private Employeur employeur;
-
     @Builder
-    public Entrevue(Candidature candidature, FormatEntrevue format, LocalDateTime dateHeureEntrevue, LocalDateTime dateCreation, Employeur employeur) {
+    public Entrevue(Candidature candidature, FormatEntrevue format, LocalDateTime dateHeureEntrevue, LocalDateTime dateCreation) {
         this.candidature = candidature;
         this.format = format;
         this.dateHeureEntrevue = dateHeureEntrevue;
         this.dateCreation = dateCreation;
-        this.employeur = employeur;
     }
 }
