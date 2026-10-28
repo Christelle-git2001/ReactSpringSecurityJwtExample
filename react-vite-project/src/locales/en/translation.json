@@ -65,7 +65,7 @@
     "cancel": "Cancel",
     "submit": "Submit",
     "errors": {
-      "convocation_already_exists": "An interview is already planned for this application",
+      "convocation_already_exists": "An interview is already scheduled for this application",
       "select_company": "Please select a company",
       "select_student": "Please select a student",
       "title_required": "Please enter the offer title.",
@@ -456,5 +456,9 @@
     "select_date_prompt": "Select a date",
     "no_interviews_date": "No interviews scheduled for this date.",
     "select_date_hint": "Click a date to view interviews."
+  },
+  "gestion_entrevue": {
+    "title": "Interview Management",
+    "subtitle": "Schedule your appointments and view your calendar in real time."
   }
 }

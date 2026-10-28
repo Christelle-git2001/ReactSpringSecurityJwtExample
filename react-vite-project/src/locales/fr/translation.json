@@ -456,5 +456,9 @@
     "select_date_prompt": "Sélectionnez une date",
     "no_interviews_date": "Aucune entrevue pour cette date.",
     "select_date_hint": "Cliquez sur une date pour voir les entrevues."
+  },
+  "gestion_entrevue": {
+    "title": "Gestion des entrevues",
+    "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
   }
 }

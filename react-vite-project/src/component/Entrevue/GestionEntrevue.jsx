@@ -24,8 +24,8 @@ function GestionEntrevue() {
             candidatureId: dto.candidatureId,
             candidatNom: dto.etudiantFirstName || dto.etudiantLastName
                 ? `${dto.etudiantFirstName || ""} ${dto.etudiantLastName || ""}`.trim()
-                : t("candidature.student_unknown", "Candidat inconnu"),
-            posteTitre: dto.offreTitle || t("candidature.offer_unknown", "Poste inconnu"),
+                : t("candidature.student_unknown"),
+            posteTitre: dto.offreTitle || t("candidature.offer_unknown"),
             date: datePart || "",
             heure: timePart ? timePart.substring(0, 5) : "00:00",
             duree: "30 min",
@@ -46,7 +46,7 @@ function GestionEntrevue() {
                 setEntrevuesList(formattedEntrevues);
             })
             .catch((err) => {
-                console.error("Erreur lors du chargement des données d'entrevue :", err);
+                console.error( err);
             })
             .finally(() => {
                 setLoading(false);
@@ -74,7 +74,7 @@ function GestionEntrevue() {
                 prev.filter((c) => String(c.id) !== String(entrevueDTO.candidatureId))
             );
         } catch (error) {
-            console.error("Erreur lors de la planification :", error);
+            console.error(error);
             throw error;
         }
     };
@@ -83,10 +83,10 @@ function GestionEntrevue() {
         <div>
             <div className="flex flex-col gap-1 text-start p-4">
                 <h1 className="text-2xl font-bold text-[#043462] flex items-start gap-2">
-                    {t("gestion_entrevue.title", "Gestion des entrevues")}
+                    {t("gestion_entrevue.title")}
                 </h1>
                 <p className="text-sm text-gray-500">
-                    {t("gestion_entrevue.subtitle", "Planifiez vos rendez-vous et consultez votre calendrier en temps réel.")}
+                    {t("gestion_entrevue.subtitle")}
                 </p>
             </div>
 
