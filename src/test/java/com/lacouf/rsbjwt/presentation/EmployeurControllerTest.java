@@ -117,7 +117,12 @@ public class EmployeurControllerTest {
                 1L,
                 LocalDateTime.now(),
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(7)
+                LocalDateTime.now().plusDays(7),
+                1L,
+                1L,
+                "Jean",
+                "Tremblay",
+                "Développeur web"
         );
     }
 
@@ -522,7 +527,8 @@ public class EmployeurControllerTest {
                 "Développeur web",
                 "Entreprise ABC",
                 LocalDateTime.now(),
-                null
+                null,
+                StatutCandidature.RETENUE_POUR_ENTREVUE
         );
 
         when(employeurService.obtenirCandidaturesConvoquees())
