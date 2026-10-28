@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.service.dto;
 
-import com.lacouf.rsbjwt.model.Candidature;
-import com.lacouf.rsbjwt.model.Entrevue;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 
 import java.time.LocalDateTime;
@@ -14,6 +11,7 @@ public record EntrevueDTO(
         FormatEntrevue format,
         LocalDateTime dateHeureEntrevue,
         long candidatureId,
+        long employeurId,
         String etudiantFirstName,
         String etudiantLastName,
         String offreTitle
@@ -27,6 +25,7 @@ public record EntrevueDTO(
                 Candidature candidature = entrevue.getCandidature();
                 Etudiant etudiant = candidature != null ? candidature.getEtudiant() : null;
                 OffreDeStage offre = candidature != null ? candidature.getOffreDeStage() : null;
+                Employeur employeur = entrevue.getEmployeur();
 
                 return new EntrevueDTO(
                         entrevue.getId(),
@@ -34,6 +33,7 @@ public record EntrevueDTO(
                         entrevue.getFormat(),
                         entrevue.getDateHeureEntrevue(),
                         candidature != null ? candidature.getId() : 0L,
+                        employeur != null ? employeur.getId() :0L,
                         etudiant != null ? etudiant.getFirstName() : null,
                         etudiant != null ? etudiant.getLastName() : null,
                         offre != null ? offre.getTitle() : null

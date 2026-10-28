@@ -367,7 +367,7 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UtilisateurIntrouvableException::new);
 
-        List<Entrevue> entrevues = convocationRepository.findAll();
+        List<Entrevue> entrevues = convocationRepository.findByEmployeurId(employeur.getId());
 
         return entrevues
                 .stream()
