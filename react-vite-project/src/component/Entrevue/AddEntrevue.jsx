@@ -113,19 +113,19 @@ function AddEntrevue({ candidatures = [], onSave }) {
             className="rounded-2xl bg-white p-6 border border-gray-200 flex flex-col gap-5 w-full"
         >
             <h3 className="text-lg font-bold text-[#043462] border-b border-gray-100 pb-3">
-                {t("entrevue.add_title", "Planifier une entrevue")}
+                {t("entrevue.add_title")}
             </h3>
 
             {errors.submit && (
                 <div className="text-xs font-medium text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
-                    {t(errors.submit, "Une erreur est survenue lors de l'enregistrement.")}
+                    {t(errors.submit)}
                 </div>
             )}
 
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="candidature" className="text-sm font-semibold text-[#043462]">
-                        {t("entrevue.select_candidature", "Candidat")}
+                        {t("entrevue.select_candidature")}
                     </label>
                     <select
                         id="candidature"
@@ -134,7 +134,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
                         className={inputStyle(errors.candidature)}
                     >
                         <option value="" disabled>
-                            {t("entrevue.placeholder_candidature", "-- Sélectionner un candidat --")}
+                            {t("entrevue.placeholder_candidature")}
                         </option>
                         {candidatures.map((c) => (
                             <option key={c.id} value={c.id}>
@@ -149,7 +149,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
 
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="mode" className="text-sm font-semibold text-[#043462]">
-                        {t("entrevue.mode", "Format")}
+                        {t("entrevue.mode")}
                     </label>
                     <select
                         id="mode"
@@ -157,8 +157,8 @@ function AddEntrevue({ candidatures = [], onSave }) {
                         onChange={(e) => setMode(e.target.value)}
                         className={inputStyle(errors.format)}
                     >
-                        <option value="EN_LIGNE">{t("entrevue.mode_online", "En ligne (Visioconférence)")}</option>
-                        <option value="PRESENTIEL">{t("entrevue.mode_onsite", "En présentiel")}</option>
+                        <option value="EN_LIGNE">{t("entrevue.mode_online")}</option>
+                        <option value="PRESENTIEL">{t("entrevue.mode_onsite")}</option>
                     </select>
                     {errors.format && (
                         <span className="text-xs font-medium text-red-500">{t(errors.format)}</span>
@@ -167,7 +167,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
 
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="date" className="text-sm font-semibold text-[#043462]">
-                        {t("entrevue.date", "Date de l'entrevue")}
+                        {t("entrevue.date")}
                     </label>
                     <input
                         id="date"
@@ -188,8 +188,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
                 <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="heure" className="text-sm font-semibold text-[#043462] flex items-center gap-1">
-                            <FiClock className="size-3.5 text-[#043462]" />
-                            {t("entrevue.time", "Heure")}
+                            {t("entrevue.time")}
                         </label>
                         <select
                             id="heure"
@@ -213,7 +212,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
 
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="duree" className="text-sm font-semibold text-[#043462]">
-                            {t("entrevue.duration", "Durée")}
+                            {t("entrevue.duration")}
                         </label>
                         <select
                             id="duree"
@@ -236,7 +235,7 @@ function AddEntrevue({ candidatures = [], onSave }) {
                     disabled={isSubmitting}
                     className="bg-[#043462] text-white hover:bg-[#03284d] w-full sm:w-auto disabled:opacity-50"
                 >
-                    {isSubmitting ? t("common.loading", "Envoi...") : t("common.save", "Soumettre")}
+                    {isSubmitting ? t("common.loading") : t("common.save")}
                 </Button>
             </div>
         </form>
