@@ -44,7 +44,7 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
                     </h2>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#043462] text-white">
-                    {t("agenda.all_interviews", "Entrevues à venir : ")} {entrevuesList.length}
+                   {t("agenda.all_interviews")} {entrevuesList.length}
                 </span>
             </div>
 

@@ -46,7 +46,8 @@ function Entrevue({ entrevue, onClick }) {
             <div className="shrink-0">
                 <span className={`text-xs p-1.5 rounded-lg flex items-center justify-center ${
                     isOnline ? "bg-teal-50 text-teal-600" : "bg-amber-50 text-amber-600"
-                }`} title={isOnline ? "En ligne" : "Présentiel"}>
+                }`} title={isOnline ? t("entrevue.mode_online_title") : t("entrevue.mode_onsite_title")}
+                >
                     {isOnline ? <FiVideo className="size-3.5" /> : <FiMapPin className="size-3.5" />}
                 </span>
             </div>
