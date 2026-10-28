@@ -25,7 +25,7 @@ public record EntrevueDTO(
                 Candidature candidature = entrevue.getCandidature();
                 Etudiant etudiant = candidature != null ? candidature.getEtudiant() : null;
                 OffreDeStage offre = candidature != null ? candidature.getOffreDeStage() : null;
-                Employeur employeur = entrevue.getEmployeur();
+                Employeur employeur = offre.getEmployeur();
 
                 return new EntrevueDTO(
                         entrevue.getId(),
