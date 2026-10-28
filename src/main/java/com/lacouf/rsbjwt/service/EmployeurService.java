@@ -37,7 +37,6 @@ public class EmployeurService {
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
-    private final EntrevueRepository entrevueRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -53,7 +52,6 @@ public class EmployeurService {
         this.candidatureRepository = candidatureRepository;
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
-        this.entrevueRepository = entrevueRepository;
     }
 
     @Transactional
@@ -369,7 +367,7 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UtilisateurIntrouvableException::new);
 
-        List<Entrevue> entrevues = null;
+        List<Entrevue> entrevues = convocationRepository.findAll();
 
         return entrevues
                 .stream()
