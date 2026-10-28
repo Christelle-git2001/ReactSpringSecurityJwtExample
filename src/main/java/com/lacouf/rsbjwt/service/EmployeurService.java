@@ -336,11 +336,14 @@ public class EmployeurService {
             throw new DateAvantAujourdhuiException();
         }
 
-        Entrevue entrevue = new Entrevue();
-        entrevue.setCandidature(candidature);
-        entrevue.setFormat(dto.format());
-        entrevue.setDateHeureEntrevue(dto.dateHeureEntrevue());
-        entrevue.setDateCreation(LocalDateTime.now());
+        Entrevue entrevue = Entrevue.builder()
+                .candidature(candidature)
+                .format(dto.format())
+                .dateHeureEntrevue(dto.dateHeureEntrevue())
+                .employeur(employeur)
+                .dateCreation(LocalDateTime.now())
+                .build();
+
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
         return EntrevueDTO.of(entrevueEnregistree);

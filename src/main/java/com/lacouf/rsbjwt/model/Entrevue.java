@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,4 +37,13 @@ public class Entrevue {
     @ManyToOne
     @JoinColumn(name = "employeur_id")
     private Employeur employeur;
+
+    @Builder
+    public Entrevue(Candidature candidature, FormatEntrevue format, LocalDateTime dateHeureEntrevue, LocalDateTime dateCreation, Employeur employeur) {
+        this.candidature = candidature;
+        this.format = format;
+        this.dateHeureEntrevue = dateHeureEntrevue;
+        this.dateCreation = dateCreation;
+        this.employeur = employeur;
+    }
 }
