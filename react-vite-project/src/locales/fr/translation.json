@@ -312,6 +312,21 @@
     "card": {
       "view_offers": "Validez et gérez l'ensemble des offres de stage soumises par les entreprises partenaires.",
       "cvs": "Évaluez les CV soumis par les étudiants. Approuvez, refusez ou accompagnez les étudiants dans leur démarche."
+    },
+    "assignation": {
+      "title" : "Assignation des professeurs",
+      "description" : "Sélectionnez les étudiants dans la liste pour leur désigner un professeur et mettre à jour leurs attributions.",
+      "professeur" : {
+        "professeur_without_name": "Ce professeur ne possède aucun nom",
+        "professeur_without_department" : "Ce professeur ne possède aucun departement",
+        "professeur_without_email" : "Ce professeur ne possède aucun Email"
+      },
+      "select": {
+        "professor" : "Choisissez un professeur",
+        "professorSelected" : "Vous avez sélectionné cet enseignant",
+        "anotherProfessor" : "Cliquez pour choisir un autre enseignant"
+
+      }
     }
   },
   "pdfVisio": {
@@ -424,5 +439,13 @@
   "drawer": {
     "details": "Détails",
     "close": "Fermer"
+  },
+  "general": {
+    "departement" : "Departement",
+    "matricule": "Matricule",
+    "liste" : {
+      "open" : "Ouvrir la liste",
+      "close" : "Fermer la liste"
+    }
   }
 }

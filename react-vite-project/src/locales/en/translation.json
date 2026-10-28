@@ -257,6 +257,20 @@
     "card": {
       "view_offers": "Review and manage all internship offers submitted by partner companies.",
       "cvs": "Review student resumes. Approve, reject, or provide guidance."
+    },
+    "assignation": {
+      "title" : "Teacher Assignment",
+      "description" : "Select students from the list to assign them a teacher and update their assignments.",
+      "professeur" : {
+        "professeur_without_name": "This teacher has no name",
+        "professeur_without_department" : "This teacher has no department",
+        "professeur_without_email" : "This teacher has no email"
+      },
+      "select": {
+        "professor" : "Choose a teacher",
+        "professorSelected" : "You have selected this teacher",
+        "anotherProfessor": "Click to choose another teacher"
+      }
     }
   },
   "pdfVisio": {
@@ -426,5 +440,13 @@
   "drawer": {
     "details": "Details",
     "close": "Close"
+  },
+  "general": {
+    "departement" : "Department",
+    "matricule": "Matricule",
+    "liste" : {
+      "open" : "Open the list",
+      "close" : "Close the list"
+    }
   }
 }
