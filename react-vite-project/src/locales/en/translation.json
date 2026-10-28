@@ -65,7 +65,6 @@
     "cancel": "Cancel",
     "submit": "Submit",
     "errors": {
-      "convocation_already_exists": "An interview is already scheduled for this application",
       "select_company": "Please select a company",
       "select_student": "Please select a student",
       "title_required": "Please enter the offer title.",
@@ -160,6 +159,7 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "convocation_already_exists": "An interview is already scheduled for this application",
     "required": "This field is required.",
     "email_invalid": "Please enter a valid email address  | Ex : example@domain.com",
     "phone_invalid": "Please enter a valid phone number | Ex: 123-123-1234",
