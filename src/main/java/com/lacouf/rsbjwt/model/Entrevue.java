@@ -34,6 +34,9 @@ public class Entrevue {
     @Column(nullable = false)
     private LocalDateTime dateCreation;
 
+    @Column
+    private LocalDateTime dateConfirmation;
+
     @Builder
     public Entrevue(Candidature candidature, FormatEntrevue format, LocalDateTime dateHeureEntrevue, LocalDateTime dateCreation) {
         this.candidature = candidature;

@@ -14,8 +14,25 @@ public record EntrevueDTO(
         long employeurId,
         String etudiantFirstName,
         String etudiantLastName,
-        String offreTitle
+        String offreTitle,
+        LocalDateTime dateConfirmation
 ) {
+
+        public EntrevueDTO(
+                long id,
+                LocalDateTime dateCreation,
+                FormatEntrevue format,
+                LocalDateTime dateHeureEntrevue,
+                long candidatureId,
+                long employeurId,
+                String etudiantFirstName,
+                String etudiantLastName,
+                String offreTitle
+        ) {
+                this(id, dateCreation, format, dateHeureEntrevue,
+                        candidatureId, employeurId, etudiantFirstName,
+                        etudiantLastName, offreTitle, null);
+        }
 
         public static EntrevueDTO of(Entrevue entrevue) {
                 if (entrevue == null) {
@@ -36,7 +53,8 @@ public record EntrevueDTO(
                         employeur != null ? employeur.getId() :0L,
                         etudiant != null ? etudiant.getFirstName() : null,
                         etudiant != null ? etudiant.getLastName() : null,
-                        offre != null ? offre.getTitle() : null
+                        offre != null ? offre.getTitle() : null,
+                        entrevue.getDateConfirmation()
                 );
         }
 }

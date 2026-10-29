@@ -4,7 +4,6 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.ConvocationEntrevueService;
 import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
@@ -23,11 +22,9 @@ import java.util.List;
 @RequestMapping("/etudiant")
 public class EtudiantController {
     private final EtudiantService etudiantService;
-    private final ConvocationEntrevueService convocationEntrevueService;
 
-    public EtudiantController(EtudiantService etudiantService, ConvocationEntrevueService convocationEntrevueService){
+    public EtudiantController(EtudiantService etudiantService){
         this.etudiantService = etudiantService;
-        this.convocationEntrevueService = convocationEntrevueService;
     }
 
     @PostMapping("/inscription")
@@ -104,10 +101,22 @@ public class EtudiantController {
     @GetMapping("/convocations/{id}")
     public ResponseEntity<EntrevueDTO> obtenirConvocation(@PathVariable Long id, Authentication authentication)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        EntrevueDTO convocation = convocationEntrevueService.obtenirConvocationEtudiant(
+        EntrevueDTO convocation = etudiantService.obtenirConvocationEtudiant(
                 id,
                 authentication.getName()
         );
         return ResponseEntity.ok(convocation);
+    }
+
+    @PutMapping("/convocations/{id}/reponse")
+    public ResponseEntity<ReponseConvocationDTO> confirmerConvocation(
+            @PathVariable Long id,
+            Authentication authentication
+    ) throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        return ResponseEntity.ok(
+                etudiantService.confirmerConvocationEtudiant(
+                        id, authentication.getName()
+                )
+        );
     }
 }
