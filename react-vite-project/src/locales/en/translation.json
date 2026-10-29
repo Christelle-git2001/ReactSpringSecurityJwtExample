@@ -104,6 +104,7 @@
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
     "back": "Back",
+    "backhome": "Back home",
     "reject": "Reject",
     "approve": "Approve",
     "cancel_refusal": "Cancel rejection",
@@ -180,6 +181,7 @@
     "employer_added": "Employer added successfully."
   },
   "nav": {
+    "add_entrevue" : "Schedule an interview",
     "applications": "Applications",
     "cv": "Upload CV",
     "home": "Home",

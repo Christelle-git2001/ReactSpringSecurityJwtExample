@@ -99,6 +99,7 @@
     "save": "Soumettre"
   },
   "actions": {
+    "backhome": "Retour à l'accueil",
     "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
@@ -223,6 +224,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
+    "add_entrevue" : "Planifier une entrevue",
     "applications": "Candidatures",
     "cv": "Téléverser CV",
     "home": "Accueil",
