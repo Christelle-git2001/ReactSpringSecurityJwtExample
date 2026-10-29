@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +16,8 @@ public record EntrevueDTO(
         String etudiantFirstName,
         String etudiantLastName,
         String offreTitle,
-        LocalDateTime dateConfirmation
+        LocalDateTime dateConfirmation,
+        StatutEntrevue statut
 ) {
 
         public EntrevueDTO(
@@ -31,7 +33,7 @@ public record EntrevueDTO(
         ) {
                 this(id, dateCreation, format, dateHeureEntrevue,
                         candidatureId, employeurId, etudiantFirstName,
-                        etudiantLastName, offreTitle, null);
+                        etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER);
         }
 
         public static EntrevueDTO of(Entrevue entrevue) {
@@ -54,7 +56,8 @@ public record EntrevueDTO(
                         etudiant != null ? etudiant.getFirstName() : null,
                         etudiant != null ? etudiant.getLastName() : null,
                         offre != null ? offre.getTitle() : null,
-                        entrevue.getDateConfirmation()
+                        entrevue.getDateConfirmation(),
+                        entrevue.getStatut()
                 );
         }
 }
