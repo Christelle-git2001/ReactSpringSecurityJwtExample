@@ -143,7 +143,10 @@ describe("Notification - CV_STATUT_CHANGE", () => {
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(2);
-            expect(mockNavigate).toHaveBeenCalledWith("/etudiant/cv#televerser");
+            expect(mockNavigate).toHaveBeenCalledWith(
+                "/etudiant/cv#televerser",
+                { state: { from: "/gestionnaire" } }
+            );
         });
 
         expect(onMarkAsRead).toHaveBeenCalledWith(2);
@@ -164,7 +167,10 @@ describe("Notification - CV_STATUT_CHANGE", () => {
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(3);
-            expect(mockNavigate).toHaveBeenCalledWith("/etudiant/cv#televerser");
+            expect(mockNavigate).toHaveBeenCalledWith(
+                "/etudiant/cv#televerser",
+                { state: { from: "/gestionnaire" } }
+            );
         });
 
         expect(onMarkAsRead).toHaveBeenCalledWith(3);
@@ -199,6 +205,7 @@ describe("Notification - CV_STATUT_CHANGE", () => {
 
         expect(marquerNotificationLue).toHaveBeenCalledWith(1);
         expect(mockNavigate).not.toHaveBeenCalled();
+
     });
 
     it("utilise le texte par défaut si le statut du fichier est absent ou inconnu", async () => {

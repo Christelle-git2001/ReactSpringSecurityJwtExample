@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useRef, useState} from "react";
 import { marquerNotificationLue } from "../../api/notification.jsx";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
-import {obtenirOffres} from "../../api/etudiant.jsx";
+import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx";
 
 import {
     FiArrowUp,
@@ -90,6 +90,17 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
     const onClick = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
+
+        if (!notification.estLu) {
+            try {
+                await marquerNotificationLue(notification.id);
+                onMarkAsRead?.(notification.id);
+            } catch {
+                setError(t("notifications.read_error"));
+                return;
+            }
+        }
+
         try {
             let state = { from: "/gestionnaire" };
 

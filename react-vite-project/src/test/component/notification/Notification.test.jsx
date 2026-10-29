@@ -6,6 +6,17 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
+import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../../api/gestionnaire.jsx";
+import {getCandidaturesEmployeur, getOffresEmployeur} from "../../../api/employeur.jsx";
+
+jest.mock("../../../api/gestionnaire.jsx", () => ({
+    obtenirCvGestionnaire: jest.fn(),
+    obtenirOffreGestionnaire: jest.fn(),
+}));
+jest.mock("../../../api/employeur.jsx", () => ({
+    getCandidaturesEmployeur: jest.fn(),
+    getOffresEmployeur: jest.fn(),
+}));
 
 jest.mock("../../../api/notification.jsx", () => ({
     marquerNotificationLue: jest.fn(),
@@ -33,6 +44,14 @@ beforeEach(async () => {
     jest.clearAllMocks();
     await testI18n.changeLanguage("fr");
     marquerNotificationLue.mockResolvedValue({ estLu: true });
+    obtenirCvGestionnaire.mockResolvedValue({ id: 20, fileName: "junior.pdf", statut: "EN_ATTENTE" });
+    obtenirOffreGestionnaire.mockResolvedValue({ id: 1, title: "Stage en développement" });
+    getCandidaturesEmployeur.mockResolvedValue([
+        { id: 100, offreId: 1, etudiantFirstName: "Jean", etudiantLastName: "Tremblay" }
+    ]);
+    getOffresEmployeur.mockResolvedValue([
+        { id: 1, title: "Stage en développement" }
+    ]);
 });
 
 function afficherNotifications(notifications = [], onMarkAsRead = jest.fn()) {
@@ -108,7 +127,14 @@ describe("Notification - comportements communs", () => {
 
         expect(onMarkAsRead).toHaveBeenCalledWith(1);
         expect(mockNavigate).toHaveBeenCalledWith(
-            "/employeur/candidatures/details"
+            "/employeur/candidatures/details",
+            {
+                state: {
+                    candidature: expect.any(Object),
+                    offer: expect.any(Object),
+                    from: "/employeur"
+                }
+            }
         );
     });
 

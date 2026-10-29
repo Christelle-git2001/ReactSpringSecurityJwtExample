@@ -6,6 +6,12 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
+import {getCandidaturesEmployeur, getOffresEmployeur} from "../../../api/employeur.jsx";
+
+jest.mock("../../../api/employeur.jsx", () => ({
+    getCandidaturesEmployeur: jest.fn(),
+    getOffresEmployeur: jest.fn(),
+}));
 
 jest.mock("../../../api/notification.jsx", () => ({
      marquerNotificationLue: jest.fn(),
@@ -34,6 +40,23 @@ beforeEach(async () => {
     await testI18n.changeLanguage("fr");
 
     marquerNotificationLue.mockResolvedValue({ estLu: true });
+    getCandidaturesEmployeur.mockResolvedValue([
+        {
+            id: 100,
+            etudiantFirstName: "Jean",
+            etudiantLastName: "Tremblay",
+            offreId: 1,
+            offreTitle: "Stage en développement",
+            statut: "EN_ATTENTE",
+        }
+    ]);
+
+    getOffresEmployeur.mockResolvedValue([
+        {
+            id: 1,
+            title: "Stage en développement",
+        }
+    ]);
 });
 
 function afficherNotifications() {
@@ -85,9 +108,7 @@ describe("Notification de nouvelle candidature (employeur)", () => {
         );
 
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith(
-                "/employeur/candidatures/details"
-            );
+            expect(mockNavigate).not.toHaveBeenCalled();
         });
     });
 
@@ -109,7 +130,14 @@ describe("Notification de nouvelle candidature (employeur)", () => {
         expect(onMarkAsRead).toHaveBeenCalledWith(1);
 
         expect(mockNavigate).toHaveBeenCalledWith(
-            "/employeur/candidatures/details"
+            "/employeur/candidatures/details",
+            {
+                state: {
+                    candidature: expect.any(Object),
+                    offer: expect.any(Object),
+                    from: "/employeur"
+                }
+            }
         );
     });
 
