@@ -284,4 +284,35 @@ public class NotificationService {
                     notificationRepository.save(notification)
             );
     }
+
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleEntrevueCreee(EntrevueCreeeEvent event) {
+        Entrevue entrevue = event.entrevue();
+
+        Candidature candidature = entrevue.getCandidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Notification notification = Notification.builder()
+                .titre("notification.etudiant.convocationEntrevue.title")
+                .description("notification.etudiant.convocationEntrevue.description")
+                .notificationType(NotificationType.CONVOCATION_ENTREVUE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.ETUDIANT)
+                .destinataire(etudiant)
+                .urlCible(ControllerPath.ETUDIANT_OFFRES.build())
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.ENTREPRISE_NOM,
+                        offre.getEmployeur().getBusinessName(),
+                        VariableMapKey.ENTREVUE_DATE,
+                        entrevue.getDateHeureEntrevue().toString()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
 }

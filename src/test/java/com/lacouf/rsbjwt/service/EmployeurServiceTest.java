@@ -3,11 +3,13 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
+import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -599,6 +601,13 @@ public class EmployeurServiceTest {
         assertThat(resultat.dateCreation()).isNotNull();
 
         verify(convocationRepository).save(any(Entrevue.class));
+
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        assertThat(captor.getValue())
+                .isInstanceOf(EntrevueCreeeEvent.class);
     }
 
     @Test
