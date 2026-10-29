@@ -6,7 +6,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
-import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../../api/gestionnaire.jsx";
+import {obtenirOffreGestionnaire} from "../../../api/gestionnaire.jsx";
 
 jest.mock("../../../api/gestionnaire.jsx", () => ({
     obtenirCvGestionnaire: jest.fn(),
