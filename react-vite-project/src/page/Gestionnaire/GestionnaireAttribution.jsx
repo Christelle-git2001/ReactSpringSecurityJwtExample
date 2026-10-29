@@ -5,8 +5,7 @@ import ProfesseurListItem from "../../component/Design/Lists/ProfesseurListItem.
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import {FaCheckCircle} from "react-icons/fa";
 import ScrollBarList from "../../component/Design/Lists/ScrollBarList.jsx";
-import EtudiantItem from "../../component/Design/Lists/EtudiantItem.jsx";
-import EtudiantItemShort from "../../component/Design/Lists/EtudiantItemShort.jsx";
+import ListItem from "../../component/Design/Lists/ListItem.jsx";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
@@ -38,10 +37,20 @@ const GestionnaireAttribution = () => {
         ]
     );
 
+    const onClickEtudiant = (etudiant) => {
+        const isAlreadySelected = etudiantSelectionnes.some(e => e.id === etudiant.id);
+        if (!isAlreadySelected) {
+            setEtudiantSelectionnes([...etudiantSelectionnes, etudiant]);
+        } else {
+            setEtudiantSelectionnes(etudiantSelectionnes.filter(e => e.id !== etudiant.id));
+        }
+    }
+
     const handleProfessorSelected = (professeur) => {
         setProfesseurSelectione(professeur)
         setDropdownProfIsOpen(false)
     }
+
 
     return(
         <div>
@@ -118,10 +127,19 @@ const GestionnaireAttribution = () => {
                         <ScrollBarList
                             title={t("gestionnaire.assignation.select.studentList.title")}
                             emptyMessage={t("gestionnaire.assignation.select.studentList.empty")}
-                            liste={etudiants}
+                            liste={etudiantSelectionnes}
                             renderItem={(etudiant) => (
-                                <EtudiantItemShort key={etudiant.id} etudiant={etudiant}/>
-                            )}/>
+                                <ListItem
+                                    key={etudiant.id}
+                                    variant="compact"
+                                    detailRows={
+                                    [
+                                        {label : "Nom", value : `${etudiant.firstName} ${etudiant.lastName}`},
+                                        {label : t("general.matricule"), value : `${etudiant.matricule}`}
+                                    ]
+                                    }
+                                />
+                            )}
                         />
                     </div>
                 )}
@@ -136,7 +154,8 @@ const GestionnaireAttribution = () => {
                                     prenom: professeurSelectione.firstName,
                                     nom: professeurSelectione.lastName
                                 })}
-                            </p>                            <p className="text-xs ms-2 text-purple-600/80 font-medium">
+                            </p>
+                            <p className="text-xs ms-2 text-purple-600/80 font-medium">
                                 {t("gestionnaire.assignation.select.finishToSelect")}
                             </p>
                         </div>
@@ -146,7 +165,20 @@ const GestionnaireAttribution = () => {
                             emptyMessage={t("gestionnaire.assignation.etudiant.empty", { departement: professeurSelectione.departement })}
                             liste={etudiants.filter(etudiant => etudiant.departement === professeurSelectione.departement)}
                             renderItem={(etudiant) => (
-                                <EtudiantItem key={etudiant.id} etudiant={etudiant}/>
+                                <ListItem
+                                    key={etudiant.id}
+                                    variant="liste"
+                                    icon={<span className="font-bold">{etudiant.firstName?.charAt(0)}</span>}
+                                    title={`${etudiant.firstName} ${etudiant.lastName}`}
+                                    subtitle={etudiant.email}
+                                    isClickableCard={true}
+                                    isSelected={etudiantSelectionnes.some((e) => e.id === etudiant.id)}
+                                    onClick={() => onClickEtudiant(etudiant)}
+                                    detailRows={[
+                                        { label: t("general.matricule"), value: etudiant.matricule },
+                                        { label: t("general.departement"), value: etudiant.departement },
+                                    ]}
+                                />
                             )}/>
                     </div>
                 </div>

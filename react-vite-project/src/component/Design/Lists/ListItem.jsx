@@ -60,10 +60,16 @@ function ListItem({
     showChevron = true,
     wrapText = false,
     onClick,
+    isSelected = false,
+    isClickableCard = false,
     ariaLabel,
 }) {
     const styles = toneClasses[tone] || toneClasses.blue;
     const isRow = variant === "row";
+    const isCompact = variant === "compact";
+    const selectionStyle = isSelected
+        ? "border-5 border-green-600"
+        : styles.border;
 
     if (isRow) {
         return (
@@ -116,8 +122,26 @@ function ListItem({
         );
     }
 
+    if (isCompact){
+        return (
+            <>
+                {detailRows.length > 0 && (
+                    <dl className="flex justify-between text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4 border-b pb-2">
+                        {detailRows.map(({ label, value }) => (
+                            <div key={label} className="min-w-0 pe-2 ps-2">
+                                <dt className="font-bold text-[#043462]">{label}</dt>
+                                <dd className="truncate font-medium">{value}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                )}
+            </>
+        )
+    }
+
     return (
-        <div className={`rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient}`}>
+        <div onClick={isClickableCard ? onClick : undefined}
+             className={`${isClickableCard ? "cursor-pointer" : ""} rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient} ${isSelected ? selectionStyle:""}`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-1 items-start gap-3">
                     <div className={`size-11 shrink-0 rounded-xl flex items-center justify-center ${styles.icon}`}>
@@ -161,7 +185,7 @@ function ListItem({
                     </div>
                 </div>
 
-                {onClick && (
+                {onClick && !isClickableCard && (
                     <button
                         type="button"
                         onClick={onClick}
