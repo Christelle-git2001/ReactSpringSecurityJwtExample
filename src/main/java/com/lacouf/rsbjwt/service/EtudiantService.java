@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
@@ -263,17 +264,24 @@ public class EtudiantService {
         return CandidatureDTO.of(candidatureEnregistree);
     }
 
+    @Transactional
     public EntrevueDTO getConvocationEtudiant(Long convocationId, String email)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        return EntrevueDTO.of(getEntrevueEtudiant(convocationId, email));
+        Entrevue entrevue = getEntrevueEtudiant(convocationId, email);
+        updateStatutEntrevue(entrevue);
+        return EntrevueDTO.of(entrevue);
     }
 
+    @Transactional
     public List<EntrevueDTO> getConvocationsEtudiant(String email)
             throws EtudiantIntrouvableException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
 
-        return entrevueRepository
-                .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId())
+        List<Entrevue> entrevues = entrevueRepository
+                .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
+        entrevues.forEach(this::updateStatutEntrevue);
+
+        return entrevues
                 .stream()
                 .map(EntrevueDTO::of)
                 .toList();
@@ -286,10 +294,21 @@ public class EtudiantService {
 
         if (entrevue.getDateConfirmation() == null) {
             entrevue.setDateConfirmation(LocalDateTime.now());
+            entrevue.setStatut(StatutEntrevue.CONFIRMEE);
             entrevueRepository.save(entrevue);
         }
 
+        updateStatutEntrevue(entrevue);
         return ReponseConvocationDTO.of(entrevue);
+    }
+
+    private void updateStatutEntrevue(Entrevue entrevue) {
+        if (entrevue.getDateConfirmation() != null
+                && entrevue.getStatut() == StatutEntrevue.CONFIRMEE
+                && !entrevue.getDateHeureEntrevue().isAfter(LocalDateTime.now())) {
+            entrevue.setStatut(StatutEntrevue.EN_ATTENTE_REPONSE);
+            entrevueRepository.save(entrevue);
+        }
     }
 
     private Entrevue getEntrevueEtudiant(Long convocationId, String email)
