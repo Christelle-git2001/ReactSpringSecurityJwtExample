@@ -36,9 +36,11 @@ public class GestionnaireService {
     private final EmployeurRepository employeurRepository;
     private final EtudiantRepository etudiantRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
+    private final ProfesseurRepository professeurRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
-                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository){
+                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
+                               ProfesseurRepository professeurRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -48,6 +50,7 @@ public class GestionnaireService {
         this.applicationEventPublisher = applicationEventPublisher;
         this.employeurRepository = employeurRepository;
         this.etudiantRepository = etudiantRepository;
+        this.professeurRepository = professeurRepository;
     }
 
     @Transactional
@@ -311,6 +314,29 @@ public class GestionnaireService {
                 .map(EmployeurDTO::of)
                 .toList();
     }
+
+
+    public List<ProfesseurDTO> getAllProfesseurs() {
+        return professeurRepository.findAll()
+                .stream()
+                .map(ProfesseurDTO::of)
+                .toList();
+    }
+
+
+    @Transactional
+    public EtudiantDTO assignerProfesseur(AssignationProfesseurDTO dto) throws UtilisateurIntrouvableException{
+        Etudiant etudiant = etudiantRepository.findById(dto.etudiantId())
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Professeur professeur = professeurRepository.findById(dto.professeurId())
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        etudiant.setProfesseur(professeur);
+
+        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+    }
+
 
 
 

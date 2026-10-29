@@ -20,8 +20,6 @@ import java.util.List;
 @RequestMapping("/gestionnaire")
 @CrossOrigin(origins = "http://localhost:5173")
 public class GestionnaireController {
-
-
     private final GestionnaireService gestionnaireService;
 
     public GestionnaireController(GestionnaireService gestionnaireService) {
@@ -128,6 +126,25 @@ public class GestionnaireController {
     @GetMapping("/etudiants")
     public List<EtudiantDTO> getAllEtudiants(){
         return gestionnaireService.getAllEtudiants();
+    }
+
+    @GetMapping("/profeseurs")
+    public List<ProfesseurDTO> getAllProfesseurs(){return gestionnaireService.getAllProfesseurs();}
+
+
+    @PutMapping("/etudiants/{etudiantId}/professeur")
+    public ResponseEntity<EtudiantDTO> assignerProfesseur(
+            @PathVariable Long etudiantId,
+            @RequestBody AssignationProfesseurDTO dto
+    ) throws UtilisateurIntrouvableException{
+        AssignationProfesseurDTO assignation = new AssignationProfesseurDTO(
+                etudiantId,
+                dto.professeurId()
+        );
+
+        return ResponseEntity.ok(
+                gestionnaireService.assignerProfesseur(assignation)
+        );
     }
 
     @PostMapping(value = "/offres", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
