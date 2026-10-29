@@ -68,13 +68,15 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             return;
         }
 
+        String emailAdrien = "Adrien@gmail.com" ;
+
         GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed", LocalDateTime.now());
         gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
 
         InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO( "Sebastien","Castonguay","450-716-1217","Sebastien.Castonguay@hotmail.com","6565656",Departement.INFORMATIQUE.name(),"NoNeedButStillNeed","NoNeedButStillNeed");
         etudiantService.creerCompteEtudiant(etudiantDTO);
 
-        InscriptionEtudiantDTO etudiantDTO2 = new InscriptionEtudiantDTO( "Adrien","Agreste","450-716-1216","Adrien@gmail.com","1111111",Departement.INFORMATIQUE.name(),"NoNeedButStillNeed","NoNeedButStillNeed");
+        InscriptionEtudiantDTO etudiantDTO2 = new InscriptionEtudiantDTO( "Adrien","Agreste","450-716-1216",emailAdrien,"1111111",Departement.INFORMATIQUE.name(),"NoNeedButStillNeed","NoNeedButStillNeed");
         etudiantService.creerCompteEtudiant(etudiantDTO2);
 
         InscriptionEtudiantDTO etudiantBadCvDTO = new InscriptionEtudiantDTO(
@@ -90,42 +92,90 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
 
-        String minimalPdf = "%PDF-1.4\n" +
+        String minimalCV = "%PDF-1.4\n" +
                 "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
                 "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
-                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 144] >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 300] " +
+                "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n" +
+                "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
+                "5 0 obj << /Length 200 >> stream\n" +
+                "BT /F1 14 Tf 20 260 Td (Adrien Agreste - Dev Java) Tj ET\n" +
+                "BT /F1 12 Tf 20 230 Td (Competences: Java, SQL, Git) Tj ET\n" +
+                "BT /F1 12 Tf 20 200 Td (Experience: Refonte UI, Debugging) Tj ET\n" +
+                "BT /F1 12 Tf 20 170 Td (Education: Tech. Info Montreal) Tj ET\n" +
+                "endstream\n" +
+                "endobj\n" +
                 "xref\n" +
-                "0 4\n" +
+                "0 6\n" +
                 "0000000000 65535 f \n" +
                 "0000000010 00000 n \n" +
                 "0000000053 00000 n \n" +
                 "0000000100 00000 n \n" +
-                "trailer << /Size 4 /Root 1 0 R >>\n" +
+                "0000000200 00000 n \n" +
+                "0000000260 00000 n \n" +
+                "trailer << /Size 6 /Root 1 0 R >>\n" +
                 "startxref\n" +
-                "147\n" +
+                "330\n" +
                 "%%EOF";
 
-        MultipartFile fakePdf = new MockMultipartFile(
+        String minimalOffre = "%PDF-1.4\n" +
+                "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
+                "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 300] " +
+                "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n" +
+                "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
+                "5 0 obj << /Length 220 >> stream\n" +
+                "BT /F1 14 Tf 20 260 Td (Offre de stage - Dev Java) Tj ET\n" +
+                "BT /F1 12 Tf 20 230 Td (Entreprise: Malinois inc) Tj ET\n" +
+                "BT /F1 12 Tf 20 200 Td (Taches: Refonte UI, Debugging, Seed files) Tj ET\n" +
+                "BT /F1 12 Tf 20 170 Td (Debut: Janvier 2027 - Duree: 12 semaines) Tj ET\n" +
+                "endstream\n" +
+                "endobj\n" +
+                "xref\n" +
+                "0 6\n" +
+                "0000000000 65535 f \n" +
+                "0000000010 00000 n \n" +
+                "0000000053 00000 n \n" +
+                "0000000100 00000 n \n" +
+                "0000000200 00000 n \n" +
+                "0000000265 00000 n \n" +
+                "trailer << /Size 6 /Root 1 0 R >>\n" +
+                "startxref\n" +
+                "330\n" +
+                "%%EOF";
+
+
+
+        MultipartFile fakeOffre = new MockMultipartFile(
                 "file",
                 "offre.pdf",
                 "application/pdf",
-                minimalPdf.getBytes()
+                minimalOffre.getBytes()
+        );
+
+        MultipartFile fakeCV = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                minimalCV.getBytes()
         );
 
         String employeurEmail = "Roger.Malinois@hotmail.com";
+
+        OffreDeStageDTO devWebJr = null ;
 
         CreationOffreDeStageDTO dto1 = new CreationOffreDeStageDTO(
                 "Développeur Web Junior",
                 "Développement front-end et back-end, revue de code, CI/CD.",
                 22.50,
                 Departement.INFORMATIQUE,
-                LocalDate.now().plusDays(10),   // Début dans 10 jours
-                LocalDate.now().plusMonths(3),  // Fin dans 3 mois
-                LocalDate.now().plusDays(7)     // Affichage jusqu'à 3 jours avant le début
+                LocalDate.now().plusDays(10),
+                LocalDate.now().plusMonths(3),
+                LocalDate.now().plusDays(7)
         );
 
         try {
-            employeurService.creerOffre(dto1, fakePdf, employeurEmail);
+           devWebJr = employeurService.creerOffre(dto1, fakeOffre, employeurEmail);
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
@@ -135,13 +185,13 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
                 20.00,
                 Departement.INFORMATIQUE,
-                LocalDate.now().plusDays(5),    // Début dans 5 jours
-                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
-                LocalDate.now().plusDays(3)     // Affichage jusqu'à 2 jours avant le début
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusMonths(2),
+                LocalDate.now().plusDays(3)
         );
 
         try {
-            employeurService.creerOffre(dto2, fakePdf, employeurEmail);
+            employeurService.creerOffre(dto2, fakeOffre, employeurEmail);
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
@@ -151,9 +201,9 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
                 20.0,
                 Departement.INFORMATIQUE,
-                LocalDate.now().plusDays(5),    // Début dans 5 jours
-                LocalDate.now().plusMonths(2),  // Fin dans 2 mois
-                LocalDate.now().minusDays(2),    // Affichage -2 jour
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusMonths(2),
+                LocalDate.now().minusDays(2),
                 Statut.ACCEPTEE,
                  "offre.pdf",
                 "uploads/offres",
@@ -167,6 +217,12 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
        CvEtudiant cvEtudiant = new CvEtudiant("CV_Marc_Disparu","application/pdf",1024L,"none",LocalDateTime.now(),etudiantBadCv);
 
+
+       CvEtudiantDTO cvAdrien = etudiantService.televerserCv(fakeCV, "Adrien@gmail.com");
+       gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
+       gestionnaireService.approuverOffre(devWebJr.id());
+
+       etudiantService.postuler(devWebJr.id(),emailAdrien);
        cvEtudiantRepository.save(cvEtudiant);
 
     }
