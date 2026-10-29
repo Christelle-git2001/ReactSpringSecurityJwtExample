@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { useRef, useState} from "react";
 import { marquerNotificationLue } from "../../api/notification.jsx";
+import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
+import {obtenirOffres} from "../../api/etudiant.jsx";
+
 import {
     FiArrowUp,
     FiBriefcase,
@@ -87,20 +90,60 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
     const onClick = async (notification) => {
         const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        try {
+            let state = { from: "/gestionnaire" };
 
-        if (!notification.estLu) {
-            try {
+            if (notification.notificationType === "CV_ATTENTE_VALIDATION") {
+                const cv = await obtenirCvGestionnaire(notification.urlCible);
+                if (!cv) {
+                    setError(t("notifications.cv_unavailable"));
+                    return;
+                }
+                state.cv = cv;
+
+            } else if (notification.notificationType === "OFFRE_ATTENTE_VALIDATION") {
+                const offre = await obtenirOffreGestionnaire(notification.urlCible);
+                if (!offre) {
+                    setError(t("notifications.offre_unavailable"));
+                    return;
+                }
+                state.offer = offre;
+
+            } else if (notification.notificationType === "NOUVELLE_OFFRE_STAGE") {
+                const offreId = notification.variables?.OFFRE_ID;
+                if (!offreId) {
+                    setError(t("notifications.open_error"));
+                    return;
+                }
+                state.offreId = offreId;
+                state.from = "/etudiant";
+
+            } else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+                const candidatureId = notification.variables?.CANDIDATURE_ID;
+                const [candidatures, offres] = await Promise.all([
+                    getCandidaturesEmployeur(),
+                    getOffresEmployeur()
+                ]);
+                const candidature = candidatures.find(c => c.id === Number(candidatureId));
+                if (!candidature) {
+                    setError(t("notifications.open_error"));
+                    return;
+                }
+                state.candidature = candidature;
+                state.offer = offres.find(o => o.id === candidature.offreId);
+                state.from = "/employeur";
+            }
+
+            if (!notification.estLu) {
                 await marquerNotificationLue(notification.id);
                 onMarkAsRead?.(notification.id);
-            } catch {
-                setError(t("notifications.read_error"));
-                return;
             }
-        }
 
-        closeNotification();
-        if (destination) {
-            navigate(destination);
+            closeNotification();
+            navigate(destination, { state });
+        }catch (error) {
+            console.error("Erreur lors de l'ouverture:", error);
+            setError(t(error?.status === 404 ? "notifications.not_found" : "notifications.open_error"));
         }
     };
 
