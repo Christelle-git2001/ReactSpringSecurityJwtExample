@@ -9,7 +9,7 @@ const ScrollBarList = ({title , emptyMessage, liste = [], renderItem}) => {
                 <h2 className="text-center rounded-3xl text-xl m-2 font-semibold">{title}</h2>
             )}
             {liste.length > 0 ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                     {liste.map((item, index) => (
                         renderItem ? renderItem(item, index) : <div key={index}>{item.toString()}</div>
                     ))}

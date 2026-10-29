@@ -6,6 +6,7 @@ import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import {FaCheckCircle} from "react-icons/fa";
 import ScrollBarList from "../../component/Design/Lists/ScrollBarList.jsx";
 import EtudiantItem from "../../component/Design/Lists/EtudiantItem.jsx";
+import EtudiantItemShort from "../../component/Design/Lists/EtudiantItemShort.jsx";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
@@ -117,7 +118,10 @@ const GestionnaireAttribution = () => {
                         <ScrollBarList
                             title={t("gestionnaire.assignation.select.studentList.title")}
                             emptyMessage={t("gestionnaire.assignation.select.studentList.empty")}
-                            liste={etudiantSelectionnes}
+                            liste={etudiants}
+                            renderItem={(etudiant) => (
+                                <EtudiantItemShort key={etudiant.id} etudiant={etudiant}/>
+                            )}/>
                         />
                     </div>
                 )}
