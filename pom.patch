@@ -1,0 +1,53 @@
+diff --git a/pom.xml b/pom.xml
+index 3ee78ae..2d801df 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -107,6 +107,48 @@
+                     </excludes>
+                 </configuration>
+             </plugin>
++            <plugin>
++                <groupId>org.jacoco</groupId>
++                <artifactId>jacoco-maven-plugin</artifactId>
++                <version>0.8.13</version>
++                <executions>
++                    <execution>
++                        <id>prepare-agent</id>
++                        <goals>
++                            <goal>prepare-agent</goal>
++                        </goals>
++                    </execution>
++                    <execution>
++                        <id>jacoco-report</id>
++                        <phase>test</phase>
++                        <goals>
++                            <goal>report</goal>
++                        </goals>
++                    </execution>
++                    <!-- 3. Checks coverage limits and fails the build if not met -->
++                    <execution>
++                        <id>check-coverage</id>
++                        <phase>verify</phase>
++                        <goals>
++                            <goal>check</goal>
++                        </goals>
++                        <configuration>
++                            <rules>
++                                <rule>
++                                    <element>BUNDLE</element>
++                                    <limits>
++                                        <limit>
++                                            <counter>LINE</counter>
++                                            <value>COVEREDRATIO</value>
++                                            <minimum>0.80</minimum>
++                                        </limit>
++                                    </limits>
++                                </rule>
++                            </rules>
++                        </configuration>
++                    </execution>
++                </executions>
++            </plugin>
+         </plugins>
+     </build>
+ 

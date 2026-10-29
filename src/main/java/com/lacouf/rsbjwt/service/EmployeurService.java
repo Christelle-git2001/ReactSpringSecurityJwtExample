@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -338,11 +339,16 @@ public class EmployeurService {
                 .candidature(candidature)
                 .format(dto.format())
                 .dateHeureEntrevue(dto.dateHeureEntrevue())
+                .duree(dto.duree())
                 .dateCreation(LocalDateTime.now())
                 .build();
 
         candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
+
+        eventPublisher.publishEvent(
+                new EntrevueCreeeEvent(entrevueEnregistree)
+        );
 
         return EntrevueDTO.of(entrevueEnregistree);
     }

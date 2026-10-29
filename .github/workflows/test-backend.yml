@@ -1,0 +1,87 @@
+name: Backend Tests & Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - '.github/workflows/test-backend.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java-version: ['25']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Java ${{ matrix.java-version }}
+      uses: actions/setup-java@v5
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run tests with Maven
+      run: mvn clean test
+
+    - name: Generate coverage report
+      run: mvn jacoco:report
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./target/site/jacoco/jacoco.xml
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: false
+
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-test-results-java-${{ matrix.java-version }}
+        path: target/surefire-reports/
+        retention-days: 30
+
+    - name: Archive coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-coverage-java-${{ matrix.java-version }}
+        path: target/site/jacoco/
+        retention-days: 30
+
+    - name: Notify Discord on failure
+      if: failure()
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        curl -sS -H "Content-Type: application/json" \
+          -X POST "$DISCORD_WEBHOOK_URL" \
+          -d '{
+            "username": "GitHub Actions",
+            "content": "@everyone",
+            "allowed_mentions": { "parse": ["everyone"] },
+            "embeds": [{
+              "title": "❌ Backend tests failed",
+              "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "color": 15158332,
+              "fields": [
+                { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
+                { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
+                { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
+                { "name": "Java", "value": "${{ matrix.java-version }}", "inline": true }
+              ]
+            }]
+          }'

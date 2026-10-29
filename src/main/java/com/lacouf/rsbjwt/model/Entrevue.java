@@ -42,11 +42,15 @@ public class Entrevue {
     @Column(nullable = false)
     private StatutEntrevue statut = StatutEntrevue.A_CONFIRMER;
 
+    @Column(nullable = false)
+    private int duree ;
+
     @Builder
-    public Entrevue(Candidature candidature, FormatEntrevue format, LocalDateTime dateHeureEntrevue, LocalDateTime dateCreation) {
+    public Entrevue(Candidature candidature, FormatEntrevue format, LocalDateTime dateHeureEntrevue, LocalDateTime dateCreation, int duree) {
         this.candidature = candidature;
         this.format = format;
         this.dateHeureEntrevue = dateHeureEntrevue;
         this.dateCreation = dateCreation;
+        this.duree = duree ;
     }
 }

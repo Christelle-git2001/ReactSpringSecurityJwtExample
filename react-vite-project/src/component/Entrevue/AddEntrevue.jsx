@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { FiClock } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
 import { validateEntrevueForm } from "../../utils/entrevueValidation.jsx";
 
 function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [selectedCandidature, setSelectedCandidature] = useState(initialCandidatureId);
     const [date, setDate] = useState("");
     const [heure, setHeure] = useState("");
@@ -99,6 +101,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
             candidatureId: Number(selectedCandidature),
             format: mode,
             dateHeureEntrevue: dateHeureFormatted,
+            duree: Number(duree),
         };
 
         try {
@@ -236,6 +239,13 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
             </div>
 
             <div className="pt-3 border-t border-gray-100 flex justify-end">
+                <Button
+                    type="button"
+                    onClick={() => navigate("/employeur")}
+                    className="bg-steal-500 mx-3 text-[#043462]  flex items-center justify-center gap-2 border border-steal-200"
+                >
+                    {t("actions.backhome")}
+                </Button>
                 <Button
                     type="submit"
                     disabled={isSubmitting}

@@ -104,6 +104,7 @@
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
     "back": "Back",
+    "backhome": "Back home",
     "reject": "Reject",
     "approve": "Approve",
     "upload": "Upload",
@@ -183,6 +184,7 @@
     "employer_added": "Employer added successfully."
   },
   "nav": {
+    "add_entrevue" : "Schedule an interview",
     "applications": "Applications",
     "cv": "Upload CV",
     "home": "Home",
@@ -471,6 +473,8 @@
     }
   },
   "agenda": {
+    "no_interviews": "No interview",
+    "clear_filter":  "Clear filter",
     "title": "Schedule",
     "all_interviews": "Upcoming interviews:",
     "select_date_prompt": "Select a date",

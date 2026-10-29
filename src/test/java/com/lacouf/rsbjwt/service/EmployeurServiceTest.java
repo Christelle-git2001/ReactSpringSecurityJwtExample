@@ -3,11 +3,13 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
+import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -158,7 +160,8 @@ public class EmployeurServiceTest {
         return new CreationEntrevueDTO(
                 candidature.getId(),
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(7)
+                LocalDateTime.now().plusDays(7),
+                30
         );
     }
 
@@ -565,8 +568,13 @@ public class EmployeurServiceTest {
 
     @Test
     void doitCreerEntrevueAvecSucces() throws Exception {
+
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
+        when(candidatureRepository.save(any(Candidature.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        employeurService.retenirCandidaturePourEntrevue(candidature.getId());
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
@@ -592,10 +600,14 @@ public class EmployeurServiceTest {
                 .isEqualTo(dto.dateHeureEntrevue());
         assertThat(resultat.dateCreation()).isNotNull();
 
-        assertThat(candidature.getStatut())
-                .isEqualTo(StatutCandidature.RETENUE_POUR_ENTREVUE);
-
         verify(convocationRepository).save(any(Entrevue.class));
+
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        assertThat(captor.getValue())
+                .isInstanceOf(EntrevueCreeeEvent.class);
     }
 
     @Test
@@ -606,7 +618,8 @@ public class EmployeurServiceTest {
         CreationEntrevueDTO dto = new CreationEntrevueDTO(
                 99L,
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(7)
+                LocalDateTime.now().plusDays(7),
+                30
         );
 
         assertThatThrownBy(() -> employeurService.creerConvocation(dto))
@@ -673,7 +686,8 @@ public class EmployeurServiceTest {
         CreationEntrevueDTO dto = new CreationEntrevueDTO(
                 candidature.getId(),
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().minusDays(1)
+                LocalDateTime.now().minusDays(1),
+                30
         );
 
         assertThatThrownBy(() -> employeurService.creerConvocation(dto))

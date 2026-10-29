@@ -110,7 +110,8 @@ public class EmployeurControllerTest {
         creationConvocationDTO = new CreationEntrevueDTO(
                 1L,
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(7)
+                LocalDateTime.now().plusDays(7),
+                30
         );
 
         convocationEntrevueDTO = new EntrevueDTO(
@@ -118,6 +119,7 @@ public class EmployeurControllerTest {
                 LocalDateTime.now(),
                 FormatEntrevue.EN_LIGNE,
                 LocalDateTime.now().plusDays(7),
+                30,
                 1L,
                 1L,
                 "Jean",

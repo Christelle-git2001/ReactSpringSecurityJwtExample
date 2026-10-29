@@ -99,6 +99,7 @@
     "save": "Soumettre"
   },
   "actions": {
+    "backhome": "Retour à l'accueil",
     "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
@@ -226,6 +227,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
+    "add_entrevue" : "Planifier une entrevue",
     "applications": "Candidatures",
     "cv": "Téléverser CV",
     "home": "Accueil",
@@ -470,6 +472,8 @@
     }
   },
   "agenda": {
+    "no_interviews": "Aucune entrevue",
+    "clear_filter":  "Désactiver le filtre",
     "title": "Agenda",
     "all_interviews": "Entrevues à venir :",
     "select_date_prompt": "Sélectionnez une date",
