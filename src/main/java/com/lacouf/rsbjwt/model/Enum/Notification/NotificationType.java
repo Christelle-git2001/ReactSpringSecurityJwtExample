@@ -7,7 +7,8 @@ public enum NotificationType {
     OFFRE_STATUT_CHANGE("Le statut de l'offre a changé"),
     OFFRE_ATTENTE_VALIDATION("Une offre de stage est en attente de votre validation"),
     NOUVELLE_CANDIDATURE("Une nouvelle candidature a été reçue"),
-    NOUVELLE_OFFRE_STAGE("Une nouvelle offre de stage est disponible");
+    NOUVELLE_OFFRE_STAGE("Une nouvelle offre de stage est disponible"),
+    CONVOCATION_ENTREVUE("Vous êtes convoqué à une entrevue");
 
     private final String label;
 

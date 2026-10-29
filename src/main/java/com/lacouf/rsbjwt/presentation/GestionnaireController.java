@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -136,7 +135,7 @@ public class GestionnaireController {
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException, UtilisateurIntrouvableException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException {
         OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
