@@ -102,9 +102,9 @@ public class EtudiantController {
     }
 
     @GetMapping("/convocations/{id}")
-    public ResponseEntity<ConvocationEntrevueDTO> obtenirConvocation(@PathVariable Long id, Authentication authentication)
+    public ResponseEntity<EntrevueDTO> obtenirConvocation(@PathVariable Long id, Authentication authentication)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        ConvocationEntrevueDTO convocation = convocationEntrevueService.obtenirConvocationEtudiant(
+        EntrevueDTO convocation = convocationEntrevueService.obtenirConvocationEtudiant(
                 id,
                 authentication.getName()
         );
