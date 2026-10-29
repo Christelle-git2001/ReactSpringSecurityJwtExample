@@ -32,7 +32,24 @@ public record EntrevueDTO(
                 String etudiantLastName,
                 String offreTitle
         ) {
-                this(id, dateCreation, format, dateHeureEntrevue,
+                this(id, dateCreation, format, dateHeureEntrevue, 0,
+                        candidatureId, employeurId, etudiantFirstName,
+                        etudiantLastName, offreTitle);
+        }
+
+        public EntrevueDTO(
+                long id,
+                LocalDateTime dateCreation,
+                FormatEntrevue format,
+                LocalDateTime dateHeureEntrevue,
+                int duree,
+                long candidatureId,
+                long employeurId,
+                String etudiantFirstName,
+                String etudiantLastName,
+                String offreTitle
+        ) {
+                this(id, dateCreation, format, dateHeureEntrevue, duree,
                         candidatureId, employeurId, etudiantFirstName,
                         etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER);
         }
