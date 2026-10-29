@@ -260,7 +260,8 @@
     },
     "assignation": {
       "title" : "Teacher Assignment",
-      "description" : "Select students from the list to assign them a teacher and update their assignments.",
+      "description_without_teacher" : "Select a teacher to begin student assignment",
+      "description_with_teacher" : "Select the students to be assigned to this teacher",
       "professeur" : {
         "professeur_without_name": "This teacher has no name",
         "professeur_without_department" : "This teacher has no department",
@@ -269,7 +270,18 @@
       "select": {
         "professor" : "Choose a teacher",
         "professorSelected" : "You have selected this teacher",
-        "anotherProfessor": "Click to choose another teacher"
+        "anotherProfessor": "Click to choose another teacher",
+        "warningAnotherProfessor" : "Change the professor? This will clear the selected students.",
+        "student": "Choose the students who will be assigned to: {{prenom}} {{nom}}",
+        "finishToSelect" : "Have you finished selecting the students? Click the \"Assign\" button in the student list.",        "studentList" : {
+          "title" : "Selected Students",
+          "empty" : "No students selected"
+        }
+      },
+      "etudiant" : {
+        "empty": "No students enrolled for this department: {{departement}}",
+        "notFound" : "N/A",
+        "noProfesseur" : "No teacher assigned"
       }
     }
   },
@@ -446,7 +458,9 @@
     "matricule": "Matricule",
     "liste" : {
       "open" : "Open the list",
-      "close" : "Close the list"
+      "close" : "Close the list",
+      "title" : "List",
+      "empty" : "The list is empty"
     }
   }
 }

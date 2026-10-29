@@ -315,7 +315,8 @@
     },
     "assignation": {
       "title" : "Assignation des professeurs",
-      "description" : "Sélectionnez les étudiants dans la liste pour leur désigner un professeur et mettre à jour leurs attributions.",
+      "description_without_teacher" : "Sélectionnez un professeur pour commencer l'assignation des étudiants",
+      "description_with_teacher" : "Sélectionnez les étudiants qui seront assignés à ce professeur",
       "professeur" : {
         "professeur_without_name": "Ce professeur ne possède aucun nom",
         "professeur_without_department" : "Ce professeur ne possède aucun departement",
@@ -324,8 +325,18 @@
       "select": {
         "professor" : "Choisissez un professeur",
         "professorSelected" : "Vous avez sélectionné cet enseignant",
-        "anotherProfessor" : "Cliquez pour choisir un autre enseignant"
-
+        "anotherProfessor" : "Cliquez pour choisir un autre enseignant",
+        "warningAnotherProfessor" : "Modifier le professeur ? Cela effacera les étudiants sélectionnés.",
+        "student": "Veuillez sélectionner les étudiants à assigner à : {{prenom}} {{nom}}",
+        "finishToSelect" : "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",        "studentList" : {
+          "title" : "Étudiants Sélectionnés",
+          "empty" : "Aucun étudiant sélectionné"
+        }
+      },
+      "etudiant" : {
+        "empty": "Aucun étudiant inscrit pour ce département : {{departement}}",
+        "notFound" : "N/A",
+        "noProfesseur" : "Aucun professeur assigné"
       }
     }
   },
@@ -445,7 +456,9 @@
     "matricule": "Matricule",
     "liste" : {
       "open" : "Ouvrir la liste",
-      "close" : "Fermer la liste"
+      "close" : "Fermer la liste",
+      "title" : "Liste",
+      "empty" : "La liste est vide"
     }
   }
 }
