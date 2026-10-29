@@ -6,6 +6,12 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
+import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../../api/gestionnaire.jsx";
+
+jest.mock("../../../api/gestionnaire.jsx", () => ({
+    obtenirCvGestionnaire: jest.fn(),
+    obtenirOffreGestionnaire: jest.fn(),
+}));
 
 jest.mock("../../../api/notification.jsx", () => ({
     marquerNotificationLue: jest.fn(),
@@ -34,6 +40,8 @@ beforeEach(async () => {
     await testI18n.changeLanguage("fr");
 
     marquerNotificationLue.mockResolvedValue({ estLu: true });
+    obtenirCvGestionnaire.mockResolvedValue({ id: 20, fileName: "junior.pdf", statut: "EN_ATTENTE" });
+    obtenirOffreGestionnaire.mockResolvedValue({ id: 1, title: "Stage en développement" });
 });
 
 function afficherNotifications() {
@@ -72,6 +80,7 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
         );
         expect(marquerNotificationLue).toHaveBeenCalledWith(3);
         expect(mockNavigate).not.toHaveBeenCalled();
+
     });
 
     it("navigue vers la page des CV après le clic", async () => {
@@ -86,9 +95,9 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
         );
 
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith(
-                "/gestionnaire/cvs/details"
-            );
+            expect(mockNavigate).toHaveBeenCalledWith("/gestionnaire/cvs/details", {
+                state: { cv: expect.any(Object), from: "/gestionnaire" },
+            });
         });
     });
 
@@ -109,9 +118,9 @@ describe("Notification de nouveau CV (gestionnaire)", () => {
 
         expect(onMarkAsRead).toHaveBeenCalledWith(3);
 
-        expect(mockNavigate).toHaveBeenCalledWith(
-            "/gestionnaire/cvs/details"
-        );
+        expect(mockNavigate).toHaveBeenCalledWith("/gestionnaire/cvs/details", {
+            state: { cv: expect.any(Object), from: "/gestionnaire" },
+        });
     });
 
     it("affiche les titres et descriptions traduits", async () => {

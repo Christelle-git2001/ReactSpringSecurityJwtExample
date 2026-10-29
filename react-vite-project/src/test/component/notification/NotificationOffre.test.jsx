@@ -6,6 +6,12 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
+import {obtenirOffreGestionnaire} from "../../../api/gestionnaire.jsx";
+
+jest.mock("../../../api/gestionnaire.jsx", () => ({
+    obtenirCvGestionnaire: jest.fn(),
+    obtenirOffreGestionnaire: jest.fn(),
+}));
 
 jest.mock("../../../api/notification.jsx", () => ({
     marquerNotificationLue: jest.fn(),
@@ -33,6 +39,18 @@ beforeEach(async () => {
     jest.clearAllMocks();
     await testI18n.changeLanguage("fr");
     marquerNotificationLue.mockResolvedValue({ estLu: true });
+
+    obtenirOffreGestionnaire.mockResolvedValue({
+        id: 1,
+        title: "Stage en développement",
+        domain: "INFORMATIQUE",
+        salary: 20,
+        description: "Description de l'offre",
+        startDate: "2026-01-01",
+        endDate: "2026-04-01",
+        displayEndDate: "2025-12-01",
+        fileName: "offre.pdf",
+    });
 });
 
 function afficherNotifications(onMarkAsRead = jest.fn()) {
@@ -92,9 +110,9 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         );
 
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith(
-                "/gestionnaire/offres/details"
-            );
+            expect(mockNavigate).toHaveBeenCalledWith("/gestionnaire/offres/details", {
+                state: { offer: expect.any(Object), from: "/gestionnaire" },
+            });
         });
     });
 
@@ -116,9 +134,9 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         });
 
         expect(onMarkAsRead).toHaveBeenCalledWith(5);
-        expect(mockNavigate).toHaveBeenCalledWith(
-            "/gestionnaire/offres/details"
-        );
+        expect(mockNavigate).toHaveBeenCalledWith("/gestionnaire/offres/details", {
+            state: { offer: expect.any(Object), from: "/gestionnaire" },
+        });
     });
 
     it("affiche les titres et descriptions traduits", async () => {

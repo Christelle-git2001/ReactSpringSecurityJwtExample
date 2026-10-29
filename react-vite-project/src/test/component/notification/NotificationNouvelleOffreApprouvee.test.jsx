@@ -103,7 +103,9 @@ describe("NotificationNouvelleOffreApprouvee", () => {
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(20);
-            expect(mockNavigate).toHaveBeenCalledWith("/etudiant");
+            expect(mockNavigate).toHaveBeenCalledWith("/etudiant", {
+                state: { offreId: "12", from: "/etudiant" },
+            });
         });
 
         expect(onMarkAsRead).toHaveBeenCalledWith(20);

@@ -99,6 +99,8 @@
     "save": "Soumettre"
   },
   "actions": {
+    "backhome": "Retour à l'accueil",
+    "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
@@ -480,7 +482,7 @@
   },
   "agenda": {
     "no_interviews": "Aucune entrevue",
-    "clear_filter": "Désactiver le filtre",
+    "clear_filter":  "Désactiver le filtre",
     "title": "Agenda",
     "all_interviews": "Entrevues à venir :",
     "select_date_prompt": "Sélectionnez une date",
