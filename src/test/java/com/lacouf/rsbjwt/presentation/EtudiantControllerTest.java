@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -380,7 +381,8 @@ public class EtudiantControllerTest {
                 "Développeur Web",
                 "TechCorp",
                 LocalDateTime.now(),
-                1L
+                1L,
+                StatutCandidature.SOUMISE
         );
 
         Authentication authentication =
@@ -442,7 +444,8 @@ public class EtudiantControllerTest {
                 "Développeur Web",
                 "TechCorp",
                 LocalDateTime.now(),
-                1L
+                1L,
+                StatutCandidature.SOUMISE
         );
 
         Authentication authentication =

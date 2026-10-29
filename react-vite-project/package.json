@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "cally": "^0.9.2",
     "daisyui": "^5.7.46",
     "i18next": "^26.4.2",
     "pdfjs-dist": "^6.3.289",

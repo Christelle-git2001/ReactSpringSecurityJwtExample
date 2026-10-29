@@ -32,6 +32,31 @@ export async function getOffresEmployeur() {
     });
 }
 
+export async function getCandidaturesRetenuesPourEntrevue() {
+    return fetchJson("/employeur/candidatures/convoquees", {
+        method: "GET",
+    });
+}
+
+export async function PlanifierEntrevue(dto) {
+    return fetchJson("/employeur/entrevues", {
+        method: "POST",
+        body: JSON.stringify(dto),
+    });
+}
+
+export async function getEntrevuesEmployeur() {
+    return fetchJson("/employeur/entrevues", {
+        method: "GET",
+    });
+}
+
+export async function retenirCandidaturePourEntrevue(candidatureId) {
+    return fetchJson(`/employeur/candidatures/${candidatureId}`, {
+        method: "PUT",
+    });
+}
+
 export async function getCandidaturesEmployeur() {
     return fetchJson("/employeur/candidatures", {
         method: "GET",

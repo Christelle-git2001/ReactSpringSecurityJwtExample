@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.*;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
@@ -9,13 +10,7 @@ import org.springframework.security.core.Authentication;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.EmployeurService;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.EmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +25,15 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -48,6 +46,8 @@ public class EmployeurControllerTest {
     private EmployeurService employeurService;
 
     private ObjectMapper objectMapper;
+    private CreationEntrevueDTO creationConvocationDTO;
+    private EntrevueDTO convocationEntrevueDTO;
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     OffreDeStageDTO offreDeStageDTO;
@@ -101,6 +101,31 @@ public class EmployeurControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();
         objectMapper = JsonMapper.builder().build();
+
+        PlageHoraireDTO plageHoraireDTO = new PlageHoraireDTO(
+                LocalDateTime.now().plusDays(7),
+                30
+        );
+
+        creationConvocationDTO = new CreationEntrevueDTO(
+                1L,
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(7),
+                30
+        );
+
+        convocationEntrevueDTO = new EntrevueDTO(
+                1L,
+                LocalDateTime.now(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(7),
+                30,
+                1L,
+                1L,
+                "Jean",
+                "Tremblay",
+                "Développeur web"
+        );
     }
 
     @Test
@@ -414,4 +439,119 @@ public class EmployeurControllerTest {
                         .principal(authentication))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void doitCreerConvocationAvecSucces() throws Exception {
+        when(employeurService.creerConvocation(
+                any(CreationEntrevueDTO.class)
+        )).thenReturn(convocationEntrevueDTO);
+
+        mockMvc.perform(post("/employeur/entrevues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                creationConvocationDTO
+                        ))
+                        .principal(principal))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandCandidatureIdManquant() throws Exception {
+        String jsonInvalide = """
+                {
+                    "format": "EN_LIGNE",
+                    "dateHeureEntrevue": "2027-11-15T10:00:00"
+                }
+                """;
+
+        mockMvc.perform(post("/employeur/entrevues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonInvalide)
+                        .principal(principal))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRetournerForbiddenQuandOffreNonAutorisee() throws Exception {
+        when(employeurService.creerConvocation(
+                any(CreationEntrevueDTO.class)
+        )).thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(post("/employeur/entrevues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                creationConvocationDTO
+                        ))
+                        .principal(principal))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandCandidatureIntrouvable() throws Exception {
+        when(employeurService.creerConvocation(
+                any(CreationEntrevueDTO.class)
+        )).thenThrow(new CandidatureIntrouvableException());
+
+        mockMvc.perform(post("/employeur/entrevues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                creationConvocationDTO
+                        ))
+                        .principal(principal))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetournerConflictQuandConvocationExisteDeja() throws Exception {
+        when(employeurService.creerConvocation(
+                any(CreationEntrevueDTO.class)
+        )).thenThrow(new ConvocationExistanteException());
+
+        mockMvc.perform(post("/employeur/entrevues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                creationConvocationDTO
+                        ))
+                        .principal(principal))
+                .andExpect(status().isConflict());
+    }
+
+
+    @Test
+    void doitRetournerCandidaturesConvoquees() throws Exception {
+        CandidatureDTO candidatureDTO = new CandidatureDTO(
+                1L,
+                10L,
+                "Jean",
+                "Tremblay",
+                "INFORMATIQUE",
+                2L,
+                "Développeur web",
+                "Entreprise ABC",
+                LocalDateTime.now(),
+                null,
+                StatutCandidature.RETENUE_POUR_ENTREVUE
+        );
+
+        when(employeurService.obtenirCandidaturesConvoquees())
+                .thenReturn(List.of(candidatureDTO));
+
+        mockMvc.perform(get("/employeur/candidatures/convoquees")
+                        .principal(principal))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void doitRetournerNotFoundQuandEmployeurIntrouvablePourCandidaturesConvoquees()
+            throws Exception {
+
+        when(employeurService.obtenirCandidaturesConvoquees())
+                .thenThrow(new UtilisateurIntrouvableException());
+
+        mockMvc.perform(get("/employeur/candidatures/convoquees")
+                        .principal(principal))
+                .andExpect(status().isNotFound());
+    }
+
 }
