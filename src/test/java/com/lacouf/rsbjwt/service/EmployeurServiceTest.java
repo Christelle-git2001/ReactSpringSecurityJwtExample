@@ -158,7 +158,8 @@ public class EmployeurServiceTest {
         return new CreationEntrevueDTO(
                 candidature.getId(),
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(7)
+                LocalDateTime.now().plusDays(7),
+                30
         );
     }
 
@@ -565,8 +566,13 @@ public class EmployeurServiceTest {
 
     @Test
     void doitCreerEntrevueAvecSucces() throws Exception {
+
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
+        when(candidatureRepository.save(any(Candidature.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        employeurService.retenirCandidaturePourEntrevue(candidature.getId());
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
@@ -592,9 +598,6 @@ public class EmployeurServiceTest {
                 .isEqualTo(dto.dateHeureEntrevue());
         assertThat(resultat.dateCreation()).isNotNull();
 
-        assertThat(candidature.getStatut())
-                .isEqualTo(StatutCandidature.RETENUE_POUR_ENTREVUE);
-
         verify(convocationRepository).save(any(Entrevue.class));
     }
 
@@ -606,7 +609,8 @@ public class EmployeurServiceTest {
         CreationEntrevueDTO dto = new CreationEntrevueDTO(
                 99L,
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(7)
+                LocalDateTime.now().plusDays(7),
+                30
         );
 
         assertThatThrownBy(() -> employeurService.creerConvocation(dto))
@@ -673,7 +677,8 @@ public class EmployeurServiceTest {
         CreationEntrevueDTO dto = new CreationEntrevueDTO(
                 candidature.getId(),
                 FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().minusDays(1)
+                LocalDateTime.now().minusDays(1),
+                30
         );
 
         assertThatThrownBy(() -> employeurService.creerConvocation(dto))
