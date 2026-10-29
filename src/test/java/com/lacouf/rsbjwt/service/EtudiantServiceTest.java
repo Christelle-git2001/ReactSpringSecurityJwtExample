@@ -897,4 +897,68 @@ public class EtudiantServiceTest {
 
         verify(entrevueRepository).save(entrevue);
     }
+
+    @Test
+    void doitConfirmerLaPresenceDeLEtudiant() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        ReponseConvocationDTO resultat = etudiantService.confirmerConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail());
+
+        assertThat(resultat.confirmee()).isTrue();
+        assertThat(resultat.dateConfirmation()).isNotNull();
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+
+        etudiantService.getConvocationEtudiant(entrevue.getId(), etudiant.getEmail());
+
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+        verify(entrevueRepository, times(1)).save(entrevue);
+    }
+
+    @Test
+    void doitConserverLaPremiereDateDeConfirmation() throws Exception {
+        LocalDateTime dateInitiale = LocalDateTime.now().minusDays(1);
+        entrevue.setDateConfirmation(dateInitiale);
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        ReponseConvocationDTO resultat = etudiantService.confirmerConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail());
+
+        assertThat(resultat.dateConfirmation()).isEqualTo(dateInitiale);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+
+        verify(entrevueRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitPasserEnAttenteReponseLorsDeLaConsultation() throws Exception {
+        entrevue.setDateConfirmation(LocalDateTime.now().minusDays(2));
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        etudiantService.getConvocationEtudiant(entrevue.getId(), etudiant.getEmail());
+
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
+
+        verify(entrevueRepository).save(entrevue);
+    }
 }
