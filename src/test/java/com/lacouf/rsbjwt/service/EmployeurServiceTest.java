@@ -2,13 +2,8 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.EmployeurRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.model.Enum.*;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -59,6 +53,9 @@ public class EmployeurServiceTest {
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private EntrevueRepository convocationRepository;
 
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
@@ -154,6 +151,14 @@ public class EmployeurServiceTest {
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+    }
+
+    private CreationEntrevueDTO creerDTOConvocationValide() {
+        return new CreationEntrevueDTO(
+                candidature.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(7)
         );
     }
 
@@ -396,7 +401,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateDebutAvantAujourdhuiException, FichierTropVolumineuxException {
+    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, FichierTropVolumineuxException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
         when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
@@ -553,10 +558,128 @@ public class EmployeurServiceTest {
                 MediaType.APPLICATION_PDF_VALUE, "contenu".getBytes());
 
         assertThatThrownBy(() -> employeurService.creerOffre(dtoInvalide, fichier, employeur.getEmail()))
-                .isInstanceOf(DateDebutAvantAujourdhuiException.class);
+                .isInstanceOf(DateAvantAujourdhuiException.class);
 
         verify(offreDeStageRepository, never()).save(any(OffreDeStage.class));
     }
 
+    @Test
+    void doitCreerEntrevueAvecSucces() throws Exception {
+        when(candidatureRepository.findById(candidature.getId()))
+                .thenReturn(Optional.of(candidature));
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.empty());
+
+        when(convocationRepository.save(any(Entrevue.class)))
+                .thenAnswer(invocation -> {
+                    Entrevue entrevue = invocation.getArgument(0);
+                    entrevue.setId(1L);
+                    return entrevue;
+                });
+
+        CreationEntrevueDTO dto = creerDTOConvocationValide();
+
+        EntrevueDTO resultat = employeurService.creerConvocation(dto);
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.id()).isEqualTo(1L);
+        assertThat(resultat.format()).isEqualTo(FormatEntrevue.EN_LIGNE);
+        assertThat(resultat.dateHeureEntrevue())
+                .isEqualTo(dto.dateHeureEntrevue());
+        assertThat(resultat.dateCreation()).isNotNull();
+
+        assertThat(candidature.getStatut())
+                .isEqualTo(StatutCandidature.RETENUE_POUR_ENTREVUE);
+
+        verify(convocationRepository).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandCandidatureIntrouvable() {
+        when(candidatureRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        CreationEntrevueDTO dto = new CreationEntrevueDTO(
+                99L,
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(7)
+        );
+
+        assertThatThrownBy(() -> employeurService.creerConvocation(dto))
+                .isInstanceOf(CandidatureIntrouvableException.class);
+
+        verify(convocationRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitLancerExceptionQuandConvocationExisteDeja() {
+        when(candidatureRepository.findById(candidature.getId()))
+                .thenReturn(Optional.of(candidature));
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.of(new Entrevue()));
+
+        assertThatThrownBy(() ->
+                employeurService.creerConvocation(creerDTOConvocationValide()))
+                .isInstanceOf(ConvocationExistanteException.class);
+
+        verify(convocationRepository, never())
+                .save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitRetournerCandidaturesConvoqueesDeLEmployeur() throws Exception {
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(candidatureRepository
+                .findByStatutAndOffreDeStageEmployeurId(
+                        StatutCandidature.RETENUE_POUR_ENTREVUE,
+                        employeur.getId()
+                ))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> resultat =
+                employeurService.obtenirCandidaturesConvoquees();
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(candidature.getId());
+
+        verify(candidatureRepository).findByStatutAndOffreDeStageEmployeurId(
+                StatutCandidature.RETENUE_POUR_ENTREVUE,
+                employeur.getId()
+        );
+    }
+    @Test
+    void doitRefuserEntrevueQuandDateDansLePasse() {
+        when(candidatureRepository.findById(candidature.getId()))
+                .thenReturn(Optional.of(candidature));
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.empty());
+
+        CreationEntrevueDTO dto = new CreationEntrevueDTO(
+                candidature.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().minusDays(1)
+        );
+
+        assertThatThrownBy(() -> employeurService.creerConvocation(dto))
+                .isInstanceOf(DateAvantAujourdhuiException.class);
+
+        verify(convocationRepository, never()).save(any(Entrevue.class));
+    }
 }
 

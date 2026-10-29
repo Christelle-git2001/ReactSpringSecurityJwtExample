@@ -1,16 +1,12 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Candidature;
-import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.EmployeurRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -26,7 +22,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -40,20 +36,22 @@ public class EmployeurService {
     private final CandidatureRepository candidatureRepository ;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ApplicationEventPublisher eventPublisher;
+    private final EntrevueRepository convocationRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
             UserAppRepository userAppRepository,
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
-            ApplicationEventPublisher eventPublisher
-    ) {
+            ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
+            EntrevueRepository entrevueRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
         this.candidatureRepository = candidatureRepository;
         this.eventPublisher = eventPublisher;
+        this.convocationRepository = convocationRepository;
     }
 
     @Transactional
@@ -85,7 +83,7 @@ public class EmployeurService {
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
         Employeur employeur = getEmployeurByEmail(email);
 
         validerDates(creationOffreDeStageDTO);
@@ -167,10 +165,10 @@ public class EmployeurService {
 
     private void validerDates(CreationOffreDeStageDTO dto)
             throws DateFinAvantDateDebutException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
 
         if (dto.startDate().isBefore(LocalDate.now())) {
-            throw new DateDebutAvantAujourdhuiException();
+            throw new DateAvantAujourdhuiException();
         }
 
         if (!dto.endDate().isAfter(dto.startDate())) {
@@ -195,7 +193,7 @@ public class EmployeurService {
     ) throws DateFinAvantDateDebutException,
             IOException,
             FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
-            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
@@ -271,5 +269,108 @@ public class EmployeurService {
                 .toList();
     }
 
+    public List<CandidatureDTO> obtenirCandidaturesConvoquees()
+            throws UtilisateurIntrouvableException {
 
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        return candidatureRepository
+                .findByStatutAndOffreDeStageEmployeurId(
+                        StatutCandidature.RETENUE_POUR_ENTREVUE,
+                        employeur.getId()
+                )
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
+    @Transactional
+    public EntrevueDTO creerConvocation(CreationEntrevueDTO dto)
+            throws OffreNonAutoriseeException,
+            CandidatureIntrouvableException,
+            ConvocationExistanteException,
+            DateAvantAujourdhuiException, ConvocationInvalideException {
+
+        Candidature candidature = candidatureRepository
+                .findById(dto.candidatureId())
+                .orElseThrow(CandidatureIntrouvableException::new);
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (candidature.getOffreDeStage().getEmployeur() == null
+                || !candidature.getOffreDeStage()
+                .getEmployeur()
+                .getId()
+                .equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        if (convocationRepository
+                .findByCandidatureId(dto.candidatureId())
+                .isPresent()) {
+            throw new ConvocationExistanteException();
+        }
+
+        if (dto.format() == null) {
+            throw new ConvocationInvalideException();
+        }
+
+        if (dto.dateHeureEntrevue() == null
+                || !dto.dateHeureEntrevue().isAfter(LocalDateTime.now())) {
+            throw new DateAvantAujourdhuiException();
+        }
+
+        Entrevue entrevue = Entrevue.builder()
+                .candidature(candidature)
+                .format(dto.format())
+                .dateHeureEntrevue(dto.dateHeureEntrevue())
+                .dateCreation(LocalDateTime.now())
+                .build();
+
+        Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
+
+        return EntrevueDTO.of(entrevueEnregistree);
+    }
+
+    @Transactional
+    public CandidatureDTO retenirCandidaturePourEntrevue(Long candidatureId) throws CandidatureIntrouvableException {
+        Candidature candidature = candidatureRepository
+                .findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
+
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        candidatureRepository.save(candidature);
+        return CandidatureDTO.of(candidature);
+    }
+
+    public List<EntrevueDTO> obtenirEntrevues() throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Entrevue> entrevues = convocationRepository.findByEmployeurId(employeur.getId());
+
+        return entrevues
+                .stream()
+                .map(EntrevueDTO::of)
+                .toList();
+    }
 }

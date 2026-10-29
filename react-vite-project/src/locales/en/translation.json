@@ -43,11 +43,11 @@
     "submit": "Create account"
   },
   "add_offer": {
-    "targeted_student" : "Targeted student",
-    "targeted_company" : "Company",
-    "select_student" : "Choose a student",
-    "select_company" : "Choose a company",
-    "targeted_offer" : "Add an targeted internship offer",
+    "targeted_student": "Targeted student",
+    "targeted_company": "Company",
+    "select_student": "Choose a student",
+    "select_company": "Choose a company",
+    "targeted_offer": "Add an targeted internship offer",
     "title": "Add an internship offer",
     "subtitle": "Fill in the information for your internship offer.",
     "offer_title": "Offer title",
@@ -65,8 +65,8 @@
     "cancel": "Cancel",
     "submit": "Submit",
     "errors": {
-      "select_company" : "Please select a company",
-      "select_student" : "Please select a student",
+      "select_company": "Please select a company",
+      "select_student": "Please select a student",
       "title_required": "Please enter the offer title.",
       "domain_required": "Please select a domain.",
       "salary_required": "Please enter the salary.",
@@ -94,9 +94,12 @@
   },
   "common": {
     "not_provided": "Not provided",
-    "new_label": "New"
+    "new_label": "New",
+    "loading": "Sending...",
+    "save": "Submit"
   },
   "actions": {
+    "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
@@ -160,6 +163,7 @@
   },
   "error": {
     "convocation_not_found": "Interview invitation not found.",
+    "convocation_already_exists": "An interview is already scheduled for this application",
     "required": "This field is required.",
     "email_invalid": "Please enter a valid email address  | Ex : example@domain.com",
     "phone_invalid": "Please enter a valid phone number | Ex: 123-123-1234",
@@ -376,6 +380,12 @@
     }
   },
   "candidature": {
+    "status": {
+      "soumise": "Application submitted",
+      "retenue": "Selected for interview",
+      "planifiee": "Interview scheduled",
+      "acceptee": "Accepted / Hired"
+    },
     "position": "Job Title",
     "student_unknown": "Unknown student",
     "department_unknown": "Unknown department",
@@ -419,32 +429,55 @@
         "description": "{{ETUDIANT_NOM}} has uploaded a CV."
       }
     },
-    "etudiant":{
+    "etudiant": {
       "validation": {
         "title_acceptee": "Your CV has been accepted",
         "description_acceptee": "Congratulations, your CV has been validated!",
         "title_refusee": "Your CV has been rejected",
         "description_refusee": "To find out the reason for the refusal, please click on this notification."
       },
-
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
       }
-
     }
   },
   "drawer": {
     "details": "Details",
     "close": "Close"
   },
-  "documents": {
-    "verify_selected": "Check the selected document:",
-    "preview": "Preview",
-    "download": "Download",
-    "choose_another": "Choose another file",
-    "replace": "Replace the document",
-    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
+  "entrevue": {
+    "mode_online_title": "Online",
+    "mode_onsite_title": "On-site",
+    "add_title": "Schedule an interview",
+    "select_candidature": "Candidate",
+    "placeholder_candidature": "-- Select a candidate --",
+    "mode": "Format",
+    "mode_online": "Online (Video conference)",
+    "mode_onsite": "On-site",
+    "date": "Interview date",
+    "time": "Time",
+    "duration": "Duration",
+    "errors": {
+      "select_candidature": "Please select a candidate.",
+      "select_format": "Please choose an interview format.",
+      "select_date": "Please select a date.",
+      "date_before_today": "The date cannot be earlier than today.",
+      "select_time": "Please select a time.",
+      "time_in_past": "The selected time is already in the past.",
+      "submit_failed": "An error occurred while saving."
+    }
+  },
+  "agenda": {
+    "title": "Schedule",
+    "all_interviews": "Upcoming interviews:",
+    "select_date_prompt": "Select a date",
+    "no_interviews_date": "No interviews scheduled for this date.",
+    "select_date_hint": "Click a date to view interviews."
+  },
+  "gestion_entrevue": {
+    "title": "Interview Management",
+    "subtitle": "Schedule your appointments and view your calendar in real time."
   },
   "documents": {
     "verify_selected": "Check the selected document:",

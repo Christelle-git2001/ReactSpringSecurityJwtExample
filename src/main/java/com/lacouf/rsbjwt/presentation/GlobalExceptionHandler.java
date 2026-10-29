@@ -98,9 +98,9 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(DateDebutAvantAujourdhuiException.class)
+    @ExceptionHandler(DateAvantAujourdhuiException.class)
     public ResponseEntity<ErreurDTO> handleDateDebutAvantAujourdhuiException(
-            DateDebutAvantAujourdhuiException e
+            DateAvantAujourdhuiException e
     ) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -247,6 +247,41 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErreurDTO(e.getMessage()));
     }
+
+
+    @ExceptionHandler(CandidatureIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleCandidatureIntrouvableException(
+            CandidatureIntrouvableException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ConvocationExistanteException.class)
+    public ResponseEntity<ErreurDTO> handleConvocationExistanteException(
+            ConvocationExistanteException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ConvocationInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleConvocationInvalideException(
+            ConvocationInvalideException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 
     @ExceptionHandler(ConvocationIntrouvableException.class)
     public ResponseEntity<ErreurDTO> handleConvocationIntrouvableException(ConvocationIntrouvableException e) {

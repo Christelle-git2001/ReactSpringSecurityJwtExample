@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile } from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell , FiCalendar} from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
@@ -29,24 +29,26 @@ function SideBarLayout({ user }) {
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
     const role = rawRole?.toString().replace("ROLE_", "");
 
-    const [notifications, setNotifications] = useState([]);
+    const [nombreNotifications, setNombreNotifications] = useState(0);
 
     useEffect(() => {
         let actif = true;
 
         if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role)) {
-            setNotifications([]);
+            setNombreNotifications(0);
             return;
         }
 
         getNotifications(user.id)
             .then(data => {
                 if (actif) {
-                    setNotifications((data ?? []).filter(n => !n.estLu));
+                    setNombreNotifications(
+                        (data ?? []).filter(notification => !notification.estLu).length
+                    );
                 }
             })
             .catch(() => {
-                if (actif) setNotifications([]);
+                if (actif) setNombreNotifications(0);
             });
 
         return () => {
@@ -54,15 +56,12 @@ function SideBarLayout({ user }) {
         };
     }, [user?.id, user?.isLoggedIn, role, isDrawerOpen]);
 
-    const handleMarkAsRead = (id) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    };
-
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/etudiant/cv#televerser", label: t("nav.cv"), roles: ["ETUDIANT"], icon: <FiFile className="size-4 my-1.5" /> },
         { path: "/employeur", label: t("nav.home"), roles: ["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
+        { path: "/employeur/entrevues", label: t("nav.add_entrevue"), roles: ["EMPLOYEUR"], icon: <FiCalendar className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/offres/nouvelle-ciblee", label: t("nav.add_offer"), roles: ["GESTIONNAIRE"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
@@ -87,7 +86,7 @@ function SideBarLayout({ user }) {
             />
 
             <div className="drawer-content flex flex-col h-screen">
-                <Header user={user} sidebarOpen={sidebarOpen} notifications={notifications} onMarkAsRead={handleMarkAsRead}/>
+                <Header user={user} sidebarOpen={sidebarOpen} />
 
                 <div className="flex-1 flex overflow-hidden p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
                     <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
@@ -112,6 +111,37 @@ function SideBarLayout({ user }) {
 
                 <div className="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">
                     <ul className="menu w-full grow">
+
+                        {user?.isLoggedIn && ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role) && (
+                            <li>
+                                <button
+                                    type="button"
+                                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-[#00CCCB] hover:text-white"
+                                    data-tip={t("notifications.title")}
+                                    aria-label={t("notifications.title")}
+                                    onClick={() => {
+                                        if (drawerTitle === "notifications.title") {
+                                            closeDrawer();
+                                        } else {
+                                            openDrawer(<Notification userId={user.id} onClose={closeDrawer}/>, "notifications.title");
+                                        }
+                                        setSidebarOpen(false);
+                                    }}
+                                >
+                                    <span className="relative inline-flex">
+                                        <FiBell className="size-4 my-1.5" />
+                                        {nombreNotifications > 0 && (
+                                            <span className="absolute -right-2 -top-1 rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                                                {nombreNotifications}
+                                            </span>
+                                        )}
+                                    </span>
+                                    <span className="is-drawer-close:hidden">
+                                    {t("notifications.title")}
+                                </span>
+                                </button>
+                            </li>
+                        )}
 
                         {visibleItems.map(item => (
                             <li key={item.path}>
