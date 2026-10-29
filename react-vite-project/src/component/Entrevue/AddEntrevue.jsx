@@ -101,6 +101,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
             candidatureId: Number(selectedCandidature),
             format: mode,
             dateHeureEntrevue: dateHeureFormatted,
+            duree: Number(duree),
         };
 
         try {

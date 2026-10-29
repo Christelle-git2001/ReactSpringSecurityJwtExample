@@ -19,6 +19,7 @@ function GestionEntrevue() {
     const [entrevuesList, setEntrevuesList] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Dans GestionEntrevue.jsx ✅ (Code corrigé)
     const mapEntrevueDtoToUi = (dto) => {
         const [datePart, timePart] = (dto.dateHeureEntrevue || "").split("T");
 
@@ -31,7 +32,7 @@ function GestionEntrevue() {
             posteTitre: dto.offreTitle || t("candidature.offer_unknown"),
             date: datePart || "",
             heure: timePart ? timePart.substring(0, 5) : "00:00",
-            duree: "30 min",
+            duree: dto.duree || 30,
             mode: dto.format || "EN_LIGNE",
         };
     };

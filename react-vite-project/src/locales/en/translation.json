@@ -460,6 +460,7 @@
     }
   },
   "agenda": {
+    "no_interviews": "No interview",
     "clear_filter":  "Clear filter",
     "title": "Schedule",
     "all_interviews": "Upcoming interviews:",
