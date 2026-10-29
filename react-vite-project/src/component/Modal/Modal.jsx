@@ -3,7 +3,7 @@ import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import Button from "../Design/Button.jsx";
 
-const Modal = ({onClickCancel,onClickAgree,isOpen,renderItem,title,description}) => {
+const Modal = ({onClickCancel,onClickAgree,renderItem,title,description}) => {
     const { t } = useTranslation();
     const [error, setError] = useState("");
     return (
@@ -33,7 +33,7 @@ const Modal = ({onClickCancel,onClickAgree,isOpen,renderItem,title,description})
                     )}
                     <div className="flex justify-around  w-full mt-5">
                         <Button variant="secondary" type="button" onClick={onClickCancel} className="w-50">{t("actions.cancel")}</Button>
-                        <Button type="button" onClick={onClickAgree} className="w-50">{t("actions.approve")}</Button>
+                        <Button type="button" onClick={onClickAgree} className="w-1/2">{t("actions.approve")}</Button>
                     </div>
                 </div>
             </div>

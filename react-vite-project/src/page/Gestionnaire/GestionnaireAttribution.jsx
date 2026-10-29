@@ -7,6 +7,7 @@ import {FaCheckCircle} from "react-icons/fa";
 import ScrollBarList from "../../component/Design/Lists/ScrollBarList.jsx";
 import ListItem from "../../component/Design/Lists/ListItem.jsx";
 import Modal from "../../component/Modal/Modal.jsx";
+import Button from "../../component/Design/Button.jsx";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
@@ -62,6 +63,7 @@ const GestionnaireAttribution = () => {
 
     const handleCancelModal = () => {
         setProfesseurChangeValue(null)
+        setDropdownProfIsOpen(false)
         setIsModalOpen(false);
     };
 
@@ -145,7 +147,7 @@ const GestionnaireAttribution = () => {
                     </div>
                 </div>
                 {professeurSelectione && (
-                    <div className="col-span-6 h-[330px] max-h-full bg-gray-100 rounded-lg overflow-hidden me-1 ms-5">
+                    <div className="col-span-6 h-[300px] max-h-full bg-gray-100 rounded-lg me-1 ms-5">
                         <ScrollBarList
                             title={t("gestionnaire.assignation.select.studentList.title")}
                             emptyMessage={t("gestionnaire.assignation.select.studentList.empty")}
@@ -163,6 +165,9 @@ const GestionnaireAttribution = () => {
                                 />
                             )}
                         />
+                        <div className="flex justify-center mt-2">
+                            <Button type="button" className="btn">{t("gestionnaire.assignation.button.text")}</Button>
+                        </div>
                     </div>
                 )}
             </div>
@@ -206,7 +211,6 @@ const GestionnaireAttribution = () => {
             )}
             {isModalOpen && (
                 <Modal
-                    isOpen={isModalOpen}
                     title={t("gestionnaire.assignation.professeur.professeur_modal_title")}
                     description={t("gestionnaire.assignation.professeur.professeur_modal_description")}
                     onClickCancel={handleCancelModal}

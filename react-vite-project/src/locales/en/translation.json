@@ -286,6 +286,9 @@
         "notFound" : "N/A",
         "teacher" : "Teacher",
         "noProfesseur" : "No teacher assigned"
+      },
+      "button": {
+        "text" : "Assign"
       }
     }
   },
