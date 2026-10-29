@@ -263,25 +263,26 @@ public class EtudiantService {
         return CandidatureDTO.of(candidatureEnregistree);
     }
 
-    public EntrevueDTO obtenirConvocationEtudiant(Long convocationId, String email)
+    public EntrevueDTO getConvocationEtudiant(Long convocationId, String email)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        return EntrevueDTO.of(getEntrevueEtudiant(convocationId, email));
+    }
+
+    public List<EntrevueDTO> getConvocationsEtudiant(String email)
+            throws EtudiantIntrouvableException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
 
-        Entrevue entrevue = entrevueRepository
-                .findByIdAndCandidatureEtudiantId(convocationId, etudiant.getId())
-                .orElseThrow(ConvocationIntrouvableException::new);
-
-        return EntrevueDTO.of(entrevue);
+        return entrevueRepository
+                .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId())
+                .stream()
+                .map(EntrevueDTO::of)
+                .toList();
     }
 
     @Transactional
     public ReponseConvocationDTO confirmerConvocationEtudiant(Long convocationId, String email)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        Etudiant etudiant = trouverEtudiantParEmail(email);
-
-        Entrevue entrevue = entrevueRepository
-                .findByIdAndCandidatureEtudiantId(convocationId, etudiant.getId())
-                .orElseThrow(ConvocationIntrouvableException::new);
+        Entrevue entrevue = getEntrevueEtudiant(convocationId, email);
 
         if (entrevue.getDateConfirmation() == null) {
             entrevue.setDateConfirmation(LocalDateTime.now());
@@ -289,6 +290,15 @@ public class EtudiantService {
         }
 
         return ReponseConvocationDTO.of(entrevue);
+    }
+
+    private Entrevue getEntrevueEtudiant(Long convocationId, String email)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return entrevueRepository
+                .findByIdAndCandidatureEtudiantId(convocationId, etudiant.getId())
+                .orElseThrow(ConvocationIntrouvableException::new);
     }
 
     public List<CandidatureDTO> getCandidaturesEtudiant(String email)
@@ -300,5 +310,4 @@ public class EtudiantService {
                 .map(CandidatureDTO::of)
                 .toList();
     }
-
 }
