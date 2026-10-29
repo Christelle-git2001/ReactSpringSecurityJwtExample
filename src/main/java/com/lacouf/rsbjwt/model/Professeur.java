@@ -6,10 +6,14 @@ import com.lacouf.rsbjwt.model.auth.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @DiscriminatorValue("PROFESSEUR")
@@ -21,6 +25,9 @@ public class Professeur extends UserApp{
     private String matricule ;
     private String email;
     private Departement department ;
+
+    @OneToMany(mappedBy = "professeur")
+    private List<Etudiant> etudiants = new ArrayList<>();
 
     @Builder
     public Professeur(String firstName, String lastName, String email, String password, String matricule, String phoneNumber, Departement department) {
