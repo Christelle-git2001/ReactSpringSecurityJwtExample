@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile } from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
-import { getNotifications } from "../../../api/notification.jsx";
 
 function SideBarLayout({ user }) {
     const { t } = useTranslation();
@@ -29,34 +28,6 @@ function SideBarLayout({ user }) {
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
     const role = rawRole?.toString().replace("ROLE_", "");
 
-    const [notifications, setNotifications] = useState([]);
-
-    useEffect(() => {
-        let actif = true;
-
-        if (!user?.isLoggedIn || !["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"].includes(role)) {
-            setNotifications([]);
-            return;
-        }
-
-        getNotifications(user.id)
-            .then(data => {
-                if (actif) {
-                    setNotifications((data ?? []).filter(n => !n.estLu));
-                }
-            })
-            .catch(() => {
-                if (actif) setNotifications([]);
-            });
-
-        return () => {
-            actif = false;
-        };
-    }, [user?.id, user?.isLoggedIn, role, isDrawerOpen]);
-
-    const handleMarkAsRead = (id) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    };
 
     const NAV_ITEMS = [
         { path: "/etudiant", label: t("nav.home"), roles: ["ETUDIANT"], icon: <FiHome className="size-4 my-1.5" /> },
@@ -87,7 +58,7 @@ function SideBarLayout({ user }) {
             />
 
             <div className="drawer-content flex flex-col h-screen">
-                <Header user={user} sidebarOpen={sidebarOpen} notifications={notifications} onMarkAsRead={handleMarkAsRead}/>
+                <Header user={user} sidebarOpen={sidebarOpen}/>
 
                 <div className="flex-1 flex overflow-hidden p-4 bg-[radial-gradient(circle_at_top,_#f0ddff11,_#d9b8ff22_70%)] flex w-full">
                     <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
