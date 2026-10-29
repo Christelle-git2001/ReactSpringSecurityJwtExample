@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record CreationEntrevueDTO(
         @NotNull Long candidatureId,
         @NotNull FormatEntrevue format,
-        @NotNull LocalDateTime dateHeureEntrevue
+        @NotNull LocalDateTime dateHeureEntrevue,
+        @NotNull int duree
 ) {
 }
