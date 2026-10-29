@@ -320,7 +320,9 @@
       "professeur" : {
         "professeur_without_name": "Ce professeur ne possède aucun nom",
         "professeur_without_department" : "Ce professeur ne possède aucun departement",
-        "professeur_without_email" : "Ce professeur ne possède aucun Email"
+        "professeur_without_email" : "Ce professeur ne possède aucun Email",
+        "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
+        "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
       },
       "select": {
         "professor" : "Choisissez un professeur",
@@ -453,6 +455,7 @@
     "close": "Fermer"
   },
   "general": {
+    "nom" : "Nom",
     "departement" : "Departement",
     "matricule": "Matricule",
     "email" : "Courriel",

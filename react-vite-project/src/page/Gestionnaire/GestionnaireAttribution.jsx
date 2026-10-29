@@ -6,15 +6,18 @@ import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import {FaCheckCircle} from "react-icons/fa";
 import ScrollBarList from "../../component/Design/Lists/ScrollBarList.jsx";
 import ListItem from "../../component/Design/Lists/ListItem.jsx";
+import Modal from "../../component/Modal/Modal.jsx";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
     const [professeurSelectione, setProfesseurSelectione] = useState(null);
+    const [professeurChangeValue, setProfesseurChangeValue] = useState(null);
     const [dropdownProfIsOpen, setDropdownProfIsOpen] = useState(false);
     const [etudiantSelectionnes, setEtudiantSelectionnes] = useState(
         []
     );
-    const [professeurs, setProfesseurs] = useState(
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [professeurs, setprofesseurs] = useState(
         [
             {id:1, firstName:"Jean", lastName:"Dupont",email: "JeanDupont@hotmail.com",departement : "INFORMATIQUE", matricule : "58584545"},
             {id: 2, firstName: "Sophie", lastName:"Tremblay", email: "SophieTremblay@hotmail.com", departement: "INFORMATIQUE", matricule: "58584546"},
@@ -33,7 +36,7 @@ const GestionnaireAttribution = () => {
             {id: 7, firstName: "Thomas", lastName: "Pelletier", email: "ThomasPelletier@hotmail.com", departement: "INFORMATIQUE", matricule: "59123457", professeurAssigne: ""},
             {id: 8, firstName: "Béatrice", lastName: "Gauthier", email: "BeatriceGauthier@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123458", professeurAssigne: ""},
             {id: 9, firstName: "Olivier", lastName: "Simard", email: "OlivierSimard@hotmail.com", departement: "INFORMATIQUE", matricule: "59123459", professeurAssigne: ""},
-            {id: 10, firstName: "Charlotte", lastName: "Bélanger", email: "CharlotteBelanger@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123460", professeurAssigne: ""}
+            {id: 10, firstName: "Charlotte", lastName: "Bélanger", email: "CharlotteBelanger@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123460", professeurAssigne: "dfdf"}
         ]
     );
 
@@ -47,9 +50,28 @@ const GestionnaireAttribution = () => {
     }
 
     const handleProfessorSelected = (professeur) => {
-        setProfesseurSelectione(professeur)
-        setDropdownProfIsOpen(false)
+        if (!professeurSelectione) {
+            setProfesseurSelectione(professeur)
+            setDropdownProfIsOpen(false)
+        }
+        else{
+            setProfesseurChangeValue(professeur)
+            setIsModalOpen(true)
+        }
     }
+
+    const handleCancelModal = () => {
+        setProfesseurChangeValue(null)
+        setIsModalOpen(false);
+    };
+
+    const handleAgreeModal = () => {
+        setEtudiantSelectionnes([]);
+        setProfesseurSelectione(professeurChangeValue);
+        setProfesseurChangeValue(null);
+        setDropdownProfIsOpen(false)
+        setIsModalOpen(false);
+    };
 
 
     return(
@@ -134,7 +156,7 @@ const GestionnaireAttribution = () => {
                                     variant="compact"
                                     detailRows={
                                     [
-                                        {label : "Nom", value : `${etudiant.firstName} ${etudiant.lastName}`},
+                                        {label : t("general.nom"), value : `${etudiant.firstName} ${etudiant.lastName}`},
                                         {label : t("general.matricule"), value : `${etudiant.matricule}`}
                                     ]
                                     }
@@ -167,8 +189,7 @@ const GestionnaireAttribution = () => {
                             renderItem={(etudiant) => (
                                 <ListItem
                                     key={etudiant.id}
-                                    variant="liste"
-                                    icon={<span className="font-bold">{etudiant.firstName?.charAt(0)}</span>}
+                                    icon={<span className="font-bold text-black">{etudiant.firstName?.charAt(0)}</span>}
                                     title={`${etudiant.firstName} ${etudiant.lastName}`}
                                     subtitle={etudiant.email}
                                     isClickableCard={true}
@@ -176,12 +197,21 @@ const GestionnaireAttribution = () => {
                                     onClick={() => onClickEtudiant(etudiant)}
                                     detailRows={[
                                         { label: t("general.matricule"), value: etudiant.matricule },
-                                        { label: t("general.departement"), value: etudiant.departement },
+                                        { label: t("general.departement"), value: t("departement." + etudiant.departement) },
                                     ]}
                                 />
                             )}/>
                     </div>
                 </div>
+            )}
+            {isModalOpen && (
+                <Modal
+                    isOpen={isModalOpen}
+                    title={t("gestionnaire.assignation.professeur.professeur_modal_title")}
+                    description={t("gestionnaire.assignation.professeur.professeur_modal_description")}
+                    onClickCancel={handleCancelModal}
+                    onClickAgree={handleAgreeModal}
+                />
             )}
         </div>
     )
