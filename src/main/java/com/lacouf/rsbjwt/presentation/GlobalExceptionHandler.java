@@ -283,4 +283,9 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(ConvocationIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleConvocationIntrouvableException(ConvocationIntrouvableException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
+    }
+
 }

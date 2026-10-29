@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
@@ -38,11 +39,13 @@ public class EtudiantService {
     private final OffreDeStageRepository offreDeStageRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CandidatureRepository candidatureRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
-                           NotificationRepository notificationRepository, CandidatureRepository candidatureRepository) {
+                           NotificationRepository notificationRepository, CandidatureRepository candidatureRepository,
+                           EntrevueRepository entrevueRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -50,6 +53,7 @@ public class EtudiantService {
         this.offreDeStageRepository = offreDeStageRepository;
         this.eventPublisher = eventPublisher;
         this.candidatureRepository = candidatureRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     @Transactional
@@ -260,6 +264,62 @@ public class EtudiantService {
         return CandidatureDTO.of(candidatureEnregistree);
     }
 
+    @Transactional
+    public EntrevueDTO getConvocationEtudiant(Long convocationId, String email)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        Entrevue entrevue = getEntrevueEtudiant(convocationId, email);
+        updateStatutEntrevue(entrevue);
+        return EntrevueDTO.of(entrevue);
+    }
+
+    @Transactional
+    public List<EntrevueDTO> getConvocationsEtudiant(String email)
+            throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        List<Entrevue> entrevues = entrevueRepository
+                .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
+        entrevues.forEach(this::updateStatutEntrevue);
+
+        return entrevues
+                .stream()
+                .map(EntrevueDTO::of)
+                .toList();
+    }
+
+    @Transactional
+    public ReponseConvocationDTO confirmerConvocationEtudiant(Long convocationId, String email)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        Entrevue entrevue = getEntrevueEtudiant(convocationId, email);
+
+        if (entrevue.getDateConfirmation() == null) {
+            entrevue.setDateConfirmation(LocalDateTime.now());
+            entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+            entrevueRepository.save(entrevue);
+        }
+
+        updateStatutEntrevue(entrevue);
+        return ReponseConvocationDTO.of(entrevue);
+    }
+
+    private void updateStatutEntrevue(Entrevue entrevue) {
+        if (entrevue.getDateConfirmation() != null
+                && entrevue.getStatut() == StatutEntrevue.CONFIRMEE
+                && !entrevue.getDateHeureEntrevue().isAfter(LocalDateTime.now())) {
+            entrevue.setStatut(StatutEntrevue.EN_ATTENTE_REPONSE);
+            entrevueRepository.save(entrevue);
+        }
+    }
+
+    private Entrevue getEntrevueEtudiant(Long convocationId, String email)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return entrevueRepository
+                .findByIdAndCandidatureEtudiantId(convocationId, etudiant.getId())
+                .orElseThrow(ConvocationIntrouvableException::new);
+    }
+
     public List<CandidatureDTO> getCandidaturesEtudiant(String email)
             throws EtudiantIntrouvableException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
@@ -269,5 +329,4 @@ public class EtudiantService {
                 .map(CandidatureDTO::of)
                 .toList();
     }
-
 }

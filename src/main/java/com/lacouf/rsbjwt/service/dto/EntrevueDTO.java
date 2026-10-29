@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +16,43 @@ public record EntrevueDTO(
         long employeurId,
         String etudiantFirstName,
         String etudiantLastName,
-        String offreTitle
+        String offreTitle,
+        LocalDateTime dateConfirmation,
+        StatutEntrevue statut
 ) {
+
+        public EntrevueDTO(
+                long id,
+                LocalDateTime dateCreation,
+                FormatEntrevue format,
+                LocalDateTime dateHeureEntrevue,
+                long candidatureId,
+                long employeurId,
+                String etudiantFirstName,
+                String etudiantLastName,
+                String offreTitle
+        ) {
+                this(id, dateCreation, format, dateHeureEntrevue,
+                        0, candidatureId, employeurId, etudiantFirstName,
+                        etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER);
+        }
+
+        public EntrevueDTO(
+                long id,
+                LocalDateTime dateCreation,
+                FormatEntrevue format,
+                LocalDateTime dateHeureEntrevue,
+                int duree,
+                long candidatureId,
+                long employeurId,
+                String etudiantFirstName,
+                String etudiantLastName,
+                String offreTitle
+        ) {
+                this(id, dateCreation, format, dateHeureEntrevue,
+                        duree, candidatureId, employeurId, etudiantFirstName,
+                        etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER);
+        }
 
         public static EntrevueDTO of(Entrevue entrevue) {
                 if (entrevue == null) {
@@ -38,7 +74,9 @@ public record EntrevueDTO(
                         employeur != null ? employeur.getId() :0L,
                         etudiant != null ? etudiant.getFirstName() : null,
                         etudiant != null ? etudiant.getLastName() : null,
-                        offre != null ? offre.getTitle() : null
+                        offre != null ? offre.getTitle() : null,
+                        entrevue.getDateConfirmation(),
+                        entrevue.getStatut()
                 );
         }
 }

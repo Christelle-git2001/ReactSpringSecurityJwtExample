@@ -175,7 +175,8 @@
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
     "notification_path": "The destination of this notification does not exist. Please try again later.",
-    "rejection_comment_required": "A comment is required when rejecting a CV."
+    "rejection_comment_required": "A comment is required when rejecting a CV.",
+    "convocation_not_found": "Interview invitation not found."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -337,7 +338,8 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
-    }
+    },
+    "already_applied": "You have already applied"
   },
   "status": {
     "tous": "All",

@@ -343,6 +343,7 @@ public class EmployeurService {
                 .dateCreation(LocalDateTime.now())
                 .build();
 
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
         eventPublisher.publishEvent(

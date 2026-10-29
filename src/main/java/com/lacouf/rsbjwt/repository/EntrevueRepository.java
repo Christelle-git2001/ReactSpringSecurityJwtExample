@@ -14,6 +14,10 @@ public interface EntrevueRepository
 
     Optional<Entrevue> findByCandidatureId(Long candidatureId);
 
+    Optional<Entrevue> findByIdAndCandidatureEtudiantId(Long entrevueId, Long etudiantId);
+
+    List<Entrevue> findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(Long etudiantId);
+
     @Query("SELECT e FROM Entrevue e WHERE e.candidature.offreDeStage.employeur.id = :employeurId")
     List<Entrevue> findByEmployeurId(@Param("employeurId") Long employeurId);
 }

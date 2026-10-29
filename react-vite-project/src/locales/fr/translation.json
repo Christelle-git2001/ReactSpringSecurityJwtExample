@@ -152,7 +152,8 @@
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
-    }
+    },
+    "already_applied": "Vous avez déjà postulé"
   },
   "login": {
     "page_title": "Connexion",
@@ -214,7 +215,8 @@
     "user_not_found": "Utilisateur introuvable.",
     "generic": "Une erreur est survenue. Veuillez réessayer.",
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
-    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
+    "convocation_not_found": "Convocation d’entrevue introuvable."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
