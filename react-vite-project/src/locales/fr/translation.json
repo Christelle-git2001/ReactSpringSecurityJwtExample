@@ -336,6 +336,7 @@
       "etudiant" : {
         "empty": "Aucun étudiant inscrit pour ce département : {{departement}}",
         "notFound" : "N/A",
+        "teacher" : "Professeur",
         "noProfesseur" : "Aucun professeur assigné"
       }
     }
@@ -454,6 +455,7 @@
   "general": {
     "departement" : "Departement",
     "matricule": "Matricule",
+    "email" : "Courriel",
     "liste" : {
       "open" : "Ouvrir la liste",
       "close" : "Fermer la liste",

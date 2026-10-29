@@ -281,6 +281,7 @@
       "etudiant" : {
         "empty": "No students enrolled for this department: {{departement}}",
         "notFound" : "N/A",
+        "teacher" : "Teacher",
         "noProfesseur" : "No teacher assigned"
       }
     }
@@ -456,6 +457,7 @@
   "general": {
     "departement" : "Department",
     "matricule": "Matricule",
+    "email" : "email",
     "liste" : {
       "open" : "Open the list",
       "close" : "Close the list",

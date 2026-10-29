@@ -5,30 +5,42 @@ const EtudiantItem = ({ etudiant }) => {
     const { t } = useTranslation();
 
     return (
-        <div className="flex items-center justify-between w-full py-3 px-4 border rounded-lg bg-white my-1">
+        <div className="flex items-center w-full py-3 px-4 border rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow my-2 gap-4">
 
-            <div className="flex items-center flex-1 min-w-[150px]">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#043462]/10 text-[#043462] font-bold text-lg">
-                    {etudiant?.firstName?.charAt(0) || '?'}
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#043462]/10 text-[#043462] font-bold text-lg">
+                {etudiant?.firstName?.charAt(0) || '?'}
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1 w-full">
+
+                <div>
+                    <p className="font-semibold text-gray-800 text-sm">
+                        {etudiant?.firstName || t("gestionnaire.assignation.etudiant.notFound")} {etudiant?.lastName || ""}
+                    </p>
                 </div>
-                <div className="ms-4 font-medium text-gray-800">
-                    <p>{etudiant?.firstName || t("gestionnaire.assignation.etudiant.notFound")} {etudiant?.lastName || "gestionnaire.assignation.etudiant.notFound"}</p>
+
+                <div>
+                    <p className="text-xs text-gray-500 ">
+                        {etudiant?.email || t("gestionnaire.assignation.etudiant.notFound")}
+                    </p>
                 </div>
+
+                <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-xs uppercase tracking-wider">{t("general.matricule")} :</span>
+                    <span className="font-medium text-gray-700 text-xs">
+                        {etudiant?.matricule || t("gestionnaire.assignation.etudiant.notFound")}
+                    </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-xs uppercase tracking-wider">{t("gestionnaire.assignation.etudiant.teacher")} :</span>
+                    <span className={`font-medium text-xs  ${etudiant?.professeurAssigne ? "text-[#043462]" : "text-amber-600 font-normal italic"}`}>
+                        {etudiant?.professeurAssigne || t("gestionnaire.assignation.etudiant.noProfesseur")}
+                    </span>
+                </div>
+
             </div>
 
-            <div className="divider divider-horizontal"></div>
-
-            <div className="text-center flex-1 text-sm text-gray-800">
-                <p className="text-gray-400 text-xs">{t("general.matricule")}</p>
-                <p className="font-medium">{etudiant?.matricule || t("gestionnaire.assignation.etudiant.notFound")}</p>
-            </div>
-
-            <div className="divider divider-horizontal"></div>
-
-            <div className="text-center flex-1 text-sm text-gray-800 px-2">
-                <p className="text-gray-400 text-xs">{t("general.email")}</p>
-                <p className="font-medium truncate">{etudiant?.professeurAssigne || t("gestionnaire.assignation.etudiant.noProfesseur")}</p>
-            </div>
         </div>
     );
 };
