@@ -1,11 +1,13 @@
 import React, { useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import Entrevue from "./Entrevue";
 import { FiCalendar, FiX } from "react-icons/fi";
 import "cally";
 
-function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
+function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDateSelect }) {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const calendarRef = useRef(null);
 
     useEffect(() => {
@@ -51,6 +53,21 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
     }, {});
 
     const sortedDates = Object.keys(groupedEntrevues).sort((a, b) => new Date(a) - new Date(b));
+
+    const handleViewCandidature = (entrevue) => {
+        const candidatureComplete = candidaturesList.find(
+            (c) => String(c.id) === String(entrevue.candidatureId)
+        );
+
+        if (candidatureComplete) {
+            navigate(`/employeur/candidatures/details`, {
+                state: {
+                    candidature: candidatureComplete,
+                    from: "/employeur/entrevues"
+                }
+            });
+        }
+    };
 
     return (
         <div className="bg-[#99F0EF] p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col gap-6 w-full">
@@ -106,7 +123,11 @@ function Agenda({ entrevuesList = [], selectedDate, onDateSelect }) {
                                 )}
                             </div>
                             {groupedEntrevues[dateKey].map((entrevue) => (
-                                <Entrevue key={entrevue.id} entrevue={entrevue} />
+                                <Entrevue
+                                    key={entrevue.id}
+                                    entrevue={entrevue}
+                                    onClick={() => handleViewCandidature(entrevue)}
+                                />
                             ))}
                         </div>
                     ))
