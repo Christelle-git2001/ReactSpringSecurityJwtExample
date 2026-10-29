@@ -55,7 +55,7 @@ const ShowCv = ({ cv, onCvDeleted }) => {
             <div className="mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2">
                 {cv?.id ? (
                     <div className="flex justify-around w-full items-center h-full">
-                         <span className={`badge badge-lg ${status.className}`}>
+                         <span className={`badge badge-xs ${status.className}`}>
                         {status.label}
                         </span>
                         <div>
