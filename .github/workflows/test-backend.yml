@@ -61,3 +61,27 @@ jobs:
         name: backend-coverage-java-${{ matrix.java-version }}
         path: target/site/jacoco/
         retention-days: 30
+
+    - name: Notify Discord on failure
+      if: failure()
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        curl -sS -H "Content-Type: application/json" \
+          -X POST "$DISCORD_WEBHOOK_URL" \
+          -d '{
+            "username": "GitHub Actions",
+            "content": "@everyone",
+            "allowed_mentions": { "parse": ["everyone"] },
+            "embeds": [{
+              "title": "❌ Backend tests failed",
+              "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "color": 15158332,
+              "fields": [
+                { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
+                { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
+                { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
+                { "name": "Java", "value": "${{ matrix.java-version }}", "inline": true }
+              ]
+            }]
+          }'
