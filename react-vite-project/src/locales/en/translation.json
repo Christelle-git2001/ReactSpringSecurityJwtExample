@@ -458,6 +458,7 @@
     }
   },
   "agenda": {
+    "clear_filter":  "Clear filter",
     "title": "Schedule",
     "all_interviews": "Upcoming interviews:",
     "select_date_prompt": "Select a date",
