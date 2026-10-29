@@ -1,21 +1,14 @@
 import { createInstance } from "i18next";
-import { getNotifications, marquerNotificationLue } from "../../../api/notification.jsx";
-import { obtenirOffreGestionnaire } from "../../../api/gestionnaire.jsx";
+import { marquerNotificationLue } from "../../../api/notification.jsx";
 import traductionFr from "../../../locales/fr/translation.json";
-import { creerNotificationsMock, creerOffresMock } from "../../mocks/notification.js";
+import { creerNotificationsMock } from "../../mocks/notification.js";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
 
 jest.mock("../../../api/notification.jsx", () => ({
-    getNotifications: jest.fn(),
     marquerNotificationLue: jest.fn(),
-}));
-
-jest.mock("../../../api/gestionnaire.jsx", () => ({
-    obtenirCvGestionnaire: jest.fn(),
-    obtenirOffreGestionnaire: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -37,30 +30,30 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     await testI18n.changeLanguage("fr");
-
-    getNotifications.mockResolvedValue(creerNotificationsMock());
-
-    obtenirOffreGestionnaire.mockImplementation(async path =>
-        creerOffresMock().find(offre => path === `/gestionnaire/offres/${offre.id}`)
-    );
-
-    marquerNotificationLue.mockImplementation(async id => ({
-        ...creerNotificationsMock().find(notification => notification.id === id),
-        estLu: true,
-    }));
+    marquerNotificationLue.mockResolvedValue({ estLu: true });
 });
 
-function afficherNotifications(onClose = jest.fn()) {
+function afficherNotifications(onMarkAsRead = jest.fn()) {
+    const notifications = creerNotificationsMock().filter(
+        notification =>
+            !notification.estLu &&
+            notification.notificationType === "OFFRE_ATTENTE_VALIDATION"
+    );
+
     render(
         <I18nextProvider i18n={testI18n}>
-            <MemoryRouter>
-                <Notification userId={5} onClose={onClose} />
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <Notification
+                    notifications={notifications}
+                    onMarkAsRead={onMarkAsRead}
+                />
             </MemoryRouter>
         </I18nextProvider>
     );
-    return { onClose };
+
+    return { onMarkAsRead, notifications };
 }
 
 describe("Notification de nouvelle offre (gestionnaire)", () => {
@@ -68,94 +61,77 @@ describe("Notification de nouvelle offre (gestionnaire)", () => {
         marquerNotificationLue.mockRejectedValue(new Error("Erreur serveur"));
         afficherNotifications();
 
-        const description = await screen.findByText("L'offre « Stage en développement » est en attente de validation.");
-        fireEvent.click(within(description.closest("li")).getByRole("button", {
-            name: "Nouvelle offre à valider",
-        }));
+        const description = await screen.findByText(
+            "L'offre « Stage en développement » est en attente de validation."
+        );
+
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /Nouvelle offre à valider/,
+            })
+        );
 
         expect(await screen.findByRole("alert")).toHaveTextContent(
             traductionFr.notifications.read_error
         );
-        expect(marquerNotificationLue).toHaveBeenCalledWith(4);
+        expect(marquerNotificationLue).toHaveBeenCalledWith(5);
         expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    it("affiche une erreur si la récupération de l'offre échoue", async () => {
-        obtenirOffreGestionnaire.mockRejectedValue(new Error("Erreur serveur"));
+    it("navigue vers la page des offres après le clic", async () => {
         afficherNotifications();
 
-        const description = await screen.findByText("L'offre « Stage en développement » est en attente de validation.");
-        fireEvent.click(within(description.closest("li")).getByRole("button", {
-            name: "Nouvelle offre à valider",
-        }));
-
-        expect(await screen.findByRole("alert")).toHaveTextContent(
-            traductionFr.notifications.open_error
+        const description = await screen.findByText(
+            "L'offre « Stage en développement » est en attente de validation."
         );
-        expect(mockNavigate).not.toHaveBeenCalled();
-        expect(marquerNotificationLue).not.toHaveBeenCalled();
+
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /Nouvelle offre à valider/,
+            })
+        );
+
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith(
+                "/gestionnaire/offres/details"
+            );
+        });
     });
 
-    it("ouvre l'offre, marque la notification comme lue et demande la fermeture du Drawer", async () => {
-        const { onClose } = afficherNotifications();
+    it("marque la notification comme lue et navigue vers les offres", async () => {
+        const { onMarkAsRead } = afficherNotifications();
 
-        const description = await screen.findByText("L'offre « Stage en développement » est en attente de validation.");
-        fireEvent.click(within(description.closest("li")).getByRole("button", {
-            name: "Nouvelle offre à valider",
-        }));
-
-        await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith(
-            "/gestionnaire/offres/details",
-            { state: { offer: creerOffresMock()[0], from: "/gestionnaire" } }
-        ));
-        expect(obtenirOffreGestionnaire).toHaveBeenCalledWith("/gestionnaire/offres/1");
-        expect(marquerNotificationLue).toHaveBeenCalledWith(4);
-        expect(onClose).toHaveBeenCalledTimes(1);
-        expect(screen.queryByText("L'offre « Stage en développement » est en attente de validation.")).not.toBeInTheDocument();
-    });
-
-    it("conserve la notification et reste sur place si l'offre est introuvable", async () => {
-        obtenirOffreGestionnaire.mockRejectedValue(Object.assign(new Error(), { status: 404 }));
-        afficherNotifications();
-
-        const description = await screen.findByText("L'offre « Stage en développement » est en attente de validation.");
-        fireEvent.click(within(description.closest("li")).getByRole("button", {
-            name: "Nouvelle offre à valider",
-        }));
-
-        expect(await screen.findByRole("alert")).toHaveTextContent(
-            traductionFr.notifications.offre_unavailable
+        const description = await screen.findByText(
+            "L'offre « Stage en développement » est en attente de validation."
         );
-        expect(mockNavigate).not.toHaveBeenCalled();
-        expect(marquerNotificationLue).not.toHaveBeenCalled();
-    });
 
-    it("affiche une erreur si l'API ne retourne aucune offre", async () => {
-        obtenirOffreGestionnaire.mockResolvedValue(null);
-        afficherNotifications();
-
-        fireEvent.click(await screen.findByRole("button", {
-            name: "Nouvelle offre à valider",
-        }));
-
-        expect(await screen.findByRole("alert")).toHaveTextContent(
-            traductionFr.notifications.offre_unavailable
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /Nouvelle offre à valider/,
+            })
         );
-        expect(mockNavigate).not.toHaveBeenCalled();
-        expect(marquerNotificationLue).not.toHaveBeenCalled();
+
+        await waitFor(() => {
+            expect(marquerNotificationLue).toHaveBeenCalledWith(5);
+        });
+
+        expect(onMarkAsRead).toHaveBeenCalledWith(5);
+        expect(mockNavigate).toHaveBeenCalledWith(
+            "/gestionnaire/offres/details"
+        );
     });
 
     it("affiche les titres et descriptions traduits", async () => {
         afficherNotifications();
 
         expect(
-            await screen.findByText("L'offre « Stage en développement » est en attente de validation.")
+            await screen.findByText(
+                "L'offre « Stage en développement » est en attente de validation."
+            )
         ).toBeInTheDocument();
 
         expect(
             screen.getAllByText("Nouvelle offre à valider")
         ).toHaveLength(1);
-
-        expect(getNotifications).toHaveBeenCalledWith(5);
     });
 });

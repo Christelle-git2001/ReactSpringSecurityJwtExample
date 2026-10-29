@@ -91,7 +91,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
         if (!notification.estLu) {
             try {
                 await marquerNotificationLue(notification.id);
-                onMarkAsRead(notification.id);
+                onMarkAsRead?.(notification.id);
             } catch {
                 setError(t("notifications.read_error"));
                 return;
@@ -146,7 +146,11 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                     >
                         <FiX className="size-4" />
                     </button>
-                    {error && <span className="text-xs text-red-500">{error}</span>}
+                    {error && (
+                        <span role="alert" className="text-xs text-red-500">
+                            {error}
+                        </span>
+                    )}
                 </div>
 
                 <ul className="max-h-[350px] overflow-y-auto p-2 space-y-1">
