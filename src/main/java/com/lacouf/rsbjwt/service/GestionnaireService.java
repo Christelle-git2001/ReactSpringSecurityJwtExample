@@ -323,18 +323,21 @@ public class GestionnaireService {
                 .toList();
     }
 
-
     @Transactional
-    public EtudiantDTO assignerProfesseur(AssignationProfesseurDTO dto) throws UtilisateurIntrouvableException{
-        Etudiant etudiant = etudiantRepository.findById(dto.etudiantId())
+    public List<EtudiantDTO> assignerProfesseur(Long professeurId, AssignationProfesseurDTO dto) throws UtilisateurIntrouvableException {
+        Professeur professeur = professeurRepository.findById(professeurId)
                 .orElseThrow(UtilisateurIntrouvableException::new);
 
-        Professeur professeur = professeurRepository.findById(dto.professeurId())
-                .orElseThrow(UtilisateurIntrouvableException::new);
+        List<Etudiant> etudiants = etudiantRepository.findAllById(dto.etudiantIds());
+        if (etudiants.size() != dto.etudiantIds().stream().distinct().count()) {
+            throw new UtilisateurIntrouvableException();
+        }
 
-        etudiant.setProfesseur(professeur);
-
-        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+        etudiants.forEach(etudiant -> etudiant.setProfesseur(professeur));
+        return etudiantRepository.saveAll(etudiants)
+                .stream()
+                .map(EtudiantDTO::of)
+                .toList();
     }
 
 

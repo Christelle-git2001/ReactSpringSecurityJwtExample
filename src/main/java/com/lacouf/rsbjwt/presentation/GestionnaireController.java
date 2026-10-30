@@ -132,18 +132,13 @@ public class GestionnaireController {
     public List<ProfesseurDTO> getAllProfesseurs(){return gestionnaireService.getAllProfesseurs();}
 
 
-    @PutMapping("/etudiants/{etudiantId}/professeur")
-    public ResponseEntity<EtudiantDTO> assignerProfesseur(
-            @PathVariable Long etudiantId,
+    @PutMapping("/etudiant/{professeurId}")
+    public ResponseEntity<List<EtudiantDTO>> assignerProfesseur(
+            @PathVariable Long professeurId,
             @RequestBody AssignationProfesseurDTO dto
-    ) throws UtilisateurIntrouvableException{
-        AssignationProfesseurDTO assignation = new AssignationProfesseurDTO(
-                etudiantId,
-                dto.professeurId()
-        );
-
+    ) throws UtilisateurIntrouvableException {
         return ResponseEntity.ok(
-                gestionnaireService.assignerProfesseur(assignation)
+                gestionnaireService.assignerProfesseur(professeurId, dto)
         );
     }
 

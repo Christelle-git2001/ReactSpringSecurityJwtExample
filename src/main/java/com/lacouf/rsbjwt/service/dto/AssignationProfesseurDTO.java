@@ -1,7 +1,8 @@
 
 package com.lacouf.rsbjwt.service.dto;
 
+import java.util.List;
+
 public record AssignationProfesseurDTO(
-        Long etudiantId,
-        Long professeurId
+        List<Long> etudiantIds
 ) {}
