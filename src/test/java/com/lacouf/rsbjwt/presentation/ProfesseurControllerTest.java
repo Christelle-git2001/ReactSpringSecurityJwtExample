@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.ProfesseurService;
+import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,10 +17,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -135,5 +142,61 @@ public class ProfesseurControllerTest {
                         .content(objectMapper.writeValueAsString(inscriptionProfesseurDTO)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void doitRetournerLesEtudiantsAssignes() throws Exception {
+
+        EtudiantDTO etudiant1 = new EtudiantDTO(
+                1L,
+                "Jean",
+                "Test",
+                "jean.test@gmail.com",
+                "1234567",
+                "123-123-1234",
+                "INFORMATIQUE",
+                null,
+                1L,
+                "Carole"
+        );
+
+        EtudiantDTO etudiant2 = new EtudiantDTO(
+                2L,
+                "Marie",
+                "Test",
+                "marie.test@gmail.com",
+                "7654321",
+                "123-123-1235",
+                "INFORMATIQUE",
+                null,
+                1L,
+                "Carole"
+        );
+
+        when(professeurService.getEtudiantsAssignes())
+                .thenReturn(List.of(etudiant1, etudiant2));
+
+        mockMvc.perform(get("/professeur/etudiants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].firstName").value("Jean"))
+                .andExpect(jsonPath("$[1].firstName").value("Marie"));
+
+        verify(professeurService).getEtudiantsAssignes();
+    }
+
+    @Test
+    void doitRetournerListeVideSiAucunEtudiantAssigne() throws Exception {
+
+        when(professeurService.getEtudiantsAssignes())
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/professeur/etudiants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(professeurService).getEtudiantsAssignes();
+    }
+
+
 
 }

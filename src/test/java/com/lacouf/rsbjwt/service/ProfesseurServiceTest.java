@@ -3,19 +3,26 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
+import com.lacouf.rsbjwt.model.UserApp;
+import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -36,6 +43,9 @@ public class ProfesseurServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder ;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
 
     @InjectMocks
     private ProfesseurService professeurService ;
@@ -66,6 +76,20 @@ public class ProfesseurServiceTest {
                 .department(Departement.INFORMATIQUE)
                 .build();
         professeur.setId(1L);
+    }
+    @BeforeEach
+    void initialiserUtilisateurConnecte() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "carole.test@gmail.com",
+                        null
+                )
+        );
+    }
+
+    @AfterEach
+    void nettoyerSecurityContext() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -166,7 +190,74 @@ public class ProfesseurServiceTest {
         verify(professeurRepository, never())
                 .save(any(Professeur.class));
     }
-        
+
+    @Test
+    void doitRetournerLesEtudiantsAssignes() throws Exception {
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllByProfesseurId(1L))
+                .thenReturn(List.of());
+
+        var resultat = professeurService.getEtudiantsAssignes();
+
+        assertThat(resultat).isEmpty();
+
+        verify(userAppRepository)
+                .findUserAppByEmail("carole.test@gmail.com");
+
+        verify(etudiantRepository)
+                .findAllByProfesseurId(1L);
+    }
+
+    @Test
+    void doitRetournerListeVideSiAucunEtudiantAssigne()
+            throws Exception {
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllByProfesseurId(1L))
+                .thenReturn(List.of());
+
+        var resultat = professeurService.getEtudiantsAssignes();
+
+        assertThat(resultat).isNotNull().isEmpty();
+
+        verify(etudiantRepository)
+                .findAllByProfesseurId(1L);
+    }
+
+    @Test
+    void doitLeverExceptionSiUtilisateurIntrouvable() {
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.getEtudiantsAssignes()
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(etudiantRepository, never())
+                .findAllByProfesseurId(anyLong());
+    }
+
+    @Test
+    void doitLeverExceptionSiUtilisateurNestPasProfesseur() {
+
+        UserApp utilisateur = mock(UserApp.class);
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.of(utilisateur));
+
+        assertThatThrownBy(() ->
+                professeurService.getEtudiantsAssignes()
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(etudiantRepository, never())
+                .findAllByProfesseurId(anyLong());
+    }
 
 }
 
