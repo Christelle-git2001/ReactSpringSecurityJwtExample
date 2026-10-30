@@ -674,6 +674,7 @@ public class EmployeurServiceTest {
     }
     @Test
     void doitRefuserEntrevueQuandDateDansLePasse() {
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
 

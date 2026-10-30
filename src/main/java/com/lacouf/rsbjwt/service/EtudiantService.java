@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
@@ -15,6 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -265,21 +267,21 @@ public class EtudiantService {
     }
 
     @Transactional
-    public EntrevueDTO getConvocationEtudiant(Long convocationId, String email)
+    public EntrevueDTO getConvocationEtudiant(Long convocationId)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        Entrevue entrevue = getEntrevueEtudiant(convocationId, email);
-        updateStatutEntrevue(entrevue);
+        Entrevue entrevue = getEntrevueEtudiant(convocationId);
+        actualiserStatutApresEntrevue(entrevue);
         return EntrevueDTO.of(entrevue);
     }
 
     @Transactional
-    public List<EntrevueDTO> getConvocationsEtudiant(String email)
+    public List<EntrevueDTO> getConvocationsEtudiant()
             throws EtudiantIntrouvableException {
-        Etudiant etudiant = trouverEtudiantParEmail(email);
+        Etudiant etudiant = getEtudiantConnecte();
 
         List<Entrevue> entrevues = entrevueRepository
                 .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
-        entrevues.forEach(this::updateStatutEntrevue);
+        entrevues.forEach(this::actualiserStatutApresEntrevue);
 
         return entrevues
                 .stream()
@@ -288,21 +290,47 @@ public class EtudiantService {
     }
 
     @Transactional
-    public ReponseConvocationDTO confirmerConvocationEtudiant(Long convocationId, String email)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        Entrevue entrevue = getEntrevueEtudiant(convocationId, email);
+    public ReponseConvocationDTO accepterConvocationEtudiant(Long convocationId)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+        return repondreConvocation(convocationId, StatutEntrevue.CONFIRMEE);
+    }
 
-        if (entrevue.getDateConfirmation() == null) {
-            entrevue.setDateConfirmation(LocalDateTime.now());
-            entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+    @Transactional
+    public ReponseConvocationDTO refuserConvocationEtudiant(Long convocationId)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+        return repondreConvocation(convocationId, StatutEntrevue.REFUSEE);
+    }
+
+    private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+        Entrevue entrevue = getEntrevueEtudiant(convocationId);
+        if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
+            if (entrevue.getStatut() != reponse
+                    && !(reponse == StatutEntrevue.CONFIRMEE
+                    && entrevue.getStatut() == StatutEntrevue.EN_ATTENTE_REPONSE)) {
+                throw new ConvocationInvalideException();
+            }
+        } else {
+            LocalDateTime maintenant = LocalDateTime.now();
+            if (!entrevue.getDateHeureEntrevue().isAfter(maintenant)) {
+                throw new ConvocationInvalideException();
+            }
+            entrevue.setDateReponse(maintenant);
+            entrevue.setStatut(reponse);
+            if (reponse == StatutEntrevue.CONFIRMEE) {
+                entrevue.setDateConfirmation(maintenant);
+            }
+            Candidature candidature = entrevue.getCandidature();
+            candidature.setStatut(reponse == StatutEntrevue.CONFIRMEE
+                    ? StatutCandidature.ENTREVUE_CONFIRMEE : StatutCandidature.ENTREVUE_REFUSEE);
+            candidatureRepository.save(candidature);
             entrevueRepository.save(entrevue);
         }
-
-        updateStatutEntrevue(entrevue);
+        actualiserStatutApresEntrevue(entrevue);
         return ReponseConvocationDTO.of(entrevue);
     }
 
-    private void updateStatutEntrevue(Entrevue entrevue) {
+    private void actualiserStatutApresEntrevue(Entrevue entrevue) {
         if (entrevue.getDateConfirmation() != null
                 && entrevue.getStatut() == StatutEntrevue.CONFIRMEE
                 && !entrevue.getDateHeureEntrevue().isAfter(LocalDateTime.now())) {
@@ -311,18 +339,23 @@ public class EtudiantService {
         }
     }
 
-    private Entrevue getEntrevueEtudiant(Long convocationId, String email)
+    private Entrevue getEntrevueEtudiant(Long convocationId)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        Etudiant etudiant = trouverEtudiantParEmail(email);
+        Etudiant etudiant = getEtudiantConnecte();
 
         return entrevueRepository
                 .findByIdAndCandidatureEtudiantId(convocationId, etudiant.getId())
                 .orElseThrow(ConvocationIntrouvableException::new);
     }
 
-    public List<CandidatureDTO> getCandidaturesEtudiant(String email)
+    private Etudiant getEtudiantConnecte() throws EtudiantIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return trouverEtudiantParEmail(email);
+    }
+
+    public List<CandidatureDTO> getCandidaturesEtudiant()
             throws EtudiantIntrouvableException {
-        Etudiant etudiant = trouverEtudiantParEmail(email);
+        Etudiant etudiant = getEtudiantConnecte();
 
         return candidatureRepository.findByEtudiant(etudiant)
                 .stream()

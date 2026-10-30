@@ -15,6 +15,9 @@ import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -105,6 +108,8 @@ public class EtudiantServiceTest {
                 .password("Passewod123")
                 .build();
         etudiant.setId(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null));
 
         employeur = Employeur.builder()
                 .firstName("Gerard")
@@ -134,6 +139,11 @@ public class EtudiantServiceTest {
                 .dateCreation(LocalDateTime.now())
                 .build();
         entrevue.setId(30L);
+    }
+
+    @AfterEach
+    void nettoyerAuthentification() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -583,7 +593,7 @@ public class EtudiantServiceTest {
                 .thenReturn(List.of(candidature));
 
         List<CandidatureDTO> result =
-                etudiantService.getCandidaturesEtudiant(etudiant.getEmail());
+                etudiantService.getCandidaturesEtudiant();
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).id()).isEqualTo(1L);
@@ -602,7 +612,7 @@ public class EtudiantServiceTest {
                 .thenReturn(List.of());
 
         List<CandidatureDTO> result =
-                etudiantService.getCandidaturesEtudiant(etudiant.getEmail());
+                etudiantService.getCandidaturesEtudiant();
 
         assertThat(result).isEmpty();
     }
@@ -613,7 +623,7 @@ public class EtudiantServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
-                etudiantService.getCandidaturesEtudiant(etudiant.getEmail()))
+                etudiantService.getCandidaturesEtudiant())
                 .isInstanceOf(EtudiantIntrouvableException.class);
 
         verify(candidatureRepository, never()).findByEtudiant(any(Etudiant.class));
@@ -828,7 +838,7 @@ public class EtudiantServiceTest {
                 .thenReturn(List.of());
 
         List<EntrevueDTO> resultat =
-                etudiantService.getConvocationsEtudiant(etudiant.getEmail());
+                etudiantService.getConvocationsEtudiant();
 
         assertThat(resultat).isEmpty();
     }
@@ -844,8 +854,7 @@ public class EtudiantServiceTest {
                 entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.of(entrevue));
 
-        EntrevueDTO resultat = etudiantService.getConvocationEtudiant(
-                entrevue.getId(), etudiant.getEmail());
+        EntrevueDTO resultat = etudiantService.getConvocationEtudiant(entrevue.getId());
 
         assertThat(resultat.id()).isEqualTo(entrevue.getId());
         assertThat(resultat.offreTitle()).isEqualTo("Stage informatique");
@@ -864,12 +873,10 @@ public class EtudiantServiceTest {
                 entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> etudiantService.getConvocationEtudiant(
-                entrevue.getId(), etudiant.getEmail()))
+        assertThatThrownBy(() -> etudiantService.getConvocationEtudiant(entrevue.getId()))
                 .isInstanceOf(ConvocationIntrouvableException.class);
 
-        assertThatThrownBy(() -> etudiantService.confirmerConvocationEtudiant(
-                entrevue.getId(), etudiant.getEmail()))
+        assertThatThrownBy(() -> etudiantService.accepterConvocationEtudiant(entrevue.getId()))
                 .isInstanceOf(ConvocationIntrouvableException.class);
 
         verify(entrevueRepository, never()).save(any(Entrevue.class));
@@ -889,7 +896,7 @@ public class EtudiantServiceTest {
                 .thenReturn(List.of(entrevue));
 
         List<EntrevueDTO> resultat =
-                etudiantService.getConvocationsEtudiant(etudiant.getEmail());
+                etudiantService.getConvocationsEtudiant();
 
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).id()).isEqualTo(entrevue.getId());
@@ -907,14 +914,13 @@ public class EtudiantServiceTest {
                 entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.of(entrevue));
 
-        ReponseConvocationDTO resultat = etudiantService.confirmerConvocationEtudiant(
-                entrevue.getId(), etudiant.getEmail());
+        ReponseConvocationDTO resultat = etudiantService.accepterConvocationEtudiant(entrevue.getId());
 
         assertThat(resultat.confirmee()).isTrue();
         assertThat(resultat.dateConfirmation()).isNotNull();
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
 
-        etudiantService.getConvocationEtudiant(entrevue.getId(), etudiant.getEmail());
+        etudiantService.getConvocationEtudiant(entrevue.getId());
 
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
         verify(entrevueRepository, times(1)).save(entrevue);
@@ -933,8 +939,7 @@ public class EtudiantServiceTest {
                 entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.of(entrevue));
 
-        ReponseConvocationDTO resultat = etudiantService.confirmerConvocationEtudiant(
-                entrevue.getId(), etudiant.getEmail());
+        ReponseConvocationDTO resultat = etudiantService.accepterConvocationEtudiant(entrevue.getId());
 
         assertThat(resultat.dateConfirmation()).isEqualTo(dateInitiale);
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
@@ -955,7 +960,7 @@ public class EtudiantServiceTest {
                 entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.of(entrevue));
 
-        etudiantService.getConvocationEtudiant(entrevue.getId(), etudiant.getEmail());
+        etudiantService.getConvocationEtudiant(entrevue.getId());
 
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
 

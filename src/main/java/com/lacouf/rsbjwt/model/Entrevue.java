@@ -38,6 +38,9 @@ public class Entrevue {
     @Column
     private LocalDateTime dateConfirmation;
 
+    @Column
+    private LocalDateTime dateReponse;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatutEntrevue statut = StatutEntrevue.A_CONFIRMER;
