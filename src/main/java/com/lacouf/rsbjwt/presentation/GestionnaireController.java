@@ -128,8 +128,10 @@ public class GestionnaireController {
         return gestionnaireService.getAllEtudiants();
     }
 
-    @GetMapping("/profeseurs")
-    public List<ProfesseurDTO> getAllProfesseurs(){return gestionnaireService.getAllProfesseurs();}
+    @GetMapping("/professeurs")
+    public List<ProfesseurDTO> getAllProfesseurs(){
+        return gestionnaireService.getAllProfesseurs();
+    }
 
 
     @PutMapping("/etudiant/{professeurId}")
