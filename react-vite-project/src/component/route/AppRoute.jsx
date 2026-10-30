@@ -20,6 +20,7 @@ import CVDetails from "../CV/CVDetails.jsx";
 import CandidatureDetails from "../Candidature/CandidatureDetails.jsx";
 import AddTargetedOffer from "../Offer/AddTargetedOffer.jsx";
 import GestionEntrevue from "../Entrevue/GestionEntrevue.jsx";
+import ConvocationEntrevue from "../Entrevue/ConvocationEntrevue.jsx";
 
 export default function AppRoutes({
                                       user,
