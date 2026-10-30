@@ -169,7 +169,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
             </summary>
 
             <div
-                className="dropdown-content z-[100] mt-3 w-80 rounded-box bg-base-100 shadow-xl border border-slate-100"
+                className="dropdown-content z-[100] mt-3 w-80 max-w-[calc(100vw-2rem)] max-sm:fixed! max-sm:top-16! max-sm:right-4! rounded-box bg-base-100 shadow-xl border border-slate-100"
             >
                 <div className="p-3 border-b border-slate-100 flex justify-between items-center">
                     <h3 className="font-bold text-[#043462]">{t("notifications.title")}</h3>

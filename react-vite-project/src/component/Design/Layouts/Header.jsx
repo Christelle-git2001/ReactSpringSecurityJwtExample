@@ -65,15 +65,15 @@ function Header({ sidebarOpen, user }) {
             </div>
 
             <div className="fixed top-4 right-4 z-50">
-                <div className="flex flex-wrap gap-6">
-                    <ThemeToggle />
-                    <LanguageSwitch />
+                <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                     {peutRecevoir && (
                         <Notification
                             notifications={notifications}
                             onMarkAsRead={handleMarkAsRead}
                         />
                     )}
+                    <ThemeToggle />
+                    <LanguageSwitch />
                 </div>
             </div>
         </nav>
