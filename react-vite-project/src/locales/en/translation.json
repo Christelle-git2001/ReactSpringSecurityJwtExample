@@ -188,7 +188,8 @@
     "created_offers": "Created offers",
     "history": "History",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "assignation" : "Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",

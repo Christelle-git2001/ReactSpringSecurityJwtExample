@@ -230,7 +230,8 @@
     "created_offers": "Offres créees",
     "history": "History",
     "collapse": "Réduire",
-    "expand": "Développer"
+    "expand": "Développer",
+    "assignation" : "Assignation"
   },
   "sidebar": {
     "collapse": "Réduire le menu",
