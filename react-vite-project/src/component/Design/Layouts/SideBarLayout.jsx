@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell } from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell , FiCalendar} from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
@@ -63,6 +63,7 @@ function SideBarLayout({ user }) {
         { path: "/etudiant/cv#televerser", label: t("nav.cv"), roles: ["ETUDIANT"], icon: <FiFile className="size-4 my-1.5" /> },
         { path: "/employeur", label: t("nav.home"), roles: ["EMPLOYEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/employeur/offres/nouvelle", label: t("nav.add_offer"), roles: ["EMPLOYEUR"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
+        { path: "/employeur/entrevues", label: t("nav.add_entrevue"), roles: ["EMPLOYEUR"], icon: <FiCalendar className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/offres/nouvelle-ciblee", label: t("nav.add_offer"), roles: ["GESTIONNAIRE"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/gestionnaire/attribution",label: t("nav.assignation"), roles: ["GESTIONNAIRE"], icon: <PiStudentBold />},

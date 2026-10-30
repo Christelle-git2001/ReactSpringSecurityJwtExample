@@ -43,11 +43,11 @@
     "submit": "Créer le compte"
   },
   "add_offer": {
-    "targeted_student" : "Étudiant ciblé",
-    "targeted_company" : "Employeur",
-    "select_student" : "Sélectionner un étudiant",
-    "select_company" : "Sélectionner un employeur",
-    "targeted_offer" : "Créer une offre de stage ciblée",
+    "targeted_student": "Étudiant ciblé",
+    "targeted_company": "Employeur",
+    "select_student": "Sélectionner un étudiant",
+    "select_company": "Sélectionner un employeur",
+    "targeted_offer": "Créer une offre de stage ciblée",
     "title": "Ajouter une offre de stage",
     "subtitle": "Remplissez les informations de votre offre de stage.",
     "offer_title": "Titre de l'offre",
@@ -65,8 +65,8 @@
     "cancel": "Annuler",
     "submit": "Soumettre",
     "errors": {
-      "select_company" : "Veuillez sélectionner un employeur",
-      "select_student" : "Veuillez sélectionner un étudiant",
+      "select_company": "Veuillez sélectionner un employeur",
+      "select_student": "Veuillez sélectionner un étudiant",
       "title_required": "Veuillez entrer le titre de l'offre.",
       "domain_required": "Veuillez sélectionner un domaine.",
       "salary_required": "Veuillez entrer le salaire.",
@@ -94,9 +94,13 @@
   },
   "common": {
     "not_provided": "Non renseigné",
-    "new_label": "Nouveau"
+    "new_label": "Nouveau",
+    "loading": "Envoi...",
+    "save": "Soumettre"
   },
   "actions": {
+    "backhome": "Retour à l'accueil",
+    "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
@@ -197,6 +201,7 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
+    "convocation_already_exists": "Une entrevue a déjà été planifiée pour cette candidature.",
     "required": "Ce champ est requis.",
     "email_invalid": "Veuillez entrer une adresse courriel valide | Ex : example@domain.com",
     "phone_invalid": "Veuillez entrer un numéro de téléphone valide | Ex: 123-123-1235",
@@ -219,6 +224,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
+    "add_entrevue" : "Planifier une entrevue",
     "applications": "Candidatures",
     "cv": "Téléverser CV",
     "home": "Accueil",
@@ -401,6 +407,12 @@
     }
   },
   "candidature": {
+    "status": {
+      "soumise": "Candidature soumise",
+      "retenue": "Retenue pour entrevue",
+      "planifiee": "Entrevue planifiée",
+      "acceptee": "Acceptée / Embauchée"
+    },
     "position": "Poste",
     "student_unknown": "Étudiant inconnu",
     "department_unknown": "Département inconnu",
@@ -444,7 +456,7 @@
         "description": "{{ETUDIANT_NOM}} a téléversé un CV."
       }
     },
-    "etudiant":{
+    "etudiant": {
       "validation": {
         "title_acceptee": "Votre CV a été accepté",
         "description_acceptee": "Félicitations, votre CV a été validé !",
@@ -460,6 +472,41 @@
   "drawer": {
     "details": "Détails",
     "close": "Fermer"
+  },
+  "entrevue": {
+    "mode_online_title": "En ligne",
+    "mode_onsite_title": "Présentiel",
+    "add_title": "Planifier une entrevue",
+    "select_candidature": "Candidat",
+    "placeholder_candidature": "-- Sélectionner un candidat --",
+    "mode": "Format",
+    "mode_online": "En ligne (Visioconférence)",
+    "mode_onsite": "En présentiel",
+    "date": "Date de l'entrevue",
+    "time": "Heure",
+    "duration": "Durée",
+    "errors": {
+      "select_candidature": "Veuillez sélectionner une candidature.",
+      "select_format": "Veuillez choisir un format d'entrevue.",
+      "select_date": "Veuillez sélectionner une date.",
+      "date_before_today": "La date ne peut pas être antérieure à aujourd'hui.",
+      "select_time": "Veuillez sélectionner une heure.",
+      "time_in_past": "L'heure sélectionnée est déjà passée.",
+      "submit_failed": "Une erreur est survenue lors de l'enregistrement."
+    }
+  },
+  "agenda": {
+    "no_interviews": "Aucune entrevue",
+    "clear_filter":  "Désactiver le filtre",
+    "title": "Agenda",
+    "all_interviews": "Entrevues à venir :",
+    "select_date_prompt": "Sélectionnez une date",
+    "no_interviews_date": "Aucune entrevue pour cette date.",
+    "select_date_hint": "Cliquez sur une date pour voir les entrevues."
+  },
+  "gestion_entrevue": {
+    "title": "Gestion des entrevues",
+    "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
   },
   "general": {
     "nom" : "Nom",

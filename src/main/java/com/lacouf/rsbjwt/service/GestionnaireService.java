@@ -240,7 +240,7 @@ public class GestionnaireService {
     public OffreDeStageDTO creerOffreCiblee(
             CreationOffreCibleeDTO creationOffreCibleeDTO,
             MultipartFile file
-    ) throws FichierCorrompuException, FichierTypeInvalideException, IOException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateFinAvantDateDebutException, DateDebutAvantAujourdhuiException, UtilisateurIntrouvableException {
+    ) throws FichierCorrompuException, FichierTypeInvalideException, IOException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException {
 
         Employeur employeur = employeurRepository.findById(creationOffreCibleeDTO.employeurId())
                 .orElseThrow(() -> new UtilisateurIntrouvableException());
@@ -282,10 +282,10 @@ public class GestionnaireService {
 
     private void validerDates(CreationOffreCibleeDTO creationOffreCibleeDTO)
             throws DateFinAvantDateDebutException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateDebutAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
 
         if (creationOffreCibleeDTO.startDate().isBefore(LocalDate.now())) {
-            throw new DateDebutAvantAujourdhuiException();
+            throw new DateAvantAujourdhuiException();
         }
 
         if (!creationOffreCibleeDTO.endDate().isAfter(creationOffreCibleeDTO.startDate())) {
