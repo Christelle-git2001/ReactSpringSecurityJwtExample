@@ -70,6 +70,8 @@ class GestionnaireServiceTest {
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Mock
+    private ProfesseurRepository professeurRepository;
 
 
     @InjectMocks
@@ -722,5 +724,195 @@ class GestionnaireServiceTest {
             verify(offreDeStageRepository).save(any(OffreCiblee.class));
             verify(applicationEventPublisher).publishEvent(any(NouvelleOffreTeleverseeEvent.class));
         }
+    }
+
+    @Test
+    void doitRetournerTousLesProfesseurs() {
+        Professeur professeur1 = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+        professeur1.setId(1L);
+
+        Professeur professeur2 = Professeur.builder()
+                .firstName("Marie")
+                .lastName("Tremblay")
+                .email("marie@test.com")
+                .password("password")
+                .matricule("P002")
+                .phoneNumber("5142222222")
+                .department(Departement.GENIE_PHYSIQUE)
+                .build();
+        professeur2.setId(2L);
+
+        when(professeurRepository.findAll())
+                .thenReturn(List.of(professeur1, professeur2));
+
+        List<ProfesseurDTO> result = gestionnaireService.getAllProfesseurs();
+
+        assertThat(result)
+                .hasSize(2)
+                .extracting(ProfesseurDTO::id)
+                .containsExactly(1L, 2L);
+
+        assertThat(result)
+                .extracting(ProfesseurDTO::firstName)
+                .containsExactly("Jean", "Marie");
+
+        verify(professeurRepository).findAll();
+    }
+
+    @Test
+    void doitAssignerUnProfesseurAPlusieursEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        Professeur professeur = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+        professeur.setId(5L);
+
+        Etudiant etudiant2 = new Etudiant(
+                "Marie", "Tremblay", "marie@test.com",
+                "5142222222", Departement.INFORMATIQUE, "E002", "password"
+        );
+        etudiant2.setId(2L);
+
+        when(professeurRepository.findById(5L))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllById(List.of(1L, 2L)))
+                .thenReturn(List.of(etudiant, etudiant2));
+
+        when(etudiantRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
+
+        List<EtudiantDTO> result =
+                gestionnaireService.assignerProfesseur(5L, dto);
+
+        assertThat(result).hasSize(2);
+
+        assertThat(etudiant.getProfesseur()).isEqualTo(professeur);
+        assertThat(etudiant2.getProfesseur()).isEqualTo(professeur);
+
+        verify(professeurRepository).findById(5L);
+        verify(etudiantRepository).findAllById(List.of(1L, 2L));
+        verify(etudiantRepository).saveAll(any());
+    }
+
+    @Test
+    void doitRemplacerAncienProfesseurLorsDeReassignation()
+            throws UtilisateurIntrouvableException {
+
+        Professeur ancienProfesseur = Professeur.builder()
+                .firstName("Paul")
+                .lastName("Martin")
+                .email("paul@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+
+        Professeur nouveauProfesseur = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P002")
+                .phoneNumber("5142222222")
+                .department(Departement.INFORMATIQUE)
+                .build();
+
+        etudiant.setProfesseur(ancienProfesseur);
+
+        when(professeurRepository.findById(5L))
+                .thenReturn(Optional.of(nouveauProfesseur));
+
+        when(etudiantRepository.findAllById(List.of(1L)))
+                .thenReturn(List.of(etudiant));
+
+        when(etudiantRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L));
+
+        gestionnaireService.assignerProfesseur(5L, dto);
+
+        assertThat(etudiant.getProfesseur())
+                .isEqualTo(nouveauProfesseur);
+
+        verify(etudiantRepository).saveAll(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiProfesseurIntrouvable() {
+        when(professeurRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
+
+        assertThatThrownBy(() ->
+                gestionnaireService.assignerProfesseur(99L, dto)
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(professeurRepository).findById(99L);
+
+        verify(etudiantRepository, never())
+                .findAllById(any());
+
+        verify(etudiantRepository, never())
+                .saveAll(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiUnEtudiantEstIntrouvable() {
+        Professeur professeur = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+
+        professeur.setId(5L);
+
+        when(professeurRepository.findById(5L))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllById(List.of(1L, 2L)))
+                .thenReturn(List.of(etudiant));
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
+
+        assertThatThrownBy(() ->
+                gestionnaireService.assignerProfesseur(5L, dto)
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(professeurRepository).findById(5L);
+
+        verify(etudiantRepository)
+                .findAllById(List.of(1L, 2L));
+
+        verify(etudiantRepository, never())
+                .saveAll(any());
     }
 }

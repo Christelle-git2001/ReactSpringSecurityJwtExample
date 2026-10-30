@@ -43,11 +43,11 @@
     "submit": "Créer le compte"
   },
   "add_offer": {
-    "targeted_student": "Étudiant ciblé",
-    "targeted_company": "Employeur",
-    "select_student": "Sélectionner un étudiant",
-    "select_company": "Sélectionner un employeur",
-    "targeted_offer": "Créer une offre de stage ciblée",
+    "targeted_student" : "Étudiant ciblé",
+    "targeted_company" : "Employeur",
+    "select_student" : "Sélectionner un étudiant",
+    "select_company" : "Sélectionner un employeur",
+    "targeted_offer" : "Créer une offre de stage ciblée",
     "title": "Ajouter une offre de stage",
     "subtitle": "Remplissez les informations de votre offre de stage.",
     "offer_title": "Titre de l'offre",
@@ -65,8 +65,8 @@
     "cancel": "Annuler",
     "submit": "Soumettre",
     "errors": {
-      "select_company": "Veuillez sélectionner un employeur",
-      "select_student": "Veuillez sélectionner un étudiant",
+      "select_company" : "Veuillez sélectionner un employeur",
+      "select_student" : "Veuillez sélectionner un étudiant",
       "title_required": "Veuillez entrer le titre de l'offre.",
       "domain_required": "Veuillez sélectionner un domaine.",
       "salary_required": "Veuillez entrer le salaire.",
@@ -94,13 +94,9 @@
   },
   "common": {
     "not_provided": "Non renseigné",
-    "new_label": "Nouveau",
-    "loading": "Envoi...",
-    "save": "Soumettre"
+    "new_label": "Nouveau"
   },
   "actions": {
-    "backhome": "Retour à l'accueil",
-    "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
@@ -201,7 +197,6 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
-    "convocation_already_exists": "Une entrevue a déjà été planifiée pour cette candidature.",
     "required": "Ce champ est requis.",
     "email_invalid": "Veuillez entrer une adresse courriel valide | Ex : example@domain.com",
     "phone_invalid": "Veuillez entrer un numéro de téléphone valide | Ex: 123-123-1235",
@@ -224,7 +219,6 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
-    "add_entrevue" : "Planifier une entrevue",
     "applications": "Candidatures",
     "cv": "Téléverser CV",
     "home": "Accueil",
@@ -236,7 +230,8 @@
     "created_offers": "Offres créees",
     "history": "History",
     "collapse": "Réduire",
-    "expand": "Développer"
+    "expand": "Développer",
+    "assignation" : "Assignation"
   },
   "sidebar": {
     "collapse": "Réduire le menu",
@@ -318,6 +313,38 @@
     "card": {
       "view_offers": "Validez et gérez l'ensemble des offres de stage soumises par les entreprises partenaires.",
       "cvs": "Évaluez les CV soumis par les étudiants. Approuvez, refusez ou accompagnez les étudiants dans leur démarche."
+    },
+    "assignation": {
+      "title" : "Assignation des professeurs",
+      "description_without_teacher" : "Sélectionnez un professeur pour commencer l'assignation des étudiants",
+      "description_with_teacher" : "Sélectionnez les étudiants qui seront assignés à ce professeur",
+      "professeur" : {
+        "professeur_without_name": "Ce professeur ne possède aucun nom",
+        "professeur_without_department" : "Ce professeur ne possède aucun departement",
+        "professeur_without_email" : "Ce professeur ne possède aucun Email",
+        "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
+        "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
+      },
+      "select": {
+        "professor" : "Choisissez un professeur",
+        "professorSelected" : "Vous avez sélectionné cet enseignant",
+        "anotherProfessor" : "Cliquez pour choisir un autre enseignant",
+        "warningAnotherProfessor" : "Modifier le professeur ? Cela effacera les étudiants sélectionnés.",
+        "student": "Veuillez sélectionner les étudiants à assigner à : {{prenom}} {{nom}}",
+        "finishToSelect" : "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",        "studentList" : {
+          "title" : "Étudiants Sélectionnés",
+          "empty" : "Aucun étudiant sélectionné"
+        }
+      },
+      "etudiant" : {
+        "empty": "Aucun étudiant inscrit pour ce département : {{departement}}",
+        "notFound" : "N/A",
+        "teacher" : "Professeur",
+        "noProfesseur" : "Aucun professeur assigné"
+      },
+      "button": {
+        "text" : "Assigner"
+      }
     }
   },
   "pdfVisio": {
@@ -371,12 +398,6 @@
     }
   },
   "candidature": {
-    "status": {
-      "soumise": "Candidature soumise",
-      "retenue": "Retenue pour entrevue",
-      "planifiee": "Entrevue planifiée",
-      "acceptee": "Acceptée / Embauchée"
-    },
     "position": "Poste",
     "student_unknown": "Étudiant inconnu",
     "department_unknown": "Département inconnu",
@@ -420,7 +441,7 @@
         "description": "{{ETUDIANT_NOM}} a téléversé un CV."
       }
     },
-    "etudiant": {
+    "etudiant":{
       "validation": {
         "title_acceptee": "Votre CV a été accepté",
         "description_acceptee": "Félicitations, votre CV a été validé !",
@@ -437,39 +458,16 @@
     "details": "Détails",
     "close": "Fermer"
   },
-  "entrevue": {
-    "mode_online_title": "En ligne",
-    "mode_onsite_title": "Présentiel",
-    "add_title": "Planifier une entrevue",
-    "select_candidature": "Candidat",
-    "placeholder_candidature": "-- Sélectionner un candidat --",
-    "mode": "Format",
-    "mode_online": "En ligne (Visioconférence)",
-    "mode_onsite": "En présentiel",
-    "date": "Date de l'entrevue",
-    "time": "Heure",
-    "duration": "Durée",
-    "errors": {
-      "select_candidature": "Veuillez sélectionner une candidature.",
-      "select_format": "Veuillez choisir un format d'entrevue.",
-      "select_date": "Veuillez sélectionner une date.",
-      "date_before_today": "La date ne peut pas être antérieure à aujourd'hui.",
-      "select_time": "Veuillez sélectionner une heure.",
-      "time_in_past": "L'heure sélectionnée est déjà passée.",
-      "submit_failed": "Une erreur est survenue lors de l'enregistrement."
+  "general": {
+    "nom" : "Nom",
+    "departement" : "Departement",
+    "matricule": "Matricule",
+    "email" : "Courriel",
+    "liste" : {
+      "open" : "Ouvrir la liste",
+      "close" : "Fermer la liste",
+      "title" : "Liste",
+      "empty" : "La liste est vide"
     }
-  },
-  "agenda": {
-    "no_interviews": "Aucune entrevue",
-    "clear_filter":  "Désactiver le filtre",
-    "title": "Agenda",
-    "all_interviews": "Entrevues à venir :",
-    "select_date_prompt": "Sélectionnez une date",
-    "no_interviews_date": "Aucune entrevue pour cette date.",
-    "select_date_hint": "Cliquez sur une date pour voir les entrevues."
-  },
-  "gestion_entrevue": {
-    "title": "Gestion des entrevues",
-    "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
   }
 }
