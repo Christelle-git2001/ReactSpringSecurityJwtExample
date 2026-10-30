@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {TbCircleNumber1Filled, TbCircleNumber2Filled} from "react-icons/tb";
 import ProfesseurListItem from "../../component/Design/Lists/ProfesseurListItem.jsx";
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
@@ -8,6 +8,8 @@ import ScrollBarList from "../../component/Design/Lists/ScrollBarList.jsx";
 import ListItem from "../../component/Design/Lists/ListItem.jsx";
 import Modal from "../../component/Modal/Modal.jsx";
 import Button from "../../component/Design/Button.jsx";
+import {assignStudentToTeacher, getEtudiants, getProfesseurs} from "../../api/gestionnaire.jsx";
+import {getDepartmentKey} from "../../utils/departementConverter.js";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
@@ -18,26 +20,26 @@ const GestionnaireAttribution = () => {
         []
     );
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [professeurs, setprofesseurs] = useState(
+    const [professeurs, setProfesseurs] = useState(
         [
-            {id:1, firstName:"Jean", lastName:"Dupont",email: "JeanDupont@hotmail.com",departement : "INFORMATIQUE", matricule : "58584545"},
-            {id: 2, firstName: "Sophie", lastName:"Tremblay", email: "SophieTremblay@hotmail.com", departement: "INFORMATIQUE", matricule: "58584546"},
-            {id: 3, firstName: "Marc-Antoine", lastName:"Gagnon", email: "MarcGagnon@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "58584547"},
-            {id: 4, firstName: "Sylviane", lastName:"Gagnon", email: "SylvianeGagnon@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "5896524"}
+            /*{id:1, firstName:"Jean", lastName:"Dupont",email: "JeanDupont@hotmail.com",department : "INFORMATIQUE", matricule : "58584545"},
+            {id: 2, firstName: "Sophie", lastName:"Tremblay", email: "SophieTremblay@hotmail.com", department: "INFORMATIQUE", matricule: "58584546"},
+            {id: 3, firstName: "Marc-Antoine", lastName:"Gagnon", email: "MarcGagnon@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "58584547"},
+            {id: 4, firstName: "Sylviane", lastName:"Gagnon", email: "SylvianeGagnon@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "5896524"}*/
         ]
     )
     const [etudiants, setEtudiants] = useState(
         [
-            {id: 1, firstName: "Alexandre", lastName: "Bouchard", email: "AlexandreBouchard@hotmail.com", departement: "INFORMATIQUE", matricule: "59123451", professeurAssigne: ""},
-            {id: 2, firstName: "Camille", lastName: "Roy", email: "CamilleRoy@hotmail.com", departement: "INFORMATIQUE", matricule: "59123452", professeurAssigne: ""},
-            {id: 3, firstName: "Gabriel", lastName: "Côté", email: "GabrielCote@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123453", professeurAssigne: ""},
-            {id: 4, firstName: "Maude", lastName: "Lavoie", email: "MaudeLavoie@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123454", professeurAssigne: ""},
-            {id: 5, firstName: "William", lastName: "Beaulieu", email: "WilliamBeaulieu@hotmail.com", departement: "INFORMATIQUE", matricule: "59123455", professeurAssigne: ""},
-            {id: 6, firstName: "Florence", lastName: "Morin", email: "FlorenceMorin@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123456", professeurAssigne: ""},
-            {id: 7, firstName: "Thomas", lastName: "Pelletier", email: "ThomasPelletier@hotmail.com", departement: "INFORMATIQUE", matricule: "59123457", professeurAssigne: ""},
-            {id: 8, firstName: "Béatrice", lastName: "Gauthier", email: "BeatriceGauthier@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123458", professeurAssigne: ""},
-            {id: 9, firstName: "Olivier", lastName: "Simard", email: "OlivierSimard@hotmail.com", departement: "INFORMATIQUE", matricule: "59123459", professeurAssigne: ""},
-            {id: 10, firstName: "Charlotte", lastName: "Bélanger", email: "CharlotteBelanger@hotmail.com", departement: "TRAVAIL_SOCIAL", matricule: "59123460", professeurAssigne: "dfdf"}
+           /* {id: 1, firstName: "Alexandre", lastName: "Bouchard", email: "AlexandreBouchard@hotmail.com", department: "INFORMATIQUE", matricule: "59123451", professeurAssigne: ""},
+            {id: 2, firstName: "Camille", lastName: "Roy", email: "CamilleRoy@hotmail.com", department: "INFORMATIQUE", matricule: "59123452", professeurAssigne: ""},
+            {id: 3, firstName: "Gabriel", lastName: "Côté", email: "GabrielCote@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123453", professeurAssigne: ""},
+            {id: 4, firstName: "Maude", lastName: "Lavoie", email: "MaudeLavoie@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123454", professeurAssigne: ""},
+            {id: 5, firstName: "William", lastName: "Beaulieu", email: "WilliamBeaulieu@hotmail.com", department: "INFORMATIQUE", matricule: "59123455", professeurAssigne: ""},
+            {id: 6, firstName: "Florence", lastName: "Morin", email: "FlorenceMorin@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123456", professeurAssigne: ""},
+            {id: 7, firstName: "Thomas", lastName: "Pelletier", email: "ThomasPelletier@hotmail.com", department: "INFORMATIQUE", matricule: "59123457", professeurAssigne: ""},
+            {id: 8, firstName: "Béatrice", lastName: "Gauthier", email: "BeatriceGauthier@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123458", professeurAssigne: ""},
+            {id: 9, firstName: "Olivier", lastName: "Simard", email: "OlivierSimard@hotmail.com", department: "INFORMATIQUE", matricule: "59123459", professeurAssigne: ""},
+            {id: 10, firstName: "Charlotte", lastName: "Bélanger", email: "CharlotteBelanger@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123460", professeurAssigne: "dfdf"}*/
         ]
     );
 
@@ -61,6 +63,11 @@ const GestionnaireAttribution = () => {
         }
     }
 
+    const onAssign = () => {
+        const etudiantIds = etudiantSelectionnes.map(etudiant => etudiant.id);
+        assignStudentToTeacher(etudiantIds, professeurSelectione.id)
+    }
+
     const handleCancelModal = () => {
         setProfesseurChangeValue(null)
         setDropdownProfIsOpen(false)
@@ -75,12 +82,20 @@ const GestionnaireAttribution = () => {
         setIsModalOpen(false);
     };
 
+    useEffect(() => {
+        const init = async () => {
+            setProfesseurs(await getProfesseurs())
+            setEtudiants(await  getEtudiants())
+        }
+        init();
+    }, []);
+
 
     return(
         <div>
             <div className="grid grid-cols-12 mt-2">
-                <div className={professeurSelectione ? "col-span-6" : "col-span-12"}>
-                    <div className="grid grid-cols-12 ">
+                <div className={professeurSelectione ? "col-span-6 mt-5" : "col-span-12"}>
+                    <div className="grid grid-cols-12">
                         <div className="col-span-12">
                             <h1 className="text-start text-3xl p-5 pb-0 font-bold">{t("gestionnaire.assignation.title")}</h1>
                             <p className=" mt-2 p-5 pt-0">
@@ -110,7 +125,7 @@ const GestionnaireAttribution = () => {
                             )}
 
                         </div>
-                        <div className="col-span-12">
+                        <div className="col-span-12 mt-3">
                             <div className="dropdown w-full">
                                 {professeurSelectione ? (
                                     <ProfesseurListItem
@@ -166,7 +181,7 @@ const GestionnaireAttribution = () => {
                             )}
                         />
                         <div className="flex justify-center mt-2">
-                            <Button type="button" className="btn">{t("gestionnaire.assignation.button.text")}</Button>
+                            <Button type="button" onClick={onAssign} disabled={etudiantSelectionnes <= 0} className="btn">{t("gestionnaire.assignation.button.text")}</Button>
                         </div>
                     </div>
                 )}
@@ -189,8 +204,8 @@ const GestionnaireAttribution = () => {
                     </div>
                     <div>
                         <ScrollBarList
-                            emptyMessage={t("gestionnaire.assignation.etudiant.empty", { departement: professeurSelectione.departement })}
-                            liste={etudiants.filter(etudiant => etudiant.departement === professeurSelectione.departement)}
+                            emptyMessage={t("gestionnaire.assignation.etudiant.empty", { departement: t("departement." + getDepartmentKey(professeurSelectione.department)) })}
+                            liste={etudiants.filter(etudiant => etudiant.department === professeurSelectione.department && !etudiant.professeurAssigne)}
                             renderItem={(etudiant) => (
                                 <ListItem
                                     key={etudiant.id}
@@ -202,7 +217,7 @@ const GestionnaireAttribution = () => {
                                     onClick={() => onClickEtudiant(etudiant)}
                                     detailRows={[
                                         { label: t("general.matricule"), value: etudiant.matricule },
-                                        { label: t("general.departement"), value: t("departement." + etudiant.departement) },
+                                        { label: t("general.departement"), value: t("departement." + getDepartmentKey(etudiant.department)) },
                                     ]}
                                 />
                             )}/>

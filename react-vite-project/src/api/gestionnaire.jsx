@@ -1,4 +1,5 @@
 import {fetchApi, fetchJson} from "./http.jsx";
+import {json} from "../../.vite/deps/react-router-dom.js";
 
 
 export async function getDepartements() {
@@ -109,4 +110,21 @@ export async function getEtudiants() {
     return fetchJson("/gestionnaire/etudiants", {
         method: "GET",
     });
+}
+
+export async function getProfesseurs(){
+    return fetchJson("/gestionnaire/professeurs",
+        {method : "GET"
+        });
+}
+
+export async function assignStudentToTeacher(etudiantId,teacherId){
+    if (!teacherId || !etudiantId || etudiantId.length === 0) {
+        return;
+    }
+    return fetchJson("/gestionnaire/etudiant/" + teacherId,
+        {
+            method : "PUT",
+            body : JSON.stringify(etudiantId)
+        })
 }

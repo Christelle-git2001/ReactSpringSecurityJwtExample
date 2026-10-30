@@ -5,10 +5,10 @@ import {FaChalkboardTeacher} from "react-icons/fa";
 
 const ProfesseurListItem = ({professeur, onClick, textClassName}) => {
     const { t } = useTranslation();
-    const departement = getDepartmentKey(professeur.departement)
+    const departement = getDepartmentKey(professeur.department)
     const detailsRows = [
-        departement && {label : t("general.departement"), value : t("departement." + professeur.departement) },
-        professeur.matricule && {label : t("general.matricule"), value: professeur.matricule}
+        departement && {label : t("general.departement"), value : t("departement." + departement) },
+       {label : t("general.matricule"), value: professeur.matricule}
     ];
     return (
         <div onClick={onClick} className={textClassName}>

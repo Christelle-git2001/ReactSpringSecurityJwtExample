@@ -127,8 +127,8 @@ function ListItem({
             <>
                 {detailRows.length > 0 && (
                     <dl className="flex justify-between text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4 border-b pb-2">
-                        {detailRows.map(({ label, value }) => (
-                            <div key={label} className="min-w-0 pe-2 ps-2">
+                        {detailRows.map(({ label, value },index) => (
+                            <div key={`${label}-${index}`} className="min-w-0 pe-2 ps-2">
                                 <dt className="font-bold text-[#043462]">{label}</dt>
                                 <dd className="truncate font-medium">{value}</dd>
                             </div>
@@ -174,8 +174,8 @@ function ListItem({
 
                         {detailRows.length > 0 && (
                             <dl className="mt-3 grid gap-2 text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4">
-                                {detailRows.map(({ label, value }) => (
-                                    <div key={label} className="min-w-0">
+                                {detailRows.map(({ label, value },index) => (
+                                    <div key={`${label}-${index}`} className="min-w-0">
                                         <dt className="font-bold text-[#043462]">{label}</dt>
                                         <dd className="truncate font-medium">{value}</dd>
                                     </div>
