@@ -28,6 +28,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
+import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -945,6 +946,48 @@ public class EtudiantServiceTest {
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
 
         verify(entrevueRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitPublierUneSeuleNotificationPourUneAcceptationRepetee() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        etudiantService.accepterConvocationEtudiant(entrevue.getId());
+        etudiantService.accepterConvocationEtudiant(entrevue.getId());
+
+        verify(applicationEventPublisher, times(1)).publishEvent(new ConvocationRepondueEvent(entrevue));
+        verify(entrevueRepository, times(1)).save(entrevue);
+    }
+
+    @Test
+    void doitPublierUneSeuleNotificationPourUnRefusRepete() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        etudiantService.refuserConvocationEtudiant(entrevue.getId());
+        etudiantService.refuserConvocationEtudiant(entrevue.getId());
+
+        verify(applicationEventPublisher, times(1)).publishEvent(new ConvocationRepondueEvent(entrevue));
+        verify(entrevueRepository, times(1)).save(entrevue);
+    }
+
+    @Test
+    void neDoitPasNotifierPourUneConvocationNonAutorisee() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.accepterConvocationEtudiant(entrevue.getId()))
+                .isInstanceOf(ConvocationIntrouvableException.class);
+        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId()))
+                .isInstanceOf(ConvocationIntrouvableException.class);
+        verify(applicationEventPublisher, never()).publishEvent(any(ConvocationRepondueEvent.class));
     }
 
     @Test

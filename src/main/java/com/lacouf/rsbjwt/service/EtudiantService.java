@@ -6,6 +6,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
@@ -325,6 +326,7 @@ public class EtudiantService {
                     ? StatutCandidature.ENTREVUE_CONFIRMEE : StatutCandidature.ENTREVUE_REFUSEE);
             candidatureRepository.save(candidature);
             entrevueRepository.save(entrevue);
+            eventPublisher.publishEvent(new ConvocationRepondueEvent(entrevue));
         }
         actualiserStatutApresEntrevue(entrevue);
         return ReponseConvocationDTO.of(entrevue);

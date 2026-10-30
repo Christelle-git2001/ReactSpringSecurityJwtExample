@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
@@ -312,6 +313,34 @@ public class NotificationService {
                 ))
                 .build();
 
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleConvocationRepondue(ConvocationRepondueEvent event) {
+        Entrevue entrevue = event.entrevue();
+        Candidature candidature = entrevue.getCandidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+        boolean acceptee = entrevue.getStatut() == StatutEntrevue.CONFIRMEE;
+        String cle = "notification.employeur." + (acceptee ? "convocationAcceptee" : "convocationRefusee");
+
+        Notification notification = Notification.builder()
+                .titre(cle + ".title")
+                .description(cle + ".description")
+                .notificationType(acceptee ? NotificationType.CONVOCATION_ACCEPTEE : NotificationType.CONVOCATION_REFUSEE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .destinataire(offre.getEmployeur())
+                .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
+                        VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString()
+                ))
+                .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 

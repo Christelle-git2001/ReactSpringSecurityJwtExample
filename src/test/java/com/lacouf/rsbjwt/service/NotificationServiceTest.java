@@ -9,6 +9,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
@@ -84,6 +85,70 @@ public class NotificationServiceTest {
                 Map.of(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
                         VariableMapKey.OFFRE_TITRE, "Developpeur Java"));
         notificationEmployeur.setId(40L);
+    }
+
+    @Test
+    void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Entrevue entrevue = Entrevue.builder().candidature(candidature)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(50L);
+            return notification;
+        });
+
+        NotificationDTO resultat = notificationService.handleConvocationRepondue(new ConvocationRepondueEvent(entrevue));
+
+        assertThat(resultat.notificationType()).isEqualTo(NotificationType.CONVOCATION_ACCEPTEE);
+        String cle = "notification.employeur.convocationAcceptee";
+        assertThat(resultat.titre()).isEqualTo(cle + ".title");
+        assertThat(resultat.description()).isEqualTo(cle + ".description");
+        assertThat(resultat.estLu()).isFalse();
+        assertThat(resultat.variables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName())
+                .containsEntry(VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString());
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        assertThat(captor.getValue().getDestinataire()).isSameAs(employeur);
+        assertThat(captor.getValue().getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(resultat.urlCible()).isEqualTo(ControllerPath.EMPLOYEUR_CANDIDATURES.build());
+    }
+
+    @Test
+    void doitNotifierLEmployeurDuRefusDeLaConvocation() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Entrevue entrevue = Entrevue.builder().candidature(candidature)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
+        entrevue.setStatut(StatutEntrevue.REFUSEE);
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(50L);
+            return notification;
+        });
+
+        NotificationDTO resultat = notificationService.handleConvocationRepondue(new ConvocationRepondueEvent(entrevue));
+
+        assertThat(resultat.notificationType()).isEqualTo(NotificationType.CONVOCATION_REFUSEE);
+        String cle = "notification.employeur.convocationRefusee";
+        assertThat(resultat.titre()).isEqualTo(cle + ".title");
+        assertThat(resultat.description()).isEqualTo(cle + ".description");
+        assertThat(resultat.estLu()).isFalse();
+        assertThat(resultat.variables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName())
+                .containsEntry(VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString());
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        assertThat(captor.getValue().getDestinataire()).isSameAs(employeur);
+        assertThat(captor.getValue().getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(resultat.urlCible()).isEqualTo(ControllerPath.EMPLOYEUR_CANDIDATURES.build());
     }
 
     @Test
