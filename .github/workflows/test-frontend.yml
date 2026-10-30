@@ -10,6 +10,7 @@ on:
     branches: [ main, develop ]
     paths:
       - 'react-vite-project/**'
+      - '.github/workflows/test-frontend.yml'
 
 jobs:
   test:
@@ -17,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [22.x, 24.x]
 
     steps:
     - name: Checkout code
