@@ -74,6 +74,36 @@ export async function suppressionCv(){
   });
 }
 
+export async function obtenirToutesConvocations() {
+    const token = getToken();
+    return fetchJson("/etudiant/convocations", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+    });
+}
+export async function obtenirConvocation(userId) {
+  const token = getToken();
+  return fetchJson(`/etudiant/convocations/${userId}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+  });
+}
+
+export async function confirmerConvocation(id) {
+  const token = getToken();
+  return fetchJson(`/etudiant/convocations/${id}/reponse`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  });
+}
+
 function getToken(){
   const token = localStorage.getItem("token");
   if (!token) {
