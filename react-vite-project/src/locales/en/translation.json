@@ -1,4 +1,7 @@
 {
+  "language": {
+    "label": "Language"
+  },
   "inscription": {
     "titre": "You are?",
     "etudiant": "Student",
@@ -483,12 +486,17 @@
   },
   "agenda": {
     "no_interviews": "No interview",
-    "clear_filter":  "Clear filter",
+    "clear_filter": "Show all interviews",
     "title": "Schedule",
-    "all_interviews": "Upcoming interviews:",
+    "all_interviews": "Scheduled interviews:",
+    "interview_day": "Day with an interview",
+    "today": "Today",
+    "previous_month": "Previous month",
+    "next_month": "Next month",
+    "no_date": "Unspecified date",
     "select_date_prompt": "Select a date",
     "no_interviews_date": "No interviews scheduled for this date.",
-    "select_date_hint": "Click a date to view interviews."
+    "select_date_hint": "Click a date to filter the interview list."
   },
   "gestion_entrevue": {
     "title": "Interview Management",

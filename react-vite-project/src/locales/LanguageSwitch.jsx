@@ -1,30 +1,31 @@
 import { useTranslation } from "react-i18next";
 
 function LanguageSwitch() {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
 
-    const currentLang = i18n.language?.startsWith("en") ? "en" : "fr";
-
-    const toggleLanguage = () => {
-        const nextLang = currentLang === "fr" ? "en" : "fr";
-        i18n.changeLanguage(nextLang);
-    };
+    const currentLang = (i18n.resolvedLanguage || i18n.language)?.startsWith("en") ? "en" : "fr";
 
     return (
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-            <span className={`text-xs font-bold ${currentLang === "fr" ? "text-black" : "text-gray-400"}`}>
-                FR
-            </span>
-            <input
-                type="checkbox"
-                checked={currentLang === "en"}
-                onChange={toggleLanguage}
-                className="toggle border-black bg-white checked:border-black checked:bg-black checked:text-white"
-            />
-            <span className={`text-xs font-bold ${currentLang === "en" ? "text-black" : "text-gray-400"}`}>
-                EN
-            </span>
-        </label>
+        <div role="group" aria-label={t("language.label")}
+             className="inline-flex shrink-0 self-center items-center rounded-full bg-white p-0.5 text-xs font-semibold shadow-sm">
+            {[{ code: "fr", label: "Français" }, { code: "en", label: "English" }].map(({ code, label }) => (
+                <button
+                    key={code}
+                    type="button"
+                    lang={code}
+                    aria-label={label}
+                    aria-pressed={currentLang === code}
+                    onClick={() => {
+                        if (currentLang !== code) i18n.changeLanguage(code);
+                    }}
+                    className={`h-7 min-w-9 rounded-full px-2 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#043462] ${
+                        currentLang === code ? "bg-[#043462] text-white" : "text-[#043462] hover:bg-blue-50"
+                    }`}
+                >
+                    {code.toUpperCase()}
+                </button>
+            ))}
+        </div>
     );
 }
 

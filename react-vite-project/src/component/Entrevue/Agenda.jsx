@@ -1,20 +1,34 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Entrevue from "./Entrevue";
-import { FiCalendar, FiX } from "react-icons/fi";
+import { FiCalendar } from "react-icons/fi";
+import Button from "../Design/Button.jsx";
+import "./Agenda.css";
 import "cally";
 
 function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDateSelect }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const calendarRef = useRef(null);
+    const interviewDates = useMemo(
+        () => new Set(entrevuesList.map((entrevue) => getCleanDate(entrevue?.date)).filter(Boolean)),
+        [entrevuesList]
+    );
+
+    useEffect(() => {
+        if (calendarRef.current) {
+            calendarRef.current.getDayParts = (date) =>
+                interviewDates.has(date.toISOString().slice(0, 10)) ? "interview" : "";
+        }
+    }, [interviewDates]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
         if (!calendarEl) return;
 
         calendarEl.value = selectedDate || "";
+        if (selectedDate) calendarEl.focusedDate = selectedDate;
 
         const handleDateChange = (e) => {
             const newDate = e.target.value;
@@ -34,12 +48,10 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
         }
     };
 
-    const getCleanDate = (dateVal) => {
-        if (!dateVal) return "";
-        return String(dateVal).trim().split("T")[0];
-    };
-
     const cleanSelectedDate = getCleanDate(selectedDate);
+    const locale = i18n.resolvedLanguage || i18n.language || "fr";
+    const formatDate = (date) => new Intl.DateTimeFormat(locale, { dateStyle: "long" })
+        .format(new Date(`${date}T12:00:00`));
 
     const filteredEntrevues = cleanSelectedDate
         ? entrevuesList.filter((entrevue) => getCleanDate(entrevue?.date) === cleanSelectedDate)
@@ -70,7 +82,7 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
     };
 
     return (
-        <div className="bg-[#99F0EF] p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col gap-6 w-full">
+        <div className="bg-[#99F0EF] p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col gap-6 w-full min-w-0">
             <div className="flex justify-between items-center border-b border-[#043462] pb-4">
                 <div>
                     <h2 className="text-xl font-bold text-[#043462]">
@@ -87,15 +99,19 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                     <calendar-date
                         ref={calendarRef}
                         value={cleanSelectedDate}
-                        className="cally bg-white border border-gray-200 shadow-sm rounded-2xl p-3
+                        locale={locale}
+                        first-day-of-week="1"
+                        aria-label={t("agenda.title")}
+                        aria-describedby="interview-calendar-hint"
+                        className="cally interview-calendar bg-white border border-gray-200 shadow-sm rounded-2xl p-3
                        w-full h-full overflow-hidden flex flex-col"
                     >
-                        <svg aria-label="Previous" className="fill-current size-4 text-[#043462]" slot="previous"
+                        <svg aria-label={t("agenda.previous_month")} className="fill-current size-4 text-[#043462]" slot="previous"
                              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
                         </svg>
 
-                        <svg aria-label="Next" className="fill-current size-4 text-[#043462]" slot="next"
+                        <svg aria-label={t("agenda.next_month")} className="fill-current size-4 text-[#043462]" slot="next"
                              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path fill="currentColor" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
                         </svg>
@@ -105,24 +121,38 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                 </div>
             </div>
 
-            <div className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1 scrollbar-thin scrollbar-thumb-gray-300">
+            <div className="space-y-2 text-xs text-[#043462]">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <span className="inline-flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-[#043462]" aria-hidden="true" />
+                        {t("agenda.interview_day")}
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                        <span className="size-3 rounded-sm border border-[#043462]" aria-hidden="true" />
+                        {t("agenda.today")}
+                    </span>
+                </div>
+                <p id="interview-calendar-hint">{t("agenda.select_date_hint")}</p>
+            </div>
+
+            {cleanSelectedDate && (
+                <div className="flex justify-end">
+                    <Button variant="secondary" size="small" onClick={handleClearFilter}>
+                        {t("agenda.clear_filter")}
+                    </Button>
+                </div>
+            )}
+
+            <div aria-live="polite" className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1 scrollbar-thin scrollbar-thumb-gray-300">
                 {sortedDates.length > 0 ? (
                     sortedDates.map((dateKey) => (
                         <div key={dateKey} className="flex flex-col gap-2">
                             <div className="sticky top-0 bg-[#99F0EF] py-1 z-10 flex items-center justify-between">
                                 <span className="px-1 text-xs font-bold text-[#043462] uppercase tracking-wider">
-                                    {dateKey}
+                                    {dateKey === "sans_date" ? t("agenda.no_date") : formatDate(dateKey)}
                                 </span>
-                                {cleanSelectedDate && (
-                                    <button
-                                        type="button"
-                                        onClick={handleClearFilter}
-                                        className="flex items-center gap-1 text-xs font-semibold text-[#043462] bg-white/60 hover:bg-white px-2.5 py-1 rounded-lg transition-all cursor-pointer"
-                                    >{t("agenda.clear_filter")}
-                                    </button>
-                                )}
                             </div>
-                            {groupedEntrevues[dateKey].map((entrevue) => (
+                            {[...groupedEntrevues[dateKey]].sort((a, b) => (a.heure || "").localeCompare(b.heure || "")).map((entrevue) => (
                                 <Entrevue
                                     key={entrevue.id}
                                     entrevue={entrevue}
@@ -142,6 +172,10 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
             </div>
         </div>
     );
+}
+
+function getCleanDate(dateVal) {
+    return dateVal ? String(dateVal).trim().split("T")[0] : "";
 }
 
 export default Agenda;
