@@ -111,7 +111,8 @@
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "cancel" : "Cancel"
   },
   "login": {
     "page_title": "Login",
@@ -193,7 +194,8 @@
     "created_offers": "Created offers",
     "history": "History",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "assignation" : "Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -263,6 +265,41 @@
     "card": {
       "view_offers": "Review and manage all internship offers submitted by partner companies.",
       "cvs": "Review student resumes. Approve, reject, or provide guidance."
+    },
+    "assignation": {
+      "title" : "Teacher Assignment",
+      "description_without_teacher" : "Select a teacher to begin student assignment",
+      "description_with_teacher" : "Select the students to be assigned to this teacher",
+      "professeur" : {
+        "professeur_without_name": "This teacher has no name",
+        "professeur_without_department" : "This teacher has no department",
+        "professeur_without_email" : "This teacher has no email",
+        "professeur_modal_title": "Would you really like to change the teacher ?",
+        "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
+      },
+      "select": {
+        "professor" : "Choose a teacher",
+        "professorSelected" : "You have selected this teacher",
+        "anotherProfessor": "Click to choose another teacher",
+        "warningAnotherProfessor" : "Change the professor? This will clear the selected students.",
+        "student": "Choose the students who will be assigned to: {{prenom}} {{nom}}",
+        "finishToSelect" : "Have you finished selecting the students? Click the \"Assign\" button in the student list.",        "studentList" : {
+          "title" : "Selected Students",
+          "empty" : "No students selected"
+        }
+      },
+      "etudiant" : {
+        "empty": "No students enrolled for this department: {{departement}}",
+        "notFound" : "N/A",
+        "teacher" : "Teacher",
+        "noProfesseur" : "No teacher assigned",
+        "assign_title": "Congratulations! Here are the students assigned to this teacher: {{prenom}} {{nom}}",
+        "assign_tips": "To make another selection, please click the \"Assign again\" button.",
+        "assign_restart": "Assign again"
+      },
+      "button": {
+        "text" : "Assign"
+      }
     }
   },
   "pdfVisio": {
@@ -471,5 +508,17 @@
   "gestion_entrevue": {
     "title": "Interview Management",
     "subtitle": "Schedule your appointments and view your calendar in real time."
+  },
+  "general": {
+    "nom" : "Name",
+    "departement" : "Department",
+    "matricule": "Matricule",
+    "email" : "email",
+    "liste" : {
+      "open" : "Open the list",
+      "close" : "Close the list",
+      "title" : "List",
+      "empty" : "The list is empty"
+    }
   }
 }

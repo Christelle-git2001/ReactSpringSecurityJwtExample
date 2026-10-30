@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.GestionnaireService;
+import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -41,11 +42,12 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final EmployeurService employeurService;
     private final GestionnaireService gestionnaireService;
     private final CvEtudiantRepository cvEtudiantRepository;
+    private final ProfesseurService professeurService;
 
     public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
-                                             UserAppRepository userAppRepository,  Environment environment, EtudiantService etudiantService,
+                                             UserAppRepository userAppRepository, Environment environment, EtudiantService etudiantService,
                                              OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
-                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository) {
+                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository, ProfesseurService professeurService) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
@@ -56,6 +58,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.employeurRepository = employeurRepository;
         this.gestionnaireService = gestionnaireService;
         this.cvEtudiantRepository = cvEtudiantRepository;
+        this.professeurService = professeurService;
     }
 
     public static void main(String[] args) {
@@ -91,6 +94,12 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
+
+        InscriptionProfesseurDTO inscriptionProfesseurDTO = new InscriptionProfesseurDTO("Toru","Shirazu","Toru.Shirazu@claurendeau.qc.ca","NoNeed","NoNeed","9325645","698-585-6666",Departement.INFORMATIQUE.name());
+        InscriptionProfesseurDTO inscriptionProfesseurDTO2 = new InscriptionProfesseurDTO("Evie","Frye","Evie.Frye@claurendeau.qc.ca","NoNeed","NoNeed","5486598","698-585-6266",Departement.TRAVAIL_SOCIAL.name());
+
+        professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
+        professeurService.creerCompteProfesseur(inscriptionProfesseurDTO2);
 
         String minimalCV = "%PDF-1.4\n" +
                 "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
