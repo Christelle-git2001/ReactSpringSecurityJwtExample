@@ -91,18 +91,18 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                     </ul>
 
                     {offer?.description && (
-                        <div className="mt-2 text-xs">
-                            <p className="py-1 text-xs font-bold text-[#043462]">
+                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
-                            </p>
-                            <div className="p-0">
+                            </summary>
+                            <div className="collapse-content p-0">
                                 <div className="mt-1 rounded-r-md border-l-[3px] border-[#00CCCB] bg-[#00CCCB]/5 px-3 py-2">
                                     <p className="leading-relaxed whitespace-pre-line break-words text-gray-700">
                                         {offer.description}
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </details>
                     )}
 
                     {currentStatusKey === "REFUSEE" && offer?.rejectionComment && (

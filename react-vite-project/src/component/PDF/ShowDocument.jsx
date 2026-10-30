@@ -22,7 +22,7 @@ const ShowDocument = ({ offerId, fileName, loadPdfResponse }) => {
 
     return (
         <div className="w-full">
-            <div className="document-card document-card-navy mt-2">
+            <div className="document-card mt-2">
                 {fileName || offerId  || loadPdfResponse ? (
                     <>
                         <div className="document-card-info">
@@ -39,7 +39,7 @@ const ShowDocument = ({ offerId, fileName, loadPdfResponse }) => {
                     </>
                 ) : (
                     <div className="flex justify-center w-full">
-                        <p className="text-center text-sm text-white/80">
+                        <p className="text-center text-sm text-gray-600">
                             {t("offre.no_document_attached", "Aucun document rattaché à cette offre")}
                         </p>
                     </div>
@@ -47,7 +47,7 @@ const ShowDocument = ({ offerId, fileName, loadPdfResponse }) => {
 
                 {error && (
                     <div className="mt-1">
-                        <p className="text-xs text-red-200">{t(error)}</p>
+                        <p className="text-xs text-red-500">{t(error)}</p>
                     </div>
                 )}
             </div>

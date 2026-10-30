@@ -79,16 +79,6 @@ button:disabled,
     @apply mt-1 text-sm text-gray-500;
 }
 
-.document-card-navy {
-    @apply bg-[#043462] text-white;
-}
-
-.document-card-navy .document-card-name,
-.document-card-navy .document-card-details,
-.document-card-navy button {
-    color: white;
-}
-
 .welcome-message {
     @apply text-3xl font-bold text-[#043462];
 }

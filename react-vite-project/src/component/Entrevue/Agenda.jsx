@@ -122,26 +122,23 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
             </div>
 
             <div className="space-y-2 text-xs text-[#043462]">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <span className="inline-flex items-center gap-2">
-                        <span className="size-2 rounded-full bg-[#043462]" aria-hidden="true" />
-                        {t("agenda.interview_day")}
-                    </span>
-                    <span className="inline-flex items-center gap-2">
-                        <span className="size-3 rounded-sm border border-[#043462]" aria-hidden="true" />
-                        {t("agenda.today")}
-                    </span>
-                </div>
-                <p id="interview-calendar-hint">{t("agenda.select_date_hint")}</p>
-            </div>
-
-            {cleanSelectedDate && (
-                <div className="flex justify-end">
-                    <Button variant="secondary" size="small" onClick={handleClearFilter}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <span className="inline-flex items-center gap-2">
+                            <span className="size-2 rounded-full bg-[#043462]" aria-hidden="true" />
+                            {t("agenda.interview_day")}
+                        </span>
+                        <span className="inline-flex items-center gap-2">
+                            <span className="size-3 rounded-sm border border-[#043462]" aria-hidden="true" />
+                            {t("agenda.today")}
+                        </span>
+                    </div>
+                    <Button variant="secondary" size="small" className="ml-auto shrink-0" onClick={handleClearFilter}>
                         {t("agenda.clear_filter")}
                     </Button>
                 </div>
-            )}
+                <p id="interview-calendar-hint">{t("agenda.select_date_hint")}</p>
+            </div>
 
             <div aria-live="polite" className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1 scrollbar-thin scrollbar-thumb-gray-300">
                 {sortedDates.length > 0 ? (
