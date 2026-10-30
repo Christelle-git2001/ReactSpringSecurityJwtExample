@@ -145,11 +145,6 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.from = "/employeur";
             }
 
-            if (!notification.estLu) {
-                await marquerNotificationLue(notification.id);
-                onMarkAsRead?.(notification.id);
-            }
-
             closeNotification();
             navigate(destination, { state });
         }catch (error) {
