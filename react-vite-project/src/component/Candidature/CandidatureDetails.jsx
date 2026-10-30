@@ -136,7 +136,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                 </div>
 
                 <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button variant="secondary"
+                    <Button variant="custom"
                         type="button"
                         onClick={handleConvoquer}
                         disabled={isSubmitting || isRetenue}
@@ -148,10 +148,9 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     >
                         {t("actions.interview")}
                     </Button>
-                    <Button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => navigate(retour)}
-                        className="bg-gray-200 text-gray-700 hover:bg-gray-300"
                     >
                         {t("actions.back")}
                     </Button>

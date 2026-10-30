@@ -1,34 +1,20 @@
-
 import { createInstance } from "i18next";
-import {
-    fireEvent,
-    render,
-    screen,
-    waitFor
-} from "@testing-library/react";
+import { marquerNotificationLue } from "../../../api/notification.jsx";
+import traductionFr from "../../../locales/fr/translation.json";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
-
-import {
-    getNotifications,
-    marquerNotificationLue
-} from "../../../api/notification.jsx";
-
-import traductionFr from "../../../locales/fr/translation.json";
-import traductionEn from "../../../locales/en/translation.json";
-
 import Notification from "../../../component/Notification/Notification.jsx";
 
 jest.mock("../../../api/notification.jsx", () => ({
-    getNotifications: jest.fn(),
-    marquerNotificationLue: jest.fn()
+    marquerNotificationLue: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
 
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
-    useNavigate: () => mockNavigate
+    useNavigate: () => mockNavigate,
 }));
 
 const testI18n = createInstance();
@@ -39,20 +25,15 @@ beforeAll(async () => {
         fallbackLng: "fr",
         resources: {
             fr: { translation: traductionFr },
-            en: { translation: traductionEn }
         },
-        interpolation: {
-            escapeValue: false
-        }
+        interpolation: { escapeValue: false },
     });
 });
 
 beforeEach(async () => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     await testI18n.changeLanguage("fr");
-
-    getNotifications.mockResolvedValue([]);
-    marquerNotificationLue.mockResolvedValue({});
+    marquerNotificationLue.mockResolvedValue({ estLu: true });
 });
 
 function creerNotificationNouvelleOffre() {
@@ -66,32 +47,29 @@ function creerNotificationNouvelleOffre() {
         variables: {
             OFFRE_ID: "12",
             OFFRE_TITRE: "Développeur Web",
-            ENTREPRISE_NOM: "Malinois Inc"
-        }
+            ENTREPRISE_NOM: "Malinois Inc",
+        },
     };
 }
 
-function afficherNotifications(onClose = jest.fn()) {
-    return render(
+function afficherNotifications(notifications, onMarkAsRead = jest.fn()) {
+    render(
         <I18nextProvider i18n={testI18n}>
-            <MemoryRouter>
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Notification
-                    userId={5}
-                    onClose={onClose}
+                    notifications={notifications}
+                    onMarkAsRead={onMarkAsRead}
                 />
             </MemoryRouter>
         </I18nextProvider>
     );
+
+    return { onMarkAsRead };
 }
 
 describe("NotificationNouvelleOffreApprouvee", () => {
-
     it("affiche une notification lorsqu'une nouvelle offre est disponible", async () => {
-        getNotifications.mockResolvedValue([
-            creerNotificationNouvelleOffre()
-        ]);
-
-        afficherNotifications();
+        afficherNotifications([creerNotificationNouvelleOffre()]);
 
         expect(
             await screen.findByText("Nouvelle offre de stage")
@@ -99,69 +77,56 @@ describe("NotificationNouvelleOffreApprouvee", () => {
     });
 
     it("affiche le titre de l'offre et le nom de l'entreprise", async () => {
-        getNotifications.mockResolvedValue([
-            creerNotificationNouvelleOffre()
-        ]);
-
-        afficherNotifications();
+        afficherNotifications([creerNotificationNouvelleOffre()]);
 
         expect(
             await screen.findByText(
-                /Une offre de Développeur Web est maintenant disponible chez Malinois Inc\./i
+                /Une offre de Développeur Web est maintenant disponible chez Malinois Inc\.?/i
             )
         ).toBeInTheDocument();
     });
 
-    it("marque la notification comme lue et ouvre la page de l'étudiant au clic", async () => {
-        getNotifications.mockResolvedValue([
-            creerNotificationNouvelleOffre()
+    it("marque la notification comme lue et navigue vers la page de l'étudiant", async () => {
+        const { onMarkAsRead } = afficherNotifications([
+            creerNotificationNouvelleOffre(),
         ]);
 
-        const onCloseMock = jest.fn();
-
-        afficherNotifications(onCloseMock);
-
         const description = await screen.findByText(
-            /Une offre de Développeur Web est maintenant disponible chez Malinois Inc\./i
+            /Une offre de Développeur Web est maintenant disponible chez Malinois Inc\.?/i
         );
 
-        fireEvent.click(description);
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /Nouvelle offre de stage/i,
+            })
+        );
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(20);
-
-            expect(mockNavigate).toHaveBeenCalledWith(
-                "/etudiant",
-                {
-                    state: {
-                        offreId: "12",
-                        from: "/etudiant"
-                    }
-                }
-            );
-
-            expect(onCloseMock).toHaveBeenCalledTimes(1);
+            expect(mockNavigate).toHaveBeenCalledWith("/etudiant", {
+                state: { offreId: "12", from: "/etudiant" },
+            });
         });
+
+        expect(onMarkAsRead).toHaveBeenCalledWith(20);
     });
 
-    it("navigue pas vers l'offre si le marquage comme lue échoue", async () => {
-        getNotifications.mockResolvedValue([
-            creerNotificationNouvelleOffre()
-        ]);
-
+    it("ne navigue pas si le marquage comme lue échoue", async () => {
         marquerNotificationLue.mockRejectedValue(
             new Error("Erreur serveur")
         );
 
-        const onCloseMock = jest.fn();
-
-        afficherNotifications(onCloseMock);
+        afficherNotifications([creerNotificationNouvelleOffre()]);
 
         const description = await screen.findByText(
-            /Une offre de Développeur Web est maintenant disponible chez Malinois Inc\./i
+            /Une offre de Développeur Web est maintenant disponible chez Malinois Inc\.?/i
         );
 
-        fireEvent.click(description);
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /Nouvelle offre de stage/i,
+            })
+        );
 
         expect(await screen.findByRole("alert")).toHaveTextContent(
             traductionFr.notifications.read_error
@@ -169,7 +134,5 @@ describe("NotificationNouvelleOffreApprouvee", () => {
 
         expect(marquerNotificationLue).toHaveBeenCalledWith(20);
         expect(mockNavigate).not.toHaveBeenCalled();
-        expect(onCloseMock).not.toHaveBeenCalled();
     });
-
 });

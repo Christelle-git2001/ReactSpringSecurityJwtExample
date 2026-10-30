@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
-import CandidatureCard from "../../component/Design/Cards/CandidatureCard.jsx";
 import { getOffresEmployeur, getCandidaturesEmployeur } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
@@ -21,38 +20,19 @@ const EmployeurHome = ({ user }) => {
     const offreFilters = useFilters(offres, {
         getDomain: (o) => o.domain,
         getStatus: (o) => o.statut,
-        getSearchableText: (o) => `${o.title} ${o.description}`,
-    });
-
-    const candidatureFilters = useFilters(candidatures, {
-        getDomain: (c) => c.etudiantDepartment,
-        getSearchableText: (c) => `${c.etudiantFirstName || ""} ${c.etudiantLastName || ""} ${c.offreTitle || ""}`,
+        getSearchableText: (o) => [
+            o.title,
+            o.description,
+            ...candidatures
+                .filter((c) => c.offreId === o.id)
+                .map((c) => `${c.etudiantFirstName || ""} ${c.etudiantLastName || ""}`),
+        ].join(" "),
     });
 
     const filteredOffres = offreFilters.itemsFiltres.filter((o) => {
         if (!selectedOfferId || selectedOfferId === "TOUS") return true;
         return o.id === selectedOfferId;
     });
-
-    const filteredCandidatures = candidatureFilters.itemsFiltres.filter((c) => {
-        if (!selectedOfferId || selectedOfferId === "TOUS") return true;
-        return c.offreId === selectedOfferId;
-    });
-
-    const handleSearchChange = (term) => {
-        offreFilters.setSearchTerm(term);
-        candidatureFilters.setSearchTerm(term);
-    };
-
-    const handleDomainChange = (domain) => {
-        offreFilters.setSelectedDomain(domain);
-        candidatureFilters.setSelectedDomain(domain);
-    };
-
-    const handleStatusChange = (status) => {
-        offreFilters.setSelectedStatus(status);
-        candidatureFilters.setSelectedStatus(status);
-    };
 
     const handleEdit = (offer) => {
         navigate("/employeur/offres/modifier", {
@@ -114,10 +94,6 @@ const EmployeurHome = ({ user }) => {
             });
     }, [navigate]);
 
-    const combinedDomains = Array.from(
-        new Set([...offreFilters.availableDomains, ...candidatureFilters.availableDomains])
-    );
-
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
             <div className="w-full max-w-7xl">
@@ -128,16 +104,16 @@ const EmployeurHome = ({ user }) => {
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <SearchBar
                     value={offreFilters.searchTerm}
-                    onChange={handleSearchChange}
-                    onClear={() => handleSearchChange("")}
+                    onChange={offreFilters.setSearchTerm}
+                    onClear={() => offreFilters.setSearchTerm("")}
                 />
 
                 <FilterBar
                     selectedStatus={offreFilters.selectedStatus}
-                    onStatusChange={handleStatusChange}
+                    onStatusChange={offreFilters.setSelectedStatus}
                     selectedDomain={offreFilters.selectedDomain}
-                    onDomainChange={handleDomainChange}
-                    availableDomains={combinedDomains}
+                    onDomainChange={offreFilters.setSelectedDomain}
+                    availableDomains={offreFilters.availableDomains}
                     selectedOfferId={selectedOfferId}
                     onOfferChange={setSelectedOfferId}
                     availableOffers={offres}
@@ -152,6 +128,7 @@ const EmployeurHome = ({ user }) => {
                     </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
                         <div className="w-full px-2 sm:px-4 pb-8">
                             {filteredOffres.length === 0 ? (
                                 <EmptyContentMessage
@@ -170,40 +147,6 @@ const EmployeurHome = ({ user }) => {
                                             candidatures={candidatures}
                                             onViewCandidature={handleViewCandidature}
                                             onEdit={handleEdit}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </details>
-            </div>
-            <div id="candidatures-section" className="w-full max-w-7xl mt-4">
-                <details open className="collapse collapse-arrow bg-transparent">
-
-                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        <span> {t("candidature.list_title")} </span>
-                        <span> ({filteredCandidatures.length}) </span>
-                    </summary>
-
-                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
-                        <div className="w-full px-2 sm:px-4 pb-8">
-                            {filteredCandidatures.length === 0 ? (
-                                <EmptyContentMessage
-                                    message={
-                                        candidatures.length === 0
-                                            ? t("candidature.no_candidatures")
-                                            : t("candidature.no_matching_candidatures")
-                                    }
-                                />
-                            ) : (
-                                <div className="flex flex-col gap-3 mt-4">
-                                    {filteredCandidatures.map((candidature) => (
-                                        <CandidatureCard
-                                            key={candidature.id}
-                                            candidature={candidature}
-                                            onView={handleViewCandidature}
-                                            offer={offres.find(offer => offer.id === candidature.offreId)}
                                         />
                                     ))}
                                 </div>

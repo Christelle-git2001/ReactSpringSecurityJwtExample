@@ -1,14 +1,14 @@
 import { createInstance } from "i18next";
-import { getNotifications, marquerNotificationLue } from "../../../api/notification.jsx";
+import { marquerNotificationLue } from "../../../api/notification.jsx";
 import traductionFr from "../../../locales/fr/translation.json";
 import traductionEn from "../../../locales/en/translation.json";
-import {findByText, fireEvent, render, screen, waitFor} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { MemoryRouter } from "react-router-dom";
 import Notification from "../../../component/Notification/Notification.jsx";
+import { useState } from "react";
 
 jest.mock("../../../api/notification.jsx", () => ({
-    getNotifications: jest.fn(),
     marquerNotificationLue: jest.fn(),
 }));
 
@@ -27,304 +27,230 @@ beforeAll(async () => {
         fallbackLng: "fr",
         resources: {
             fr: { translation: traductionFr },
-            en: { translation: traductionEn }
+            en: { translation: traductionEn },
         },
         interpolation: { escapeValue: false },
     });
 });
 
 beforeEach(async () => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     await testI18n.changeLanguage("fr");
+    marquerNotificationLue.mockResolvedValue({ estLu: true });
 });
 
-function afficherNotifications(userId = 5) {
-    return render(
-        <I18nextProvider i18n={testI18n}>
-            <MemoryRouter>
-                <Notification userId={userId} onClose={jest.fn()} />
-            </MemoryRouter>
-        </I18nextProvider>
-    );
+function creerNotificationStatut(id, statut) {
+    return {
+        id,
+        notificationType: "CV_STATUT_CHANGE",
+        titre: statut === "ACCEPTEE"
+            ? "notification.etudiant.validation.title_acceptee"
+            : statut === "REFUSEE"
+                ? "notification.etudiant.validation.title_refusee"
+                : "notification.etudiant.validation.title_default",
+        description: statut === "ACCEPTEE"
+            ? "notification.etudiant.validation.description_acceptee"
+            : statut === "REFUSEE"
+                ? "notification.etudiant.validation.description_refusee"
+                : "notification.etudiant.validation.description_default",
+        dateNotifiee: "2026-10-14T10:00:00",
+        estLu: false,
+        variables: statut ? { STATUT_FICHIER: statut } : {},
+    };
+}
+
+function afficherNotifications(notificationsInitiales, onMarkAsRead = jest.fn()) {
+    function NotificationTest() {
+        const [notifications, setNotifications] = useState(notificationsInitiales);
+
+        const gererNotificationLue = (id) => {
+            setNotifications((liste) =>
+                liste.filter((notification) => notification.id !== id)
+            );
+            onMarkAsRead(id);
+        };
+
+        return (
+            <I18nextProvider i18n={testI18n}>
+                <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <Notification
+                        notifications={notifications}
+                        onMarkAsRead={gererNotificationLue}
+                    />
+                </MemoryRouter>
+            </I18nextProvider>
+        );
+    }
+
+    render(<NotificationTest />);
+
+    return { onMarkAsRead };
 }
 
 describe("Notification - CV_STATUT_CHANGE", () => {
-
     it("affiche correctement une notification de CV refusé avec le bon texte", async () => {
-        const mockNotifications = [
-            {
-                id: 1,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_refusee",
-                description: "notification.etudiant.validation.description_refusee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
-                    STATUT_FICHIER: "REFUSEE"
-                }
-            }
-        ];
+        afficherNotifications([creerNotificationStatut(1, "REFUSEE")]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
+        expect(
+            await screen.findByText(/votre cv a été refusé/i)
+        ).toBeInTheDocument();
 
-        afficherNotifications();
-
-        expect(await screen.findByText(/votre cv a été refusé/i)).toBeInTheDocument();
-        expect(screen.getByText(/pour connaître les motifs du refus/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/pour connaître les motifs du refus/i)
+        ).toBeInTheDocument();
     });
 
     it("affiche correctement une notification de CV accepté avec le bon texte", async () => {
-        const mockNotifications = [
-            {
-                id: 1,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_acceptee",
-                description: "notification.etudiant.validation.description_acceptee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
-                    STATUT_FICHIER: "ACCEPTEE"
-                }
-            }
-        ];
+        afficherNotifications([creerNotificationStatut(1, "ACCEPTEE")]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
+        expect(
+            await screen.findByText(/votre cv a été accepté/i)
+        ).toBeInTheDocument();
 
-        afficherNotifications();
-
-        expect(await screen.findByText(/Votre CV a été accepté/i)).toBeInTheDocument();
-        expect(screen.getByText(/Félicitations, votre CV a été validé !/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/félicitations, votre cv a été validé !/i)
+        ).toBeInTheDocument();
     });
 
     it("marque la notification comme lue au clic", async () => {
-        const mockNotifications = [
-            {
-                id: 2,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_acceptee",
-                description: "notification.etudiant.validation.description_acceptee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
-                    STATUT_FICHIER: "ACCEPTEE"
-                }
-            }
-        ];
+        afficherNotifications([creerNotificationStatut(2, "ACCEPTEE")]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
+        const description = await screen.findByText(/votre cv a été accepté/i);
 
-        afficherNotifications();
-
-        const item = await screen.findByText(/votre cv a été accepté/i);
-        expect(item).toBeInTheDocument();
-
-        fireEvent.click(item);
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /cv a été accepté/i,
+            })
+        );
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(2);
         });
     });
 
-    it("navigue vers la bonne route, marque comme lu et ferme le drawer au clic sur un CV accepté", async () => {
-        const mockNotifications = [
-            {
-                id: 2,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_acceptee",
-                description: "notification.etudiant.validation.description_acceptee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
-                    STATUT_FICHIER: "ACCEPTEE"
-                }
-            }
-        ];
+    it("navigue vers la bonne route et marque comme lue au clic sur un CV accepté", async () => {
+        const { onMarkAsRead } = afficherNotifications([
+            creerNotificationStatut(2, "ACCEPTEE"),
+        ]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
+        const description = await screen.findByText(/votre cv a été accepté/i);
 
-        const onCloseMock = jest.fn();
-        render(
-            <I18nextProvider i18n={testI18n}>
-                <MemoryRouter>
-                    <Notification userId={5} onClose={onCloseMock} />
-                </MemoryRouter>
-            </I18nextProvider>
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /cv a été accepté/i,
+            })
         );
-
-        const item = await screen.findByText(/votre cv a été accepté/i);
-        fireEvent.click(item);
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(2);
-            expect(mockNavigate).toHaveBeenCalledWith("/etudiant/cv#televerser");
-            expect(onCloseMock).toHaveBeenCalledTimes(1);
+            expect(mockNavigate).toHaveBeenCalledWith(
+                "/etudiant/cv#televerser",
+                { state: { from: "/gestionnaire" } }
+            );
         });
+
+        expect(onMarkAsRead).toHaveBeenCalledWith(2);
     });
 
-    it("navigue vers la bonne route, marque comme lu et ferme le drawer au clic sur un CV refusee", async () => {
-        const mockNotifications = [
-            {
-                id: 2,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_refusee",
-                description: "notification.etudiant.validation.description_refusee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
-                    STATUT_FICHIER: "REFUSEE"
-                }
-            }
-        ];
+    it("navigue vers la bonne route et marque comme lue une notification de CV refusé", async () => {
+        const { onMarkAsRead } = afficherNotifications([
+            creerNotificationStatut(3, "REFUSEE"),
+        ]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
+        const description = await screen.findByText(/pour connaître les motifs du refus/i);
 
-        const onCloseMock = jest.fn();
-        render(
-            <I18nextProvider i18n={testI18n}>
-                <MemoryRouter>
-                    <Notification userId={5} onClose={onCloseMock} />
-                </MemoryRouter>
-            </I18nextProvider>
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /cv a été refusé/i,
+            })
         );
 
-        const item = await screen.findByText(/pour connaître les motifs du refus/i);
-        fireEvent.click(item);
-
         await waitFor(() => {
-            expect(marquerNotificationLue).toHaveBeenCalledWith(2);
-            expect(mockNavigate).toHaveBeenCalledWith("/etudiant/cv#televerser");
-            expect(onCloseMock).toHaveBeenCalledTimes(1);
+            expect(marquerNotificationLue).toHaveBeenCalledWith(3);
+            expect(mockNavigate).toHaveBeenCalledWith(
+                "/etudiant/cv#televerser",
+                { state: { from: "/gestionnaire" } }
+            );
         });
+
+        expect(onMarkAsRead).toHaveBeenCalledWith(3);
     });
 
     it("affiche correctement le texte en anglais lorsque la langue change", async () => {
         await testI18n.changeLanguage("en");
 
-        const mockNotifications = [
-            {
-                id: 1,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_acceptee",
-                description: "notification.etudiant.validation.description_acceptee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: { STATUT_FICHIER: "ACCEPTEE" }
-            }
-        ];
+        afficherNotifications([creerNotificationStatut(1, "ACCEPTEE")]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        afficherNotifications();
-
-        expect(await screen.findByText(/Your CV has been accepted/i)).toBeInTheDocument();
+        expect(
+            await screen.findByText(/your cv has been accepted/i)
+        ).toBeInTheDocument();
     });
 
-    it("n'ouvre pas la page et affiche une erreur si le marquage comme lu échoue lors du clic sur une notification de statut", async () => {
-        const mockNotifications = [
-            {
-                id: 1,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_acceptee",
-                description: "notification.etudiant.validation.description_acceptee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
-                    STATUT_FICHIER: "ACCEPTEE"
-                }
-            }
-        ];
-
-        getNotifications.mockResolvedValue(mockNotifications);
+    it("navigue pas et affiche une erreur si le marquage comme lu échoue", async () => {
         marquerNotificationLue.mockRejectedValue(new Error("Erreur serveur"));
 
-        const onCloseMock = jest.fn();
-        afficherNotifications(5, onCloseMock);
+        afficherNotifications([creerNotificationStatut(1, "ACCEPTEE")]);
 
-        const item = await screen.findByText(/votre cv a été accepté/i);
-        fireEvent.click(item);
+        const description = await screen.findByText(/votre cv a été accepté/i);
+
+        fireEvent.click(
+            within(description.closest("li")).getByRole("button", {
+                name: /cv a été accepté/i,
+            })
+        );
 
         expect(await screen.findByRole("alert")).toHaveTextContent(
             traductionFr.notifications.read_error
         );
+
         expect(marquerNotificationLue).toHaveBeenCalledWith(1);
         expect(mockNavigate).not.toHaveBeenCalled();
-        expect(onCloseMock).not.toHaveBeenCalled();
+
     });
 
-    it("utilise la configuration par défaut (fallback) si le statut du fichier est absent ou inconnu", async () => {
-        const mockNotifications = [
-            {
-                id: 3,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_default",
-                description: "notification.etudiant.validation.description_default",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: {
+    it("utilise le texte par défaut si le statut du fichier est absent ou inconnu", async () => {
+        afficherNotifications([creerNotificationStatut(3, undefined)]);
 
-                }
-            }
-        ];
+        expect(
+            await screen.findByText(/vous avez reçu une nouvelle offre à valider/i)
+        ).toBeInTheDocument();
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
-
-        afficherNotifications();
-
-        await waitFor(() => {
-            expect(getNotifications).toHaveBeenCalled();
-        });
-        expect(await screen.findByText(/Vous avez reçu une nouvelle offre à valider./i)).toBeInTheDocument();
-        expect(await screen.findByText(/Notifications/i)).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Notifications" })).toBeInTheDocument();
     });
 
-    it("retire uniquement la notification cliquée de la liste et conserve les autres non lues", async () => {
-        const mockNotifications = [
+    it("retire uniquement la notification cliquée et conserve les autres non lues", async () => {
+        afficherNotifications([
+            creerNotificationStatut(10, "ACCEPTEE"),
             {
-                id: 10,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_acceptee",
-                description: "notification.etudiant.validation.description_acceptee",
-                dateNotifiee: "2026-10-14T10:00:00",
-                estLu: false,
-                variables: { STATUT_FICHIER: "ACCEPTEE" }
-            },
-            {
-                id: 11,
-                notificationType: "CV_STATUT_CHANGE",
-                titre: "notification.etudiant.validation.title_refusee",
-                description: "notification.etudiant.validation.description_refusee",
+                ...creerNotificationStatut(11, "REFUSEE"),
                 dateNotifiee: "2026-10-14T09:00:00",
-                estLu: false,
-                variables: { STATUT_FICHIER: "REFUSEE" }
-            }
-        ];
+            },
+        ]);
 
-        getNotifications.mockResolvedValue(mockNotifications);
-        marquerNotificationLue.mockResolvedValue({});
+        const descriptionAcceptee = await screen.findByText(/votre cv a été accepté/i);
+        const descriptionRefusee = await screen.findByText(/votre cv a été refusé/i);
 
-        afficherNotifications();
+        expect(descriptionAcceptee).toBeInTheDocument();
+        expect(descriptionRefusee).toBeInTheDocument();
 
-        const itemAccepte = await screen.findByText(/votre cv a été accepté/i);
-        const itemRefuse = await screen.findByText(/votre cv a été refusé/i);
-
-        expect(itemAccepte).toBeInTheDocument();
-        expect(itemRefuse).toBeInTheDocument();
-
-        fireEvent.click(itemAccepte);
+        fireEvent.click(
+            within(descriptionAcceptee.closest("li")).getByRole("button", {
+                name: /cv a été accepté/i,
+            })
+        );
 
         await waitFor(() => {
             expect(marquerNotificationLue).toHaveBeenCalledWith(10);
         });
 
         await waitFor(() => {
-            expect(screen.queryByText(/votre cv a été accepté/i)).not.toBeInTheDocument();
-            expect(screen.getByText(/votre cv a été refusé/i)).toBeInTheDocument();
+            expect(
+                screen.queryByText(/votre cv a été accepté/i)
+            ).not.toBeInTheDocument();
+
+            expect(
+                screen.getByText(/votre cv a été refusé/i)
+            ).toBeInTheDocument();
         });
     });
-
 });

@@ -108,12 +108,14 @@
     "reject": "Reject",
     "approve": "Approve",
     "upload": "Upload",
-    "cancel" : "Cancel",
+    "cancel": "Cancel",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "interview": "Select for interview",
+    "backhome": "Back home"
   },
   "login": {
     "page_title": "Login",
@@ -163,7 +165,6 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
-    "convocation_not_found": "Interview invitation not found.",
     "convocation_already_exists": "An interview is already scheduled for this application",
     "required": "This field is required.",
     "email_invalid": "Please enter a valid email address  | Ex : example@domain.com",
@@ -176,7 +177,8 @@
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
     "notification_path": "The destination of this notification does not exist. Please try again later.",
-    "rejection_comment_required": "A comment is required when rejecting a CV."
+    "rejection_comment_required": "A comment is required when rejecting a CV.",
+    "convocation_not_found": "Interview invitation not found."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -184,7 +186,7 @@
     "employer_added": "Employer added successfully."
   },
   "nav": {
-    "add_entrevue" : "Schedule an interview",
+    "add_entrevue": "Schedule an interview",
     "applications": "Applications",
     "cv": "Upload CV",
     "home": "Home",
@@ -192,7 +194,6 @@
     "login": "Login",
     "logout": "Logout",
     "add_offer": "Add offer",
-    "add_entrevue": "Interviews",
     "view_offers": "Internship offers",
     "created_offers": "Created offers",
     "history": "History",
@@ -274,7 +275,7 @@
     "visualize": "Visualize PDF",
     "filesName": "File name",
     "choice": "Choose a file",
-    "modification" : "Modify the selected file",
+    "modification": "Modify the selected file",
     "download": "Download the PDF",
     "fichierInvalide": "Invalid file",
     "noFileDetected": "No file to read",
@@ -282,8 +283,8 @@
     "lowFiles": "Your file is corrupted, please select another file",
     "cvAttrib": {
       "titleCvSelectionner": "Please verify the information before proceeding:",
-      "name" : "Name : ",
-      "size" : "Size : ",
+      "name": "Name : ",
+      "size": "Size : ",
       "type": "File type : "
     }
   },
@@ -309,7 +310,6 @@
     "new": "New Offers",
     "targeted": "Targeted",
     "targeted_badge": "Targeted offer",
-    "already_applied": "You have already applied",
     "application_received": "Application sent!",
     "apply": "Apply",
     "employeur": "Company",
@@ -340,7 +340,8 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
-    }
+    },
+    "already_applied": "You have already applied"
   },
   "status": {
     "tous": "All",
@@ -378,9 +379,9 @@
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
     },
-    "toast" : {
+    "toast": {
       "waiting_validation": "CV submitted, pending review.",
-      "dont_forget_CV" : "Please, don't forget to upload your CV !"
+      "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
   "candidature": {
@@ -450,6 +451,14 @@
     "details": "Details",
     "close": "Close"
   },
+  "documents": {
+    "verify_selected": "Check the selected document:",
+    "preview": "Preview",
+    "download": "Download",
+    "choose_another": "Choose another file",
+    "replace": "Replace the document",
+    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
+  },
   "entrevue": {
     "mode_online_title": "Online",
     "mode_onsite_title": "On-site",
@@ -484,13 +493,5 @@
   "gestion_entrevue": {
     "title": "Interview Management",
     "subtitle": "Schedule your appointments and view your calendar in real time."
-  },
-  "documents": {
-    "verify_selected": "Check the selected document:",
-    "preview": "Preview",
-    "download": "Download",
-    "choose_another": "Choose another file",
-    "replace": "Replace the document",
-    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
   }
 }

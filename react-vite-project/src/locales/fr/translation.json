@@ -113,7 +113,9 @@
     "filter_by": "Filtrer par ",
     "reset_filters": "Réinitialiser les filtres",
     "collapse": "Réduire",
-    "expand": "Développer"
+    "expand": "Développer",
+    "backhome": "Retour à l'accueil",
+    "interview": "Retenir pour entrevue"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -123,7 +125,6 @@
     "new": "Nouvelles Offres",
     "targeted": "Ciblée",
     "targeted_badge": "Offre ciblée",
-    "already_applied": "Vous avez déjà postulé",
     "application_received": "Candidature envoyée !",
     "apply": "Postuler",
     "employeur": "Entreprise ",
@@ -153,7 +154,8 @@
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
-    }
+    },
+    "already_applied": "Vous avez déjà postulé"
   },
   "login": {
     "page_title": "Connexion",
@@ -203,7 +205,6 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
-    "convocation_not_found": "Convocation d’entrevue introuvable.",
     "convocation_already_exists": "Une entrevue a déjà été planifiée pour cette candidature.",
     "required": "Ce champ est requis.",
     "email_invalid": "Veuillez entrer une adresse courriel valide | Ex : example@domain.com",
@@ -216,7 +217,8 @@
     "user_not_found": "Utilisateur introuvable.",
     "generic": "Une erreur est survenue. Veuillez réessayer.",
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
-    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
+    "convocation_not_found": "Convocation d’entrevue introuvable."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -227,7 +229,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
-    "add_entrevue" : "Planifier une entrevue",
+    "add_entrevue": "Planifier une entrevue",
     "applications": "Candidatures",
     "cv": "Téléverser CV",
     "home": "Accueil",
@@ -235,7 +237,6 @@
     "login": "Connexion",
     "logout": "Déconnexion",
     "add_offer": "Créer une offre",
-    "add_entrevue": "Entrevues",
     "view_offers": "Offres de stage",
     "created_offers": "Offres créees",
     "history": "History",
@@ -329,14 +330,14 @@
     "visualize": "Visualiser le PDF",
     "filesName": "Nom du fichier",
     "choice": "Sélectionner un fichier",
-    "modification" : "Modifiez le fichier choisi",
+    "modification": "Modifiez le fichier choisi",
     "download": "Télécharger le PDF",
     "fichierInvalide": "Fichier Invalide",
     "noFileDetected": "Aucun fichier à lire",
     "bigFiles": "Votre fichier est trop volumineux. La taille maximale autorisée est de 10 Mo.",
     "lowFiles": "Votre fichier est corrompus, réessayez.",
     "cvAttrib": {
-      "titleCvSelectionner" : "Vérifiez les informations avant confirmation : ",
+      "titleCvSelectionner": "Vérifiez les informations avant confirmation : ",
       "name": "Nom : ",
       "size": "Taille : ",
       "type": "Format : "
@@ -379,7 +380,7 @@
     },
     "toast": {
       "waiting_validation": "CV envoyé, en attente de validation.",
-      "dont_forget_CV" : "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
+      "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
   "candidature": {
@@ -449,6 +450,14 @@
     "details": "Détails",
     "close": "Fermer"
   },
+  "documents": {
+    "verify_selected": "Vérifiez le document sélectionné :",
+    "preview": "Prévisualiser",
+    "download": "Télécharger",
+    "choose_another": "Choisir un autre fichier",
+    "replace": "Remplacer le document",
+    "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
+  },
   "entrevue": {
     "mode_online_title": "En ligne",
     "mode_onsite_title": "Présentiel",
@@ -483,13 +492,5 @@
   "gestion_entrevue": {
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
-  },
-  "documents": {
-    "verify_selected": "Vérifiez le document sélectionné :",
-    "preview": "Prévisualiser",
-    "download": "Télécharger",
-    "choose_another": "Choisir un autre fichier",
-    "replace": "Remplacer le document",
-    "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   }
 }
