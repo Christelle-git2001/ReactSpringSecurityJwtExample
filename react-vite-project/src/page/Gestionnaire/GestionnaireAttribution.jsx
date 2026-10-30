@@ -20,26 +20,13 @@ const GestionnaireAttribution = () => {
         []
     );
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAssign, setIsAssign] = useState(false)
     const [professeurs, setProfesseurs] = useState(
         [
-            /*{id:1, firstName:"Jean", lastName:"Dupont",email: "JeanDupont@hotmail.com",department : "INFORMATIQUE", matricule : "58584545"},
-            {id: 2, firstName: "Sophie", lastName:"Tremblay", email: "SophieTremblay@hotmail.com", department: "INFORMATIQUE", matricule: "58584546"},
-            {id: 3, firstName: "Marc-Antoine", lastName:"Gagnon", email: "MarcGagnon@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "58584547"},
-            {id: 4, firstName: "Sylviane", lastName:"Gagnon", email: "SylvianeGagnon@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "5896524"}*/
         ]
     )
     const [etudiants, setEtudiants] = useState(
         [
-           /* {id: 1, firstName: "Alexandre", lastName: "Bouchard", email: "AlexandreBouchard@hotmail.com", department: "INFORMATIQUE", matricule: "59123451", professeurAssigne: ""},
-            {id: 2, firstName: "Camille", lastName: "Roy", email: "CamilleRoy@hotmail.com", department: "INFORMATIQUE", matricule: "59123452", professeurAssigne: ""},
-            {id: 3, firstName: "Gabriel", lastName: "Côté", email: "GabrielCote@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123453", professeurAssigne: ""},
-            {id: 4, firstName: "Maude", lastName: "Lavoie", email: "MaudeLavoie@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123454", professeurAssigne: ""},
-            {id: 5, firstName: "William", lastName: "Beaulieu", email: "WilliamBeaulieu@hotmail.com", department: "INFORMATIQUE", matricule: "59123455", professeurAssigne: ""},
-            {id: 6, firstName: "Florence", lastName: "Morin", email: "FlorenceMorin@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123456", professeurAssigne: ""},
-            {id: 7, firstName: "Thomas", lastName: "Pelletier", email: "ThomasPelletier@hotmail.com", department: "INFORMATIQUE", matricule: "59123457", professeurAssigne: ""},
-            {id: 8, firstName: "Béatrice", lastName: "Gauthier", email: "BeatriceGauthier@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123458", professeurAssigne: ""},
-            {id: 9, firstName: "Olivier", lastName: "Simard", email: "OlivierSimard@hotmail.com", department: "INFORMATIQUE", matricule: "59123459", professeurAssigne: ""},
-            {id: 10, firstName: "Charlotte", lastName: "Bélanger", email: "CharlotteBelanger@hotmail.com", department: "TRAVAIL_SOCIAL", matricule: "59123460", professeurAssigne: "dfdf"}*/
         ]
     );
 
@@ -53,7 +40,7 @@ const GestionnaireAttribution = () => {
     }
 
     const handleProfessorSelected = (professeur) => {
-        if (!professeurSelectione) {
+        if (!professeurSelectione || etudiantSelectionnes.length <= 0) {
             setProfesseurSelectione(professeur)
             setDropdownProfIsOpen(false)
         }
@@ -139,7 +126,7 @@ const GestionnaireAttribution = () => {
                                     )}
                                 {dropdownProfIsOpen && (
                                     <>
-                                        {professeurSelectione && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
+                                        {professeurSelectione && etudiantSelectionnes.length > 0 && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
                                         <div className="w-full cursor-pointer">
                                             <ExpandableList
                                                 items={professeurs.filter(prof => prof.id !== professeurSelectione?.id)}
@@ -230,6 +217,7 @@ const GestionnaireAttribution = () => {
                     description={t("gestionnaire.assignation.professeur.professeur_modal_description")}
                     onClickCancel={handleCancelModal}
                     onClickAgree={handleAgreeModal}
+                    onClickCross={handleCancelModal}
                 />
             )}
         </div>

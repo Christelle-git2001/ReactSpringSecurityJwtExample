@@ -3,7 +3,7 @@ import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import Button from "../Design/Button.jsx";
 
-const Modal = ({onClickCancel,onClickAgree,renderItem,title,description}) => {
+const Modal = ({onClickCancel,onClickAgree,onClickCross,renderItem,title,description}) => {
     const { t } = useTranslation();
     const [error, setError] = useState("");
     return (
@@ -14,7 +14,7 @@ const Modal = ({onClickCancel,onClickAgree,renderItem,title,description}) => {
                     <button
                         type="button"
                         className="close-button absolute right-0 top-0"
-                        onClick={() => fermer(false)}
+                        onClick={onClickCross}
                         aria-label={t("drawer.close")}
                     >
                         <FiX className="size-5" aria-hidden="true" />
