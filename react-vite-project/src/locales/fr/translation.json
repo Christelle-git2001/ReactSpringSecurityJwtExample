@@ -340,7 +340,10 @@
         "empty": "Aucun étudiant inscrit pour ce département : {{departement}}",
         "notFound" : "N/A",
         "teacher" : "Professeur",
-        "noProfesseur" : "Aucun professeur assigné"
+        "noProfesseur" : "Aucun professeur assigné",
+        "assign_title": "Félicitations ! Voici les élèves assignés à ce professeur : {{prenom}} {{nom}}",
+        "assign_tips": "Pour faire une autre sélection, merci d'appuyer sur le bouton \"Assigner à nouveau\".",
+        "assign_restart": "Assigner à nouveau"
       },
       "button": {
         "text" : "Assigner"

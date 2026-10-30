@@ -286,7 +286,10 @@
         "empty": "No students enrolled for this department: {{departement}}",
         "notFound" : "N/A",
         "teacher" : "Teacher",
-        "noProfesseur" : "No teacher assigned"
+        "noProfesseur" : "No teacher assigned",
+        "assign_title": "Congratulations! Here are the students assigned to this teacher: {{prenom}} {{nom}}",
+        "assign_tips": "To make another selection, please click the \"Assign again\" button.",
+        "assign_restart": "Assign again"
       },
       "button": {
         "text" : "Assign"

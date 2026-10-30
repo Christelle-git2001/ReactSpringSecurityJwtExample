@@ -13,12 +13,14 @@ import {getDepartmentKey} from "../../utils/departementConverter.js";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
+    const [error, setError] = useState("");
     const [professeurSelectione, setProfesseurSelectione] = useState(null);
     const [professeurChangeValue, setProfesseurChangeValue] = useState(null);
     const [dropdownProfIsOpen, setDropdownProfIsOpen] = useState(false);
     const [etudiantSelectionnes, setEtudiantSelectionnes] = useState(
         []
     );
+    const [etudiantAssigne, setEtudiantAssigne] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAssign, setIsAssign] = useState(false)
     const [professeurs, setProfesseurs] = useState(
@@ -32,6 +34,7 @@ const GestionnaireAttribution = () => {
 
     const onClickEtudiant = (etudiant) => {
         const isAlreadySelected = etudiantSelectionnes.some(e => e.id === etudiant.id);
+        setIsAssign(false);
         if (!isAlreadySelected) {
             setEtudiantSelectionnes([...etudiantSelectionnes, etudiant]);
         } else {
@@ -41,23 +44,37 @@ const GestionnaireAttribution = () => {
 
     const handleProfessorSelected = (professeur) => {
         if (!professeurSelectione || etudiantSelectionnes.length <= 0) {
-            setProfesseurSelectione(professeur)
-            setDropdownProfIsOpen(false)
+            setProfesseurSelectione(professeur);
+            setDropdownProfIsOpen(false);
         }
         else{
             setProfesseurChangeValue(professeur)
-            setIsModalOpen(true)
+            setIsModalOpen(true);
         }
     }
 
-    const onAssign = () => {
+    const onAssign = async () => {
         const etudiantIds = etudiantSelectionnes.map(etudiant => etudiant.id);
-        assignStudentToTeacher(etudiantIds, professeurSelectione.id)
+        try {
+            await assignStudentToTeacher(etudiantIds, professeurSelectione.id)
+            setEtudiantAssigne(etudiantSelectionnes);
+            setEtudiantSelectionnes([]);
+            setIsAssign(true);
+        }catch (e){
+            setError(t("error.generic") +  ": " + e.status);
+        }
+    }
+
+    const restart = () => {
+        setEtudiantAssigne([]);
+        setIsAssign(false);
+        setProfesseurSelectione(null);
+        setError("");
     }
 
     const handleCancelModal = () => {
-        setProfesseurChangeValue(null)
-        setDropdownProfIsOpen(false)
+        setProfesseurChangeValue(null);
+        setDropdownProfIsOpen(false);
         setIsModalOpen(false);
     };
 
@@ -65,23 +82,41 @@ const GestionnaireAttribution = () => {
         setEtudiantSelectionnes([]);
         setProfesseurSelectione(professeurChangeValue);
         setProfesseurChangeValue(null);
-        setDropdownProfIsOpen(false)
+        setDropdownProfIsOpen(false);
         setIsModalOpen(false);
     };
 
     useEffect(() => {
         const init = async () => {
-            setProfesseurs(await getProfesseurs())
-            setEtudiants(await  getEtudiants())
+            try {
+                setProfesseurs(await getProfesseurs());
+                setEtudiants(await getEtudiants());
+            }catch (e) {
+                setError(t("error.generic") +  ": " + e.status)
+            }
         }
         init();
     }, []);
 
+    useEffect(() => {
+        const refetch = async () => {
+            try {
+                setEtudiants(await getEtudiants());
+            }catch (e) {
+                setError(t("error.generic") +  ": " + e.status);
+            }
+        }
+        refetch();
+    }, [etudiantSelectionnes]);
+
 
     return(
         <div>
+            {error && (
+                <p className="bg-red-500 text-red-950 p-3">{error}</p>
+            )}
             <div className="grid grid-cols-12 mt-2">
-                <div className={professeurSelectione ? "col-span-6 mt-5" : "col-span-12"}>
+                <div className={professeurSelectione && !isAssign ? "col-span-6 mt-5" : "col-span-12"}>
                     <div className="grid grid-cols-12">
                         <div className="col-span-12">
                             <h1 className="text-start text-3xl p-5 pb-0 font-bold">{t("gestionnaire.assignation.title")}</h1>
@@ -148,9 +183,9 @@ const GestionnaireAttribution = () => {
                         </div>
                     </div>
                 </div>
-                {professeurSelectione && (
+                {professeurSelectione && !isAssign && (
                     <div className="col-span-6 h-[300px] max-h-full bg-gray-100 rounded-lg me-1 ms-5">
-                        <ScrollBarList
+                       <ScrollBarList
                             title={t("gestionnaire.assignation.select.studentList.title")}
                             emptyMessage={t("gestionnaire.assignation.select.studentList.empty")}
                             liste={etudiantSelectionnes}
@@ -175,33 +210,53 @@ const GestionnaireAttribution = () => {
             </div>
             {professeurSelectione && (
                 <div className="mt-5">
-                    <div className="flex">
-                        <TbCircleNumber2Filled className="text-5xl text-blue-900 " />
-                        <div className="flex flex-col">
-                            <p className="ms-2">
-                                {t("gestionnaire.assignation.select.student", {
-                                    prenom: professeurSelectione.firstName,
-                                    nom: professeurSelectione.lastName
-                                })}
-                            </p>
-                            <p className="text-xs ms-2 text-purple-600/80 font-medium">
-                                {t("gestionnaire.assignation.select.finishToSelect")}
-                            </p>
+                    {isAssign ? (
+                        <div className="flex">
+                            <FaCheckCircle  className="text-5xl text-green-900 " />
+                            <div className="flex flex-col">
+                                <p className="ms-2">
+                                    {t("gestionnaire.assignation.etudiant.assign_title", {
+                                        prenom: professeurSelectione.firstName,
+                                        nom: professeurSelectione.lastName
+                                    })}
+                                </p>
+                                <p className="text-xs ms-2 text-purple-600/80 font-medium">
+                                    {t("gestionnaire.assignation.etudiant.assign_tips")}
+                                </p>
+                            </div>
+                            <div className="flex justify-center ms-3">
+                                <Button type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
+                            </div>
                         </div>
-                    </div>
+                    ):(
+                        <div className="flex">
+                            <TbCircleNumber2Filled className="text-5xl text-blue-900 " />
+                            <div className="flex flex-col">
+                                <p className="ms-2">
+                                    {t("gestionnaire.assignation.select.student", {
+                                        prenom: professeurSelectione.firstName,
+                                        nom: professeurSelectione.lastName
+                                    })}
+                                </p>
+                                <p className="text-xs ms-2 text-purple-600/80 font-medium">
+                                    {t("gestionnaire.assignation.select.finishToSelect")}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                     <div>
                         <ScrollBarList
                             emptyMessage={t("gestionnaire.assignation.etudiant.empty", { departement: t("departement." + getDepartmentKey(professeurSelectione.department)) })}
-                            liste={etudiants.filter(etudiant => etudiant.department === professeurSelectione.department && !etudiant.professeurAssigne)}
+                            liste={ isAssign  ? etudiantAssigne : etudiants.filter(etudiant => etudiant.department === professeurSelectione.department && !etudiant.professeurNom)}
                             renderItem={(etudiant) => (
                                 <ListItem
                                     key={etudiant.id}
                                     icon={<span className="font-bold text-black">{etudiant.firstName?.charAt(0)}</span>}
                                     title={`${etudiant.firstName} ${etudiant.lastName}`}
                                     subtitle={etudiant.email}
-                                    isClickableCard={true}
+                                    isClickableCard={!isAssign}
                                     isSelected={etudiantSelectionnes.some((e) => e.id === etudiant.id)}
-                                    onClick={() => onClickEtudiant(etudiant)}
+                                    onClick={isAssign ? undefined : () => onClickEtudiant(etudiant)}
                                     detailRows={[
                                         { label: t("general.matricule"), value: etudiant.matricule },
                                         { label: t("general.departement"), value: t("departement." + getDepartmentKey(etudiant.department)) },
