@@ -198,11 +198,12 @@ const EtudiantHome = ({ user }) => {
                                 ) : (
                                     <>
                                         {nouvellesOffres.length > 0 && (
-                                            <div className="mb-6">
-                                                <h3 className="text-green-800 text-2xl font-bold uppercase">
+                                            <div className="mb-4 flex items-center gap-4">
+                                                <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
+                                                <h3 className="text-base font-bold text-green-800 uppercase">
                                                     {t("offre.new")}
                                                 </h3>
-                                                <div className="mt-1 h-px w-28 bg-green-400" aria-hidden="true" />
+                                                <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
                                             </div>
                                         )}
                                         <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
