@@ -76,6 +76,7 @@ public class ProfesseurService {
 
     }
 
+//TODO:notifications
     public List<EtudiantDTO> getEtudiantsAssignes()
             throws UtilisateurIntrouvableException {
 
