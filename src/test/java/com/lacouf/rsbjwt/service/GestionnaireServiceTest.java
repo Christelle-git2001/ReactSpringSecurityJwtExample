@@ -6,6 +6,7 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
@@ -24,6 +25,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.mockito.MockedStatic;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,6 +70,12 @@ class GestionnaireServiceTest {
 
     @Mock
     private EtudiantRepository etudiantRepository;
+
+    @Mock
+    private ContratRepository contratRepository;
+
+    @Mock
+    private CandidatureRepository candidatureRepository;
 
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
@@ -722,5 +732,70 @@ class GestionnaireServiceTest {
             verify(offreDeStageRepository).save(any(OffreCiblee.class));
             verify(applicationEventPublisher).publishEvent(any(NouvelleOffreTeleverseeEvent.class));
         }
+    }
+
+    @Test
+    void doitCreerContratAvecSucces() throws Exception {
+
+        Authentication auth = mock(Authentication.class);
+
+        when(auth.getName()).thenReturn("grc@hotmail.com");
+
+       SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(auth);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(1L);
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+
+        when(userAppRepository.findUserAppByEmail("grc@hotmail.com"))
+                .thenReturn(Optional.of(gestionnaire));
+        when(candidatureRepository.findById(1L))
+                .thenReturn(Optional.of(candidature));
+        when(contratRepository.save(any(Contrat.class)))
+                .thenAnswer(invocation -> {
+                    Contrat c = invocation.getArgument(0);
+                    c.setId(10L);
+                    return c;
+                });
+
+        ContratDTO resultat = gestionnaireService.creerContrat(1L);
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.id()).isEqualTo(10L);
+        assertThat(resultat.candidatureId()).isEqualTo(1L);
+
+        verify(contratRepository).save(any(Contrat.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiStatutCandidaturePasStageTrouvePourContrat() {
+
+        Authentication auth = mock(Authentication.class);
+
+        when(auth.getName()).thenReturn("grc@hotmail.com");
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(auth);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(1L);
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+
+        when(userAppRepository.findUserAppByEmail("grc@hotmail.com"))
+                .thenReturn(Optional.of(gestionnaire));
+        when(candidatureRepository.findById(1L))
+                .thenReturn(Optional.of(candidature));
+
+        assertThatThrownBy(() -> gestionnaireService.creerContrat(1L))
+                .isInstanceOf(StatutCandidatureInvalideException.class);
+
+        verify(contratRepository, never()).save(any(Contrat.class));
     }
 }
