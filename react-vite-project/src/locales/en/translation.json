@@ -444,6 +444,10 @@
         "title_refusee": "Your CV has been rejected",
         "description_refusee": "To find out the reason for the refusal, please click on this notification."
       },
+      "convocationEntrevue": {
+        "title": "Interview invitation",
+        "description": "{{ENTREPRISE_NOM}} invites you to an interview for the {{OFFRE_TITRE}} position on {{ENTREVUE_DATE}}."
+      },
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
@@ -495,8 +499,7 @@
     "next_month": "Next month",
     "no_date": "Unspecified date",
     "select_date_prompt": "Select a date",
-    "no_interviews_date": "No interviews scheduled for this date.",
-    "select_date_hint": "Click a date to filter the interview list."
+    "no_interviews_date": "No interviews scheduled for this date."
   },
   "gestion_entrevue": {
     "title": "Interview Management",

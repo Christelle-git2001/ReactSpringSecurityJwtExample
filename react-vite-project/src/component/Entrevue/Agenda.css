@@ -1,0 +1,39 @@
+.interview-calendar::part(container) {
+    padding: 0;
+}
+
+.interview-calendar calendar-month {
+    --color-accent: #043462;
+    --color-text-on-accent: white;
+}
+
+.interview-calendar calendar-month::part(day) {
+    position: relative;
+}
+
+.interview-calendar calendar-month::part(today) {
+    background: transparent;
+    color: #043462;
+    box-shadow: inset 0 0 0 1px #043462;
+}
+
+.interview-calendar calendar-month::part(selected) {
+    background: #043462;
+    color: white;
+}
+
+.interview-calendar calendar-month::part(interview)::after {
+    content: "";
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #043462;
+    transform: translateX(-50%);
+}
+
+.interview-calendar calendar-month::part(interview selected)::after {
+    background: white;
+}

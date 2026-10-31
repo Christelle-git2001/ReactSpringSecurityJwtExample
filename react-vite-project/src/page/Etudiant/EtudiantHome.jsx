@@ -6,10 +6,11 @@ import OffreEtudiantCard from "../../component/Design/Cards/OffreEtudiantCard.js
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import PageSeparator from "../../component/Design/PageSeparator.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
-import { isNewOffer } from "../../utils/isNewOffer.js";
+import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
@@ -18,6 +19,7 @@ const EtudiantHome = ({ user }) => {
     const navigate = useNavigate();
 
     const [offres, setOffres] = useState([]);
+    const [unreadOfferIds, setUnreadOfferIds] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
@@ -36,6 +38,49 @@ const EtudiantHome = ({ user }) => {
             .catch(console.error);
     }, []);
 
+    const chargerNotificationsOffres = useCallback(async () => {
+        if (!user?.id) return;
+        try {
+            const notifications = await getNotifications(user.id);
+            const ids = notifications
+                .filter(
+                    (n) =>
+                        !n.estLu &&
+                        n.notificationType === "NOUVELLE_OFFRE_STAGE"
+                )
+                .map((n) => String(n.variables?.OFFRE_ID));
+            setUnreadOfferIds(ids);
+        } catch (err) {
+            console.error("Erreur lors de la récupération des notifications:", err);
+        }
+    }, [user?.id]);
+
+    useEffect(() => {
+        chargerNotificationsOffres();
+    }, [chargerNotificationsOffres]);
+
+    const marquerNotificationOffreCommeLue = useCallback(async (offreId) => {
+        if (!user?.id) return;
+        try {
+            const notifications = await getNotifications(user.id);
+            const notification = notifications.find(
+                (item) =>
+                    item.notificationType === "NOUVELLE_OFFRE_STAGE" &&
+                    String(item.variables?.OFFRE_ID) === String(offreId) &&
+                    !item.estLu
+            );
+
+            if (notification) {
+                await marquerNotificationLue(notification.id);
+                setUnreadOfferIds((prev) =>
+                    prev.filter((id) => id !== String(offreId))
+                );
+            }
+        } catch (error) {
+            console.error("Erreur lors du marquage :", error);
+        }
+    }, [user?.id]);
+
     const ouvrirOffreParId = useCallback((offreId) => {
         const offre = offres.find(
             (item) => String(item.id) === String(offreId)
@@ -43,8 +88,9 @@ const EtudiantHome = ({ user }) => {
 
         if (offre) {
             document.getElementById(`offre-${offre.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            marquerNotificationOffreCommeLue(offre.id);
         }
-    }, [offres]);
+    }, [offres, marquerNotificationOffreCommeLue]);
 
     useEffect(() => {
         const offreId = location.state?.offreId;
@@ -86,7 +132,7 @@ const EtudiantHome = ({ user }) => {
         const autres = [];
 
         offreFilters.itemsFiltres.forEach((offer) => {
-            if (isNewOffer(offer, user?.previousLoginAt)) {
+            if (unreadOfferIds.includes(String(offer.id))) {
                 nouvelles.push(offer);
             } else {
                 autres.push(offer);
@@ -97,7 +143,7 @@ const EtudiantHome = ({ user }) => {
             nouvellesOffres: nouvelles,
             autresOffres: autres,
         };
-    }, [offreFilters.itemsFiltres, user?.previousLoginAt]);
+    }, [offreFilters.itemsFiltres, unreadOfferIds]);
 
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
@@ -152,38 +198,23 @@ const EtudiantHome = ({ user }) => {
                                 ) : (
                                     <>
                                         {nouvellesOffres.length > 0 && (
-                                            <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
-                                                {nouvellesOffres.map((offer) => (
-                                                    <OffreEtudiantCard
-                                                        key={offer.id}
-                                                        offer={offer}
-                                                        hasApplied={idsPostules.includes(offer.id)}
-                                                        onApplied={(id) =>
-                                                            setIdsPostules((prev) =>
-                                                                prev.includes(id) ? prev : [...prev, id]
-                                                            )
-                                                        }
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        {nouvellesOffres.length > 0 && autresOffres.length > 0 && (
-                                            <div className="flex items-center gap-4 my-6">
-                                                <div className="h-px bg-emerald-600 flex-1" />
-                                                <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+                                            <div className="mb-6">
+                                                <h3 className="text-green-800 text-2xl font-bold uppercase">
                                                     {t("offre.new")}
-                                                </span>
-                                                <div className="h-px bg-emerald-600 flex-1" />
+                                                </h3>
+                                                <div className="mt-1 h-px w-28 bg-green-400" aria-hidden="true" />
                                             </div>
                                         )}
-
-                                        {autresOffres.length > 0 && (
-                                            <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
-                                                {autresOffres.map((offer) => (
+                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
+                                            {[...nouvellesOffres, ...autresOffres].map((offer, index) => (
+                                                <div key={offer.id} className="contents">
+                                                    {index === nouvellesOffres.length && index > 0 && (
+                                                        <PageSeparator />
+                                                    )}
                                                     <OffreEtudiantCard
                                                         key={offer.id}
                                                         offer={offer}
+                                                        onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
                                                         onApplied={(id) =>
                                                             setIdsPostules((prev) =>
@@ -191,9 +222,9 @@ const EtudiantHome = ({ user }) => {
                                                             )
                                                         }
                                                     />
-                                                ))}
-                                            </div>
-                                        )}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </>
                                 )
                             )}

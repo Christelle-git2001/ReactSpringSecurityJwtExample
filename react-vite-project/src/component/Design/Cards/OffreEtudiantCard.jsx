@@ -55,8 +55,12 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">
                             <PdfActionButtons
-                                onView={viewPDF}
-                                onDownload={() => gererTelechargement(offer?.fileName)}
+                                onView={async () => {
+                                    if (await viewPDF()) onRead?.(offer?.id);
+                                }}
+                                onDownload={async () => {
+                                    if (await gererTelechargement(offer?.fileName)) onRead?.(offer?.id);
+                                }}
                             />
                         </div>
                     </div>
@@ -94,9 +98,9 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
                     <PostulerButton
                         offerId={offer?.id}
                         hasApplied={hasApplied}
+                        onApply={onRead}
                         onApplied={(id) => {
                             onApplied?.(id);
-                            onRead?.(id);
                         }}
                     />
                 </div>

@@ -102,7 +102,6 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                         locale={locale}
                         first-day-of-week="1"
                         aria-label={t("agenda.title")}
-                        aria-describedby="interview-calendar-hint"
                         className="cally interview-calendar bg-white border border-gray-200 shadow-sm rounded-2xl p-3
                        w-full h-full overflow-hidden flex flex-col"
                     >
@@ -137,7 +136,6 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                         {t("agenda.clear_filter")}
                     </Button>
                 </div>
-                <p id="interview-calendar-hint">{t("agenda.select_date_hint")}</p>
             </div>
 
             <div aria-live="polite" className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1 scrollbar-thin scrollbar-thumb-gray-300">

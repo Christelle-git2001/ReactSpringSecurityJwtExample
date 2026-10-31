@@ -76,7 +76,9 @@ export function usePdfDocument({ loadPdfResponse, fileNameFallback = "document.p
         }
         if (url && dialogRef.current) {
             dialogRef.current.showModal();
+            return true;
         }
+        return false;
     };
 
     const fermerModal = () => {
@@ -92,7 +94,9 @@ export function usePdfDocument({ loadPdfResponse, fileNameFallback = "document.p
         }
         if (url) {
             declencherTelechargement(url, filename || fileNameFallback);
+            return true;
         }
+        return false;
     };
 
     useEffect(() => {
