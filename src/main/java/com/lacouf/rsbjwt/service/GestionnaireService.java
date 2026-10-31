@@ -6,11 +6,14 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,9 +39,10 @@ public class GestionnaireService {
     private final EmployeurRepository employeurRepository;
     private final EtudiantRepository etudiantRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
+    private final CandidatureRepository candidatureRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
-                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository){
+                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -48,6 +52,7 @@ public class GestionnaireService {
         this.applicationEventPublisher = applicationEventPublisher;
         this.employeurRepository = employeurRepository;
         this.etudiantRepository = etudiantRepository;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @Transactional
@@ -310,6 +315,29 @@ public class GestionnaireService {
                 .stream()
                 .map(EmployeurDTO::of)
                 .toList();
+    }
+
+    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Gestionnaire gestionnaire = userAppRepository.findUserAppByEmail(email)
+                .filter(Gestionnaire.class::isInstance)
+                .map(Gestionnaire.class::cast)
+                .orElseThrow(UserNotFoundException::new);
+
+       Candidature candidature = candidatureRepository.findById(candidatureId)
+               .orElseThrow(CandidatureIntrouvableException::new);
+       Contrat contrat = null ;
+
+       if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
+           contrat = Contrat.builder()
+                   .candidature(candidature)
+                   .gestionnaire(gestionnaire)
+                   .build();
+       }
+       return ContratDTO.of(contrat);
     }
 
 

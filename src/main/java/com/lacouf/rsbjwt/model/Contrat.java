@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,6 +30,7 @@ public class Contrat {
     private LocalDate dateSignatureEtudiant ;
     private LocalDate dateSignatureGestionnaire ;
 
+    @Builder
     public Contrat(Candidature candidature, Gestionnaire gestionnaire) {
         this.candidature = candidature;
         this.gestionnaire = gestionnaire;
