@@ -130,7 +130,7 @@ public class EmployeurController {
         return ResponseEntity.ok(entrevues);
     }
 
-    @PutMapping("/contrat/{contratId}/signature")
+    @PutMapping("/contrats/{contratId}/signature")
     public ResponseEntity<ContratDTO> signerContrat(
             @PathVariable Long contratId)
             throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {

@@ -22,6 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -553,5 +554,68 @@ public class EmployeurControllerTest {
                         .principal(principal))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+
+    void doitSignerContratAvecSucces() throws Exception {
+
+        ContratDTO contratDTO = new ContratDTO(
+                1L,
+                1L,
+                1L,
+                null,
+                LocalDate.now(),
+                null
+
+        );
+        when(employeurService.signerContrat(1L)).thenReturn(contratDTO);
+        mockMvc.perform(put("/employeur/contrats/1/signature")
+
+                        .principal(principal)
+
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isOk())
+
+                .andExpect(jsonPath("$.id").value(1L))
+
+                .andExpect(jsonPath("$.dateSignatureEmployeur").exists());
+
+    }
+
+
+
+    @Test
+
+    void doitRetournerNotFoundQuandContratIntrouvablePourSignature() throws Exception {
+
+        when(employeurService.signerContrat(99L)).thenThrow(new ContratIntrouvableException());
+        mockMvc.perform(put("/employeur/contrats/99/signature")
+
+                        .principal(principal)
+
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isNotFound());
+
+    }
+
+
+
+    @Test
+    void doitRetournerForbiddenQuandOffreNonAutoriseePourSignature() throws Exception {
+
+        when(employeurService.signerContrat(1L)).thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(put("/employeur/contrats/1/signature")
+
+                        .principal(principal)
+
+                        .contentType(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isForbidden());
+
+    }
+
 
 }
