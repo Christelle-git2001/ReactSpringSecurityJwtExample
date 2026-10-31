@@ -16,8 +16,10 @@ import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -29,18 +31,13 @@ public class PDFService {
     private static final String STOCKAGE_CONTRAT = "Contrat.pdf";
     private final String FRANCAIS = "fr";
 
-    private final EmployeurRepository employeurRepository;
     private final EtudiantRepository etudiantRepository;
-    private final GestionnaireRepository gestionnaireRepository;
     private final OffreDeStageRepository offreDeStageRepository;
 
-    public PDFService(EmployeurRepository employeurRepository,
+    public PDFService(
                       EtudiantRepository etudiantRepository,
-                      GestionnaireRepository gestionnaireRepository,
                       OffreDeStageRepository offreDeStageRepository) {
-        this.employeurRepository = employeurRepository;
         this.etudiantRepository = etudiantRepository;
-        this.gestionnaireRepository = gestionnaireRepository;
         this.offreDeStageRepository = offreDeStageRepository;
     }
 
@@ -68,7 +65,7 @@ public class PDFService {
         return new Paragraph(text).setTextAlignment(TextAlignment.CENTER);
     }
 
-    public void createContratPdf(Gestionnaire gestionnaire, CandidatureDTO candidature, String langue) throws UtilisateurIntrouvableException, OffreIntrouvableException, FileNotFoundException {
+    public Resource createContratPdf(Gestionnaire gestionnaire, CandidatureDTO candidature, String langue) throws UtilisateurIntrouvableException, OffreIntrouvableException, FileNotFoundException {
 
         Etudiant etudiant = etudiantRepository.findById(candidature.etudiantId())
                 .orElseThrow(UtilisateurIntrouvableException::new);
@@ -81,7 +78,9 @@ public class PDFService {
         Locale locale = new Locale(langue != null ? langue : FRANCAIS);
         ResourceBundle messages = ResourceBundle.getBundle("i18n.messages", locale);
 
-        PdfWriter writer = new PdfWriter(STOCKAGE_CONTRAT);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf);
 
@@ -155,5 +154,7 @@ public class PDFService {
             for (IElement element : elements) {
                 document.add((IBlockElement) element);
             }
+
+        return new ByteArrayResource(outputStream.toByteArray());
     }
 }
