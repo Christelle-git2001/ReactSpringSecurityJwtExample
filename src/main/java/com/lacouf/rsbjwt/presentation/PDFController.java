@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.springframework.core.io.Resource;
@@ -21,12 +22,12 @@ public class PDFController {
         this.employeurService = employeurService;
     }
 
-    @GetMapping("/contrat/{candidatureId}/pdf")
+    @GetMapping("/contrat/{contratId}/pdf")
     public ResponseEntity<Resource> obtenirContratPdf(
-            @PathVariable Long candidatureId,
-            @RequestParam(defaultValue = "fr") String langue) throws CandidatureIntrouvableException {
+            @PathVariable Long contratId,
+            @RequestParam(defaultValue = "fr") String langue) throws ContratIntrouvableException {
 
-        Resource pdfResource = pdfService.createContratPdf(candidatureId, langue);
+        Resource pdfResource = pdfService.createContratPdf(contratId, langue);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)

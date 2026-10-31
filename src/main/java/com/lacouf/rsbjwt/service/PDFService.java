@@ -8,21 +8,20 @@ import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
-import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -30,13 +29,10 @@ import java.util.ResourceBundle;
 @Transactional(readOnly = true)
 public class PDFService {
     private final String FRANCAIS = "fr";
+    private final ContratRepository contratRepository;
 
-    private final GestionnaireRepository gestionnaireRepository;
-    private final CandidatureRepository candidatureRepository;
-
-    public PDFService(GestionnaireRepository gestionnaireRepository, CandidatureRepository candidatureRepository) {
-        this.gestionnaireRepository = gestionnaireRepository;
-        this.candidatureRepository = candidatureRepository;
+    public PDFService(ContratRepository contratRepository) {
+        this.contratRepository = contratRepository;
     }
 
     private Paragraph addTitre(String cleDeTraduction, int fontSize, ResourceBundle messages) {
@@ -63,18 +59,28 @@ public class PDFService {
         return new Paragraph(text).setTextAlignment(TextAlignment.CENTER);
     }
 
-    public Resource createContratPdf(Long candidatureId, String langue) throws CandidatureIntrouvableException {
+    private void ajouterBlocSignature(List<IElement> elements, String labelKey, String nomComplet, LocalDate dateSignature, ResourceBundle messages) {
+        elements.add(new Paragraph(messages.getString(labelKey)).setBold().setMarginTop(10));
 
-        Candidature candidature = candidatureRepository.findById(candidatureId)
-                .orElseThrow(CandidatureIntrouvableException::new);
+        if (dateSignature != null) {
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("contrat.signe"), nomComplet, dateSignature)));
+        } else {
+            elements.add(new Paragraph("_________________________________________"));
+            elements.add(new Paragraph(nomComplet));
+            elements.add(new Paragraph("Date : _________________________"));
+        }
+    }
 
+    public Resource createContratPdf(Long contratId, String langue) throws ContratIntrouvableException {
+
+        Contrat contrat = contratRepository.findById(contratId)
+                .orElseThrow(ContratIntrouvableException::new);
+
+        Candidature candidature = contrat.getCandidature();
         Etudiant etudiant = candidature.getEtudiant();
-
         OffreDeStage offre = candidature.getOffreDeStage();
-
         Employeur employeur = offre.getEmployeur();
-
-        Gestionnaire gestionnaire = gestionnaireRepository.findAll().getFirst() ;
+        Gestionnaire gestionnaire = contrat.getGestionnaire();
 
         Locale locale = new Locale(langue != null ? langue : FRANCAIS);
         ResourceBundle messages = ResourceBundle.getBundle("i18n.messages", locale);
@@ -97,60 +103,63 @@ public class PDFService {
                     .setMarginBottom(15);
             cadreDescription.add(new Paragraph(offre.getDescription()));
 
-            IElement[] elements = new IElement[] {
-                    addTitre("contrat.titre", 20, messages),
+            long nbSemaines = 0;
+            if (offre.getStartDate() != null && offre.getEndDate() != null) {
+                nbSemaines = Math.abs(ChronoUnit.WEEKS.between(offre.getStartDate(), offre.getEndDate()));
+            }
 
-                    new AreaBreak(AreaBreakType.NEXT_PAGE),
-                    addTitre("contrat.entente", 14, messages),
-                    new Paragraph(messages.getString("contrat.contexte")).setMarginBottom(10),
+            List<IElement> elements = new ArrayList<>();
 
-                    addCenteredParagraph("intro.gestionnaire", messages, gestionnaire.getFirstName() + " " + gestionnaire.getLastName()),
-                    et,
-                    addCenteredParagraph("intro.employeur", messages, employeur.getFirstName() + " " + employeur.getLastName()),
-                    et,
-                    addCenteredParagraph("intro.etudiant", messages, etudiant.getFirstName() + " " + etudiant.getLastName()),
+            elements.add(addTitre("contrat.titre", 20, messages));
 
-                    new Paragraph(messages.getString("contrat.conviennent")).setMarginTop(10).setMarginBottom(10),
+            elements.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+            elements.add(addTitre("contrat.entente", 14, messages));
+            elements.add(new Paragraph(messages.getString("contrat.contexte")).setMarginBottom(10));
 
-                    addSectionTitle("section.endroit", messages),
-                    new Paragraph(MessageFormat.format(messages.getString("label.adresse"), employeur.getTown())),
+            elements.add(addCenteredParagraph("intro.gestionnaire", messages, gestionnaire.getFirstName() + " " + gestionnaire.getLastName()));
+            elements.add(et);
+            elements.add(addCenteredParagraph("intro.employeur", messages, employeur.getFirstName() + " " + employeur.getLastName()));
+            elements.add(et);
+            elements.add(addCenteredParagraph("intro.etudiant", messages, etudiant.getFirstName() + " " + etudiant.getLastName()));
 
-                    addSectionTitle("section.duree", messages),
-                    new Paragraph(MessageFormat.format(messages.getString("label.dateDebut"), offre.getStartDate())),
-                    new Paragraph(MessageFormat.format(messages.getString("label.dateFin"), offre.getEndDate())),
-                    new Paragraph(MessageFormat.format(
-                            messages.getString("label.nbSemaines"),
-                            Math.abs(ChronoUnit.WEEKS.between(offre.getStartDate(), offre.getEndDate()))
-                    )),
-                    addSectionTitle("section.horaire", messages),
-                    new Paragraph(MessageFormat.format(messages.getString("label.horaireTravail"), "9h - 17h")),
-                    new Paragraph(MessageFormat.format(messages.getString("label.nbHeures"), "35")),
+            elements.add(new Paragraph(messages.getString("contrat.conviennent")).setMarginTop(10).setMarginBottom(10));
 
-                    addSectionTitle("section.salaire", messages),
-                    new Paragraph(MessageFormat.format(messages.getString("label.salaireHoraire"), offre.getSalary() + " $")),
+            elements.add(addSectionTitle("section.endroit", messages));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.adresse"), employeur.getTown())));
 
-                    new AreaBreak(AreaBreakType.NEXT_PAGE),
-                    addTitre("section.taches", 14, messages),
-                    cadreDescription,
+            elements.add(addSectionTitle("section.duree", messages));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.dateDebut"), offre.getStartDate())));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.dateFin"), offre.getEndDate())));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.nbSemaines"), nbSemaines)));
 
-                    addSectionTitle("section.responsabilites", messages),
-                    new Paragraph(messages.getString("engagement.college")).setBold(),
-                    new Paragraph(messages.getString("texte.college")),
+            elements.add(addSectionTitle("section.horaire", messages));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.horaireTravail"), "9h - 17h")));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.nbHeures"), "35")));
 
-                    new Paragraph(messages.getString("engagement.entreprise")).setBold(),
-                    new Paragraph(messages.getString("texte.entreprise")),
+            elements.add(addSectionTitle("section.salaire", messages));
+            elements.add(new Paragraph(MessageFormat.format(messages.getString("label.salaireHoraire"), offre.getSalary() + " $")));
 
-                    new Paragraph(messages.getString("engagement.etudiant")).setBold(),
-                    new Paragraph(messages.getString("texte.etudiant")),
+            elements.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+            elements.add(addTitre("section.taches", 14, messages));
+            elements.add(cadreDescription);
 
-                    new Paragraph(messages.getString("contrat.signatures")).setBold().setMarginTop(15),
-                    new Paragraph(messages.getString("contrat.respect")),
-                    new Paragraph(messages.getString("contrat.foi")).setMarginBottom(15),
+            elements.add(addSectionTitle("section.responsabilites", messages));
+            elements.add(new Paragraph(messages.getString("engagement.college")).setBold());
+            elements.add(new Paragraph(messages.getString("texte.college")));
 
-                    new Paragraph(messages.getString("signature.etudiant")).setBold(),
-                    new Paragraph(messages.getString("signature.employeur")).setBold(),
-                    new Paragraph(messages.getString("signature.gestionnaire")).setBold()
-            };
+            elements.add(new Paragraph(messages.getString("engagement.entreprise")).setBold());
+            elements.add(new Paragraph(messages.getString("texte.entreprise")));
+
+            elements.add(new Paragraph(messages.getString("engagement.etudiant")).setBold());
+            elements.add(new Paragraph(messages.getString("texte.etudiant")));
+
+            elements.add(new Paragraph(messages.getString("contrat.signatures")).setBold().setMarginTop(15));
+            elements.add(new Paragraph(messages.getString("contrat.respect")));
+            elements.add(new Paragraph(messages.getString("contrat.foi")).setMarginBottom(15));
+
+            ajouterBlocSignature(elements, "signature.etudiant", etudiant.getFirstName() + " " + etudiant.getLastName(), contrat.getDateSignatureEtudiant(), messages);
+            ajouterBlocSignature(elements, "signature.employeur", employeur.getFirstName() + " " + employeur.getLastName(), contrat.getDateSignatureEmployeur(), messages);
+            ajouterBlocSignature(elements, "signature.gestionnaire", gestionnaire.getFirstName() + " " + gestionnaire.getLastName(), contrat.getDateSignatureGestionnaire(), messages);
 
             for (IElement element : elements) {
                 document.add((IBlockElement) element);
