@@ -93,14 +93,19 @@ export async function obtenirConvocation(userId) {
   });
 }
 
-export async function confirmerConvocation(id) {
+export async function accepterConvocation(id) {
   const token = getToken();
-  return fetchJson(`/etudiant/convocations/${id}/reponse`, {
+  return fetchJson(`/etudiant/convocations/${id}/accepter`, {
     method: "PUT",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
+    headers: { "Authorization": `Bearer ${token}` },
+  });
+}
+
+export async function refuserConvocation(id) {
+  const token = getToken();
+  return fetchJson(`/etudiant/convocations/${id}/refuser`, {
+    method: "PUT",
+    headers: { "Authorization": `Bearer ${token}` },
   });
 }
 
