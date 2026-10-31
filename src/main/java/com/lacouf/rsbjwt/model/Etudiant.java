@@ -29,6 +29,10 @@ public class Etudiant extends UserApp {
     @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OffreCiblee> offresCiblees = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "professeur_id")
+    private Professeur professeur;
+
 
     @Builder
     public Etudiant(String firstName, String lastName, String email, String phoneNumber,Departement department, String matricule,String password){

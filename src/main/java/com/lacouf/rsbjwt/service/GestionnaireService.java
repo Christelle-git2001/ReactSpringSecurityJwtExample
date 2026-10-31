@@ -12,6 +12,7 @@ import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
+import io.jsonwebtoken.impl.security.EdwardsCurve;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,11 +40,13 @@ public class GestionnaireService {
     private final EmployeurRepository employeurRepository;
     private final EtudiantRepository etudiantRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
+    private final ProfesseurRepository professeurRepository;
     private final CandidatureRepository candidatureRepository;
     private final ContratRepository contratRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
-                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository){
+                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
+                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -53,6 +56,7 @@ public class GestionnaireService {
         this.applicationEventPublisher = applicationEventPublisher;
         this.employeurRepository = employeurRepository;
         this.etudiantRepository = etudiantRepository;
+        this.professeurRepository = professeurRepository;
         this.candidatureRepository = candidatureRepository;
         this.contratRepository = contratRepository;
     }
@@ -319,7 +323,32 @@ public class GestionnaireService {
                 .toList();
     }
 
-    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException, StatutCandidatureInvalideException {
+
+    public List<ProfesseurDTO> getAllProfesseurs() {
+        return professeurRepository.findAll()
+                .stream()
+                .map(ProfesseurDTO::of)
+                .toList();
+    }
+
+    @Transactional
+    public List<EtudiantDTO> assignerProfesseur(Long professeurId, AssignationProfesseurDTO dto) throws UtilisateurIntrouvableException {
+        Professeur professeur = professeurRepository.findById(professeurId)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Etudiant> etudiants = etudiantRepository.findAllById(dto.etudiantIds());
+        if (etudiants.size() != dto.etudiantIds().stream().distinct().count()) {
+            throw new UtilisateurIntrouvableException();
+        }
+
+        etudiants.forEach(etudiant -> etudiant.setProfesseur(professeur));
+        return etudiantRepository.saveAll(etudiants)
+                .stream()
+                .map(EtudiantDTO::of)
+                .toList();
+    }
+
+    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException, StatutCandidatureInvalideException, UtilisateurIntrouvableException {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -327,24 +356,23 @@ public class GestionnaireService {
         Gestionnaire gestionnaire = userAppRepository.findUserAppByEmail(email)
                 .filter(Gestionnaire.class::isInstance)
                 .map(Gestionnaire.class::cast)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UtilisateurIntrouvableException::new);
 
-       Candidature candidature = candidatureRepository.findById(candidatureId)
-               .orElseThrow(CandidatureIntrouvableException::new);
-       Contrat contrat;
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
+        Contrat contrat;
 
-       if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
-           contrat = Contrat.builder()
-                   .candidature(candidature)
-                   .gestionnaire(gestionnaire)
-                   .build();
-       }else{
-           throw new StatutCandidatureInvalideException();
-       }
+        if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
+            contrat = Contrat.builder()
+                    .candidature(candidature)
+                    .gestionnaire(gestionnaire)
+                    .build();
+        }else{
+            throw new StatutCandidatureInvalideException();
+        }
 
-       return ContratDTO.of(contratRepository.save(contrat));
+        return ContratDTO.of(contratRepository.save(contrat));
     }
-
 
 
 

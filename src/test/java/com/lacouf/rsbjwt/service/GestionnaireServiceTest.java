@@ -6,7 +6,6 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
@@ -25,9 +24,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.mockito.MockedStatic;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,14 +68,10 @@ class GestionnaireServiceTest {
     private EtudiantRepository etudiantRepository;
 
     @Mock
-    private ContratRepository contratRepository;
-
-    @Mock
-    private CandidatureRepository candidatureRepository;
-
-    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Mock
+    private ProfesseurRepository professeurRepository;
 
 
     @InjectMocks
@@ -735,67 +727,192 @@ class GestionnaireServiceTest {
     }
 
     @Test
-    void doitCreerContratAvecSucces() throws Exception {
+    void doitRetournerTousLesProfesseurs() {
+        Professeur professeur1 = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+        professeur1.setId(1L);
 
-        Authentication auth = mock(Authentication.class);
+        Professeur professeur2 = Professeur.builder()
+                .firstName("Marie")
+                .lastName("Tremblay")
+                .email("marie@test.com")
+                .password("password")
+                .matricule("P002")
+                .phoneNumber("5142222222")
+                .department(Departement.GENIE_PHYSIQUE)
+                .build();
+        professeur2.setId(2L);
 
-        when(auth.getName()).thenReturn("grc@hotmail.com");
+        when(professeurRepository.findAll())
+                .thenReturn(List.of(professeur1, professeur2));
 
-       SecurityContext securityContext = mock(SecurityContext.class);
+        List<ProfesseurDTO> result = gestionnaireService.getAllProfesseurs();
 
-        when(securityContext.getAuthentication()).thenReturn(auth);
+        assertThat(result)
+                .hasSize(2)
+                .extracting(ProfesseurDTO::id)
+                .containsExactly(1L, 2L);
 
-        SecurityContextHolder.setContext(securityContext);
+        assertThat(result)
+                .extracting(ProfesseurDTO::firstName)
+                .containsExactly("Jean", "Marie");
 
-        Candidature candidature = new Candidature();
-        candidature.setId(1L);
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
-
-        when(userAppRepository.findUserAppByEmail("grc@hotmail.com"))
-                .thenReturn(Optional.of(gestionnaire));
-        when(candidatureRepository.findById(1L))
-                .thenReturn(Optional.of(candidature));
-        when(contratRepository.save(any(Contrat.class)))
-                .thenAnswer(invocation -> {
-                    Contrat c = invocation.getArgument(0);
-                    c.setId(10L);
-                    return c;
-                });
-
-        ContratDTO resultat = gestionnaireService.creerContrat(1L);
-
-        assertThat(resultat).isNotNull();
-        assertThat(resultat.id()).isEqualTo(10L);
-        assertThat(resultat.candidatureId()).isEqualTo(1L);
-
-        verify(contratRepository).save(any(Contrat.class));
+        verify(professeurRepository).findAll();
     }
 
     @Test
-    void doitLeverExceptionSiStatutCandidaturePasStageTrouvePourContrat() {
+    void doitAssignerUnProfesseurAPlusieursEtudiants()
+            throws UtilisateurIntrouvableException {
 
-        Authentication auth = mock(Authentication.class);
+        Professeur professeur = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+        professeur.setId(5L);
 
-        when(auth.getName()).thenReturn("grc@hotmail.com");
+        Etudiant etudiant2 = new Etudiant(
+                "Marie", "Tremblay", "marie@test.com",
+                "5142222222", Departement.INFORMATIQUE, "E002", "password"
+        );
+        etudiant2.setId(2L);
 
-        SecurityContext securityContext = mock(SecurityContext.class);
+        when(professeurRepository.findById(5L))
+                .thenReturn(Optional.of(professeur));
 
-        when(securityContext.getAuthentication()).thenReturn(auth);
+        when(etudiantRepository.findAllById(List.of(1L, 2L)))
+                .thenReturn(List.of(etudiant, etudiant2));
 
-        SecurityContextHolder.setContext(securityContext);
+        when(etudiantRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Candidature candidature = new Candidature();
-        candidature.setId(1L);
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
 
-        when(userAppRepository.findUserAppByEmail("grc@hotmail.com"))
-                .thenReturn(Optional.of(gestionnaire));
-        when(candidatureRepository.findById(1L))
-                .thenReturn(Optional.of(candidature));
+        List<EtudiantDTO> result =
+                gestionnaireService.assignerProfesseur(5L, dto);
 
-        assertThatThrownBy(() -> gestionnaireService.creerContrat(1L))
-                .isInstanceOf(StatutCandidatureInvalideException.class);
+        assertThat(result).hasSize(2);
 
-        verify(contratRepository, never()).save(any(Contrat.class));
+        assertThat(etudiant.getProfesseur()).isEqualTo(professeur);
+        assertThat(etudiant2.getProfesseur()).isEqualTo(professeur);
+
+        verify(professeurRepository).findById(5L);
+        verify(etudiantRepository).findAllById(List.of(1L, 2L));
+        verify(etudiantRepository).saveAll(any());
+    }
+
+    @Test
+    void doitRemplacerAncienProfesseurLorsDeReassignation()
+            throws UtilisateurIntrouvableException {
+
+        Professeur ancienProfesseur = Professeur.builder()
+                .firstName("Paul")
+                .lastName("Martin")
+                .email("paul@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+
+        Professeur nouveauProfesseur = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P002")
+                .phoneNumber("5142222222")
+                .department(Departement.INFORMATIQUE)
+                .build();
+
+        etudiant.setProfesseur(ancienProfesseur);
+
+        when(professeurRepository.findById(5L))
+                .thenReturn(Optional.of(nouveauProfesseur));
+
+        when(etudiantRepository.findAllById(List.of(1L)))
+                .thenReturn(List.of(etudiant));
+
+        when(etudiantRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L));
+
+        gestionnaireService.assignerProfesseur(5L, dto);
+
+        assertThat(etudiant.getProfesseur())
+                .isEqualTo(nouveauProfesseur);
+
+        verify(etudiantRepository).saveAll(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiProfesseurIntrouvable() {
+        when(professeurRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
+
+        assertThatThrownBy(() ->
+                gestionnaireService.assignerProfesseur(99L, dto)
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(professeurRepository).findById(99L);
+
+        verify(etudiantRepository, never())
+                .findAllById(any());
+
+        verify(etudiantRepository, never())
+                .saveAll(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiUnEtudiantEstIntrouvable() {
+        Professeur professeur = Professeur.builder()
+                .firstName("Jean")
+                .lastName("Dupont")
+                .email("jean@test.com")
+                .password("password")
+                .matricule("P001")
+                .phoneNumber("5141111111")
+                .department(Departement.INFORMATIQUE)
+                .build();
+
+        professeur.setId(5L);
+
+        when(professeurRepository.findById(5L))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllById(List.of(1L, 2L)))
+                .thenReturn(List.of(etudiant));
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
+
+        assertThatThrownBy(() ->
+                gestionnaireService.assignerProfesseur(5L, dto)
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(professeurRepository).findById(5L);
+
+        verify(etudiantRepository)
+                .findAllById(List.of(1L, 2L));
+
+        verify(etudiantRepository, never())
+                .saveAll(any());
     }
 }

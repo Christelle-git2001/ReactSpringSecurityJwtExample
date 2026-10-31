@@ -236,7 +236,8 @@
     "created_offers": "Offres créees",
     "history": "History",
     "collapse": "Réduire",
-    "expand": "Développer"
+    "expand": "Développer",
+    "assignation" : "Assignation"
   },
   "sidebar": {
     "collapse": "Réduire le menu",
@@ -318,6 +319,41 @@
     "card": {
       "view_offers": "Validez et gérez l'ensemble des offres de stage soumises par les entreprises partenaires.",
       "cvs": "Évaluez les CV soumis par les étudiants. Approuvez, refusez ou accompagnez les étudiants dans leur démarche."
+    },
+    "assignation": {
+      "title" : "Assignation des professeurs",
+      "description_without_teacher" : "Sélectionnez un professeur pour commencer l'assignation des étudiants",
+      "description_with_teacher" : "Sélectionnez les étudiants qui seront assignés à ce professeur",
+      "professeur" : {
+        "professeur_without_name": "Ce professeur ne possède aucun nom",
+        "professeur_without_department" : "Ce professeur ne possède aucun departement",
+        "professeur_without_email" : "Ce professeur ne possède aucun Email",
+        "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
+        "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
+      },
+      "select": {
+        "professor" : "Choisissez un professeur",
+        "professorSelected" : "Vous avez sélectionné cet enseignant",
+        "anotherProfessor" : "Cliquez pour choisir un autre enseignant",
+        "warningAnotherProfessor" : "Modifier le professeur ? Cela effacera les étudiants sélectionnés.",
+        "student": "Veuillez sélectionner les étudiants à assigner à : {{prenom}} {{nom}}",
+        "finishToSelect" : "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",        "studentList" : {
+          "title" : "Étudiants Sélectionnés",
+          "empty" : "Aucun étudiant sélectionné"
+        }
+      },
+      "etudiant" : {
+        "empty": "Aucun étudiant inscrit pour ce département : {{departement}}",
+        "notFound" : "N/A",
+        "teacher" : "Professeur",
+        "noProfesseur" : "Aucun professeur assigné",
+        "assign_title": "Félicitations ! Voici les élèves assignés à ce professeur : {{prenom}} {{nom}}",
+        "assign_tips": "Pour faire une autre sélection, merci d'appuyer sur le bouton \"Assigner à nouveau\".",
+        "assign_restart": "Assigner à nouveau"
+      },
+      "button": {
+        "text" : "Assigner"
+      }
     }
   },
   "pdfVisio": {
@@ -471,5 +507,17 @@
   "gestion_entrevue": {
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
+  },
+  "general": {
+    "nom" : "Nom",
+    "departement" : "Departement",
+    "matricule": "Matricule",
+    "email" : "Courriel",
+    "liste" : {
+      "open" : "Ouvrir la liste",
+      "close" : "Fermer la liste",
+      "title" : "Liste",
+      "empty" : "La liste est vide"
+    }
   }
 }
