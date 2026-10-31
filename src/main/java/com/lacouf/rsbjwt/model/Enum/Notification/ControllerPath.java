@@ -4,7 +4,8 @@ public enum ControllerPath {
     GESTIONNAIRE_CV_ID_DETAIL("/gestionnaire/cv/{id}"),
     GESTIONNAIRE_OFFRE_ID_DETAIL("/gestionnaire/offres/{id}"),
     EMPLOYEUR_CANDIDATURES("/employeur"),
-    ETUDIANT_OFFRES("/etudiant"); //a adapter dans le FE
+    ETUDIANT_OFFRES("/etudiant"),
+    ETUDIANT_ENTREVUES("/etudiant/entrevues");
 
     private final String pattern;
 

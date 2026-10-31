@@ -4,6 +4,12 @@ import Button from "../Design/Button.jsx";
 import { getDepartements, getEmployeurs, getEtudiants } from "../../api/gestionnaire.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { validateOfferForm } from "../../utils/offerValidation.jsx";
+import { FiUpload } from "react-icons/fi";
+import { obtenirOffrePDF } from "../../api/employeur.jsx";
+import { formaterTailleFichier } from "../../utils/cvFormatters.jsx";
+import { usePdfDocument } from "../../utils/filesUtils.jsx";
+import PdfActionButtons from "../PDF/PdfActionButtons.jsx";
+import PdfPreviewDialog from "../PDF/PdfPreviewDialog.jsx";
 
 const TAILLE_MAX_OCTETS = 10 * 1024 * 1024;
 
@@ -35,8 +41,15 @@ function OfferForm({
         initialValues.etudiantId || initialValues.etudiant?.id || ""
     );
     const [fileName, setFileName] = useState("");
-
+    const [selectedFile, setSelectedFile] = useState(null);
     const isEdit = mode === "edit";
+    const { pdfUrl, pdfFile, error, dialogRef, viewPDF, fermerModal, gererTelechargement } = usePdfDocument({
+        file: selectedFile,
+        loadPdfResponse: () => obtenirOffrePDF(initialValues.id),
+        fileNameFallback: fileName || currentFileName,
+        documentId: initialValues.id,
+        preload: isEdit && Boolean(currentFileName),
+    });
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -430,21 +443,26 @@ function OfferForm({
                                 {t("add_offer.document")}
                             </span>
 
-                            {isEdit && currentFileName && (
-                                <p className="text-xs text-gray-600 mt-1">
-                                    {t("edit_offer.current_file", "Fichier actuel :")}{" "}
-                                    <span className="font-medium text-[#043462]">
-                                        {currentFileName}
-                                    </span>
-                                </p>
+                            {(fileName || currentFileName) && (
+                                <div className="document-card my-2">
+                                    <div className="document-card-info">
+                                        <p className="document-card-name">{fileName || currentFileName}</p>
+                                        <p className="document-card-details">
+                                            PDF{pdfFile ? ` · ${formaterTailleFichier(pdfFile.size)}` : ""}
+                                        </p>
+                                    </div>
+                                    <PdfActionButtons
+                                        variant="card"
+                                        disabled={!pdfUrl}
+                                        onView={viewPDF}
+                                        onDownload={() => gererTelechargement(fileName || currentFileName)}
+                                    />
+                                </div>
                             )}
 
-                            <label
-                                htmlFor="file"
-                                className="inline-block cursor-pointer rounded-md bg-[#043462] px-4 py-2 text-sm font-semibold text-white hover:bg-[#03284d]"
-                            >
-                                {fileName || t("add_offer.choose_file")}
-                            </label>
+                            {isEdit && error && !selectedFile && (
+                                <p className="text-sm text-red-600">{t(error)}</p>
+                            )}
 
                             <input
                                 id="file"
@@ -455,8 +473,19 @@ function OfferForm({
                                 onChange={(e) => {
                                     const file = e.target.files[0] || null;
                                     setFileName(file?.name || "");
+                                    setSelectedFile(file);
                                 }}
                             />
+
+                            <label
+                                htmlFor="file"
+                                className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-md bg-[#043462] px-4 py-3 font-semibold text-white hover:bg-[#03284d]"
+                            >
+                                <FiUpload className="size-5 shrink-0" aria-hidden="true" />
+                                {t(fileName || currentFileName ? "documents.replace" : "add_offer.choose_file")}
+                            </label>
+
+                            <p className="text-center text-sm text-slate-500">{t("documents.file_hint", { maxSize: TAILLE_MAX_OCTETS / 1024 / 1024 })}</p>
 
                             {isEdit && (
                                 <p className="text-xs text-gray-500 mt-1">
@@ -480,6 +509,7 @@ function OfferForm({
                     </Button>
                 </div>
             </form>
+            <PdfPreviewDialog dialogRef={dialogRef} pdfUrl={pdfUrl} onClose={fermerModal} />
         </div>
     );
 }

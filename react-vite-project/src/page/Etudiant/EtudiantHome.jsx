@@ -176,6 +176,7 @@ const EtudiantHome = ({ user }) => {
                     </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
                         <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
                             {!isInitialLoading && hasDepartment && error && (
                                 <EmptyContentMessage

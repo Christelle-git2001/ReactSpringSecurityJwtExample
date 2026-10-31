@@ -1,11 +1,48 @@
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import LanguageSwitch from "../../../locales/LanguageSwitch.jsx";
 import ThemeToggle from "../ThemeToggle.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
-import { useTranslation } from "react-i18next";
 import logo from "../../../assets/logo.png";
 import Notification from "../../Notification/Notification.jsx";
-function Header({ sidebarOpen, user, notifications, onMarkAsRead }) {
+import { getNotifications } from "../../../api/notification.jsx";
+
+const ROLES_AVEC_NOTIFICATIONS = ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"];
+
+function Header({ sidebarOpen, user }) {
     const { t } = useTranslation();
+    const { pathname } = useLocation();
+    const [notifications, setNotifications] = useState([]);
+
+    const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
+    const role = rawRole?.toString().replace("ROLE_", "");
+    const peutRecevoir = Boolean(user?.isLoggedIn) && ROLES_AVEC_NOTIFICATIONS.includes(role);
+
+    useEffect(() => {
+        let actif = true;
+
+        if (!peutRecevoir) {
+            setNotifications([]);
+            return;
+        }
+
+        getNotifications(user.id)
+            .then((data) => {
+                if (actif) setNotifications((data ?? []).filter((n) => !n.estLu));
+            })
+            .catch(() => {
+                if (actif) setNotifications([]);
+            });
+
+        return () => {
+            actif = false;
+        };
+    }, [peutRecevoir, user?.id, pathname]);
+
+    const handleMarkAsRead = (id) => {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+    };
 
     const tooltipText = sidebarOpen
         ? t("sidebar.collapse")
@@ -31,10 +68,10 @@ function Header({ sidebarOpen, user, notifications, onMarkAsRead }) {
                 <div className="flex flex-wrap gap-6">
                     <ThemeToggle />
                     <LanguageSwitch />
-                    {user?.isLoggedIn && (
+                    {peutRecevoir && (
                         <Notification
                             notifications={notifications}
-                            onMarkAsRead={onMarkAsRead}
+                            onMarkAsRead={handleMarkAsRead}
                         />
                     )}
                 </div>

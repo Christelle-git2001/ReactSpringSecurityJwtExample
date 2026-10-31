@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import EmployeurHome from '../../page/Employeur/EmployeurHome.jsx';
 import OffreStageCard from '../../component/Design/Cards/OffreStageCard.jsx';
@@ -67,19 +67,35 @@ describe('EmployeurHome - Gestion des candidatures et offres', () => {
         const offerElements = await screen.findAllByText(/Développeur Web Junior/i);
         expect(offerElements.length).toBeGreaterThan(0);
 
-        const studentElement = await within(document.getElementById("candidatures-section")).findByText(/Sébastien Castonguay/i);
+        expect(document.getElementById("candidatures-section")).toBeNull();
+        fireEvent.click(await screen.findByText("candidature.list_title (1)"));
+        const studentElement = await screen.findByText(/Sébastien Castonguay/i);
         expect(studentElement).toBeInTheDocument();
     });
 
-    it('devrait filtrer les candidatures et offres lors de la sélection d un filtre de poste', async () => {
+    it('filtre les cartes selon le poste selectionne', async () => {
+        getOffresEmployeur.mockResolvedValueOnce([
+            { id: 1, title: 'Offre informatique', statut: 'ACCEPTEE', domain: 'INFORMATIQUE' },
+            { id: 2, title: 'Offre architecture', statut: 'ACCEPTEE', domain: 'ARCHITECTURE' },
+        ]);
         render(
             <MemoryRouter>
-                <EmployeurHome user={{ firstName: 'Roger', lastName: 'Malinois' }} />
+                <EmployeurHome user={{ firstName: 'Roger' }} />
             </MemoryRouter>
         );
 
-        const studentElement = await within(document.getElementById("candidatures-section")).findByText(/Sébastien Castonguay/i);
-        expect(studentElement).toBeInTheDocument();
+        await screen.findByText('Offre informatique');
+        await screen.findByText('candidature.list_title (1)');
+        fireEvent.click(screen.getByText('actions.filter_by'));
+        fireEvent.click(screen.getByRole('checkbox', { name: 'Offre architecture' }));
+
+        expect(screen.getByText('Offre architecture')).toBeVisible();
+        expect(screen.queryByText('Offre informatique')).not.toBeInTheDocument();
+        expect(screen.getByText('candidature.list_title (0)')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('checkbox', { name: 'Offre informatique' }));
+        expect(screen.getByText('Offre informatique')).toBeVisible();
+        expect(screen.getByText('candidature.list_title (1)')).toBeInTheDocument();
     });
 });
 

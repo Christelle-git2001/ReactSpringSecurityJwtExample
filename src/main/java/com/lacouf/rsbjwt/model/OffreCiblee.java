@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("OFFRE_CIBLEE")
 @Getter
 @NoArgsConstructor
-@SuperBuilder // <-- Change @Builder to @SuperBuilder
+@SuperBuilder
 public class OffreCiblee extends OffreDeStage {
 
     @ManyToOne
