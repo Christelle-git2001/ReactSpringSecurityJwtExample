@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../Design/Button.jsx";
-import { obtenirConvocation, confirmerConvocation } from "../../api/etudiant.jsx";
+import { obtenirConvocation, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
 import { FaBriefcase, FaCalendarAlt, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 
 function Info({ icone, label, valeur }) {
@@ -47,14 +47,16 @@ function ConvocationEntrevue() {
         else setLoading(false);
     }, [id]);
 
-    const handleConfirmer = async () => {
+    const repondre = async (action) => {
         setIsSubmitting(true);
         try {
-            await confirmerConvocation(id);
-            await charger();
+            await action(id);
+            await charger(); // on relit l'état réel depuis le serveur
         } catch (err) {
-            console.error("Erreur confirmation:", err);
-            setError("error.generic");
+            console.error("Erreur réponse convocation:", err);
+            setError(err?.status === 409 || err?.status === 400
+                ? "convocation.invalid_state"
+                : "error.generic");
         } finally {
             setIsSubmitting(false);
         }
