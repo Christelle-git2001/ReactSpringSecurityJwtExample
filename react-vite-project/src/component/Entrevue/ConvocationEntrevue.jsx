@@ -8,7 +8,7 @@ import { FaBriefcase, FaCalendarAlt, FaClock, FaMapMarkerAlt } from "react-icons
 function Info({ icone, label, valeur }) {
     return (
         <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-lg">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-full">{icone}</div>
+            <div className="p-3 bg-blue-100 text-gray-400-600 rounded-full">{icone}</div>
             <div>
                 <p className="text-xs text-gray-500 font-semibold uppercase">{label}</p>
                 <p className="text-md font-medium text-gray-800">{valeur ?? "—"}</p>
@@ -51,7 +51,7 @@ function ConvocationEntrevue() {
         setIsSubmitting(true);
         try {
             await action(id);
-            await charger(); // on relit l'état réel depuis le serveur
+            await charger();
         } catch (err) {
             console.error("Erreur réponse convocation:", err);
             setError(err?.status === 409 || err?.status === 400
@@ -81,6 +81,8 @@ function ConvocationEntrevue() {
         : "—";
 
     const estConfirmee = convocation.statut === "CONFIRMEE";
+    const estRefusee = convocation.statut === "REFUSEE";
+    const aRepondre = !estConfirmee && !estRefusee;
 
     return (
         <div className="w-full max-w-3xl mx-auto p-4 md:p-8">
@@ -88,22 +90,17 @@ function ConvocationEntrevue() {
                 <div className="flex justify-between items-start border-b pb-4">
                     <div>
                         <h2 className="text-2xl font-bold text-[#043462]">
-                            {t("convocation.title", "Détails de l'entrevue")}
+                            {t("convocation.title")}
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            {t("convocation.subtitle", "Veuillez confirmer votre présence")}
+                            {t("convocation.subtitle")}
                         </p>
                     </div>
-                    {estConfirmee && (
-                        <span className="badge badge-success text-white p-3">
-                            {t("convocation.confirmed", "Confirmée")}
-                        </span>
-                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Info icone={<FaBriefcase />} label={t("convocation.offer", "Offre")} valeur={convocation.offreTitle} />
-                    <Info icone={<FaMapMarkerAlt />} label={t("convocation.format", "Format")} valeur={convocation.format} />
+                    <Info icone={<FaBriefcase />} label={t("convocation.offer")} valeur={convocation.offreTitle} />
+                    <Info icone={<FaMapMarkerAlt />} label={t("convocation.format", "Format")} valeur={convocation?.format} />
                     <Info icone={<FaCalendarAlt />} label={t("convocation.date", "Date")} valeur={dateAffichee} />
                     <Info icone={<FaClock />} label={t("convocation.time", "Heure")} valeur={heureAffichee} />
                 </div>
@@ -112,12 +109,19 @@ function ConvocationEntrevue() {
 
                 <div className="flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-5">
                     <Button variant="secondary" type="button" onClick={() => navigate(-1)} disabled={isSubmitting}>
-                        {t("actions.back", "Retour")}
+                        {t("convocation.back")}
                     </Button>
-                    {!estConfirmee && (
-                        <Button variant="success" type="button" onClick={handleConfirmer} disabled={isSubmitting}>
-                            {t("actions.accept", "Accepter")}
-                        </Button>
+                    {aRepondre && (
+                        <>
+                            <Button variant="danger" type="button" disabled={isSubmitting}
+                                    onClick={() => repondre(refuserConvocation)}>
+                                {t("convocation.reject")}
+                            </Button>
+                            <Button variant="success" type="button" disabled={isSubmitting}
+                                    onClick={() => repondre(accepterConvocation)}>
+                                {t("convocation.accept")}
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>
