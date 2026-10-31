@@ -40,9 +40,10 @@ public class GestionnaireService {
     private final EtudiantRepository etudiantRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final CandidatureRepository candidatureRepository;
+    private final ContratRepository contratRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
-                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository){
+                               ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -53,6 +54,7 @@ public class GestionnaireService {
         this.employeurRepository = employeurRepository;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
+        this.contratRepository = contratRepository;
     }
 
     @Transactional
@@ -317,7 +319,7 @@ public class GestionnaireService {
                 .toList();
     }
 
-    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException {
+    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException, StatutCandidatureInvalideException {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -329,15 +331,18 @@ public class GestionnaireService {
 
        Candidature candidature = candidatureRepository.findById(candidatureId)
                .orElseThrow(CandidatureIntrouvableException::new);
-       Contrat contrat = null ;
+       Contrat contrat;
 
        if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
            contrat = Contrat.builder()
                    .candidature(candidature)
                    .gestionnaire(gestionnaire)
                    .build();
+       }else{
+           throw new StatutCandidatureInvalideException();
        }
-       return ContratDTO.of(contrat);
+
+       return ContratDTO.of(contratRepository.save(contrat));
     }
 
 

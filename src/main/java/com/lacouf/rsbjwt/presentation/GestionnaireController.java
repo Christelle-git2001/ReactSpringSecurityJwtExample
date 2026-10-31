@@ -139,4 +139,12 @@ public class GestionnaireController {
         OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
+
+    @PostMapping("/candidatures/{candidatureId}/contrat")
+    public ResponseEntity<ContratDTO> creerContrat(
+            @PathVariable Long candidatureId)
+            throws CandidatureIntrouvableException, StatutCandidatureInvalideException{
+        ContratDTO contratDTO = gestionnaireService.creerContrat(candidatureId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(contratDTO);
+    }
 }
