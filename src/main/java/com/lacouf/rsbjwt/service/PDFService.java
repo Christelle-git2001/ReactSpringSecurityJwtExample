@@ -161,10 +161,13 @@ public class PDFService {
             ajouterBlocSignature(elements, "signature.employeur", employeur.getFirstName() + " " + employeur.getLastName(), contrat.getDateSignatureEmployeur(), messages);
             ajouterBlocSignature(elements, "signature.gestionnaire", gestionnaire.getFirstName() + " " + gestionnaire.getLastName(), contrat.getDateSignatureGestionnaire(), messages);
 
-            for (IElement element : elements) {
-                document.add((IBlockElement) element);
+        for (IElement element : elements) {
+            if (element instanceof AreaBreak areaBreak) {
+                document.add(areaBreak);
+            } else if (element instanceof IBlockElement blockElement) {
+                document.add(blockElement);
             }
-
+        }
         return new ByteArrayResource(outputStream.toByteArray());
     }
 }
