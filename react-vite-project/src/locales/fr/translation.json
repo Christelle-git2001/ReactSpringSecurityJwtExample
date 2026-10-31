@@ -99,7 +99,6 @@
     "save": "Soumettre"
   },
   "actions": {
-    "backhome": "Retour à l'accueil",
     "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
@@ -114,8 +113,7 @@
     "reset_filters": "Réinitialiser les filtres",
     "collapse": "Réduire",
     "expand": "Développer",
-    "backhome": "Retour à l'accueil",
-    "interview": "Retenir pour entrevue"
+    "backhome": "Retour à l'accueil"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
