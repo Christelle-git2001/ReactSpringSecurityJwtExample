@@ -1,4 +1,7 @@
 {
+  "language": {
+    "label": "Langue"
+  },
   "inscription": {
     "titre": "Vous êtes ?",
     "etudiant": "Étudiant",
@@ -440,6 +443,10 @@
         "title_refusee": "Votre CV a été refusé",
         "description_refusee": "Pour connaître les motifs du refus, veuillez consulter cette notification."
       },
+      "convocationEntrevue": {
+        "title": "Convocation à une entrevue",
+        "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour le poste {{OFFRE_TITRE}} le {{ENTREVUE_DATE}}."
+      },
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
@@ -482,12 +489,16 @@
   },
   "agenda": {
     "no_interviews": "Aucune entrevue",
-    "clear_filter":  "Désactiver le filtre",
+    "clear_filter": "Voir toutes les entrevues",
     "title": "Agenda",
-    "all_interviews": "Entrevues à venir :",
+    "all_interviews": "Entrevues planifiées :",
+    "interview_day": "Jour avec une entrevue",
+    "today": "Aujourd'hui",
+    "previous_month": "Mois précédent",
+    "next_month": "Mois suivant",
+    "no_date": "Date non précisée",
     "select_date_prompt": "Sélectionnez une date",
-    "no_interviews_date": "Aucune entrevue pour cette date.",
-    "select_date_hint": "Cliquez sur une date pour voir les entrevues."
+    "no_interviews_date": "Aucune entrevue pour cette date."
   },
   "gestion_entrevue": {
     "title": "Gestion des entrevues",

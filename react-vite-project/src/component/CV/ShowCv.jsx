@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { obtenirCvPDF, suppressionCv } from "../../api/etudiant.jsx";
 import React, { useState } from "react";
-import { IoEyeSharp } from "react-icons/io5";
-import { FaDownload, FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
+import PdfActionButtons from "../PDF/PdfActionButtons.jsx";
 import { PDFVisioneuse } from "../PDF/PDFVisioneuse.jsx";
 import {usePdfDocument} from "../../utils/filesUtils.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
@@ -52,48 +52,36 @@ const ShowCv = ({ cv, onCvDeleted }) => {
 
     return (
         <div className="w-full">
-            <div className="mt-5 bg-purple-200 rounded-4xl flex flex-col justify-center items-center p-2">
+            <div className="document-card mt-5">
                 {cv?.id ? (
-                    <div className="flex justify-around w-full items-center h-full">
+                    <>
                          <span className={`badge badge-xs ${status.className}`}>
                         {status.label}
                         </span>
-                        <div>
-                            {cv?.fileName}
-                            <div className="text-xs uppercase font-semibold opacity-60">
-                                {formaterDate(cv?.uploadDate)}
-                            </div>
+                        <div className="document-card-info">
+                            <p className="document-card-name">{cv?.fileName}</p>
+                            <p className="document-card-details">
+                                PDF · {formaterTailleFichier(cv?.fileSize)} · {formaterDate(cv?.uploadDate)}
+                            </p>
                         </div>
-                        <div>
-                            <div>{formaterTailleFichier(cv?.fileSize)}</div>
+                        <div className="flex shrink-0 items-center gap-3">
+                            <PdfActionButtons
+                                variant="card"
+                                onView={viewPDF}
+                                onDownload={() => gererTelechargement(cv?.fileName)}
+                            />
+                            {cv?.statut !== "ACCEPTEE" && (
+                                <button
+                                    type="button"
+                                    className="p-2 text-red-900 cursor-pointer hover:text-red-700"
+                                    onClick={supprimerCv}
+                                    title={t("actions.delete", "Supprimer")}
+                                >
+                                    <FaTrashAlt className="size-5" aria-hidden="true" />
+                                </button>
+                            )}
                         </div>
-                        <button
-                            type="button"
-                            className="btn btn-square btn-ghost"
-                            onClick={viewPDF}
-                            title={t("actions.view", "Visualiser")}
-                        >
-                            <IoEyeSharp className="w-full h-full text-teal-500 hover:text-black" />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => gererTelechargement(cv?.fileName)}
-                            className="btn btn-ghost"
-                            title={t("actions.download", "Télécharger")}
-                        >
-                            <FaDownload className="w-full h-full text-green-700 hover:text-black" />
-                        </button>
-                        {cv?.statut !== "ACCEPTEE"  && (
-                            <button
-                                type="button"
-                                className="btn btn-square btn-ghost"
-                                onClick={supprimerCv}
-                                title={t("actions.delete", "Supprimer")}
-                            >
-                                <FaTrashAlt className="w-full h-full text-red-900 hover:text-black" />
-                            </button>
-                        )}
-                    </div>
+                    </>
                 ) : (
                     <div className="flex justify-center w-full">
                         <p className="text-center">{t("etudiant.noCVUpload")}</p>

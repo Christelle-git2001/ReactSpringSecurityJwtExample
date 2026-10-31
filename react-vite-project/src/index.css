@@ -64,7 +64,7 @@ button:disabled,
 }
 
 .document-card {
-    @apply flex flex-wrap items-center gap-4 rounded-xl p-5 max-[480px]:p-4;
+    @apply flex flex-wrap items-center gap-4 rounded-md bg-purple-200 p-5 max-[480px]:p-4;
 }
 
 .document-card-info {
