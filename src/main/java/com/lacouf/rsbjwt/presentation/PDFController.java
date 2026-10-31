@@ -15,14 +15,12 @@ import org.springframework.http.HttpHeaders;
 public class PDFController {
 
     private final PDFService pdfService ;
-    private final EmployeurService employeurService;
 
-    public PDFController(PDFService pdfService, EmployeurService employeurService) {
+    public PDFController(PDFService pdfService) {
         this.pdfService = pdfService;
-        this.employeurService = employeurService;
     }
 
-    @GetMapping("/contrat/{contratId}/pdf")
+    @GetMapping("/contrat/{contratId}")
     public ResponseEntity<Resource> obtenirContratPdf(
             @PathVariable Long contratId,
             @RequestParam(defaultValue = "fr") String langue) throws ContratIntrouvableException {

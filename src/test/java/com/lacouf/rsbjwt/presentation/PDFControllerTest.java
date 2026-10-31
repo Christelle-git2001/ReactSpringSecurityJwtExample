@@ -33,9 +33,6 @@ public class PDFControllerTest {
     @MockitoBean
     private PDFService pdfService;
 
-    @MockitoBean
-    private EmployeurService employeurService;
-
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -50,7 +47,7 @@ public class PDFControllerTest {
 
         when(pdfService.createContratPdf(1L, "fr")).thenReturn(pdfResource);
 
-        MvcResult mvcResult = mockMvc.perform(get("/pdf/contrat/1/pdf")
+        MvcResult mvcResult = mockMvc.perform(get("/pdf/contrat/1")
                         .param("langue", "fr"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PDF))
@@ -66,7 +63,7 @@ public class PDFControllerTest {
         when(pdfService.createContratPdf(99L, "fr"))
                 .thenThrow(new ContratIntrouvableException());
 
-        mockMvc.perform(get("/pdf/contrat/99/pdf")
+        mockMvc.perform(get("/pdf/contrat/99")
                         .param("langue", "fr"))
                 .andExpect(status().isNotFound());
     }
