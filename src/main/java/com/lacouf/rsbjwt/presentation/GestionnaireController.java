@@ -155,7 +155,7 @@ public class GestionnaireController {
     @PostMapping("/candidatures/{candidatureId}/contrat")
     public ResponseEntity<ContratDTO> creerContrat(
             @PathVariable Long candidatureId)
-            throws CandidatureIntrouvableException, StatutCandidatureInvalideException{
+            throws CandidatureIntrouvableException, StatutCandidatureInvalideException, UtilisateurIntrouvableException {
         ContratDTO contratDTO = gestionnaireService.creerContrat(candidatureId);
         return ResponseEntity.status(HttpStatus.CREATED).body(contratDTO);
     }
