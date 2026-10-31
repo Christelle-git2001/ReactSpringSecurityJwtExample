@@ -48,6 +48,9 @@ public class EmployeurServiceTest {
     private CandidatureRepository candidatureRepository;
 
     @Mock
+    private ContratRepository contratRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -694,6 +697,107 @@ public class EmployeurServiceTest {
                 .isInstanceOf(DateAvantAujourdhuiException.class);
 
         verify(convocationRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitSignerContratAvecSucces() throws Exception {
+        Gestionnaire gestionnaire = new Gestionnaire(1L,"Laurent","losange","Laurent.Losange@hotmail.com","5858","458-458-4584");
+        gestionnaire.setId(1L);
+        Long contratId = 1L;
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+        contrat.setId(contratId);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+        when(contratRepository.save(any(Contrat.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ContratDTO result = employeurService.signerContrat(contratId);
+
+        assertThat(result).isNotNull();
+        assertThat(contrat.getDateSignatureEmployeur()).isEqualTo(LocalDate.now());
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository).save(contrat);
+    }
+
+    @Test
+    void doitLeverExceptionSiUtilisateurIntrouvablePourSignatureContrat() {
+
+        Long contratId = 1L;
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository, never()).findById(any());
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiContratIntrouvablePourSignature() {
+        Long contratId = 99L;
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+                .isInstanceOf(ContratIntrouvableException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiEmployeurNonProprietaireDeOffrePourSignatureContrat() {
+
+        Long contratId = 1L;
+
+        Employeur autreEmployeur = Employeur.builder()
+                .firstName("Autre")
+                .lastName("Employeur")
+                .email("autre@employeur.com")
+                .build();
+        autreEmployeur.setId(2L);
+
+        OffreDeStage autreOffre = OffreDeStage.builder()
+                .employeur(autreEmployeur)
+                .build();
+
+        Candidature autreCandidature = Candidature.builder()
+                .offreDeStage(autreOffre)
+                .build();
+
+        Contrat contrat = Contrat.builder()
+                .candidature(autreCandidature)
+                .build();
+
+        contrat.setId(contratId);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+
+        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+                .isInstanceOf(OffreNonAutoriseeException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository, never()).save(any());
     }
 }
 

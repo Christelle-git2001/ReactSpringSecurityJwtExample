@@ -19,8 +19,6 @@ import java.util.List;
 @RequestMapping("/gestionnaire")
 @CrossOrigin(origins = "http://localhost:5173")
 public class GestionnaireController {
-
-
     private final GestionnaireService gestionnaireService;
 
     public GestionnaireController(GestionnaireService gestionnaireService) {
@@ -129,6 +127,20 @@ public class GestionnaireController {
         return gestionnaireService.getAllEtudiants();
     }
 
+    @GetMapping("/professeurs")
+    public List<ProfesseurDTO> getAllProfesseurs(){return gestionnaireService.getAllProfesseurs();}
+
+
+    @PutMapping("/etudiant/{professeurId}")
+    public ResponseEntity<List<EtudiantDTO>> assignerProfesseur(
+            @PathVariable Long professeurId,
+            @RequestBody AssignationProfesseurDTO dto
+    ) throws UtilisateurIntrouvableException {
+        return ResponseEntity.ok(
+                gestionnaireService.assignerProfesseur(professeurId, dto)
+        );
+    }
+
     @PostMapping(value = "/offres", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<OffreDeStageDTO> creerOffreCiblee(
             @Valid @RequestPart("offre") CreationOffreCibleeDTO dto,
@@ -138,5 +150,13 @@ public class GestionnaireController {
             DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException {
         OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
+    }
+
+    @PostMapping("/candidatures/{candidatureId}/contrat")
+    public ResponseEntity<ContratDTO> creerContrat(
+            @PathVariable Long candidatureId)
+            throws CandidatureIntrouvableException, StatutCandidatureInvalideException, UtilisateurIntrouvableException {
+        ContratDTO contratDTO = gestionnaireService.creerContrat(candidatureId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(contratDTO);
     }
 }
