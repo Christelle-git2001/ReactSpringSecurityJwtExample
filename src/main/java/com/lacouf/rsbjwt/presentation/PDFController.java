@@ -3,7 +3,6 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.PDFService;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
