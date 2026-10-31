@@ -549,4 +549,24 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.title").value(offreDeStageDTO.title()))
                 .andExpect(jsonPath("$.statut").value(Statut.EN_ATTENTE.name()));
     }
+
+    @Test
+    void doitCreerContratAvecSucces() throws Exception {
+        ContratDTO contratDTO = new ContratDTO(
+                1L,
+                1L,
+                1L,
+                null,
+                null,
+                null
+        );
+
+        when(gestionnaireService.creerContrat(1L)).thenReturn(contratDTO);
+
+        mockMvc.perform(post("/gestionnaire/candidatures/1/contrat")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.candidatureId").value(1L));
+    }
 }
