@@ -492,5 +492,19 @@
   "gestion_entrevue": {
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
+  },
+  "convocation": {
+    "title": "Détails de l'entrevue",
+    "subtitle": "Veuillez confirmer votre présence à l'entrevue",
+    "list_title": "Mes entrevues",
+    "none": "Pas d'entrevues pour le moment.",
+    "offer": "Offre",
+    "format": "Format",
+    "date": "Date",
+    "time": "Heure",
+    "reject" : "Refuser",
+    "accept" : "Accepter",
+    "back" : "Retour",
+    "scheduled": "Entrevue planifiée"
   }
 }

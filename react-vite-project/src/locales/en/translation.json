@@ -493,5 +493,19 @@
   "gestion_entrevue": {
     "title": "Interview Management",
     "subtitle": "Schedule your appointments and view your calendar in real time."
+  },
+  "convocation": {
+    "title": "Interview details",
+    "subtitle": "Please confirm your attendance for the scheduled interview",
+    "list_title": "My interviews",
+    "none": "No interviews for now",
+    "offer": "Offer",
+    "format": "Format",
+    "date": "Date",
+    "time": "Time",
+    "reject" : "Reject",
+    "accept" : "Accept",
+    "back" : "Back",
+    "scheduled": "Interview scheduled"
   }
 }
