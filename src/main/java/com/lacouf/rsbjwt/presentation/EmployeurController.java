@@ -129,4 +129,12 @@ public class EmployeurController {
         List<EntrevueDTO> entrevues = employeurService.obtenirEntrevues();
         return ResponseEntity.ok(entrevues);
     }
+
+    @PutMapping("/contrat/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+        ContratDTO contratDTO = employeurService.signerContrat(contratId);
+        return ResponseEntity.ok(contratDTO);
+    }
 }
