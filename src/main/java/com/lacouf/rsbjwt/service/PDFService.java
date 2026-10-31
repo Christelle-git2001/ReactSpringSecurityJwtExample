@@ -8,6 +8,7 @@ import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.Exception.OffreIntrouvableException;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
@@ -28,17 +29,14 @@ import java.util.ResourceBundle;
 @Service
 @Transactional(readOnly = true)
 public class PDFService {
-    private static final String STOCKAGE_CONTRAT = "Contrat.pdf";
     private final String FRANCAIS = "fr";
 
-    private final EtudiantRepository etudiantRepository;
-    private final OffreDeStageRepository offreDeStageRepository;
+    private final GestionnaireRepository gestionnaireRepository;
+    private final CandidatureRepository candidatureRepository;
 
-    public PDFService(
-                      EtudiantRepository etudiantRepository,
-                      OffreDeStageRepository offreDeStageRepository) {
-        this.etudiantRepository = etudiantRepository;
-        this.offreDeStageRepository = offreDeStageRepository;
+    public PDFService(GestionnaireRepository gestionnaireRepository, CandidatureRepository candidatureRepository) {
+        this.gestionnaireRepository = gestionnaireRepository;
+        this.candidatureRepository = candidatureRepository;
     }
 
     private Paragraph addTitre(String cleDeTraduction, int fontSize, ResourceBundle messages) {
@@ -65,15 +63,18 @@ public class PDFService {
         return new Paragraph(text).setTextAlignment(TextAlignment.CENTER);
     }
 
-    public Resource createContratPdf(Gestionnaire gestionnaire, CandidatureDTO candidature, String langue) throws UtilisateurIntrouvableException, OffreIntrouvableException, FileNotFoundException {
+    public Resource createContratPdf(Long candidatureId, String langue) throws CandidatureIntrouvableException {
 
-        Etudiant etudiant = etudiantRepository.findById(candidature.etudiantId())
-                .orElseThrow(UtilisateurIntrouvableException::new);
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
 
-        OffreDeStage offre = offreDeStageRepository.findById(candidature.offreId())
-                .orElseThrow(OffreIntrouvableException::new);
+        Etudiant etudiant = candidature.getEtudiant();
+
+        OffreDeStage offre = candidature.getOffreDeStage();
 
         Employeur employeur = offre.getEmployeur();
+
+        Gestionnaire gestionnaire = gestionnaireRepository.findAll().getFirst() ;
 
         Locale locale = new Locale(langue != null ? langue : FRANCAIS);
         ResourceBundle messages = ResourceBundle.getBundle("i18n.messages", locale);
