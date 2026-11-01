@@ -15,7 +15,12 @@ jest.mock("../../api/notification.jsx", () => ({
     getNotifications: jest.fn(), marquerNotificationLue: jest.fn(),
 }));
 jest.mock("../../component/PDF/PDFVisioneuse.jsx", () => ({
-    PDFVisioneuse: ({ onClose }) => <button onClick={onClose}>Fermer le PDF</button>,
+    PDFVisioneuse: ({ cvUrlAAffiche, onClose }) => (
+        <div>
+            {cvUrlAAffiche ? <span data-testid="preview-url">{cvUrlAAffiche}</span> : <span>Aucun fichier a lire</span>}
+            <button onClick={onClose}>Fermer le PDF</button>
+        </div>
+    ),
 }));
 
 const user = { id: 10, department: "INFORMATIQUE" };
@@ -48,7 +53,10 @@ describe("Consultation des nouvelles offres", () => {
         URL.createObjectURL = jest.fn(() => "blob:offre");
         URL.revokeObjectURL = jest.fn();
         jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-        HTMLDialogElement.prototype.showModal = jest.fn(function () { this.open = true; });
+        HTMLDialogElement.prototype.showModal = jest.fn(function () {
+            expect(within(this).getByTestId("preview-url")).toHaveTextContent("blob:offre");
+            this.open = true;
+        });
         HTMLDialogElement.prototype.close = jest.fn(function () { this.open = false; });
     });
 
@@ -67,7 +75,10 @@ describe("Consultation des nouvelles offres", () => {
             expect(screen.getByText("Nouvelle offre").closest(".card")).toBe(card);
             if (action === "actions.view") {
                 await waitFor(() => expect(document.querySelector("dialog[open]")).toHaveAttribute("open"));
-                fireEvent.click(within(document.querySelector("dialog[open]")).getByText("Fermer le PDF"));
+                const dialog = document.querySelector("dialog[open]");
+                expect(card.contains(dialog)).toBe(false);
+                expect(within(dialog).queryByText("Aucun fichier a lire")).not.toBeInTheDocument();
+                fireEvent.click(within(dialog).getByText("Fermer le PDF"));
                 expect(document.querySelector("dialog[open]")).toBeNull();
             } else {
                 await waitFor(() => expect(HTMLAnchorElement.prototype.click).toHaveBeenCalled());
@@ -125,6 +136,32 @@ describe("Consultation des nouvelles offres", () => {
         await act(async () => terminerCandidature({}));
         expect(within(card).getByText("offre.application_received")).toBeInTheDocument();
         expect(marquerNotificationLue).toHaveBeenCalledTimes(1);
+    });
+
+    it("ne classe pas une offre deja postulee parmi les nouvelles offres", async () => {
+        obtenirCandidaturesEtudiant.mockResolvedValue([{ offreId: 1 }]);
+        afficherAccueil();
+        await screen.findByText("offre.application_received");
+        await waitFor(() => expect(getNotifications).toHaveBeenCalled());
+        expect(screen.queryByText("offre.new")).not.toBeInTheDocument();
+        expect(marquerNotificationLue).not.toHaveBeenCalled();
+    });
+
+    it("reouvre le meme PDF apres fermeture par le fond du modal", async () => {
+        afficherAccueil();
+        await screen.findByText("offre.new");
+        const card = screen.getByText("Nouvelle offre").closest(".card");
+        fireEvent.click(within(card).getByRole("button", { name: "actions.view" }));
+        await waitFor(() => expect(document.querySelector("dialog[open]")).not.toBeNull());
+        const dialog = document.querySelector("dialog");
+        await act(async () => {
+            dialog.close();
+            fireEvent(dialog, new Event("close"));
+        });
+        fireEvent.click(within(card).getByRole("button", { name: "actions.view" }));
+        await waitFor(() => expect(dialog).toHaveAttribute("open"));
+        expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(2);
+        expect(obtenirOffrePDF).toHaveBeenCalledTimes(1);
     });
 
 });
