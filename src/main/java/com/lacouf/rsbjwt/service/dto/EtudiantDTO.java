@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 
 @Builder
 public record EtudiantDTO(long id, String firstName, String lastName, String email, String matricule,
-                          String phoneNumber, String department, LocalDateTime previousLoginAt)
+                          String phoneNumber, String department, LocalDateTime previousLoginAt, Long professeurId,
+                          String professeurNom)
         implements UserDTO{
     public static EtudiantDTO of(Etudiant etudiant) {
         return new EtudiantDTO(
@@ -19,12 +20,21 @@ public record EtudiantDTO(long id, String firstName, String lastName, String ema
                 etudiant.getMatricule(),
                 etudiant.getPhoneNumber(),
                 etudiant.getDepartment().getLabel(),
-                etudiant.getPreviousLoginAt());
+                etudiant.getPreviousLoginAt(),
+        etudiant.getProfesseur() != null
+                ? etudiant.getProfesseur().getId()
+                : null,
+                etudiant.getProfesseur() != null
+                        ? etudiant.getProfesseur().getFirstName()
+                        + " " + etudiant.getProfesseur().getLastName()
+                        : null
+
+        );
     }
 
     public static EtudiantDTO empty() {
         return new EtudiantDTO(0L, null, null, null,
-                null, null, null, null);
+                null, null, null, null, null, null);
     }
 
     @Override

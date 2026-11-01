@@ -69,7 +69,9 @@ public class GestionnaireControllerTest {
                 "2226252",
                 "438-297-8191",
                 "INFORMATIQUE",
-                null
+                null,
+                1L,
+                "Jean"
         );
 
         offreDeStageDTO = new OffreDeStageDTO(
@@ -548,5 +550,104 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.id").value(offreDeStageDTO.id()))
                 .andExpect(jsonPath("$.title").value(offreDeStageDTO.title()))
                 .andExpect(jsonPath("$.statut").value(Statut.EN_ATTENTE.name()));
+    }
+
+    @Test
+    void doitRetournerListeProfesseurs() throws Exception {
+
+        List<ProfesseurDTO> professeurs = List.of(
+                new ProfesseurDTO(
+                        1L,
+                        "Jean",
+                        "Dupont",
+                        "jean@test.com",
+                        "P001",
+                        "5141111111",
+                        "Informatique",
+                        null
+                ),
+                new ProfesseurDTO(
+                        2L,
+                        "Marie",
+                        "Tremblay",
+                        "marie@test.com",
+                        "P002",
+                        "5142222222",
+                        "Informatique",
+                        null
+                )
+        );
+
+        when(gestionnaireService.getAllProfesseurs())
+                .thenReturn(professeurs);
+
+        mockMvc.perform(get("/gestionnaire/professeurs")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].firstName").value("Jean"))
+                .andExpect(jsonPath("$[0].lastName").value("Dupont"))
+                .andExpect(jsonPath("$[0].email").value("jean@test.com"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].firstName").value("Marie"));}
+
+    @Test
+    void doitAssignerProfesseurAPlusieursEtudiants() throws Exception {
+
+        List<EtudiantDTO> etudiants = List.of(
+                etudiantDTO,
+                new EtudiantDTO(
+                        2L,
+                        "Alex",
+                        "Martin",
+                        "alex@test.com",
+                        "2226253",
+                        "5143333333",
+                        "INFORMATIQUE",
+                        null,
+                        1L,
+                        "Jean Dupont"
+                )
+        );
+
+        AssignationProfesseurDTO dto =
+                new AssignationProfesseurDTO(List.of(1L, 2L));
+
+        when(gestionnaireService.assignerProfesseur(1L, dto))
+                .thenReturn(etudiants);
+
+        String requestBody = jsonMapper.writeValueAsString(dto);
+
+        mockMvc.perform(put("/gestionnaire/etudiant/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].professeurId").value(1))
+                .andExpect(jsonPath("$[0].professeurNom").value("Jean"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].professeurId").value(1));
+    }
+
+    @Test
+    void doitCreerContratAvecSucces() throws Exception {
+        ContratDTO contratDTO = new ContratDTO(
+                1L,
+                1L,
+                1L,
+                null,
+                null,
+                null
+        );
+
+        when(gestionnaireService.creerContrat(1L)).thenReturn(contratDTO);
+
+        mockMvc.perform(post("/gestionnaire/candidatures/1/contrat")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.candidatureId").value(1L));
     }
 }
