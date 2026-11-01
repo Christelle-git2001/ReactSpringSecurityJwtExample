@@ -442,6 +442,10 @@
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
+      },
+      "convocationEntrevue": {
+        "title": "Interview invitation",
+        "description": "{{ENTREPRISE_NOM}} convokes you for an interview for {{OFFRE_TITRE}}"
       }
     }
   },

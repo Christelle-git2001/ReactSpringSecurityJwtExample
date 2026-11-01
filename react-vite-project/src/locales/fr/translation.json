@@ -441,6 +441,10 @@
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
+      },
+      "convocationEntrevue": {
+        "title": "Convocation à une entrevue",
+        "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour : {{OFFRE_TITRE}}."
       }
     }
   },
