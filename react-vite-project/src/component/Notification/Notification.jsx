@@ -30,10 +30,6 @@ const ROUTES_PAR_TYPE = {
 };
 
 const CONFIG_PAR_TYPE = {
-    CONVOCATION_ENTREVUE: {
-        icon: <FiCalendar className="size-5" />,
-        tone: "blue",
-    },
     CV_ATTENTE_VALIDATION: {
         icon: <FiFileText className="size-5" />,
         tone: "blue",
