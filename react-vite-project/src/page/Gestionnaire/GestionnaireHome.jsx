@@ -4,13 +4,14 @@ import DashboardSummaryCard from "../../component/Design/Dashboard/DashboardSumm
 import DashboardSection from "../../component/Design/Dashboard/DashboardSection.jsx";
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
+import CandidatureListItem from "../../component/Design/Lists/CandidatureListItem.jsx";
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { getOffresEnAttente, getCvsEnAttente } from "../../api/gestionnaire.jsx";
+import { getOffresEnAttente, getCvsEnAttente,getCandidaturesByStatus } from "../../api/gestionnaire.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import { FaBriefcase, FaFileAlt } from "react-icons/fa";
+import { FaBriefcase, FaFileAlt, FaFileContract } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
 
 const trierParDateDesc = (items, getDate) => {
@@ -27,6 +28,7 @@ const GestionnaireHome = ({ user }) => {
     const navigate = useNavigate();
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
+    const [candidaturesContrat, setCandidaturesContrat] = useState([]);
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -93,6 +95,12 @@ const GestionnaireHome = ({ user }) => {
         });
     };
 
+    const handleViewCandidature = (candidature) => {
+        navigate(`/gestionnaire/candidatures/${candidature.id}/contrat`, {
+            state: { candidature, from: "/gestionnaire" }
+        });
+    };
+
     const chargerCvs = useCallback(async () => {
         try {
             const data = await getCvsEnAttente();
@@ -112,13 +120,23 @@ const GestionnaireHome = ({ user }) => {
         }
     }, []);
 
+    const chargerCandidaturesContrat = useCallback(async () => {
+        try {
+            //TODO Remplacer par stage trouve
+            const data = await getCandidaturesByStatus("RETENUE_POUR_ENTREVUE");
+            setCandidaturesContrat(data || []);
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
+
     const chargerDonnees = useCallback(async () => {
         await Promise.all([
             chargerCvs(),
             chargerOffres(),
+            chargerCandidaturesContrat(),
         ]);
-    }, [chargerCvs, chargerOffres]);
-
+    }, [chargerCvs, chargerOffres, chargerCandidaturesContrat]);
     useEffect(() => {
         chargerDonnees().finally(() => setIsInitialLoading(false));
     }, [chargerDonnees]);
@@ -128,7 +146,7 @@ const GestionnaireHome = ({ user }) => {
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
                 <div>
                     <h1 className="text-4xl font-bold text-[#043462]">
-                        {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true">👋</span>
+                        {t("home.welcome")} {user?.firstName} {user?.lastName} <span aria-hidden="true"></span>
                     </h1>
                     <p className="mt-2 text-sm text-gray-500">
                         {t("dashboard.manager_subtitle")}
@@ -166,6 +184,15 @@ const GestionnaireHome = ({ user }) => {
                         label={t("dashboard.pending_offers_count")}
                         tone="green"
                         ariaLabel={t("dashboard.view_pending_offers")}
+                        className="w-full sm:w-[260px]"
+                    />
+
+                    <DashboardSummaryCard
+                        icon={<FaFileContract className="size-5" />}
+                        value={candidaturesContrat.length}
+                        label={t("dashboard.pending_contracts_count")}
+                        tone="cyan"
+                        ariaLabel={t("dashboard.view_pending_contracts")}
                         className="w-full sm:w-[260px]"
                     />
                 </div>
@@ -223,6 +250,36 @@ const GestionnaireHome = ({ user }) => {
                                         offer={offer}
                                         onClick={() => handleViewOffer(offer)}
                                         actionLabel={t("dashboard.view_offer")}
+                                    />
+                                )}
+                            />
+                        )}
+                    </DashboardSection>
+
+                    <DashboardSection
+                        title={t("dashboard.contracts_pending_title")}
+                        headerAction={
+                            <span className={sectionCountClassName}>
+                                {candidaturesContrat.length} {t("dashboard.applications")}
+                            </span>
+                        }
+                    >
+                        {!isInitialLoading && candidaturesContrat.length === 0 ? (
+                            <EmptyContentMessage
+                                message={t("dashboard.no_pending_contracts")}
+                            />
+                        ) : (
+                            <ExpandableList
+                                items={candidaturesContrat}
+                                limit={3}
+                                expandLabel={t("dashboard.view_more", "Voir plus")}
+                                collapseLabel={t("dashboard.view_less", "Voir moins")}
+                                renderItem={(candidature) => (
+                                    <CandidatureListItem
+                                        key={candidature.id}
+                                        candidature={candidature}
+                                        onClick={() => handleViewCandidature(candidature)}
+                                        actionLabel={t("dashboard.create_contract")}
                                     />
                                 )}
                             />

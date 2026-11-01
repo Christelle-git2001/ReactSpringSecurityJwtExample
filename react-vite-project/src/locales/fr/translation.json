@@ -258,6 +258,12 @@
     "welcome": "Bienvenue"
   },
   "dashboard": {
+    "pending_contracts_count": "Contrats en attente de création",
+    "contracts_pending_title": "Candidatures prêtes pour démarrer le processus de signature de contrat",
+    "no_pending_contracts": "Aucune candidature en attente de contrat.",
+    "view_pending_contracts": "Voir les candidatures prêtes pour contrat",
+    "applications": "candidatures",
+    "create_contract": "Voir le processus",
     "manager_subtitle": "Suivi des CV et des offres de stage en attente.",
     "pending_cvs_count": "CV en attente",
     "pending_offers_count": "Offres en attente",

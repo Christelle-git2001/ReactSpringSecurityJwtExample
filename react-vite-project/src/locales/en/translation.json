@@ -205,6 +205,12 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+      "pending_contracts_count": "Contracts pending creation",
+      "contracts_pending_title": "Applications ready to start the contract signing process",
+      "no_pending_contracts": "No applications pending a contract.",
+      "view_pending_contracts": "View applications ready for a contract",
+      "applications": "applications",
+      "create_contract": "View process",
     "manager_subtitle": "Track pending resumes and internship offers.",
     "pending_cvs_count": "Pending resumes",
     "pending_offers_count": "Pending offers",
