@@ -415,10 +415,11 @@
   },
   "candidature": {
     "status": {
+      "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
       "planifiee": "Interview scheduled",
-      "acceptee": "Accepted / Hired"
+      "acceptee": "Accepted"
     },
     "position": "Job Title",
     "student_unknown": "Unknown student",
@@ -544,6 +545,9 @@
     "already_signed": "Contract already signed",
     "completed_on": "Completed on",
     "start_error": "Error while starting the process",
-    "sign_error": "Error while signing the contract"
+    "sign_error": "Error while signing the contract",
+    "no_signature" : "No signature",
+    "no_contrat" : "No created contract, click on start signature process ",
+    "waiting_parties_signatures" : "Employer and student must sign first"
   }
 }

@@ -10,6 +10,7 @@ function CandidatureTimeline({ statut }) {
         { key: "RETENUE_POUR_ENTREVUE", label: t("candidature.status.retenue") },
         { key: "ENTREVUE_PLANIFIEE", label: t("candidature.status.planifiee") },
         { key: "ACCEPTEE", label: t("candidature.status.acceptee") },
+        { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") }
     ];
 
     const order = steps.map(s => s.key);

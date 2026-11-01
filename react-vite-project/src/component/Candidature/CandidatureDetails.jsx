@@ -23,8 +23,15 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
     const [isPdfLoading, setIsPdfLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const statutsAvances = [
+        "RETENUE_POUR_ENTREVUE",
+        "ENTREVUE_PLANIFIEE",
+        "STAGE_TROUVE",
+        "ACCEPTEE"
+    ];
+
     const [isRetenue, setIsRetenue] = useState(
-        candidature?.statut === "RETENUE_POUR_ENTREVUE"
+        statutsAvances.includes(candidature?.statut)
     );
 
     const cvId = candidature?.cvId;

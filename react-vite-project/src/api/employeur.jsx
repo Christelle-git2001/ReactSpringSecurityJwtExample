@@ -52,7 +52,7 @@ export async function getEntrevuesEmployeur() {
 }
 
 export async function signerContratEmployeur(contratId) {
-    return fetchJson(`/contrats/${contratId}/signature`, {
+    return fetchJson(`/employeur/contrats/${contratId}/signature`, {
         method: "PUT",
     });
 }

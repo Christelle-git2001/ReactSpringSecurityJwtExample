@@ -16,6 +16,7 @@ export function getStatusConfig(statut, t, type = "offre") {
             ENTREVUE_PLANIFIEE: "candidature.status.planifiee",
             ACCEPTEE: "candidature.status.acceptee",
             REFUSEE: "candidature.status.refusee",
+            STAGE_TROUVE: "candidature.status.stage_trouve"
         },
     };
 

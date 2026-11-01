@@ -123,7 +123,7 @@ const GestionnaireHome = ({ user }) => {
     const chargerCandidaturesContrat = useCallback(async () => {
         try {
             //TODO Remplacer par stage trouve
-            const data = await getCandidaturesByStatus("RETENUE_POUR_ENTREVUE");
+            const data = await getCandidaturesByStatus("STAGE_TROUVE");
             setCandidaturesContrat(data || []);
         } catch (err) {
             console.log(err);

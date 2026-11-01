@@ -130,7 +130,7 @@ export async function assignStudentToTeacher(etudiantIds,teacherId){
 }
 
 export async function demarrerProcessusDeSignatureDeContrat(candidatureId) {
-    return fetchJson(`/candidatures/${candidatureId}/contrat`, {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/contrat`, {
         method: "POST",
     });
 }
