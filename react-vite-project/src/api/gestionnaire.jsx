@@ -128,3 +128,9 @@ export async function assignStudentToTeacher(etudiantIds,teacherId){
             body: JSON.stringify({ etudiantIds })
         })
 }
+
+export async function demarrerProcessusDeSignatureDeContrat(candidatureId) {
+    return fetchJson(`/candidatures/${candidatureId}/contrat`, {
+        method: "POST",
+    });
+}
