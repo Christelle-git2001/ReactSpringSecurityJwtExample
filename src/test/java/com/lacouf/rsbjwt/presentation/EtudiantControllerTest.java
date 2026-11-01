@@ -93,7 +93,9 @@ public class EtudiantControllerTest {
                 "2226252",
                 "438-297-8191",
                 "INFORMATIQUE",
-                null
+                null,
+                1l,
+                "Jean"
         );
     }
 
@@ -108,7 +110,9 @@ public class EtudiantControllerTest {
                 "2226252",
                 "438-297-8191",
                 "INFORMATIQUE",
-                null
+                null,
+                1l,
+                "Jean"
         );
 
         when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
