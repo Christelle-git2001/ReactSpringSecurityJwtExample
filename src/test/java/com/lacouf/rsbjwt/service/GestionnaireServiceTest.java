@@ -948,6 +948,7 @@ class GestionnaireServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(emailGestionnaire);
 
+
         try (MockedStatic<SecurityContextHolder> securityContextHolderMock = mockStatic(SecurityContextHolder.class)) {
             securityContextHolderMock.when(SecurityContextHolder::getContext).thenReturn(securityContext);
 
@@ -958,12 +959,17 @@ class GestionnaireServiceTest {
             when(contratRepository.save(any(Contrat.class)))
                     .thenReturn(contratSauvegarde);
 
+            when(contratRepository.existsByCandidatureId(candidatureId))
+                    .thenReturn(false);
+
             ContratDTO result = gestionnaireService.creerContrat(candidatureId);
 
             assertThat(result).isNotNull();
 
             verify(userAppRepository).findUserAppByEmail(emailGestionnaire);
             verify(candidatureRepository).findById(candidatureId);
+            verify(contratRepository).save(any(Contrat.class));
+            verify(contratRepository).existsByCandidatureId(candidatureId);
             verify(contratRepository).save(any(Contrat.class));
         }
     }
@@ -1048,6 +1054,42 @@ class GestionnaireServiceTest {
 
             verify(candidatureRepository).findById(candidatureId);
             verify(contratRepository, never()).save(any());
+        }
+    }
+
+    @Test
+    void doitLeverExceptionSiContratExisteDejaPourCreationContrat() {
+        Long candidatureId = 1L;
+        String emailGestionnaire = "Laurent.Losange@hotmail.com";
+
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(emailGestionnaire);
+
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMock =
+                     mockStatic(SecurityContextHolder.class)) {
+
+            securityContextHolderMock
+                    .when(SecurityContextHolder::getContext)
+                    .thenReturn(securityContext);
+
+            when(userAppRepository.findUserAppByEmail(emailGestionnaire))
+                    .thenReturn(Optional.of(gestionnaire));
+
+            when(candidatureRepository.findById(candidatureId))
+                    .thenReturn(Optional.of(new Candidature()));
+
+            when(contratRepository.existsByCandidatureId(candidatureId))
+                    .thenReturn(true);
+
+            assertThatThrownBy(() ->
+                    gestionnaireService.creerContrat(candidatureId)
+            ).isInstanceOf(ContratExistantException.class);
+
+            verify(contratRepository).existsByCandidatureId(candidatureId);
+            verify(contratRepository, never()).save(any(Contrat.class));
         }
     }
 
