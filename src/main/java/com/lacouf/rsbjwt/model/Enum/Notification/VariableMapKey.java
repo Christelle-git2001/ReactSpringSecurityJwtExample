@@ -12,5 +12,6 @@ public enum VariableMapKey {
     CV_ID,
     CANDIDATURE_ID,
     ENTREPRISE_NOM,
-    ENTREVUE_DATE
+    ENTREVUE_DATE,
+    ENTREVUE_ID
 }
