@@ -10,12 +10,23 @@ export function getStatusConfig(statut, t, type = "offre") {
             ACCEPTEE: "status.cv_accepte",
             REFUSEE: "status.cv_refuse",
         },
+        candidature: {
+            SOUMISE: "candidature.status.soumise",
+            RETENUE_POUR_ENTREVUE: "candidature.status.retenue",
+            ENTREVUE_PLANIFIEE: "candidature.status.planifiee",
+            ACCEPTEE: "candidature.status.acceptee",
+            REFUSEE: "candidature.status.refusee",
+        },
     };
 
     const classNames = {
         EN_ATTENTE: "badge-warning",
         ACCEPTEE: "badge-success",
         REFUSEE: "badge-error",
+
+        SOUMISE: "badge-info",
+        RETENUE_POUR_ENTREVUE: "badge-accent",
+        ENTREVUE_PLANIFIEE: "badge-warning",
     };
 
     const statusLabels = labelKeys[type] || labelKeys.offre;

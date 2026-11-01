@@ -526,5 +526,24 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "process": {
+    "title": "Internship and Contract Process Tracking",
+    "cv": "Curriculum Vitae",
+    "cv_submitted": "CV available",
+    "no_cv": "No CV",
+    "candidature": "Application to the offer",
+    "no_interview": "No interview scheduled",
+    "stage_found": "Application status",
+    "contract_signatures": "Contract Process",
+    "employer_signed": "Employer",
+    "student_signed": "Student",
+    "not_started": "Process not started",
+    "start_button": "Start the signature process",
+    "sign_button": "Sign the contract",
+    "already_signed": "Contract already signed",
+    "completed_on": "Completed on",
+    "start_error": "Error while starting the process",
+    "sign_error": "Error while signing the contract"
   }
 }

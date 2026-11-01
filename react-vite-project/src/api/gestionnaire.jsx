@@ -140,3 +140,15 @@ export async function getCandidaturesByStatus(status) {
         method: "GET",
     });
 }
+
+export async function getContratByCandidatureId(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/contrat`, {
+        method: "GET",
+    });
+}
+
+export async function getEntrevueByCandidatureId(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/entrevue`, {
+        method: "GET",
+    });
+}
