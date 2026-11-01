@@ -159,4 +159,9 @@ public class GestionnaireController {
         ContratDTO contratDTO = gestionnaireService.creerContrat(candidatureId);
         return ResponseEntity.status(HttpStatus.CREATED).body(contratDTO);
     }
+
+    @GetMapping("/candidatures/{status}")
+    public List<CandidatureDTO> getCandidaturesByStatus(@PathVariable String status) throws StatutCandidatureInvalideException {
+        return gestionnaireService.getCandidaturesByStatus(status);
+    }
 }

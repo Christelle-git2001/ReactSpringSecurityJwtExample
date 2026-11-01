@@ -134,3 +134,9 @@ export async function demarrerProcessusDeSignatureDeContrat(candidatureId) {
         method: "POST",
     });
 }
+
+export async function getCandidaturesByStatus(status) {
+    return fetchJson(`/gestionnaire/candidatures/${status}`, {
+        method: "GET",
+    });
+}

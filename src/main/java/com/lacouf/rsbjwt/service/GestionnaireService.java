@@ -381,6 +381,18 @@ public class GestionnaireService {
     }
 
 
+    public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
+        return  candidatureRepository.findByStatut(normaliserStatus(status))
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
 
-
+    private StatutCandidature normaliserStatus(String status) throws StatutCandidatureInvalideException {
+        try {
+            return StatutCandidature.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new StatutCandidatureInvalideException();
+        }
+    }
 }

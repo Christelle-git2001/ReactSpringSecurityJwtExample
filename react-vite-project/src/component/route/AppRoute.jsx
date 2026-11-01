@@ -21,6 +21,7 @@ import CandidatureDetails from "../Candidature/CandidatureDetails.jsx";
 import AddTargetedOffer from "../Offer/AddTargetedOffer.jsx";
 import GestionEntrevue from "../Entrevue/GestionEntrevue.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
+import GestionContrat from "../Contrat/GestionContrat.jsx"
 
 export default function AppRoutes({
                                       user,
@@ -78,6 +79,7 @@ export default function AppRoutes({
                 <Route path="/gestionnaire/offres/details" element={<OfferDetails/>} />
                 <Route path="/gestionnaire/cvs/details" element={<CVDetails/>} />
                 <Route path="/gestionnaire/offres/nouvelle-ciblee" element={<AddTargetedOffer />} />
+                <Route path="/gestionnaire/contrats" element={<GestionContrat />} />
                 <Route path="/gestionnaire/attribution" element={<GestionnaireAttribution/>} />
 
                 <Route path="/error" element={<ErrorPage error={error} />} />

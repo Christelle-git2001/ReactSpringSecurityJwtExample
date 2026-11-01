@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiBell , FiCalendar} from "react-icons/fi";
+import { LuSignature } from "react-icons/lu";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
@@ -67,6 +68,7 @@ function SideBarLayout({ user }) {
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/offres/nouvelle-ciblee", label: t("nav.add_offer"), roles: ["GESTIONNAIRE"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/gestionnaire/attribution",label: t("nav.assignation"), roles: ["GESTIONNAIRE"], icon: <PiStudentBold />},
+        { path: "/gestionnaire/contrats",label: t("nav.contrat"), roles: ["GESTIONNAIRE"], icon: <LuSignature />},
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         {
             path: user?.isLoggedIn ? "/logout" : "/login",
