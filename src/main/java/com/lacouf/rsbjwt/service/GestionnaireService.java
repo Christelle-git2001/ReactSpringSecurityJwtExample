@@ -348,7 +348,8 @@ public class GestionnaireService {
                 .toList();
     }
 
-    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException, StatutCandidatureInvalideException, UtilisateurIntrouvableException {
+    @Transactional
+    public ContratDTO creerContrat(Long candidatureId) throws CandidatureIntrouvableException, StatutCandidatureInvalideException, UtilisateurIntrouvableException, ContratExistantException {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -360,6 +361,11 @@ public class GestionnaireService {
 
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
+
+        if (contratRepository.existsByCandidatureId(candidatureId)) {
+            throw new ContratExistantException();
+        }
+
         Contrat contrat;
 
         if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
