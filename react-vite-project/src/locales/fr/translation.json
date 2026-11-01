@@ -102,7 +102,6 @@
     "save": "Soumettre"
   },
   "actions": {
-    "backhome": "Retour à l'accueil",
     "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
@@ -117,8 +116,7 @@
     "reset_filters": "Réinitialiser les filtres",
     "collapse": "Réduire",
     "expand": "Développer",
-    "backhome": "Retour à l'accueil",
-    "interview": "Retenir pour entrevue"
+    "backhome": "Retour à l'accueil"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -450,6 +448,10 @@
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
+      },
+      "convocationEntrevue": {
+        "title": "Convocation à une entrevue",
+        "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour : {{OFFRE_TITRE}}."
       }
     }
   },
@@ -503,5 +505,19 @@
   "gestion_entrevue": {
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
+  },
+  "convocation": {
+    "title": "Détails de l'entrevue",
+    "subtitle": "Veuillez confirmer votre présence à l'entrevue",
+    "list_title": "Mes entrevues",
+    "none": "Pas d'entrevues pour le moment.",
+    "offer": "Offre",
+    "format": "Format",
+    "date": "Date",
+    "time": "Heure",
+    "reject" : "Refuser",
+    "accept" : "Accepter",
+    "back" : "Retour",
+    "scheduled": "Entrevue planifiée"
   }
 }

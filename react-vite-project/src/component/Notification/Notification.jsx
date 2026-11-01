@@ -16,14 +16,17 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
-import {FaCheck, FaQuestion} from "react-icons/fa";
+import {FaCalendarAlt, FaCheck, FaQuestion} from "react-icons/fa";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
-    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details"
+    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
+    CONVOCATION_ENTREVUE: "/etudiant/entrevues/details",
+    CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
+    CONVOCATION_REFUSEE: "/employeur/candidatures/details",
 };
 
 const CONFIG_PAR_TYPE = {
@@ -58,6 +61,18 @@ const CONFIG_PAR_TYPE = {
     NOUVELLE_CANDIDATURE: {
         icon: <FiUserPlus className="size-5" />,
         tone: "yellow",
+    },
+    CONVOCATION_ENTREVUE: {
+        icon: <FaCalendarAlt className="size-5" />,
+        tone: "gray",
+    },
+    CONVOCATION_ACCEPTEE: {
+        icon: <FaCheck />,
+        tone: "green",
+    },
+    CONVOCATION_REFUSEE: {
+        icon: <ImCross />,
+        tone: "red",
     },
 };
 
@@ -134,7 +149,11 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.offreId = offreId;
                 state.from = "/etudiant";
 
-            } else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+            } else if (notification.notificationType === "CONVOCATION_ENTREVUE") {
+                state.id = notification.variables?.ENTREVUE_ID;
+                state.from = "/etudiant/entrevues";
+            }
+            else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 const [candidatures, offres] = await Promise.all([
                     getCandidaturesEmployeur(),

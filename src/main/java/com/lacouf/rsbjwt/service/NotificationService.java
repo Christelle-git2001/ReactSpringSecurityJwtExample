@@ -309,7 +309,8 @@ public class NotificationService {
                         VariableMapKey.ENTREPRISE_NOM,
                         offre.getEmployeur().getBusinessName(),
                         VariableMapKey.ENTREVUE_DATE,
-                        entrevue.getDateHeureEntrevue().toString()
+                        entrevue.getDateHeureEntrevue().toString(),
+                        VariableMapKey.ENTREVUE_ID, String.valueOf(entrevue.getId())
                 ))
                 .build();
 
@@ -338,10 +339,10 @@ public class NotificationService {
                         VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
                         VariableMapKey.OFFRE_TITRE, offre.getTitle(),
                         VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
-                        VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString()
+                        VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString(),
+                        VariableMapKey.ENTREVUE_ID, String.valueOf(entrevue.getId())
                 ))
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
-
 }

@@ -102,12 +102,10 @@
     "save": "Submit"
   },
   "actions": {
-    "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
     "back": "Back",
-    "backhome": "Back home",
     "reject": "Reject",
     "approve": "Approve",
     "upload": "Upload",
@@ -451,6 +449,10 @@
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
+      },
+      "convocationEntrevue": {
+        "title": "Interview invitation",
+        "description": "{{ENTREPRISE_NOM}} convokes you for an interview for {{OFFRE_TITRE}}"
       }
     }
   },
@@ -504,5 +506,19 @@
   "gestion_entrevue": {
     "title": "Interview Management",
     "subtitle": "Schedule your appointments and view your calendar in real time."
+  },
+  "convocation": {
+    "title": "Interview details",
+    "subtitle": "Please confirm your attendance for the scheduled interview",
+    "list_title": "My interviews",
+    "none": "No interviews for now",
+    "offer": "Offer",
+    "format": "Format",
+    "date": "Date",
+    "time": "Time",
+    "reject" : "Reject",
+    "accept" : "Accept",
+    "back" : "Back",
+    "scheduled": "Interview scheduled"
   }
 }
