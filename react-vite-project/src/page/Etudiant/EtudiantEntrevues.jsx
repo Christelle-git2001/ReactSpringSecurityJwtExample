@@ -55,9 +55,7 @@ function EtudiantEntrevues() {
                                         <span className="inline-flex items-center gap-2">
                                             <FaCalendarAlt aria-hidden="true" />
                                             {c.dateHeureEntrevue
-                                                ? new Date(c.dateHeureEntrevue).toLocaleDateString(i18n.language, {
-                                                    dateStyle: "medium",
-                                                })
+                                                ? c.dateHeureEntrevue.split("T")[0]
                                                 : "—"}
                                         </span>
                                         <span className="inline-flex items-center gap-2 sm:border-l sm:border-[#043462]/30 sm:pl-5">

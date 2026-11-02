@@ -75,7 +75,7 @@ function ConvocationEntrevue() {
     }
 
     const date = convocation.dateHeureEntrevue ? new Date(convocation.dateHeureEntrevue) : null;
-    const dateAffichee = date ? date.toLocaleDateString(i18n.language) : "—";
+    const dateAffichee = date ? convocation.dateHeureEntrevue.split("T")[0] : "—";
     const heureAffichee = date
         ? date.toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })
         : "—";

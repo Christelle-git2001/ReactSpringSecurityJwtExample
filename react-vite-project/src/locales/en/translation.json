@@ -481,6 +481,14 @@
   },
   "notification": {
     "employeur": {
+      "convocationAcceptee": {
+        "title": "Interview invitation accepted",
+        "description": "{{ETUDIANT_NOM}} has confirmed attendance at the interview for the {{OFFRE_TITRE}} position."
+      },
+      "convocationRefusee": {
+        "title": "Interview invitation declined",
+        "description": "{{ETUDIANT_NOM}} has declined the interview invitation for the {{OFFRE_TITRE}} position."
+      },
       "nouvelleCandidature": {
         "title": "New application received",
         "description": "{{ETUDIANT_NOM}} has applied to your offer : {{OFFRE_TITRE}}"

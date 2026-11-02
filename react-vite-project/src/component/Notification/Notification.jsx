@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useRef, useState} from "react";
 import { marquerNotificationLue } from "../../api/notification.jsx";
+import { formaterDate as formaterDateHeure } from "../../utils/cvFormatters.jsx";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx";
 
@@ -73,7 +74,7 @@ const CONFIG_PAR_TYPE = {
 };
 
 export default function Notification({ notifications = [], onMarkAsRead }) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [error, setError] = useState(null);
     const [sortOrder, setSortOrder] = useState("desc");
     const navigate = useNavigate();
@@ -91,10 +92,11 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return null;
 
-        return new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language, {
-            dateStyle: "medium",
-            timeStyle: "short",
-        }).format(date);
+        const dateFormatee = formaterDateHeure(value);
+        if (date.toDateString() === new Date().toDateString()) {
+            return `${t("agenda.today")} ${dateFormatee.slice(11)}`;
+        }
+        return dateFormatee;
     };
 
     const notificationsTriees = [...notifications].sort((a, b) => {
@@ -149,7 +151,8 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.id = notification.variables?.ENTREVUE_ID;
                 state.from = "/etudiant/entrevues";
             }
-            else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"]
+                .includes(notification.notificationType)) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 const [candidatures, offres] = await Promise.all([
                     getCandidaturesEmployeur(),
