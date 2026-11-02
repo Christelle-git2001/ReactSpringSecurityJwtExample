@@ -149,7 +149,7 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                 <Button
                     type="button"
                     onClick={() => navigate(retourPath || "/employeur")}
-                    className="bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    variant="secondary"
                 >
                     {t("actions.back")}
                 </Button>

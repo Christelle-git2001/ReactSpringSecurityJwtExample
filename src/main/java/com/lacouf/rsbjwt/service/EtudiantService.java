@@ -323,7 +323,7 @@ public class EtudiantService {
             }
             Candidature candidature = entrevue.getCandidature();
             candidature.setStatut(reponse == StatutEntrevue.CONFIRMEE
-                    ? StatutCandidature.ENTREVUE_CONFIRMEE : StatutCandidature.ENTREVUE_REFUSEE);
+                    ? StatutCandidature.ENTREVUE_PLANIFIEE : StatutCandidature.ENTREVUE_REFUSEE);
             candidatureRepository.save(candidature);
             entrevueRepository.save(entrevue);
             eventPublisher.publishEvent(new ConvocationRepondueEvent(entrevue));

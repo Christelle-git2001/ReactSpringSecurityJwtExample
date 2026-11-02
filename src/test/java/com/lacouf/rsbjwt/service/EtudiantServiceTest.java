@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -920,6 +921,8 @@ public class EtudiantServiceTest {
         assertThat(resultat.confirmee()).isTrue();
         assertThat(resultat.dateConfirmation()).isNotNull();
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+        assertThat(entrevue.getCandidature().getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
+        verify(candidatureRepository).save(entrevue.getCandidature());
 
         etudiantService.getConvocationEtudiant(entrevue.getId());
 

@@ -83,6 +83,10 @@ function ConvocationEntrevue() {
     const estConfirmee = convocation.statut === "CONFIRMEE";
     const estRefusee = convocation.statut === "REFUSEE";
     const aRepondre = !estConfirmee && !estRefusee;
+    const formatKeys = {
+        EN_LIGNE: "entrevue.mode_online_title",
+        PRESENTIEL: "entrevue.mode_onsite_title",
+    };
 
     return (
         <div className="w-full max-w-3xl mx-auto p-4 md:p-8">
@@ -105,7 +109,8 @@ function ConvocationEntrevue() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Info icone={<FaBriefcase />} label={t("convocation.offer")} valeur={convocation.offreTitle} />
-                    <Info icone={<FaMapMarkerAlt />} label={t("convocation.format", "Format")} valeur={convocation?.format} />
+                    <Info icone={<FaMapMarkerAlt />} label={t("convocation.format", "Format")}
+                          valeur={formatKeys[convocation.format] ? t(formatKeys[convocation.format]) : convocation.format} />
                     <Info icone={<FaCalendarAlt />} label={t("convocation.date", "Date")} valeur={dateAffichee} />
                     <Info icone={<FaClock />} label={t("convocation.time", "Heure")} valeur={heureAffichee} />
                 </div>
