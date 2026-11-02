@@ -206,6 +206,8 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
+    "decision_invalid": "Cette décision est impossible : l'entrevue doit être confirmée et terminée, et aucune décision contraire ne doit déjà être enregistrée.",
+    "refusal_reason_invalid": "Veuillez fournir un motif de refus non vide de 1 000 caractères maximum.",
     "convocation_already_exists": "Une entrevue a déjà été planifiée pour cette candidature.",
     "required": "Ce champ est requis.",
     "email_invalid": "Veuillez entrer une adresse courriel valide | Ex : example@domain.com",

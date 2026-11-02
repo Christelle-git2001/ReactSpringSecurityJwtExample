@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
@@ -383,5 +384,67 @@ public class EmployeurService {
                 .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
                 .map(EntrevueDTO::of)
                 .toList();
+    }
+    @Transactional
+    public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return enregistrerDecision(entrevueId, StatutCandidature.ACCEPTEE, null);
+    }
+
+    @Transactional
+    public CandidatureDTO refuserCandidatApresEntrevue(Long entrevueId, String motifRefus)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+        if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 1000) {
+            throw new MotifRefusInvalideException();
+        }
+        return enregistrerDecision(entrevueId, StatutCandidature.REFUSEE, motifRefus.strip());
+    }
+
+    private CandidatureDTO enregistrerDecision(Long entrevueId, StatutCandidature decision, String motifRefus)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Entrevue entrevue = convocationRepository.findById(entrevueId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Candidature candidature = entrevue.getCandidature();
+        Employeur proprietaire = candidature.getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        if (candidature.getStatut() == decision) {
+            return CandidatureDTO.of(candidature);
+        }
+        validerDecisionApresEntrevue(entrevue);
+
+        candidature.setStatut(decision);
+        candidature.setMotifRefus(motifRefus);
+        Etudiant etudiant = candidature.getEtudiant();
+        boolean embauche = decision == StatutCandidature.ACCEPTEE
+                || candidatureRepository.existsByEtudiantAndStatut(etudiant, StatutCandidature.ACCEPTEE);
+        etudiant.setStatut(embauche ? StatutEtudiant.EMBAUCHE : StatutEtudiant.EN_RECHERCHE);
+        userAppRepository.save(etudiant);
+        return CandidatureDTO.of(candidatureRepository.save(candidature));
+    }
+
+    private void validerDecisionApresEntrevue(Entrevue entrevue)
+            throws DecisionCandidatureInvalideException {
+        boolean entrevueConfirmee = entrevue.getStatut() == StatutEntrevue.CONFIRMEE
+                || entrevue.getStatut() == StatutEntrevue.EN_ATTENTE_REPONSE;
+        if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_CONFIRMEE
+                || !entrevueConfirmee) {
+            throw new DecisionCandidatureInvalideException();
+        }
+        if (entrevue.getDateHeureEntrevue() == null || entrevue.getDuree() <= 0
+                || entrevue.getDateHeureEntrevue().plusMinutes(entrevue.getDuree()).isAfter(LocalDateTime.now())) {
+            throw new DecisionCandidatureInvalideException();
+        }
     }
 }

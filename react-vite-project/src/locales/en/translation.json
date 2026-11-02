@@ -166,6 +166,8 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "decision_invalid": "This decision is not allowed: the interview must be confirmed and completed, and no opposite decision may already be recorded.",
+    "refusal_reason_invalid": "Please provide a non-blank refusal reason of no more than 1,000 characters.",
     "convocation_already_exists": "An interview is already scheduled for this application",
     "required": "This field is required.",
     "email_invalid": "Please enter a valid email address  | Ex : example@domain.com",

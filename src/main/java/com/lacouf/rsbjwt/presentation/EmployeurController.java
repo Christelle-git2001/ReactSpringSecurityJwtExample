@@ -129,4 +129,18 @@ public class EmployeurController {
         List<EntrevueDTO> entrevues = employeurService.obtenirEntrevues();
         return ResponseEntity.ok(entrevues);
     }
+    @PutMapping("/entrevues/{id}/acceptation")
+    public ResponseEntity<CandidatureDTO> accepterCandidat(@PathVariable Long id)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return ResponseEntity.ok(employeurService.accepterCandidatApresEntrevue(id));
+    }
+
+    @PutMapping("/entrevues/{id}/refus")
+    public ResponseEntity<CandidatureDTO> refuserCandidat(
+            @PathVariable Long id, @Valid @RequestBody RefusCandidatureDTO dto)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+        return ResponseEntity.ok(employeurService.refuserCandidatApresEntrevue(id, dto.motifRefus()));
+    }
 }

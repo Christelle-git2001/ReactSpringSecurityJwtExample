@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CandidatureRepository extends JpaRepository<Candidature, Long> {
+    boolean existsByEtudiantAndStatut(Etudiant etudiant, StatutCandidature statut);
+
     boolean existsByEtudiantAndOffreDeStage(Etudiant etudiant, OffreDeStage offreDeStage);
 
     List<Candidature> findByOffreDeStage(OffreDeStage offreDeStage);
