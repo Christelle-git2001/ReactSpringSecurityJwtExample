@@ -91,7 +91,7 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                     </ul>
 
                     {offer?.description && (
-                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                        <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
                             <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
                             </summary>
