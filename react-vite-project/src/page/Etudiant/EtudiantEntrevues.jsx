@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { obtenirToutesConvocations } from "../../api/etudiant.jsx";
-import { FaCalendarAlt, FaClock } from "react-icons/fa";
+import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 import Button from "../../component/Design/Button.jsx";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
+import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import { useFilters } from "../../utils/useFilters.jsx";
 
 function EtudiantEntrevues() {
     const { t, i18n } = useTranslation();
@@ -12,6 +16,10 @@ function EtudiantEntrevues() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const visibles = convocations.filter((c) => c.statut !== "REFUSEE");
+    const filtres = useFilters(visibles, {
+        getTown: (c) => c.employeur?.town,
+        getSearchableText: (c) => `${c.offreTitle || ""} ${c.employeur?.businessName || ""} ${c.dateHeureEntrevue || ""}`,
+    });
 
     useEffect(() => {
         obtenirToutesConvocations()
@@ -30,17 +38,30 @@ function EtudiantEntrevues() {
 
     return (
         <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-[#043462] mb-6">
-                {t("convocation.list_title")}
-            </h1>
+            <div className="mb-6 space-y-4">
+                <SearchBar value={filtres.searchTerm} onChange={filtres.setSearchTerm}
+                           onClear={() => filtres.setSearchTerm("")} />
+                <FilterBar selectedStatus={filtres.selectedStatus} onStatusChange={filtres.setSelectedStatus}
+                           statusOptions={["TOUS", "A_CONFIRMER", "CONFIRMEE", "EN_ATTENTE_REPONSE"]}
+                           statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.to_confirm"),
+                               CONFIRMEE: t("convocation.scheduled"), EN_ATTENTE_REPONSE: t("convocation.awaiting_decision") }}
+                           selectedTown={filtres.selectedTown} onTownChange={filtres.setSelectedTown}
+                           availableTowns={filtres.availableTowns} />
+            </div>
+            <details open className="collapse collapse-arrow bg-transparent">
+                <summary className="collapse-title px-0 text-[#043462]">
+                    <h1 className="text-2xl md:text-3xl font-bold">
+                        {t("convocation.list_title")} ({filtres.itemsFiltres.length})
+                    </h1>
+                </summary>
+                <div className="collapse-content px-0">
+                    <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
 
-            {visibles.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">
-                    {t("convocation.none")}
-                </p>
+            {filtres.itemsFiltres.length === 0 ? (
+                <EmptyContentMessage message={t(visibles.length === 0 ? "convocation.none" : "convocation.no_matching")} />
             ) : (
                 <ul className="flex flex-col gap-3">
-                    {visibles.map((c) => (
+                    {filtres.itemsFiltres.map((c) => (
                         <li key={c.id}>
                             <div
                                 className="w-full text-left flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 rounded-2xl border border-gray-200 bg-white bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)] p-5 shadow-sm"
@@ -69,7 +90,8 @@ function EtudiantEntrevues() {
                                     </div>
                                 </div>
                                 {c.statut === "CONFIRMEE" && (
-                                    <span className="badge badge-sm badge-success shrink-0 text-sm">
+                                    <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
+                                        <FaCheckCircle aria-hidden="true" />
                                         {t("convocation.scheduled")}
                                     </span>
                                 )}
@@ -84,6 +106,8 @@ function EtudiantEntrevues() {
                     ))}
                 </ul>
             )}
+                </div>
+            </details>
         </div>
     );
 }

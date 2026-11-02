@@ -602,8 +602,10 @@ public class EmployeurServiceTest {
         assertThat(resultat.dateHeureEntrevue())
                 .isEqualTo(dto.dateHeureEntrevue());
         assertThat(resultat.dateCreation()).isNotNull();
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
 
         verify(convocationRepository).save(any(Entrevue.class));
+        verify(candidatureRepository, times(2)).save(candidature);
 
         ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
 

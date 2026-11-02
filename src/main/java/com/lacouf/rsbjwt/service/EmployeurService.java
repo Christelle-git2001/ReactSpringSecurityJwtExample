@@ -349,6 +349,9 @@ public class EmployeurService {
 
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
+        candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+        candidatureRepository.save(candidature);
+
         eventPublisher.publishEvent(
                 new EntrevueCreeeEvent(entrevueEnregistree)
         );
