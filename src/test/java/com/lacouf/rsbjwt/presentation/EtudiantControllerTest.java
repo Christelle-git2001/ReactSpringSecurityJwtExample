@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -93,7 +95,8 @@ public class EtudiantControllerTest {
                 "2226252",
                 "438-297-8191",
                 "INFORMATIQUE",
-                null
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
     }
 
@@ -108,7 +111,8 @@ public class EtudiantControllerTest {
                 "2226252",
                 "438-297-8191",
                 "INFORMATIQUE",
-                null
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))
@@ -382,7 +386,9 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         Authentication authentication =
@@ -444,7 +450,9 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         Authentication authentication =

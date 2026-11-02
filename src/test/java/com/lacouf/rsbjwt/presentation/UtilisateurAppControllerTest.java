@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.auth.Role;
@@ -105,7 +107,8 @@ public class UtilisateurAppControllerTest {
                 "5555555",
                 "554-858-6958",
                 Departement.INFORMATIQUE.name(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                StatutEtudiant.EN_RECHERCHE
         );
 
         when(userAppService.getMe("Bearer fake-jwt-token"))
