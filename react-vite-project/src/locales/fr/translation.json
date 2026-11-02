@@ -102,8 +102,14 @@
     "save": "Soumettre"
   },
   "actions": {
+    "interview": "Retenir pour entrevue",
+    "plan_interview": "Planifier une entrevue",
+    "manage_status": "Gérer le statut",
+    "waiting": "En attente du contrat",
+    "sign_contract": "Signer le contrat",
+    "signing": "Signature...",
+    "view_details": "Voir les détails",
     "backhome": "Retour à l'accueil",
-    "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
@@ -116,6 +122,10 @@
     "filter_by": "Filtrer par ",
     "reset_filters": "Réinitialiser les filtres",
     "collapse": "Réduire",
+    "expand": "Développer",
+    "create_contract": "Créer le contrat",
+    "sign_contract": "Signer le contrat",
+    "signing": "Signature...",
     "expand": "Développer",
     "backhome": "Retour à l'accueil",
     "interview": "Retenir pour entrevue"
@@ -266,6 +276,19 @@
     "welcome": "Bienvenue"
   },
   "dashboard": {
+    "view_contract": "Signer/Voir Contrat",
+    "contracts_to_create_count": "Contrats à créer",
+    "contracts_to_sign_count": "Contrats à signer",
+    "contracts_to_create_title": "Contrats à créer",
+    "contracts_to_sign_title": "Contrats créés / À signer",
+    "no_contracts_to_create": "Aucun contrat à créer pour le moment.",
+    "no_contracts_to_sign": "Aucun contrat en attente de signature.",
+    "pending_contracts_count": "Contrats en attente de création",
+    "contracts_pending_title": "Candidatures prêtes pour démarrer le processus de signature de contrat",
+    "no_pending_contracts": "Aucune candidature en attente de contrat.",
+    "view_pending_contracts": "Voir les candidatures prêtes pour contrat",
+    "applications": "candidatures",
+    "create_contract": "Voir le processus",
     "manager_subtitle": "Suivi des CV et des offres de stage en attente.",
     "pending_cvs_count": "CV en attente",
     "pending_offers_count": "Offres en attente",
@@ -424,10 +447,12 @@
   },
   "candidature": {
     "status": {
+      "contrat" : "Contrat",
+      "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
-      "acceptee": "Acceptée / Embauchée"
+      "acceptee": "Acceptée"
     },
     "position": "Poste",
     "student_unknown": "Étudiant inconnu",
@@ -551,5 +576,40 @@
       "title" : "Liste",
       "empty" : "La liste est vide"
     }
+  },
+  "process": {
+    "title": "Suivi du processus de recherche de stage et de signature de contrat",
+    "cv": "Curriculum Vitae",
+    "cv_submitted": "CV disponible",
+    "no_cv": "Aucun CV",
+    "candidature": "Candidature à l'offre",
+    "no_interview": "Aucune entrevue planifiée",
+    "stage_found": "Statut de la candidature",
+    "contract_signatures": "Processus de signature de Contrat",
+    "employer_signed": "Employeur",
+    "student_signed": "Étudiant",
+    "not_started": "Processus non démarré",
+    "start_button": "Démarrer le processus de signature",
+    "sign_button": "Signer le contrat",
+    "already_signed": "Contrat déjà signé",
+    "completed_on": "Effectué le",
+    "start_error": "Erreur lors du démarrage du processus",
+    "sign_error": "Erreur lors de la signature du contrat",
+    "no_signature" : "Aucune signature",
+    "no_contrat" : "Aucun contrat créé, cliquer sur démarrer le processus de signature pour en créer un",
+    "waiting_parties_signatures" : "L'employeur et l'étudiant doivent d'abord signer le contrat",
+    "contract_signed_title": "Contrat signé",
+    "next_action_title": "Prochaine action requise",
+
+    "action_contract_signed_msg": "Le contrat a été signé le",
+    "action_review_cv": "Le candidat a soumis sa candidature. Revoyez son CV et retenez-le pour une entrevue.",
+    "action_plan_interview": "Le candidat est retenu. Planifiez l'entrevue dès maintenant.",
+    "action_accept_refuse": "L'entrevue est planifiée. Vous pourrez accepter ou refuser la candidature par la suite.",
+    "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
+    "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
+    "action_default": "Suivi du processus de candidature en cours.",
+    "cv_view_title" : "CV de l'étudiant ",
+    "contract_view_title" : "Contrat de Stage"
+
   }
 }

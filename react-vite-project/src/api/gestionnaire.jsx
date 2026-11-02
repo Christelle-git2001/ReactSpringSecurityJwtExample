@@ -128,3 +128,27 @@ export async function assignStudentToTeacher(etudiantIds,teacherId){
             body: JSON.stringify({ etudiantIds })
         })
 }
+
+export async function demarrerProcessusDeSignatureDeContrat(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/contrat`, {
+        method: "POST",
+    });
+}
+
+export async function getCandidaturesByStatus(status) {
+    return fetchJson(`/gestionnaire/candidatures/${status}`, {
+        method: "GET",
+    });
+}
+
+export async function getContratByCandidatureId(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/contrat`, {
+        method: "GET",
+    });
+}
+
+export async function getEntrevueByCandidatureId(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/entrevue`, {
+        method: "GET",
+    });
+}

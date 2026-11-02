@@ -38,6 +38,12 @@ const toneClasses = {
         action: "text-navy-600 hover:bg-navy-50",
         gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
     },
+    cyan: {
+        border: "border-base-300",
+        icon: "bg-cyan-100 text-cyan-600",
+        action: "text-cyan-600 hover:bg-cyan-50",
+        gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
+    },
     purple: {
         border: "border-base-300",
         icon: "bg-purple-100 text-navy-600",
