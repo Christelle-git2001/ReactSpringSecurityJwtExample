@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -431,7 +432,12 @@ public class EmployeurService {
                 || candidatureRepository.existsByEtudiantAndStatut(etudiant, StatutCandidature.ACCEPTEE);
         etudiant.setStatut(embauche ? StatutEtudiant.EMBAUCHE : StatutEtudiant.EN_RECHERCHE);
         userAppRepository.save(etudiant);
-        return CandidatureDTO.of(candidatureRepository.save(candidature));
+
+        Candidature candidatureEnregistree = candidatureRepository.save(candidature);
+        if (decision == StatutCandidature.ACCEPTEE) {
+            eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
+        }
+        return CandidatureDTO.of(candidatureEnregistree);
     }
 
     private void validerDecisionApresEntrevue(Entrevue entrevue)

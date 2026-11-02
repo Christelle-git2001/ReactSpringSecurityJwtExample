@@ -345,4 +345,29 @@ public class NotificationService {
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
+    @EventListener
+    @Transactional
+    public NotificationDTO handleCandidatureAcceptee(CandidatureAccepteeEvent event) {
+        Candidature candidature = event.candidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Notification notification = Notification.builder()
+                .titre("notification.etudiant.candidatureAcceptee.title")
+                .description("notification.etudiant.candidatureAcceptee.description")
+                .notificationType(NotificationType.CANDIDATURE_ACCEPTEE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.ETUDIANT)
+                .destinataire(etudiant)
+                .urlCible(ControllerPath.ETUDIANT_OFFRES.build())
+                .variables(Map.of(
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.ENTREPRISE_NOM, offre.getEmployeur().getBusinessName()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
 }
