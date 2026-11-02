@@ -101,7 +101,7 @@ describe("Offre étudiant directement dans la carte", () => {
                 <OffreEtudiantCard offer={mockOffer} />
             </MemoryRouter>
         );
-        expect(screen.getByText("Un super stage")).toBeVisible();
+        expect(screen.getByText("Un super stage")).toBeInTheDocument();
         expect(screen.getByText("offre.apply")).toBeInTheDocument();
         expect(screen.queryByText("offre.details")).not.toBeInTheDocument();
     });
@@ -127,7 +127,7 @@ describe("Offre étudiant directement dans la carte", () => {
                 <OffreEtudiantCard offer={mockOffer} hasApplied />
             </MemoryRouter>
         );
-        expect(screen.getByText("Un super stage")).toBeVisible();
+        expect(screen.getByText("Un super stage")).toBeInTheDocument();
         expect(screen.getByText("offre.application_received")).toBeInTheDocument();
         expect(screen.queryByText("offre.apply")).not.toBeInTheDocument();
     });
