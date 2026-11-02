@@ -109,7 +109,7 @@ public class EtudiantController {
         return ResponseEntity.ok(convocation);
     }
 
-    @PutMapping({"/convocations/{id}/accepter", "/convocations/{id}/reponse"})
+    @PutMapping("/convocations/{id}/accepter")
     public ResponseEntity<ReponseConvocationDTO> accepterConvocation(@PathVariable Long id)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         return ResponseEntity.ok(

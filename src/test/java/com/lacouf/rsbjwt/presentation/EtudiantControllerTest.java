@@ -6,11 +6,15 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.ReponseConvocationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -63,6 +67,7 @@ public class EtudiantControllerTest {
     private ObjectMapper objectMapper;
     private InscriptionEtudiantDTO inscriptionEtudiantDTO;
     private EtudiantDTO etudiantDTO;
+    private EntrevueDTO convocationDTO;
 
     @BeforeEach
     void init() {
@@ -71,6 +76,12 @@ public class EtudiantControllerTest {
                 .build();
 
         objectMapper = new ObjectMapper();
+
+        convocationDTO = new EntrevueDTO(
+                1L, LocalDateTime.now(), FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(2), 30, 10L, 2L,
+                "Christelle", "Altineus", "Stage Java"
+        );
 
 
 
@@ -501,5 +512,88 @@ public class EtudiantControllerTest {
         mockMvc.perform(post("/etudiant/offres/10/postuler")
                         .principal(authentication))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void doitRetournerLesConvocationsEtudiant() throws Exception {
+        when(etudiantService.getConvocationsEtudiant()).thenReturn(List.of(convocationDTO));
+
+        mockMvc.perform(get("/etudiant/convocations"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].offreTitle").value("Stage Java"));
+
+        verify(etudiantService).getConvocationsEtudiant();
+    }
+
+    @Test
+    void doitRetournerLesDetailsConvocation() throws Exception {
+        when(etudiantService.getConvocationEtudiant(1L)).thenReturn(convocationDTO);
+
+        mockMvc.perform(get("/etudiant/convocations/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.offreTitle").value("Stage Java"))
+                .andExpect(jsonPath("$.statut").value("A_CONFIRMER"));
+
+        verify(etudiantService).getConvocationEtudiant(1L);
+    }
+
+    @Test
+    void doitAccepterConvocation() throws Exception {
+        LocalDateTime maintenant = LocalDateTime.now();
+        ReponseConvocationDTO reponse = new ReponseConvocationDTO(
+                1L, convocationDTO.dateHeureEntrevue(), maintenant, true,
+                StatutEntrevue.CONFIRMEE, maintenant);
+        when(etudiantService.accepterConvocationEtudiant(1L)).thenReturn(reponse);
+
+        mockMvc.perform(put("/etudiant/convocations/1/accepter"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.entrevueId").value(1))
+                .andExpect(jsonPath("$.confirmee").value(true))
+                .andExpect(jsonPath("$.statut").value("CONFIRMEE"));
+
+        verify(etudiantService).accepterConvocationEtudiant(1L);
+    }
+
+    @Test
+    void doitRefuserConvocation() throws Exception {
+        ReponseConvocationDTO reponse = new ReponseConvocationDTO(
+                1L, convocationDTO.dateHeureEntrevue(), null, false,
+                StatutEntrevue.REFUSEE, LocalDateTime.now());
+        when(etudiantService.refuserConvocationEtudiant(1L)).thenReturn(reponse);
+
+        mockMvc.perform(put("/etudiant/convocations/1/refuser"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.entrevueId").value(1))
+                .andExpect(jsonPath("$.confirmee").value(false))
+                .andExpect(jsonPath("$.statut").value("REFUSEE"));
+
+        verify(etudiantService).refuserConvocationEtudiant(1L);
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandConvocationIntrouvable() throws Exception {
+        when(etudiantService.getConvocationEtudiant(1L)).thenThrow(new ConvocationIntrouvableException());
+
+        mockMvc.perform(get("/etudiant/convocations/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandAcceptationInvalide() throws Exception {
+        when(etudiantService.accepterConvocationEtudiant(1L)).thenThrow(new ConvocationInvalideException());
+
+        mockMvc.perform(put("/etudiant/convocations/1/accepter"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandRefusInvalide() throws Exception {
+        when(etudiantService.refuserConvocationEtudiant(1L)).thenThrow(new ConvocationInvalideException());
+
+        mockMvc.perform(put("/etudiant/convocations/1/refuser"))
+                .andExpect(status().isBadRequest());
     }
 }
