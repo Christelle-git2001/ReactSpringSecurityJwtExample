@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/pdf")
 public class PDFController {
@@ -23,7 +25,7 @@ public class PDFController {
     @GetMapping("/contrat/{contratId}")
     public ResponseEntity<Resource> obtenirContratPdf(
             @PathVariable Long contratId,
-            @RequestParam(defaultValue = "fr") String langue) throws ContratIntrouvableException {
+            @RequestParam(defaultValue = "fr") String langue) throws ContratIntrouvableException, IOException {
 
         Resource pdfResource = pdfService.createContratPdf(contratId, langue);
 

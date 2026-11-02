@@ -38,6 +38,12 @@ const toneClasses = {
         action: "text-navy-600 hover:bg-navy-50",
         gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
     },
+    cyan: {
+        border: "border-base-300",
+        icon: "bg-cyan-100 text-cyan-600",
+        action: "text-cyan-600 hover:bg-cyan-50",
+        gradient: "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]",
+    },
     purple: {
         border: "border-base-300",
         icon: "bg-purple-100 text-navy-600",
@@ -57,6 +63,7 @@ function ListItem({
     tone = "blue",
     variant = "card",
     actionLabel,
+    actionClassName,
     showChevron = true,
     wrapText = false,
     onClick,
@@ -189,7 +196,7 @@ function ListItem({
                     <button
                         type="button"
                         onClick={onClick}
-                        className={`btn btn-sm shrink-0 border-none bg-white/80 ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${styles.action}`}
+                        className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
                         aria-label={ariaLabel}
                     >
                         {actionLabel || <FiChevronRight className="size-4" />}

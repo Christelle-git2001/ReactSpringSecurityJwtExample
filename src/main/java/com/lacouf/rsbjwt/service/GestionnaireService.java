@@ -43,10 +43,11 @@ public class GestionnaireService {
     private final ProfesseurRepository professeurRepository;
     private final CandidatureRepository candidatureRepository;
     private final ContratRepository contratRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository){
+                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -59,6 +60,7 @@ public class GestionnaireService {
         this.professeurRepository = professeurRepository;
         this.candidatureRepository = candidatureRepository;
         this.contratRepository = contratRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     @Transactional
@@ -378,6 +380,8 @@ public class GestionnaireService {
                     .candidature(candidature)
                     .gestionnaire(gestionnaire)
                     .build();
+
+            candidature.setStatut(StatutCandidature.CONTRAT_CREE);
         }else{
             throw new StatutCandidatureInvalideException();
         }
@@ -386,6 +390,30 @@ public class GestionnaireService {
     }
 
 
+    public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
+        return  candidatureRepository.findByStatut(normaliserStatus(status))
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
 
+    private StatutCandidature normaliserStatus(String status) throws StatutCandidatureInvalideException {
+        try {
+            return StatutCandidature.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new StatutCandidatureInvalideException();
+        }
+    }
 
+    public ContratDTO getContratParCandidatureId(Long candidatureId) throws ContratIntrouvableException {
+        Contrat contrat = contratRepository.findByCandidatureId(candidatureId)
+                .orElseThrow(() -> new ContratIntrouvableException());
+        return ContratDTO.of(contrat);
+    }
+
+    public EntrevueDTO getEntrevueParCandidatureId(Long candidatureId) throws EntrevueIntrouvableException {
+        Entrevue entrevue = entrevueRepository.findByCandidatureId(candidatureId)
+                .orElseThrow(() -> new EntrevueIntrouvableException());
+        return EntrevueDTO.of(entrevue);
+    }
 }

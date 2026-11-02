@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { postulerOffre } from "../../api/etudiant.jsx";
 import { useNavigate } from "react-router-dom";
 
-function PostulerButton({ offerId, hasApplied = false, onApplied }) {
+function PostulerButton({ offerId, hasApplied = false, onApply, onApplied }) {
     const { t } = useTranslation();
     const [applied, setApplied] = useState(hasApplied);
     const [isApplying, setIsApplying] = useState(false);
@@ -18,6 +18,7 @@ function PostulerButton({ offerId, hasApplied = false, onApplied }) {
         setIsApplying(true);
         setError(null);
         try {
+            onApply?.(offerId);
             await postulerOffre(offerId);
             setApplied(true);
             onApplied?.(offerId);
@@ -40,7 +41,7 @@ function PostulerButton({ offerId, hasApplied = false, onApplied }) {
     if (applied) {
         return (
             <p className="text-center font-semibold text-green-700 py-2">
-                {t("offre.already_applied")}
+                {t("offre.application_received")}
             </p>
         );
     }

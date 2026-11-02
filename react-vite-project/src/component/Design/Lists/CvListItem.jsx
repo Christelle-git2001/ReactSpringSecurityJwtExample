@@ -6,7 +6,7 @@ import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import ListItem from "./ListItem.jsx";
 
-function CvListItem({ cv, onClick, variant = "card", actionLabel }) {
+function CvListItem({ cv, onClick, variant = "card", actionLabel, actionClassName }) {
     const { t } = useTranslation();
     const status = getStatusConfig(cv?.statut, t, "cv");
 
@@ -27,6 +27,7 @@ function CvListItem({ cv, onClick, variant = "card", actionLabel }) {
             tone="blue"
             variant={variant}
             actionLabel={actionLabel}
+            actionClassName={actionClassName}
             onClick={onClick}
             ariaLabel={t("dashboard.view_cv_details")}
         />
