@@ -632,6 +632,8 @@
     "date": "Date",
     "time": "Heure",
     "reject" : "Refuser",
+    "confirm_refusal": "Confirmer le refus",
+    "refusal_confirmation": "Voulez-vous refuser cette convocation ? L'employeur sera informé de votre décision.",
     "accept" : "Accepter",
     "back" : "Retour",
     "scheduled": "Entrevue planifiée",

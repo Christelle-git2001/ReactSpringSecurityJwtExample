@@ -601,6 +601,8 @@
     "date": "Date",
     "time": "Time",
     "reject" : "Reject",
+    "confirm_refusal": "Confirm decline",
+    "refusal_confirmation": "Do you want to decline this interview invitation? The employer will be notified of your decision.",
     "accept" : "Accept",
     "back" : "Back",
     "scheduled": "Interview scheduled",

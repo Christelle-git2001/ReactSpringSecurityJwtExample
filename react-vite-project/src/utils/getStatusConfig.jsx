@@ -41,8 +41,8 @@ export function getStatusConfig(statut, t, type = "offre") {
         ENTREVUE_REFUSEE: "bg-red-100 text-red-800 border-red-200",
         ACCEPTEE: "bg-emerald-100 text-emerald-800 border-emerald-200",
         REFUSEE: "bg-red-100 text-red-800 border-red-200",
-        STAGE_TROUVE: "bg-cyan-100 text-cyan-800 border-cyan-200",
-        CONTRAT_CREE: "bg-blue-100 text-blue-800 border-blue-200",
+        STAGE_TROUVE: "bg-cyan-800 text-white border-cyan-900",
+        CONTRAT_CREE: "bg-blue-800 text-white border-blue-900",
     };
 
     const statusLabels = labelKeys[type] || labelKeys.offre;

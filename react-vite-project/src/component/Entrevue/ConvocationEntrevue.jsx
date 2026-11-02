@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../Design/Button.jsx";
+import Modal from "../Modal/Modal.jsx";
 import { obtenirConvocation, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
 import { FaBriefcase, FaCalendarAlt, FaCheckCircle, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 
@@ -29,6 +30,7 @@ function ConvocationEntrevue() {
     const [loading, setLoading] = useState(!convocation);
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const charger = async () => {
         try {
@@ -124,7 +126,7 @@ function ConvocationEntrevue() {
                     {aRepondre && (
                         <>
                             <Button variant="danger" type="button" disabled={isSubmitting}
-                                    onClick={() => repondre(refuserConvocation)}>
+                                    onClick={() => setIsModalOpen(true)}>
                                 {t("convocation.reject")}
                             </Button>
                             <Button variant="success" type="button" disabled={isSubmitting}
@@ -135,6 +137,19 @@ function ConvocationEntrevue() {
                     )}
                 </div>
             </div>
+            {isModalOpen && (
+                <Modal
+                    title={t("convocation.confirm_refusal")}
+                    description={t("convocation.refusal_confirmation")}
+                    agreeLabel={t("convocation.confirm_refusal")}
+                    onClickCancel={() => setIsModalOpen(false)}
+                    onClickCross={() => setIsModalOpen(false)}
+                    onClickAgree={() => {
+                        setIsModalOpen(false);
+                        repondre(refuserConvocation);
+                    }}
+                />
+            )}
         </div>
     );
 }
