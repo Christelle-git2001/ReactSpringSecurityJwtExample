@@ -2,6 +2,7 @@
 package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,13 @@ public class Entrevue {
 
     @Column(nullable = false)
     private LocalDateTime dateCreation;
+
+    @Column
+    private LocalDateTime dateConfirmation;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatutEntrevue statut = StatutEntrevue.A_CONFIRMER;
 
     @Column(nullable = false)
     private int duree ;

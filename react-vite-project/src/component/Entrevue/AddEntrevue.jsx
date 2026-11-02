@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { FiClock } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
 import { validateEntrevueForm } from "../../utils/entrevueValidation.jsx";
 
@@ -119,7 +118,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
         <form
             noValidate
             onSubmit={handleSubmit}
-            className="rounded-2xl bg-white p-6 border border-gray-200 flex flex-col gap-5 w-full"
+            className="rounded-2xl bg-white p-6 border border-gray-200 flex flex-col gap-5 w-full min-w-0"
         >
             <h3 className="text-lg font-bold text-[#043462] border-b border-gray-100 pb-3">
                 {t("entrevue.add_title")}
@@ -238,18 +237,17 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
                 </div>
             </div>
 
-            <div className="pt-3 border-t border-gray-100 flex justify-end">
+            <div className="pt-3 border-t border-gray-100 flex flex-wrap justify-end gap-3">
                 <Button
                     type="button"
+                    variant="secondary"
                     onClick={() => navigate("/employeur")}
-                    className="bg-steal-500 mx-3 text-[#043462]  flex items-center justify-center gap-2 border border-steal-200"
                 >
                     {t("actions.backhome")}
                 </Button>
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="bg-[#043462] text-white hover:bg-[#03284d] w-full sm:w-auto disabled:opacity-50"
+                    loading={isSubmitting}
                 >
                     {isSubmitting ? t("common.loading") : t("common.save")}
                 </Button>

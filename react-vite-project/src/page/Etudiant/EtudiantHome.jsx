@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useOutletContext, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
 import OffreEtudiantCard from "../../component/Design/Cards/OffreEtudiantCard.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import OffreDetailsDrawerContent from "../../component/Offer/OffreDetailsDrawerContent.jsx";
+import PageSeparator from "../../component/Design/PageSeparator.jsx";
+import PdfPreviewDialog from "../../component/PDF/PdfPreviewDialog.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
@@ -14,7 +15,6 @@ import { getNotifications, marquerNotificationLue } from "../../api/notification
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
-    const { openDrawer } = useOutletContext();
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -25,6 +25,19 @@ const EtudiantHome = ({ user }) => {
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
     const [idsPostules, setIdsPostules] = useState([]);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const previewDialogRef = useRef(null);
+
+    useEffect(() => {
+        if (previewUrl && !previewDialogRef.current?.open) {
+            previewDialogRef.current?.showModal();
+        }
+    }, [previewUrl]);
+
+    const fermerApercu = () => {
+        previewDialogRef.current?.close();
+        setPreviewUrl(null);
+    };
 
     const offreFilters = useFilters(offres, {
         getDomain: (o) => o.domain,
@@ -60,7 +73,8 @@ const EtudiantHome = ({ user }) => {
         chargerNotificationsOffres();
     }, [chargerNotificationsOffres]);
 
-    const marquerNotificationOffreCommeLue = async (offreId) => {
+    const marquerNotificationOffreCommeLue = useCallback(async (offreId) => {
+        if (!user?.id) return;
         try {
             const notifications = await getNotifications(user.id);
             const notification = notifications.find(
@@ -72,28 +86,14 @@ const EtudiantHome = ({ user }) => {
 
             if (notification) {
                 await marquerNotificationLue(notification.id);
-                setUnreadOfferIds((prev) =>
-                    prev.filter((id) => id !== String(offreId))
-                );
             }
+            setUnreadOfferIds((prev) =>
+                prev.filter((id) => id !== String(offreId))
+            );
         } catch (error) {
             console.error("Erreur lors du marquage :", error);
         }
-    };
-
-    const handleView = async (offer) => {
-        await marquerNotificationOffreCommeLue(offer.id);
-        openDrawer(
-            <OffreDetailsDrawerContent
-                offer={offer}
-                showStatus={false}
-                hasApplied={idsPostules.includes(offer.id)}
-                onApplied={(id) =>
-                    setIdsPostules((prev) => (prev.includes(id) ? prev : [...prev, id]))
-                }
-            />
-        );
-    };
+    }, [user?.id]);
 
     const ouvrirOffreParId = useCallback((offreId) => {
         const offre = offres.find(
@@ -101,9 +101,10 @@ const EtudiantHome = ({ user }) => {
         );
 
         if (offre) {
-            handleView(offre);
+            document.getElementById(`offre-${offre.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            marquerNotificationOffreCommeLue(offre.id);
         }
-    }, [offres, handleView]);
+    }, [offres, marquerNotificationOffreCommeLue]);
 
     useEffect(() => {
         const offreId = location.state?.offreId;
@@ -140,26 +141,32 @@ const EtudiantHome = ({ user }) => {
         chargerOffres().finally(() => setIsInitialLoading(false));
     }, [chargerOffres, hasDepartment]);
 
-    const { offresNonConsultees, autresOffres } = useMemo(() => {
-        const nonConsultees = [];
+    const { nouvellesOffres, autresOffres } = useMemo(() => {
+        const nouvelles = [];
         const autres = [];
 
         offreFilters.itemsFiltres.forEach((offer) => {
-            if (unreadOfferIds.includes(String(offer.id))) {
-                nonConsultees.push(offer);
+            if (unreadOfferIds.includes(String(offer.id))
+                    && !idsPostules.some((id) => String(id) === String(offer.id))) {
+                nouvelles.push(offer);
             } else {
                 autres.push(offer);
             }
         });
 
         return {
-            offresNonConsultees: nonConsultees,
+            nouvellesOffres: nouvelles,
             autresOffres: autres,
         };
-    }, [offreFilters.itemsFiltres, unreadOfferIds]);
+    }, [offreFilters.itemsFiltres, unreadOfferIds, idsPostules]);
 
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
+            <PdfPreviewDialog
+                dialogRef={previewDialogRef}
+                pdfUrl={previewUrl}
+                onClose={fermerApercu}
+            />
             <CvOnLandingPage />
 
             <div className="w-full max-w-7xl">
@@ -183,14 +190,14 @@ const EtudiantHome = ({ user }) => {
             </div>
 
             <div className="w-full max-w-7xl">
-                <div className="collapse collapse-arrow bg-transparent">
-                    <input type="checkbox" className="peer" defaultChecked />
+                <details open className="collapse collapse-arrow bg-transparent">
 
-                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
                         {t("nav.view_offers")}
-                    </div>
+                    </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
                         <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
                             {!isInitialLoading && hasDepartment && error && (
                                 <EmptyContentMessage
@@ -210,41 +217,26 @@ const EtudiantHome = ({ user }) => {
                                     />
                                 ) : (
                                     <>
-                                        {offresNonConsultees.length > 0 && (
-                                            <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
-                                                {offresNonConsultees.map((offer) => (
-                                                    <OffreEtudiantCard
-                                                        key={offer.id}
-                                                        offer={offer}
-                                                        onView={handleView}
-                                                        hasApplied={idsPostules.includes(offer.id)}
-                                                        onApplied={(id) =>
-                                                            setIdsPostules((prev) =>
-                                                                prev.includes(id) ? prev : [...prev, id]
-                                                            )
-                                                        }
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        {offresNonConsultees.length > 0 && autresOffres.length > 0 && (
-                                            <div className="flex items-center gap-4 my-6">
-                                                <div className="h-px bg-emerald-600 flex-1" />
-                                                <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+                                        {nouvellesOffres.length > 0 && (
+                                            <div className="mb-4 flex items-center gap-4">
+                                                <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
+                                                <h3 className="text-base font-bold text-green-800 uppercase">
                                                     {t("offre.new")}
-                                                </span>
-                                                <div className="h-px bg-emerald-600 flex-1" />
+                                                </h3>
+                                                <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
                                             </div>
                                         )}
-
-                                        {autresOffres.length > 0 && (
-                                            <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
-                                                {autresOffres.map((offer) => (
+                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full">
+                                            {[...nouvellesOffres, ...autresOffres].map((offer, index) => (
+                                                <div key={offer.id} className="contents">
+                                                    {index === nouvellesOffres.length && index > 0 && (
+                                                        <PageSeparator />
+                                                    )}
                                                     <OffreEtudiantCard
                                                         key={offer.id}
                                                         offer={offer}
-                                                        onView={handleView}
+                                                        onPreview={setPreviewUrl}
+                                                        onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
                                                         onApplied={(id) =>
                                                             setIdsPostules((prev) =>
@@ -252,15 +244,15 @@ const EtudiantHome = ({ user }) => {
                                                             )
                                                         }
                                                     />
-                                                ))}
-                                            </div>
-                                        )}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </>
                                 )
                             )}
                         </div>
                     </div>
-                </div>
+                </details>
             </div>
         </div>
     );
