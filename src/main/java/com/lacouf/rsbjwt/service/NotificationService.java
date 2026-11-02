@@ -329,6 +329,7 @@ public class NotificationService {
                 .dateCreaction(LocalDateTime.now())
                 .destinataire(professeur)
                 .role(Role.PROFESSEUR)
+                .urlCible("")
                 .variables(Map.of(
                         VariableMapKey.ETUDIANT_NOM,
                         etudiants.stream()
@@ -346,6 +347,7 @@ public class NotificationService {
                     .notificationType(NotificationType.ETUDIANT_ASSIGNE_PROFESSEUR)
                     .dateCreaction(LocalDateTime.now())
                     .destinataire(etudiant)
+                    .urlCible("")
                     .role(Role.ETUDIANT)
                     .variables(Map.of(
                             VariableMapKey.PROFESSEUR_NOM,
