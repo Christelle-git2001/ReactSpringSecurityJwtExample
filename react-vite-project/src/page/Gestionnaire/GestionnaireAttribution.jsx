@@ -10,10 +10,13 @@ import Modal from "../../component/Modal/Modal.jsx";
 import Button from "../../component/Design/Button.jsx";
 import {assignStudentToTeacher, getEtudiants, getProfesseurs} from "../../api/gestionnaire.jsx";
 import {getDepartmentKey} from "../../utils/departementConverter.js";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
     const [error, setError] = useState("");
+    const [filtreValueProfesseur, setFiltreValueProfesseur] = useState("")
     const [professeurSelectione, setProfesseurSelectione] = useState(null);
     const [professeurChangeValue, setProfesseurChangeValue] = useState(null);
     const [professeurSelectioneTemp, setProfesseurSelectioneTemp] = useState(null)
@@ -31,6 +34,11 @@ const GestionnaireAttribution = () => {
         [
         ]
     );
+    const [selectedDepartment, setSelectedDepartment] = useState("TOUS");
+
+    const filtreActif = (event) => {
+        setFiltreValueProfesseur(event)
+    }
 
     const getListSorted = () => {
         if (!professeurSelectioneTemp) return professeurs;
@@ -180,21 +188,27 @@ const GestionnaireAttribution = () => {
                                 )}
                                 {!professeurSelectione && (
                                     <>
+                                        <SearchBar onChange={filtreActif} value={filtreValueProfesseur}/>
+                                        <FilterBar
+                                            selectedDomain={selectedDepartment}
+                                            onDomainChange={setSelectedDepartment}
+                                            availableDomains={[...new Set(professeurs.map(p => p.department))]}                                        />
                                         {etudiantSelectionnes.length > 0 && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
                                         <div className="w-full cursor-pointer">
                                             <ExpandableList
-                                                items={getListSorted()}
+                                                items={getListSorted().filter((item) => {
+                                                    return Object.values(item).some((valeur) =>
+                                                        String(valeur).toLowerCase().includes(String(filtreValueProfesseur).toLowerCase())
+                                                    );
+                                                }).filter(p => p.department === selectedDepartment || selectedDepartment === "TOUS")}
                                                 profSelected={professeurSelectioneTemp}
                                                 limit={professeurs.length}
-                                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                                collapseLabel={t("dashboard.view_less", "Voir moins")}
                                                 renderItem={(professeur) => (
                                                     <ProfesseurListItem
                                                         professeur={professeur}
                                                         profSelected={professeurSelectioneTemp}
                                                         textClassName={"w-full inline-block cursor-pointer  border-5 rounded-2xl border-purple-500"}
                                                         onClick={() => handleProfessorSelected(professeur)}
-                                                        actionLabel={t("dashboard.view_cv")}
                                                     />
                                                 )}
                                             />
