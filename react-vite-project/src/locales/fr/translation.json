@@ -619,6 +619,9 @@
     "reject" : "Refuser",
     "accept" : "Accepter",
     "back" : "Retour",
-    "scheduled": "Entrevue planifiée"
+    "scheduled": "Entrevue planifiée",
+    "confirmed": "Confirmée",
+    "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
+    "view_details": "Voir les détails"
   }
 }

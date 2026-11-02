@@ -3,15 +3,15 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { obtenirConvocation, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
-import { FaBriefcase, FaCalendarAlt, FaClock, FaMapMarkerAlt } from "react-icons/fa";
+import { FaBriefcase, FaCalendarAlt, FaCheckCircle, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 
 function Info({ icone, label, valeur }) {
     return (
         <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-lg">
-            <div className="p-3 bg-blue-100 text-gray-400-600 rounded-full">{icone}</div>
-            <div>
+            <div className="p-3 bg-sky-100 text-[#043462] rounded-full" aria-hidden="true">{icone}</div>
+            <div className="min-w-0">
                 <p className="text-xs text-gray-500 font-semibold uppercase">{label}</p>
-                <p className="text-md font-medium text-gray-800">{valeur ?? "—"}</p>
+                <p className="text-md font-medium text-gray-800 break-words">{valeur ?? "—"}</p>
             </div>
         </div>
     );
@@ -86,22 +86,24 @@ function ConvocationEntrevue() {
 
     return (
         <div className="w-full max-w-3xl mx-auto p-4 md:p-8">
-            <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8 flex flex-col gap-6">
-                <div className="flex justify-between items-start border-b pb-4">
-                    <div>
-                        <h2 className="text-2xl font-bold text-[#043462]">
-                            {t("convocation.title")}
-                        </h2>
-                        <span className="text-sm text-gray-500 mt-1">
+            <div className="w-full rounded-xl bg-white p-6 shadow-md md:p-8 flex flex-col gap-4">
+                <div className="border-b border-gray-100 pb-4">
+                    <h2 className="text-2xl font-bold text-[#043462]">{t("convocation.title")}</h2>
+                    {aRepondre && (
+                        <p className="text-sm text-gray-500 mt-1">
                             {t("convocation.subtitle")}
-                        </span>
-                        <span className="font-bold">
-                            {convocation.employeur?.businessName}
-                        </span>
-                    </div>
+                            <span className="font-bold"> {convocation.employeur?.businessName}</span>
+                        </p>
+                    )}
                 </div>
+                {estConfirmee && (
+                    <div role="status" className="flex items-center gap-3 rounded-lg bg-green-100 px-4 py-3 font-semibold text-[#043462]">
+                        <FaCheckCircle className="shrink-0 text-green-600" aria-hidden="true" />
+                        {t("convocation.attendance_confirmed")}
+                    </div>
+                )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Info icone={<FaBriefcase />} label={t("convocation.offer")} valeur={convocation.offreTitle} />
                     <Info icone={<FaMapMarkerAlt />} label={t("convocation.format", "Format")} valeur={convocation?.format} />
                     <Info icone={<FaCalendarAlt />} label={t("convocation.date", "Date")} valeur={dateAffichee} />
