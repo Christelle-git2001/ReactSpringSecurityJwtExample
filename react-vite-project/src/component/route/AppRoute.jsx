@@ -21,7 +21,7 @@ import CandidatureDetails from "../Candidature/CandidatureDetails.jsx";
 import AddTargetedOffer from "../Offer/AddTargetedOffer.jsx";
 import GestionEntrevue from "../Entrevue/GestionEntrevue.jsx";
 import ConvocationEntrevue from "../Entrevue/ConvocationEntrevue.jsx";
-import ListeConvocations from "../Entrevue/ListeConvocations.jsx";
+import EtudiantEntrevues from "../../page/Etudiant/EtudiantEntrevues.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
 import ViewProcess from "../Contrat/ViewProcess.jsx";
 
@@ -73,7 +73,7 @@ export default function AppRoutes({
                 <Route path="/employeur/candidatures/details" element={<CandidatureDetails />} />
                 <Route path="/employeur/entrevues" element={<GestionEntrevue />} />
                 <Route path="/etudiant/entrevues/details" element={<ConvocationEntrevue />} />
-                <Route path="/etudiant/entrevues" element={<ListeConvocations />} />
+                <Route path="/etudiant/entrevues" element={<EtudiantEntrevues />} />
 
                 <Route path="/professeur" element={<ProfesseurHome />} />
 

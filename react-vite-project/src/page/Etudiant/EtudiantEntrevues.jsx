@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { obtenirToutesConvocations } from "../../api/etudiant.jsx";
 import { FaCalendarAlt, FaClock } from "react-icons/fa";
-import Button from "../Design/Button.jsx";
+import Button from "../../component/Design/Button.jsx";
 
-function ListeConvocations() {
+function EtudiantEntrevues() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [convocations, setConvocations] = useState([]);
@@ -90,4 +90,4 @@ function ListeConvocations() {
     );
 }
 
-export default ListeConvocations;
+export default EtudiantEntrevues;
