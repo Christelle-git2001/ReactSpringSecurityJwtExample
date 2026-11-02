@@ -375,6 +375,8 @@ public class GestionnaireService {
                     .candidature(candidature)
                     .gestionnaire(gestionnaire)
                     .build();
+
+            candidature.setStatut(StatutCandidature.CONTRAT_CREE);
         }else{
             throw new StatutCandidatureInvalideException();
         }
