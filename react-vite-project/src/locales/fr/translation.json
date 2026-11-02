@@ -237,7 +237,7 @@
     "history": "History",
     "collapse": "Réduire",
     "expand": "Développer",
-    "assignation" : "Assignation"
+    "assignation" : "Assignation des professeurs"
   },
   "sidebar": {
     "collapse": "Réduire le menu",
@@ -328,6 +328,7 @@
         "professeur_without_name": "Ce professeur ne possède aucun nom",
         "professeur_without_department" : "Ce professeur ne possède aucun departement",
         "professeur_without_email" : "Ce professeur ne possède aucun Email",
+        "professeur_is_selected" : "Sélectioné(e)",
         "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
         "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
       },

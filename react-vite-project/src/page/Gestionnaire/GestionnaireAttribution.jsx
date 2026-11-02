@@ -16,7 +16,7 @@ const GestionnaireAttribution = () => {
     const [error, setError] = useState("");
     const [professeurSelectione, setProfesseurSelectione] = useState(null);
     const [professeurChangeValue, setProfesseurChangeValue] = useState(null);
-    const [dropdownProfIsOpen, setDropdownProfIsOpen] = useState(false);
+    const [professeurSelectioneTemp, setProfesseurSelectioneTemp] = useState(null)
     const [etudiantSelectionnes, setEtudiantSelectionnes] = useState(
         []
     );
@@ -32,6 +32,16 @@ const GestionnaireAttribution = () => {
         ]
     );
 
+    const getListSorted = () => {
+        if (!professeurSelectioneTemp) return professeurs;
+
+        return [...professeurs].sort((a, b) => {
+            if (a.id === professeurSelectioneTemp.id) return -1;
+            if (b.id === professeurSelectioneTemp.id) return 1;
+            return 0;
+        });
+    };
+
     const onClickEtudiant = (etudiant) => {
         const isAlreadySelected = etudiantSelectionnes.some(e => e.id === etudiant.id);
         setIsAssign(false);
@@ -43,13 +53,23 @@ const GestionnaireAttribution = () => {
     }
 
     const handleProfessorSelected = (professeur) => {
-        if (!professeurSelectione || etudiantSelectionnes.length <= 0) {
+        if (!professeurSelectione && !professeurSelectioneTemp || etudiantSelectionnes.length <= 0) {
             setProfesseurSelectione(professeur);
-            setDropdownProfIsOpen(false);
+        }
+        else if (professeur.id === professeurSelectioneTemp.id){
+            setProfesseurSelectione(professeurSelectioneTemp);
+            setProfesseurSelectioneTemp(null);
         }
         else{
             setProfesseurChangeValue(professeur)
             setIsModalOpen(true);
+        }
+    }
+
+    const handleChangeProfesseur = () => {
+        if (!isAssign) {
+            setProfesseurSelectioneTemp(professeurSelectione);
+            setProfesseurSelectione(null);
         }
     }
 
@@ -69,20 +89,22 @@ const GestionnaireAttribution = () => {
         setEtudiantAssigne([]);
         setIsAssign(false);
         setProfesseurSelectione(null);
+        setProfesseurSelectioneTemp(null);
         setError("");
     }
 
     const handleCancelModal = () => {
         setProfesseurChangeValue(null);
-        setDropdownProfIsOpen(false);
+        setProfesseurSelectione(professeurSelectioneTemp);
+        setProfesseurSelectioneTemp(null);
         setIsModalOpen(false);
     };
 
     const handleAgreeModal = () => {
         setEtudiantSelectionnes([]);
         setProfesseurSelectione(professeurChangeValue);
+        setProfesseurSelectioneTemp(null);
         setProfesseurChangeValue(null);
-        setDropdownProfIsOpen(false);
         setIsModalOpen(false);
     };
 
@@ -148,29 +170,29 @@ const GestionnaireAttribution = () => {
 
                         </div>
                         <div className="col-span-12 mt-3">
-                            <div className="dropdown w-full">
-                                {professeurSelectione ? (
+                            <div className="w-full">
+                                {professeurSelectione && (
                                     <ProfesseurListItem
                                         professeur={professeurSelectione}
-                                        onClick={() => setDropdownProfIsOpen(!dropdownProfIsOpen)}
+                                        onClick={handleChangeProfesseur}
                                         actionLabel={t("dashboard.view_cv")}
-                                        textClassName={"w-full inline-block cursor-pointer" + (dropdownProfIsOpen ? " border-5 rounded-2xl border-purple-500" : "")}
                                     />
-                                ):(
-                                    <div role="button" onClick={() => setDropdownProfIsOpen(!dropdownProfIsOpen)} className="btn w-full inline-block cursor-pointer rounded-md bg-[#043462] px-4 py-2 text-sm font-semibold text-white hover:bg-[#03284d]">{t("general.liste." + (dropdownProfIsOpen ? "close" : "open"))}</div>
-                                    )}
-                                {dropdownProfIsOpen && (
+                                )}
+                                {!professeurSelectione && (
                                     <>
-                                        {professeurSelectione && etudiantSelectionnes.length > 0 && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
+                                        {etudiantSelectionnes.length > 0 && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
                                         <div className="w-full cursor-pointer">
                                             <ExpandableList
-                                                items={professeurs.filter(prof => prof.id !== professeurSelectione?.id)}
+                                                items={getListSorted()}
+                                                profSelected={professeurSelectioneTemp}
                                                 limit={professeurs.length}
                                                 expandLabel={t("dashboard.view_more", "Voir plus")}
                                                 collapseLabel={t("dashboard.view_less", "Voir moins")}
                                                 renderItem={(professeur) => (
                                                     <ProfesseurListItem
                                                         professeur={professeur}
+                                                        profSelected={professeurSelectioneTemp}
+                                                        textClassName={"w-full inline-block cursor-pointer  border-5 rounded-2xl border-purple-500"}
                                                         onClick={() => handleProfessorSelected(professeur)}
                                                         actionLabel={t("dashboard.view_cv")}
                                                     />

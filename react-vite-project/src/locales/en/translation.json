@@ -194,7 +194,7 @@
     "history": "History",
     "collapse": "Collapse",
     "expand": "Expand",
-    "assignation" : "Assignment"
+    "assignation" : "Teacher Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -273,6 +273,7 @@
         "professeur_without_name": "This teacher has no name",
         "professeur_without_department" : "This teacher has no department",
         "professeur_without_email" : "This teacher has no email",
+        "professeur_is_selected" : "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
