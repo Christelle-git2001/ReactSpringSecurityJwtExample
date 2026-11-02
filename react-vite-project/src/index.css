@@ -21,7 +21,32 @@ h1 {
 }
 
 .primary-submit {
-    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors cursor-pointer bg-[#0ee1cc] enabled:hover:bg-[#043462];
+    @apply mt-5 w-full rounded-md px-4 py-2 font-medium text-white transition-colors cursor-pointer bg-[#043462] enabled:hover:bg-[#03284d];
+}
+
+.close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #043462;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.close-button:not(:disabled):hover {
+    background-color: #043462;
+    color: white;
+}
+
+.close-button:focus-visible {
+    outline: 2px solid #043462;
+    outline-offset: 2px;
 }
 
 button:disabled, [role="button"]:disabled {
@@ -36,6 +61,22 @@ button:disabled,
 .btn:disabled,
 [role="button"]:disabled {
     @apply cursor-not-allowed opacity-50;
+}
+
+.document-card {
+    @apply flex flex-wrap items-center gap-4 rounded-md bg-purple-200 p-5 max-[480px]:p-4;
+}
+
+.document-card-info {
+    @apply min-w-0 flex-1 text-left;
+}
+
+.document-card-name {
+    @apply break-all font-semibold text-[#043462];
+}
+
+.document-card-details {
+    @apply mt-1 text-sm text-gray-500;
 }
 
 .welcome-message {

@@ -1,4 +1,7 @@
 {
+  "language": {
+    "label": "Language"
+  },
   "inscription": {
     "titre": "You are?",
     "etudiant": "Student",
@@ -107,6 +110,7 @@
     "backhome": "Back home",
     "reject": "Reject",
     "approve": "Approve",
+    "upload": "Upload",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
@@ -174,7 +178,8 @@
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
     "notification_path": "The destination of this notification does not exist. Please try again later.",
-    "rejection_comment_required": "A comment is required when rejecting a CV."
+    "rejection_comment_required": "A comment is required when rejecting a CV.",
+    "convocation_not_found": "Interview invitation not found."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -182,7 +187,7 @@
     "employer_added": "Employer added successfully."
   },
   "nav": {
-    "add_entrevue" : "Schedule an interview",
+    "add_entrevue": "Schedule an interview",
     "applications": "Applications",
     "cv": "Upload CV",
     "home": "Home",
@@ -307,11 +312,18 @@
     "visualize": "Visualize PDF",
     "filesName": "File name",
     "choice": "Choose a file",
+    "modification": "Modify the selected file",
     "download": "Download the PDF",
     "fichierInvalide": "Invalid file",
     "noFileDetected": "No file to read",
     "bigFiles": "Your file is too big, you need less than 10 mo",
-    "lowFiles": "Your file is corrupted, please select another file"
+    "lowFiles": "Your file is corrupted, please select another file",
+    "cvAttrib": {
+      "titleCvSelectionner": "Please verify the information before proceeding:",
+      "name": "Name : ",
+      "size": "Size : ",
+      "type": "File type : "
+    }
   },
   "account": {
     "info": {
@@ -335,7 +347,7 @@
     "new": "New Offers",
     "targeted": "Targeted",
     "targeted_badge": "Targeted offer",
-    "already_applied": "You have already applied",
+    "application_received": "Application sent!",
     "apply": "Apply",
     "employeur": "Company",
     "lieu": "Location",
@@ -365,7 +377,8 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
-    }
+    },
+    "already_applied": "You have already applied"
   },
   "status": {
     "tous": "All",
@@ -404,7 +417,8 @@
       "api_generic": "An error occurred while submitting."
     },
     "toast": {
-      "waiting_validation": "CV submitted, pending review."
+      "waiting_validation": "CV submitted, pending review.",
+      "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
   "candidature": {
@@ -464,6 +478,10 @@
         "title_refusee": "Your CV has been rejected",
         "description_refusee": "To find out the reason for the refusal, please click on this notification."
       },
+      "convocationEntrevue": {
+        "title": "Interview invitation",
+        "description": "{{ENTREPRISE_NOM}} invites you to an interview for the {{OFFRE_TITRE}} position on {{ENTREVUE_DATE}}."
+      },
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
@@ -473,6 +491,14 @@
   "drawer": {
     "details": "Details",
     "close": "Close"
+  },
+  "documents": {
+    "verify_selected": "Check the selected document:",
+    "preview": "Preview",
+    "download": "Download",
+    "choose_another": "Choose another file",
+    "replace": "Replace the document",
+    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
   },
   "entrevue": {
     "mode_online_title": "Online",
@@ -498,12 +524,16 @@
   },
   "agenda": {
     "no_interviews": "No interview",
-    "clear_filter":  "Clear filter",
+    "clear_filter": "Show all interviews",
     "title": "Schedule",
-    "all_interviews": "Upcoming interviews:",
+    "all_interviews": "Scheduled interviews:",
+    "interview_day": "Day with an interview",
+    "today": "Today",
+    "previous_month": "Previous month",
+    "next_month": "Next month",
+    "no_date": "Unspecified date",
     "select_date_prompt": "Select a date",
-    "no_interviews_date": "No interviews scheduled for this date.",
-    "select_date_hint": "Click a date to view interviews."
+    "no_interviews_date": "No interviews scheduled for this date."
   },
   "gestion_entrevue": {
     "title": "Interview Management",

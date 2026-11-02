@@ -136,22 +136,17 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                 </div>
 
                 <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button
+                    <Button variant="standard"
                         type="button"
                         onClick={handleConvoquer}
-                        disabled={isSubmitting || isRetenue}
-                        className={`text-white transition-colors ${
-                            isRetenue
-                                ? "bg-blue-200 cursor-not-allowed opacity-60"
-                                : "bg-blue-500 hover:bg-[#03284d]"
-                        }`}
+                        disabled={isRetenue}
+                        loading={isSubmitting}
                     >
                         {t("actions.interview")}
                     </Button>
-                    <Button
+                    <Button variant="secondary"
                         type="button"
                         onClick={() => navigate(retour)}
-                        className="bg-gray-200 text-gray-700 hover:bg-gray-300"
                     >
                         {t("actions.back")}
                     </Button>

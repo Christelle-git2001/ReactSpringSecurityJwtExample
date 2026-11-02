@@ -1,4 +1,7 @@
 {
+  "language": {
+    "label": "Langue"
+  },
   "inscription": {
     "titre": "Vous êtes ?",
     "etudiant": "Étudiant",
@@ -105,6 +108,7 @@
     "back": "Retour",
     "reject": "Refuser",
     "approve": "Approuver",
+    "upload": "Téléverser",
     "cancel": "Annuler",
     "cancel_refusal": "Annuler le refus",
     "confirm_rejection": "Confirmer le refus",
@@ -112,7 +116,9 @@
     "filter_by": "Filtrer par ",
     "reset_filters": "Réinitialiser les filtres",
     "collapse": "Réduire",
-    "expand": "Développer"
+    "expand": "Développer",
+    "backhome": "Retour à l'accueil",
+    "interview": "Retenir pour entrevue"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -122,7 +128,7 @@
     "new": "Nouvelles Offres",
     "targeted": "Ciblée",
     "targeted_badge": "Offre ciblée",
-    "already_applied": "Vous avez déjà postulé",
+    "application_received": "Candidature envoyée !",
     "apply": "Postuler",
     "employeur": "Entreprise ",
     "lieu": "Lieu",
@@ -151,7 +157,8 @@
     "errors": {
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
-    }
+    },
+    "already_applied": "Vous avez déjà postulé"
   },
   "login": {
     "page_title": "Connexion",
@@ -213,7 +220,8 @@
     "user_not_found": "Utilisateur introuvable.",
     "generic": "Une erreur est survenue. Veuillez réessayer.",
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
-    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus."
+    "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
+    "convocation_not_found": "Convocation d’entrevue introuvable."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -224,7 +232,7 @@
     "offer_updated": "Offre mise à jour avec succès."
   },
   "nav": {
-    "add_entrevue" : "Planifier une entrevue",
+    "add_entrevue": "Planifier une entrevue",
     "applications": "Candidatures",
     "cv": "Téléverser CV",
     "home": "Accueil",
@@ -361,11 +369,18 @@
     "visualize": "Visualiser le PDF",
     "filesName": "Nom du fichier",
     "choice": "Sélectionner un fichier",
+    "modification": "Modifiez le fichier choisi",
     "download": "Télécharger le PDF",
     "fichierInvalide": "Fichier Invalide",
     "noFileDetected": "Aucun fichier à lire",
     "bigFiles": "Votre fichier est trop volumineux. La taille maximale autorisée est de 10 Mo.",
-    "lowFiles": "Votre fichier est corrompus, réessayez."
+    "lowFiles": "Votre fichier est corrompus, réessayez.",
+    "cvAttrib": {
+      "titleCvSelectionner": "Vérifiez les informations avant confirmation : ",
+      "name": "Nom : ",
+      "size": "Taille : ",
+      "type": "Format : "
+    }
   },
   "account": {
     "info": {
@@ -403,7 +418,8 @@
       "api_generic": "Une erreur est survenue lors de l'envoi."
     },
     "toast": {
-      "waiting_validation": "CV envoyé, en attente de validation."
+      "waiting_validation": "CV envoyé, en attente de validation.",
+      "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
   "candidature": {
@@ -463,6 +479,10 @@
         "title_refusee": "Votre CV a été refusé",
         "description_refusee": "Pour connaître les motifs du refus, veuillez consulter cette notification."
       },
+      "convocationEntrevue": {
+        "title": "Convocation à une entrevue",
+        "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour le poste {{OFFRE_TITRE}} le {{ENTREVUE_DATE}}."
+      },
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
@@ -472,6 +492,14 @@
   "drawer": {
     "details": "Détails",
     "close": "Fermer"
+  },
+  "documents": {
+    "verify_selected": "Vérifiez le document sélectionné :",
+    "preview": "Prévisualiser",
+    "download": "Télécharger",
+    "choose_another": "Choisir un autre fichier",
+    "replace": "Remplacer le document",
+    "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
   "entrevue": {
     "mode_online_title": "En ligne",
@@ -497,12 +525,16 @@
   },
   "agenda": {
     "no_interviews": "Aucune entrevue",
-    "clear_filter":  "Désactiver le filtre",
+    "clear_filter": "Voir toutes les entrevues",
     "title": "Agenda",
-    "all_interviews": "Entrevues à venir :",
+    "all_interviews": "Entrevues planifiées :",
+    "interview_day": "Jour avec une entrevue",
+    "today": "Aujourd'hui",
+    "previous_month": "Mois précédent",
+    "next_month": "Mois suivant",
+    "no_date": "Date non précisée",
     "select_date_prompt": "Sélectionnez une date",
-    "no_interviews_date": "Aucune entrevue pour cette date.",
-    "select_date_hint": "Cliquez sur une date pour voir les entrevues."
+    "no_interviews_date": "Aucune entrevue pour cette date."
   },
   "gestion_entrevue": {
     "title": "Gestion des entrevues",

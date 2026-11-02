@@ -15,12 +15,12 @@ function Drawer({ isOpen, onClose, content, title = "drawer.details" }) {
                 <div className="p-3 flex justify-between items-center border-b border-purple-300/60">
                     <span className="font-bold text-[#043462] text-lg">{t(title)}</span>
                     <button
+                        className="close-button"
                         type="button"
                         onClick={onClose}
-                        className="btn btn-sm btn-circle btn-ghost text-[#043462] hover:bg-[#043462] hover:text-white"
                         aria-label={t("drawer.close")}
                     >
-                        <FiX className="size-5" />
+                        <FiX className="size-5" aria-hidden="true" />
                     </button>
                 </div>
                 <div className="p-4 overflow-y-auto flex-1">

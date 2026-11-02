@@ -2,7 +2,7 @@ import { PDFVisioneuse } from "./PDFVisioneuse.jsx";
 
 function PdfPreviewDialog({ dialogRef, pdfUrl, onClose }) {
     return (
-        <dialog ref={dialogRef} className="modal">
+        <dialog ref={dialogRef} className="modal" onClose={onClose}>
             <PDFVisioneuse
                 cvUrlAAffiche={pdfUrl}
                 onClose={onClose}
