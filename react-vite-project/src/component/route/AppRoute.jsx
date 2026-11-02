@@ -19,6 +19,7 @@ import GestionnaireCvs from "../../page/Gestionnaire/GestionnaireCvs.jsx";
 import CVDetails from "../CV/CVDetails.jsx";
 import CandidatureDetails from "../Candidature/CandidatureDetails.jsx";
 import AddTargetedOffer from "../Offer/AddTargetedOffer.jsx";
+import GestionEntrevue from "../Entrevue/GestionEntrevue.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
 
 export default function AppRoutes({
@@ -67,6 +68,7 @@ export default function AppRoutes({
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
                 <Route path="/employeur/candidatures/details" element={<CandidatureDetails />} />
+                <Route path="/employeur/entrevues" element={<GestionEntrevue />} />
 
                 <Route path="/professeur" element={<ProfesseurHome />} />
 

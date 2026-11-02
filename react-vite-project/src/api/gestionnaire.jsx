@@ -118,13 +118,13 @@ export async function getProfesseurs(){
         });
 }
 
-export async function assignStudentToTeacher(etudiantId,teacherId){
-    if (!teacherId || !etudiantId || etudiantId.length === 0) {
+export async function assignStudentToTeacher(etudiantIds,teacherId){
+    if (!teacherId || !etudiantIds || etudiantIds.length === 0) {
         return;
     }
     return fetchJson("/gestionnaire/etudiant/" + teacherId,
         {
             method : "PUT",
-            body : JSON.stringify(etudiantId)
+            body: JSON.stringify({ etudiantIds })
         })
 }

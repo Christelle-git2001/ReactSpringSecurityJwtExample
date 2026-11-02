@@ -128,9 +128,7 @@ public class GestionnaireController {
     }
 
     @GetMapping("/professeurs")
-    public List<ProfesseurDTO> getAllProfesseurs(){
-        return gestionnaireService.getAllProfesseurs();
-    }
+    public List<ProfesseurDTO> getAllProfesseurs(){return gestionnaireService.getAllProfesseurs();}
 
 
     @PutMapping("/etudiant/{professeurId}")
@@ -152,5 +150,13 @@ public class GestionnaireController {
             DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException {
         OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
+    }
+
+    @PostMapping("/candidatures/{candidatureId}/contrat")
+    public ResponseEntity<ContratDTO> creerContrat(
+            @PathVariable Long candidatureId)
+            throws CandidatureIntrouvableException, StatutCandidatureInvalideException, UtilisateurIntrouvableException, ContratExistantException {
+        ContratDTO contratDTO = gestionnaireService.creerContrat(candidatureId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(contratDTO);
     }
 }

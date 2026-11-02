@@ -282,5 +282,27 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(StatutCandidatureInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleStatutCandidatureInvalideException(
+            StatutCandidatureInvalideException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ContratIntrouvableException.class)
+    public ResponseEntity<ErreurDTO> handleContratIntrouvableException(
+            ContratIntrouvableException e) {
+
+        logger.warn(e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 
 }
