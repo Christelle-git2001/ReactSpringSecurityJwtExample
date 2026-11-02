@@ -39,6 +39,7 @@ public class EmployeurService {
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
+    private final ContratRepository contratRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -46,7 +47,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            EntrevueRepository entrevueRepository) {
+            EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -54,6 +55,7 @@ public class EmployeurService {
         this.candidatureRepository = candidatureRepository;
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
+        this.contratRepository = contratRepository;
     }
 
     @Transactional
@@ -383,5 +385,34 @@ public class EmployeurService {
                 .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
                 .map(EntrevueDTO::of)
                 .toList();
+    }
+
+    @Transactional
+    public ContratDTO signerContrat(Long contratId)
+            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Contrat contrat = contratRepository.findById(contratId)
+                .orElseThrow(ContratIntrouvableException::new);
+
+        Candidature candidature = contrat.getCandidature();
+
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Employeur proprietaire = offre.getEmployeur();
+
+        if (!proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        contrat.setDateSignatureEmployeur(LocalDate.now());
+
+        return ContratDTO.of(contratRepository.save(contrat));
     }
 }

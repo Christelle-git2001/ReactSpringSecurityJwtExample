@@ -1,13 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
-import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
 import { FiStar } from "react-icons/fi";
 
-function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
+function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview }) {
     const { t } = useTranslation();
 
     const isTargeted = Boolean(offer?.isTarget);
@@ -21,10 +20,8 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
     ];
 
     const {
-        pdfUrl,
-        dialogRef,
-        viewPDF,
-        fermerModal,
+        obtenirCVUrlPDF,
+        error,
         gererTelechargement,
     } = usePdfDocument({
         loadPdfResponse: () => obtenirOffrePDF(offer?.id),
@@ -56,7 +53,11 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
                         <div className="flex flex-col gap-2">
                             <PdfActionButtons
                                 onView={async () => {
-                                    if (await viewPDF()) onRead?.(offer?.id);
+                                    const url = await obtenirCVUrlPDF();
+                                    if (url) {
+                                        onPreview?.(url);
+                                        onRead?.(offer?.id);
+                                    }
                                 }}
                                 onDownload={async () => {
                                     if (await gererTelechargement(offer?.fileName)) onRead?.(offer?.id);
@@ -81,7 +82,7 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
                     </ul>
 
                     {offer?.description && (
-                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                        <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
                             <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
                             </summary>
@@ -95,6 +96,8 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
                         </details>
                     )}
 
+                    {error && <p role="alert" className="text-sm text-red-700">{t(error)}</p>}
+
                     <PostulerButton
                         offerId={offer?.id}
                         hasApplied={hasApplied}
@@ -105,11 +108,6 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied }) {
                     />
                 </div>
 
-                <PdfPreviewDialog
-                    dialogRef={dialogRef}
-                    pdfUrl={pdfUrl}
-                    onClose={fermerModal}
-                />
             </div>
         </>
     );

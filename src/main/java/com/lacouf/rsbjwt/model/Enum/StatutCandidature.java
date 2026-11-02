@@ -5,5 +5,6 @@ public enum StatutCandidature {
     SOUMISE,
     RETENUE_POUR_ENTREVUE,
     ENTREVUE_CONFIRMEE,
-    ENTREVUE_REFUSEE
+    ENTREVUE_REFUSEE,
+    STAGE_TROUVE
 }

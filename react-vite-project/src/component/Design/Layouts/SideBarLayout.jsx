@@ -5,6 +5,7 @@ import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiCalendar } from "rea
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
+import {PiStudentBold} from "react-icons/pi";
 
 function SideBarLayout({ user }) {
     const { t } = useTranslation();
@@ -37,6 +38,7 @@ function SideBarLayout({ user }) {
         { path: "/etudiant/entrevues", label: t("nav.add_entrevue"), roles: ["ETUDIANT"], icon: <FiCalendar className="size-4 my-1.5" /> },
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/offres/nouvelle-ciblee", label: t("nav.add_offer"), roles: ["GESTIONNAIRE"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
+        { path: "/gestionnaire/attribution",label: t("nav.assignation"), roles: ["GESTIONNAIRE"], icon: <PiStudentBold />},
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         {
             path: user?.isLoggedIn ? "/logout" : "/login",
