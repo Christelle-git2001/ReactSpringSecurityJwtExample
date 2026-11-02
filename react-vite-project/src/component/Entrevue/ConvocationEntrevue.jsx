@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { obtenirConvocation, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
@@ -92,9 +92,12 @@ function ConvocationEntrevue() {
                         <h2 className="text-2xl font-bold text-[#043462]">
                             {t("convocation.title")}
                         </h2>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <span className="text-sm text-gray-500 mt-1">
                             {t("convocation.subtitle")}
-                        </p>
+                        </span>
+                        <span className="font-bold">
+                            {convocation.employeur?.businessName}
+                        </span>
                     </div>
                 </div>
 

@@ -48,7 +48,9 @@ function ListeConvocations() {
                                 className="w-full text-left flex items-center justify-between gap-4 rounded-xl bg-white p-4 shadow-sm hover:bg-gray-50"
                             >
                                 <div className="min-w-0">
-                                    <p className="font-semibold text-[#043462] truncate">{c.offreTitle}</p>
+                                    <span className="font-semibold text-[#043462] truncate">{c.offreTitle}</span>
+                                    <span>{t(" avec ")}</span>
+                                    <span className="font-bold">{c.employeur?.businessName}</span>
                                     <p className="text-sm text-gray-500">
                                         {c.dateHeureEntrevue
                                             ? new Date(c.dateHeureEntrevue).toLocaleString(i18n.language, {
