@@ -4,13 +4,15 @@ import DashboardSummaryCard from "../../component/Design/Dashboard/DashboardSumm
 import DashboardSection from "../../component/Design/Dashboard/DashboardSection.jsx";
 import CvListItem from "../../component/Design/Lists/CvListItem.jsx";
 import OfferListItem from "../../component/Design/Lists/OfferListItem.jsx";
+import CandidatureListItem from "../../component/Design/Lists/CandidatureListItem.jsx";
+import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { getOffresEnAttente, getCvsEnAttente } from "../../api/gestionnaire.jsx";
+import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus } from "../../api/gestionnaire.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import { FaBriefcase, FaFileAlt } from "react-icons/fa";
+import { FaBriefcase, FaFileAlt, FaFileContract, FaPenNib } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
 
 const trierParDateDesc = (items, getDate) => {
@@ -27,6 +29,8 @@ const GestionnaireHome = ({ user }) => {
     const navigate = useNavigate();
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
+    const [candidaturesStageTrouve, setCandidaturesStageTrouve] = useState([]);
+    const [candidaturesContratCree, setCandidaturesContratCree] = useState([]);
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -113,6 +117,12 @@ const GestionnaireHome = ({ user }) => {
         });
     };
 
+    const handleViewCandidature = (candidature) => {
+        navigate(`/gestionnaire/candidatures/${candidature.id}/contrat`, {
+            state: { candidature, from: "/gestionnaire" }
+        });
+    };
+
     const chargerCvs = useCallback(async () => {
         try {
             const data = await getCvsEnAttente();
@@ -132,12 +142,26 @@ const GestionnaireHome = ({ user }) => {
         }
     }, []);
 
+    const chargerCandidaturesContrat = useCallback(async () => {
+        try {
+            const [stageTrouveData, contratCreeData] = await Promise.all([
+                getCandidaturesByStatus("STAGE_TROUVE"),
+                getCandidaturesByStatus("CONTRAT_CREE")
+            ]);
+            setCandidaturesStageTrouve(stageTrouveData || []);
+            setCandidaturesContratCree(contratCreeData || []);
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
+
     const chargerDonnees = useCallback(async () => {
         await Promise.all([
             chargerCvs(),
             chargerOffres(),
+            chargerCandidaturesContrat(),
         ]);
-    }, [chargerCvs, chargerOffres]);
+    }, [chargerCvs, chargerOffres, chargerCandidaturesContrat]);
 
     useEffect(() => {
         chargerDonnees().finally(() => setIsInitialLoading(false));
@@ -169,15 +193,14 @@ const GestionnaireHome = ({ user }) => {
                     availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
-
-                <div className="flex w-full flex-wrap justify-start gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                     <DashboardSummaryCard
                         icon={<FaFileAlt className="size-5" />}
                         value={cvs.length}
                         label={t("dashboard.pending_cvs_count")}
                         tone="blue"
                         ariaLabel={t("dashboard.view_pending_cvs")}
-                        className="w-full sm:w-[260px]"
+                        className="w-full"
                     />
 
                     <DashboardSummaryCard
@@ -186,7 +209,25 @@ const GestionnaireHome = ({ user }) => {
                         label={t("dashboard.pending_offers_count")}
                         tone="green"
                         ariaLabel={t("dashboard.view_pending_offers")}
-                        className="w-full sm:w-[260px]"
+                        className="w-full"
+                    />
+
+                    <DashboardSummaryCard
+                        icon={<FaFileContract className="size-5" />}
+                        value={candidaturesStageTrouve.length}
+                        label={t("dashboard.contracts_to_create_count")}
+                        tone="cyan"
+                        ariaLabel={t("dashboard.view_pending_contracts")}
+                        className="w-full"
+                    />
+
+                    <DashboardSummaryCard
+                        icon={<FaPenNib className="size-5" />}
+                        value={candidaturesContratCree.length}
+                        label={t("dashboard.contracts_to_sign_count")}
+                        tone="purple"
+                        ariaLabel={t("dashboard.view_created_contracts")}
+                        className="w-full"
                     />
                 </div>
 
@@ -244,6 +285,65 @@ const GestionnaireHome = ({ user }) => {
                                     />
                                 ))}
                             </div>
+                        )}
+                    </DashboardSection>
+                    <DashboardSection
+                        title={t("dashboard.contracts_to_create_title")}
+                        headerAction={
+                            <span className={sectionCountClassName}>
+                                {candidaturesStageTrouve.length} {t("dashboard.applications")}
+                            </span>
+                        }
+                    >
+                        {!isInitialLoading && candidaturesStageTrouve.length === 0 ? (
+                            <EmptyContentMessage
+                                message={t("dashboard.no_contracts_to_create")}
+                            />
+                        ) : (
+                            <ExpandableList
+                                items={candidaturesStageTrouve}
+                                limit={3}
+                                expandLabel={t("dashboard.view_more", "Voir plus")}
+                                collapseLabel={t("dashboard.view_less", "Voir moins")}
+                                renderItem={(candidature) => (
+                                    <CandidatureListItem
+                                        key={candidature.id}
+                                        candidature={candidature}
+                                        onClick={() => handleViewCandidature(candidature)}
+                                        actionLabel={t("dashboard.create_contract")}
+                                    />
+                                )}
+                            />
+                        )}
+                    </DashboardSection>
+
+                    <DashboardSection
+                        title={t("dashboard.contracts_to_sign_title")}
+                        headerAction={
+                            <span className={sectionCountClassName}>
+                                {candidaturesContratCree.length} {t("dashboard.applications")}
+                            </span>
+                        }
+                    >
+                        {!isInitialLoading && candidaturesContratCree.length === 0 ? (
+                            <EmptyContentMessage
+                                message={t("dashboard.no_contracts_to_sign")}
+                            />
+                        ) : (
+                            <ExpandableList
+                                items={candidaturesContratCree}
+                                limit={3}
+                                expandLabel={t("dashboard.view_more", "Voir plus")}
+                                collapseLabel={t("dashboard.view_less", "Voir moins")}
+                                renderItem={(candidature) => (
+                                    <CandidatureListItem
+                                        key={candidature.id}
+                                        candidature={candidature}
+                                        onClick={() => handleViewCandidature(candidature)}
+                                        actionLabel={t("dashboard.view_contract")}
+                                    />
+                                )}
+                            />
                         )}
                     </DashboardSection>
                 </div>

@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
@@ -71,7 +73,7 @@ public class PDFService {
         }
     }
 
-    public Resource createContratPdf(Long contratId, String langue) throws ContratIntrouvableException {
+    public Resource createContratPdf(Long contratId, String langue) throws ContratIntrouvableException, IOException {
 
         Contrat contrat = contratRepository.findById(contratId)
                 .orElseThrow(ContratIntrouvableException::new);
@@ -87,9 +89,9 @@ public class PDFService {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        PdfWriter writer = new PdfWriter(outputStream);
+        try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf);
+             Document document = new Document(pdf)) {
 
             Paragraph et = new Paragraph("et")
                     .setTextAlignment(TextAlignment.CENTER)
@@ -161,13 +163,15 @@ public class PDFService {
             ajouterBlocSignature(elements, "signature.employeur", employeur.getFirstName() + " " + employeur.getLastName(), contrat.getDateSignatureEmployeur(), messages);
             ajouterBlocSignature(elements, "signature.gestionnaire", gestionnaire.getFirstName() + " " + gestionnaire.getLastName(), contrat.getDateSignatureGestionnaire(), messages);
 
-        for (IElement element : elements) {
-            if (element instanceof AreaBreak areaBreak) {
-                document.add(areaBreak);
-            } else if (element instanceof IBlockElement blockElement) {
-                document.add(blockElement);
+            for (IElement element : elements) {
+                if (element instanceof AreaBreak areaBreak) {
+                    document.add(areaBreak);
+                } else if (element instanceof IBlockElement blockElement) {
+                    document.add(blockElement);
+                }
             }
         }
+
         return new ByteArrayResource(outputStream.toByteArray());
     }
 }

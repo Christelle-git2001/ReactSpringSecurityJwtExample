@@ -11,6 +11,16 @@ const toneClasses = {
         icon: "bg-green-100 text-green-600",
         action: "bg-green-50 text-green-600",
     },
+    purple: {
+        border: "border-purple-100",
+        icon: "bg-purple-100 text-purple-600",
+        action: "bg-purple-50 text-purple-600",
+    },
+    cyan: {
+        border: "border-cyan-100",
+        icon: "bg-cyan-100 text-cyan-600",
+        action: "bg-cyan-50 text-cyan-600",
+    },
 };
 
 function DashboardSummaryCard({ icon, value, label, tone = "blue", onClick, ariaLabel, actionLabel, className = "" }) {

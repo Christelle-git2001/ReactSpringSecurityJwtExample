@@ -23,6 +23,7 @@ import GestionEntrevue from "../Entrevue/GestionEntrevue.jsx";
 import ConvocationEntrevue from "../Entrevue/ConvocationEntrevue.jsx";
 import ListeConvocations from "../Entrevue/ListeConvocations.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
+import ViewProcess from "../Contrat/ViewProcess.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -83,6 +84,7 @@ export default function AppRoutes({
                 <Route path="/gestionnaire/cvs/details" element={<CVDetails/>} />
                 <Route path="/gestionnaire/offres/nouvelle-ciblee" element={<AddTargetedOffer />} />
                 <Route path="/gestionnaire/attribution" element={<GestionnaireAttribution/>} />
+                <Route path="/gestionnaire/candidatures/:candidatureId/contrat" element={<ViewProcess user={user} />} />
 
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>

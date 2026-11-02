@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -86,7 +87,7 @@ class PDFServiceTest {
     }
 
     @Test
-    void doitGenererPdfContratAvecSucces() throws ContratIntrouvableException {
+    void doitGenererPdfContratAvecSucces() throws ContratIntrouvableException, IOException {
         when(contratRepository.findById(1L)).thenReturn(Optional.of(contrat));
 
         Resource result = pdfService.createContratPdf(1L, "fr");

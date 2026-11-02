@@ -51,6 +51,12 @@ export async function getEntrevuesEmployeur() {
     });
 }
 
+export async function signerContratEmployeur(contratId) {
+    return fetchJson(`/employeur/contrats/${contratId}/signature`, {
+        method: "PUT",
+    });
+}
+
 export async function retenirCandidaturePourEntrevue(candidatureId) {
     return fetchJson(`/employeur/candidatures/${candidatureId}`, {
         method: "PUT",
