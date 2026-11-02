@@ -386,6 +386,7 @@ public class EmployeurService {
                 .map(EntrevueDTO::of)
                 .toList();
     }
+
     @Transactional
     public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,

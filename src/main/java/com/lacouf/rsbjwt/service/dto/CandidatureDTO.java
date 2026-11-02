@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +18,8 @@ public record CandidatureDTO(
         LocalDateTime dateCandidature,
         Long cvId,
         StatutCandidature statut,
-        String motifRefus
+        String motifRefus,
+        StatutEtudiant statutEtudiant
 ) {
     public static CandidatureDTO of(Candidature candidature) {
         if (candidature == null) {
@@ -46,7 +48,8 @@ public record CandidatureDTO(
                 candidature.getDateCandidature(),
                 cvId,
                 candidature.getStatut(),
-                candidature.getMotifRefus()
+                candidature.getMotifRefus(),
+                etudiant != null ? etudiant.getStatut() : null
         );
     }
 }

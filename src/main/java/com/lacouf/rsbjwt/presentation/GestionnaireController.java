@@ -139,4 +139,10 @@ public class GestionnaireController {
         OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
+
+    @GetMapping("/candidatures/decisions")
+    public ResponseEntity<List<CandidatureDTO>> getDecisionsCandidatures() throws UtilisateurIntrouvableException {
+        return ResponseEntity.ok(gestionnaireService.getDecisionsCandidatures());
+    }
 }
+

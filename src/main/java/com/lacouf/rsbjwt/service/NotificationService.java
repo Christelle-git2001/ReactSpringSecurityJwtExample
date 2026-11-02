@@ -345,6 +345,7 @@ public class NotificationService {
                 .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
+
     @EventListener
     @Transactional
     public NotificationDTO handleCandidatureAcceptee(CandidatureAccepteeEvent event) {
