@@ -16,7 +16,8 @@ public record CandidatureDTO(
         String employeurBusinessName,
         LocalDateTime dateCandidature,
         Long cvId,
-        StatutCandidature statut
+        StatutCandidature statut,
+        String motifRefus
 ) {
     public static CandidatureDTO of(Candidature candidature) {
         if (candidature == null) {
@@ -44,7 +45,8 @@ public record CandidatureDTO(
                 (offre != null && offre.getEmployeur() != null) ? offre.getEmployeur().getBusinessName() : null,
                 candidature.getDateCandidature(),
                 cvId,
-                candidature.getStatut()
+                candidature.getStatut(),
+                candidature.getMotifRefus()
         );
     }
 }

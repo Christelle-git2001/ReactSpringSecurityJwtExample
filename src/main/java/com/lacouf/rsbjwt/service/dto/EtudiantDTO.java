@@ -2,13 +2,15 @@ package com.lacouf.rsbjwt.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 
 @Builder
 public record EtudiantDTO(long id, String firstName, String lastName, String email, String matricule,
-                          String phoneNumber, String department, LocalDateTime previousLoginAt)
+                          String phoneNumber, String department, LocalDateTime previousLoginAt,
+                          StatutEtudiant statut)
         implements UserDTO{
     public static EtudiantDTO of(Etudiant etudiant) {
         return new EtudiantDTO(
@@ -19,12 +21,13 @@ public record EtudiantDTO(long id, String firstName, String lastName, String ema
                 etudiant.getMatricule(),
                 etudiant.getPhoneNumber(),
                 etudiant.getDepartment().getLabel(),
-                etudiant.getPreviousLoginAt());
+                etudiant.getPreviousLoginAt(),
+                etudiant.getStatut());
     }
 
     public static EtudiantDTO empty() {
         return new EtudiantDTO(0L, null, null, null,
-                null, null, null, null);
+                null, null, null, null, null);
     }
 
     @Override
