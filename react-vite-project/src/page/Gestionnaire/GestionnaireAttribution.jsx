@@ -148,7 +148,7 @@ const GestionnaireAttribution = () => {
             <div className="grid grid-cols-12 mt-2">
                 <div className={professeurSelectione && !isAssign ? "col-span-6 mt-5" : "col-span-12"}>
                     <div className="grid grid-cols-12">
-                        <div className="col-span-12">
+                        <div className="col-span-9">
                             <h1 className="text-start text-3xl p-5 pb-0 font-bold">{t("gestionnaire.assignation.title")}</h1>
                             <p className=" mt-2 p-5 pt-0">
                                 {professeurSelectione
@@ -156,6 +156,13 @@ const GestionnaireAttribution = () => {
                                     : t("gestionnaire.assignation.description_without_teacher")}
                             </p>
                         </div>
+                        {isAssign && (
+                            <div className="col-span-3">
+                                <div className="flex justify-center items-center  h-full">
+                                    <Button type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
+                                </div>
+                            </div>
+                        )}
                         <div className="col-span-12 ">
                             {professeurSelectione ? (
                                 <div className="flex items-center">
@@ -259,9 +266,6 @@ const GestionnaireAttribution = () => {
                                 <p className="text-xs ms-2 text-purple-600/80 font-medium">
                                     {t("gestionnaire.assignation.etudiant.assign_tips")}
                                 </p>
-                            </div>
-                            <div className="flex justify-center ms-3">
-                                <Button type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
                             </div>
                         </div>
                     ):(
