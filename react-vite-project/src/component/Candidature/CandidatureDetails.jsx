@@ -72,11 +72,11 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
             try {
                 contratData = await getContratByCandidatureId(candidatureId);
             } catch {
-
+                // Aucun contrat généré pour l'instant
             }
 
             if (contratData && contratData.id) {
-                setContrat(contratData); // On enregistre l'objet complet
+                setContrat(contratData);
                 const currentLang = i18n.language || "fr";
                 const res = await obtenirContratPDF(contratData.id, currentLang);
                 if (res && res.ok) {
@@ -86,7 +86,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                 }
             }
         } catch (err) {
-            console.error( err);
+            console.error(err);
         } finally {
             setIsContratLoading(false);
         }
@@ -124,59 +124,33 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
             </div>
             {candidature && <CandidatureTimeline statut={candidature.statut} />}
 
-        <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
-            <NextAction
-                candidature={candidature}
-                contrat={contrat}
-                retourPath={retour}
-            />
+            <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
+                <NextAction
+                    candidature={candidature}
+                    contrat={contrat}
+                    retourPath={retour}
+                    onSignatureSuccess={() => {
+                        chargerContratSiExiste();
+                    }}
+                />
 
-            <div className="w-full mt-2">
-                <div className="collapse collapse-arrow bg-transparent">
-                    <input type="checkbox" className="peer" defaultChecked />
-
-                    <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        <span>{t("process.cv_view_title")}</span>
-                    </div>
-
-                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
-                        <div className="w-full bg-white p-4 rounded-xl shadow-md border border-gray-100">
-                            {isPdfLoading ? (
-                                <div className="flex items-center justify-center p-12 bg-gray-50 rounded-xl">
-                                    <span className="loading loading-spinner loading-md text-[#043462]" />
-                                </div>
-                            ) : pdfBlobUrl ? (
-                                <Suspense fallback={<div className="p-4 text-center">...</div>}>
-                                    <PDFContent cvUrlAAffiche={pdfBlobUrl} enablePageScroll={true} />
-                                </Suspense>
-                            ) : (
-                                <p className="text-xs text-gray-500 italic p-6 bg-gray-50 rounded-xl text-center">
-                                    {t("offre.document_error")}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {hasContrat && (
-                <div className="w-full">
+                <div className="w-full mt-2">
                     <div className="collapse collapse-arrow bg-transparent">
                         <input type="checkbox" className="peer" defaultChecked />
 
                         <div className="collapse-title text-xl font-bold text-[#043462] px-0">
-                            <span>{t("process.contract_view_title")}</span>
+                            <span>{t("process.cv_view_title")}</span>
                         </div>
 
                         <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                             <div className="w-full bg-white p-4 rounded-xl shadow-md border border-gray-100">
-                                {isContratLoading ? (
+                                {isPdfLoading ? (
                                     <div className="flex items-center justify-center p-12 bg-gray-50 rounded-xl">
                                         <span className="loading loading-spinner loading-md text-[#043462]" />
                                     </div>
-                                ) : contratPdfBlobUrl ? (
+                                ) : pdfBlobUrl ? (
                                     <Suspense fallback={<div className="p-4 text-center">...</div>}>
-                                        <PDFContent cvUrlAAffiche={contratPdfBlobUrl} enablePageScroll={true} />
+                                        <PDFContent cvUrlAAffiche={pdfBlobUrl} enablePageScroll={true} />
                                     </Suspense>
                                 ) : (
                                     <p className="text-xs text-gray-500 italic p-6 bg-gray-50 rounded-xl text-center">
@@ -187,8 +161,37 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+
+                {hasContrat && (
+                    <div className="w-full">
+                        <div className="collapse collapse-arrow bg-transparent">
+                            <input type="checkbox" className="peer" defaultChecked />
+
+                            <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                                <span>{t("process.contract_view_title")}</span>
+                            </div>
+
+                            <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                                <div className="w-full bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                                    {isContratLoading ? (
+                                        <div className="flex items-center justify-center p-12 bg-gray-50 rounded-xl">
+                                            <span className="loading loading-spinner loading-md text-[#043462]" />
+                                        </div>
+                                    ) : contratPdfBlobUrl ? (
+                                        <Suspense fallback={<div className="p-4 text-center">...</div>}>
+                                            <PDFContent cvUrlAAffiche={contratPdfBlobUrl} enablePageScroll={true} />
+                                        </Suspense>
+                                    ) : (
+                                        <p className="text-xs text-gray-500 italic p-6 bg-gray-50 rounded-xl text-center">
+                                            {t("offre.document_error")}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </>
     );
 }

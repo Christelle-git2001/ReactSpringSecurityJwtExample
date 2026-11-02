@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Suspense } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import StepProcess from "./StepProcess";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
@@ -28,8 +28,11 @@ function ViewProcess() {
     const { t, i18n } = useTranslation();
     const { candidatureId } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [candidature] = useState(location.state?.candidature || null);
+    const retour = location.state?.from || "/gestionnaire";
+
     const [entrevue, setEntrevue] = useState(null);
     const [contrat, setContrat] = useState(null);
     const [cvDetails, setCvDetails] = useState(null);
@@ -213,7 +216,14 @@ function ViewProcess() {
                     </div>
 
                     {!isProcessStarted && (
-                        <div className="flex justify-end pt-4 border-t border-gray-100">
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <button
+                                type="button"
+                                onClick={() => navigate(retour)}
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium cursor-pointer"
+                            >
+                                {t("actions.back", "Retour")}
+                            </button>
                             <button
                                 type="button"
                                 onClick={handleStartProcess}
@@ -248,7 +258,14 @@ function ViewProcess() {
                                 </p>
                             )}
 
-                            <div className="flex justify-end pt-3 border-t border-gray-200 w-full">
+                            <div className="flex justify-end gap-3 pt-3 border-t border-gray-200 w-full">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(retour)}
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium cursor-pointer"
+                                >
+                                    {t("actions.back", "Retour")}
+                                </button>
                                 <button
                                     type="button"
                                     disabled={isSignButtonDisabled}

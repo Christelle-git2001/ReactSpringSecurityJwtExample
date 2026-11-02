@@ -99,6 +99,9 @@
     "save": "Submit"
   },
   "actions": {
+    "create_contract": "Create contract",
+    "sign_contract": "Sign contract",
+    "signing": "Signing...",
     "plan_interview": "Schedule an interview",
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
@@ -211,6 +214,13 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+    "view_contract": "Sign/View Contract",
+    "contracts_to_create_count": "Contracts to create",
+    "contracts_to_sign_count": "Contracts to sign",
+    "contracts_to_create_title": "Contracts to Create",
+    "contracts_to_sign_title": "Created Contracts / To Sign",
+    "no_contracts_to_create": "No contracts to create at the moment.",
+    "no_contracts_to_sign": "No contracts pending signature.",
       "pending_contracts_count": "Contracts pending creation",
       "contracts_pending_title": "Applications ready to start the contract signing process",
       "no_pending_contracts": "No applications pending a contract.",
