@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next";
 function CandidatureTimeline({ statut }) {
     const { t } = useTranslation();
 
-    // TODO : Ajouter les bons status le moment venu actuellement il n'existe que SOUMISE et RETENUE_POUR_ENTREVUE (voir enum BE)
+    // TODO : Ajouter les bons status le moment venu  (voir enum BE)
     const steps = [
         { key: "SOUMISE", label: t("candidature.status.soumise") },
         { key: "RETENUE_POUR_ENTREVUE", label: t("candidature.status.retenue") },
         { key: "ENTREVUE_PLANIFIEE", label: t("candidature.status.planifiee") },
         { key: "ACCEPTEE", label: t("candidature.status.acceptee") },
-        { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") }
+        { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") },
+        { key: "CONTRAT_CREE", label: t("candidature.status.contrat") }
     ];
 
     const order = steps.map(s => s.key);
@@ -23,7 +24,7 @@ function CandidatureTimeline({ statut }) {
 
     return (
         <div className="w-full bg-transparent p-4 rounded-xl mb-6 flex justify-center">
-            <ul className="timeline timeline-horizontal w-full max-w-3xl">
+            <ul className="timeline timeline-horizontal inline-flex justify-center max-w-3xl">
 
                 {steps.map((step, index) => {
                     const completed = isCompleted(step.key);
@@ -36,6 +37,7 @@ function CandidatureTimeline({ statut }) {
                                     className={completed ? "!bg-[#99F0EF]" : "bg-gray-200"}
                                 />
                             )}
+
                             {index % 2 === 0 ? (
                                 <div className={`timeline-start timeline-box text-xs md:text-sm ${completed ? "text-[#043462] bg-[#99F0EF] font-bold" : "text-gray-400"}`}>
                                     {step.label}
@@ -45,7 +47,8 @@ function CandidatureTimeline({ statut }) {
                                     {step.label}
                                 </div>
                             )}
-                            <div className={`timeline-middle ${completed ? "text-[#043462] " : "text-gray-300"}`}>
+
+                            <div className={`timeline-middle ${completed ? "text-[#043462]" : "text-gray-300"}`}>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 20 20"
@@ -59,6 +62,7 @@ function CandidatureTimeline({ statut }) {
                                     />
                                 </svg>
                             </div>
+
                             {index < steps.length - 1 && (
                                 <hr
                                     style={{ backgroundColor: completed ? "#99F0EF" : undefined }}

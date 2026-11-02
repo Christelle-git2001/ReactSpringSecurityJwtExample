@@ -99,8 +99,14 @@
     "save": "Soumettre"
   },
   "actions": {
+    "interview": "Retenir pour entrevue",
+    "plan_interview": "Planifier une entrevue",
+    "manage_status": "Gérer le statut",
+    "waiting": "En attente du contrat",
+    "sign_contract": "Signer le contrat",
+    "signing": "Signature...",
+    "view_details": "Voir les détails",
     "backhome": "Retour à l'accueil",
-    "interview":"Retenir pour entrevue",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
@@ -414,6 +420,7 @@
   },
   "candidature": {
     "status": {
+      "contrat" : "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
       "retenue": "Retenue pour entrevue",
@@ -547,6 +554,19 @@
     "sign_error": "Erreur lors de la signature du contrat",
     "no_signature" : "Aucune signature",
     "no_contrat" : "Aucun contrat créé, cliquer sur démarrer le processus de signature pour en créer un",
-    "waiting_parties_signatures" : "L'employeur et l'étudiant doivent d'abord signer le contrat"
+    "waiting_parties_signatures" : "L'employeur et l'étudiant doivent d'abord signer le contrat",
+    "contract_signed_title": "Contrat signé",
+    "next_action_title": "Prochaine action requise",
+
+    "action_contract_signed_msg": "Le contrat a été signé le",
+    "action_review_cv": "Le candidat a soumis sa candidature. Revoyez son CV et retenez-le pour une entrevue.",
+    "action_plan_interview": "Le candidat est retenu. Planifiez l'entrevue dès maintenant.",
+    "action_accept_refuse": "L'entrevue est planifiée. Vous pourrez accepter ou refuser la candidature par la suite.",
+    "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
+    "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
+    "action_default": "Suivi du processus de candidature en cours.",
+    "cv_view_title" : "CV de l'étudiant ",
+    "contract_view_title" : "Contrat de Stage"
+
   }
 }
