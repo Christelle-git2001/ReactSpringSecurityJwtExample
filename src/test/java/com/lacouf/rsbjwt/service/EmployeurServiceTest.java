@@ -1,5 +1,9 @@
 package com.lacouf.rsbjwt.service;
 
+import org.junit.jupiter.api.AfterEach;
+
+import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
+
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
@@ -156,6 +160,11 @@ public class EmployeurServiceTest {
         );
     }
 
+    @AfterEach
+    void nettoyerAuthentification() {
+        SecurityContextHolder.clearContext();
+    }
+
     private CreationEntrevueDTO creerDTOConvocationValide() {
         return new CreationEntrevueDTO(
                 candidature.getId(),
@@ -163,6 +172,18 @@ public class EmployeurServiceTest {
                 LocalDateTime.now().plusDays(7),
                 30
         );
+    }
+
+    private Entrevue creerEntrevueTerminee() {
+        candidature.setStatut(StatutCandidature.ENTREVUE_CONFIRMEE);
+        Entrevue entrevue = new Entrevue();
+        entrevue.setCandidature(candidature);
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusHours(2));
+        entrevue.setDuree(30);
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(convocationRepository.findById(1L)).thenReturn(Optional.of(entrevue));
+        return entrevue;
     }
 
     @Test
@@ -696,5 +717,84 @@ public class EmployeurServiceTest {
 
         verify(convocationRepository, never()).save(any(Entrevue.class));
     }
-}
 
+    @Test
+    void doitAccepterLeCandidatEtPublierEvenementEmbauche() throws Exception {
+        creerEntrevueTerminee();
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EMBAUCHE);
+        assertThat(resultat.motifRefus()).isNull();
+        verify(userAppRepository).save(etudiant);
+        verify(candidatureRepository).save(candidature);
+        ArgumentCaptor<CandidatureAccepteeEvent> captor = ArgumentCaptor.forClass(CandidatureAccepteeEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().candidature()).isSameAs(candidature);
+    }
+
+    @Test
+    void doitRefuserLeCandidatAvecUnMotif() throws Exception {
+        creerEntrevueTerminee();
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        CandidatureDTO resultat = employeurService.refuserCandidatApresEntrevue(1L, "  Experience insuffisante  ");
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
+        assertThat(resultat.motifRefus()).isEqualTo("Experience insuffisante");
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        verify(userAppRepository).save(etudiant);
+        verify(candidatureRepository).save(candidature);
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitConserverEmbaucheSiUneAutreCandidatureEstAcceptee() throws Exception {
+        creerEntrevueTerminee();
+        etudiant.setStatut(StatutEtudiant.EMBAUCHE);
+        when(candidatureRepository.existsByEtudiantAndStatut(etudiant, StatutCandidature.ACCEPTEE)).thenReturn(true);
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        CandidatureDTO resultat = employeurService.refuserCandidatApresEntrevue(1L, "Autre profil retenu");
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EMBAUCHE);
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitRefuserDecisionAvantLEntrevue() {
+        creerEntrevueTerminee().setDateHeureEntrevue(LocalDateTime.now().plusDays(1));
+        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
+                .isInstanceOf(DecisionCandidatureInvalideException.class);
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitRefuserDecisionPourUneEntrevueDUnAutreEmployeur() {
+        creerEntrevueTerminee();
+        Employeur autreEmployeur = new Employeur();
+        autreEmployeur.setId(99L);
+        offreDeStage.setEmployeur(autreEmployeur);
+        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
+                .isInstanceOf(OffreNonAutoriseeException.class);
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void neDoitPasRefuserUneCandidatureDejaAcceptee() throws Exception {
+        creerEntrevueTerminee();
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+        employeurService.accepterCandidatApresEntrevue(1L);
+        assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
+                .isInstanceOf(DecisionCandidatureInvalideException.class);
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        verify(candidatureRepository, times(1)).save(candidature);
+        verify(eventPublisher, times(1)).publishEvent(any(CandidatureAccepteeEvent.class));
+    }
+
+}

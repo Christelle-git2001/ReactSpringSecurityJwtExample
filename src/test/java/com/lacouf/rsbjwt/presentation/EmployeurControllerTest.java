@@ -1,5 +1,15 @@
 package com.lacouf.rsbjwt.presentation;
 
+import static org.mockito.ArgumentMatchers.anyString;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+
+import static org.mockito.Mockito.never;
+
+import static org.mockito.Mockito.verify;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.core.io.ByteArrayResource;
@@ -530,7 +540,9 @@ public class EmployeurControllerTest {
                 "Entreprise ABC",
                 LocalDateTime.now(),
                 null,
-                StatutCandidature.RETENUE_POUR_ENTREVUE
+                StatutCandidature.RETENUE_POUR_ENTREVUE,
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         when(employeurService.obtenirCandidaturesConvoquees())
@@ -552,6 +564,45 @@ public class EmployeurControllerTest {
         mockMvc.perform(get("/employeur/candidatures/convoquees")
                         .principal(principal))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitAccepterLeCandidatApresEntrevue() throws Exception {
+        CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.ACCEPTEE, null, StatutEtudiant.EMBAUCHE);
+        when(employeurService.accepterCandidatApresEntrevue(1L)).thenReturn(decision);
+
+        mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("ACCEPTEE"))
+                .andExpect(jsonPath("$.statutEtudiant").value("EMBAUCHE"));
+        verify(employeurService).accepterCandidatApresEntrevue(1L);
+    }
+
+    @Test
+    void doitRefuserLeCandidatApresEntrevueAvecUnMotif() throws Exception {
+        CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE);
+        when(employeurService.refuserCandidatApresEntrevue(1L, "Autre profil retenu")).thenReturn(decision);
+
+        mockMvc.perform(put("/employeur/entrevues/1/refus").principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RefusCandidatureDTO("Autre profil retenu"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("REFUSEE"))
+                .andExpect(jsonPath("$.motifRefus").value("Autre profil retenu"))
+                .andExpect(jsonPath("$.statutEtudiant").value("EN_RECHERCHE"));
+    }
+
+    @Test
+    void doitRetournerBadRequestPourUnMotifVide() throws Exception {
+        mockMvc.perform(put("/employeur/entrevues/1/refus").principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RefusCandidatureDTO("   "))))
+                .andExpect(status().isBadRequest());
+        verify(employeurService, never()).refuserCandidatApresEntrevue(anyLong(), anyString());
     }
 
 }
