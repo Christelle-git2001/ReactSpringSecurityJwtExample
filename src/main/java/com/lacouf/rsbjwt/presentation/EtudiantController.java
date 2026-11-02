@@ -85,40 +85,41 @@ public class EtudiantController {
     }
 
     @GetMapping("/mesCandidatures")
-    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEtudiant(
-            Authentication authentication)
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEtudiant()
             throws EtudiantIntrouvableException {
 
         List<CandidatureDTO> candidatures =
-                etudiantService.getCandidaturesEtudiant(
-                        authentication.getName()
-                );
+                etudiantService.getCandidaturesEtudiant();
 
         return ResponseEntity.ok(candidatures);
     }
 
     @GetMapping("/convocations")
-    public ResponseEntity<List<EntrevueDTO>> getConvocations(Authentication authentication)
+    public ResponseEntity<List<EntrevueDTO>> getConvocations()
             throws EtudiantIntrouvableException {
         return ResponseEntity.ok(
-                etudiantService.getConvocationsEtudiant(authentication.getName())
+                etudiantService.getConvocationsEtudiant()
         );
     }
 
     @GetMapping("/convocations/{id}")
-    public ResponseEntity<EntrevueDTO> getConvocation(@PathVariable Long id, Authentication authentication)
+    public ResponseEntity<EntrevueDTO> getConvocation(@PathVariable Long id)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
-        EntrevueDTO convocation = etudiantService.getConvocationEtudiant(id, authentication.getName());
+        EntrevueDTO convocation = etudiantService.getConvocationEtudiant(id);
         return ResponseEntity.ok(convocation);
     }
 
-    @PutMapping("/convocations/{id}/reponse")
-    public ResponseEntity<ReponseConvocationDTO> confirmerConvocation(@PathVariable Long id, Authentication authentication)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+    @PutMapping({"/convocations/{id}/accepter", "/convocations/{id}/reponse"})
+    public ResponseEntity<ReponseConvocationDTO> accepterConvocation(@PathVariable Long id)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         return ResponseEntity.ok(
-                etudiantService.confirmerConvocationEtudiant(
-                        id, authentication.getName()
-                )
+                etudiantService.accepterConvocationEtudiant(id)
         );
+    }
+
+    @PutMapping("/convocations/{id}/refuser")
+    public ResponseEntity<ReponseConvocationDTO> refuserConvocation(@PathVariable Long id)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+        return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id));
     }
 }

@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
@@ -328,7 +329,8 @@ public class EmployeurService {
             throw new ConvocationExistanteException();
         }
 
-        if (dto.format() == null) {
+        if (candidature.getStatut() != StatutCandidature.RETENUE_POUR_ENTREVUE
+                || dto.format() == null) {
             throw new ConvocationInvalideException();
         }
 
@@ -345,7 +347,6 @@ public class EmployeurService {
                 .dateCreation(LocalDateTime.now())
                 .build();
 
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
         eventPublisher.publishEvent(
@@ -361,8 +362,10 @@ public class EmployeurService {
                 .findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
 
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
-        candidatureRepository.save(candidature);
+        if (candidature.getStatut() == StatutCandidature.SOUMISE) {
+            candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+            candidatureRepository.save(candidature);
+        }
         return CandidatureDTO.of(candidature);
     }
 
@@ -379,6 +382,7 @@ public class EmployeurService {
 
         return entrevues
                 .stream()
+                .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
                 .map(EntrevueDTO::of)
                 .toList();
     }

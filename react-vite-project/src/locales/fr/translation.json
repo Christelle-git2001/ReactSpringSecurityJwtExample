@@ -124,11 +124,6 @@
     "collapse": "Réduire",
     "expand": "Développer",
     "create_contract": "Créer le contrat",
-    "sign_contract": "Signer le contrat",
-    "signing": "Signature...",
-    "expand": "Développer",
-    "backhome": "Retour à l'accueil",
-    "interview": "Retenir pour entrevue"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -611,5 +606,19 @@
     "cv_view_title" : "CV de l'étudiant ",
     "contract_view_title" : "Contrat de Stage"
 
+  },
+  "convocation": {
+    "title": "Détails de l'entrevue",
+    "subtitle": "Veuillez confirmer votre présence à l'entrevue ",
+    "list_title": "Mes entrevues",
+    "none": "Pas d'entrevues pour le moment.",
+    "offer": "Offre",
+    "format": "Format",
+    "date": "Date",
+    "time": "Heure",
+    "reject" : "Refuser",
+    "accept" : "Accepter",
+    "back" : "Retour",
+    "scheduled": "Entrevue planifiée"
   }
 }

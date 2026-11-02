@@ -120,6 +120,7 @@
     "reject": "Reject",
     "approve": "Approve",
     "upload": "Upload",
+    "cancel": "Cancel",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
@@ -574,6 +575,20 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "convocation": {
+    "title": "Interview details",
+    "subtitle": "Please confirm your attendance for the scheduled interview ",
+    "list_title": "My interviews",
+    "none": "No interviews for now",
+    "offer": "Offer",
+    "format": "Format",
+    "date": "Date",
+    "time": "Time",
+    "reject" : "Reject",
+    "accept" : "Accept",
+    "back" : "Back",
+    "scheduled": "Interview scheduled"
   },
   "process": {
     "title": "Internship and Contract Process Tracking",

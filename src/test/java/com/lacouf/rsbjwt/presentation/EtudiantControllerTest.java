@@ -395,7 +395,7 @@ public class EtudiantControllerTest {
                         null
                 );
 
-        when(etudiantService.getCandidaturesEtudiant("christelle@gmail.com"))
+        when(etudiantService.getCandidaturesEtudiant())
                 .thenReturn(List.of(candidature));
 
         mockMvc.perform(get("/etudiant/mesCandidatures")
@@ -412,7 +412,7 @@ public class EtudiantControllerTest {
                 .andExpect(jsonPath("$[0].employeurBusinessName").value("TechCorp"));
 
         verify(etudiantService, times(1))
-                .getCandidaturesEtudiant("christelle@gmail.com");
+                .getCandidaturesEtudiant();
     }
 
 
@@ -424,8 +424,7 @@ public class EtudiantControllerTest {
                         null
                 );
 
-        when(etudiantService.getCandidaturesEtudiant(
-                "christelle@gmail.com"))
+        when(etudiantService.getCandidaturesEtudiant())
                 .thenReturn(List.of());
 
         mockMvc.perform(get("/etudiant/mesCandidatures")
