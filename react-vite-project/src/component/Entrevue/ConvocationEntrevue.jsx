@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation, Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { obtenirConvocation, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
