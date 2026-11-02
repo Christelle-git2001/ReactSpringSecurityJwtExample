@@ -512,7 +512,15 @@
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
-      }
+      },
+      "assignation": {
+        "title": "Un professeur vous a été assigné",
+        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "Nouveaux élèves assignés !",
+        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."      }
     }
   },
   "drawer": {

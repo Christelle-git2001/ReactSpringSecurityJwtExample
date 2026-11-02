@@ -509,6 +509,15 @@
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
+      },
+      "assignation": {
+        "title": "A teacher has been assigned to you",
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "New Students Assigned!",
+        "description": "Click to check your new student list."
       }
     }
   },

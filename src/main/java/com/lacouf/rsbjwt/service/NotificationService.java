@@ -323,8 +323,8 @@ public class NotificationService {
         List<Etudiant> etudiants = event.etudiants();
 
         Notification notificationProfesseur = Notification.builder()
-                .titre("...")
-                .description("...")
+                .titre("notification.professeur.assignation.title")
+                .description("notification.professeur.assignation.description")
                 .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
                 .dateCreaction(LocalDateTime.now())
                 .destinataire(professeur)
@@ -342,8 +342,8 @@ public class NotificationService {
 
         for (Etudiant etudiant : etudiants) {
             Notification notificationEtudiant = Notification.builder()
-                    .titre("...")
-                    .description("...")
+                    .titre("notification.etudiant.assignation.title")
+                    .description("notification.etudiant.assignation.description")
                     .notificationType(NotificationType.ETUDIANT_ASSIGNE_PROFESSEUR)
                     .dateCreaction(LocalDateTime.now())
                     .destinataire(etudiant)

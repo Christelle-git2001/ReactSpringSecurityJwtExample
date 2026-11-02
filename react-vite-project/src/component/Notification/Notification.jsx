@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
 import {FaCheck, FaQuestion} from "react-icons/fa";
+import {PiStudentBold} from "react-icons/pi";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
@@ -59,6 +60,10 @@ const CONFIG_PAR_TYPE = {
         icon: <FiUserPlus className="size-5" />,
         tone: "yellow",
     },
+    ETUDIANT_ASSIGNE_PROFESSEUR : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
+    }
 };
 
 export default function Notification({ notifications = [], onMarkAsRead }) {
