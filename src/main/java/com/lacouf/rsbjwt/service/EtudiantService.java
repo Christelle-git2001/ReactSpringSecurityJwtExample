@@ -293,16 +293,19 @@ public class EtudiantService {
     @Transactional
     public ReponseConvocationDTO accepterConvocationEtudiant(Long convocationId)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
-        return repondreConvocation(convocationId, StatutEntrevue.CONFIRMEE);
+        return repondreConvocation(convocationId, StatutEntrevue.CONFIRMEE, null);
     }
 
     @Transactional
-    public ReponseConvocationDTO refuserConvocationEtudiant(Long convocationId)
+    public ReponseConvocationDTO refuserConvocationEtudiant(Long convocationId, String motifRefus)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
-        return repondreConvocation(convocationId, StatutEntrevue.REFUSEE);
+        if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 500) {
+            throw new ConvocationInvalideException();
+        }
+        return repondreConvocation(convocationId, StatutEntrevue.REFUSEE, motifRefus.trim());
     }
 
-    private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse)
+    private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse, String motifRefus)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
         if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
@@ -317,6 +320,7 @@ public class EtudiantService {
                 throw new ConvocationInvalideException();
             }
             entrevue.setDateReponse(maintenant);
+            entrevue.setMotifRefus(motifRefus);
             entrevue.setStatut(reponse);
             if (reponse == StatutEntrevue.CONFIRMEE) {
                 entrevue.setDateConfirmation(maintenant);

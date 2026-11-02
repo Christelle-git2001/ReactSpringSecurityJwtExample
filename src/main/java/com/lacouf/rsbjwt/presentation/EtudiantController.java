@@ -118,8 +118,9 @@ public class EtudiantController {
     }
 
     @PutMapping("/convocations/{id}/refuser")
-    public ResponseEntity<ReponseConvocationDTO> refuserConvocation(@PathVariable Long id)
+    public ResponseEntity<ReponseConvocationDTO> refuserConvocation(@PathVariable Long id,
+                                                                 @Valid @RequestBody RefusConvocationDTO dto)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
-        return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id));
+        return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id, dto.motifRefus()));
     }
 }

@@ -635,14 +635,17 @@ public class EmployeurServiceTest {
 
     @Test
     void doitLancerExceptionQuandConvocationExisteDeja() {
+        candidature.setStatut(StatutCandidature.ENTREVUE_REFUSEE);
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
 
+        Entrevue entrevueRefusee = new Entrevue();
+        entrevueRefusee.setStatut(StatutEntrevue.REFUSEE);
         when(convocationRepository.findByCandidatureId(candidature.getId()))
-                .thenReturn(Optional.of(new Entrevue()));
+                .thenReturn(Optional.of(entrevueRefusee));
 
         assertThatThrownBy(() ->
                 employeurService.creerConvocation(creerDTOConvocationValide()))
@@ -650,6 +653,38 @@ public class EmployeurServiceTest {
 
         verify(convocationRepository, never())
                 .save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitRetournerLeMotifDeRefusDeLaConvocation() throws Exception {
+        Entrevue entrevue = Entrevue.builder().candidature(candidature).build();
+        entrevue.setId(1L);
+        entrevue.setStatut(StatutEntrevue.REFUSEE);
+        entrevue.setMotifRefus("Indisponible");
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        EntrevueDTO resultat = employeurService.obtenirConvocation(candidature.getId());
+
+        assertThat(resultat.motifRefus()).isEqualTo("Indisponible");
+        assertThat(resultat.statut()).isEqualTo(StatutEntrevue.REFUSEE);
+    }
+
+    @Test
+    void neDoitPasConsulterLaConvocationDUnAutreEmployeur() {
+        Employeur autreEmployeur = Employeur.builder().build();
+        autreEmployeur.setId(99L);
+        candidature.getOffreDeStage().setEmployeur(autreEmployeur);
+        Entrevue entrevue = Entrevue.builder().candidature(candidature).build();
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        assertThatThrownBy(() -> employeurService.obtenirConvocation(candidature.getId()))
+                .isInstanceOf(OffreNonAutoriseeException.class);
     }
 
     @Test

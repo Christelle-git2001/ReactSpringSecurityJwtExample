@@ -972,8 +972,12 @@ public class EtudiantServiceTest {
         when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.of(entrevue));
 
-        etudiantService.refuserConvocationEtudiant(entrevue.getId());
-        etudiantService.refuserConvocationEtudiant(entrevue.getId());
+        etudiantService.refuserConvocationEtudiant(entrevue.getId(), " Indisponible ");
+        etudiantService.refuserConvocationEtudiant(entrevue.getId(), "Autre raison");
+
+        assertThat(entrevue.getMotifRefus()).isEqualTo("Indisponible");
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.REFUSEE);
+        assertThat(entrevue.getCandidature().getStatut()).isEqualTo(StatutCandidature.ENTREVUE_REFUSEE);
 
         verify(applicationEventPublisher, times(1)).publishEvent(new ConvocationRepondueEvent(entrevue));
         verify(entrevueRepository, times(1)).save(entrevue);
@@ -988,8 +992,17 @@ public class EtudiantServiceTest {
 
         assertThatThrownBy(() -> etudiantService.accepterConvocationEtudiant(entrevue.getId()))
                 .isInstanceOf(ConvocationIntrouvableException.class);
-        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId()))
+        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId(), "Indisponible"))
                 .isInstanceOf(ConvocationIntrouvableException.class);
+        verify(applicationEventPublisher, never()).publishEvent(any(ConvocationRepondueEvent.class));
+    }
+
+    @Test
+    void doitRefuserUneConvocationSansMotif() {
+        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId(), "   "))
+                .isInstanceOf(ConvocationInvalideException.class);
+
+        verify(entrevueRepository, never()).save(any(Entrevue.class));
         verify(applicationEventPublisher, never()).publishEvent(any(ConvocationRepondueEvent.class));
     }
 

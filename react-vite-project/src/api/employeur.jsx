@@ -107,3 +107,7 @@ export async function obtenirOffrePDF(id) {
         headers: headers,
     });
 }
+
+export async function obtenirConvocationEmployeur(candidatureId) {
+    return fetchJson(`/employeur/candidatures/${candidatureId}/entrevue`, { method: "GET" });
+}

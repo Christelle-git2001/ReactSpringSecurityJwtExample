@@ -31,6 +31,19 @@ function ConvocationEntrevue() {
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showRefusalReason, setShowRefusalReason] = useState(false);
+    const [motifRefus, setMotifRefus] = useState("");
+    const [motifError, setMotifError] = useState(false);
+
+    const fermerModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const annulerRefus = () => {
+        setShowRefusalReason(false);
+        setMotifRefus("");
+        setMotifError(false);
+    };
 
     const charger = async () => {
         try {
@@ -38,7 +51,7 @@ function ConvocationEntrevue() {
             setError(null);
         } catch (err) {
             console.error("Erreur chargement convocation:", err);
-            setError(err?.status === 404 ? "convocation.not_found" : "error.generic");
+            setError(err?.status === 404 ? "error.convocation_not_found" : "error.generic");
         } finally {
             setLoading(false);
         }
@@ -56,9 +69,7 @@ function ConvocationEntrevue() {
             await charger();
         } catch (err) {
             console.error("Erreur réponse convocation:", err);
-            setError(err?.status === 409 || err?.status === 400
-                ? "convocation.invalid_state"
-                : "error.generic");
+            setError("error.generic");
         } finally {
             setIsSubmitting(false);
         }
@@ -71,7 +82,7 @@ function ConvocationEntrevue() {
     if (!convocation) {
         return (
             <p role="alert" className="w-full max-w-3xl mx-auto p-8 text-center text-gray-500">
-                {t(error ?? "convocation.not_found", "Aucune convocation à afficher.")}
+                {t(error ?? "error.convocation_not_found")}
             </p>
         );
     }
@@ -108,6 +119,12 @@ function ConvocationEntrevue() {
                         {t("convocation.attendance_confirmed")}
                     </div>
                 )}
+                {estRefusee && (
+                    <div role="status" className="rounded-lg bg-red-50 px-4 py-3 text-red-800">
+                        <p className="font-semibold">{t("convocation.refused_message")}</p>
+                        {convocation.motifRefus && <p className="mt-1 whitespace-pre-wrap break-words">{convocation.motifRefus}</p>}
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Info icone={<FaBriefcase />} label={t("convocation.offer")} valeur={convocation.offreTitle} />
@@ -117,16 +134,50 @@ function ConvocationEntrevue() {
                     <Info icone={<FaClock />} label={t("convocation.time", "Heure")} valeur={heureAffichee} />
                 </div>
 
+                {aRepondre && showRefusalReason && (
+                    <div className="flex flex-col gap-1.5 border-t border-red-200 pt-4 mt-2">
+                        <label htmlFor="motifRefus" className="text-sm font-semibold text-red-600">
+                            {t("convocation.refusal_reason")}
+                        </label>
+                        <textarea id="motifRefus" maxLength={500} rows={4} value={motifRefus}
+                                  onChange={(e) => { setMotifRefus(e.target.value); setMotifError(false); }}
+                                  placeholder={t("offre.rejection_placeholder")}
+                                  disabled={isSubmitting}
+                                  aria-required="true" aria-invalid={motifError}
+                                  aria-describedby={motifError ? "motif-refus-error" : undefined}
+                                  className={`w-full rounded-lg border p-3 text-sm ${motifError ? "border-red-500" : "border-gray-300"}`} />
+                        {motifError && <p id="motif-refus-error" role="alert" className="text-xs font-medium text-red-500">
+                            {t("convocation.refusal_reason_required")}
+                        </p>}
+                    </div>
+                )}
+
                 {error && <p role="alert" className="text-sm text-red-700">{t(error)}</p>}
 
                 <div className="flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-5">
                     <Button variant="secondary" type="button" onClick={() => navigate(-1)} disabled={isSubmitting}>
                         {t("convocation.back")}
                     </Button>
-                    {aRepondre && (
+                    {aRepondre && (showRefusalReason ? (
+                        <>
+                            <Button variant="secondary" type="button" disabled={isSubmitting} onClick={annulerRefus}>
+                                {t("actions.cancel_refusal")}
+                            </Button>
+                            <Button variant="danger" type="button" disabled={isSubmitting}
+                                    onClick={() => {
+                                        if (!motifRefus.trim()) {
+                                            setMotifError(true);
+                                            return;
+                                        }
+                                        setIsModalOpen(true);
+                                    }}>
+                                {t("convocation.confirm_refusal")}
+                            </Button>
+                        </>
+                    ) : (
                         <>
                             <Button variant="danger" type="button" disabled={isSubmitting}
-                                    onClick={() => setIsModalOpen(true)}>
+                                    onClick={() => setShowRefusalReason(true)}>
                                 {t("convocation.reject")}
                             </Button>
                             <Button variant="success" type="button" disabled={isSubmitting}
@@ -134,7 +185,7 @@ function ConvocationEntrevue() {
                                 {t("convocation.accept")}
                             </Button>
                         </>
-                    )}
+                    ))}
                 </div>
             </div>
             {isModalOpen && (
@@ -142,11 +193,11 @@ function ConvocationEntrevue() {
                     title={t("convocation.confirm_refusal")}
                     description={t("convocation.refusal_confirmation")}
                     agreeLabel={t("convocation.confirm_refusal")}
-                    onClickCancel={() => setIsModalOpen(false)}
-                    onClickCross={() => setIsModalOpen(false)}
+                    onClickCancel={fermerModal}
+                    onClickCross={fermerModal}
                     onClickAgree={() => {
                         setIsModalOpen(false);
-                        repondre(refuserConvocation);
+                        repondre((convocationId) => refuserConvocation(convocationId, motifRefus.trim()));
                     }}
                 />
             )}

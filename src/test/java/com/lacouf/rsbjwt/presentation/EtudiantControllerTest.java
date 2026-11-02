@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.times;
 
 
@@ -545,7 +546,7 @@ public class EtudiantControllerTest {
         LocalDateTime maintenant = LocalDateTime.now();
         ReponseConvocationDTO reponse = new ReponseConvocationDTO(
                 1L, convocationDTO.dateHeureEntrevue(), maintenant, true,
-                StatutEntrevue.CONFIRMEE, maintenant);
+                StatutEntrevue.CONFIRMEE, maintenant, null);
         when(etudiantService.accepterConvocationEtudiant(1L)).thenReturn(reponse);
 
         mockMvc.perform(put("/etudiant/convocations/1/accepter"))
@@ -561,16 +562,19 @@ public class EtudiantControllerTest {
     void doitRefuserConvocation() throws Exception {
         ReponseConvocationDTO reponse = new ReponseConvocationDTO(
                 1L, convocationDTO.dateHeureEntrevue(), null, false,
-                StatutEntrevue.REFUSEE, LocalDateTime.now());
-        when(etudiantService.refuserConvocationEtudiant(1L)).thenReturn(reponse);
+                StatutEntrevue.REFUSEE, LocalDateTime.now(), "Indisponible");
+        when(etudiantService.refuserConvocationEtudiant(1L, "Indisponible")).thenReturn(reponse);
 
-        mockMvc.perform(put("/etudiant/convocations/1/refuser"))
+        mockMvc.perform(put("/etudiant/convocations/1/refuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motifRefus\":\"Indisponible\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.entrevueId").value(1))
                 .andExpect(jsonPath("$.confirmee").value(false))
-                .andExpect(jsonPath("$.statut").value("REFUSEE"));
+                .andExpect(jsonPath("$.statut").value("REFUSEE"))
+                .andExpect(jsonPath("$.motifRefus").value("Indisponible"));
 
-        verify(etudiantService).refuserConvocationEtudiant(1L);
+        verify(etudiantService).refuserConvocationEtudiant(1L, "Indisponible");
     }
 
     @Test
@@ -591,9 +595,21 @@ public class EtudiantControllerTest {
 
     @Test
     void doitRetournerBadRequestQuandRefusInvalide() throws Exception {
-        when(etudiantService.refuserConvocationEtudiant(1L)).thenThrow(new ConvocationInvalideException());
+        when(etudiantService.refuserConvocationEtudiant(1L, "Indisponible")).thenThrow(new ConvocationInvalideException());
 
-        mockMvc.perform(put("/etudiant/convocations/1/refuser"))
+        mockMvc.perform(put("/etudiant/convocations/1/refuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motifRefus\":\"Indisponible\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void doitRefuserUnMotifVide() throws Exception {
+        mockMvc.perform(put("/etudiant/convocations/1/refuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motifRefus\":\"   \"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(etudiantService);
     }
 }

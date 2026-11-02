@@ -372,6 +372,20 @@ public class EmployeurService {
         return CandidatureDTO.of(candidature);
     }
 
+    @Transactional(readOnly = true)
+    public EntrevueDTO obtenirConvocation(Long candidatureId)
+            throws ConvocationIntrouvableException, OffreNonAutoriseeException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = getEmployeurByEmail(email);
+        Entrevue entrevue = convocationRepository.findByCandidatureId(candidatureId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Employeur proprietaire = entrevue.getCandidature().getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+        return EntrevueDTO.of(entrevue);
+    }
+
     public List<EntrevueDTO> obtenirEntrevues() throws UtilisateurIntrouvableException {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
