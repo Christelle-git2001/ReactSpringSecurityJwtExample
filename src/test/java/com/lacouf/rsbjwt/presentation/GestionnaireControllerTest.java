@@ -1,5 +1,9 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -69,7 +73,8 @@ public class GestionnaireControllerTest {
                 "2226252",
                 "438-297-8191",
                 "INFORMATIQUE",
-                null
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         offreDeStageDTO = new OffreDeStageDTO(
@@ -549,4 +554,18 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.title").value(offreDeStageDTO.title()))
                 .andExpect(jsonPath("$.statut").value(Statut.EN_ATTENTE.name()));
     }
+    @Test
+    void doitRetournerLesDecisionsDesCandidatures() throws Exception {
+        CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE);
+        when(gestionnaireService.getDecisionsCandidatures()).thenReturn(List.of(decision));
+
+        mockMvc.perform(get("/gestionnaire/candidatures/decisions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].statut").value("REFUSEE"))
+                .andExpect(jsonPath("$[0].motifRefus").value("Autre profil retenu"))
+                .andExpect(jsonPath("$[0].statutEtudiant").value("EN_RECHERCHE"));
+    }
+
 }

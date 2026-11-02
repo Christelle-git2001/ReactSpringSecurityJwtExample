@@ -1,5 +1,15 @@
 package com.lacouf.rsbjwt.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import org.junit.jupiter.api.AfterEach;
+
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -68,6 +78,9 @@ class GestionnaireServiceTest {
     private EtudiantRepository etudiantRepository;
 
     @Mock
+    private CandidatureRepository candidatureRepository;
+
+    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
 
@@ -108,6 +121,17 @@ class GestionnaireServiceTest {
         employeur.setId(1L);
 
         return employeur;
+    }
+
+    @AfterEach
+    void nettoyerAuthentification() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void connecterUtilisateur(UserApp utilisateur) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(gestionnaire.getEmail(), null));
+        when(userAppRepository.findUserAppByEmail(gestionnaire.getEmail())).thenReturn(Optional.of(utilisateur));
     }
 
     @Test
@@ -723,4 +747,42 @@ class GestionnaireServiceTest {
             verify(applicationEventPublisher).publishEvent(any(NouvelleOffreTeleverseeEvent.class));
         }
     }
+
+    @Test
+    void doitRetournerLesDecisionsAvecLeStatutEtudiantEtLeMotif() throws Exception {
+        connecterUtilisateur(gestionnaire);
+        etudiant.setStatut(StatutEtudiant.EMBAUCHE);
+        Candidature acceptee = new Candidature(etudiant, null);
+        acceptee.setId(1L);
+        acceptee.setStatut(StatutCandidature.ACCEPTEE);
+        Etudiant autreEtudiant = new Etudiant();
+        autreEtudiant.setId(2L);
+        autreEtudiant.setStatut(StatutEtudiant.EN_RECHERCHE);
+        Candidature refusee = new Candidature(autreEtudiant, null);
+        refusee.setId(2L);
+        refusee.setStatut(StatutCandidature.REFUSEE);
+        refusee.setMotifRefus("Autre profil retenu");
+        List<StatutCandidature> statuts = List.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE);
+        when(candidatureRepository.findByStatutIn(statuts)).thenReturn(List.of(acceptee, refusee));
+
+        List<CandidatureDTO> resultats = gestionnaireService.getDecisionsCandidatures();
+
+        assertThat(resultats).hasSize(2);
+        assertThat(resultats.get(0).statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(resultats.get(0).statutEtudiant()).isEqualTo(StatutEtudiant.EMBAUCHE);
+        assertThat(resultats.get(1).statut()).isEqualTo(StatutCandidature.REFUSEE);
+        assertThat(resultats.get(1).statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        assertThat(resultats.get(1).motifRefus()).isEqualTo("Autre profil retenu");
+        verify(candidatureRepository).findByStatutIn(statuts);
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void doitRefuserLaConsultationDesDecisionsParUnEtudiant() {
+        connecterUtilisateur(etudiant);
+        assertThatThrownBy(() -> gestionnaireService.getDecisionsCandidatures())
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+        verifyNoInteractions(candidatureRepository);
+    }
+
 }
