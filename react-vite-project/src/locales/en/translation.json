@@ -568,6 +568,9 @@
     "reject" : "Reject",
     "accept" : "Accept",
     "back" : "Back",
-    "scheduled": "Interview scheduled"
+    "scheduled": "Interview scheduled",
+    "confirmed": "Confirmed",
+    "attendance_confirmed": "Your attendance at this interview is confirmed.",
+    "view_details": "View details"
   }
 }
