@@ -334,8 +334,13 @@ public class GestionnaireService {
         }
 
         etudiants.forEach(etudiant -> etudiant.setProfesseur(professeur));
-        return etudiantRepository.saveAll(etudiants)
-                .stream()
+        List<Etudiant> etudiantsEnregistres = etudiantRepository.saveAll(etudiants);
+
+        applicationEventPublisher.publishEvent(
+                new ProfesseurAssigneEvent(professeur, etudiantsEnregistres)
+        );
+
+        return etudiantsEnregistres.stream()
                 .map(EtudiantDTO::of)
                 .toList();
     }

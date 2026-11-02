@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -313,6 +314,47 @@ public class NotificationService {
                 .build();
 
         return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public void handleProfesseurAssigne(ProfesseurAssigneEvent event) {
+        Professeur professeur = event.professeur();
+        List<Etudiant> etudiants = event.etudiants();
+
+        Notification notificationProfesseur = Notification.builder()
+                .titre("...")
+                .description("...")
+                .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .dateCreaction(LocalDateTime.now())
+                .destinataire(professeur)
+                .role(Role.PROFESSEUR)
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM,
+                        etudiants.stream()
+                                .map(etudiant -> etudiant.getFirstName() + " " + etudiant.getLastName())
+                                .collect(Collectors.joining(", "))
+                ))
+                .build();
+
+        notificationRepository.save(notificationProfesseur);
+
+        for (Etudiant etudiant : etudiants) {
+            Notification notificationEtudiant = Notification.builder()
+                    .titre("...")
+                    .description("...")
+                    .notificationType(NotificationType.ETUDIANT_ASSIGNE_PROFESSEUR)
+                    .dateCreaction(LocalDateTime.now())
+                    .destinataire(etudiant)
+                    .role(Role.ETUDIANT)
+                    .variables(Map.of(
+                            VariableMapKey.PROFESSEUR_NOM,
+                            professeur.getFirstName() + " " + professeur.getLastName()
+                    ))
+                    .build();
+
+            notificationRepository.save(notificationEtudiant);
+        }
     }
 
 }
