@@ -192,40 +192,6 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 )}
             </div>
-                <div className="flex flex-col gap-1.5">
-                    <div className="w-full mt-1">
-                        {isPdfLoading ? (
-                            <div className="flex items-center justify-center p-12 border rounded-xl bg-gray-50">
-                                <span className="loading loading-spinner loading-md text-[#043462]" />
-                            </div>
-                        ) : pdfBlobUrl ? (
-                            <PDFContent cvUrlAAffiche={pdfBlobUrl} enablePageScroll={true} />
-                        ) : (
-                            <p className="text-xs text-gray-500 italic p-6 border rounded-xl bg-gray-50 text-center">
-                                {t("offre.document_error")}
-                            </p>
-                        )}
-                    </div>
-                </div>
-
-                <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-5">
-                    <Button variant="standard"
-                        type="button"
-                        onClick={handleConvoquer}
-                        disabled={isRetenue}
-                        loading={isSubmitting}
-                    >
-                        {t("actions.interview")}
-                    </Button>
-                    <Button variant="secondary"
-                        type="button"
-                        onClick={() => navigate(retour)}
-                    >
-                        {t("actions.back")}
-                    </Button>
-                </div>
-            </div>
-        </div>
         </>
     );
 }
