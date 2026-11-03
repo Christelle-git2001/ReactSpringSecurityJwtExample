@@ -25,7 +25,7 @@ const ROUTES_PAR_TYPE = {
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
-    CONVOCATION_ENTREVUE: "/etudiant/entrevues/details",
+    CONVOCATION_ENTREVUE: "/etudiant/entrevues",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
 };
