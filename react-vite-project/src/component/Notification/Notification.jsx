@@ -4,16 +4,15 @@ import { marquerNotificationLue } from "../../api/notification.jsx";
 import { formaterDate as formaterDateHeure } from "../../utils/cvFormatters.jsx";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx";
+import Sort from "../Design/Sort.jsx";
 
 import {
-    FiArrowUp,
     FiBriefcase,
     FiCalendar,
     FiFileText,
     FiUserPlus,
     FiBell,
-    FiX,
-    FiArrowDown
+    FiX
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
@@ -25,7 +24,7 @@ const ROUTES_PAR_TYPE = {
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
-    CONVOCATION_ENTREVUE: "/etudiant/entrevues",
+    CONVOCATION_ENTREVUE: "/etudiant/candidatures",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
 };
@@ -149,7 +148,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
             } else if (notification.notificationType === "CONVOCATION_ENTREVUE") {
                 state.id = notification.variables?.ENTREVUE_ID;
-                state.from = "/etudiant/entrevues";
+                state.from = "/etudiant/candidatures";
             }
             else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"]
                 .includes(notification.notificationType)) {
@@ -198,18 +197,13 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                     <h3 className="font-bold text-[#043462]">{t("notifications.title")}</h3>
                     <div className="flex items-center gap-2">
 
-                        <button
-                            type="button"
-                            onClick={() => setSortOrder(current => current === "desc" ? "asc" : "desc")}
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600"
+                        <Sort
+                            sortOrder={sortOrder}
+                            onSortChange={setSortOrder}
                             title={t("notifications.sort_by_date")}
-                            aria-label={t(sortOrder === "desc" ? "notifications.oldest_first" : "notifications.newest_first")}
-                        >
-                            {sortOrder === "desc"
-                                ? <FiArrowDown className="size-4" aria-hidden="true" />
-                                : <FiArrowUp className="size-4" aria-hidden="true" />}
-                            {t(sortOrder === "desc" ? "notifications.newest_first" : "notifications.oldest_first")}
-                        </button>
+                            newestLabel={t("notifications.newest_first")}
+                            oldestLabel={t("notifications.oldest_first")}
+                        />
                     </div>
                     <button
                         onClick={closeNotification}

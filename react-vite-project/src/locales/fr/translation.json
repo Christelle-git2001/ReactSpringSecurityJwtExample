@@ -441,6 +441,11 @@
     }
   },
   "candidature": {
+    "my_applications": "Mes candidatures",
+    "newest_first": "Plus récentes",
+    "oldest_first": "Plus anciennes",
+    "search_placeholder": "Rechercher une candidature…",
+    "none": "Aucune candidature pour le moment.",
     "status": {
       "contrat" : "Contrat",
       "stage_trouve": "Stage trouvé",
@@ -627,6 +632,7 @@
     "none": "Aucune entrevue pour le moment.",
     "no_matching": "Aucune entrevue ne correspond à votre recherche.",
     "to_confirm": "À confirmer",
+    "interview_to_confirm": "Entrevue à confirmer",
     "awaiting_decision": "En attente de réponse",
     "offer": "Offre",
     "format": "Format",
@@ -647,5 +653,15 @@
     "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
     "view_details": "Voir les détails",
     "duration_value": "{{minutes}} minutes"
+  },
+  "sort": {
+    "by_date": "Trier par date",
+    "newest_first": "Plus récent",
+    "oldest_first": "Plus ancien"
+  },
+  "refusal": {
+    "reason": "Motif du refus",
+    "placeholder": "Veuillez entrer le motif du refus...",
+    "required": "Veuillez préciser le motif du refus."
   }
 }

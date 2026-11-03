@@ -445,6 +445,11 @@
     }
   },
   "candidature": {
+    "my_applications": "My applications",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first",
+    "search_placeholder": "Search applications…",
+    "none": "No applications for now.",
     "status": {
       "contrat" : "Agreement",
       "stage_trouve": "Internship found",
@@ -596,6 +601,7 @@
     "none": "No interviews for now.",
     "no_matching": "No interviews match your search.",
     "to_confirm": "To confirm",
+    "interview_to_confirm": "Interview to confirm",
     "awaiting_decision": "Awaiting response",
     "offer": "Offer",
     "format": "Format",
@@ -650,5 +656,15 @@
     "action_default": "Application process tracking in progress.",
     "cv_view_title" : "Student CV",
     "contract_view_title" : "Internship Agreement"
+  },
+  "sort": {
+    "by_date": "Sort by date",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first"
+  },
+  "refusal": {
+    "reason": "Reason for declining",
+    "placeholder": "Please enter the reason for declining...",
+    "required": "Please provide a reason for declining."
   }
 }

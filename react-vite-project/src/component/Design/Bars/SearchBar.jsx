@@ -2,7 +2,7 @@ import React from "react";
 import { FiX } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 
-export default function SearchBar({value, onChange, onClear, className = ""}) {
+export default function SearchBar({value, onChange, onClear, className = "", placeholder}) {
     const { t } = useTranslation();
     return (
         <div className={`flex items-center gap-2 w-full ${className}`}>
@@ -28,7 +28,7 @@ export default function SearchBar({value, onChange, onClear, className = ""}) {
                     type="search"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    placeholder={t("search.placeholder")}
+                    placeholder={placeholder ?? t("search.placeholder")}
                     className="grow focus:outline-none [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
                 />
             </label>

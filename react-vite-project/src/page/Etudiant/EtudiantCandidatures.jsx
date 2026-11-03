@@ -2,27 +2,33 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
-import { FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt } from "react-icons/fa";
+import { FaBriefcase, FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt } from "react-icons/fa";
 import Button from "../../component/Design/Button.jsx";
 import Modal from "../../component/Modal/Modal.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import CandidatureTimeline from "../../component/Candidature/CandidatureTimeline.jsx";
+import Sort from "../../component/Design/Sort.jsx";
+import MotifRefus from "../../component/Design/MotifRefus.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
+import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
+
+const STATUTS_CANDIDATURE = ["SOUMISE", "RETENUE_POUR_ENTREVUE", "ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE", "ENTREVUE_REFUSEE", "ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"];
 
 const FORMAT_KEYS = {
     EN_LIGNE: "entrevue.mode_online_title",
     PRESENTIEL: "entrevue.mode_onsite_title",
 };
 
-function EtudiantEntrevues() {
+function EtudiantCandidatures() {
     const { t, i18n } = useTranslation();
     const location = useLocation();
     const focusId = location.state?.id;
 
     const [convocations, setConvocations] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [sortOrder, setSortOrder] = useState("desc");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [focusedCardId, setFocusedCardId] = useState(null);
@@ -34,14 +40,30 @@ function EtudiantEntrevues() {
     const [motifError, setMotifError] = useState(false);
     const [confirmRefusId, setConfirmRefusId] = useState(null);
 
-    const visibles = convocations.filter((c) => c.statut !== "REFUSEE");
+    const visibles = candidatures.map((candidature) => {
+        const convocation = convocations.find((c) => c.candidatureId === candidature.id);
+        return {
+            ...convocation,
+            candidature,
+            candidatureId: candidature.id,
+            offreTitle: candidature.offreTitle,
+            employeur: convocation?.employeur ?? { businessName: candidature.employeurBusinessName },
+            statutFiltre: convocation?.statut === "A_CONFIRMER" ? "A_CONFIRMER" : candidature.statut,
+        };
+    });
     const filtres = useFilters(visibles, {
+        getStatus: (c) => c.statutFiltre,
         getTown: (c) => c.employeur?.town,
         getSearchableText: (c) => `${c.offreTitle || ""} ${c.employeur?.businessName || ""} ${c.dateHeureEntrevue || ""}`,
     });
 
+    const candidaturesTriees = [...filtres.itemsFiltres].sort((a, b) => {
+        const comparaison = (a.candidature.dateCandidature ?? "").localeCompare(b.candidature.dateCandidature ?? "");
+        return sortOrder === "asc" ? comparaison : -comparaison;
+    });
+
     const charger = () =>
-        Promise.all([obtenirToutesConvocations(), obtenirCandidaturesEtudiant().catch(() => [])])
+        Promise.all([obtenirToutesConvocations(), obtenirCandidaturesEtudiant()])
             .then(([data, liste]) => {
                 setConvocations(data ?? []);
                 setCandidatures(liste ?? []);
@@ -118,53 +140,55 @@ function EtudiantEntrevues() {
 
     return (
         <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
+            <h1 className="mb-2 text-2xl md:text-3xl font-bold text-[#043462]">
+                {t("candidature.my_applications")} ({filtres.itemsFiltres.length})
+            </h1>
+            <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
             <div className="mb-6 space-y-4">
                 <SearchBar value={filtres.searchTerm} onChange={filtres.setSearchTerm}
-                           onClear={() => filtres.setSearchTerm("")} />
+                           placeholder={t("candidature.search_placeholder")} onClear={() => filtres.setSearchTerm("")} />
                 <FilterBar selectedStatus={filtres.selectedStatus} onStatusChange={filtres.setSelectedStatus}
-                           statusOptions={["TOUS", "A_CONFIRMER", "CONFIRMEE", "EN_ATTENTE_REPONSE"]}
-                           statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.to_confirm"),
-                               CONFIRMEE: t("convocation.scheduled"), EN_ATTENTE_REPONSE: t("convocation.awaiting_decision") }}
+                           statusOptions={["TOUS", ...STATUTS_CANDIDATURE, "A_CONFIRMER"]}
+                           statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.interview_to_confirm"),
+                               ...Object.fromEntries(STATUTS_CANDIDATURE.map((statut) => [statut, getStatusConfig(statut, t, "candidature").label])) }}
                            selectedTown={filtres.selectedTown} onTownChange={filtres.setSelectedTown}
                            availableTowns={filtres.availableTowns} />
+                <div className="flex justify-end">
+                    <Sort sortOrder={sortOrder} onSortChange={setSortOrder}
+                          newestLabel={t("candidature.newest_first")}
+                          oldestLabel={t("candidature.oldest_first")} />
+                </div>
             </div>
 
-            <details open className="collapse collapse-arrow bg-transparent">
-                <summary className="collapse-title px-0 text-[#043462]">
-                    <h1 className="text-2xl md:text-3xl font-bold">
-                        {t("convocation.list_title")} ({filtres.itemsFiltres.length})
-                    </h1>
-                </summary>
-                <div className="collapse-content px-0">
-                    <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
-
+            <div>
                     {actionError && <p role="alert" className="mb-3 text-sm text-red-700">{t(actionError)}</p>}
 
                     {filtres.itemsFiltres.length === 0 ? (
-                        <EmptyContentMessage message={t(visibles.length === 0 ? "convocation.none" : "convocation.no_matching")} />
+                        <EmptyContentMessage message={t(visibles.length === 0 ? "candidature.none" : "candidature.no_matching_candidatures")} />
                     ) : (
                         <ul className="flex flex-col gap-3">
-                            {filtres.itemsFiltres.map((c) => {
+                            {candidaturesTriees.map((c) => {
                                 const aRepondre = c.statut === "A_CONFIRMER";
                                 const enCours = submittingId === c.id;
                                 const refusOuvert = refusingId === c.id;
                                 const isFocused = focusedCardId === c.id;
-                                const candidature = candidatures.find((item) => item.id === c.candidatureId);
+                                const candidature = c.candidature;
+                                const statutConfig = getStatusConfig(candidature.statut, t, "candidature");
                                 return (
-                                    <li key={c.id} id={`entrevue-${c.id}`}>
+                                    <li key={c.candidatureId} id={c.id ? `entrevue-${c.id}` : `candidature-${c.candidatureId}`}>
                                         <div className={`w-full rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-500 ${
                                             isFocused ? 'border-2 border-black ring-4 ring-gray-200' : 'border-gray-200'
                                         }`}>
 
                                             <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 p-5 bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
-                                                <div className="hidden sm:flex size-16 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-[#043462]">
-                                                    <FaCalendarAlt className="size-8" aria-hidden="true" />
+                                                <div className="hidden sm:flex size-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                                                    <FaBriefcase className="size-8" aria-hidden="true" />
                                                 </div>
 
                                                 <div className="min-w-0 flex-1 text-[#043462]">
                                                     <p className="text-lg sm:text-xl font-bold break-words">{c.offreTitle}</p>
                                                     <p className="mt-1 font-semibold">{c.employeur?.businessName}</p>
-                                                    <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:text-base">
+                                                    {c.id && <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:text-base">
                                                         <span className="inline-flex items-center gap-2">
                                                             <FaCalendarAlt aria-hidden="true" />
                                                             {c.dateHeureEntrevue ? c.dateHeureEntrevue.split("T")[0] : "—"}
@@ -185,11 +209,17 @@ function EtudiantEntrevues() {
                                                             <FaMapMarkerAlt aria-hidden="true" />
                                                             {FORMAT_KEYS[c.format] ? t(FORMAT_KEYS[c.format]) : (c.format ?? "—")}
                                                         </span>
-                                                    </div>
+                                                    </div>}
                                                 </div>
 
+                                                <div className="ml-auto flex shrink-0 flex-col items-end gap-2">
+                                                <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold ${aRepondre ? "bg-amber-100 text-amber-800 border-amber-200" : c.statut === "CONFIRMEE" && candidature.statut === "ENTREVUE_PLANIFIEE" ? "bg-green-100 text-green-700 border-green-200" : statutConfig.className}`}>
+                                                    {c.statut === "CONFIRMEE" && <FaCheckCircle aria-hidden="true" />}
+                                                    {aRepondre ? t("convocation.interview_to_confirm") : statutConfig.label}
+                                                </span>
+
                                                 {aRepondre && !refusOuvert && (
-                                                    <div className="ml-auto flex shrink-0 gap-2">
+                                                    <div className="flex gap-2">
                                                         <Button variant="danger" size="small" type="button" disabled={enCours}
                                                                 onClick={() => ouvrirRefus(c.id)}>
                                                             {t("convocation.reject")}
@@ -200,13 +230,7 @@ function EtudiantEntrevues() {
                                                         </Button>
                                                     </div>
                                                 )}
-
-                                                {c.statut === "CONFIRMEE" && (
-                                                    <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
-                                                        <FaCheckCircle aria-hidden="true" />
-                                                        {t("convocation.scheduled")}
-                                                    </span>
-                                                )}
+                                                </div>
                                             </div>
 
                                             <details className="collapse collapse-arrow rounded-none border-t border-gray-100">
@@ -225,26 +249,14 @@ function EtudiantEntrevues() {
                                             </details>
 
                                             {aRepondre && refusOuvert && (
-                                                <div className="w-full bg-red-50 p-5 border-t border-red-200 flex flex-col gap-2">
-                                                    <label htmlFor={`motif-${c.id}`} className="text-sm font-semibold text-red-600">
-                                                        {t("convocation.refusal_reason")}
-                                                    </label>
-                                                    <textarea
+                                                <div className="w-full p-5 flex flex-col gap-2">
+                                                    <MotifRefus
                                                         id={`motif-${c.id}`}
-                                                        maxLength={500}
-                                                        rows={3}
                                                         value={motifRefus}
-                                                        onChange={(e) => { setMotifRefus(e.target.value); setMotifError(false); }}
-                                                        placeholder={t("offre.rejection_placeholder")}
-                                                        aria-required="true"
-                                                        aria-invalid={motifError}
-                                                        className={`w-full rounded-lg border p-3 text-sm ${motifError ? "border-red-500" : "border-gray-300"}`}
+                                                        onChange={(value) => { setMotifRefus(value); setMotifError(false); }}
+                                                        error={motifError}
+                                                        disabled={enCours}
                                                     />
-                                                    {motifError && (
-                                                        <p role="alert" className="text-xs font-medium text-red-500">
-                                                            {t("convocation.refusal_reason_required")}
-                                                        </p>
-                                                    )}
                                                     <div className="flex justify-end gap-2 mt-2">
                                                         <Button variant="secondary" size="small" type="button" onClick={annulerRefus}>
                                                             {t("actions.cancel_refusal")}
@@ -262,8 +274,7 @@ function EtudiantEntrevues() {
                             })}
                         </ul>
                     )}
-                </div>
-            </details>
+            </div>
 
             {confirmRefusId !== null && (
                 <Modal
@@ -279,4 +290,4 @@ function EtudiantEntrevues() {
     );
 }
 
-export default EtudiantEntrevues;
+export default EtudiantCandidatures;
