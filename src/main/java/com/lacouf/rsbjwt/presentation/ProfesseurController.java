@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.ProfesseurService;
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/professeur")
@@ -39,6 +39,15 @@ public class ProfesseurController {
             throws UtilisateurIntrouvableException {
 
         return ResponseEntity.ok(professeurService.getEtudiantsAssignes());
+    }
+
+    @GetMapping("/etudiants/{etudiantId}/candidatures")
+    public ResponseEntity<List<CandidatureDTO>> getCandidaturesEtudiant(
+            @PathVariable Long etudiantId) throws UtilisateurIntrouvableException{
+
+        return ResponseEntity.ok(
+                professeurService.getCandidaturesEtudiant(etudiantId)
+        );
     }
 
 

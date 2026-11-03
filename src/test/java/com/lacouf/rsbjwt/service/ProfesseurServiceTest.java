@@ -1,13 +1,16 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.model.UserApp;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.junit.jupiter.api.AfterEach;
@@ -46,6 +49,9 @@ public class ProfesseurServiceTest {
 
     @Mock
     private EtudiantRepository etudiantRepository;
+
+    @Mock
+    private CandidatureRepository candidatureRepository;
 
     @InjectMocks
     private ProfesseurService professeurService ;
@@ -258,6 +264,72 @@ public class ProfesseurServiceTest {
         verify(etudiantRepository, never())
                 .findAllByProfesseurId(anyLong());
     }
+
+    @Test
+    void doitRetournerLesCandidaturesDUnEtudiant() throws Exception {
+        Long etudiantId = 1L;
+
+        Candidature candidature = Candidature.builder()
+                .build();
+        candidature.setId(1L);
+
+        when(etudiantRepository.findById(etudiantId))
+                .thenReturn(Optional.of(mock(
+                        com.lacouf.rsbjwt.model.Etudiant.class
+                )));
+
+        when(candidatureRepository.findAllByEtudiantId(etudiantId))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> resultat =
+                professeurService.getCandidaturesEtudiant(etudiantId);
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(1L);
+
+        verify(etudiantRepository).findById(etudiantId);
+        verify(candidatureRepository).findAllByEtudiantId(etudiantId);
+    }
+
+    @Test
+    void doitRetournerListeVideSiEtudiantNAucuneCandidature() throws Exception {
+        Long etudiantId = 1L;
+
+        when(etudiantRepository.findById(etudiantId))
+                .thenReturn(Optional.of(
+                        mock(com.lacouf.rsbjwt.model.Etudiant.class)
+                ));
+
+        when(candidatureRepository.findAllByEtudiantId(etudiantId))
+                .thenReturn(List.of());
+
+        List<CandidatureDTO> resultat =
+                professeurService.getCandidaturesEtudiant(etudiantId);
+
+        assertThat(resultat).isNotNull().isEmpty();
+
+        verify(etudiantRepository).findById(etudiantId);
+        verify(candidatureRepository).findAllByEtudiantId(etudiantId);
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourCandidatures() {
+        Long etudiantId = 99L;
+
+        when(etudiantRepository.findById(etudiantId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.getCandidaturesEtudiant(etudiantId)
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(etudiantRepository).findById(etudiantId);
+
+        verify(candidatureRepository, never())
+                .findAllByEtudiantId(anyLong());
+    }
+
+
 
 }
 

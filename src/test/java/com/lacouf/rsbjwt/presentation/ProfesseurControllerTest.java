@@ -2,7 +2,9 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.ProfesseurService;
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
@@ -17,8 +19,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -197,6 +201,49 @@ public class ProfesseurControllerTest {
         verify(professeurService).getEtudiantsAssignes();
     }
 
+    @Test
+    void doitRetournerLesCandidaturesDUnEtudiant() throws Exception {
+        Long etudiantId = 1L;
 
+        CandidatureDTO candidature = new CandidatureDTO(
+                10L,
+                etudiantId,
+                "Marie",
+                "Tremblay",
+                "INFORMATIQUE",
+                5L,
+                "Développeuse web",
+                "Entreprise ABC",
+                LocalDateTime.now(),
+                2L,
+                StatutCandidature.SOUMISE
+        );
+
+        when(professeurService.getCandidaturesEtudiant(etudiantId))
+                .thenReturn(List.of(candidature));
+
+        mockMvc.perform(get("/professeur/etudiants/{etudiantId}/candidatures", etudiantId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(10))
+                .andExpect(jsonPath("$[0].etudiantId").value(1))
+                .andExpect(jsonPath("$[0].statut").value("SOUMISE"));
+
+        verify(professeurService).getCandidaturesEtudiant(etudiantId);
+    }
+
+    @Test
+    void doitRetournerListeVideSiEtudiantNAucuneCandidature() throws Exception {
+        Long etudiantId = 1L;
+
+        when(professeurService.getCandidaturesEtudiant(etudiantId))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/professeur/etudiants/{etudiantId}/candidatures", etudiantId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        verify(professeurService).getCandidaturesEtudiant(etudiantId);
+    }
 
 }
