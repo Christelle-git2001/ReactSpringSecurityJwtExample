@@ -95,7 +95,7 @@ function ConvocationEntrevue() {
 
     const estConfirmee = convocation.statut === "CONFIRMEE";
     const estRefusee = convocation.statut === "REFUSEE";
-    const aRepondre = !estConfirmee && !estRefusee;
+    const aRepondre = convocation.statut === "A_CONFIRMER";
     const formatKeys = {
         EN_LIGNE: "entrevue.mode_online_title",
         PRESENTIEL: "entrevue.mode_onsite_title",
