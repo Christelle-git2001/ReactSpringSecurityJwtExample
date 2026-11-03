@@ -381,7 +381,13 @@ public class GestionnaireService {
             throw new StatutCandidatureInvalideException();
         }
 
-        return ContratDTO.of(contratRepository.save(contrat));
+        Contrat contratEnregistre = contratRepository.save(contrat);
+
+        applicationEventPublisher.publishEvent(
+                new NouveauContratCreeEvent(contratEnregistre)
+        );
+
+        return ContratDTO.of(contratEnregistre);
     }
 
 

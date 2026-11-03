@@ -315,4 +315,33 @@ public class NotificationService {
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 
+    @EventListener
+    @Transactional
+    public NotificationDTO handleNouveauContratCree(NouveauContratCreeEvent event) {
+        Contrat contrat = event.contrat();
+
+        Candidature candidature = contrat.getCandidature();
+        OffreDeStage offre = candidature.getOffreDeStage();
+        Employeur employeur = offre.getEmployeur();
+
+        Notification notification = Notification.builder()
+                .titre("notification.employeur.nouveauContrat.title")
+                .description("notification.employeur.nouveauContrat.description")
+                .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                .role(Role.EMPLOYEUR)
+                .destinataire(employeur)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.EMPLOYEUR_CONTRAT_ID
+                        .build(String.valueOf(contrat.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.CANDIDATURE_ID,
+                        String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
 }
