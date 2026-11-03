@@ -40,6 +40,7 @@ function CandidatureListItem({ candidature, onClick, variant = "card", actionLab
             tone="cyan"
             variant={variant}
             actionLabel={actionLabel}
+            actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
             onClick={onClick}
             ariaLabel={t("dashboard.view_candidature_details")}
         />
