@@ -623,6 +623,7 @@
     "title": "Détails de l'entrevue",
     "subtitle": "Veuillez confirmer votre présence à l'entrevue ",
     "list_title": "Mes entrevues",
+    "application_progress": "Suivi de la candidature",
     "none": "Aucune entrevue pour le moment.",
     "no_matching": "Aucune entrevue ne correspond à votre recherche.",
     "to_confirm": "À confirmer",
@@ -645,6 +646,6 @@
     "confirmed": "Confirmée",
     "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
     "view_details": "Voir les détails",
-    "duration_value" : "{{minutes}}"
+    "duration_value": "{{minutes}} minutes"
   }
 }

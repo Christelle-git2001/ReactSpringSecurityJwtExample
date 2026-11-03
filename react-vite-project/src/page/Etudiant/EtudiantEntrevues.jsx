@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import { obtenirToutesConvocations, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
+import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
 import { FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt } from "react-icons/fa";
 import Button from "../../component/Design/Button.jsx";
 import Modal from "../../component/Modal/Modal.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
+import CandidatureTimeline from "../../component/Candidature/CandidatureTimeline.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 
 const FORMAT_KEYS = {
@@ -21,6 +22,7 @@ function EtudiantEntrevues() {
     const focusId = location.state?.id;
 
     const [convocations, setConvocations] = useState([]);
+    const [candidatures, setCandidatures] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [focusedCardId, setFocusedCardId] = useState(null);
@@ -39,8 +41,11 @@ function EtudiantEntrevues() {
     });
 
     const charger = () =>
-        obtenirToutesConvocations()
-            .then((data) => setConvocations(data ?? []))
+        Promise.all([obtenirToutesConvocations(), obtenirCandidaturesEtudiant().catch(() => [])])
+            .then(([data, liste]) => {
+                setConvocations(data ?? []);
+                setCandidatures(liste ?? []);
+            })
             .catch(() => setError(true));
 
     useEffect(() => {
@@ -144,6 +149,7 @@ function EtudiantEntrevues() {
                                 const enCours = submittingId === c.id;
                                 const refusOuvert = refusingId === c.id;
                                 const isFocused = focusedCardId === c.id;
+                                const candidature = candidatures.find((item) => item.id === c.candidatureId);
                                 return (
                                     <li key={c.id} id={`entrevue-${c.id}`}>
                                         <div className={`w-full rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-500 ${
@@ -184,11 +190,11 @@ function EtudiantEntrevues() {
 
                                                 {aRepondre && !refusOuvert && (
                                                     <div className="ml-auto flex shrink-0 gap-2">
-                                                        <Button variant="danger" type="button" disabled={enCours}
+                                                        <Button variant="danger" size="small" type="button" disabled={enCours}
                                                                 onClick={() => ouvrirRefus(c.id)}>
                                                             {t("convocation.reject")}
                                                         </Button>
-                                                        <Button variant="success" type="button" disabled={enCours}
+                                                        <Button variant="success" size="small" type="button" disabled={enCours}
                                                                 onClick={() => repondre(c.id, () => accepterConvocation(c.id))}>
                                                             {t("convocation.accept")}
                                                         </Button>
@@ -202,6 +208,21 @@ function EtudiantEntrevues() {
                                                     </span>
                                                 )}
                                             </div>
+
+                                            <details className="collapse collapse-arrow rounded-none border-t border-gray-100">
+                                                <summary className="collapse-title min-h-0 px-5 py-3 text-sm font-semibold text-[#043462]">
+                                                    {t("convocation.application_progress")}
+                                                </summary>
+                                                <div className="collapse-content overflow-x-auto px-4">
+                                                    {candidature ? (
+                                                        <div className="min-w-max">
+                                                            <CandidatureTimeline statut={candidature.statut} />
+                                                        </div>
+                                                    ) : (
+                                                        <p role="alert" className="text-sm text-gray-500">{t("error.generic")}</p>
+                                                    )}
+                                                </div>
+                                            </details>
 
                                             {aRepondre && refusOuvert && (
                                                 <div className="w-full bg-red-50 p-5 border-t border-red-200 flex flex-col gap-2">
@@ -225,10 +246,10 @@ function EtudiantEntrevues() {
                                                         </p>
                                                     )}
                                                     <div className="flex justify-end gap-2 mt-2">
-                                                        <Button variant="secondary" type="button" onClick={annulerRefus}>
+                                                        <Button variant="secondary" size="small" type="button" onClick={annulerRefus}>
                                                             {t("actions.cancel_refusal")}
                                                         </Button>
-                                                        <Button variant="danger" type="button" disabled={enCours}
+                                                        <Button variant="danger" size="small" type="button" disabled={enCours}
                                                                 onClick={demanderConfirmation}>
                                                             {t("convocation.confirm_refusal")}
                                                         </Button>

@@ -592,6 +592,7 @@
     "title": "Interview details",
     "subtitle": "Please confirm your attendance for the scheduled interview ",
     "list_title": "My interviews",
+    "application_progress": "Application progress",
     "none": "No interviews for now.",
     "no_matching": "No interviews match your search.",
     "to_confirm": "To confirm",
@@ -613,7 +614,8 @@
     "scheduled": "Interview scheduled",
     "confirmed": "Confirmed",
     "attendance_confirmed": "Your attendance at this interview is confirmed.",
-    "view_details": "View details"
+    "view_details": "View details",
+    "duration_value": "{{minutes}} minutes"
   },
   "process": {
     "title": "Internship and Contract Process Tracking",
