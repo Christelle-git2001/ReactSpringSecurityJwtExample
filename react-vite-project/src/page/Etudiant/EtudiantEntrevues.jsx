@@ -128,7 +128,8 @@ function EtudiantEntrevues() {
 
                                 return (
                                     <li key={c.id} className="w-full">
-                                        <div className="w-full flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 rounded-2xl border border-gray-200 bg-white bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)] p-5 shadow-sm">
+                                        <div className={`flex flex-col w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all ${refusOuvert ? 'border-red-200' : ''}`}>
+                                            <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 p-5 bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                                             <div className="hidden sm:flex size-16 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-[#043462]">
                                                 <FaCalendarAlt className="size-8" aria-hidden="true" />
                                             </div>
@@ -160,29 +161,30 @@ function EtudiantEntrevues() {
                                                 </div>
                                             </div>
 
-                                            {c.statut === "CONFIRMEE" && (
-                                                <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
-                                                    <FaCheckCircle aria-hidden="true" />
-                                                    {t("convocation.scheduled")}
-                                                </span>
-                                            )}
+                                                {c.statut === "CONFIRMEE" && (
+                                                    <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
+                                <FaCheckCircle aria-hidden="true" />
+                                                        {t("convocation.scheduled")}
+                            </span>
+                                                )}
+                                            </div>
 
-                                            {aRepondre && !refusOuvert && (
-                                                <div className="ml-auto flex shrink-0 gap-2">
-                                                    <Button variant="danger" type="button" disabled={enCours}
-                                                            onClick={() => ouvrirRefus(c.id)}>
-                                                        {t("convocation.reject")}
-                                                    </Button>
-                                                    <Button variant="success" type="button" disabled={enCours}
-                                                            onClick={() => repondre(c.id, () => accepterConvocation(c.id))}>
-                                                        {t("convocation.accept")}
-                                                    </Button>
-                                                </div>
-                                            )}
+                                                {aRepondre && !refusOuvert && (
+                                                    <div className="ml-auto flex shrink-0 gap-2">
+                                                        <Button variant="danger" type="button" disabled={enCours}
+                                                                onClick={() => ouvrirRefus(c.id)}>
+                                                            {t("convocation.reject")}
+                                                        </Button>
+                                                        <Button variant="success" type="button" disabled={enCours}
+                                                                onClick={() => repondre(c.id, () => accepterConvocation(c.id))}>
+                                                            {t("convocation.accept")}
+                                                        </Button>
+                                                    </div>
+                                                )}
 
                                             {aRepondre && refusOuvert && (
-                                                <div className="basis-full flex flex-col gap-2 border-t border-red-200 pt-4">
-                                                    <label htmlFor={`motif-${c.id}`} className="text-sm font-semibold text-red-600">
+                                                <div className="w-full bg-red-50 p-5 border-t border-red-200 flex flex-col gap-3">
+                                                    <label htmlFor={`motif-${c.id}`} className="text-sm font-semibold text-red-700">
                                                         {t("convocation.refusal_reason")}
                                                     </label>
                                                     <textarea
@@ -194,14 +196,15 @@ function EtudiantEntrevues() {
                                                         placeholder={t("offre.rejection_placeholder")}
                                                         aria-required="true"
                                                         aria-invalid={motifError}
-                                                        className={`w-full rounded-lg border p-3 text-sm ${motifError ? "border-red-500" : "border-gray-300"}`}
+                                                        className={`w-full rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 ${motifError ? "border-red-500 bg-red-100" : "border-gray-300 bg-white"}`}
                                                     />
                                                     {motifError && (
-                                                        <p role="alert" className="text-xs font-medium text-red-500">
+                                                        <p role="alert" className="text-xs font-medium text-red-600">
                                                             {t("convocation.refusal_reason_required")}
                                                         </p>
                                                     )}
-                                                    <div className="flex justify-end gap-2">
+
+                                                    <div className="flex justify-end gap-2 mt-2">
                                                         <Button variant="secondary" type="button" onClick={annulerRefus}>
                                                             {t("actions.cancel_refusal")}
                                                         </Button>
