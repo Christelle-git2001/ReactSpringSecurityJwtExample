@@ -5,6 +5,8 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -70,7 +72,9 @@ public class EtudiantServiceTest {
     private CandidatureRepository candidatureRepository;
 
     @Mock
-    private ContratRepository contratRepository;
+    private EntrevueRepository entrevueRepository;
+
+    @Mock ContratRepository contratRepository;
 
     @TempDir
     Path dossierCvTest;
@@ -78,6 +82,7 @@ public class EtudiantServiceTest {
     InscriptionEtudiantDTO inscriptionEtudiantDTO;
     Etudiant etudiant;
     Employeur employeur;
+    Entrevue entrevue;
 
     @BeforeEach
     void init() {
@@ -117,6 +122,22 @@ public class EtudiantServiceTest {
                 .build();
 
         employeur.setId(1L);
+
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(10L);
+        offre.setTitle("Stage informatique");
+        offre.setEmployeur(employeur);
+
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+
+        entrevue = Entrevue.builder()
+                .candidature(candidature)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1))
+                .dateCreation(LocalDateTime.now())
+                .build();
+        entrevue.setId(30L);
     }
 
     @Test
@@ -799,6 +820,150 @@ public class EtudiantServiceTest {
 
         verify(applicationEventPublisher, never())
                 .publishEvent(any(NouvelleCandidatureEvent.class));
+    }
+
+    @Test
+    void doitRetournerListeVideSansConvocation() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(
+                etudiant.getId()))
+                .thenReturn(List.of());
+
+        List<EntrevueDTO> resultat =
+                etudiantService.getConvocationsEtudiant(etudiant.getEmail());
+
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
+    void doitObtenirConvocationNonConfirmee() throws Exception {
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        EntrevueDTO resultat = etudiantService.getConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail());
+
+        assertThat(resultat.id()).isEqualTo(entrevue.getId());
+        assertThat(resultat.offreTitle()).isEqualTo("Stage informatique");
+        assertThat(resultat.dateConfirmation()).isNull();
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.A_CONFIRMER);
+
+        verify(entrevueRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitRefuserConvocationIntrouvableOuNonAutorisee() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.getConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail()))
+                .isInstanceOf(ConvocationIntrouvableException.class);
+
+        assertThatThrownBy(() -> etudiantService.confirmerConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail()))
+                .isInstanceOf(ConvocationIntrouvableException.class);
+
+        verify(entrevueRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitRetournerLesConvocationsEtActualiserLeStatut() throws Exception {
+        entrevue.setDateConfirmation(LocalDateTime.now().minusDays(2));
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(
+                etudiant.getId()))
+                .thenReturn(List.of(entrevue));
+
+        List<EntrevueDTO> resultat =
+                etudiantService.getConvocationsEtudiant(etudiant.getEmail());
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(entrevue.getId());
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
+
+        verify(entrevueRepository).save(entrevue);
+    }
+
+    @Test
+    void doitConfirmerLaPresenceDeLEtudiant() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        ReponseConvocationDTO resultat = etudiantService.confirmerConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail());
+
+        assertThat(resultat.confirmee()).isTrue();
+        assertThat(resultat.dateConfirmation()).isNotNull();
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+
+        etudiantService.getConvocationEtudiant(entrevue.getId(), etudiant.getEmail());
+
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+        verify(entrevueRepository, times(1)).save(entrevue);
+    }
+
+    @Test
+    void doitConserverLaPremiereDateDeConfirmation() throws Exception {
+        LocalDateTime dateInitiale = LocalDateTime.now().minusDays(1);
+        entrevue.setDateConfirmation(dateInitiale);
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        ReponseConvocationDTO resultat = etudiantService.confirmerConvocationEtudiant(
+                entrevue.getId(), etudiant.getEmail());
+
+        assertThat(resultat.dateConfirmation()).isEqualTo(dateInitiale);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+
+        verify(entrevueRepository, never()).save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitPasserEnAttenteReponseLorsDeLaConsultation() throws Exception {
+        entrevue.setDateConfirmation(LocalDateTime.now().minusDays(2));
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(
+                entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        etudiantService.getConvocationEtudiant(entrevue.getId(), etudiant.getEmail());
+
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
+
+        verify(entrevueRepository).save(entrevue);
     }
 
     @Test

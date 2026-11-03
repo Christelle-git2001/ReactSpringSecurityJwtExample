@@ -159,4 +159,25 @@ public class GestionnaireController {
         ContratDTO contratDTO = gestionnaireService.creerContrat(candidatureId);
         return ResponseEntity.status(HttpStatus.CREATED).body(contratDTO);
     }
+
+    @GetMapping("/candidatures/{status}")
+    public List<CandidatureDTO> getCandidaturesByStatus(@PathVariable String status) throws StatutCandidatureInvalideException {
+        return gestionnaireService.getCandidaturesByStatus(status);
+    }
+
+    @GetMapping("/candidatures/{candidatureId}/contrat")
+    public ResponseEntity<ContratDTO> getContratParCandidatureId(
+            @PathVariable Long candidatureId)
+            throws ContratIntrouvableException {
+        ContratDTO contratDTO = gestionnaireService.getContratParCandidatureId(candidatureId);
+        return ResponseEntity.ok(contratDTO);
+    }
+
+    @GetMapping("/candidatures/{candidatureId}/entrevue")
+    public ResponseEntity<EntrevueDTO> getEntrevueParCandidatureId(
+            @PathVariable Long candidatureId)
+            throws EntrevueIntrouvableException {
+        EntrevueDTO entrevueDTO = gestionnaireService.getEntrevueParCandidatureId(candidatureId);
+        return ResponseEntity.ok(entrevueDTO);
+    }
 }

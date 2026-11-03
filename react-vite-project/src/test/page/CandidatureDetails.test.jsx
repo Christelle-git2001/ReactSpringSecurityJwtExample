@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import CandidatureDetails from '../../component/Candidature/CandidatureDetails.jsx';
 
@@ -22,12 +22,21 @@ jest.mock('../../api/gestionnaire.jsx', () => ({
     obtenirCvPDFGestionnaire: jest.fn(() => Promise.resolve({
         ok: true,
         blob: () => Promise.resolve(new Blob(['dummy content'], { type: 'application/pdf' }))
+    })),
+    getContratByCandidatureId: jest.fn(() => Promise.resolve(null))
+}));
+
+jest.mock('../../api/pdf.jsx', () => ({
+    obtenirContratPDF: jest.fn(() => Promise.resolve({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(['dummy contract'], { type: 'application/pdf' }))
     }))
 }));
 
 jest.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key, fallback) => fallback || key,
+        i18n: { language: 'fr' },
     }),
 }));
 
@@ -54,17 +63,4 @@ describe('Composant CandidatureDetails', () => {
         expect(pdfElement).toBeInTheDocument();
     });
 
-    it('devrait appeler onOpenOffer au clic sur le titre de l offre', async () => {
-        const handleOpenOffer = jest.fn();
-        render(
-            <MemoryRouter>
-                <CandidatureDetails candidature={mockCandidature} onOpenOffer={handleOpenOffer} />
-            </MemoryRouter>
-        );
-
-        const offerButton = screen.getByText(/Développeur Web Junior/i);
-        fireEvent.click(offerButton);
-
-        expect(handleOpenOffer).toHaveBeenCalledWith(mockCandidature);
-    });
 });

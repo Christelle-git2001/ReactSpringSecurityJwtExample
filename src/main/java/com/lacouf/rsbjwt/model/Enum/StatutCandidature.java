@@ -4,8 +4,10 @@ package com.lacouf.rsbjwt.model.Enum;
 public enum StatutCandidature {
     SOUMISE,
     RETENUE_POUR_ENTREVUE,
-    EN_ATTENTE_DE_RETOUR,
+    ENTREVUE_PLANIFIEE,
+    ACCEPTEE,
 
 
-    STAGE_TROUVE
+    STAGE_TROUVE,
+    CONTRAT_CREE
 }

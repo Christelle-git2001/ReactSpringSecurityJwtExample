@@ -345,6 +345,7 @@ public class EmployeurService {
                 .dateCreation(LocalDateTime.now())
                 .build();
 
+        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         Entrevue entrevueEnregistree = convocationRepository.save(entrevue);
 
         eventPublisher.publishEvent(
@@ -408,6 +409,8 @@ public class EmployeurService {
 
         contrat.setDateSignatureEmployeur(LocalDate.now());
 
-        return ContratDTO.of(contratRepository.save(contrat));
+        Contrat saved = contratRepository.save(contrat);
+
+        return ContratDTO.of(saved);
     }
 }

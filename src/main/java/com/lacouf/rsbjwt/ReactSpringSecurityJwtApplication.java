@@ -2,13 +2,8 @@ package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.Exception.DateFinAffichageApresDateDebutException;
 import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
-import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
@@ -20,21 +15,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
-
-
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 
 @SpringBootApplication
 public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
-    // TODO Remplacer les classe biblio par les classe appropriee
     private final GestionnaireRepository gestionnaireRepository;
     private final EtudiantRepository etudiantRepository;
     private final UserAppRepository userAppRepository;
-
     private final Environment environment;
     private final EtudiantService etudiantService;
     private final OffreDeStageRepository offreDeStageRepository;
@@ -43,11 +37,22 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final GestionnaireService gestionnaireService;
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ProfesseurService professeurService;
+    private final CandidatureRepository candidatureRepository;
 
-    public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
-                                             UserAppRepository userAppRepository, Environment environment, EtudiantService etudiantService,
-                                             OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
-                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository, ProfesseurService professeurService) {
+    public ReactSpringSecurityJwtApplication(
+            GestionnaireRepository gestionnaireRepository,
+            EtudiantRepository etudiantRepository,
+            UserAppRepository userAppRepository,
+            Environment environment,
+            EtudiantService etudiantService,
+            OffreDeStageRepository offreDeStageRepository,
+            EmployeurService employeurService,
+            EmployeurRepository employeurRepository,
+            GestionnaireService gestionnaireService,
+            CvEtudiantRepository cvEtudiantRepository,
+            ProfesseurService professeurService,
+            CandidatureRepository candidatureRepository
+    ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
@@ -59,6 +64,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.gestionnaireService = gestionnaireService;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.professeurService = professeurService;
+        this.candidatureRepository = candidatureRepository;
     }
 
     public static void main(String[] args) {
@@ -71,7 +77,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             return;
         }
 
-        String emailAdrien = "Adrien@gmail.com" ;
+        String emailAdrien = "Adrien@gmail.com";
 
         GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8,"Pascal","Belmont","Pascal.Belmont@hotmail.com","565-985-5858","NoNeedButStillNeed", LocalDateTime.now());
         gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
@@ -92,7 +98,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         InscriptionEtudiantDTO etudiantNotifCvDTO = new InscriptionEtudiantDTO( "Christelle","Nouga","450-716-1288","chrisNouga@gmail.com","6565688",Departement.INFORMATIQUE.name(),"motdepasse","motdepasse");
         etudiantService.creerCompteEtudiant(etudiantNotifCvDTO);
 
-        InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed","NoNeedButStillNeed");
+        InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed" +
+                "","NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
 
         InscriptionProfesseurDTO inscriptionProfesseurDTO = new InscriptionProfesseurDTO("Toru","Shirazu","Toru.Shirazu@claurendeau.qc.ca","NoNeed","NoNeed","9325645","698-585-6666",Departement.INFORMATIQUE.name());
@@ -153,8 +160,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 "330\n" +
                 "%%EOF";
 
-
-
         MultipartFile fakeOffre = new MockMultipartFile(
                 "file",
                 "offre.pdf",
@@ -171,7 +176,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         String employeurEmail = "Roger.Malinois@hotmail.com";
 
-        OffreDeStageDTO devWebJr = null ;
+        OffreDeStageDTO devWebJr = null;
 
         CreationOffreDeStageDTO dto1 = new CreationOffreDeStageDTO(
                 "Développeur Web Junior",
@@ -184,7 +189,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         );
 
         try {
-           devWebJr = employeurService.creerOffre(dto1, fakeOffre, employeurEmail);
+            devWebJr = employeurService.creerOffre(dto1, fakeOffre, employeurEmail);
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
@@ -214,25 +219,74 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 LocalDate.now().plusMonths(2),
                 LocalDate.now().minusDays(2),
                 Statut.ACCEPTEE,
-                 "offre.pdf",
+                "offre.pdf",
                 "uploads/offres",
                 employeur,
                 "",
                 LocalDateTime.now()
         );
 
+        offreDeStageRepository.save(offreDeStage);
 
-       offreDeStageRepository.save(offreDeStage);
+        CvEtudiant cvEtudiant = new CvEtudiant("CV_Marc_Disparu","application/pdf",1024L,"none",LocalDateTime.now(),etudiantBadCv);
 
-       CvEtudiant cvEtudiant = new CvEtudiant("CV_Marc_Disparu","application/pdf",1024L,"none",LocalDateTime.now(),etudiantBadCv);
+        CvEtudiantDTO cvAdrien = etudiantService.televerserCv(fakeCV, "Adrien@gmail.com");
+        gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
+        gestionnaireService.approuverOffre(devWebJr.id());
 
+        etudiantService.postuler(devWebJr.id(), emailAdrien);
+        cvEtudiantRepository.save(cvEtudiant);
 
-       CvEtudiantDTO cvAdrien = etudiantService.televerserCv(fakeCV, "Adrien@gmail.com");
-       gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
-       gestionnaireService.approuverOffre(devWebJr.id());
+        // --- Ajout de Nicolas Sarkozy (Parcours complet) ---
+        String emailNicolas = "Nicolas.Sarkozy@gmail.com";
 
-       etudiantService.postuler(devWebJr.id(),emailAdrien);
-       cvEtudiantRepository.save(cvEtudiant);
+        InscriptionEtudiantDTO etudiantSarkozyDTO = new InscriptionEtudiantDTO(
+                "Nicolas",
+                "Sarkozy",
+                "450-555-5555",
+                emailNicolas,
+                "2222222",
+                Departement.INFORMATIQUE.name(),
+                "NoNeedButStillNeed",
+                "NoNeedButStillNeed"
+        );
+        etudiantService.creerCompteEtudiant(etudiantSarkozyDTO);
 
+        // 1. CV téléversé et approuvé
+        CvEtudiantDTO cvNicolas = etudiantService.televerserCv(fakeCV, emailNicolas);
+        gestionnaireService.approuverCurriculumVitae(cvNicolas.id());
+
+        // 2. Postuler à l'offre
+        etudiantService.postuler(devWebJr.id(), emailNicolas);
+
+        // Récupérer la candidature créée
+        Candidature candidatureSarko = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailNicolas))
+                .findFirst()
+                .orElseThrow();
+
+        // Simuler l'authentification de l'employeur pour les actions nécessitant un contexte de sécurité
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+
+        // 3. Retenir pour entrevue
+        employeurService.retenirCandidaturePourEntrevue(candidatureSarko.getId());
+
+        // 4. Planifier l'entrevue
+        CreationEntrevueDTO entDTO = new CreationEntrevueDTO(
+                candidatureSarko.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(3),
+                60
+
+        );
+        employeurService.creerConvocation(entDTO);
+
+        // Nettoyer le contexte de sécurité après l'appel
+        SecurityContextHolder.clearContext();
+
+        candidatureSarko.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidatureRepository.save(candidatureSarko);
     }
 }

@@ -32,10 +32,8 @@ export default function FilterBar({
         (showOfferFilter && selectedOfferId !== null && selectedOfferId !== "TOUS");
 
     return (
-        <div className={`w-full collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm ${className}`}>
-            <input type="checkbox" />
-
-            <div className="collapse-title flex items-center gap-2 font-medium text-sm text-gray-600">
+        <details className={`w-full collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm ${className}`}>
+            <summary className="collapse-title flex items-center gap-2 font-medium text-sm text-gray-600">
                 <FiFilter className="text-primary" />
                 {t("actions.filter_by")}
                 {isFilterActive && (
@@ -43,7 +41,7 @@ export default function FilterBar({
                         {t("actions.active")}
                     </span>
                 )}
-            </div>
+            </summary>
 
             <div className="collapse-content space-y-4 text-sm">
                 {showStatusFilter && (
@@ -197,6 +195,6 @@ export default function FilterBar({
                 )}
 
             </div>
-        </div>
+        </details>
     );
 }

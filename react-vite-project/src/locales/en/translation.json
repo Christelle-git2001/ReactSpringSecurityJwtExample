@@ -1,4 +1,7 @@
 {
+  "language": {
+    "label": "Language"
+  },
   "inscription": {
     "titre": "You are?",
     "etudiant": "Student",
@@ -99,6 +102,15 @@
     "save": "Submit"
   },
   "actions": {
+    "create_contract": "Create contract",
+    "sign_contract": "Sign contract",
+    "signing": "Signing...",
+    "plan_interview": "Schedule an interview",
+    "manage_status": "Manage status",
+    "waiting": "Waiting for contract",
+    "sign_contract": "Sign the contract",
+    "signing": "Signing...",
+    "view_details": "View details",
     "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
@@ -107,6 +119,7 @@
     "backhome": "Back home",
     "reject": "Reject",
     "approve": "Approve",
+    "upload": "Upload",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
@@ -174,7 +187,8 @@
     "user_not_found": "User not found.",
     "generic": "An error occurred. Please try again.",
     "notification_path": "The destination of this notification does not exist. Please try again later.",
-    "rejection_comment_required": "A comment is required when rejecting a CV."
+    "rejection_comment_required": "A comment is required when rejecting a CV.",
+    "convocation_not_found": "Interview invitation not found."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -182,7 +196,7 @@
     "employer_added": "Employer added successfully."
   },
   "nav": {
-    "add_entrevue" : "Schedule an interview",
+    "add_entrevue": "Schedule an interview",
     "applications": "Applications",
     "cv": "Upload CV",
     "home": "Home",
@@ -205,6 +219,19 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+    "view_contract": "Sign/View Contract",
+    "contracts_to_create_count": "Contracts to create",
+    "contracts_to_sign_count": "Contracts to sign",
+    "contracts_to_create_title": "Contracts to Create",
+    "contracts_to_sign_title": "Created Contracts / To Sign",
+    "no_contracts_to_create": "No contracts to create at the moment.",
+    "no_contracts_to_sign": "No contracts pending signature.",
+      "pending_contracts_count": "Contracts pending creation",
+      "contracts_pending_title": "Applications ready to start the contract signing process",
+      "no_pending_contracts": "No applications pending a contract.",
+      "view_pending_contracts": "View applications ready for a contract",
+      "applications": "applications",
+      "create_contract": "View process",
     "manager_subtitle": "Track pending resumes and internship offers.",
     "pending_cvs_count": "Pending resumes",
     "pending_offers_count": "Pending offers",
@@ -307,11 +334,18 @@
     "visualize": "Visualize PDF",
     "filesName": "File name",
     "choice": "Choose a file",
+    "modification": "Modify the selected file",
     "download": "Download the PDF",
     "fichierInvalide": "Invalid file",
     "noFileDetected": "No file to read",
     "bigFiles": "Your file is too big, you need less than 10 mo",
-    "lowFiles": "Your file is corrupted, please select another file"
+    "lowFiles": "Your file is corrupted, please select another file",
+    "cvAttrib": {
+      "titleCvSelectionner": "Please verify the information before proceeding:",
+      "name": "Name : ",
+      "size": "Size : ",
+      "type": "File type : "
+    }
   },
   "account": {
     "info": {
@@ -335,7 +369,7 @@
     "new": "New Offers",
     "targeted": "Targeted",
     "targeted_badge": "Targeted offer",
-    "already_applied": "You have already applied",
+    "application_received": "Application sent!",
     "apply": "Apply",
     "employeur": "Company",
     "lieu": "Location",
@@ -365,7 +399,8 @@
     "errors": {
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
-    }
+    },
+    "already_applied": "You have already applied"
   },
   "status": {
     "tous": "All",
@@ -404,15 +439,18 @@
       "api_generic": "An error occurred while submitting."
     },
     "toast": {
-      "waiting_validation": "CV submitted, pending review."
+      "waiting_validation": "CV submitted, pending review.",
+      "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
   "candidature": {
     "status": {
+      "contrat" : "Agreement",
+      "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
       "planifiee": "Interview scheduled",
-      "acceptee": "Accepted / Hired"
+      "acceptee": "Accepted"
     },
     "position": "Job Title",
     "student_unknown": "Unknown student",
@@ -464,6 +502,10 @@
         "title_refusee": "Your CV has been rejected",
         "description_refusee": "To find out the reason for the refusal, please click on this notification."
       },
+      "convocationEntrevue": {
+        "title": "Interview invitation",
+        "description": "{{ENTREPRISE_NOM}} invites you to an interview for the {{OFFRE_TITRE}} position on {{ENTREVUE_DATE}}."
+      },
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
@@ -473,6 +515,14 @@
   "drawer": {
     "details": "Details",
     "close": "Close"
+  },
+  "documents": {
+    "verify_selected": "Check the selected document:",
+    "preview": "Preview",
+    "download": "Download",
+    "choose_another": "Choose another file",
+    "replace": "Replace the document",
+    "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
   },
   "entrevue": {
     "mode_online_title": "Online",
@@ -498,12 +548,16 @@
   },
   "agenda": {
     "no_interviews": "No interview",
-    "clear_filter":  "Clear filter",
+    "clear_filter": "Show all interviews",
     "title": "Schedule",
-    "all_interviews": "Upcoming interviews:",
+    "all_interviews": "Scheduled interviews:",
+    "interview_day": "Day with an interview",
+    "today": "Today",
+    "previous_month": "Previous month",
+    "next_month": "Next month",
+    "no_date": "Unspecified date",
     "select_date_prompt": "Select a date",
-    "no_interviews_date": "No interviews scheduled for this date.",
-    "select_date_hint": "Click a date to view interviews."
+    "no_interviews_date": "No interviews scheduled for this date."
   },
   "gestion_entrevue": {
     "title": "Interview Management",
@@ -520,5 +574,39 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "process": {
+    "title": "Internship and Contract Process Tracking",
+    "cv": "Curriculum Vitae",
+    "cv_submitted": "CV available",
+    "no_cv": "No CV",
+    "candidature": "Application to the offer",
+    "no_interview": "No interview scheduled",
+    "stage_found": "Application status",
+    "contract_signatures": "Contract Process",
+    "employer_signed": "Employer",
+    "student_signed": "Student",
+    "not_started": "Process not started",
+    "start_button": "Start the signature process",
+    "sign_button": "Sign the contract",
+    "already_signed": "Contract already signed",
+    "completed_on": "Completed on",
+    "start_error": "Error while starting the process",
+    "sign_error": "Error while signing the contract",
+    "no_signature" : "No signature",
+    "no_contrat" : "No created contract, click on start signature process ",
+    "waiting_parties_signatures" : "Employer and student must sign first",
+    "contract_signed_title": "Contract signed",
+    "next_action_title": "Next required action",
+
+    "action_contract_signed_msg": "The contract was signed on",
+    "action_review_cv": "The candidate has submitted their application. Review their CV and retain them for an interview.",
+    "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
+    "action_accept_refuse": "The interview is scheduled. You will be able to accept or reject the application afterwards.",
+    "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",
+    "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
+    "action_default": "Application process tracking in progress.",
+    "cv_view_title" : "Student CV",
+    "contract_view_title" : "Internship Agreement"
   }
 }

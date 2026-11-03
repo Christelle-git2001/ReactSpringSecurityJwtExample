@@ -1,3 +1,4 @@
+import { FiX } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { obtenirCvInfo } from "../../api/etudiant.jsx";
@@ -9,7 +10,6 @@ const CvOnLandingPage = () => {
     const { t } = useTranslation();
     const [ouvert, setOuvert] = useState(false);
     const [error, setError] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,10 +31,15 @@ const CvOnLandingPage = () => {
         fetchData();
     }, [navigate]);
 
-    const fermer = () => {
+    const fermer = (isSubmitted = false) => {
         setOuvert(false);
         if (isSubmitted) {
             toast.success(t("cv.toast.waiting_validation"), {
+                position: 'bottom-center',
+                duration: 3000
+            });
+        }else {
+            toast.error(t("cv.toast.dont_forget_CV"), {
                 position: 'bottom-center',
                 duration: 3000
             });
@@ -42,18 +47,26 @@ const CvOnLandingPage = () => {
     };
 
     const handleSend = () => {
-        setIsSubmitted(true);
+        fermer(true);
     };
 
     if (!ouvert) return null;
 
     return (
         <dialog className="modal modal-open">
-            <div className="modal-box bg-[radial-gradient(circle_at_top_left,#00CCCB33,transparent_70%)]">
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={fermer}>✕</button>
-
-                <h3 className="font-bold text-lg text-center">{t("etudiant.popup.popup_title")}</h3>
-                <p className="py-4 text-center">{t("etudiant.popup.popup_description")}</p>
+            <div className="modal-box w-full max-w-3xl bg-[radial-gradient(circle_at_top_left,#00CCCB33,transparent_70%)]">
+                <div className="relative mb-5 flex min-h-10 items-center justify-center px-12">
+                    <h3 className="font-bold text-lg text-center">{t("etudiant.popup.popup_title")}</h3>
+                    <button
+                        type="button"
+                        className="close-button absolute right-0 top-0"
+                        onClick={() => fermer(false)}
+                        aria-label={t("drawer.close")}
+                    >
+                        <FiX className="size-5" aria-hidden="true" />
+                    </button>
+                </div>
+                <p className="text-center">{t("etudiant.popup.popup_description")}</p>
 
                 <div className="modal-action">
                     {error ? (

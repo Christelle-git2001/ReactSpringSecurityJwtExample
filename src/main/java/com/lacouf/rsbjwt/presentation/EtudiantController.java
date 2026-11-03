@@ -63,7 +63,6 @@ public class EtudiantController {
     public ResponseEntity<Void> supprimerCv( Authentication authentication )
         throws EtudiantIntrouvableException, FichierIntrouvableException,
             SuppressionFichierEchoueeException {
-
         etudiantService.supprimerCv(authentication.getName());
         return ResponseEntity.noContent().build();
     }
@@ -96,6 +95,31 @@ public class EtudiantController {
                 );
 
         return ResponseEntity.ok(candidatures);
+    }
+
+    @GetMapping("/convocations")
+    public ResponseEntity<List<EntrevueDTO>> getConvocations(Authentication authentication)
+            throws EtudiantIntrouvableException {
+        return ResponseEntity.ok(
+                etudiantService.getConvocationsEtudiant(authentication.getName())
+        );
+    }
+
+    @GetMapping("/convocations/{id}")
+    public ResponseEntity<EntrevueDTO> getConvocation(@PathVariable Long id, Authentication authentication)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        EntrevueDTO convocation = etudiantService.getConvocationEtudiant(id, authentication.getName());
+        return ResponseEntity.ok(convocation);
+    }
+
+    @PutMapping("/convocations/{id}/reponse")
+    public ResponseEntity<ReponseConvocationDTO> confirmerConvocation(@PathVariable Long id, Authentication authentication)
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException {
+        return ResponseEntity.ok(
+                etudiantService.confirmerConvocationEtudiant(
+                        id, authentication.getName()
+                )
+        );
     }
 
     @PutMapping("/contrats/{contratId}/signature")
