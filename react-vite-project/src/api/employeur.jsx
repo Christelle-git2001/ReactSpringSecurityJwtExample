@@ -101,3 +101,17 @@ export async function obtenirOffrePDF(id) {
         headers: headers,
     });
 }
+
+export async function accepterCandidat(entrevueId) {
+    return fetchJson(`/employeur/entrevues/${entrevueId}/acceptation`, {
+        method: "PUT",
+    });
+}
+
+export async function refuserCandidat(entrevueId, motifRefus) {
+    return fetchJson(`/employeur/entrevues/${entrevueId}/refus`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motifRefus }),
+    });
+}
