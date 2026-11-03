@@ -7,7 +7,7 @@ import Button from "../Design/Button.jsx";
 import "./Agenda.css";
 import "cally";
 
-function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDateSelect }) {
+function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDateSelect, onDecision }) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const calendarRef = useRef(null);
@@ -152,6 +152,7 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                                     key={entrevue.id}
                                     entrevue={entrevue}
                                     onClick={() => handleViewCandidature(entrevue)}
+                                    onDecision={onDecision}
                                 />
                             ))}
                         </div>
