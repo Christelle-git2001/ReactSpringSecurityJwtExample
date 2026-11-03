@@ -5,11 +5,11 @@ import {getEtudiants} from "../../api/professeur.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import EtudiantListItem from "../../component/Design/Lists/EtudiantListItem.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
-import {getNotifications} from "../../api/notification.jsx";
+import {getNotifications, marquerNotificationLue} from "../../api/notification.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 
 const ProfesseurHome = ({user}) => {
-    const [error, setError] = useState();
+    const [error, setError] = useState("");
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const [isInitialLoading,setIsInitialLoading] = useState(false);
@@ -18,6 +18,7 @@ const ProfesseurHome = ({user}) => {
     const [filtreValue, setFiltreValue] = useState("");
     const [onlyNew, setOnlyNew] = useState(false);
     const [searchParams] = useSearchParams();
+    const [notificationProfesseurEtudiant, setNotificationProfesseurEtudiant] = useState([])
 
 
     const initListeEtudiant = useCallback(async () => {
@@ -41,10 +42,11 @@ const ProfesseurHome = ({user}) => {
         if (!user?.id || etudiants.length === 0) return;
 
         try {
-            const notifications = await getNotifications(user.id);
-            if (!Array.isArray(notifications)) return;
-            const etudiantIds = notifications
-                .filter((n) => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT" && !n.estLu)
+            const notification = await getNotifications(user.id);
+            if (!Array.isArray(notification)) return;
+            const notificationsFiltree = notification.filter((n) => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT" && !n.estLu)
+            setNotificationProfesseurEtudiant(notificationsFiltree);
+            const etudiantIds = notificationsFiltree
                 .flatMap((n) => {
                     const rawIds = n.variables?.ETUDIANT_IDS;
                     if (!rawIds) return [];
@@ -88,6 +90,17 @@ const ProfesseurHome = ({user}) => {
             setOnlyNew(true);
         }
     }, [searchParams]);
+
+    useEffect(() => {
+        const supprimeNotification = async () => {
+            const notifCible = notificationProfesseurEtudiant.find(n => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT");
+
+            if (notifCible) {
+                await marquerNotificationLue(notifCible.id);
+            }
+        }
+        supprimeNotification();
+    }, [onlyNew]);
 
     return(
     <>

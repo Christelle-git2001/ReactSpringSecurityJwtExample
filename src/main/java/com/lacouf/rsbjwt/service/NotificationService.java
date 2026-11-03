@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -321,26 +319,41 @@ public class NotificationService {
     public void handleProfesseurAssigne(ProfesseurAssigneEvent event) {
         Professeur professeur = event.professeur();
         List<Etudiant> etudiants = event.etudiants();
+        String etudiantsIdsAouter = etudiants.stream()
+                .map(e -> String.valueOf(e.getId()))
+                .collect(Collectors.joining(", "));
 
-        Notification notificationProfesseur = Notification.builder()
-                .titre("notification.teacher.assignation.title")
-                .description("notification.teacher.assignation.description")
-                .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
-                .dateCreaction(LocalDateTime.now())
-                .destinataire(professeur)
-                .role(Role.PROFESSEUR)
-                .urlCible("")
-                .variables(Map.of(
-                        VariableMapKey.ETUDIANT_IDS,
-                        etudiants.stream()
-                                .map(UserApp::getId)
-                                .map(String::valueOf)
-                                .collect(Collectors.joining(", "))
-                ))
-                .build();
+        Notification notificationProfesseur = notificationRepository
+                .findByDestinataireAndNotificationTypeAndEstLuFalse(professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .map(existingNotif -> {
+                    String currentIds = existingNotif.getVariables().getOrDefault(VariableMapKey.ETUDIANT_IDS, "");
 
+                    Set<String> allIds = Arrays.stream(currentIds.split(","))
+                            .map(String::trim)
+                            .filter(id -> !id.isEmpty())
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+                    allIds.addAll(Arrays.asList(etudiantsIdsAouter.split(", ")));
+
+                    Map<VariableMapKey, String> updatedVariables = new HashMap<>(existingNotif.getVariables());
+                    updatedVariables.put(VariableMapKey.ETUDIANT_IDS, String.join(", ", allIds));
+                    existingNotif.setVariables(updatedVariables);
+
+                    return existingNotif;
+                })
+                .orElseGet(() ->
+                        Notification.builder()
+                                .titre("notification.teacher.assignation.title")
+                                .description("notification.teacher.assignation.description")
+                                .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                                .dateCreaction(LocalDateTime.now())
+                                .destinataire(professeur)
+                                .role(Role.PROFESSEUR)
+                                .urlCible("")
+                                .variables(Map.of(VariableMapKey.ETUDIANT_IDS, etudiantsIdsAouter))
+                                .build()
+                );
         notificationRepository.save(notificationProfesseur);
-
         for (Etudiant etudiant : etudiants) {
             Notification notificationEtudiant = Notification.builder()
                     .titre("notification.etudiant.assignation.title")
