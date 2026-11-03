@@ -644,6 +644,7 @@
     "scheduled": "Entrevue planifiée",
     "confirmed": "Confirmée",
     "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
-    "view_details": "Voir les détails"
+    "view_details": "Voir les détails",
+    "duration_value" : "{{minutes}}"
   }
 }
