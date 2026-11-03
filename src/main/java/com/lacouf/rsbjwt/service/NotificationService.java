@@ -331,9 +331,10 @@ public class NotificationService {
                 .role(Role.PROFESSEUR)
                 .urlCible("")
                 .variables(Map.of(
-                        VariableMapKey.ETUDIANT_NOM,
+                        VariableMapKey.ETUDIANT_IDS,
                         etudiants.stream()
-                                .map(etudiant -> etudiant.getFirstName() + " " + etudiant.getLastName())
+                                .map(UserApp::getId)
+                                .map(String::valueOf)
                                 .collect(Collectors.joining(", "))
                 ))
                 .build();

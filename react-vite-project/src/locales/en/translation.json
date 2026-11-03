@@ -115,6 +115,7 @@
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
+    "only_news" : "News Only",
     "back": "Back",
     "backhome": "Back home",
     "reject": "Reject",
@@ -294,7 +295,8 @@
     }
   },
   "professeur": {
-    "etudiant_section_title": "Assigned Students"
+    "etudiant_section_title": "Assigned Students",
+    "new_student": "Newly assigned student"
   },
   "gestionnaire": {
     "card": {

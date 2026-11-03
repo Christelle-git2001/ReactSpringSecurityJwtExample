@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import { FiHash } from "react-icons/fi";
 import {useTranslation} from "react-i18next";
-import {obtenirCandidaturesEtudiant} from "../../../api/etudiant.jsx";
 import EmptyContentMessage from "../EmptyContentMessage.jsx";
 
-const EtudiantInfoCard = ({ etudiant }) => {
+const EtudiantInfoCard = ({ etudiant, isNew }) => {
     const { t, i18n } = useTranslation();
     const [candidature,setCandidature] = useState([])
 
@@ -16,6 +15,9 @@ const EtudiantInfoCard = ({ etudiant }) => {
     }, []);
     return (
         <div className="card relative w-full bg-base-100 shadow-sm border border-gray-200 p-4 gap-3 bg-[radial-gradient(circle_at_top_left,_#00CCCB15,_transparent_70%)]">
+            {isNew && (
+                <div className="badge badge-success">{t("professeur.new_student")}</div>
+            )}
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-base font-bold text-[#043462]">

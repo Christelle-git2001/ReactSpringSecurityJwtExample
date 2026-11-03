@@ -24,7 +24,8 @@ const ROUTES_PAR_TYPE = {
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
-    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details"
+    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
+    PROFESSEUR_ASSIGNE_ETUDIANT: "/professeur?filter=new"
 };
 
 const CONFIG_PAR_TYPE = {

@@ -102,14 +102,10 @@
     "save": "Soumettre"
   },
   "actions": {
-    "interview": "Retenir pour entrevue",
     "plan_interview": "Planifier une entrevue",
     "manage_status": "Gérer le statut",
     "waiting": "En attente du contrat",
-    "sign_contract": "Signer le contrat",
-    "signing": "Signature...",
     "view_details": "Voir les détails",
-    "backhome": "Retour à l'accueil",
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
@@ -121,8 +117,8 @@
     "loading": "En cours...",
     "filter_by": "Filtrer par ",
     "reset_filters": "Réinitialiser les filtres",
+    "only_news" : "Nouveaux Seulement",
     "collapse": "Réduire",
-    "expand": "Développer",
     "create_contract": "Créer le contrat",
     "sign_contract": "Signer le contrat",
     "signing": "Signature...",
@@ -353,7 +349,8 @@
     }
   },
   "professeur": {
-    "etudiant_section_title": "Étudiants à charge"
+    "etudiant_section_title": "Étudiants à charge",
+    "new_student": "Nouvel étudiant assigné"
   },
   "gestionnaire": {
     "card": {
