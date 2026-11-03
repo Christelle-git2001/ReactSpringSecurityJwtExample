@@ -1,4 +1,5 @@
 import {fetchApi, fetchJson} from "./http.jsx";
+import {json} from "../../.vite/deps/react-router-dom.js";
 
 
 export async function getDepartements() {
@@ -107,6 +108,47 @@ export async function getEmployeurs() {
 
 export async function getEtudiants() {
     return fetchJson("/gestionnaire/etudiants", {
+        method: "GET",
+    });
+}
+
+export async function getProfesseurs(){
+    return fetchJson("/gestionnaire/professeurs",
+        {method : "GET"
+        });
+}
+
+export async function assignStudentToTeacher(etudiantIds,teacherId){
+    if (!teacherId || !etudiantIds || etudiantIds.length === 0) {
+        return;
+    }
+    return fetchJson("/gestionnaire/etudiant/" + teacherId,
+        {
+            method : "PUT",
+            body: JSON.stringify({ etudiantIds })
+        })
+}
+
+export async function demarrerProcessusDeSignatureDeContrat(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/contrat`, {
+        method: "POST",
+    });
+}
+
+export async function getCandidaturesByStatus(status) {
+    return fetchJson(`/gestionnaire/candidatures/${status}`, {
+        method: "GET",
+    });
+}
+
+export async function getContratByCandidatureId(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/contrat`, {
+        method: "GET",
+    });
+}
+
+export async function getEntrevueByCandidatureId(candidatureId) {
+    return fetchJson(`/gestionnaire/candidatures/${candidatureId}/entrevue`, {
         method: "GET",
     });
 }

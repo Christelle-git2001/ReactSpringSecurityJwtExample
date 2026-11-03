@@ -20,7 +20,8 @@ public record EntrevueDTO(
         LocalDateTime dateConfirmation,
         StatutEntrevue statut,
         LocalDateTime dateReponse,
-        EmployeurDTO employeur
+        EmployeurDTO employeur,
+        String motifRefus
 ) {
 
         public EntrevueDTO(
@@ -53,7 +54,7 @@ public record EntrevueDTO(
         ) {
                 this(id, dateCreation, format, dateHeureEntrevue, duree,
                         candidatureId, employeurId, etudiantFirstName,
-                        etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER, null, null);
+                        etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER, null, null, null);
         }
 
         public static EntrevueDTO of(Entrevue entrevue) {
@@ -80,7 +81,8 @@ public record EntrevueDTO(
                         entrevue.getDateConfirmation(),
                         entrevue.getStatut(),
                         entrevue.getDateReponse(),
-                        employeur != null ? EmployeurDTO.of(employeur) : null
+                        employeur != null ? EmployeurDTO.of(employeur) : null,
+                        entrevue.getMotifRefus()
                 );
         }
 }

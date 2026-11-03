@@ -101,10 +101,11 @@ export async function accepterConvocation(id) {
   });
 }
 
-export async function refuserConvocation(id) {
+export async function refuserConvocation(id, motifRefus) {
   const token = getToken();
   return fetchJson(`/etudiant/convocations/${id}/refuser`, {
     method: "PUT",
+    body: JSON.stringify({ motifRefus }),
     headers: { "Authorization": `Bearer ${token}` },
   });
 }

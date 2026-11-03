@@ -17,7 +17,7 @@ function ReadOnlyField({ label, value, isMultiline = false }) {
             </span>
             <div
                 className={`w-full rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-2.5 text-sm text-gray-800 font-medium ${
-                    isMultiline ? "whitespace-pre-line min-h-[100px]" : ""
+                    isMultiline ? "whitespace-pre-line break-all min-h-[100px] min-w-0" : ""
                 }`}
             >
                 {value || <span className="italic text-gray-400">{t("common.not_provided")}</span>}

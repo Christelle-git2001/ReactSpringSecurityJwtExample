@@ -91,7 +91,7 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                     </ul>
 
                     {offer?.description && (
-                        <details open className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                        <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
                             <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
                             </summary>
@@ -129,18 +129,26 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                                 <p className="text-xs text-gray-500 italic">{t("candidature.no_candidatures")}</p>
                             ) : (
                                 <ul className="max-h-48 space-y-1 overflow-y-auto">
-                                    {candidaturesOffre.map(candidature => (
+                                    {candidaturesOffre.map(candidature => {
+                                        const statutCandidature = getStatusConfig(candidature.statut, t, "candidature");
+                                        return (
                                         <li key={candidature.id}>
                                             <button
                                                 type="button"
                                                 onClick={() => onViewCandidature?.(candidature)}
-                                                className="flex w-full items-center gap-2 rounded p-2 text-left text-sm text-[#043462] hover:bg-blue-50 hover:underline"
+                                                className="flex w-full items-center gap-3 rounded p-2 text-left text-sm text-[#043462] hover:bg-blue-50"
                                             >
                                                 <FiUser className="size-4 shrink-0" aria-hidden="true" />
-                                                <span>{candidature.etudiantFirstName} {candidature.etudiantLastName}</span>
+                                                <span className="min-w-0 flex-1 break-words">{candidature.etudiantFirstName} {candidature.etudiantLastName}</span>
+                                                {candidature.statut && (
+                                                    <span className={`badge badge-xs ml-auto h-auto max-w-[55%] shrink-0 whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
+                                                        {statutCandidature.label}
+                                                    </span>
+                                                )}
                                             </button>
                                         </li>
-                                    ))}
+                                        );
+                                    })}
                                 </ul>
                             )}
                         </div>

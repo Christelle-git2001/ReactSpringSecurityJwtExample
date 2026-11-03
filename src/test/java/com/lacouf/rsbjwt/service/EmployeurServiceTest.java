@@ -52,6 +52,9 @@ public class EmployeurServiceTest {
     private CandidatureRepository candidatureRepository;
 
     @Mock
+    private ContratRepository contratRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -620,8 +623,10 @@ public class EmployeurServiceTest {
         assertThat(resultat.dateHeureEntrevue())
                 .isEqualTo(dto.dateHeureEntrevue());
         assertThat(resultat.dateCreation()).isNotNull();
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
 
         verify(convocationRepository).save(any(Entrevue.class));
+        verify(candidatureRepository, times(2)).save(candidature);
 
         ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
 
@@ -651,14 +656,17 @@ public class EmployeurServiceTest {
 
     @Test
     void doitLancerExceptionQuandConvocationExisteDeja() {
+        candidature.setStatut(StatutCandidature.ENTREVUE_REFUSEE);
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
 
+        Entrevue entrevueRefusee = new Entrevue();
+        entrevueRefusee.setStatut(StatutEntrevue.REFUSEE);
         when(convocationRepository.findByCandidatureId(candidature.getId()))
-                .thenReturn(Optional.of(new Entrevue()));
+                .thenReturn(Optional.of(entrevueRefusee));
 
         assertThatThrownBy(() ->
                 employeurService.creerConvocation(creerDTOConvocationValide()))
@@ -666,6 +674,38 @@ public class EmployeurServiceTest {
 
         verify(convocationRepository, never())
                 .save(any(Entrevue.class));
+    }
+
+    @Test
+    void doitRetournerLeMotifDeRefusDeLaConvocation() throws Exception {
+        Entrevue entrevue = Entrevue.builder().candidature(candidature).build();
+        entrevue.setId(1L);
+        entrevue.setStatut(StatutEntrevue.REFUSEE);
+        entrevue.setMotifRefus("Indisponible");
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        EntrevueDTO resultat = employeurService.obtenirConvocation(candidature.getId());
+
+        assertThat(resultat.motifRefus()).isEqualTo("Indisponible");
+        assertThat(resultat.statut()).isEqualTo(StatutEntrevue.REFUSEE);
+    }
+
+    @Test
+    void neDoitPasConsulterLaConvocationDUnAutreEmployeur() {
+        Employeur autreEmployeur = Employeur.builder().build();
+        autreEmployeur.setId(99L);
+        candidature.getOffreDeStage().setEmployeur(autreEmployeur);
+        Entrevue entrevue = Entrevue.builder().candidature(candidature).build();
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(convocationRepository.findByCandidatureId(candidature.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        assertThatThrownBy(() -> employeurService.obtenirConvocation(candidature.getId()))
+                .isInstanceOf(OffreNonAutoriseeException.class);
     }
 
     @Test
@@ -765,6 +805,107 @@ public class EmployeurServiceTest {
     }
 
     @Test
+    void doitSignerContratAvecSucces() throws Exception {
+        Gestionnaire gestionnaire = new Gestionnaire(1L,"Laurent","losange","Laurent.Losange@hotmail.com","5858","458-458-4584");
+        gestionnaire.setId(1L);
+        Long contratId = 1L;
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+        contrat.setId(contratId);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+        when(contratRepository.save(any(Contrat.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ContratDTO result = employeurService.signerContrat(contratId);
+
+        assertThat(result).isNotNull();
+        assertThat(contrat.getDateSignatureEmployeur()).isEqualTo(LocalDate.now());
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository).save(contrat);
+    }
+
+    @Test
+    void doitLeverExceptionSiUtilisateurIntrouvablePourSignatureContrat() {
+
+        Long contratId = 1L;
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository, never()).findById(any());
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiContratIntrouvablePourSignature() {
+        Long contratId = 99L;
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+                .isInstanceOf(ContratIntrouvableException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiEmployeurNonProprietaireDeOffrePourSignatureContrat() {
+
+        Long contratId = 1L;
+
+        Employeur autreEmployeur = Employeur.builder()
+                .firstName("Autre")
+                .lastName("Employeur")
+                .email("autre@employeur.com")
+                .build();
+        autreEmployeur.setId(2L);
+
+        OffreDeStage autreOffre = OffreDeStage.builder()
+                .employeur(autreEmployeur)
+                .build();
+
+        Candidature autreCandidature = Candidature.builder()
+                .offreDeStage(autreOffre)
+                .build();
+
+        Contrat contrat = Contrat.builder()
+                .candidature(autreCandidature)
+                .build();
+
+        contrat.setId(contratId);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+
+        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+                .isInstanceOf(OffreNonAutoriseeException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
     void doitRefuserDecisionAvantLEntrevue() {
         creerEntrevueTerminee().setDateHeureEntrevue(LocalDateTime.now().plusDays(1));
         assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
@@ -796,5 +937,4 @@ public class EmployeurServiceTest {
         verify(candidatureRepository, times(1)).save(candidature);
         verify(eventPublisher, times(1)).publishEvent(any(CandidatureAccepteeEvent.class));
     }
-
 }
