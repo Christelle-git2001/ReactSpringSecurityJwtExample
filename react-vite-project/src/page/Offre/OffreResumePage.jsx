@@ -1,10 +1,12 @@
 import {useLocation, useNavigate} from "react-router-dom";
-import ProfileField from "../../component/Design/ProfileField.jsx";
+import ProfileField from "../../component/Design/Profile/ProfileField.jsx";
 import {useTranslation} from "react-i18next";
 import React, {useEffect, useState} from "react";
 import {obtenirOffrePDF} from "../../api/employeur.jsx";
 import PDFOnPage from "../../component/PDF/PDFOnPage.jsx";
-
+import ProfileSection from "../../component/ProfileSection.jsx";
+import ProfileRow1x2 from "../../component/Design/Profile/ProfileRow1x2.jsx";
+import DividerHorizontal from "../../component/Design/Profile/DividerHorizontal.jsx";
 const OffreResumePage = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -64,87 +66,62 @@ const OffreResumePage = () => {
                 </div>
             )}
             <div className="max-w-4xl mx-auto p-6 rounded-2xl shadow-sm border border-base-200 text-center">
-                <h2 className="text-2xl font-bold text-[#043462] border-b pb-4 mb-6">
-                    {t("resume_offers.offers_section")}
-                </h2>
-                <div className="grid grid-cols-12">
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("resume_offers.offers_sous_section.title")} result={resumeOffre?.title}/>
-                    </div>
-                    <div className="col-span-2 flex justify-center">
-                        <div className="divider divider-horizontal m-0"></div>
-                    </div>
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("resume_offers.offers_sous_section.salaire")} result={t("resume_offers.offers_sous_section.salaire_value", { salary: resumeOffre?.salary })}/>
-                    </div>
-                    <div className="col-span-12">
-                        <div className="divider"></div>
-                    </div>
+                <ProfileSection title={t("resume_offers.offers_section")}>
+                    <ProfileRow1x2
+                        left={
+                            <ProfileField label={t("resume_offers.offers_sous_section.title")} result={resumeOffre?.title}/>
+                        }
+                        right={
+                            <ProfileField label={t("resume_offers.offers_sous_section.salaire")} result={t("resume_offers.offers_sous_section.salaire_value", { salary: resumeOffre?.salary })}/>
+                        }
+                    />
+                    <DividerHorizontal/>
                     <div className={"col-span-12"}>
                         <ProfileField label={t("resume_offers.offers_sous_section.description")} result={resumeOffre?.descriptionOffre}/>
                     </div>
-                    <div className="col-span-12">
-                        <div className="divider"></div>
+                    <DividerHorizontal/>
+                    <ProfileRow1x2
+                        left={
+                            <ProfileField label={t("resume_offers.offers_sous_section.start_date")} sous_label={t("resume_offers.offers_sous_section.format_date")} result={resumeOffre?.startDate}/>
+                        }
+                        right={
+                            <ProfileField label={t("resume_offers.offers_sous_section.end_date")} sous_label={t("resume_offers.offers_sous_section.format_date")} result={resumeOffre?.endDate}/>
+                        }
+                    />
+                </ProfileSection>
+                <ProfileSection title={t("resume_offers.employer_section")}>
+                    <div className={"col-span-12"}>
+                        <ProfileField label={t("general.nom")} result={employeur.firstName + " " + employeur.lastName}/>
                     </div>
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("resume_offers.offers_sous_section.start_date")} sous_label={t("resume_offers.offers_sous_section.format_date")} result={resumeOffre?.startDate}/>
+                    <DividerHorizontal/>
+                    <ProfileRow1x2
+                        left={
+                            <ProfileField label={t("general.town")} result={employeur.town}/>
+                        }
+                        right={
+                            <ProfileField label={t("general.phone")} result={employeur.phone}/>
+                        }
+                    />
+                    <DividerHorizontal/>
+                    <div className={"col-span-12"}>
+                        <ProfileField label={t("general.email")} result={employeur.email}/>
                     </div>
-                    <div className="col-span-2 flex justify-center">
-                        <div className="divider divider-horizontal m-0"></div>
-                    </div>
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("resume_offers.offers_sous_section.end_date")} sous_label={t("resume_offers.offers_sous_section.format_date")} result={resumeOffre?.endDate}/>
-                    </div>
-                </div>
-                <h2 className="text-2xl font-bold text-[#043462] border-b p-4 mb-6">
-                    {t("resume_offers.employer_section")}
-                </h2>
-                <div className={"col-span-12"}>
-                    <ProfileField label={t("general.nom")} result={employeur.firstName + " " + employeur.lastName}/>
-                </div>
-                <div className="col-span-12">
-                    <div className="divider"></div>
-                </div>
-                <div className="grid grid-cols-12">
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("general.town")} result={employeur.town}/>
-                    </div>
-                    <div className="col-span-2 flex justify-center">
-                        <div className="divider divider-horizontal m-0"></div>
-                    </div>
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("general.phone")} result={employeur.phone}/>
-                    </div>
-                </div>
-                <div className="col-span-12">
-                    <div className="divider"></div>
-                </div>
-                <div className={"col-span-12"}>
-                    <ProfileField label={t("general.email")} result={employeur.email}/>
-                </div>
-                <div className="col-span-12">
-                    <div className="divider"></div>
-                </div>
-                <div className="grid grid-cols-12">
-
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("resume_offers.employer_sous_section.business_name")} result={employeur.businessName}/>
-                    </div>
-                    <div className="col-span-2 flex justify-center">
-                        <div className="divider divider-horizontal m-0"></div>
-                    </div>
-                    <div className={"col-span-5"}>
-                        <ProfileField label={t("general.departement")} result={t("departement." + employeur.businessSector)}/>
-                    </div>
-                </div>
-                <h2 className="text-2xl font-bold text-[#043462] border-b p-4 mb-6">
-                    {t("resume_offers.offers_sous_section.pdf")}
-                </h2>
-                <div className="grid grid-cols-12">
+                    <DividerHorizontal/>
+                    <ProfileRow1x2
+                        left={
+                            <ProfileField label={t("resume_offers.employer_sous_section.business_name")} result={employeur.businessName}/>
+                        }
+                        right={
+                            <ProfileField label={t("general.departement")} result={t("departement." + employeur.businessSector)}/>
+                        }
+                    />
+                </ProfileSection>
+                <ProfileSection title={t("resume_offers.offers_sous_section.pdf")}>
                     <div className="col-span-12 flex flex-col gap-1.5 w-full">
-                            <PDFOnPage isPdfLoading={isPdfLoading} pdfBlobUrl={pdfBlobUrl}/>
+                        <PDFOnPage isPdfLoading={isPdfLoading} pdfBlobUrl={pdfBlobUrl}/>
                     </div>
-                </div>
+                </ProfileSection>
+
             </div>
         </div>
     )
