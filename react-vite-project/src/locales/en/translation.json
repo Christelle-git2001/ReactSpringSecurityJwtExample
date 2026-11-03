@@ -108,8 +108,6 @@
     "plan_interview": "Schedule an interview",
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
-    "sign_contract": "Sign the contract",
-    "signing": "Signing...",
     "view_details": "View details",
     "interview":"Select for interview",
     "active": "Active",
@@ -283,7 +281,9 @@
       "information_communication": "Communication information",
       "information_scolaire": "School Information",
       "information_stage": "Internship Information",
-      "aucune_candidature": "Internship search in progress..."
+      "aucune_candidature": "Internship search in progress...",
+      "employeur": "Employer",
+      "statut_candidature" : "Status"
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
@@ -455,13 +455,33 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
+  "resume_offers" : {
+    "offers_section": "Offer details",
+    "offers_sous_section" : {
+      "title" : "Title",
+      "salaire": "Salary",
+      "salaire_value": "{{salary}}$/Hour",
+      "description" : "description",
+      "start_date": "Internship start date",
+      "format_date" : "(AAAA-MM-JJ)",
+      "end_date": "Internship end date",
+      "pdf": "Offer Preview"
+    },
+    "employer_section": "Employer details",
+    "employer_sous_section": {
+      "business_name": "Business Name"
+    }
+  },
   "candidature": {
     "status": {
       "contrat" : "Agreement",
+      "contrat_cree" : "Agreement",
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
+      "retenue_pour_entrevue" : "Selected for interview",
       "planifiee": "Interview scheduled",
+      "entrevue_planifiee" : "Interview scheduled",
       "acceptee": "Accepted"
     },
     "position": "Job Title",
@@ -590,6 +610,7 @@
     "matricule": "Matricule",
     "email" : "Email",
     "phone" : "Phone Number",
+    "town" : "Town",
     "liste" : {
       "open" : "Open the list",
       "close" : "Close the list",

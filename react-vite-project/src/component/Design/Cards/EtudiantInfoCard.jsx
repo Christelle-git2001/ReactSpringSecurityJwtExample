@@ -2,17 +2,42 @@ import React, {useEffect, useState} from 'react';
 import { FiHash } from "react-icons/fi";
 import {useTranslation} from "react-i18next";
 import EmptyContentMessage from "../EmptyContentMessage.jsx";
+import {getCandidatureParEtudidant, getResumeOffre} from "../../../api/professeur.jsx";
+import ExpandableList from "../Lists/ExpandableList.jsx";
+import ListItem from "../Lists/ListItem.jsx";
+import {useNavigate} from "react-router-dom";
 
 const EtudiantInfoCard = ({ etudiant, isNew }) => {
+    const navigate = useNavigate();
     const { t, i18n } = useTranslation();
-    const [candidature,setCandidature] = useState([])
+    const [candidatures,setCandidatures] = useState([])
+    const [error,setError] = useState("");
+
+    const voirResumeOffre = async (offreID) => {
+        if (!offreID)
+            return
+        try {
+            const resumeOffre = await getResumeOffre(offreID);
+            console.log(resumeOffre)
+            navigate("/professeur/resumeOffre", {state : resumeOffre})
+        }catch (e){
+            setError(t("generic.error"))
+        }
+
+
+    }
+    const candidaturesAffichees = (() => {
+        const stageTrouve = candidatures.find(c => c.statut === "STAGE_TROUVE");
+        return stageTrouve ? [stageTrouve] : candidatures;
+    })();
 
     useEffect(() => {
         const getInfoEtudiant = async () => {
-            setCandidature()
+            if (!etudiant?.id) return;
+            setCandidatures(await getCandidatureParEtudidant(etudiant?.id))
         }
         getInfoEtudiant();
-    }, []);
+    }, [etudiant?.id]);
     return (
         <div className="card relative w-full bg-base-100 shadow-sm border border-gray-200 p-4 gap-3 bg-[radial-gradient(circle_at_top_left,_#00CCCB15,_transparent_70%)]">
             {isNew && (
@@ -61,12 +86,21 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
                     {t("etudiant.card_professeur.information_stage")}
                 </h2>
             </div>
-            {candidature ? (
-                <div className="text-sm p-0 pt-2">
-                    <span className="font-bold">{t("process.stage_found")} :</span>{"\u00A0"}{}
-                </div>
+            {candidatures ? (
+                <ExpandableList items={candidaturesAffichees} renderItem={(candidature) => (
+                    <ListItem onClick={() => voirResumeOffre(candidature.offreId)} detailRows={[
+                        {label : t("etudiant.card_professeur.employeur"), value : candidature.employeurBusinessName},
+                        {label : t("etudiant.card_professeur.statut_candidature"), value : t("candidature.status." + candidature.statut.toLowerCase())}
+                    ]
+                    } variant="compact"/>
+                )}/>
             ):(
                 <EmptyContentMessage message={t("etudiant.card_professeur.aucune_candidature")}/>
+            )}
+            {error && (
+                <div className="bg-red-500 p-1">
+                    <p>{error}</p>
+                </div>
             )}
         </div>
     );

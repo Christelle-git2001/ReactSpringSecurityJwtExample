@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
+import { useNavigate, useSearchParams} from "react-router-dom";
 import {getEtudiants} from "../../api/professeur.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import EtudiantListItem from "../../component/Design/Lists/EtudiantListItem.jsx";
@@ -17,7 +17,7 @@ const ProfesseurHome = ({user}) => {
     const [nouveauEtudiantACharge, setNouveauxEtudiantACharge] = useState([]);
     const [filtreValue, setFiltreValue] = useState("");
     const [onlyNew, setOnlyNew] = useState(false);
-    const [searchParams,setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
 
 
     const initListeEtudiant = useCallback(async () => {
@@ -103,40 +103,47 @@ const ProfesseurHome = ({user}) => {
                 onlyNew={onlyNew}
                 onOnlyNewChange={setOnlyNew}
             />
-            <details open className="collapse collapse-arrow bg-transparent mt-5">
+            {isInitialLoading ? (
+                    <div className="flex items-center justify-center p-12 border rounded-xl bg-gray-50 mt-5">
+                        <span className="loading loading-spinner loading-md text-[#043462]" />
+                    </div>
+                ) : (
+                <details open className="collapse collapse-arrow bg-transparent mt-5">
 
-                <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
-                    {t("professeur.etudiant_section_title")} ({listeEtudiantACharge.length})
-                </summary>
+                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
+                        {t("professeur.etudiant_section_title")} ({listeEtudiantACharge.length})
+                    </summary>
 
-                <div className="collapse-content transition-all duration-300 ease-in-out px-0">
-                    <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
-                    <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
-                        <div className="grid grid-cols-12 gap-4 w-full">
-                            {listeEtudiantACharge
-                                .filter((etudiant) => {
-                                    return Object.values(etudiant).some((valeur) =>
-                                        String(valeur).toLowerCase().includes(String(filtreValue).toLowerCase())
-                                    );
-                                })
-                                .filter((etudiant) => {
-                                    if (!onlyNew) return true;
-                                    return nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
-                                })
-                                .sort((a, b) => trierEtudiantsNouveauxEnPremier(a, b, nouveauEtudiantACharge))
-                                .map((etudiant) => {
-                                    const isNew = nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
+                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                        <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
+                        <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
+                            <div className="grid grid-cols-12 gap-4 w-full">
+                                {listeEtudiantACharge
+                                    .filter((etudiant) => {
+                                        return Object.values(etudiant).some((valeur) =>
+                                            String(valeur).toLowerCase().includes(String(filtreValue).toLowerCase())
+                                        );
+                                    })
+                                    .filter((etudiant) => {
+                                        if (!onlyNew) return true;
+                                        return nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
+                                    })
+                                    .sort((a, b) => trierEtudiantsNouveauxEnPremier(a, b, nouveauEtudiantACharge))
+                                    .map((etudiant) => {
+                                        const isNew = nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
 
-                                    return (
-                                        <div key={etudiant.id} className="col-span-6">
-                                            <EtudiantListItem etudiant={etudiant} isNew={isNew} />
-                                        </div>
-                                    );
-                                })}
+                                        return (
+                                            <div key={etudiant.id} className="col-span-6">
+                                                <EtudiantListItem etudiant={etudiant} isNew={isNew} />
+                                            </div>
+                                        );
+                                    })}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </details>
+                </details>
+            )}
+
         </div>
     </>
   );

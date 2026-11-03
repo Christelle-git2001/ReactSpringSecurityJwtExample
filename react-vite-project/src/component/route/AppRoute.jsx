@@ -22,6 +22,7 @@ import AddTargetedOffer from "../Offer/AddTargetedOffer.jsx";
 import GestionEntrevue from "../Entrevue/GestionEntrevue.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
 import ViewProcess from "../Contrat/ViewProcess.jsx";
+import OffreResumePage from "../../page/Offre/OffreResumePage.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -72,6 +73,7 @@ export default function AppRoutes({
                 <Route path="/employeur/entrevues" element={<GestionEntrevue />} />
 
                 <Route path="/professeur" element={<ProfesseurHome user={user} />} />
+                <Route path="/professeur/resumeOffre" element={<OffreResumePage/>}/>
 
                 <Route path="/gestionnaire" element={<GestionnaireHome user={user}/>} />
                 <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>

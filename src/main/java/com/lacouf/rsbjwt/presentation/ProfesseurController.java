@@ -2,10 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +45,11 @@ public class ProfesseurController {
         return ResponseEntity.ok(
                 professeurService.getCandidaturesEtudiant(etudiantId)
         );
+    }
+
+    @GetMapping("/offre/{offreId}")
+    public ResponseEntity<ResumeStageEtudiantDTO> getResumeOffre(@PathVariable Long offreId) throws OffreIntrouvableException {
+        return ResponseEntity.ok(professeurService.getResumeOffre(offreId));
     }
 
 

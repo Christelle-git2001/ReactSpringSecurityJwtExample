@@ -336,7 +336,9 @@
       "information_communication": "Information de communication",
       "information_scolaire" : "Information Scolaire",
       "information_stage": "Information de stage",
-      "aucune_candidature" : "Recherche de stage en cours..."
+      "aucune_candidature" : "Recherche de stage en cours...",
+      "employeur": "Employeur",
+      "statut_candidature" : "Statut"
     },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
@@ -453,13 +455,33 @@
       "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
+  "resume_offers" : {
+    "offers_section": "Renseignements sur l'offre",
+    "offers_sous_section" : {
+      "title" : "Titre",
+      "salaire": "Salaire",
+      "salaire_value": "{{salary}}$/Heure",
+      "description" : "description",
+      "start_date": "Date de début du stage",
+      "format_date" : "(AAAA-MM-JJ)",
+      "end_date": "Date de fin du stage",
+      "pdf": "Aperçu de l'offre"
+    },
+    "employer_section": "Renseignement sur l'employeur",
+    "employer_sous_section": {
+      "business_name": "Nom de la Compagnie"
+    }
+  },
   "candidature": {
     "status": {
       "contrat" : "Contrat",
+      "contrat_cree" : "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
+      "retenue_pour_entrevue" : "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
+      "entrevue_planifiee" : "Entrevue planifiée",
       "acceptee": "Acceptée"
     },
     "position": "Poste",
@@ -587,6 +609,7 @@
     "matricule": "Matricule",
     "email" : "Courriel",
     "phone" : "Numéro de téléphone",
+    "town" : "Ville",
     "liste" : {
       "open" : "Ouvrir la liste",
       "close" : "Fermer la liste",

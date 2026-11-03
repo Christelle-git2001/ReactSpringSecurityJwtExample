@@ -1,19 +1,11 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Employeur;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.Professeur;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.ProfesseurRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
+import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,14 +23,16 @@ public class ProfesseurService {
     private final PasswordEncoder passwordEncoder ;
     private final EtudiantRepository etudiantRepository;
     private final CandidatureRepository candidatureRepository;
+    private final OffreDeStageRepository offreDeStageRepository;
 
     public ProfesseurService(ProfesseurRepository professeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder,
-                             EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository) {
+                             EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, OffreDeStageRepository offreDeStageRepository) {
         this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
+        this.offreDeStageRepository = offreDeStageRepository;
     }
 
     @Transactional
@@ -99,7 +93,6 @@ public class ProfesseurService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<CandidatureDTO> getCandidaturesEtudiant(Long etudiantId) throws UtilisateurIntrouvableException{
 
         etudiantRepository.findById(etudiantId)
@@ -112,4 +105,8 @@ public class ProfesseurService {
     }
 
 
+    public ResumeStageEtudiantDTO getResumeOffre(Long offreId) throws OffreIntrouvableException {
+        OffreDeStage offreDeStage = offreDeStageRepository.findById(offreId).orElseThrow(OffreIntrouvableException::new);
+        return ResumeStageEtudiantDTO.of(offreDeStage);
+    }
 }
