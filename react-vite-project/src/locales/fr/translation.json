@@ -470,6 +470,8 @@
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
   "entrevue": {
+    "accept": "Accepter",
+    "reject": "Refuser",
     "mode_online_title": "En ligne",
     "mode_onsite_title": "Présentiel",
     "add_title": "Planifier une entrevue",

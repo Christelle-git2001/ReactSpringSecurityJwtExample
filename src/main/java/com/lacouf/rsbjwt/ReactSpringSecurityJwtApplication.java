@@ -2,13 +2,8 @@ package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.Exception.DateFinAffichageApresDateDebutException;
 import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
-import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Employeur;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
@@ -41,11 +36,14 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final EmployeurService employeurService;
     private final GestionnaireService gestionnaireService;
     private final CvEtudiantRepository cvEtudiantRepository;
+    private final CandidatureRepository candidatureRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public ReactSpringSecurityJwtApplication(GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository,
                                              UserAppRepository userAppRepository,  Environment environment, EtudiantService etudiantService,
                                              OffreDeStageRepository offreDeStageRepository, EmployeurService employeurService,
-                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository) {
+                                             EmployeurRepository employeurRepository, GestionnaireService gestionnaireService, CvEtudiantRepository cvEtudiantRepository,
+                                             CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
@@ -56,6 +54,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.employeurRepository = employeurRepository;
         this.gestionnaireService = gestionnaireService;
         this.cvEtudiantRepository = cvEtudiantRepository;
+        this.candidatureRepository = candidatureRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     public static void main(String[] args) {
@@ -222,8 +222,22 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
        gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
        gestionnaireService.approuverOffre(devWebJr.id());
 
-       etudiantService.postuler(devWebJr.id(),emailAdrien);
-       cvEtudiantRepository.save(cvEtudiant);
+        CandidatureDTO candidatureAdrien = etudiantService.postuler(devWebJr.id(), emailAdrien);
+        cvEtudiantRepository.save(cvEtudiant);
 
+        Candidature candidature = candidatureRepository.findById(candidatureAdrien.id()).orElseThrow();
+        candidature.setStatut(StatutCandidature.ENTREVUE_CONFIRMEE);
+        candidatureRepository.save(candidature);
+
+        Entrevue entrevuePassee = Entrevue.builder()
+                .candidature(candidature)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(LocalDateTime.now().minusHours(1))
+                .duree(30)
+                .dateCreation(LocalDateTime.now().minusDays(3))
+                .build();
+        entrevuePassee.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevuePassee.setDateConfirmation(LocalDateTime.now().minusDays(2));
+        entrevueRepository.save(entrevuePassee);
     }
 }

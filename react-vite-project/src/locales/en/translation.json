@@ -471,6 +471,8 @@
     "file_hint": "Accepted format: PDF | Maximum size: {{maxSize}} MB"
   },
   "entrevue": {
+    "accept": "Accept",
+    "reject": "Reject",
     "mode_online_title": "Online",
     "mode_onsite_title": "On-site",
     "add_title": "Schedule an interview",
