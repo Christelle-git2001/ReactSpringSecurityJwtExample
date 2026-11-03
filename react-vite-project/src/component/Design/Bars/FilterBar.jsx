@@ -18,7 +18,8 @@ export default function FilterBar({
                                       onlyNew = false,
                                       onOnlyNewChange,
                                       className = "",
-                                      statusLabels = {}
+                                      statusLabels = {},
+                                      statusOptions = ["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"]
                                   }) {
     const { t } = useTranslation();
 
@@ -55,7 +56,7 @@ export default function FilterBar({
                         </span>
 
                         <form className="filter flex flex-wrap gap-2">
-                            {["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"].map((key) => (
+                            {statusOptions.map((key) => (
                                 <label key={key}>
                                     <input
                                         type="checkbox"

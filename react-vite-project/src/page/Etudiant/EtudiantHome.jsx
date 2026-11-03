@@ -26,6 +26,7 @@ const EtudiantHome = ({ user }) => {
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
     const [idsPostules, setIdsPostules] = useState([]);
+    const [candidatures, setCandidatures] = useState([]);
     const [previewUrl, setPreviewUrl] = useState(null);
     const previewDialogRef = useRef(null);
 
@@ -49,7 +50,10 @@ const EtudiantHome = ({ user }) => {
 
     useEffect(() => {
         obtenirCandidaturesEtudiant()
-            .then((liste) => setIdsPostules(liste.map((c) => c.offreId)))
+            .then((liste) => {
+                setIdsPostules(liste.map((c) => c.offreId));
+                setCandidatures(liste);
+            })
             .catch(console.error);
     }, []);
 
@@ -235,11 +239,13 @@ const EtudiantHome = ({ user }) => {
                                                         onPreview={setPreviewUrl}
                                                         onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
-                                                        onApplied={(id) =>
+                                                        statutCandidature={candidatures.find((c) => c.offreId === offer.id)?.statut}
+                                                        onApplied={(id) => {
                                                             setIdsPostules((prev) =>
                                                                 prev.includes(id) ? prev : [...prev, id]
-                                                            )
-                                                        }
+                                                            );
+                                                            obtenirCandidaturesEtudiant().then(setCandidatures).catch(console.error);
+                                                        }}
                                                     />
                                                 </div>
                                             ))}

@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
@@ -307,10 +308,45 @@ public class NotificationService {
                         VariableMapKey.ENTREPRISE_NOM,
                         offre.getEmployeur().getBusinessName(),
                         VariableMapKey.ENTREVUE_DATE,
-                        entrevue.getDateHeureEntrevue().toString()
+                        entrevue.getDateHeureEntrevue().toString(),
+                        VariableMapKey.ENTREVUE_ID, String.valueOf(entrevue.getId())
                 ))
                 .build();
 
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleConvocationRepondue(ConvocationRepondueEvent event) {
+        Entrevue entrevue = event.entrevue();
+        Candidature candidature = entrevue.getCandidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+        boolean acceptee = entrevue.getStatut() == StatutEntrevue.CONFIRMEE;
+        String cle = "notification.employeur." + (acceptee ? "convocationAcceptee" : "convocationRefusee");
+
+        notificationRepository.getNotificationByDestinataire(etudiant).stream()
+                .filter(notification -> notification.getNotificationType() == NotificationType.CONVOCATION_ENTREVUE
+                        && String.valueOf(entrevue.getId()).equals(notification.getVariables().get(VariableMapKey.ENTREVUE_ID)))
+                .forEach(notificationRepository::delete);
+
+        Notification notification = Notification.builder()
+                .titre(cle + ".title")
+                .description(cle + ".description")
+                .notificationType(acceptee ? NotificationType.CONVOCATION_ACCEPTEE : NotificationType.CONVOCATION_REFUSEE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .destinataire(offre.getEmployeur())
+                .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
+                        VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString(),
+                        VariableMapKey.ENTREVUE_ID, String.valueOf(entrevue.getId())
+                ))
+                .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 
