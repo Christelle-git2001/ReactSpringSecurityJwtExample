@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { obtenirToutesConvocations, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
 import { FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt } from "react-icons/fa";
 import Button from "../../component/Design/Button.jsx";
@@ -16,9 +17,13 @@ const FORMAT_KEYS = {
 
 function EtudiantEntrevues() {
     const { t, i18n } = useTranslation();
+    const location = useLocation();
+    const focusId = location.state?.id;
+
     const [convocations, setConvocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [focusedCardId, setFocusedCardId] = useState(null);
 
     const [submittingId, setSubmittingId] = useState(null);
     const [actionError, setActionError] = useState(null);
@@ -41,6 +46,19 @@ function EtudiantEntrevues() {
     useEffect(() => {
         charger().finally(() => setLoading(false));
     }, []);
+
+    useEffect(() => {
+        if (focusId && !loading) {
+            setFocusedCardId(Number(focusId));
+
+            setTimeout(() => {
+                const element = document.getElementById(`entrevue-${focusId}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 200);
+        }
+    }, [focusId, loading]);
 
     const repondre = async (id, action) => {
         setSubmittingId(id);
@@ -125,13 +143,13 @@ function EtudiantEntrevues() {
                                 const aRepondre = c.statut === "A_CONFIRMER";
                                 const enCours = submittingId === c.id;
                                 const refusOuvert = refusingId === c.id;
-
+                                const isFocused = focusedCardId === c.id;
                                 return (
-                                    <li key={c.id}>
-                                        {/* CONTENEUR GLOBAL DE LA CARTE */}
-                                        <div className="w-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                                    <li key={c.id} id={`entrevue-${c.id}`}>
+                                        <div className={`w-full rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-500 ${
+                                            isFocused ? 'border-2 border-black ring-4 ring-gray-200' : 'border-gray-200'
+                                        }`}>
 
-                                            {/* LIGNE DU HAUT : Infos + Boutons (flex-row) */}
                                             <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 p-5 bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
                                                 <div className="hidden sm:flex size-16 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-[#043462]">
                                                     <FaCalendarAlt className="size-8" aria-hidden="true" />
@@ -141,30 +159,29 @@ function EtudiantEntrevues() {
                                                     <p className="text-lg sm:text-xl font-bold break-words">{c.offreTitle}</p>
                                                     <p className="mt-1 font-semibold">{c.employeur?.businessName}</p>
                                                     <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:text-base">
-                                <span className="inline-flex items-center gap-2">
-                                    <FaCalendarAlt aria-hidden="true" />
-                                    {c.dateHeureEntrevue ? c.dateHeureEntrevue.split("T")[0] : "—"}
-                                </span>
+                                                        <span className="inline-flex items-center gap-2">
+                                                            <FaCalendarAlt aria-hidden="true" />
+                                                            {c.dateHeureEntrevue ? c.dateHeureEntrevue.split("T")[0] : "—"}
+                                                        </span>
                                                         <span className="inline-flex items-center gap-2 sm:border-l sm:border-[#043462]/30 sm:pl-5">
-                                    <FaClock aria-hidden="true" />
+                                                            <FaClock aria-hidden="true" />
                                                             {c.dateHeureEntrevue
                                                                 ? new Date(c.dateHeureEntrevue).toLocaleTimeString(i18n.language, {
                                                                     hour: "2-digit", minute: "2-digit",
                                                                 })
                                                                 : "—"}
-                                </span>
+                                                        </span>
                                                         <span className="inline-flex items-center gap-2 sm:border-l sm:border-[#043462]/30 sm:pl-5">
-                                    <FaHourglassHalf aria-hidden="true" />
+                                                            <FaHourglassHalf aria-hidden="true" />
                                                             {c.duree ? t("convocation.duration_value", { minutes: c.duree }) : "—"}
-                                </span>
+                                                        </span>
                                                         <span className="inline-flex items-center gap-2 sm:border-l sm:border-[#043462]/30 sm:pl-5">
-                                    <FaMapMarkerAlt aria-hidden="true" />
+                                                            <FaMapMarkerAlt aria-hidden="true" />
                                                             {FORMAT_KEYS[c.format] ? t(FORMAT_KEYS[c.format]) : (c.format ?? "—")}
-                                </span>
+                                                        </span>
                                                     </div>
                                                 </div>
 
-                                                {/* BOUTONS : Alignés à droite, sur la même ligne */}
                                                 {aRepondre && !refusOuvert && (
                                                     <div className="ml-auto flex shrink-0 gap-2">
                                                         <Button variant="danger" type="button" disabled={enCours}
@@ -180,13 +197,12 @@ function EtudiantEntrevues() {
 
                                                 {c.statut === "CONFIRMEE" && (
                                                     <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
-                                <FaCheckCircle aria-hidden="true" />
+                                                        <FaCheckCircle aria-hidden="true" />
                                                         {t("convocation.scheduled")}
-                            </span>
+                                                    </span>
                                                 )}
                                             </div>
 
-                                            {/* ZONE DE REFUS : S'empile en dessous de la ligne du haut */}
                                             {aRepondre && refusOuvert && (
                                                 <div className="w-full bg-red-50 p-5 border-t border-red-200 flex flex-col gap-2">
                                                     <label htmlFor={`motif-${c.id}`} className="text-sm font-semibold text-red-600">
