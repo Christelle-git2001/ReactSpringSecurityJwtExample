@@ -41,6 +41,9 @@ public class Entrevue {
     @Column
     private LocalDateTime dateReponse;
 
+    @Column(length = 500)
+    private String motifRefus;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatutEntrevue statut = StatutEntrevue.A_CONFIRMER;

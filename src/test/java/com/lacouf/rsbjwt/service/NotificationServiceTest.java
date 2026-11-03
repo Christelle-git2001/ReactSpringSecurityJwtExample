@@ -95,6 +95,15 @@ public class NotificationServiceTest {
         Entrevue entrevue = Entrevue.builder().candidature(candidature)
                 .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
         entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setId(1L);
+        Notification convocation = new Notification();
+        convocation.setNotificationType(NotificationType.CONVOCATION_ENTREVUE);
+        convocation.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "1"));
+        Notification autreConvocation = new Notification();
+        autreConvocation.setNotificationType(NotificationType.CONVOCATION_ENTREVUE);
+        autreConvocation.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "2"));
+        when(notificationRepository.getNotificationByDestinataire(etudiant))
+                .thenReturn(List.of(convocation, autreConvocation));
         when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
             Notification notification = invocation.getArgument(0);
             notification.setId(50L);
@@ -104,6 +113,8 @@ public class NotificationServiceTest {
         NotificationDTO resultat = notificationService.handleConvocationRepondue(new ConvocationRepondueEvent(entrevue));
 
         assertThat(resultat.notificationType()).isEqualTo(NotificationType.CONVOCATION_ACCEPTEE);
+        verify(notificationRepository).delete(convocation);
+        verify(notificationRepository, never()).delete(autreConvocation);
         String cle = "notification.employeur.convocationAcceptee";
         assertThat(resultat.titre()).isEqualTo(cle + ".title");
         assertThat(resultat.description()).isEqualTo(cle + ".description");
@@ -127,6 +138,11 @@ public class NotificationServiceTest {
         Entrevue entrevue = Entrevue.builder().candidature(candidature)
                 .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
         entrevue.setStatut(StatutEntrevue.REFUSEE);
+        entrevue.setId(1L);
+        Notification convocation = new Notification();
+        convocation.setNotificationType(NotificationType.CONVOCATION_ENTREVUE);
+        convocation.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "1"));
+        when(notificationRepository.getNotificationByDestinataire(etudiant)).thenReturn(List.of(convocation));
         when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
             Notification notification = invocation.getArgument(0);
             notification.setId(50L);
@@ -136,6 +152,7 @@ public class NotificationServiceTest {
         NotificationDTO resultat = notificationService.handleConvocationRepondue(new ConvocationRepondueEvent(entrevue));
 
         assertThat(resultat.notificationType()).isEqualTo(NotificationType.CONVOCATION_REFUSEE);
+        verify(notificationRepository).delete(convocation);
         String cle = "notification.employeur.convocationRefusee";
         assertThat(resultat.titre()).isEqualTo(cle + ".title");
         assertThat(resultat.description()).isEqualTo(cle + ".description");

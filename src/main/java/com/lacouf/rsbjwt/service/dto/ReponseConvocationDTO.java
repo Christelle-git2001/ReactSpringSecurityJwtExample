@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 public record ReponseConvocationDTO(Long entrevueId, LocalDateTime dateHeureEntrevue,
                                     LocalDateTime dateConfirmation, boolean confirmee,
-                                    StatutEntrevue statut, LocalDateTime dateReponse) {
+                                    StatutEntrevue statut, LocalDateTime dateReponse, String motifRefus) {
     public static ReponseConvocationDTO of(Entrevue entrevue) {
         return new ReponseConvocationDTO(entrevue.getId(), entrevue.getDateHeureEntrevue(),
                 entrevue.getDateConfirmation(), entrevue.getDateConfirmation() != null,
-                entrevue.getStatut(), entrevue.getDateReponse()
+                entrevue.getStatut(), entrevue.getDateReponse(), entrevue.getMotifRefus()
         );
     }
 }

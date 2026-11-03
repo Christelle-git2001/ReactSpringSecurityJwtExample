@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Entrevue from "./Entrevue";
 import { FiCalendar } from "react-icons/fi";
 import Button from "../Design/Button.jsx";
+import { getCandidaturesEmployeur } from "../../api/employeur.jsx";
 import "./Agenda.css";
 import "cally";
 
@@ -58,7 +59,7 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
         : entrevuesList;
 
     const groupedEntrevues = filteredEntrevues.reduce((acc, entrevue) => {
-        const dateKey = getCleanDate(entrevue?.date) || "sans_date";
+        const dateKey = getCleanDate(entrevue?.date) === "" ? "sans_date" : getCleanDate(entrevue?.date);
         if (!acc[dateKey]) acc[dateKey] = [];
         acc[dateKey].push(entrevue);
         return acc;
@@ -66,18 +67,31 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
 
     const sortedDates = Object.keys(groupedEntrevues).sort((a, b) => new Date(a) - new Date(b));
 
-    const handleViewCandidature = (entrevue) => {
-        const candidatureComplete = candidaturesList.find(
-            (c) => String(c.id) === String(entrevue.candidatureId)
-        );
+    const handleViewCandidature = async (entrevue) => {
+        try {
+            let candidatureComplete = entrevue.candidatureComplete || candidaturesList.find(
+                (c) => String(c.id) === String(entrevue.candidatureId)
+            );
 
-        if (candidatureComplete) {
-            navigate(`/employeur/candidatures/details`, {
-                state: {
-                    candidature: candidatureComplete,
-                    from: "/employeur/entrevues"
-                }
-            });
+            if (!candidatureComplete || !candidatureComplete.cvId) {
+                const toutesLesCandidatures = await getCandidaturesEmployeur();
+                candidatureComplete = (toutesLesCandidatures || []).find(
+                    (c) => String(c.id) === String(entrevue.candidatureId)
+                );
+            }
+
+            if (candidatureComplete) {
+                navigate(`/employeur/candidatures/details`, {
+                    state: {
+                        candidature: candidatureComplete,
+                        from: "/employeur/entrevues"
+                    }
+                });
+            } else {
+                console.error("Erreur : Impossible de trouver la candidature complète pour l'ID :", entrevue.candidatureId);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de la candidature :", error);
         }
     };
 

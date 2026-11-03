@@ -327,6 +327,11 @@ public class NotificationService {
         boolean acceptee = entrevue.getStatut() == StatutEntrevue.CONFIRMEE;
         String cle = "notification.employeur." + (acceptee ? "convocationAcceptee" : "convocationRefusee");
 
+        notificationRepository.getNotificationByDestinataire(etudiant).stream()
+                .filter(notification -> notification.getNotificationType() == NotificationType.CONVOCATION_ENTREVUE
+                        && String.valueOf(entrevue.getId()).equals(notification.getVariables().get(VariableMapKey.ENTREVUE_ID)))
+                .forEach(notificationRepository::delete);
+
         Notification notification = Notification.builder()
                 .titre(cle + ".title")
                 .description(cle + ".description")

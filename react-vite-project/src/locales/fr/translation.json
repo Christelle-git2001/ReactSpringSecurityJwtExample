@@ -102,7 +102,7 @@
     "save": "Soumettre"
   },
   "actions": {
-    "interview":"Retenir pour entrevue",
+    "interview": "Retenir pour entrevue",
     "plan_interview": "Planifier une entrevue",
     "manage_status": "Gérer le statut",
     "waiting": "En attente du contrat",
@@ -443,12 +443,21 @@
     }
   },
   "candidature": {
+    "my_applications": "Mes candidatures",
+    "newest_first": "Plus récentes",
+    "oldest_first": "Plus anciennes",
+    "search_placeholder": "Rechercher une candidature…",
+    "none": "Aucune candidature pour le moment.",
     "status": {
       "contrat" : "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
+      "confirmee": "Entrevue confirmée",
+      "entrevue_refusee": "Entrevue refusée",
+      "refusee": "Refusée",
+      "contrat_cree": "Contrat créé",
       "acceptee": "Acceptée"
     },
     "position": "Poste",
@@ -479,6 +488,14 @@
   },
   "notification": {
     "employeur": {
+      "convocationAcceptee": {
+        "title": "Convocation acceptée",
+        "description": "{{ETUDIANT_NOM}} a confirmé sa présence à l'entrevue pour le poste {{OFFRE_TITRE}}."
+      },
+      "convocationRefusee": {
+        "title": "Convocation refusée",
+        "description": "{{ETUDIANT_NOM}} a refusé la convocation à l'entrevue pour le poste {{OFFRE_TITRE}}."
+      },
       "nouvelleCandidature": {
         "title": "Nouvelle candidature",
         "description": "{{ETUDIANT_NOM}} a postulé à votre offre : {{OFFRE_TITRE}}"
@@ -566,20 +583,6 @@
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
   },
-  "convocation": {
-    "title": "Détails de l'entrevue",
-    "subtitle": "Veuillez confirmer votre présence à l'entrevue",
-    "list_title": "Mes entrevues",
-    "none": "Pas d'entrevues pour le moment.",
-    "offer": "Offre",
-    "format": "Format",
-    "date": "Date",
-    "time": "Heure",
-    "reject" : "Refuser",
-    "accept" : "Accepter",
-    "back" : "Retour",
-    "scheduled": "Entrevue planifiée"
-  },
   "general": {
     "nom" : "Nom",
     "departement" : "Departement",
@@ -626,5 +629,45 @@
     "cv_view_title" : "CV de l'étudiant ",
     "contract_view_title" : "Contrat de Stage"
 
+  },
+  "convocation": {
+    "title": "Détails de l'entrevue",
+    "subtitle": "Veuillez confirmer votre présence à l'entrevue ",
+    "list_title": "Mes entrevues",
+    "application_progress": "Suivi de la candidature",
+    "none": "Aucune entrevue pour le moment.",
+    "no_matching": "Aucune entrevue ne correspond à votre recherche.",
+    "to_confirm": "À confirmer",
+    "interview_to_confirm": "Entrevue à confirmer",
+    "awaiting_decision": "En attente de réponse",
+    "offer": "Offre",
+    "format": "Format",
+    "date": "Date",
+    "time": "Heure",
+    "reject" : "Refuser",
+    "confirm_refusal": "Confirmer le refus",
+    "refusal_confirmation": "Voulez-vous refuser cette convocation ? L'employeur sera informé de votre décision.",
+    "refusal_reason": "Motif du refus",
+    "refusal_reason_required": "Veuillez préciser le motif du refus.",
+    "refusal_reason_too_long": "Le motif ne doit pas dépasser 500 caractères.",
+    "refused_message": "Vous avez refusé cette convocation.",
+    "refused_by_student": "L'étudiant a refusé cette convocation.",
+    "accept" : "Accepter",
+    "back" : "Retour",
+    "scheduled": "Entrevue planifiée",
+    "confirmed": "Confirmée",
+    "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
+    "view_details": "Voir les détails",
+    "duration_value": "{{minutes}} minutes"
+  },
+  "sort": {
+    "by_date": "Trier par date",
+    "newest_first": "Plus récent",
+    "oldest_first": "Plus ancien"
+  },
+  "refusal": {
+    "reason": "Motif du refus",
+    "placeholder": "Veuillez entrer le motif du refus...",
+    "required": "Veuillez préciser le motif du refus."
   }
 }

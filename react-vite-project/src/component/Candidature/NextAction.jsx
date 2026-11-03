@@ -2,13 +2,24 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
-import { retenirCandidaturePourEntrevue, signerContratEmployeur } from "../../api/employeur.jsx";
+import { retenirCandidaturePourEntrevue, signerContratEmployeur, obtenirConvocationEmployeur } from "../../api/employeur.jsx";
 
 function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statutActuel, setStatutActuel] = useState(candidature?.statut);
+    const [motifRefus, setMotifRefus] = useState("");
+    const [motifError, setMotifError] = useState(false);
+
+    useEffect(() => {
+        if (statutActuel !== "ENTREVUE_REFUSEE" || !candidature?.id) return;
+        let actif = true;
+        obtenirConvocationEmployeur(candidature.id)
+            .then((convocation) => { if (actif) setMotifRefus(convocation.motifRefus || ""); })
+            .catch(() => { if (actif) setMotifError(true); });
+        return () => { actif = false; };
+    }, [candidature?.id, statutActuel]);
 
     const [dateSignatureEmployeur, setDateSignatureEmployeur] = useState(
         contrat?.dateSignatureEmployeur || candidature?.dateSignatureEmployeur || null
@@ -91,6 +102,13 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                     onClick: () => {},
                     disabled: false
                 };
+            case "ENTREVUE_REFUSEE":
+                return {
+                    description: t("convocation.refused_by_student", { defaultValue: t("candidature.status.entrevue_refusee") }),
+                    buttonText: null,
+                    onClick: null,
+                    disabled: false
+                };
             case "STAGE_TROUVE":
                 return {
                     description: t("process.action_wait_contract"),
@@ -128,6 +146,10 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                 <p className="text-sm text-gray-700">
                     {actionData.description}
                 </p>
+                {motifRefus && <p className="text-sm text-red-800 whitespace-pre-wrap break-words">
+                    <strong>{t("convocation.refusal_reason")} : </strong>{motifRefus}
+                </p>}
+                {motifError && <p role="alert" className="text-sm text-red-700">{t("error.generic")}</p>}
             </div>
 
             <div className="flex items-center gap-3 whitespace-nowrap">
@@ -149,7 +171,7 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                 <Button
                     type="button"
                     onClick={() => navigate(retourPath || "/employeur")}
-                    className="bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    variant="secondary"
                 >
                     {t("actions.back")}
                 </Button>

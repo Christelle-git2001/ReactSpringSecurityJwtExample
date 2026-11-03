@@ -121,3 +121,7 @@ export async function refuserCandidat(entrevueId, motifRefus) {
         body: JSON.stringify({ motifRefus }),
     });
 }
+
+export async function obtenirConvocationEmployeur(candidatureId) {
+    return fetchJson(`/employeur/candidatures/${candidatureId}/entrevue`, { method: "GET" });
+}

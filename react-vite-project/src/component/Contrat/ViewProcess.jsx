@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import StepProcess from "./StepProcess";
+import Button from "../Design/Button.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import {
     demarrerProcessusDeSignatureDeContrat,
@@ -217,13 +218,13 @@ function ViewProcess() {
 
                     {!isProcessStarted && (
                         <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                            <button
+                            <Button
                                 type="button"
                                 onClick={() => navigate(retour)}
-                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium cursor-pointer"
+                                variant="secondary"
                             >
                                 {t("actions.back", "Retour")}
-                            </button>
+                            </Button>
                             <button
                                 type="button"
                                 onClick={handleStartProcess}
@@ -259,13 +260,13 @@ function ViewProcess() {
                             )}
 
                             <div className="flex justify-end gap-3 pt-3 border-t border-gray-200 w-full">
-                                <button
+                                <Button
                                     type="button"
                                     onClick={() => navigate(retour)}
-                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium cursor-pointer"
+                                    variant="secondary"
                                 >
                                     {t("actions.back", "Retour")}
-                                </button>
+                                </Button>
                                 <button
                                     type="button"
                                     disabled={isSignButtonDisabled}
