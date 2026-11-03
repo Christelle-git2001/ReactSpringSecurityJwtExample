@@ -7,10 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,7 +36,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
@@ -502,5 +498,77 @@ public class EtudiantControllerTest {
         mockMvc.perform(post("/etudiant/offres/10/postuler")
                         .principal(authentication))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void doitSignerContratEtudiant() throws Exception {
+        Long contratId = 1L;
+
+        ContratDTO contratDTO = new ContratDTO(
+                contratId,
+                1L,
+                1L,
+                LocalDate.now(),
+                LocalDate.now(),
+                LocalDate.now()
+        );
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId))
+                .thenReturn(contratDTO);
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(contratId))
+                .andExpect(jsonPath("$.candidatureId").value(1))
+                .andExpect(jsonPath("$.dateSignatureEtudiant").exists());
+
+        verify(etudiantService, times(1)).signerContrat(contratId);
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandContratIntrouvablePourSignature() throws Exception {
+        Long contratId = 99L;
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId))
+                .thenThrow(new ContratIntrouvableException());
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication))
+                .andExpect(status().isNotFound());
+
+        verify(etudiantService, times(1)).signerContrat(contratId);
+    }
+
+    @Test
+    void doitRetournerForbiddenQuandEtudiantNonAutorisePourSignature() throws Exception {
+        Long contratId = 1L;
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId))
+                .thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication))
+                .andExpect(status().isForbidden());
+
+        verify(etudiantService, times(1)).signerContrat(contratId);
     }
 }

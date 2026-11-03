@@ -97,4 +97,16 @@ public class EtudiantController {
 
         return ResponseEntity.ok(candidatures);
     }
+
+    @PutMapping("/contrats/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException,
+            OffreNonAutoriseeException,
+            EtudiantIntrouvableException {
+
+        ContratDTO contratDTO = etudiantService.signerContrat(contratId);
+
+        return ResponseEntity.ok(contratDTO);
+    }
 }
