@@ -2,12 +2,10 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,6 +47,7 @@ public class ProfesseurControllerTest {
 
     private InscriptionProfesseurDTO inscriptionProfesseurDTO;
     private ProfesseurDTO professeurDTO;
+    private EmployeurDTO employeurDTO;
 
     @BeforeEach
     void init() {
@@ -77,6 +77,18 @@ public class ProfesseurControllerTest {
                 "1234567",
                 "123-123-1234",
                 "INFORMATIQUE",
+                null
+        );
+
+        employeurDTO = new EmployeurDTO(
+                1L,
+                "Gerard",
+                "Robert",
+                "165-685-4569",
+                "Gerard.Robert@hotmail.com",
+                "Mercier",
+                "Gerard inc",
+                SecteurActivite.AEROSPATIAL,
                 null
         );
     }
@@ -244,6 +256,46 @@ public class ProfesseurControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
 
         verify(professeurService).getCandidaturesEtudiant(etudiantId);
+    }
+
+    @Test
+    void doitRetournerResumeOffre() throws Exception {
+        Long offreId = 1L;
+
+        ResumeStageEtudiantDTO resumeDTO = new ResumeStageEtudiantDTO(
+                offreId,
+                "Développeur Full Stack",
+                "Description du stage...",
+                25.0,
+                LocalDate.now(),
+                LocalDate.now().plusMonths(3),
+                "thereIsTheFile",
+                employeurDTO
+
+        );
+
+        when(professeurService.getResumeOffre(offreId))
+                .thenReturn(resumeDTO);
+
+        mockMvc.perform(get("/professeur/offre/{offreId}", offreId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idOffre").value(offreId))
+                .andExpect(jsonPath("$.title").value("Développeur Full Stack"));
+
+        verify(professeurService).getResumeOffre(offreId);
+    }
+
+    @Test
+    void doitRetournerNotFoundSiOffreIntrouvable() throws Exception {
+        Long offreId = 999L;
+
+        when(professeurService.getResumeOffre(offreId))
+                .thenThrow(new OffreIntrouvableException());
+
+        mockMvc.perform(get("/professeur/offre/{offreId}", offreId))
+                .andExpect(status().isNotFound());
+
+        verify(professeurService).getResumeOffre(offreId);
     }
 
 }

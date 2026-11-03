@@ -1,18 +1,16 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
-import com.lacouf.rsbjwt.model.Candidature;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Professeur;
-import com.lacouf.rsbjwt.model.UserApp;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.ProfesseurRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.ResumeStageEtudiantDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +50,9 @@ public class ProfesseurServiceTest {
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private OffreDeStageRepository offreDeStageRepository;
 
     @InjectMocks
     private ProfesseurService professeurService ;
@@ -329,7 +330,50 @@ public class ProfesseurServiceTest {
                 .findAllByEtudiantId(anyLong());
     }
 
+    @Test
+    void doitRetournerResumeOffre() throws Exception {
+        Long offreId = 1L;
 
+        Employeur employeur = Employeur.builder()
+                .firstName("Gerard")
+                .lastName("Robert")
+                .town("Mercier")
+                .phone("165-685-4569")
+                .email("Gerard.Robert@hotmail.com")
+                .businessName("Gerard inc")
+                .businessSector(SecteurActivite.AEROSPATIAL)
+                .password("Losange12%")
+                .build();
+        employeur.setId(99L);
+
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(1L);
+        offre.setStatut(Statut.EN_ATTENTE);
+        offre.setEmployeur(employeur);
+
+        when(offreDeStageRepository.findById(offreId))
+                .thenReturn(Optional.of(offre));
+
+        ResumeStageEtudiantDTO resultat = professeurService.getResumeOffre(offreId);
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.idOffre()).isEqualTo(offreId);
+        verify(offreDeStageRepository).findById(offreId);
+    }
+
+    @Test
+    void doitLeverExceptionSiOffreIntrouvablePourResume() {
+        Long offreId = 999L;
+
+        when(offreDeStageRepository.findById(offreId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.getResumeOffre(offreId)
+        ).isInstanceOf(OffreIntrouvableException.class);
+
+        verify(offreDeStageRepository).findById(offreId);
+    }
 
 }
 
