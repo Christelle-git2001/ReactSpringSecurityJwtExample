@@ -12,7 +12,8 @@ import {
     FiUserPlus,
     FiBell,
     FiX,
-    FiArrowDown
+    FiArrowDown,
+
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
@@ -23,7 +24,8 @@ const ROUTES_PAR_TYPE = {
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
-    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details"
+    NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
+    NOUVEAU_CONTRAT: "/employeur/candidatures/details",
 };
 
 const CONFIG_PAR_TYPE = {
@@ -58,6 +60,10 @@ const CONFIG_PAR_TYPE = {
     NOUVELLE_CANDIDATURE: {
         icon: <FiUserPlus className="size-5" />,
         tone: "yellow",
+    },
+    NOUVEAU_CONTRAT: {
+        icon: <FiFileText className="size-5" />,
+        tone: "blue",
     },
 };
 
@@ -140,6 +146,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                     getCandidaturesEmployeur(),
                     getOffresEmployeur()
                 ]);
+
                 const candidature = candidatures.find(c => c.id === Number(candidatureId));
                 if (!candidature) {
                     setError(t("notifications.open_error"));
@@ -148,8 +155,67 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.candidature = candidature;
                 state.offer = offres.find(o => o.id === candidature.offreId);
                 state.from = "/employeur";
-            }
 
+               } else if (notification.notificationType === "NOUVEAU_CONTRAT") {
+                   const candidatureId = notification.variables?.CANDIDATURE_ID;
+
+                   if (!candidatureId) {
+                       console.error("CANDIDATURE_ID absent :", notification.variables);
+                       return;
+                   }
+
+                   if (window.location.pathname.startsWith("/employeur")) {
+                       try {
+                           const [candidatures, offres] = await Promise.all([
+                               getCandidaturesEmployeur(),
+                               getOffresEmployeur()
+                           ]);
+
+                           const candidature = candidatures.find(
+                               c => Number(c.id) === Number(candidatureId)
+                           );
+
+                           if (!candidature) {
+                               console.error("Candidature introuvable :", candidatureId);
+                               setError("Impossible de retrouver cette candidature.");
+                               return;
+                           }
+
+                           const offer = offres.find(
+                               o => Number(o.id) === Number(candidature.offreId)
+                           );
+
+                           const state = {
+                               candidature,
+                               offer,
+                               from: "/employeur"
+                           };
+
+                           console.log("Candidature transmise à CandidatureDetails :", state);
+
+                           closeNotification();
+
+                           navigate("/employeur/candidatures/details", {
+                               state
+                           });
+
+                           return;
+                       } catch (error) {
+                           console.error("Erreur ouverture du contrat :", error);
+                           setError("Impossible d'ouvrir les détails du contrat.");
+                           return;
+                       }
+                   }
+                   closeNotification();
+
+                   navigate(notification.urlCible, {
+                       state: {
+                           from: "/etudiant"
+                       }
+                   });
+
+                   return;
+               }
             closeNotification();
             navigate(destination, { state });
         }catch (error) {

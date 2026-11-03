@@ -485,7 +485,12 @@
       "nouvelleCandidature": {
         "title": "Nouvelle candidature",
         "description": "{{ETUDIANT_NOM}} a postulé à votre offre : {{OFFRE_TITRE}}"
-      }
+      },
+        "nouveauContrat": {
+          "title": "Nouveau contrat à signer",
+          "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
+        }
+
     },
     "gestionnaire": {
       "offre": {
@@ -511,8 +516,12 @@
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
+      },
+      "nouveauContrat": {
+        "title": "Nouveau contrat à signer",
+        "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
+        }
       }
-    }
   },
   "drawer": {
     "details": "Détails",

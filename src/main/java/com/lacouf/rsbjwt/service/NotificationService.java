@@ -317,31 +317,50 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-    public NotificationDTO handleNouveauContratCree(NouveauContratCreeEvent event) {
+    public void handleNouveauContratCree(NouveauContratCreeEvent event) {
         Contrat contrat = event.contrat();
 
         Candidature candidature = contrat.getCandidature();
         OffreDeStage offre = candidature.getOffreDeStage();
-        Employeur employeur = offre.getEmployeur();
 
-        Notification notification = Notification.builder()
+        Employeur employeur = offre.getEmployeur();
+        Etudiant etudiant = candidature.getEtudiant();
+
+        Notification notificationEmployeur = Notification.builder()
                 .titre("notification.employeur.nouveauContrat.title")
                 .description("notification.employeur.nouveauContrat.description")
                 .notificationType(NotificationType.NOUVEAU_CONTRAT)
                 .role(Role.EMPLOYEUR)
                 .destinataire(employeur)
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(ControllerPath.EMPLOYEUR_CONTRAT_ID
+                .urlCible(ControllerPath.EMPLOYEUR_CONTRAT
                         .build(String.valueOf(contrat.getId())))
                 .variables(Map.of(
                         VariableMapKey.OFFRE_TITRE, offre.getTitle(),
                         VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
-                        VariableMapKey.CANDIDATURE_ID,
-                        String.valueOf(candidature.getId())
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        notificationRepository.save(notificationEmployeur);
+
+        Notification notificationEtudiant = Notification.builder()
+                .titre("notification.etudiant.nouveauContrat.title")
+                .description("notification.etudiant.nouveauContrat.description")
+                .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                .role(Role.ETUDIANT)
+                .destinataire(etudiant)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.ETUDIANT_CONTRAT
+                        .build(String.valueOf(contrat.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        notificationRepository.save(notificationEtudiant);
     }
 
 }
