@@ -63,7 +63,11 @@ const CONFIG_PAR_TYPE = {
     ETUDIANT_ASSIGNE_PROFESSEUR : {
         icon : <PiStudentBold/>,
         tone : "blue"
-    }
+    },
+    PROFESSEUR_ASSIGNE_ETUDIANT : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
+    },
 };
 
 export default function Notification({ notifications = [], onMarkAsRead }) {

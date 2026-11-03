@@ -323,8 +323,8 @@ public class NotificationService {
         List<Etudiant> etudiants = event.etudiants();
 
         Notification notificationProfesseur = Notification.builder()
-                .titre("notification.professeur.assignation.title")
-                .description("notification.professeur.assignation.description")
+                .titre("notification.teacher.assignation.title")
+                .description("notification.teacher.assignation.description")
                 .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
                 .dateCreaction(LocalDateTime.now())
                 .destinataire(professeur)

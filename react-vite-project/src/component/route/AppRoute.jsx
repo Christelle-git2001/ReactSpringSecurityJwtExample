@@ -71,7 +71,7 @@ export default function AppRoutes({
                 <Route path="/employeur/candidatures/details" element={<CandidatureDetails />} />
                 <Route path="/employeur/entrevues" element={<GestionEntrevue />} />
 
-                <Route path="/professeur" element={<ProfesseurHome />} />
+                <Route path="/professeur" element={<ProfesseurHome user={user} />} />
 
                 <Route path="/gestionnaire" element={<GestionnaireHome user={user}/>} />
                 <Route path="/gestionnaire/account" element={<AccountGestionnaire />}/>

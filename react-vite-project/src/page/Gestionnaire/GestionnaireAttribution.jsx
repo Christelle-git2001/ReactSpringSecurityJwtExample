@@ -190,6 +190,7 @@ const GestionnaireAttribution = () => {
                                     <ProfesseurListItem
                                         professeur={professeurSelectione}
                                         onClick={handleChangeProfesseur}
+                                        nbStudent={etudiants.filter(e => e.professeurId === professeurSelectione.id).length}
                                         actionLabel={t("dashboard.view_cv")}
                                     />
                                 )}
@@ -214,6 +215,7 @@ const GestionnaireAttribution = () => {
                                                     <ProfesseurListItem
                                                         professeur={professeur}
                                                         profSelected={professeurSelectioneTemp}
+                                                        nbStudent={etudiants.filter(e => e.professeurId === professeur.id).length}
                                                         textClassName={"w-full inline-block cursor-pointer  border-5 rounded-2xl border-purple-500"}
                                                         onClick={() => handleProfessorSelected(professeur)}
                                                     />

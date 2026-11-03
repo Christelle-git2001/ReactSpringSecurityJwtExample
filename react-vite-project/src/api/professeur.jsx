@@ -7,3 +7,9 @@ export function inscrireProfesseur(professeur) {
         body: JSON.stringify(professeur)
     });
 }
+
+export function getEtudiants(){
+    return fetchJson("/professeur/etudiants", {
+        method : "GET"
+    })
+}

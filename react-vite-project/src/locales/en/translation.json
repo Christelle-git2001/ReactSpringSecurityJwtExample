@@ -278,6 +278,12 @@
       "fromTo": "to",
       "cv_approval_required": "Your CV must be approved before you can view job offers."
     },
+    "card_professeur": {
+      "information_communication": "Communication information",
+      "information_scolaire": "School Information",
+      "information_stage": "Internship Information",
+      "aucune_candidature": "Internship search in progress..."
+    },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
   },
@@ -286,6 +292,9 @@
       "view_offers": "View your created offers, their status, and details",
       "new_offer": "Create a new internship offer to allow students to join your company!"
     }
+  },
+  "professeur": {
+    "etudiant_section_title": "Assigned Students"
   },
   "gestionnaire": {
     "card": {
@@ -300,6 +309,7 @@
         "professeur_without_name": "This teacher has no name",
         "professeur_without_department" : "This teacher has no department",
         "professeur_without_email" : "This teacher has no email",
+        "nb_student_assign": "Assigned students",
         "professeur_is_selected" : "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
@@ -576,7 +586,8 @@
     "nom" : "Name",
     "departement" : "Department",
     "matricule": "Matricule",
-    "email" : "email",
+    "email" : "Email",
+    "phone" : "Phone Number",
     "liste" : {
       "open" : "Open the list",
       "close" : "Close the list",

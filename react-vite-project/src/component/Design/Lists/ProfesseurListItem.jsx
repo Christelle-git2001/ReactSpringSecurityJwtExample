@@ -3,12 +3,13 @@ import {useTranslation} from "react-i18next";
 import {getDepartmentKey} from "../../../utils/departementConverter.js";
 import {FaChalkboardTeacher} from "react-icons/fa";
 
-const ProfesseurListItem = ({professeur, onClick, textClassName, profSelected}) => {
+const ProfesseurListItem = ({professeur, onClick, textClassName, profSelected, nbStudent}) => {
     const { t } = useTranslation();
     const departement = getDepartmentKey(professeur.department)
     const detailsRows = [
         departement && {label : t("general.departement"), value : t("departement." + departement) },
-       {label : t("general.matricule"), value: professeur.matricule}
+       {label : t("general.matricule"), value: professeur.matricule},
+        {label : t("gestionnaire.assignation.professeur.nb_student_assign"), value : nbStudent}
     ];
     const classNameBadge = "bg-blue-200 border-5 rounded-2xl border-blue-200";
     const estSelectionner = profSelected === professeur;

@@ -336,6 +336,12 @@
       "apply_button": "Postuler",
       "fromTo": "à"
     },
+    "card_professeur": {
+      "information_communication": "Information de communication",
+      "information_scolaire" : "Information Scolaire",
+      "information_stage": "Information de stage",
+      "aucune_candidature" : "Recherche de stage en cours..."
+    },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
     "noCvFound": "Cv non trouvé"
@@ -345,6 +351,9 @@
       "view_offers": "Consultez vos offres créées, leur statut ainsi que leurs informations",
       "new_offer": "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
     }
+  },
+  "professeur": {
+    "etudiant_section_title": "Étudiants à charge"
   },
   "gestionnaire": {
     "card": {
@@ -360,6 +369,7 @@
         "professeur_without_department" : "Ce professeur ne possède aucun departement",
         "professeur_without_email" : "Ce professeur ne possède aucun Email",
         "professeur_is_selected" : "Sélectioné(e)",
+        "nb_student_assign": "Étudiants assignés",
         "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
         "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
       },
@@ -576,9 +586,10 @@
   },
   "general": {
     "nom" : "Nom",
-    "departement" : "Departement",
+    "departement" : "Département",
     "matricule": "Matricule",
     "email" : "Courriel",
+    "phone" : "Numéro de téléphone",
     "liste" : {
       "open" : "Ouvrir la liste",
       "close" : "Fermer la liste",
