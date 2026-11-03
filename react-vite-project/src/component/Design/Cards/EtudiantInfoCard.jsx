@@ -1,31 +1,51 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiHash } from "react-icons/fi";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import EmptyContentMessage from "../EmptyContentMessage.jsx";
-import {getCandidatureParEtudidant, getResumeOffre} from "../../../api/professeur.jsx";
+import { getCandidatureParEtudidant, getResumeOffre } from "../../../api/professeur.jsx";
 import ExpandableList from "../Lists/ExpandableList.jsx";
 import ListItem from "../Lists/ListItem.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+const CardSectionHeader = ({ title }) => (
+    <div className="pb-2 border-b-2  border-[#043462] mt-2 mb-2">
+        <h2 className="text-[#043462] font-semibold text-center">
+            {title}
+        </h2>
+    </div>
+);
+
+const CardSection = ({children}) => (
+    <div className=" p-2 bg-[radial-gradient(circle_at_top_left,_#00CCCB30,_transparent_70%)]  rounded-t-2xl pb-3 border">
+        {children}
+    </div>
+)
+
+const InfoRow = ({ label, value }) => {
+    if (!value) return null;
+    return (
+        <div className="flex items-center text-sm">
+            <span className="font-bold">{label} :</span>&nbsp;{value}
+        </div>
+    );
+};
 
 const EtudiantInfoCard = ({ etudiant, isNew }) => {
     const navigate = useNavigate();
-    const { t, i18n } = useTranslation();
-    const [candidatures,setCandidatures] = useState([])
-    const [error,setError] = useState("");
+    const { t } = useTranslation();
+    const [candidatures, setCandidatures] = useState([]);
+    const [error, setError] = useState("");
 
     const voirResumeOffre = async (offreID) => {
-        if (!offreID)
-            return
+        if (!offreID) return;
         try {
             const resumeOffre = await getResumeOffre(offreID);
-            console.log(resumeOffre)
-            navigate("/professeur/resumeOffre", {state : resumeOffre})
-        }catch (e){
-            setError(t("generic.error"))
+            navigate("/professeur/resumeOffre", { state: resumeOffre });
+        } catch (e) {
+            setError(t("generic.error"));
         }
+    };
 
-
-    }
     const candidaturesAffichees = (() => {
         const stageTrouve = candidatures.find(c => c.statut === "STAGE_TROUVE");
         return stageTrouve ? [stageTrouve] : candidatures;
@@ -34,15 +54,17 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
     useEffect(() => {
         const getInfoEtudiant = async () => {
             if (!etudiant?.id) return;
-            setCandidatures(await getCandidatureParEtudidant(etudiant?.id))
-        }
+            setCandidatures(await getCandidatureParEtudidant(etudiant?.id));
+        };
         getInfoEtudiant();
     }, [etudiant?.id]);
+
     return (
         <div className="card relative w-full bg-base-100 shadow-sm border border-gray-200 p-4 gap-3 bg-[radial-gradient(circle_at_top_left,_#00CCCB15,_transparent_70%)]">
             {isNew && (
                 <div className="badge badge-success">{t("professeur.new_student")}</div>
             )}
+
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-base font-bold text-[#043462]">
@@ -56,49 +78,43 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
                     </div>
                 )}
             </div>
-            <div className="pb-2 border-b-2 border-[#043462]">
-                <h2 className="text-[#043462]">
-                    {t("etudiant.card_professeur.information_communication")}
-                </h2>
-            </div>
-            {etudiant?.email && (
-                <div className="flex items-center text-sm">
-                    <span className="font-bold">{t("general.email")} :</span>{"\u00A0"}{etudiant.email}
-                </div>
-            )}
-            {etudiant?.phoneNumber && (
-                <div className="flex items-center text-sm">
-                    <span className="font-bold">{t("general.phone")} :</span>{"\u00A0"}{etudiant.phoneNumber}
-                </div>
-            )}
-            <div className="pb-2 border-b-2 border-[#043462]">
-                <h2 className="text-[#043462]">
-                    {t("etudiant.card_professeur.information_scolaire")}
-                </h2>
-            </div>
-            {etudiant?.department && (
-                <div className="flex items-center text-sm">
-                    <span className="font-bold">{t("general.departement")} :</span>{"\u00A0"}{etudiant.department}
-                </div>
-            )}
-            <div className="pb-2 border-b-2 border-[#043462]">
-                <h2 className="text-[#043462]">
-                    {t("etudiant.card_professeur.information_stage")}
-                </h2>
-            </div>
-            {candidatures ? (
-                <ExpandableList items={candidaturesAffichees} renderItem={(candidature) => (
-                    <ListItem onClick={() => voirResumeOffre(candidature.offreId)} detailRows={[
-                        {label : t("etudiant.card_professeur.employeur"), value : candidature.employeurBusinessName},
-                        {label : t("etudiant.card_professeur.statut_candidature"), value : t("candidature.status." + candidature.statut.toLowerCase())}
-                    ]
-                    } variant="compact"/>
-                )}/>
-            ):(
-                <EmptyContentMessage message={t("etudiant.card_professeur.aucune_candidature")}/>
-            )}
+
+            <CardSection>
+                <CardSectionHeader title={t("etudiant.card_professeur.information_communication")} />
+                <InfoRow label={t("general.email")} value={etudiant?.email} />
+                <InfoRow label={t("general.phone")} value={etudiant?.phoneNumber} />
+            </CardSection>
+
+            <CardSection>
+                <CardSectionHeader title={t("etudiant.card_professeur.information_scolaire")} />
+                <InfoRow label={t("general.departement")} value={etudiant?.department} />
+            </CardSection>
+
+            <CardSection>
+                <CardSectionHeader title={t("etudiant.card_professeur.information_stage")} />
+                {candidatures && candidatures.length > 0 ? (
+                    <ExpandableList
+                        items={candidaturesAffichees}
+                        limit={1}
+                        renderItem={(candidature) => (
+                            <ListItem
+                                onClick={() => voirResumeOffre(candidature.offreId)}
+                                detailRows={[
+                                    { label: t("etudiant.card_professeur.employeur"), value: candidature.employeurBusinessName },
+                                    { label: t("etudiant.card_professeur.statut_candidature"), value: t("candidature.status." + candidature.statut.toLowerCase()) },
+                                    { label: t("etudiant.card_professeur.poste"), value: candidature.offreTitle }
+                                ]}
+                                variant="compact"
+                            />
+                        )}
+                    />
+                ) : (
+                    <EmptyContentMessage message={t("etudiant.card_professeur.aucune_candidature")} />
+                )}
+            </CardSection>
+
             {error && (
-                <div className="bg-red-500 p-1">
+                <div className="bg-red-500 p-1 rounded text-white text-xs">
                     <p>{error}</p>
                 </div>
             )}

@@ -133,11 +133,11 @@ function ListItem({
         return (
             <>
                 {detailRows.length > 0 && (
-                    <dl className="flex justify-between text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4 border-b pb-2">
-                        {detailRows.map(({ label, value },index) => (
+                    <dl className="grid grid-cols-2 gap-2 text-xs text-gray-700 border-b pb-2">
+                        {detailRows.map(({ label, value }, index) => (
                             <div key={`${label}-${index}`} className="min-w-0 pe-2 ps-2">
                                 <dt className="font-bold text-[#043462]">{label}</dt>
-                                <dd onClick={onClick && index === 0 ? onClick : undefined} className={`truncate font-medium ${onClick && index === 0 ? "underline cursor-pointer":""}`}>{value}</dd>
+                                <dd onClick={onClick && index === 0 ? onClick : undefined} className={`font-medium ${onClick && index === 0 ? "underline cursor-pointer":""}`}>{value}</dd>
                             </div>
                         ))}
                     </dl>
