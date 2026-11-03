@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiCalendar, FiClock } from "react-icons/fi";
+import { FiHome, FiLogOut, FiLogIn, FiPlusCircle, FiFile, FiCalendar } from "react-icons/fi";
 import Header from "./Header.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import Drawer from "./../Drawer.jsx";
