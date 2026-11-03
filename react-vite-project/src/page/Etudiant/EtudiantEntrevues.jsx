@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { obtenirToutesConvocations, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
