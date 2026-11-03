@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import CvOnLandingPage from "../../component/CV/CvOnLandingPage.jsx";
@@ -7,6 +7,7 @@ import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import PageSeparator from "../../component/Design/PageSeparator.jsx";
+import PdfPreviewDialog from "../../component/PDF/PdfPreviewDialog.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
@@ -24,6 +25,19 @@ const EtudiantHome = ({ user }) => {
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
     const [idsPostules, setIdsPostules] = useState([]);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const previewDialogRef = useRef(null);
+
+    useEffect(() => {
+        if (previewUrl && !previewDialogRef.current?.open) {
+            previewDialogRef.current?.showModal();
+        }
+    }, [previewUrl]);
+
+    const fermerApercu = () => {
+        previewDialogRef.current?.close();
+        setPreviewUrl(null);
+    };
 
     const offreFilters = useFilters(offres, {
         getDomain: (o) => o.domain,
@@ -72,10 +86,10 @@ const EtudiantHome = ({ user }) => {
 
             if (notification) {
                 await marquerNotificationLue(notification.id);
-                setUnreadOfferIds((prev) =>
-                    prev.filter((id) => id !== String(offreId))
-                );
             }
+            setUnreadOfferIds((prev) =>
+                prev.filter((id) => id !== String(offreId))
+            );
         } catch (error) {
             console.error("Erreur lors du marquage :", error);
         }
@@ -132,7 +146,8 @@ const EtudiantHome = ({ user }) => {
         const autres = [];
 
         offreFilters.itemsFiltres.forEach((offer) => {
-            if (unreadOfferIds.includes(String(offer.id))) {
+            if (unreadOfferIds.includes(String(offer.id))
+                    && !idsPostules.some((id) => String(id) === String(offer.id))) {
                 nouvelles.push(offer);
             } else {
                 autres.push(offer);
@@ -143,10 +158,15 @@ const EtudiantHome = ({ user }) => {
             nouvellesOffres: nouvelles,
             autresOffres: autres,
         };
-    }, [offreFilters.itemsFiltres, unreadOfferIds]);
+    }, [offreFilters.itemsFiltres, unreadOfferIds, idsPostules]);
 
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
+            <PdfPreviewDialog
+                dialogRef={previewDialogRef}
+                pdfUrl={previewUrl}
+                onClose={fermerApercu}
+            />
             <CvOnLandingPage />
 
             <div className="w-full max-w-7xl">
@@ -206,7 +226,7 @@ const EtudiantHome = ({ user }) => {
                                                 <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
                                             </div>
                                         )}
-                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4 w-full">
+                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full">
                                             {[...nouvellesOffres, ...autresOffres].map((offer, index) => (
                                                 <div key={offer.id} className="contents">
                                                     {index === nouvellesOffres.length && index > 0 && (
@@ -215,6 +235,7 @@ const EtudiantHome = ({ user }) => {
                                                     <OffreEtudiantCard
                                                         key={offer.id}
                                                         offer={offer}
+                                                        onPreview={setPreviewUrl}
                                                         onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
                                                         onApplied={(id) =>

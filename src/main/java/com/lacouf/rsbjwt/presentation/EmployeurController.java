@@ -143,4 +143,12 @@ public class EmployeurController {
             OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
         return ResponseEntity.ok(employeurService.refuserCandidatApresEntrevue(id, dto.motifRefus()));
     }
+
+    @PutMapping("/contrats/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+        ContratDTO contratDTO = employeurService.signerContrat(contratId);
+        return ResponseEntity.ok(contratDTO);
+    }
 }

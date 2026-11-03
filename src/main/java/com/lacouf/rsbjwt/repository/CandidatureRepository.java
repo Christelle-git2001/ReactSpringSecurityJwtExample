@@ -23,5 +23,7 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     List<Candidature> findByOffreDeStage_Employeur(Employeur employeur);
     List<Candidature> findByStatutAndOffreDeStageEmployeurId(StatutCandidature statut, Long emplyeurId);
 
+    List<Candidature> findByStatut(StatutCandidature statut);
+
 
 }
