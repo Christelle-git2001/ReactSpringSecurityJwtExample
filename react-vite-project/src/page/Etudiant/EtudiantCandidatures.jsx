@@ -50,7 +50,6 @@ function EtudiantCandidatures() {
             employeur: convocation?.employeur ?? { businessName: candidature.employeurBusinessName },
             statutFiltre: convocation?.statut === "A_CONFIRMER" && candidature.statut === "ENTREVUE_PLANIFIEE" ? "A_CONFIRMER"
                 : candidature.statut === "CONTRAT_CREE" ? "CONTRAT_CREE"
-                : candidature.stageTrouve ? "STAGE_TROUVE"
                 : convocation?.statut === "TERMINEE" && candidature.statut === "ENTREVUE_PLANIFIEE"
                     ? "EN_ATTENTE_REPONSE" : candidature.statut === "RETENUE_POUR_ENTREVUE" ? "SOUMISE" : candidature.statut,
         };
@@ -251,7 +250,7 @@ function EtudiantCandidatures() {
                                                 <div className="collapse-content overflow-x-auto px-4">
                                                     {candidature ? (
                                                         <div className="min-w-max">
-                                                            <CandidatureTimeline statut={candidature.statut} stageTrouve={candidature.stageTrouve} statutEntrevue={c.statut} afficherRetenue={false} />
+                                                            <CandidatureTimeline statut={candidature.statut} statutEntrevue={c.statut} afficherRetenue={false} />
                                                         </div>
                                                     ) : (
                                                         <p role="alert" className="text-sm text-gray-500">{t("error.generic")}</p>

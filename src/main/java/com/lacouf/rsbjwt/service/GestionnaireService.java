@@ -370,7 +370,7 @@ public class GestionnaireService {
 
         Contrat contrat;
 
-        if (candidature.getStatut() == StatutCandidature.ACCEPTEE
+        if (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
                 && candidature.getEtudiant() != null
                 && candidature.getEtudiant().getCandidatureStage() != null
                 && candidatureId.equals(candidature.getEtudiant().getCandidatureStage().getId())) {
@@ -396,20 +396,14 @@ public class GestionnaireService {
                 .orElseThrow(UtilisateurIntrouvableException::new);
 
         return candidatureRepository.findByStatutIn(
-                        List.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE))
+                        List.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE,
+                                StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE))
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
     }
 
     public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
-        if ("STAGE_TROUVE".equalsIgnoreCase(status)) {
-            return candidatureRepository.findByEtudiantCandidatureStageIsNotNullAndStatut(StatutCandidature.ACCEPTEE)
-                    .stream()
-                    .filter(c -> c.getId().equals(c.getEtudiant().getCandidatureStage().getId()))
-                    .map(CandidatureDTO::of)
-                    .toList();
-        }
         return  candidatureRepository.findByStatut(normaliserStatus(status))
                 .stream()
                 .map(CandidatureDTO::of)

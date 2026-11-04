@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaTimesCircle } from "react-icons/fa";
 
-function CandidatureTimeline({ statut, stageTrouve = false, statutEntrevue, afficherRetenue = true }) {
+function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true }) {
     const { t } = useTranslation();
     const estRefusee = statut === "ENTREVUE_REFUSEE";
 
@@ -10,7 +10,8 @@ function CandidatureTimeline({ statut, stageTrouve = false, statutEntrevue, affi
     const steps = [
         { key: "SOUMISE", label: t("candidature.status.soumise") },
         { key: "RETENUE_POUR_ENTREVUE", label: t("candidature.status.retenue") },
-        { key: "ENTREVUE_PLANIFIEE", label: t(estRefusee ? "candidature.status.entrevue_refusee" : statutEntrevue === "TERMINEE" && statut === "ENTREVUE_PLANIFIEE" ? "convocation.awaiting_decision" : "candidature.status.planifiee") },
+        { key: "ENTREVUE_PLANIFIEE", label: t(estRefusee ? "candidature.status.entrevue_refusee" : "candidature.status.planifiee") },
+        { key: "CONFIRMEE", label: t("candidature.status.confirmee") },
         { key: "ACCEPTEE", label: t("candidature.status.acceptee") },
         { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") },
         { key: "CONTRAT_CREE", label: t("candidature.status.contrat") }
@@ -19,7 +20,8 @@ function CandidatureTimeline({ statut, stageTrouve = false, statutEntrevue, affi
     const order = steps.map(s => s.key);
     const etapesVisibles = steps.filter(step => afficherRetenue || step.key !== "RETENUE_POUR_ENTREVUE");
     const statutTimeline = estRefusee ? "ENTREVUE_PLANIFIEE"
-        : statut === "CONTRAT_CREE" ? statut : stageTrouve ? "STAGE_TROUVE" : statut;
+        : statut === "ENTREVUE_PLANIFIEE" && ["CONFIRMEE", "TERMINEE"].includes(statutEntrevue)
+            ? "CONFIRMEE" : statut;
 
     const isCompleted = (stepKey) => {
         const currentIndex = order.indexOf(statutTimeline);

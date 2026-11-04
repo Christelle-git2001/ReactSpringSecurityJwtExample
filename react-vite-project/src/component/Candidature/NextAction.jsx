@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { retenirCandidaturePourEntrevue, signerContratEmployeur, obtenirConvocationEmployeur } from "../../api/employeur.jsx";
 
-function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
+function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignatureSuccess }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,9 +97,10 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                 };
             case "ENTREVUE_PLANIFIEE":
                 return {
-                    description: t("process.action_accept_refuse"),
-                    buttonText: t("actions.manage_status"),
-                    onClick: () => {},
+                    description: t(statutEntrevue === "A_CONFIRMER" ? "process.action_wait_confirmation"
+                        : statutEntrevue === "TERMINEE" ? "process.action_accept_refuse" : "process.action_wait_interview"),
+                    buttonText: null,
+                    onClick: null,
                     disabled: false
                 };
             case "ENTREVUE_REFUSEE":
@@ -111,7 +112,14 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                 };
             case "ACCEPTEE":
                 return {
-                    description: t(candidature.stageTrouve ? "process.action_wait_contract" : "process.action_wait_student_declaration"),
+                    description: t("process.action_wait_student_declaration"),
+                    buttonText: null,
+                    onClick: null,
+                    disabled: false
+                };
+            case "STAGE_TROUVE":
+                return {
+                    description: t("process.action_wait_contract"),
                     buttonText: t("actions.waiting"),
                     onClick: () => {},
                     disabled: true

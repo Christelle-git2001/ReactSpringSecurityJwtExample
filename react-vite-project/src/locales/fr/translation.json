@@ -213,7 +213,7 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
-    "decision_invalid": "Cette décision est impossible : l'entrevue doit être confirmée et terminée, et aucune décision contraire ne doit déjà être enregistrée.",
+    "decision_invalid": "Décision impossible. Vérifiez que l'entrevue est confirmée et terminée.",
     "stage_declaration_invalid": "Vous devez choisir une candidature acceptée et ne pas avoir déjà déclaré un autre stage.",
     "refusal_reason_invalid": "Veuillez fournir un motif de refus non vide de 1 000 caractères maximum.",
     "convocation_already_exists": "Une entrevue a déjà été planifiée pour cette candidature.",
@@ -458,9 +458,9 @@
       "planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
       "entrevue_refusee": "Entrevue refusée",
-      "refusee": "Refusée",
+      "refusee": "Candidature refusée",
       "contrat_cree": "Contrat créé",
-      "acceptee": "Acceptée"
+      "acceptee": "Candidature acceptée"
     },
     "position": "Poste",
     "student_unknown": "Étudiant inconnu",
@@ -628,7 +628,9 @@
     "action_contract_signed_msg": "Le contrat a été signé le",
     "action_review_cv": "Le candidat a soumis sa candidature. Revoyez son CV et retenez-le pour une entrevue.",
     "action_plan_interview": "Le candidat est retenu. Planifiez l'entrevue dès maintenant.",
-    "action_accept_refuse": "L'entrevue est planifiée. Vous pourrez accepter ou refuser la candidature par la suite.",
+    "action_wait_confirmation": "En attente de confirmation de présence de l'étudiant.",
+    "action_wait_interview": "L'entrevue est planifiée. En attente de la tenue de l'entrevue.",
+    "action_accept_refuse": "L'entrevue est terminée. Vous pouvez accepter ou refuser la candidature.",
     "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
     "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
@@ -646,7 +648,7 @@
     "no_matching": "Aucune entrevue ne correspond à votre recherche.",
     "to_confirm": "À confirmer",
     "interview_to_confirm": "Entrevue à confirmer",
-    "awaiting_decision": "En attente de réponse",
+    "awaiting_decision": "En attente de réponse de l'employeur",
     "offer": "Offre",
     "format": "Format",
     "date": "Date",

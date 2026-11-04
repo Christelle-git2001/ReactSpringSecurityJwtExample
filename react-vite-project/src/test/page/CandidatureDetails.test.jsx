@@ -1,7 +1,13 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import CandidatureDetails from '../../component/Candidature/CandidatureDetails.jsx';
+import CandidatureTimeline from '../../component/Candidature/CandidatureTimeline.jsx';
+import { obtenirConvocationEmployeur } from '../../api/employeur.jsx';
+
+jest.mock('../../api/employeur.jsx', () => ({
+    obtenirConvocationEmployeur: jest.fn(),
+}));
 
 beforeAll(() => {
     global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/fake-blob-url');
@@ -41,6 +47,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 describe('Composant CandidatureDetails', () => {
+    beforeEach(() => jest.clearAllMocks());
     const mockCandidature = {
         id: 1,
         etudiantFirstName: 'Sébastien',
@@ -63,4 +70,63 @@ describe('Composant CandidatureDetails', () => {
         expect(pdfElement).toBeInTheDocument();
     });
 
+    it('active Stage trouve lorsque la candidature porte ce statut', async () => {
+        render(
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <CandidatureDetails candidature={{ ...mockCandidature, statut: 'STAGE_TROUVE' }} />
+            </MemoryRouter>
+        );
+
+        await screen.findByTestId('pdf-content');
+        expect(screen.getByText('candidature.status.stage_trouve')).toHaveClass('font-bold');
+        expect(screen.getByText('candidature.status.contrat')).not.toHaveClass('font-bold');
+        expect(screen.getByText('process.action_wait_contract')).toBeInTheDocument();
+    });
+
+    it('conserve Stage trouve actif apres la creation du contrat', async () => {
+        render(
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <CandidatureDetails candidature={{ ...mockCandidature, statut: 'CONTRAT_CREE' }} />
+            </MemoryRouter>
+        );
+
+        await screen.findByTestId('pdf-content');
+        expect(screen.getByText('candidature.status.stage_trouve')).toHaveClass('font-bold');
+        expect(screen.getByText('candidature.status.contrat')).toHaveClass('font-bold');
+    });
+
+    it('affiche la confirmation sans proposer la decision employeur', async () => {
+        obtenirConvocationEmployeur.mockResolvedValue({ id: 50, statut: 'TERMINEE' });
+        render(
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <CandidatureDetails candidature={{ ...mockCandidature, statut: 'ENTREVUE_PLANIFIEE' }} />
+            </MemoryRouter>
+        );
+
+        await waitFor(() => expect(screen.getByText('candidature.status.confirmee')).toHaveClass('font-bold'));
+        expect(screen.queryByRole('button', { name: 'actions.accept_candidate' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'actions.manage_status' })).not.toBeInTheDocument();
+    });
+
+    it('active la confirmation apres la reponse et la conserve apres la fin de lentrevue', () => {
+        const { rerender } = render(
+            <CandidatureTimeline statut="ENTREVUE_PLANIFIEE" statutEntrevue="A_CONFIRMER" afficherRetenue={false} />
+        );
+        expect(screen.getByText('candidature.status.planifiee')).toHaveClass('font-bold');
+        expect(screen.getByText('candidature.status.confirmee')).not.toHaveClass('font-bold');
+        expect(screen.queryByText('candidature.status.retenue')).not.toBeInTheDocument();
+
+        rerender(<CandidatureTimeline statut="ENTREVUE_PLANIFIEE" statutEntrevue="CONFIRMEE" afficherRetenue={false} />);
+        expect(screen.getByText('candidature.status.confirmee')).toHaveClass('font-bold');
+
+        rerender(<CandidatureTimeline statut="ENTREVUE_PLANIFIEE" statutEntrevue="TERMINEE" afficherRetenue={false} />);
+        expect(screen.getByText('candidature.status.confirmee')).toHaveClass('font-bold');
+    });
+
+    it('ne confirme pas lentrevue quand letudiant refuse la convocation', () => {
+        render(<CandidatureTimeline statut="ENTREVUE_REFUSEE" statutEntrevue="REFUSEE" afficherRetenue={false} />);
+
+        expect(screen.getByText('candidature.status.entrevue_refusee')).toHaveClass('text-red-800');
+        expect(screen.getByText('candidature.status.confirmee')).not.toHaveClass('font-bold');
+    });
 });

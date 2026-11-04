@@ -53,7 +53,7 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, st
                 <div className="card-body">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">
-                            {hasApplied && statutCandidature && !["SOUMISE", "RETENUE_POUR_ENTREVUE"].includes(statutCandidature) && (
+                            {hasApplied && statutCandidature && !["SOUMISE", "RETENUE_POUR_ENTREVUE", "CONTRAT_CREE"].includes(statutCandidature) && (
                                 <span className={`badge badge-xs h-auto self-start rounded-full px-2 py-1 ${status.className}`}>
                                     {status.label}
                                 </span>
