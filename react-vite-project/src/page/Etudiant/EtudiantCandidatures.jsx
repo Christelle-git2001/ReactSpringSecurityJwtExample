@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation } from "../../api/etudiant.jsx";
+import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation, declarerStageTrouve } from "../../api/etudiant.jsx";
 import { FaBriefcase, FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt } from "react-icons/fa";
 import Button from "../../component/Design/Button.jsx";
 import Modal from "../../component/Modal/Modal.jsx";
@@ -14,7 +14,7 @@ import MotifRefus from "../../component/Design/MotifRefus.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 
-const STATUTS_CANDIDATURE = ["SOUMISE", "RETENUE_POUR_ENTREVUE", "ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE", "ENTREVUE_REFUSEE", "ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"];
+const OPTIONS_STATUT_CANDIDATURE = ["SOUMISE", "ENTREVUE_PLANIFIEE", "ENTREVUE_REFUSEE", "ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"];
 
 const FORMAT_KEYS = {
     EN_LIGNE: "entrevue.mode_online_title",
@@ -48,7 +48,11 @@ function EtudiantCandidatures() {
             candidatureId: candidature.id,
             offreTitle: candidature.offreTitle,
             employeur: convocation?.employeur ?? { businessName: candidature.employeurBusinessName },
-            statutFiltre: convocation?.statut === "A_CONFIRMER" ? "A_CONFIRMER" : candidature.statut,
+            statutFiltre: convocation?.statut === "A_CONFIRMER" && candidature.statut === "ENTREVUE_PLANIFIEE" ? "A_CONFIRMER"
+                : candidature.statut === "CONTRAT_CREE" ? "CONTRAT_CREE"
+                : candidature.stageTrouve ? "STAGE_TROUVE"
+                : convocation?.statut === "TERMINEE" && candidature.statut === "ENTREVUE_PLANIFIEE"
+                    ? "EN_ATTENTE_REPONSE" : candidature.statut === "RETENUE_POUR_ENTREVUE" ? "SOUMISE" : candidature.statut,
         };
     });
     const filtres = useFilters(visibles, {
@@ -148,9 +152,9 @@ function EtudiantCandidatures() {
                 <SearchBar value={filtres.searchTerm} onChange={filtres.setSearchTerm}
                            placeholder={t("candidature.search_placeholder")} onClear={() => filtres.setSearchTerm("")} />
                 <FilterBar selectedStatus={filtres.selectedStatus} onStatusChange={filtres.setSelectedStatus}
-                           statusOptions={["TOUS", ...STATUTS_CANDIDATURE, "A_CONFIRMER"]}
-                           statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.interview_to_confirm"),
-                               ...Object.fromEntries(STATUTS_CANDIDATURE.map((statut) => [statut, getStatusConfig(statut, t, "candidature").label])) }}
+                           statusOptions={["TOUS", ...OPTIONS_STATUT_CANDIDATURE, "A_CONFIRMER", "EN_ATTENTE_REPONSE"]}
+                           statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.interview_to_confirm"), EN_ATTENTE_REPONSE: t("convocation.awaiting_decision"),
+                               ...Object.fromEntries(OPTIONS_STATUT_CANDIDATURE.map((statut) => [statut, getStatusConfig(statut, t, "candidature").label])) }}
                            selectedTown={filtres.selectedTown} onTownChange={filtres.setSelectedTown}
                            availableTowns={filtres.availableTowns} />
                 <div className="flex justify-end">
@@ -168,12 +172,12 @@ function EtudiantCandidatures() {
                     ) : (
                         <ul className="flex flex-col gap-3">
                             {candidaturesTriees.map((c) => {
-                                const aRepondre = c.statut === "A_CONFIRMER";
-                                const enCours = submittingId === c.id;
+                                const aRepondre = c.statutFiltre === "A_CONFIRMER";
+                                const enCours = submittingId !== null;
                                 const refusOuvert = refusingId === c.id;
                                 const isFocused = focusedCardId === c.id;
                                 const candidature = c.candidature;
-                                const statutConfig = getStatusConfig(candidature.statut, t, "candidature");
+                                const statutConfig = getStatusConfig(c.statutFiltre, t, "candidature");
                                 return (
                                     <li key={c.candidatureId} id={c.id ? `entrevue-${c.id}` : `candidature-${c.candidatureId}`}>
                                         <div className={`w-full rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-500 ${
@@ -218,6 +222,13 @@ function EtudiantCandidatures() {
                                                     {aRepondre ? t("convocation.interview_to_confirm") : statutConfig.label}
                                                 </span>
 
+                                                {candidature.statut === "ACCEPTEE" && candidature.statutEtudiant !== "STAGE_TROUVE" && (
+                                                    <Button size="small" type="button" disabled={enCours}
+                                                            onClick={() => repondre(c.id ?? candidature.id, () => declarerStageTrouve(candidature.id))}>
+                                                        {t("candidature.declare_stage_found")}
+                                                    </Button>
+                                                )}
+
                                                 {aRepondre && !refusOuvert && (
                                                     <div className="flex gap-2">
                                                         <Button variant="danger" size="small" type="button" disabled={enCours}
@@ -240,7 +251,7 @@ function EtudiantCandidatures() {
                                                 <div className="collapse-content overflow-x-auto px-4">
                                                     {candidature ? (
                                                         <div className="min-w-max">
-                                                            <CandidatureTimeline statut={candidature.statut} />
+                                                            <CandidatureTimeline statut={candidature.statut} stageTrouve={candidature.stageTrouve} statutEntrevue={c.statut} afficherRetenue={false} />
                                                         </div>
                                                     ) : (
                                                         <p role="alert" className="text-sm text-gray-500">{t("error.generic")}</p>
