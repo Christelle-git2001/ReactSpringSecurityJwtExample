@@ -24,6 +24,8 @@ import EtudiantCandidatures from "../../page/Etudiant/EtudiantCandidatures.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
 import ViewProcess from "../Contrat/ViewProcess.jsx";
 
+import TestDesignButton from "../Test/TestDesignButton.jsx";
+
 export default function AppRoutes({
                                       user,
                                       error,
@@ -84,6 +86,7 @@ export default function AppRoutes({
                 <Route path="/gestionnaire/attribution" element={<GestionnaireAttribution/>} />
                 <Route path="/gestionnaire/candidatures/:candidatureId/contrat" element={<ViewProcess user={user} />} />
 
+                <Route path="/test-boutons" element={<TestDesignButton />} />
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
         </Routes>
