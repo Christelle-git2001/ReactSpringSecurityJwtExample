@@ -629,7 +629,15 @@
     "confirmed": "Confirmed",
     "attendance_confirmed": "Your attendance at this interview is confirmed.",
     "view_details": "View details",
-    "duration_value": "{{minutes}} minutes"
+    "duration_value": "{{minutes}} minutes",
+    "response": {
+      "title": "Interview response",
+      "instruction": "Please confirm if the candidate is hired after the interview.",
+      "accept": "Accept",
+      "cancel": "Cancel",
+      "reject": "Reject"
+    }
+
   },
   "process": {
     "title": "Internship and Contract Process Tracking",

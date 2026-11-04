@@ -660,7 +660,14 @@
     "confirmed": "Confirmée",
     "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
     "view_details": "Voir les détails",
-    "duration_value": "{{minutes}} minutes"
+    "duration_value": "{{minutes}} minutes",
+    "response": {
+      "title": "Réponse à la convocation",
+      "instruction": "Veuillez confirmer si le candidat a été retenu suite à l'entrevue.",
+      "accept": "Accepter",
+      "cancel": "Annuler",
+        "reject": "Refuser"
+    }
   },
   "sort": {
     "by_date": "Trier par date",
