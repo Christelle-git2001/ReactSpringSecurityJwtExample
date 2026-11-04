@@ -192,7 +192,8 @@
     "generic": "An error occurred. Please try again.",
     "notification_path": "The destination of this notification does not exist. Please try again later.",
     "rejection_comment_required": "A comment is required when rejecting a CV.",
-    "convocation_not_found": "Interview invitation not found."
+    "convocation_not_found": "Interview invitation not found.",
+    "internship_found_locked": "The student has already declared an internship found"
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -281,7 +282,8 @@
       "details_button": "Details",
       "apply_button": "Apply",
       "fromTo": "to",
-      "cv_approval_required": "Your CV must be approved before you can view job offers."
+      "cv_approval_required": "Your CV must be approved before you can view job offers.",
+      "internship_found_locked": "You have already declared an internship as found. You can no longer apply to another offer."
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"

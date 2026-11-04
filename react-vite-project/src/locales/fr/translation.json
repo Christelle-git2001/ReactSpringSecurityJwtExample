@@ -229,7 +229,8 @@
     "generic": "Une erreur est survenue. Veuillez réessayer.",
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
     "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
-    "convocation_not_found": "Convocation d’entrevue introuvable."
+    "convocation_not_found": "Convocation d’entrevue introuvable.",
+    "internship_found_locked": "L'étudiant a déjà déclaré un stage trouvé."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -332,7 +333,8 @@
       "cv_approval_required": "Votre CV doit être approuvé avant de pouvoir consulter les offres.",
       "details_button": "Détails",
       "apply_button": "Postuler",
-      "fromTo": "à"
+      "fromTo": "à",
+      "internship_found_locked": "Vous avez déjà déclaré un stage trouvé. Vous ne pouvez plus postuler à une autre offre."
     },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",

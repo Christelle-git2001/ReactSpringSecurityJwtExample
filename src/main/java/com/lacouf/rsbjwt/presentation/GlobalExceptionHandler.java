@@ -248,7 +248,6 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
-
     @ExceptionHandler(CandidatureIntrouvableException.class)
     public ResponseEntity<ErreurDTO> handleCandidatureIntrouvableException(
             CandidatureIntrouvableException e) {
@@ -323,5 +322,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MotifRefusInvalideException.class)
     public ResponseEntity<ErreurDTO> handleMotifRefusInvalideException(MotifRefusInvalideException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(StageDejaTrouveException.class)
+    public ResponseEntity<ErreurDTO> handleStageDejaTrouveException(StageDejaTrouveException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
 }
