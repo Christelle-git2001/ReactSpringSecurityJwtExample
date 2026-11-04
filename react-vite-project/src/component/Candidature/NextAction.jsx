@@ -139,19 +139,26 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                     onClick: () => setShowDecision(true),
                     disabled: false
                 };
-            case "ENTREVUE_CONFIRMEE":
+            case "ENTREVUE_CONFIRMEE": {
+                const terminee = statutEntrevue === "TERMINEE";
                 return {
-                    description: t("process.action_accept_refuse"),
-                    buttonText: showDecision ? null : t("actions.manage_status"),
+                    description: t(terminee ? "process.action_accept_refuse" : "process.action_wait_interview"),
+                    buttonText: terminee && !showDecision ? t("actions.manage_status") : null,
                     onClick: () => setShowDecision(true),
                     disabled: false
                 };
+            }
             case "ENTREVUE_REFUSEE":
                 return {
                     description: t("convocation.refused_by_student", {defaultValue: t("candidature.status.entrevue_refusee")}),
                     buttonText: null,
                     onClick: null,
                     disabled: false
+                };
+            case "ACCEPTEE":
+                return {
+                    description: t("process.action_wait_student_declaration"),
+                    buttonText: null, onClick: null, disabled: false
                 };
             case "STAGE_TROUVE":
                 return {
@@ -169,13 +176,7 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                     disabled: isSubmitting
                 };
             default:
-                return {
-                    description: t("process.action_default"),
-                    buttonText: t("actions.view_details"),
-                    onClick: () => {
-                    },
-                    disabled: false
-                };
+                return { description: t("process.action_default"), buttonText: null, onClick: null, disabled: false };
         }
     };
 
