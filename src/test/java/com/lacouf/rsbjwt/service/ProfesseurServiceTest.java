@@ -1,21 +1,29 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Professeur;
-import com.lacouf.rsbjwt.repository.ProfesseurRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.ResumeStageEtudiantDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -36,6 +44,15 @@ public class ProfesseurServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder ;
+
+    @Mock
+    private EtudiantRepository etudiantRepository;
+
+    @Mock
+    private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private OffreDeStageRepository offreDeStageRepository;
 
     @InjectMocks
     private ProfesseurService professeurService ;
@@ -66,6 +83,20 @@ public class ProfesseurServiceTest {
                 .department(Departement.INFORMATIQUE)
                 .build();
         professeur.setId(1L);
+    }
+    @BeforeEach
+    void initialiserUtilisateurConnecte() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "carole.test@gmail.com",
+                        null
+                )
+        );
+    }
+
+    @AfterEach
+    void nettoyerSecurityContext() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -166,7 +197,183 @@ public class ProfesseurServiceTest {
         verify(professeurRepository, never())
                 .save(any(Professeur.class));
     }
-        
+
+    @Test
+    void doitRetournerLesEtudiantsAssignes() throws Exception {
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllByProfesseurId(1L))
+                .thenReturn(List.of());
+
+        var resultat = professeurService.getEtudiantsAssignes();
+
+        assertThat(resultat).isEmpty();
+
+        verify(userAppRepository)
+                .findUserAppByEmail("carole.test@gmail.com");
+
+        verify(etudiantRepository)
+                .findAllByProfesseurId(1L);
+    }
+
+    @Test
+    void doitRetournerListeVideSiAucunEtudiantAssigne()
+            throws Exception {
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.of(professeur));
+
+        when(etudiantRepository.findAllByProfesseurId(1L))
+                .thenReturn(List.of());
+
+        var resultat = professeurService.getEtudiantsAssignes();
+
+        assertThat(resultat).isNotNull().isEmpty();
+
+        verify(etudiantRepository)
+                .findAllByProfesseurId(1L);
+    }
+
+    @Test
+    void doitLeverExceptionSiUtilisateurIntrouvable() {
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.getEtudiantsAssignes()
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(etudiantRepository, never())
+                .findAllByProfesseurId(anyLong());
+    }
+
+    @Test
+    void doitLeverExceptionSiUtilisateurNestPasProfesseur() {
+
+        UserApp utilisateur = mock(UserApp.class);
+
+        when(userAppRepository.findUserAppByEmail("carole.test@gmail.com"))
+                .thenReturn(Optional.of(utilisateur));
+
+        assertThatThrownBy(() ->
+                professeurService.getEtudiantsAssignes()
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(etudiantRepository, never())
+                .findAllByProfesseurId(anyLong());
+    }
+
+    @Test
+    void doitRetournerLesCandidaturesDUnEtudiant() throws Exception {
+        Long etudiantId = 1L;
+
+        Candidature candidature = Candidature.builder()
+                .build();
+        candidature.setId(1L);
+
+        when(etudiantRepository.findById(etudiantId))
+                .thenReturn(Optional.of(mock(
+                        com.lacouf.rsbjwt.model.Etudiant.class
+                )));
+
+        when(candidatureRepository.findAllByEtudiantId(etudiantId))
+                .thenReturn(List.of(candidature));
+
+        List<CandidatureDTO> resultat =
+                professeurService.getCandidaturesEtudiant(etudiantId);
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(1L);
+
+        verify(etudiantRepository).findById(etudiantId);
+        verify(candidatureRepository).findAllByEtudiantId(etudiantId);
+    }
+
+    @Test
+    void doitRetournerListeVideSiEtudiantNAucuneCandidature() throws Exception {
+        Long etudiantId = 1L;
+
+        when(etudiantRepository.findById(etudiantId))
+                .thenReturn(Optional.of(
+                        mock(com.lacouf.rsbjwt.model.Etudiant.class)
+                ));
+
+        when(candidatureRepository.findAllByEtudiantId(etudiantId))
+                .thenReturn(List.of());
+
+        List<CandidatureDTO> resultat =
+                professeurService.getCandidaturesEtudiant(etudiantId);
+
+        assertThat(resultat).isNotNull().isEmpty();
+
+        verify(etudiantRepository).findById(etudiantId);
+        verify(candidatureRepository).findAllByEtudiantId(etudiantId);
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourCandidatures() {
+        Long etudiantId = 99L;
+
+        when(etudiantRepository.findById(etudiantId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.getCandidaturesEtudiant(etudiantId)
+        ).isInstanceOf(UtilisateurIntrouvableException.class);
+
+        verify(etudiantRepository).findById(etudiantId);
+
+        verify(candidatureRepository, never())
+                .findAllByEtudiantId(anyLong());
+    }
+
+    @Test
+    void doitRetournerResumeOffre() throws Exception {
+        Long offreId = 1L;
+
+        Employeur employeur = Employeur.builder()
+                .firstName("Gerard")
+                .lastName("Robert")
+                .town("Mercier")
+                .phone("165-685-4569")
+                .email("Gerard.Robert@hotmail.com")
+                .businessName("Gerard inc")
+                .businessSector(SecteurActivite.AEROSPATIAL)
+                .password("Losange12%")
+                .build();
+        employeur.setId(99L);
+
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(1L);
+        offre.setStatut(Statut.EN_ATTENTE);
+        offre.setEmployeur(employeur);
+
+        when(offreDeStageRepository.findById(offreId))
+                .thenReturn(Optional.of(offre));
+
+        ResumeStageEtudiantDTO resultat = professeurService.getResumeOffre(offreId);
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.idOffre()).isEqualTo(offreId);
+        verify(offreDeStageRepository).findById(offreId);
+    }
+
+    @Test
+    void doitLeverExceptionSiOffreIntrouvablePourResume() {
+        Long offreId = 999L;
+
+        when(offreDeStageRepository.findById(offreId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.getResumeOffre(offreId)
+        ).isInstanceOf(OffreIntrouvableException.class);
+
+        verify(offreDeStageRepository).findById(offreId);
+    }
 
 }
 

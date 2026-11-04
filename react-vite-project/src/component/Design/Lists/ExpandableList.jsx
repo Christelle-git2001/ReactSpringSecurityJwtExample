@@ -13,7 +13,7 @@ const ExpandableList = ({
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(true);
     const hasMore = items.length > limit;
-    const visibleItems = expanded ? items : [];
+    const visibleItems = expanded ? items : items.slice(0, limit);
     const resolvedExpandLabel = expandLabel || t("dashboard.view_more");
     const resolvedCollapseLabel = collapseLabel || t("dashboard.view_less");
 

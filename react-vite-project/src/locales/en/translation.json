@@ -108,13 +108,12 @@
     "plan_interview": "Schedule an interview",
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
-    "sign_contract": "Sign the contract",
-    "signing": "Signing...",
     "view_details": "View details",
     "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
+    "only_news" : "News Only",
     "back": "Back",
     "backhome": "Back home",
     "reject": "Reject",
@@ -209,7 +208,7 @@
     "history": "History",
     "collapse": "Collapse",
     "expand": "Expand",
-    "assignation" : "Assignment"
+    "assignation" : "Teacher Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -279,6 +278,15 @@
       "fromTo": "to",
       "cv_approval_required": "Your CV must be approved before you can view job offers."
     },
+    "card_professeur": {
+      "information_communication": "Communication information",
+      "information_scolaire": "School Information",
+      "information_stage": "Internship request",
+      "aucune_candidature": "Internship search in progress...",
+      "employeur": "Employer",
+      "poste" : "Position",
+      "voir_detail": "View details"
+    },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
   },
@@ -287,6 +295,10 @@
       "view_offers": "View your created offers, their status, and details",
       "new_offer": "Create a new internship offer to allow students to join your company!"
     }
+  },
+  "professeur": {
+    "etudiant_section_title": "Assigned Students",
+    "new_student": "Newly assigned student"
   },
   "gestionnaire": {
     "card": {
@@ -301,6 +313,8 @@
         "professeur_without_name": "This teacher has no name",
         "professeur_without_department" : "This teacher has no department",
         "professeur_without_email" : "This teacher has no email",
+        "nb_student_assign": "Assigned students",
+        "professeur_is_selected" : "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
@@ -443,13 +457,41 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
+  "resume_offers" : {
+    "offers_section": "Offer details",
+    "offers_sous_section" : {
+      "title" : "Title",
+      "salaire": "Salary",
+      "salaire_value": "{{salary}}$/Hour",
+      "description" : "description",
+      "start_date": "Internship start date",
+      "format_date" : "(AAAA-MM-JJ)",
+      "end_date": "Internship end date",
+      "pdf": "Offer Preview"
+    },
+    "employer_section": "Employer details",
+    "employer_sous_section": {
+      "business_name": "Business Name"
+    }
+  },
   "candidature": {
+    "my_applications": "My applications",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first",
+    "search_placeholder": "Search applications…",
+    "none": "No applications for now.",
     "status": {
       "contrat" : "Agreement",
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
+      "retenue_pour_entrevue" : "Selected for interview",
       "planifiee": "Interview scheduled",
+      "entrevue_planifiee" : "Interview scheduled",
+      "confirmee": "Interview confirmed",
+      "entrevue_refusee": "Interview declined",
+      "refusee": "Rejected",
+      "contrat_cree": "Agreement created",
       "acceptee": "Accepted"
     },
     "position": "Job Title",
@@ -480,6 +522,14 @@
   },
   "notification": {
     "employeur": {
+      "convocationAcceptee": {
+        "title": "Interview invitation accepted",
+        "description": "{{ETUDIANT_NOM}} has confirmed attendance at the interview for the {{OFFRE_TITRE}} position."
+      },
+      "convocationRefusee": {
+        "title": "Interview invitation declined",
+        "description": "{{ETUDIANT_NOM}} has declined the interview invitation for the {{OFFRE_TITRE}} position."
+      },
       "nouvelleCandidature": {
         "title": "New application received",
         "description": "{{ETUDIANT_NOM}} has applied to your offer : {{OFFRE_TITRE}}"
@@ -515,12 +565,20 @@
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
       },
+      "assignation": {
+        "title": "A teacher has been assigned to you",
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "New Students Assigned!",
+        "description": "Click to check your new student list."
+      },
       "nouveauContrat": {
         "title": "New contract to sign",
         "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
       }
-      }
-
+    }
   },
   "drawer": {
     "details": "Details",
@@ -573,17 +631,35 @@
     "title": "Interview Management",
     "subtitle": "Schedule your appointments and view your calendar in real time."
   },
-  "general": {
-    "nom" : "Name",
-    "departement" : "Department",
-    "matricule": "Matricule",
-    "email" : "email",
-    "liste" : {
-      "open" : "Open the list",
-      "close" : "Close the list",
-      "title" : "List",
-      "empty" : "The list is empty"
-    }
+  "convocation": {
+    "title": "Interview details",
+    "subtitle": "Please confirm your attendance for the scheduled interview ",
+    "list_title": "My interviews",
+    "application_progress": "Application progress",
+    "none": "No interviews for now.",
+    "no_matching": "No interviews match your search.",
+    "to_confirm": "To confirm",
+    "interview_to_confirm": "Interview to confirm",
+    "awaiting_decision": "Awaiting response",
+    "offer": "Offer",
+    "format": "Format",
+    "date": "Date",
+    "time": "Time",
+    "reject" : "Reject",
+    "confirm_refusal": "Confirm decline",
+    "refusal_confirmation": "Do you want to decline this interview invitation? The employer will be notified of your decision.",
+    "refusal_reason": "Reason for declining",
+    "refusal_reason_required": "Please provide a reason for declining.",
+    "refusal_reason_too_long": "The reason must not exceed 500 characters.",
+    "refused_message": "You declined this interview invitation.",
+    "refused_by_student": "The student declined this interview invitation.",
+    "accept" : "Accept",
+    "back" : "Back",
+    "scheduled": "Interview scheduled",
+    "confirmed": "Confirmed",
+    "attendance_confirmed": "Your attendance at this interview is confirmed.",
+    "view_details": "View details",
+    "duration_value": "{{minutes}} minutes"
   },
   "process": {
     "title": "Internship and Contract Process Tracking",
@@ -618,5 +694,29 @@
     "action_default": "Application process tracking in progress.",
     "cv_view_title" : "Student CV",
     "contract_view_title" : "Internship Agreement"
+  },
+  "sort": {
+    "by_date": "Sort by date",
+    "newest_first": "Newest first",
+    "oldest_first": "Oldest first"
+  },
+  "refusal": {
+    "reason": "Reason for declining",
+    "placeholder": "Please enter the reason for declining...",
+    "required": "Please provide a reason for declining."
+  },
+  "general": {
+    "nom" : "Name",
+    "departement" : "Department",
+    "matricule": "Matricule",
+    "email" : "Email",
+    "phone" : "Phone Number",
+    "town" : "Town",
+    "liste" : {
+      "open" : "Open the list",
+      "close" : "Close the list",
+      "title" : "List",
+      "empty" : "The list is empty"
+    }
   }
 }

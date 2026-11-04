@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { useRef, useState} from "react";
 import { marquerNotificationLue } from "../../api/notification.jsx";
+import { formaterDate as formaterDateHeure } from "../../utils/cvFormatters.jsx";
 import {obtenirCvGestionnaire, obtenirOffreGestionnaire} from "../../api/gestionnaire.jsx";
 import { getCandidaturesEmployeur, getOffresEmployeur } from "../../api/employeur.jsx";
+import Sort from "../Design/Sort.jsx";
 
 import {
-    FiArrowUp,
     FiBriefcase,
     FiCalendar,
     FiFileText,
@@ -17,22 +18,23 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
-import {FaCheck, FaQuestion} from "react-icons/fa";
+import {FaCalendarAlt, FaCheck, FaQuestion} from "react-icons/fa";
+import {PiStudentBold} from "react-icons/pi";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
+    PROFESSEUR_ASSIGNE_ETUDIANT: "/professeur?filter=new",
+    CONVOCATION_ENTREVUE: "/etudiant/candidatures",
+    CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
+    CONVOCATION_REFUSEE: "/employeur/candidatures/details",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
     NOUVEAU_CONTRAT: "/employeur/candidatures/details",
 };
 
 const CONFIG_PAR_TYPE = {
-    CONVOCATION_ENTREVUE: {
-        icon: <FiCalendar className="size-5" />,
-        tone: "blue",
-    },
     CV_ATTENTE_VALIDATION: {
         icon: <FiFileText className="size-5" />,
         tone: "blue",
@@ -61,6 +63,26 @@ const CONFIG_PAR_TYPE = {
         icon: <FiUserPlus className="size-5" />,
         tone: "yellow",
     },
+    CONVOCATION_ENTREVUE: {
+        icon: <FaCalendarAlt className="size-5" />,
+        tone: "gray",
+    },
+    CONVOCATION_ACCEPTEE: {
+        icon: <FaCheck />,
+        tone: "green",
+    },
+    CONVOCATION_REFUSEE: {
+        icon: <ImCross />,
+        tone: "red",
+    },
+    ETUDIANT_ASSIGNE_PROFESSEUR : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
+    },
+    PROFESSEUR_ASSIGNE_ETUDIANT : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
+    },
     NOUVEAU_CONTRAT: {
         icon: <FiFileText className="size-5" />,
         tone: "blue",
@@ -68,7 +90,7 @@ const CONFIG_PAR_TYPE = {
 };
 
 export default function Notification({ notifications = [], onMarkAsRead }) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [error, setError] = useState(null);
     const [sortOrder, setSortOrder] = useState("desc");
     const navigate = useNavigate();
@@ -86,10 +108,11 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return null;
 
-        return new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language, {
-            dateStyle: "medium",
-            timeStyle: "short",
-        }).format(date);
+        const dateFormatee = formaterDateHeure(value);
+        if (date.toDateString() === new Date().toDateString()) {
+            return `${t("agenda.today")} ${dateFormatee.slice(11)}`;
+        }
+        return dateFormatee;
     };
 
     const notificationsTriees = [...notifications].sort((a, b) => {
@@ -140,13 +163,17 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.offreId = offreId;
                 state.from = "/etudiant";
 
-            } else if (notification.notificationType === "NOUVELLE_CANDIDATURE") {
+            } else if (notification.notificationType === "CONVOCATION_ENTREVUE") {
+                state.id = notification.variables?.ENTREVUE_ID;
+                state.from = "/etudiant/candidatures";
+            }
+            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"]
+                .includes(notification.notificationType)) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 const [candidatures, offres] = await Promise.all([
                     getCandidaturesEmployeur(),
                     getOffresEmployeur()
                 ]);
-
                 const candidature = candidatures.find(c => c.id === Number(candidatureId));
                 if (!candidature) {
                     setError(t("notifications.open_error"));
@@ -246,18 +273,13 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                     <h3 className="font-bold text-[#043462]">{t("notifications.title")}</h3>
                     <div className="flex items-center gap-2">
 
-                        <button
-                            type="button"
-                            onClick={() => setSortOrder(current => current === "desc" ? "asc" : "desc")}
-                            className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-600"
+                        <Sort
+                            sortOrder={sortOrder}
+                            onSortChange={setSortOrder}
                             title={t("notifications.sort_by_date")}
-                            aria-label={t(sortOrder === "desc" ? "notifications.oldest_first" : "notifications.newest_first")}
-                        >
-                            {sortOrder === "desc"
-                                ? <FiArrowDown className="size-4" aria-hidden="true" />
-                                : <FiArrowUp className="size-4" aria-hidden="true" />}
-                            {t(sortOrder === "desc" ? "notifications.newest_first" : "notifications.oldest_first")}
-                        </button>
+                            newestLabel={t("notifications.newest_first")}
+                            oldestLabel={t("notifications.oldest_first")}
+                        />
                     </div>
                     <button
                         onClick={closeNotification}

@@ -5,11 +5,13 @@ import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
 import { FiStar } from "react-icons/fi";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 
-function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview }) {
+function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, statutCandidature }) {
     const { t } = useTranslation();
 
     const isTargeted = Boolean(offer?.isTarget);
+    const status = getStatusConfig(statutCandidature, t, "candidature");
 
     const offre = [
         { label: t("offre.employeur"), value: offer?.employeur?.businessName },
@@ -51,6 +53,11 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview }) 
                 <div className="card-body">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">
+                            {hasApplied && statutCandidature && !["SOUMISE", "RETENUE_POUR_ENTREVUE"].includes(statutCandidature) && (
+                                <span className={`badge badge-xs h-auto self-start rounded-full px-2 py-1 ${status.className}`}>
+                                    {status.label}
+                                </span>
+                            )}
                             <PdfActionButtons
                                 onView={async () => {
                                     const url = await obtenirCVUrlPDF();

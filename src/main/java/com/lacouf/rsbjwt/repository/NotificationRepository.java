@@ -17,6 +17,8 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
 
     List<Notification> getNotificationByDestinataire(UserApp destinataire);
 
+    Optional<Notification> findByDestinataireAndNotificationTypeAndEstLuFalse(UserApp userApp, NotificationType notificationType);
+
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.role = :role")
     Long totalByRole(Role role);
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.destinataire = :userApp")

@@ -15,8 +15,11 @@ export default function FilterBar({
                                       selectedOfferId,
                                       onOfferChange,
                                       availableOffers = [],
+                                      onlyNew = false,
+                                      onOnlyNewChange,
                                       className = "",
-                                      statusLabels = {}
+                                      statusLabels = {},
+                                      statusOptions = ["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"]
                                   }) {
     const { t } = useTranslation();
 
@@ -24,8 +27,10 @@ export default function FilterBar({
     const showDomainFilter = availableDomains.length > 0 && onDomainChange;
     const showTownFilter = availableTowns.length > 0 && onTownChange;
     const showOfferFilter = availableOffers.length > 0 && onOfferChange;
+    const showNewFilter = onOnlyNewChange !== undefined;
 
     const isFilterActive =
+        onlyNew ||
         (showStatusFilter && selectedStatus !== "TOUS") ||
         (showDomainFilter && selectedDomain !== "TOUS") ||
         (showTownFilter && selectedTown !== "TOUS") ||
@@ -51,7 +56,7 @@ export default function FilterBar({
                         </span>
 
                         <form className="filter flex flex-wrap gap-2">
-                            {["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"].map((key) => (
+                            {statusOptions.map((key) => (
                                 <label key={key}>
                                     <input
                                         type="checkbox"
@@ -68,6 +73,44 @@ export default function FilterBar({
                                 type="reset"
                                 value="×"
                                 onClick={() => onStatusChange("TOUS")}
+                            />
+                        </form>
+                    </div>
+                )}
+                {showNewFilter && (
+                    <div className="space-y-2 pt-2 border-t border-base-200">
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+            {t("professeur.etudiant_section_title")}
+        </span>
+
+                        <form className="filter flex flex-wrap gap-2">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    className="btn btn-xs"
+                                    checked={!onlyNew}
+                                    onChange={() => onOnlyNewChange(false)}
+                                    aria-label={t("status.tous") ?? "Tous"}
+                                />
+                            </label>
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    className="btn btn-xs"
+                                    checked={onlyNew}
+                                    onChange={() => onOnlyNewChange(true)}
+                                    aria-label={t("actions.only_news") ?? "Nouveaux uniquement"}
+
+                                />
+
+                            </label>
+
+                            <input
+                                className="btn btn-square btn-xs"
+                                type="reset"
+                                value="×"
+                                onClick={() => onOnlyNewChange(false)}
                             />
                         </form>
                     </div>

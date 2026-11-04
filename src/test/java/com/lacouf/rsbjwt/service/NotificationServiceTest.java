@@ -9,6 +9,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
@@ -84,6 +85,87 @@ public class NotificationServiceTest {
                 Map.of(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
                         VariableMapKey.OFFRE_TITRE, "Developpeur Java"));
         notificationEmployeur.setId(40L);
+    }
+
+    @Test
+    void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Entrevue entrevue = Entrevue.builder().candidature(candidature)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setId(1L);
+        Notification convocation = new Notification();
+        convocation.setNotificationType(NotificationType.CONVOCATION_ENTREVUE);
+        convocation.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "1"));
+        Notification autreConvocation = new Notification();
+        autreConvocation.setNotificationType(NotificationType.CONVOCATION_ENTREVUE);
+        autreConvocation.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "2"));
+        when(notificationRepository.getNotificationByDestinataire(etudiant))
+                .thenReturn(List.of(convocation, autreConvocation));
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(50L);
+            return notification;
+        });
+
+        NotificationDTO resultat = notificationService.handleConvocationRepondue(new ConvocationRepondueEvent(entrevue));
+
+        assertThat(resultat.notificationType()).isEqualTo(NotificationType.CONVOCATION_ACCEPTEE);
+        verify(notificationRepository).delete(convocation);
+        verify(notificationRepository, never()).delete(autreConvocation);
+        String cle = "notification.employeur.convocationAcceptee";
+        assertThat(resultat.titre()).isEqualTo(cle + ".title");
+        assertThat(resultat.description()).isEqualTo(cle + ".description");
+        assertThat(resultat.estLu()).isFalse();
+        assertThat(resultat.variables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName())
+                .containsEntry(VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString());
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        assertThat(captor.getValue().getDestinataire()).isSameAs(employeur);
+        assertThat(captor.getValue().getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(resultat.urlCible()).isEqualTo(ControllerPath.EMPLOYEUR_CANDIDATURES.build());
+    }
+
+    @Test
+    void doitNotifierLEmployeurDuRefusDeLaConvocation() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Entrevue entrevue = Entrevue.builder().candidature(candidature)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
+        entrevue.setStatut(StatutEntrevue.REFUSEE);
+        entrevue.setId(1L);
+        Notification convocation = new Notification();
+        convocation.setNotificationType(NotificationType.CONVOCATION_ENTREVUE);
+        convocation.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "1"));
+        when(notificationRepository.getNotificationByDestinataire(etudiant)).thenReturn(List.of(convocation));
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(50L);
+            return notification;
+        });
+
+        NotificationDTO resultat = notificationService.handleConvocationRepondue(new ConvocationRepondueEvent(entrevue));
+
+        assertThat(resultat.notificationType()).isEqualTo(NotificationType.CONVOCATION_REFUSEE);
+        verify(notificationRepository).delete(convocation);
+        String cle = "notification.employeur.convocationRefusee";
+        assertThat(resultat.titre()).isEqualTo(cle + ".title");
+        assertThat(resultat.description()).isEqualTo(cle + ".description");
+        assertThat(resultat.estLu()).isFalse();
+        assertThat(resultat.variables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName())
+                .containsEntry(VariableMapKey.ENTREVUE_DATE, entrevue.getDateHeureEntrevue().toString());
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        assertThat(captor.getValue().getDestinataire()).isSameAs(employeur);
+        assertThat(captor.getValue().getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(resultat.urlCible()).isEqualTo(ControllerPath.EMPLOYEUR_CANDIDATURES.build());
     }
 
     @Test
@@ -565,6 +647,110 @@ public class NotificationServiceTest {
         );
     }
 
+    @Test
+    void doitMettreAJourNotificationExistanteLorsProfesseurAssigne() {
+        Professeur professeur = new Professeur(
+                "Marie",
+                "Tremblay",
+                "marie.tremblay@example.com",
+                "password",
+                "P123",
+                "514-555-0100",
+                Departement.INFORMATIQUE
+        );
+        professeur.setId(99L);
+        Notification notificationExistante = Notification.builder()
+                .titre("notification.teacher.assignation.title")
+                .description("notification.teacher.assignation.description")
+                .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .dateCreaction(LocalDateTime.now())
+                .destinataire(professeur)
+                .role(Role.PROFESSEUR)
+                .urlCible("")
+                .variables(new HashMap<>(Map.of(VariableMapKey.ETUDIANT_IDS, "1")))
+                .build();
+
+        Etudiant nouvelEtudiant = new Etudiant("Marie", "Tremblay", "marie.tremblay@hotmail.com", "438-956-5859", Departement.INFORMATIQUE, "8585859", "YAYA");
+        nouvelEtudiant.setId(2L);
+
+        ProfesseurAssigneEvent event = new ProfesseurAssigneEvent(professeur, List.of(nouvelEtudiant));
+
+        when(notificationRepository.findByDestinataireAndNotificationTypeAndEstLuFalse(
+                professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT))
+                .thenReturn(Optional.of(notificationExistante));
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notificationExistante);
+
+        notificationService.handleProfesseurAssigne(event);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(2)).save(captor.capture());
+
+        Notification notificationSauvegardee = captor.getAllValues().get(0);
+
+        assertThat(notificationSauvegardee.getVariables().get(VariableMapKey.ETUDIANT_IDS))
+                .isEqualTo("1, 2");
+    }
+
+    @Test
+    void doitCreerUneNotificationPourLeProfesseurEtChaqueEtudiantLorsAssignation() {
+        Professeur professeur = new Professeur(
+                "Marie",
+                "Tremblay",
+                "marie.tremblay@example.com",
+                "password",
+                "P123",
+                "514-555-0100",
+                Departement.INFORMATIQUE
+        );
+
+        Etudiant etudiant2 = new Etudiant(
+                "Paul",
+                "Martin",
+                "paul.martin@example.com",
+                "514-555-0101",
+                Departement.INFORMATIQUE,
+                "E123",
+                "password"
+        );
+
+        List<Etudiant> etudiants = List.of(etudiant, etudiant2);
+
+        ProfesseurAssigneEvent event =
+                new ProfesseurAssigneEvent(professeur, etudiants);
+
+        notificationService.handleProfesseurAssigne(event);
+
+        ArgumentCaptor<Notification> captor =
+                ArgumentCaptor.forClass(Notification.class);
+
+        verify(notificationRepository, times(3)).save(captor.capture());
+
+        List<Notification> notifications = captor.getAllValues();
+
+        // Une seule notification pour le professeur
+        assertThat(notifications)
+                .filteredOn(notification -> notification.getDestinataire() == professeur)
+                .hasSize(1);
+
+        // Une notification pour chaque étudiant
+        assertThat(notifications)
+                .filteredOn(notification -> notification.getRole() == Role.ETUDIANT)
+                .hasSize(2);
+
+        assertThat(notifications)
+                .filteredOn(notification ->
+                        notification.getNotificationType()
+                                == NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .hasSize(1);
+
+        assertThat(notifications)
+                .filteredOn(notification ->
+                        notification.getNotificationType()
+                                == NotificationType.ETUDIANT_ASSIGNE_PROFESSEUR)
+                .hasSize(2);
+    }
 
 
 }

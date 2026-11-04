@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.model.Enum.Notification;
 
 public enum VariableMapKey {
+    ETUDIANT_IDS,
     ETUDIANT_NOM,
     PROFESSEUR_NOM,
     GESTIONNAIRE_NOM,
@@ -12,5 +13,6 @@ public enum VariableMapKey {
     CV_ID,
     CANDIDATURE_ID,
     ENTREPRISE_NOM,
-    ENTREVUE_DATE
+    ENTREVUE_DATE,
+    ENTREVUE_ID
 }

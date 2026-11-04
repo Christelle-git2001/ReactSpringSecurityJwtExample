@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AddEntrevue from "./AddEntrevue.jsx";
@@ -19,9 +19,18 @@ function GestionEntrevue() {
     const [entrevuesList, setEntrevuesList] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Dans GestionEntrevue.jsx ✅ (Code corrigé)
-    const mapEntrevueDtoToUi = (dto) => {
+    const mapEntrevueDtoToUi = (dto, candidatureAssociee = null) => {
         const [datePart, timePart] = (dto.dateHeureEntrevue || "").split("T");
+        const candidatureCompleteFinal = candidatureAssociee || {
+            id: dto.candidatureId,
+            etudiantFirstName: dto.etudiantFirstName,
+            etudiantLastName: dto.etudiantLastName,
+            offreTitle: dto.offreTitle,
+            employeurBusinessName: dto.employeur?.businessName || null,
+            statut: "CHOISI_POUR_ENTREVUE",
+            offreId: null,
+            cvId: null
+        };
 
         return {
             id: dto.id,
@@ -34,6 +43,7 @@ function GestionEntrevue() {
             heure: timePart ? timePart.substring(0, 5) : "00:00",
             duree: dto.duree || 30,
             mode: dto.format || "EN_LIGNE",
+            candidatureComplete: candidatureCompleteFinal
         };
     };
 
@@ -44,13 +54,20 @@ function GestionEntrevue() {
             getEntrevuesEmployeur()
         ])
             .then(([candidaturesData, entrevuesData]) => {
-                setCandidaturesList(candidaturesData || []);
+                const candidatures = candidaturesData || [];
+                setCandidaturesList(candidatures);
 
-                const formattedEntrevues = (entrevuesData || []).map(mapEntrevueDtoToUi);
+                const formattedEntrevues = (entrevuesData || []).map((dto) => {
+                    const candidatureAssociee = candidatures.find(
+                        (c) => String(c.id) === String(dto.candidatureId)
+                    );
+                    return mapEntrevueDtoToUi(dto, candidatureAssociee);
+                });
+
                 setEntrevuesList(formattedEntrevues);
             })
             .catch((err) => {
-                console.error( err);
+                console.error("Erreur lors du chargement des entrevues et candidatures:", err);
             })
             .finally(() => {
                 setLoading(false);
@@ -60,25 +77,26 @@ function GestionEntrevue() {
     const handleAddEntrevue = async (entrevueDTO) => {
         try {
             const nouvelleEntrevueCreee = await PlanifierEntrevue(entrevueDTO);
-
             const candidatureInfo = candidaturesList.find(
                 (c) => String(c.id) === String(entrevueDTO.candidatureId)
             );
 
-            const entrevuePourAgenda = mapEntrevueDtoToUi({
-                ...nouvelleEntrevueCreee,
-                etudiantFirstName: candidatureInfo?.etudiantFirstName,
-                etudiantLastName: candidatureInfo?.etudiantLastName,
-                offreTitle: candidatureInfo?.offreTitle,
-            });
+            const entrevuePourAgenda = mapEntrevueDtoToUi(
+                {
+                    ...nouvelleEntrevueCreee,
+                    etudiantFirstName: candidatureInfo?.etudiantFirstName,
+                    etudiantLastName: candidatureInfo?.etudiantLastName,
+                    offreTitle: candidatureInfo?.offreTitle,
+                },
+                candidatureInfo
+            );
 
             setEntrevuesList((prev) => [...prev, entrevuePourAgenda]);
-
             setCandidaturesList((prev) =>
                 prev.filter((c) => String(c.id) !== String(entrevueDTO.candidatureId))
             );
         } catch (error) {
-            console.error(error);
+            console.error("Erreur lors de la création de l'entrevue:", error);
             throw error;
         }
     };
