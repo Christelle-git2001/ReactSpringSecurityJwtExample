@@ -443,6 +443,29 @@
       "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
+  "student_status": {
+    "title": "Mon statut",
+    "declaration_title": "Compléter la déclaration",
+    "declaration_description": "Pour déclarer cette candidature comme votre stage, sélectionnez « Stage trouvé » et confirmez votre choix.",
+    "confirm": "Confirmer",
+    "loading": "Chargement…",
+    "EN_RECHERCHE": {
+      "label": "En recherche",
+      "description": "Je cherche activement un stage."
+    },
+    "EN_ATTENTE_ENTREVUE": {
+      "label": "En attente d'entrevue",
+      "description": "Une entrevue est prévue."
+    },
+    "EN_ATTENTE_REPONSE": {
+      "label": "En attente de réponse",
+      "description": "J'attends une réponse d'un employeur."
+    },
+    "STAGE_TROUVE": {
+      "label": "Stage trouvé",
+      "description": "J'ai choisi mon stage et je vais signer le contrat."
+    }
+  },
   "candidature": {
     "view_agenda": "Voir l'agenda",
     "hide_agenda": "Masquer l'agenda",

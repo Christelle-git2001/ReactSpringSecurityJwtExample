@@ -80,6 +80,7 @@ describe('Composant CandidatureDetails', () => {
         await screen.findByTestId('pdf-content');
         expect(screen.getByText('candidature.status.stage_trouve')).toHaveClass('font-bold');
         expect(screen.getByText('candidature.status.contrat')).not.toHaveClass('font-bold');
+        expect(screen.getByText('candidature.interview_states.TERMINEE')).toHaveClass('text-white');
         expect(screen.getByText('process.action_wait_contract')).toBeInTheDocument();
     });
 

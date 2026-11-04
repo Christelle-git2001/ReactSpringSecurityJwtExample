@@ -447,6 +447,29 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
+  "student_status": {
+    "title": "My status",
+    "declaration_title": "Complete your declaration",
+    "declaration_description": "To choose this application for your internship, select “Internship found” and confirm your choice.",
+    "confirm": "Confirm",
+    "loading": "Loading…",
+    "EN_RECHERCHE": {
+      "label": "Looking for an internship",
+      "description": "I am actively looking for an internship."
+    },
+    "EN_ATTENTE_ENTREVUE": {
+      "label": "Awaiting interview",
+      "description": "An interview is scheduled."
+    },
+    "EN_ATTENTE_REPONSE": {
+      "label": "Awaiting response",
+      "description": "I am waiting for an employer's response."
+    },
+    "STAGE_TROUVE": {
+      "label": "Internship found",
+      "description": "I have chosen my internship and will sign the agreement."
+    }
+  },
   "candidature": {
     "view_agenda": "View calendar",
     "hide_agenda": "Hide calendar",

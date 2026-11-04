@@ -7,6 +7,7 @@ import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import PageSeparator from "../../component/Design/PageSeparator.jsx";
+import StatutEtudiant from "../../component/Candidature/StatutEtudiant.jsx";
 import PdfPreviewDialog from "../../component/PDF/PdfPreviewDialog.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
@@ -26,6 +27,7 @@ const EtudiantHome = ({ user }) => {
     const hasDepartment = Boolean(user?.department);
     const [idsPostules, setIdsPostules] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [chargementCandidatures, setChargementCandidatures] = useState(true);
     const [previewUrl, setPreviewUrl] = useState(null);
     const previewDialogRef = useRef(null);
 
@@ -53,7 +55,8 @@ const EtudiantHome = ({ user }) => {
                 setIdsPostules(liste.map((c) => c.offreId));
                 setCandidatures(liste);
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setChargementCandidatures(false));
     }, []);
 
     const chargerNotificationsOffres = useCallback(async () => {
@@ -180,6 +183,8 @@ const EtudiantHome = ({ user }) => {
             </div>
 
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
+                <StatutEtudiant user={user} candidatures={candidatures} loading={chargementCandidatures} />
+
                 <SearchBar
                     value={offreFilters.searchTerm}
                     onChange={offreFilters.setSearchTerm}

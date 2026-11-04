@@ -29,7 +29,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
         return stepIndex <= currentIndex;
     };
 
-    const etatEntrevue = statutEntrevue === "TERMINEE" ? "TERMINEE"
+    const etatEntrevue = statutEntrevue === "TERMINEE" || ["ACCEPTEE", "STAGE_TROUVE", "CONTRAT_CREE"].includes(statut) ? "TERMINEE"
         : statutEntrevue === "CONFIRMEE" ? "CONFIRMEE" : "ENTREVUE_PLANIFIEE";
     const contenuEtape = (step) => (
         <>
@@ -37,14 +37,21 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
                 ? <span className="block text-center">{step.label}</span>
                 : step.label}
             {regrouperEntrevue && step.key === "ENTREVUE_PLANIFIEE" && !estRefusee && (
-                <span className="mt-2 flex flex-wrap justify-center gap-1.5 text-[10px] font-medium">
-                    {["ENTREVUE_PLANIFIEE", "CONFIRMEE", "TERMINEE"].map((etat, index) => (
-                        <span key={etat} className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 shadow-sm ${isCompleted(step.key) && etat === etatEntrevue ? "border-[#043462] bg-[#043462] text-white" : "border-[#043462]/10 bg-white/60 text-[#043462]"}`}>
-                            {t(`candidature.interview_states.${etat}`)}
-                            {isCompleted(step.key) && index <= ["ENTREVUE_PLANIFIEE", "CONFIRMEE", "TERMINEE"].indexOf(etatEntrevue)
-                                && <FaCheck className="size-2.5" aria-hidden="true" />}
-                        </span>
-                    ))}
+                <span className="mt-2 grid grid-cols-3 text-[10px] font-medium">
+                    {["ENTREVUE_PLANIFIEE", "CONFIRMEE", "TERMINEE"].map((etat, index) => {
+                        const atteint = isCompleted(step.key) && index <= ["ENTREVUE_PLANIFIEE", "CONFIRMEE", "TERMINEE"].indexOf(etatEntrevue);
+                        return (
+                            <span key={etat} className="relative flex flex-col items-center gap-1">
+                                {index < 2 && <span aria-hidden="true" className="absolute left-1/2 top-2 h-px w-full bg-[#043462]/30" />}
+                                <span aria-hidden="true" className={`relative flex size-4 items-center justify-center rounded-full border ${atteint ? "border-[#043462] bg-[#043462] text-white" : "border-[#043462]/30 bg-white"}`}>
+                                    {atteint && <FaCheck className="size-2.5" />}
+                                </span>
+                                <span className={`rounded-full px-2 py-0.5 ${isCompleted(step.key) && etat === etatEntrevue ? "bg-[#043462] text-white" : "text-[#043462]"}`}>
+                                    {t(`candidature.interview_states.${etat}`)}
+                                </span>
+                            </span>
+                        );
+                    })}
                 </span>
             )}
         </>

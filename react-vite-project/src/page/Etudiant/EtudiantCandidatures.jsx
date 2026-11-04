@@ -9,6 +9,7 @@ import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import CandidatureTimeline from "../../component/Candidature/CandidatureTimeline.jsx";
+import StatutEtudiant from "../../component/Candidature/StatutEtudiant.jsx";
 import Agenda from "../../component/Entrevue/Agenda.jsx";
 import Sort from "../../component/Design/Sort.jsx";
 import MotifRefus from "../../component/Design/MotifRefus.jsx";
@@ -42,6 +43,9 @@ function EtudiantCandidatures() {
     const [motifRefus, setMotifRefus] = useState("");
     const [motifError, setMotifError] = useState(false);
     const [confirmRefusId, setConfirmRefusId] = useState(null);
+    const [declarationCandidature, setDeclarationCandidature] = useState(null);
+    const [statutDeclare, setStatutDeclare] = useState("");
+    const [declarationErreur, setDeclarationErreur] = useState(false);
 
     const visibles = candidatures.map((candidature) => {
         const convocation = convocations.find((c) => c.candidatureId === candidature.id);
@@ -99,6 +103,24 @@ function EtudiantCandidatures() {
         } catch (err) {
             console.error("Erreur réponse convocation:", err);
             setActionError("error.generic");
+        } finally {
+            setSubmittingId(null);
+        }
+    };
+
+    const confirmerStage = async () => {
+        if (!declarationCandidature || statutDeclare !== "STAGE_TROUVE" || submittingId !== null) return;
+        setSubmittingId(declarationCandidature.id);
+        setDeclarationErreur(false);
+        try {
+            const decision = await declarerStageTrouve(declarationCandidature.id);
+            setCandidatures(liste => liste.map(c => ({
+                ...(c.id === decision.id ? decision : c),
+                statutEtudiant: decision.statutEtudiant,
+            })));
+            setDeclarationCandidature(null);
+        } catch {
+            setDeclarationErreur(true);
         } finally {
             setSubmittingId(null);
         }
@@ -224,7 +246,11 @@ function EtudiantCandidatures() {
 
                                                 {candidature.statut === "ACCEPTEE" && candidature.statutEtudiant !== "STAGE_TROUVE" && (
                                                     <Button size="small" type="button" disabled={enCours}
-                                                            onClick={() => repondre(c.id ?? candidature.id, () => declarerStageTrouve(candidature.id))}>
+                                                            onClick={() => {
+                                                                setDeclarationCandidature(candidature);
+                                                                setStatutDeclare(candidature.statutEtudiant ?? "EN_RECHERCHE");
+                                                                setDeclarationErreur(false);
+                                                            }}>
                                                         {t("candidature.declare_stage_found")}
                                                     </Button>
                                                 )}
@@ -328,6 +354,26 @@ function EtudiantCandidatures() {
                         </ul>
                     )}
             </div>
+
+            {declarationCandidature && (
+                <Modal
+                    title={t("student_status.declaration_title")}
+                    description={t("student_status.declaration_description")}
+                    agreeLabel={t("student_status.confirm")}
+                    agreeDisabled={statutDeclare !== "STAGE_TROUVE" || submittingId !== null}
+                    onClickCancel={() => { if (submittingId === null) setDeclarationCandidature(null); }}
+                    onClickCross={() => { if (submittingId === null) setDeclarationCandidature(null); }}
+                    onClickAgree={confirmerStage}
+                >
+                    <div className="mt-4 space-y-3">
+                        <p className="text-center text-sm font-medium text-[#043462]">
+                            {declarationCandidature.offreTitle} — {declarationCandidature.employeurBusinessName}
+                        </p>
+                        <StatutEtudiant value={statutDeclare} loading={submittingId !== null} onChange={setStatutDeclare} />
+                        {declarationErreur && <p role="alert" className="text-sm text-red-700">{t("error.generic")}</p>}
+                    </div>
+                </Modal>
+            )}
 
             {confirmRefusId !== null && (
                 <Modal
