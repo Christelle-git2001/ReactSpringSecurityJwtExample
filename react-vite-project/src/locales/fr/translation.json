@@ -214,6 +214,7 @@
   },
   "error": {
     "decision_invalid": "Cette décision est impossible : l'entrevue doit être confirmée et terminée, et aucune décision contraire ne doit déjà être enregistrée.",
+    "stage_declaration_invalid": "Vous devez choisir une candidature acceptée et ne pas avoir déjà déclaré un autre stage.",
     "refusal_reason_invalid": "Veuillez fournir un motif de refus non vide de 1 000 caractères maximum.",
     "convocation_already_exists": "Une entrevue a déjà été planifiée pour cette candidature.",
     "required": "Ce champ est requis.",
@@ -444,6 +445,7 @@
   },
   "candidature": {
     "my_applications": "Mes candidatures",
+    "declare_stage_found": "Déclarer mon stage trouvé",
     "newest_first": "Plus récentes",
     "oldest_first": "Plus anciennes",
     "search_placeholder": "Rechercher une candidature…",
@@ -624,6 +626,7 @@
     "action_plan_interview": "Le candidat est retenu. Planifiez l'entrevue dès maintenant.",
     "action_accept_refuse": "L'entrevue est planifiée. Vous pourrez accepter ou refuser la candidature par la suite.",
     "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
+    "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
     "action_default": "Suivi du processus de candidature en cours.",
     "cv_view_title" : "CV de l'étudiant ",

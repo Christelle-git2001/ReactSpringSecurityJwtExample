@@ -177,6 +177,7 @@
   },
   "error": {
     "decision_invalid": "This decision is not allowed: the interview must be confirmed and completed, and no opposite decision may already be recorded.",
+    "stage_declaration_invalid": "Choose an accepted application. You cannot declare another internship if you have already chosen one.",
     "refusal_reason_invalid": "Please provide a non-blank refusal reason of no more than 1,000 characters.",
     "convocation_already_exists": "An interview is already scheduled for this application",
     "required": "This field is required.",
@@ -448,6 +449,7 @@
   },
   "candidature": {
     "my_applications": "My applications",
+    "declare_stage_found": "Declare my internship found",
     "newest_first": "Newest first",
     "oldest_first": "Oldest first",
     "search_placeholder": "Search applications…",
@@ -658,6 +660,7 @@
     "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
     "action_accept_refuse": "The interview is scheduled. You will be able to accept or reject the application afterwards.",
     "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",
+    "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
     "action_default": "Application process tracking in progress.",
     "cv_view_title" : "Student CV",

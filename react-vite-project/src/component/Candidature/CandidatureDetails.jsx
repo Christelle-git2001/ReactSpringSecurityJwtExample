@@ -122,7 +122,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} />}
+            {candidature && <CandidatureTimeline statut={candidature.statut} stageTrouve={candidature.stageTrouve} />}
 
             <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction

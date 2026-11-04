@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaTimesCircle } from "react-icons/fa";
 
-function CandidatureTimeline({ statut }) {
+function CandidatureTimeline({ statut, stageTrouve = false, statutEntrevue, afficherRetenue = true }) {
     const { t } = useTranslation();
     const estRefusee = statut === "ENTREVUE_REFUSEE";
 
@@ -10,14 +10,16 @@ function CandidatureTimeline({ statut }) {
     const steps = [
         { key: "SOUMISE", label: t("candidature.status.soumise") },
         { key: "RETENUE_POUR_ENTREVUE", label: t("candidature.status.retenue") },
-        { key: "ENTREVUE_PLANIFIEE", label: t(estRefusee ? "candidature.status.entrevue_refusee" : "candidature.status.planifiee") },
+        { key: "ENTREVUE_PLANIFIEE", label: t(estRefusee ? "candidature.status.entrevue_refusee" : statutEntrevue === "TERMINEE" && statut === "ENTREVUE_PLANIFIEE" ? "convocation.awaiting_decision" : "candidature.status.planifiee") },
         { key: "ACCEPTEE", label: t("candidature.status.acceptee") },
         { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") },
         { key: "CONTRAT_CREE", label: t("candidature.status.contrat") }
     ];
 
     const order = steps.map(s => s.key);
-    const statutTimeline = estRefusee || statut === "ENTREVUE_CONFIRMEE" ? "ENTREVUE_PLANIFIEE" : statut;
+    const etapesVisibles = steps.filter(step => afficherRetenue || step.key !== "RETENUE_POUR_ENTREVUE");
+    const statutTimeline = estRefusee ? "ENTREVUE_PLANIFIEE"
+        : statut === "CONTRAT_CREE" ? statut : stageTrouve ? "STAGE_TROUVE" : statut;
 
     const isCompleted = (stepKey) => {
         const currentIndex = order.indexOf(statutTimeline);
@@ -29,7 +31,7 @@ function CandidatureTimeline({ statut }) {
         <div className="w-full bg-transparent p-4 rounded-xl mb-6 flex justify-center">
             <ul className="timeline timeline-horizontal inline-flex justify-center max-w-3xl">
 
-                {steps.map((step, index) => {
+                {etapesVisibles.map((step, index) => {
                     const completed = isCompleted(step.key);
                     const refus = estRefusee && step.key === "ENTREVUE_PLANIFIEE";
                     const completedClass = refus ? "text-red-800 bg-red-100 font-bold" : "text-[#043462] bg-[#99F0EF] font-bold";
@@ -68,7 +70,7 @@ function CandidatureTimeline({ statut }) {
                                 </svg>}
                             </div>
 
-                            {index < steps.length - 1 && (
+                            {index < etapesVisibles.length - 1 && (
                                 <hr
                                     style={{ backgroundColor: completed ? "#99F0EF" : undefined }}
                                     className={completed ? "!bg-[#99F0EF]" : "bg-gray-200"}

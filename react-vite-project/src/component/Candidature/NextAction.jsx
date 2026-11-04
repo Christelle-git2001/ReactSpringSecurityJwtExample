@@ -109,9 +109,9 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
                     onClick: null,
                     disabled: false
                 };
-            case "STAGE_TROUVE":
+            case "ACCEPTEE":
                 return {
-                    description: t("process.action_wait_contract"),
+                    description: t(candidature.stageTrouve ? "process.action_wait_contract" : "process.action_wait_student_declaration"),
                     buttonText: t("actions.waiting"),
                     onClick: () => {},
                     disabled: true
