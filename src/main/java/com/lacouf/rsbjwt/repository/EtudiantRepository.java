@@ -12,4 +12,5 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     Optional<Etudiant> findByMatricule(String matricule);
     Optional<Etudiant> findByCredentialsEmail(String email);
     List<Etudiant> findAllByDepartmentAndCv_Statut( Departement department, Statut statut );
+    List<Etudiant> findAllByProfesseurId(Long professeurId);
 }

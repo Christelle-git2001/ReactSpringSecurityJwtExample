@@ -17,12 +17,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
 import {FaCalendarAlt, FaCheck, FaQuestion} from "react-icons/fa";
+import {PiStudentBold} from "react-icons/pi";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
+    PROFESSEUR_ASSIGNE_ETUDIANT: "/professeur?filter=new",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
     CONVOCATION_ENTREVUE: "/etudiant/candidatures",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
@@ -70,6 +72,14 @@ const CONFIG_PAR_TYPE = {
     CONVOCATION_REFUSEE: {
         icon: <ImCross className="size-4" />,
         tone: "red",
+    },
+    ETUDIANT_ASSIGNE_PROFESSEUR : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
+    },
+    PROFESSEUR_ASSIGNE_ETUDIANT : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
     },
     STAGE_TROUVE: {
         icon: <FaCheck className="size-4" />,

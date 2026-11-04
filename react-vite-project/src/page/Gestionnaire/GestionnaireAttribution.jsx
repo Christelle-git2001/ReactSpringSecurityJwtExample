@@ -10,13 +10,16 @@ import Modal from "../../component/Modal/Modal.jsx";
 import Button from "../../component/Design/Button.jsx";
 import {assignStudentToTeacher, getEtudiants, getProfesseurs} from "../../api/gestionnaire.jsx";
 import {getDepartmentKey} from "../../utils/departementConverter.js";
+import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
+import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 
 const GestionnaireAttribution = () => {
     const { t } = useTranslation();
     const [error, setError] = useState("");
+    const [filtreValueProfesseur, setFiltreValueProfesseur] = useState("")
     const [professeurSelectione, setProfesseurSelectione] = useState(null);
     const [professeurChangeValue, setProfesseurChangeValue] = useState(null);
-    const [dropdownProfIsOpen, setDropdownProfIsOpen] = useState(false);
+    const [professeurSelectioneTemp, setProfesseurSelectioneTemp] = useState(null)
     const [etudiantSelectionnes, setEtudiantSelectionnes] = useState(
         []
     );
@@ -31,6 +34,21 @@ const GestionnaireAttribution = () => {
         [
         ]
     );
+    const [selectedDepartment, setSelectedDepartment] = useState("TOUS");
+
+    const filtreActif = (event) => {
+        setFiltreValueProfesseur(event)
+    }
+
+    const getListSorted = () => {
+        if (!professeurSelectioneTemp) return professeurs;
+
+        return [...professeurs].sort((a, b) => {
+            if (a.id === professeurSelectioneTemp.id) return -1;
+            if (b.id === professeurSelectioneTemp.id) return 1;
+            return 0;
+        });
+    };
 
     const onClickEtudiant = (etudiant) => {
         const isAlreadySelected = etudiantSelectionnes.some(e => e.id === etudiant.id);
@@ -43,13 +61,23 @@ const GestionnaireAttribution = () => {
     }
 
     const handleProfessorSelected = (professeur) => {
-        if (!professeurSelectione || etudiantSelectionnes.length <= 0) {
+        if (!professeurSelectione && !professeurSelectioneTemp || etudiantSelectionnes.length <= 0) {
             setProfesseurSelectione(professeur);
-            setDropdownProfIsOpen(false);
+        }
+        else if (professeur.id === professeurSelectioneTemp.id){
+            setProfesseurSelectione(professeurSelectioneTemp);
+            setProfesseurSelectioneTemp(null);
         }
         else{
             setProfesseurChangeValue(professeur)
             setIsModalOpen(true);
+        }
+    }
+
+    const handleChangeProfesseur = () => {
+        if (!isAssign) {
+            setProfesseurSelectioneTemp(professeurSelectione);
+            setProfesseurSelectione(null);
         }
     }
 
@@ -69,20 +97,22 @@ const GestionnaireAttribution = () => {
         setEtudiantAssigne([]);
         setIsAssign(false);
         setProfesseurSelectione(null);
+        setProfesseurSelectioneTemp(null);
         setError("");
     }
 
     const handleCancelModal = () => {
         setProfesseurChangeValue(null);
-        setDropdownProfIsOpen(false);
+        setProfesseurSelectione(professeurSelectioneTemp);
+        setProfesseurSelectioneTemp(null);
         setIsModalOpen(false);
     };
 
     const handleAgreeModal = () => {
         setEtudiantSelectionnes([]);
         setProfesseurSelectione(professeurChangeValue);
+        setProfesseurSelectioneTemp(null);
         setProfesseurChangeValue(null);
-        setDropdownProfIsOpen(false);
         setIsModalOpen(false);
     };
 
@@ -118,7 +148,7 @@ const GestionnaireAttribution = () => {
             <div className="grid grid-cols-12 mt-2">
                 <div className={professeurSelectione && !isAssign ? "col-span-6 mt-5" : "col-span-12"}>
                     <div className="grid grid-cols-12">
-                        <div className="col-span-12">
+                        <div className="col-span-9">
                             <h1 className="text-start text-3xl p-5 pb-0 font-bold">{t("gestionnaire.assignation.title")}</h1>
                             <p className=" mt-2 p-5 pt-0">
                                 {professeurSelectione
@@ -126,6 +156,13 @@ const GestionnaireAttribution = () => {
                                     : t("gestionnaire.assignation.description_without_teacher")}
                             </p>
                         </div>
+                        {isAssign && (
+                            <div className="col-span-3">
+                                <div className="flex justify-center items-center  h-full">
+                                    <Button type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
+                                </div>
+                            </div>
+                        )}
                         <div className="col-span-12 ">
                             {professeurSelectione ? (
                                 <div className="flex items-center">
@@ -148,31 +185,39 @@ const GestionnaireAttribution = () => {
 
                         </div>
                         <div className="col-span-12 mt-3">
-                            <div className="dropdown w-full">
-                                {professeurSelectione ? (
+                            <div className="w-full">
+                                {professeurSelectione && (
                                     <ProfesseurListItem
                                         professeur={professeurSelectione}
-                                        onClick={() => setDropdownProfIsOpen(!dropdownProfIsOpen)}
+                                        onClick={handleChangeProfesseur}
+                                        nbStudent={etudiants.filter(e => e.professeurId === professeurSelectione.id).length}
                                         actionLabel={t("dashboard.view_cv")}
-                                        textClassName={"w-full inline-block cursor-pointer" + (dropdownProfIsOpen ? " border-5 rounded-2xl border-purple-500" : "")}
                                     />
-                                ):(
-                                    <div role="button" onClick={() => setDropdownProfIsOpen(!dropdownProfIsOpen)} className="btn w-full inline-block cursor-pointer rounded-md bg-[#043462] px-4 py-2 text-sm font-semibold text-white hover:bg-[#03284d]">{t("general.liste." + (dropdownProfIsOpen ? "close" : "open"))}</div>
-                                    )}
-                                {dropdownProfIsOpen && (
+                                )}
+                                {!professeurSelectione && (
                                     <>
-                                        {professeurSelectione && etudiantSelectionnes.length > 0 && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
+                                        <SearchBar onChange={filtreActif} value={filtreValueProfesseur}/>
+                                        <FilterBar
+                                            selectedDomain={selectedDepartment}
+                                            onDomainChange={setSelectedDepartment}
+                                            availableDomains={[...new Set(professeurs.map(p => p.department))]}                                        />
+                                        {etudiantSelectionnes.length > 0 && (<p className="font-bold text-sm m-3 p-3 bg-red-950 text-white text-center">{t("gestionnaire.assignation.select.warningAnotherProfessor")}</p>)}
                                         <div className="w-full cursor-pointer">
                                             <ExpandableList
-                                                items={professeurs.filter(prof => prof.id !== professeurSelectione?.id)}
+                                                items={getListSorted().filter((item) => {
+                                                    return Object.values(item).some((valeur) =>
+                                                        String(valeur).toLowerCase().includes(String(filtreValueProfesseur).toLowerCase())
+                                                    );
+                                                }).filter(p => p.department === selectedDepartment || selectedDepartment === "TOUS")}
+                                                profSelected={professeurSelectioneTemp}
                                                 limit={professeurs.length}
-                                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                                collapseLabel={t("dashboard.view_less", "Voir moins")}
                                                 renderItem={(professeur) => (
                                                     <ProfesseurListItem
                                                         professeur={professeur}
+                                                        profSelected={professeurSelectioneTemp}
+                                                        nbStudent={etudiants.filter(e => e.professeurId === professeur.id).length}
+                                                        textClassName={"w-full inline-block cursor-pointer  border-5 rounded-2xl border-purple-500"}
                                                         onClick={() => handleProfessorSelected(professeur)}
-                                                        actionLabel={t("dashboard.view_cv")}
                                                     />
                                                 )}
                                             />
@@ -223,9 +268,6 @@ const GestionnaireAttribution = () => {
                                 <p className="text-xs ms-2 text-purple-600/80 font-medium">
                                     {t("gestionnaire.assignation.etudiant.assign_tips")}
                                 </p>
-                            </div>
-                            <div className="flex justify-center ms-3">
-                                <Button type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
                             </div>
                         </div>
                     ):(
