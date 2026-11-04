@@ -103,18 +103,17 @@
   },
   "actions": {
     "create_contract": "Create contract",
-    "sign_contract": "Sign contract",
+    "sign_contract": "Sign the contract",
     "signing": "Signing...",
     "plan_interview": "Schedule an interview",
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
-    "sign_contract": "Sign the contract",
-    "signing": "Signing...",
     "view_details": "View details",
-    "interview":"Select for interview",
+    "interview": "Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
+    "only_news": "News Only",
     "back": "Back",
     "backhome": "Back home",
     "reject": "Reject",
@@ -125,8 +124,7 @@
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
     "collapse": "Collapse",
-    "expand": "Expand",
-    "cancel" : "Cancel"
+    "expand": "Expand"
   },
   "login": {
     "page_title": "Login",
@@ -213,7 +211,7 @@
     "history": "History",
     "collapse": "Collapse",
     "expand": "Expand",
-    "assignation" : "Assignment"
+    "assignation": "Teacher Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -230,12 +228,12 @@
     "contracts_to_sign_title": "Created Contracts / To Sign",
     "no_contracts_to_create": "No contracts to create at the moment.",
     "no_contracts_to_sign": "No contracts pending signature.",
-      "pending_contracts_count": "Contracts pending creation",
-      "contracts_pending_title": "Applications ready to start the contract signing process",
-      "no_pending_contracts": "No applications pending a contract.",
-      "view_pending_contracts": "View applications ready for a contract",
-      "applications": "applications",
-      "create_contract": "View process",
+    "pending_contracts_count": "Contracts pending creation",
+    "contracts_pending_title": "Applications ready to start the contract signing process",
+    "no_pending_contracts": "No applications pending a contract.",
+    "view_pending_contracts": "View applications ready for a contract",
+    "applications": "applications",
+    "create_contract": "View process",
     "manager_subtitle": "Track pending resumes and internship offers.",
     "pending_cvs_count": "Pending resumes",
     "pending_offers_count": "Pending offers",
@@ -283,6 +281,15 @@
       "fromTo": "to",
       "cv_approval_required": "Your CV must be approved before you can view job offers."
     },
+    "card_professeur": {
+      "information_communication": "Communication information",
+      "information_scolaire": "School Information",
+      "information_stage": "Internship request",
+      "aucune_candidature": "Internship search in progress...",
+      "employeur": "Employer",
+      "poste": "Position",
+      "voir_detail": "View details"
+    },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
   },
@@ -292,44 +299,51 @@
       "new_offer": "Create a new internship offer to allow students to join your company!"
     }
   },
+  "professeur": {
+    "etudiant_section_title": "Assigned Students",
+    "new_student": "Newly assigned student"
+  },
   "gestionnaire": {
     "card": {
       "view_offers": "Review and manage all internship offers submitted by partner companies.",
       "cvs": "Review student resumes. Approve, reject, or provide guidance."
     },
     "assignation": {
-      "title" : "Teacher Assignment",
-      "description_without_teacher" : "Select a teacher to begin student assignment",
-      "description_with_teacher" : "Select the students to be assigned to this teacher",
-      "professeur" : {
+      "title": "Teacher Assignment",
+      "description_without_teacher": "Select a teacher to begin student assignment",
+      "description_with_teacher": "Select the students to be assigned to this teacher",
+      "professeur": {
         "professeur_without_name": "This teacher has no name",
-        "professeur_without_department" : "This teacher has no department",
-        "professeur_without_email" : "This teacher has no email",
+        "professeur_without_department": "This teacher has no department",
+        "professeur_without_email": "This teacher has no email",
+        "nb_student_assign": "Assigned students",
+        "professeur_is_selected": "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
       "select": {
-        "professor" : "Choose a teacher",
-        "professorSelected" : "You have selected this teacher",
+        "professor": "Choose a teacher",
+        "professorSelected": "You have selected this teacher",
         "anotherProfessor": "Click to choose another teacher",
-        "warningAnotherProfessor" : "Change the professor? This will clear the selected students.",
+        "warningAnotherProfessor": "Change the professor? This will clear the selected students.",
         "student": "Choose the students who will be assigned to: {{prenom}} {{nom}}",
-        "finishToSelect" : "Have you finished selecting the students? Click the \"Assign\" button in the student list.",        "studentList" : {
-          "title" : "Selected Students",
-          "empty" : "No students selected"
+        "finishToSelect": "Have you finished selecting the students? Click the \"Assign\" button in the student list.",
+        "studentList": {
+          "title": "Selected Students",
+          "empty": "No students selected"
         }
       },
-      "etudiant" : {
+      "etudiant": {
         "empty": "No students enrolled for this department: {{departement}}",
-        "notFound" : "N/A",
-        "teacher" : "Teacher",
-        "noProfesseur" : "No teacher assigned",
+        "notFound": "N/A",
+        "teacher": "Teacher",
+        "noProfesseur": "No teacher assigned",
         "assign_title": "Congratulations! Here are the students assigned to this teacher: {{prenom}} {{nom}}",
         "assign_tips": "To make another selection, please click the \"Assign again\" button.",
         "assign_restart": "Assign again"
       },
       "button": {
-        "text" : "Assign"
+        "text": "Assign"
       }
     }
   },
@@ -447,6 +461,23 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
+  "resume_offers": {
+    "offers_section": "Offer details",
+    "offers_sous_section": {
+      "title": "Title",
+      "salaire": "Salary",
+      "salaire_value": "{{salary}}$/Hour",
+      "description": "description",
+      "start_date": "Internship start date",
+      "format_date": "(AAAA-MM-JJ)",
+      "end_date": "Internship end date",
+      "pdf": "Offer Preview"
+    },
+    "employer_section": "Employer details",
+    "employer_sous_section": {
+      "business_name": "Business Name"
+    }
+  },
   "student_status": {
     "title": "My status",
     "declaration_title": "Complete your declaration",
@@ -488,11 +519,13 @@
     "search_placeholder": "Search applications…",
     "none": "No applications for now.",
     "status": {
-      "contrat" : "Agreement",
+      "contrat": "Agreement",
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
+      "retenue_pour_entrevue": "Selected for interview",
       "planifiee": "Interview scheduled",
+      "entrevue_planifiee": "Interview scheduled",
       "confirmee": "Interview confirmed",
       "entrevue_refusee": "Interview declined",
       "refusee": "Application rejected",
@@ -569,9 +602,15 @@
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
       },
-      "convocationEntrevue": {
-        "title": "Interview invitation",
-        "description": "{{ENTREPRISE_NOM}} convokes you for an interview for {{OFFRE_TITRE}}"
+      "assignation": {
+        "title": "A teacher has been assigned to you",
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"
+      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "New Students Assigned!",
+        "description": "Click to check your new student list."
       }
     }
   },
@@ -630,15 +669,17 @@
     "subtitle": "Schedule your appointments and view your calendar in real time."
   },
   "general": {
-    "nom" : "Name",
-    "departement" : "Department",
+    "nom": "Name",
+    "departement": "Department",
     "matricule": "Matricule",
-    "email" : "email",
-    "liste" : {
-      "open" : "Open the list",
-      "close" : "Close the list",
-      "title" : "List",
-      "empty" : "The list is empty"
+    "email": "Email",
+    "phone": "Phone Number",
+    "town": "Town",
+    "liste": {
+      "open": "Open the list",
+      "close": "Close the list",
+      "title": "List",
+      "empty": "The list is empty"
     }
   },
   "convocation": {
@@ -655,7 +696,7 @@
     "format": "Format",
     "date": "Date",
     "time": "Time",
-    "reject" : "Reject",
+    "reject": "Reject",
     "confirm_refusal": "Confirm decline",
     "refusal_confirmation": "Do you want to decline this interview invitation? The employer will be notified of your decision.",
     "refusal_reason": "Reason for declining",
@@ -663,8 +704,8 @@
     "refusal_reason_too_long": "The reason must not exceed 500 characters.",
     "refused_message": "You declined this interview invitation.",
     "refused_by_student": "The student declined this interview invitation.",
-    "accept" : "Accept",
-    "back" : "Back",
+    "accept": "Accept",
+    "back": "Back",
     "scheduled": "Interview scheduled",
     "confirmed": "Confirmed",
     "attendance_confirmed": "Your attendance at this interview is confirmed.",
@@ -677,7 +718,6 @@
       "cancel": "Cancel",
       "reject": "Reject"
     }
-
   },
   "process": {
     "title": "Internship and Contract Process Tracking",
@@ -697,12 +737,11 @@
     "completed_on": "Completed on",
     "start_error": "Error while starting the process",
     "sign_error": "Error while signing the contract",
-    "no_signature" : "No signature",
-    "no_contrat" : "No created contract, click on start signature process ",
-    "waiting_parties_signatures" : "Employer and student must sign first",
+    "no_signature": "No signature",
+    "no_contrat": "No created contract, click on start signature process ",
+    "waiting_parties_signatures": "Employer and student must sign first",
     "contract_signed_title": "Contract signed",
     "next_action_title": "Next required action",
-
     "action_contract_signed_msg": "The contract was signed on",
     "action_review_cv": "The candidate has submitted their application. Review their CV and retain them for an interview.",
     "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
@@ -713,8 +752,8 @@
     "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
     "action_default": "Application process tracking in progress.",
-    "cv_view_title" : "Student CV",
-    "contract_view_title" : "Internship Agreement"
+    "cv_view_title": "Student CV",
+    "contract_view_title": "Internship Agreement"
   },
   "sort": {
     "by_date": "Sort by date",

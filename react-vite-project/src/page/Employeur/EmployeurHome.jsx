@@ -8,6 +8,7 @@ import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
+import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
@@ -96,11 +97,7 @@ const EmployeurHome = ({ user }) => {
 
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
-            <div className="w-full max-w-7xl">
-                <h1 className="welcome-message text-left">
-                    {t("home.welcome")} {user?.firstName} {user?.lastName}
-                </h1>
-            </div>
+          <WelcomeMessage user={user}/>
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <SearchBar
                     value={offreFilters.searchTerm}

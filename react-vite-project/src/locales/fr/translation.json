@@ -121,6 +121,7 @@
     "loading": "En cours...",
     "filter_by": "Filtrer par ",
     "reset_filters": "Réinitialiser les filtres",
+    "only_news": "Nouveaux Seulement",
     "collapse": "Réduire",
     "expand": "Développer",
     "create_contract": "Créer le contrat"
@@ -253,7 +254,7 @@
     "history": "History",
     "collapse": "Réduire",
     "expand": "Développer",
-    "assignation" : "Assignation"
+    "assignation": "Assignation des professeurs"
   },
   "sidebar": {
     "collapse": "Réduire le menu",
@@ -334,6 +335,15 @@
       "apply_button": "Postuler",
       "fromTo": "à"
     },
+    "card_professeur": {
+      "information_communication": "Information de communication",
+      "information_scolaire": "Information Scolaire",
+      "information_stage": "Demande de Stage",
+      "aucune_candidature": "Recherche de stage en cours...",
+      "employeur": "Employeur",
+      "poste": "Poste",
+      "voir_detail": "Voir les détails"
+    },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
     "noCvFound": "Cv non trouvé"
@@ -344,44 +354,51 @@
       "new_offer": "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
     }
   },
+  "professeur": {
+    "etudiant_section_title": "Étudiants à charge",
+    "new_student": "Nouvel étudiant assigné"
+  },
   "gestionnaire": {
     "card": {
       "view_offers": "Validez et gérez l'ensemble des offres de stage soumises par les entreprises partenaires.",
       "cvs": "Évaluez les CV soumis par les étudiants. Approuvez, refusez ou accompagnez les étudiants dans leur démarche."
     },
     "assignation": {
-      "title" : "Assignation des professeurs",
-      "description_without_teacher" : "Sélectionnez un professeur pour commencer l'assignation des étudiants",
-      "description_with_teacher" : "Sélectionnez les étudiants qui seront assignés à ce professeur",
-      "professeur" : {
+      "title": "Assignation des professeurs",
+      "description_without_teacher": "Sélectionnez un professeur pour commencer l'assignation des étudiants",
+      "description_with_teacher": "Sélectionnez les étudiants qui seront assignés à ce professeur",
+      "professeur": {
         "professeur_without_name": "Ce professeur ne possède aucun nom",
-        "professeur_without_department" : "Ce professeur ne possède aucun departement",
-        "professeur_without_email" : "Ce professeur ne possède aucun Email",
+        "professeur_without_department": "Ce professeur ne possède aucun departement",
+        "professeur_without_email": "Ce professeur ne possède aucun Email",
+        "professeur_is_selected": "Sélectioné(e)",
+        "nb_student_assign": "Étudiants assignés",
         "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
         "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
       },
       "select": {
-        "professor" : "Choisissez un professeur",
-        "professorSelected" : "Vous avez sélectionné cet enseignant",
-        "anotherProfessor" : "Cliquez pour choisir un autre enseignant",
-        "warningAnotherProfessor" : "Modifier le professeur ? Cela effacera les étudiants sélectionnés.",
+        "professor": "Choisissez un professeur",
+        "professorSelected": "Vous avez sélectionné cet enseignant",
+        "anotherProfessor": "Cliquez pour choisir un autre enseignant",
+        "warningAnotherProfessor": "Modifier le professeur ? Cela effacera les étudiants sélectionnés.",
         "student": "Veuillez sélectionner les étudiants à assigner à : {{prenom}} {{nom}}",
-        "finishToSelect" : "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",        "studentList" : {
-          "title" : "Étudiants Sélectionnés",
-          "empty" : "Aucun étudiant sélectionné"
+        "finishToSelect": "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",
+        "studentList": {
+          "title": "Étudiants Sélectionnés",
+          "empty": "Aucun étudiant sélectionné"
         }
       },
-      "etudiant" : {
+      "etudiant": {
         "empty": "Aucun étudiant inscrit pour ce département : {{departement}}",
-        "notFound" : "N/A",
-        "teacher" : "Professeur",
-        "noProfesseur" : "Aucun professeur assigné",
+        "notFound": "N/A",
+        "teacher": "Professeur",
+        "noProfesseur": "Aucun professeur assigné",
         "assign_title": "Félicitations ! Voici les élèves assignés à ce professeur : {{prenom}} {{nom}}",
         "assign_tips": "Pour faire une autre sélection, merci d'appuyer sur le bouton \"Assigner à nouveau\".",
         "assign_restart": "Assigner à nouveau"
       },
       "button": {
-        "text" : "Assigner"
+        "text": "Assigner"
       }
     }
   },
@@ -443,6 +460,23 @@
       "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
+  "resume_offers": {
+    "offers_section": "Renseignements sur l'offre",
+    "offers_sous_section": {
+      "title": "Titre",
+      "salaire": "Salaire",
+      "salaire_value": "{{salary}}$/Heure",
+      "description": "description",
+      "start_date": "Date de début du stage",
+      "format_date": "(AAAA-MM-JJ)",
+      "end_date": "Date de fin du stage",
+      "pdf": "Aperçu de l'offre"
+    },
+    "employer_section": "Renseignement sur l'employeur",
+    "employer_sous_section": {
+      "business_name": "Nom de la Compagnie"
+    }
+  },
   "student_status": {
     "title": "Mon statut",
     "declaration_title": "Compléter la déclaration",
@@ -484,11 +518,13 @@
     "search_placeholder": "Rechercher une candidature…",
     "none": "Aucune candidature pour le moment.",
     "status": {
-      "contrat" : "Contrat",
+      "contrat": "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
       "retenue": "Retenue pour entrevue",
+      "retenue_pour_entrevue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
+      "entrevue_planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
       "entrevue_refusee": "Entrevue refusée",
       "refusee": "Candidature refusée",
@@ -565,9 +601,15 @@
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
       },
-      "convocationEntrevue": {
-        "title": "Convocation à une entrevue",
-        "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour : {{OFFRE_TITRE}}."
+      "assignation": {
+        "title": "Un professeur vous a été assigné",
+        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"
+      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "Nouveaux élèves assignés !",
+        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."
       }
     }
   },
@@ -626,15 +668,17 @@
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
   },
   "general": {
-    "nom" : "Nom",
-    "departement" : "Departement",
+    "nom": "Nom",
+    "departement": "Département",
     "matricule": "Matricule",
-    "email" : "Courriel",
-    "liste" : {
-      "open" : "Ouvrir la liste",
-      "close" : "Fermer la liste",
-      "title" : "Liste",
-      "empty" : "La liste est vide"
+    "email": "Courriel",
+    "phone": "Numéro de téléphone",
+    "town": "Ville",
+    "liste": {
+      "open": "Ouvrir la liste",
+      "close": "Fermer la liste",
+      "title": "Liste",
+      "empty": "La liste est vide"
     }
   },
   "process": {
@@ -655,12 +699,11 @@
     "completed_on": "Effectué le",
     "start_error": "Erreur lors du démarrage du processus",
     "sign_error": "Erreur lors de la signature du contrat",
-    "no_signature" : "Aucune signature",
-    "no_contrat" : "Aucun contrat créé, cliquer sur démarrer le processus de signature pour en créer un",
-    "waiting_parties_signatures" : "L'employeur et l'étudiant doivent d'abord signer le contrat",
+    "no_signature": "Aucune signature",
+    "no_contrat": "Aucun contrat créé, cliquer sur démarrer le processus de signature pour en créer un",
+    "waiting_parties_signatures": "L'employeur et l'étudiant doivent d'abord signer le contrat",
     "contract_signed_title": "Contrat signé",
     "next_action_title": "Prochaine action requise",
-
     "action_contract_signed_msg": "Le contrat a été signé le",
     "action_review_cv": "Le candidat a soumis sa candidature. Revoyez son CV et retenez-le pour une entrevue.",
     "action_plan_interview": "Le candidat est retenu. Planifiez l'entrevue dès maintenant.",
@@ -671,9 +714,8 @@
     "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
     "action_default": "Suivi du processus de candidature en cours.",
-    "cv_view_title" : "CV de l'étudiant ",
-    "contract_view_title" : "Contrat de Stage"
-
+    "cv_view_title": "CV de l'étudiant ",
+    "contract_view_title": "Contrat de Stage"
   },
   "convocation": {
     "title": "Détails de l'entrevue",
@@ -689,7 +731,7 @@
     "format": "Format",
     "date": "Date",
     "time": "Heure",
-    "reject" : "Refuser",
+    "reject": "Refuser",
     "confirm_refusal": "Confirmer le refus",
     "refusal_confirmation": "Voulez-vous refuser cette convocation ? L'employeur sera informé de votre décision.",
     "refusal_reason": "Motif du refus",
@@ -697,8 +739,8 @@
     "refusal_reason_too_long": "Le motif ne doit pas dépasser 500 caractères.",
     "refused_message": "Vous avez refusé cette convocation.",
     "refused_by_student": "L'étudiant a refusé cette convocation.",
-    "accept" : "Accepter",
-    "back" : "Retour",
+    "accept": "Accepter",
+    "back": "Retour",
     "scheduled": "Entrevue planifiée",
     "confirmed": "Confirmée",
     "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
@@ -709,7 +751,7 @@
       "instruction": "Veuillez confirmer si le candidat a été retenu suite à l'entrevue.",
       "accept": "Accepter",
       "cancel": "Annuler",
-        "reject": "Refuser"
+      "reject": "Refuser"
     }
   },
   "sort": {

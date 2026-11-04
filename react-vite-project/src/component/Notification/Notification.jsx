@@ -17,17 +17,18 @@ import {
 import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
 import {FaCalendarAlt, FaCheck, FaQuestion} from "react-icons/fa";
+import {PiStudentBold} from "react-icons/pi";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
     OFFRE_ATTENTE_VALIDATION: "/gestionnaire/offres/details",
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
+    PROFESSEUR_ASSIGNE_ETUDIANT: "/professeur?filter=new",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
     CONVOCATION_ENTREVUE: "/etudiant/candidatures",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
-    STAGE_TROUVE: "/employeur/candidatures/details",
 };
 
 const CONFIG_PAR_TYPE = {
@@ -71,9 +72,13 @@ const CONFIG_PAR_TYPE = {
         icon: <ImCross />,
         tone: "red",
     },
-    STAGE_TROUVE: {
-        icon: <FaCheck />,
-        tone: "green",
+    ETUDIANT_ASSIGNE_PROFESSEUR : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
+    },
+    PROFESSEUR_ASSIGNE_ETUDIANT : {
+        icon : <PiStudentBold/>,
+        tone : "blue"
     },
 };
 
@@ -155,7 +160,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.id = notification.variables?.ENTREVUE_ID;
                 state.from = "/etudiant/candidatures";
             }
-            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE", "STAGE_TROUVE"]
+            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"]
                 .includes(notification.notificationType)) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 const [candidatures, offres] = await Promise.all([
