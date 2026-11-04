@@ -118,6 +118,8 @@
     "back": "Back",
     "backhome": "Back home",
     "reject": "Reject",
+    "accept_candidate": "Accept application",
+    "reject_candidate": "Reject application",
     "approve": "Approve",
     "upload": "Upload",
     "cancel": "Cancel",

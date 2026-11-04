@@ -113,6 +113,8 @@
     "active": "Actif",
     "back": "Retour",
     "reject": "Refuser",
+    "accept_candidate": "Accepter la candidature",
+    "reject_candidate": "Refuser la candidature",
     "approve": "Approuver",
     "upload": "Téléverser",
     "cancel": "Annuler",

@@ -320,6 +320,12 @@ function EtudiantCandidatures() {
                                                     {candidature ? (
                                                         <div className="min-w-max py-2">
                                                             <CandidatureTimeline statut={candidature.statut} statutEntrevue={c.statut} afficherRetenue={false} regrouperEntrevue />
+                                                            {candidature.statut === "REFUSEE" && candidature.motifRefus && (
+                                                                <div className="mx-auto mb-4 max-w-3xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+                                                                    <strong>{t("convocation.refusal_reason")} : </strong>
+                                                                    <span className="whitespace-pre-wrap break-words">{candidature.motifRefus}</span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ) : (
                                                         <p role="alert" className="text-sm text-gray-500">{t("error.generic")}</p>
