@@ -380,6 +380,8 @@ public class EtudiantService {
         if (candidature.getStatut() != StatutCandidature.ACCEPTEE) {
             throw new DeclarationStageInvalideException();
         }
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidatureRepository.save(candidature);
         etudiant.setCandidatureStage(candidature);
         etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
         etudiantRepository.save(etudiant);

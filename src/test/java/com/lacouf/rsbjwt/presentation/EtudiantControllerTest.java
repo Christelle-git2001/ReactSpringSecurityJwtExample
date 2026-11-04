@@ -625,13 +625,13 @@ public class EtudiantControllerTest {
     void doitDeclarerLeStageTrouve() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
                 10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.ACCEPTEE, null, StatutEtudiant.STAGE_TROUVE, true);
+                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE);
         when(etudiantService.declarerStageTrouve(20L)).thenReturn(candidature);
 
         mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.stageTrouve").value(true))
-                .andExpect(jsonPath("$.statut").value("ACCEPTEE"));
+                .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
+                .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
         verify(etudiantService).declarerStageTrouve(20L);
     }
 }

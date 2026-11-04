@@ -1039,11 +1039,11 @@ public class EtudiantServiceTest {
 
         CandidatureDTO resultat = etudiantService.declarerStageTrouve(20L);
 
-        assertThat(resultat.stageTrouve()).isTrue();
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
         assertThat(resultat.statutEtudiant()).isEqualTo(com.lacouf.rsbjwt.model.Enum.StatutEtudiant.STAGE_TROUVE);
         assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
         verify(etudiantRepository).save(etudiant);
+        verify(candidatureRepository).save(candidature);
         ArgumentCaptor<StageTrouveEvent> captor = ArgumentCaptor.forClass(StageTrouveEvent.class);
         verify(applicationEventPublisher).publishEvent(captor.capture());
         assertThat(captor.getValue().candidature()).isSameAs(candidature);

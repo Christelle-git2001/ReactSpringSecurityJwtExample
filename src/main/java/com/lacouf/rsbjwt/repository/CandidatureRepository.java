@@ -13,8 +13,6 @@ import java.util.Optional;
 public interface CandidatureRepository extends JpaRepository<Candidature, Long> {
     Optional<Candidature> findByIdAndEtudiantId(Long id, Long etudiantId);
 
-    List<Candidature> findByEtudiantCandidatureStageIsNotNullAndStatut(StatutCandidature statut);
-
     boolean existsByEtudiantAndOffreDeStage(Etudiant etudiant, OffreDeStage offreDeStage);
 
     List<Candidature> findByOffreDeStage(OffreDeStage offreDeStage);
