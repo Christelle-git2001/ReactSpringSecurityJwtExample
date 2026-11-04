@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { postulerOffre } from "../../api/etudiant.jsx";
 import { useNavigate } from "react-router-dom";
+import Button from "./Button.jsx";
 
 function PostulerButton({ offerId, hasApplied = false, onApply, onApplied }) {
     const { t } = useTranslation();
@@ -51,18 +52,13 @@ function PostulerButton({ offerId, hasApplied = false, onApply, onApplied }) {
             {error && (
                 <p className="text-xs text-red-600 mb-1 text-center">{t(error)}</p>
             )}
-            <button
-                type="button"
-                className="btn btn-block bg-[#66E5E4] text-[#043462] hover:bg-[#00CCCB]"
-                onClick={handleApply}
-                disabled={isApplying}
-            >
+            <Button role="postuler" icon={true} onClick={handleApply} disabled={isApplying} className="w-full">
                 {isApplying ? (
                     <span className="loading loading-spinner loading-sm"></span>
                 ) : (
                     t("offre.apply")
                 )}
-            </button>
+            </Button>
         </div>
     );
 }
