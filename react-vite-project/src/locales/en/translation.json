@@ -108,19 +108,17 @@
     "plan_interview": "Schedule an interview",
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
-    "sign_contract": "Sign the contract",
-    "signing": "Signing...",
     "view_details": "View details",
     "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
+    "only_news" : "News Only",
     "back": "Back",
     "backhome": "Back home",
     "reject": "Reject",
     "approve": "Approve",
     "upload": "Upload",
-    "cancel": "Cancel",
     "cancel_refusal": "Cancel rejection",
     "confirm_rejection": "Confirm rejection",
     "loading": "Loading...",
@@ -210,7 +208,7 @@
     "history": "History",
     "collapse": "Collapse",
     "expand": "Expand",
-    "assignation" : "Assignment"
+    "assignation" : "Teacher Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -280,6 +278,15 @@
       "fromTo": "to",
       "cv_approval_required": "Your CV must be approved before you can view job offers."
     },
+    "card_professeur": {
+      "information_communication": "Communication information",
+      "information_scolaire": "School Information",
+      "information_stage": "Internship request",
+      "aucune_candidature": "Internship search in progress...",
+      "employeur": "Employer",
+      "poste" : "Position",
+      "voir_detail": "View details"
+    },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
   },
@@ -288,6 +295,10 @@
       "view_offers": "View your created offers, their status, and details",
       "new_offer": "Create a new internship offer to allow students to join your company!"
     }
+  },
+  "professeur": {
+    "etudiant_section_title": "Assigned Students",
+    "new_student": "Newly assigned student"
   },
   "gestionnaire": {
     "card": {
@@ -302,6 +313,8 @@
         "professeur_without_name": "This teacher has no name",
         "professeur_without_department" : "This teacher has no department",
         "professeur_without_email" : "This teacher has no email",
+        "nb_student_assign": "Assigned students",
+        "professeur_is_selected" : "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
@@ -444,6 +457,23 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
+  "resume_offers" : {
+    "offers_section": "Offer details",
+    "offers_sous_section" : {
+      "title" : "Title",
+      "salaire": "Salary",
+      "salaire_value": "{{salary}}$/Hour",
+      "description" : "description",
+      "start_date": "Internship start date",
+      "format_date" : "(AAAA-MM-JJ)",
+      "end_date": "Internship end date",
+      "pdf": "Offer Preview"
+    },
+    "employer_section": "Employer details",
+    "employer_sous_section": {
+      "business_name": "Business Name"
+    }
+  },
   "candidature": {
     "my_applications": "My applications",
     "newest_first": "Newest first",
@@ -455,7 +485,9 @@
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
+      "retenue_pour_entrevue" : "Selected for interview",
       "planifiee": "Interview scheduled",
+      "entrevue_planifiee" : "Interview scheduled",
       "confirmee": "Interview confirmed",
       "entrevue_refusee": "Interview declined",
       "refusee": "Rejected",
@@ -527,6 +559,15 @@
       "nouvelleOffre": {
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
+      },
+      "assignation": {
+        "title": "A teacher has been assigned to you",
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "New Students Assigned!",
+        "description": "Click to check your new student list."
       }
     }
   },
@@ -580,18 +621,6 @@
   "gestion_entrevue": {
     "title": "Interview Management",
     "subtitle": "Schedule your appointments and view your calendar in real time."
-  },
-  "general": {
-    "nom" : "Name",
-    "departement" : "Department",
-    "matricule": "Matricule",
-    "email" : "email",
-    "liste" : {
-      "open" : "Open the list",
-      "close" : "Close the list",
-      "title" : "List",
-      "empty" : "The list is empty"
-    }
   },
   "convocation": {
     "title": "Interview details",
@@ -666,5 +695,19 @@
     "reason": "Reason for declining",
     "placeholder": "Please enter the reason for declining...",
     "required": "Please provide a reason for declining."
+  },
+  "general": {
+    "nom" : "Name",
+    "departement" : "Department",
+    "matricule": "Matricule",
+    "email" : "Email",
+    "phone" : "Phone Number",
+    "town" : "Town",
+    "liste" : {
+      "open" : "Open the list",
+      "close" : "Close the list",
+      "title" : "List",
+      "empty" : "The list is empty"
+    }
   }
 }

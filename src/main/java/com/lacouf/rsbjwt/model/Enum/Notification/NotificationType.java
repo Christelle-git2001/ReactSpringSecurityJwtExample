@@ -10,7 +10,9 @@ public enum NotificationType {
     NOUVELLE_OFFRE_STAGE("Une nouvelle offre de stage est disponible"),
     CONVOCATION_ENTREVUE("Vous êtes convoqué à une entrevue"),
     CONVOCATION_ACCEPTEE("Une convocation a été acceptée"),
-    CONVOCATION_REFUSEE("Une convocation a été refusée");
+    CONVOCATION_REFUSEE("Une convocation a été refusée"),
+    PROFESSEUR_ASSIGNE_ETUDIANT("Un étudiant vous a été assigné"),
+    ETUDIANT_ASSIGNE_PROFESSEUR("Un professeur vous a été assigné");
 
     private final String label;
 

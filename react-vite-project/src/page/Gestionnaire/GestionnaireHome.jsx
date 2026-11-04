@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { FaBriefcase, FaFileAlt, FaFileContract, FaPenNib } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
+import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
 const trierParDateDesc = (items, getDate) => {
     return [...items].sort((itemA, itemB) => {
@@ -170,14 +171,7 @@ const GestionnaireHome = ({ user }) => {
     return (
         <div className="pt-5 h-full">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
-                <div>
-                    <h1 className="text-4xl font-bold text-[#043462]">
-                        {t("home.welcome")} {user?.firstName} {user?.lastName}
-                    </h1>
-                    <p className="mt-2 text-sm text-gray-500">
-                        {t("dashboard.manager_subtitle")}
-                    </p>
-                </div>
+                <WelcomeMessage user={user}/>
 
                 <SearchBar
                     value={cvFilters.searchTerm}

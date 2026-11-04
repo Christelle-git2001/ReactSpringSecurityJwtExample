@@ -8,7 +8,7 @@ import logo from "../../../assets/logo.png";
 import Notification from "../../Notification/Notification.jsx";
 import { getNotifications } from "../../../api/notification.jsx";
 
-const ROLES_AVEC_NOTIFICATIONS = ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR"];
+const ROLES_AVEC_NOTIFICATIONS = ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR", "PROFESSEUR"];
 
 function Header({ sidebarOpen, user }) {
     const { t } = useTranslation();
