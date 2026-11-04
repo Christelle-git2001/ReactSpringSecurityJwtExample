@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -1042,6 +1043,23 @@ public class EtudiantServiceTest {
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
         assertThat(resultat.statutEtudiant()).isEqualTo(com.lacouf.rsbjwt.model.Enum.StatutEtudiant.STAGE_TROUVE);
         assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
+        verify(etudiantRepository).save(etudiant);
+        ArgumentCaptor<StageTrouveEvent> captor = ArgumentCaptor.forClass(StageTrouveEvent.class);
+        verify(applicationEventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().candidature()).isSameAs(candidature);
+    }
+
+    @Test
+    void neDoitPasNotifierDeuxFoisPourLeMemeStage() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+
+        etudiantService.declarerStageTrouve(20L);
+        etudiantService.declarerStageTrouve(20L);
+
+        verify(applicationEventPublisher).publishEvent(any(StageTrouveEvent.class));
         verify(etudiantRepository).save(etudiant);
     }
 

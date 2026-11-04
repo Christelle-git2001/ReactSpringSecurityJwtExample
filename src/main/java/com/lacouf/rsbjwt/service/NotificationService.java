@@ -376,4 +376,29 @@ public class NotificationService {
 
         return NotificationDTO.of(notificationRepository.save(notification));
     }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleStageTrouve(StageTrouveEvent event) {
+        Candidature candidature = event.candidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Notification notification = Notification.builder()
+                .titre("notification.employeur.stageTrouve.title")
+                .description("notification.employeur.stageTrouve.description")
+                .notificationType(NotificationType.STAGE_TROUVE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .destinataire(offre.getEmployeur())
+                .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
 }

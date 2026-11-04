@@ -1,6 +1,7 @@
 import { createInstance } from "i18next";
 import { marquerNotificationLue } from "../../../api/notification.jsx";
 import traductionFr from "../../../locales/fr/translation.json";
+import traductionEn from "../../../locales/en/translation.json";
 import { creerNotificationsMock } from "../../mocks/notification.js";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
@@ -30,7 +31,7 @@ beforeAll(async () => {
     await testI18n.init({
         lng: "fr",
         fallbackLng: "fr",
-        resources: { fr: { translation: traductionFr } },
+        resources: { fr: { translation: traductionFr }, en: { translation: traductionEn } },
         interpolation: { escapeValue: false },
     });
 });
@@ -59,8 +60,7 @@ beforeEach(async () => {
     ]);
 });
 
-function afficherNotifications() {
-    const notifications = creerNotificationsMock();
+function afficherNotifications(notifications = creerNotificationsMock()) {
     const onMarkAsRead = jest.fn();
 
     render(
@@ -78,6 +78,15 @@ function afficherNotifications() {
 }
 
 const DESCRIPTION_CANDIDATURE = "Jean Tremblay a postulé à votre offre : Stage en développement";
+
+const notificationStageTrouve = {
+    id: 200,
+    notificationType: "STAGE_TROUVE",
+    titre: "notification.employeur.stageTrouve.title",
+    description: "notification.employeur.stageTrouve.description",
+    variables: { CANDIDATURE_ID: "100", ETUDIANT_NOM: "Jean Tremblay", OFFRE_TITRE: "Stage Java" },
+    estLu: false,
+};
 
 describe("Notification de nouvelle candidature (employeur)", () => {
     it("ne navigue pas si le marquage comme lu échoue", async () => {
@@ -151,5 +160,31 @@ describe("Notification de nouvelle candidature (employeur)", () => {
         expect(
             screen.getAllByText("Nouvelle candidature")
         ).toHaveLength(1);
+    });
+
+    it("ouvre la candidature du stage choisi depuis la notification employeur", async () => {
+        const { onMarkAsRead } = afficherNotifications([notificationStageTrouve]);
+        expect(await screen.findByText("Jean Tremblay a choisi votre offre « Stage Java » comme stage."))
+            .toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /Stage choisi par l'étudiant/ }));
+
+        await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/employeur/candidatures/details", {
+            state: {
+                candidature: expect.objectContaining({ id: 100 }),
+                offer: expect.objectContaining({ id: 1 }),
+                from: "/employeur",
+            },
+        }));
+        expect(onMarkAsRead).toHaveBeenCalledWith(200);
+    });
+
+    it("affiche la notification du stage choisi en anglais", async () => {
+        await testI18n.changeLanguage("en");
+        afficherNotifications([notificationStageTrouve]);
+
+        expect(await screen.findByText("Internship chosen by the student")).toBeInTheDocument();
+        expect(screen.getByText("Jean Tremblay has chosen your offer “Stage Java” for their internship."))
+            .toBeInTheDocument();
     });
 });

@@ -490,6 +490,10 @@
   },
   "notification": {
     "employeur": {
+      "stageTrouve": {
+        "title": "Stage choisi par l'étudiant",
+        "description": "{{ETUDIANT_NOM}} a choisi votre offre « {{OFFRE_TITRE}} » comme stage."
+      },
       "convocationAcceptee": {
         "title": "Convocation acceptée",
         "description": "{{ETUDIANT_NOM}} a confirmé sa présence à l'entrevue pour le poste {{OFFRE_TITRE}}."

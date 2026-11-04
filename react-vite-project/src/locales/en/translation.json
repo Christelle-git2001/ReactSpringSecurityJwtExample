@@ -494,6 +494,10 @@
   },
   "notification": {
     "employeur": {
+      "stageTrouve": {
+        "title": "Internship chosen by the student",
+        "description": "{{ETUDIANT_NOM}} has chosen your offer “{{OFFRE_TITRE}}” for their internship."
+      },
       "convocationAcceptee": {
         "title": "Interview invitation accepted",
         "description": "{{ETUDIANT_NOM}} has confirmed attendance at the interview for the {{OFFRE_TITRE}} position."

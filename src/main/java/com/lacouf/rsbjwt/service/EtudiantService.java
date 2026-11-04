@@ -11,6 +11,7 @@ import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -382,6 +383,7 @@ public class EtudiantService {
         etudiant.setCandidatureStage(candidature);
         etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
         etudiantRepository.save(etudiant);
+        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
         return CandidatureDTO.of(candidature);
     }
 
