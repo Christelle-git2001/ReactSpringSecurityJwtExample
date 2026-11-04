@@ -57,6 +57,9 @@ public class EmployeurServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private EtudiantService etudiantService;
+
     @InjectMocks
     private EmployeurService employeurService;
 
@@ -178,7 +181,7 @@ public class EmployeurServiceTest {
     }
 
     private Entrevue creerEntrevueTerminee() {
-        candidature.setStatut(StatutCandidature.ENTREVUE_CONFIRMEE);
+        candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         Entrevue entrevue = new Entrevue();
         entrevue.setCandidature(candidature);
         entrevue.setStatut(StatutEntrevue.CONFIRMEE);
@@ -759,16 +762,16 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitAccepterLeCandidatEtPublierEvenementEmbauche() throws Exception {
+    void doitAccepterLeCandidatSansDeclarerSonStage() throws Exception {
         creerEntrevueTerminee();
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EMBAUCHE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
         assertThat(resultat.motifRefus()).isNull();
-        verify(userAppRepository).save(etudiant);
+        verify(etudiantService).actualiserStatutEtudiant(etudiant);
         verify(candidatureRepository).save(candidature);
         ArgumentCaptor<CandidatureAccepteeEvent> captor = ArgumentCaptor.forClass(CandidatureAccepteeEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
@@ -785,22 +788,21 @@ public class EmployeurServiceTest {
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
         assertThat(resultat.motifRefus()).isEqualTo("Experience insuffisante");
         assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
-        verify(userAppRepository).save(etudiant);
+        verify(etudiantService).actualiserStatutEtudiant(etudiant);
         verify(candidatureRepository).save(candidature);
         verifyNoInteractions(eventPublisher);
     }
 
     @Test
-    void doitConserverEmbaucheSiUneAutreCandidatureEstAcceptee() throws Exception {
+    void doitConserverLeStageTrouveLorsDuRefusDuneAutreCandidature() throws Exception {
         creerEntrevueTerminee();
-        etudiant.setStatut(StatutEtudiant.EMBAUCHE);
-        when(candidatureRepository.existsByEtudiantAndStatut(etudiant, StatutCandidature.ACCEPTEE)).thenReturn(true);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         CandidatureDTO resultat = employeurService.refuserCandidatApresEntrevue(1L, "Autre profil retenu");
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EMBAUCHE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
         verifyNoInteractions(eventPublisher);
     }
 
@@ -903,6 +905,17 @@ public class EmployeurServiceTest {
         verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
         verify(contratRepository).findById(contratId);
         verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitRefuserDecisionSiConvocationNonAcceptee() {
+        creerEntrevueTerminee().setStatut(StatutEntrevue.A_CONFIRMER);
+
+        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
+                .isInstanceOf(DecisionCandidatureInvalideException.class);
+
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test

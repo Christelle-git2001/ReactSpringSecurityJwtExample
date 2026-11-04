@@ -13,6 +13,7 @@ import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @SpringBootApplication
+@EnableScheduling
 public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final GestionnaireRepository gestionnaireRepository;
     private final EtudiantRepository etudiantRepository;
@@ -286,7 +288,11 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         // Nettoyer le contexte de sécurité après l'appel
         SecurityContextHolder.clearContext();
 
-        candidatureSarko.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidatureSarko.setStatut(StatutCandidature.ACCEPTEE);
         candidatureRepository.save(candidatureSarko);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(emailNicolas, null));
+        etudiantService.declarerStageTrouve(candidatureSarko.getId());
+        SecurityContextHolder.clearContext();
     }
 }

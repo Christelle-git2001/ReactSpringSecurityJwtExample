@@ -370,7 +370,10 @@ public class GestionnaireService {
 
         Contrat contrat;
 
-        if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
+        if (candidature.getStatut() == StatutCandidature.ACCEPTEE
+                && candidature.getEtudiant() != null
+                && candidature.getEtudiant().getCandidatureStage() != null
+                && candidatureId.equals(candidature.getEtudiant().getCandidatureStage().getId())) {
             contrat = Contrat.builder()
                     .candidature(candidature)
                     .gestionnaire(gestionnaire)
@@ -400,6 +403,13 @@ public class GestionnaireService {
     }
 
     public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
+        if ("STAGE_TROUVE".equalsIgnoreCase(status)) {
+            return candidatureRepository.findByEtudiantCandidatureStageIsNotNullAndStatut(StatutCandidature.ACCEPTEE)
+                    .stream()
+                    .filter(c -> c.getId().equals(c.getEtudiant().getCandidatureStage().getId()))
+                    .map(CandidatureDTO::of)
+                    .toList();
+        }
         return  candidatureRepository.findByStatut(normaliserStatus(status))
                 .stream()
                 .map(CandidatureDTO::of)

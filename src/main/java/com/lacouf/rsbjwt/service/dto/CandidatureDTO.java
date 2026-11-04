@@ -19,8 +19,17 @@ public record CandidatureDTO(
         Long cvId,
         StatutCandidature statut,
         String motifRefus,
-        StatutEtudiant statutEtudiant
+        StatutEtudiant statutEtudiant,
+        boolean stageTrouve
 ) {
+    public CandidatureDTO(long id, long etudiantId, String etudiantFirstName, String etudiantLastName,
+                          String etudiantDepartment, Long offreId, String offreTitle, String employeurBusinessName,
+                          LocalDateTime dateCandidature, Long cvId, StatutCandidature statut,
+                          String motifRefus, StatutEtudiant statutEtudiant) {
+        this(id, etudiantId, etudiantFirstName, etudiantLastName, etudiantDepartment, offreId, offreTitle,
+                employeurBusinessName, dateCandidature, cvId, statut, motifRefus, statutEtudiant, false);
+    }
+
     public static CandidatureDTO of(Candidature candidature) {
         if (candidature == null) {
             return null;
@@ -49,7 +58,9 @@ public record CandidatureDTO(
                 cvId,
                 candidature.getStatut(),
                 candidature.getMotifRefus(),
-                etudiant != null ? etudiant.getStatut() : null
+                etudiant != null ? etudiant.getStatut() : null,
+                etudiant != null && etudiant.getCandidatureStage() != null
+                        && candidature.getId().equals(etudiant.getCandidatureStage().getId())
         );
     }
 }

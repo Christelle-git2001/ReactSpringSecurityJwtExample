@@ -30,6 +30,10 @@ public class Etudiant extends UserApp {
     @ColumnDefault("'EN_RECHERCHE'")
     private StatutEtudiant statut = StatutEtudiant.EN_RECHERCHE;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "candidature_stage_id", unique = true)
+    private Candidature candidatureStage;
+
     @OneToOne(mappedBy = "etudiant")
     private CvEtudiant cv;
 

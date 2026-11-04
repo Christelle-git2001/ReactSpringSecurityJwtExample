@@ -315,6 +315,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(DeclarationStageInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleDeclarationStageInvalideException(DeclarationStageInvalideException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
+    }
+
     @ExceptionHandler(MotifRefusInvalideException.class)
     public ResponseEntity<ErreurDTO> handleMotifRefusInvalideException(MotifRefusInvalideException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));

@@ -760,7 +760,7 @@ class GestionnaireServiceTest {
     @Test
     void doitRetournerLesDecisionsAvecLeStatutEtudiantEtLeMotif() throws Exception {
         connecterUtilisateur(gestionnaire);
-        etudiant.setStatut(StatutEtudiant.EMBAUCHE);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
         Candidature acceptee = new Candidature(etudiant, null);
         acceptee.setId(1L);
         acceptee.setStatut(StatutCandidature.ACCEPTEE);
@@ -778,7 +778,7 @@ class GestionnaireServiceTest {
 
         assertThat(resultats).hasSize(2);
         assertThat(resultats.get(0).statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(resultats.get(0).statutEtudiant()).isEqualTo(StatutEtudiant.EMBAUCHE);
+        assertThat(resultats.get(0).statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
         assertThat(resultats.get(1).statut()).isEqualTo(StatutCandidature.REFUSEE);
         assertThat(resultats.get(1).statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
         assertThat(resultats.get(1).motifRefus()).isEqualTo("Autre profil retenu");
@@ -992,7 +992,10 @@ class GestionnaireServiceTest {
 
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        candidature.setEtudiant(etudiant);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
 
         Contrat contratSauvegarde = Contrat.builder()
                 .candidature(candidature)
@@ -1031,6 +1034,26 @@ class GestionnaireServiceTest {
             verify(contratRepository).existsByCandidatureId(candidatureId);
             verify(contratRepository).save(any(Contrat.class));
         }
+    }
+
+    @Test
+    void doitRetournerSeulementLaCandidatureDuStageDeclare() throws Exception {
+        Candidature stage = new Candidature(etudiant, null);
+        stage.setId(10L);
+        stage.setStatut(StatutCandidature.ACCEPTEE);
+        Candidature autre = new Candidature(etudiant, null);
+        autre.setId(20L);
+        autre.setStatut(StatutCandidature.ACCEPTEE);
+        etudiant.setCandidatureStage(stage);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        when(candidatureRepository.findByEtudiantCandidatureStageIsNotNullAndStatut(StatutCandidature.ACCEPTEE))
+                .thenReturn(List.of(stage, autre));
+
+        List<CandidatureDTO> resultats = gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE");
+
+        assertThat(resultats).hasSize(1);
+        assertThat(resultats.getFirst().id()).isEqualTo(10L);
+        assertThat(resultats.getFirst().stageTrouve()).isTrue();
     }
 
     @Test
