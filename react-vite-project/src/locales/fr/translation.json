@@ -444,6 +444,16 @@
     }
   },
   "candidature": {
+    "view_agenda": "Voir l'agenda",
+    "hide_agenda": "Masquer l'agenda",
+    "interview_details": "Détails de l'entrevue",
+    "interview_completed": "Entrevue terminée",
+    "interview_step": "Entrevue",
+    "interview_states": {
+      "ENTREVUE_PLANIFIEE": "Planifiée",
+      "CONFIRMEE": "Confirmée",
+      "TERMINEE": "Terminée"
+    },
     "my_applications": "Mes candidatures",
     "declare_stage_found": "Déclarer mon stage trouvé",
     "newest_first": "Plus récentes",
@@ -573,6 +583,7 @@
     }
   },
   "agenda": {
+    "interviews_list": "Entrevues",
     "no_interviews": "Aucune entrevue",
     "clear_filter": "Voir toutes les entrevues",
     "title": "Agenda",

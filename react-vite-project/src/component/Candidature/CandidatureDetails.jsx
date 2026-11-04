@@ -136,7 +136,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={statutEntrevue} />}
+            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={statutEntrevue} regrouperEntrevue />}
             {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
             <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">

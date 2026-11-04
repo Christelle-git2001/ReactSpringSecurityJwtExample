@@ -103,7 +103,7 @@ describe('Composant CandidatureDetails', () => {
             </MemoryRouter>
         );
 
-        await waitFor(() => expect(screen.getByText('candidature.status.confirmee')).toHaveClass('font-bold'));
+        await waitFor(() => expect(screen.getByText('candidature.interview_states.TERMINEE')).toHaveClass('text-white'));
         expect(screen.queryByRole('button', { name: 'actions.accept_candidate' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'actions.manage_status' })).not.toBeInTheDocument();
     });
