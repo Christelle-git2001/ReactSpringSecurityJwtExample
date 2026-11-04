@@ -5,7 +5,6 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
@@ -42,6 +41,7 @@ public class EmployeurService {
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
+    private final EtudiantService etudiantService;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -49,7 +49,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+            EntrevueRepository entrevueRepository, ContratRepository contratRepository, EtudiantService etudiantService) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -58,6 +58,7 @@ public class EmployeurService {
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
+        this.etudiantService = etudiantService;
     }
 
     @Transactional
@@ -353,6 +354,7 @@ public class EmployeurService {
 
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         candidatureRepository.save(candidature);
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
 
         eventPublisher.publishEvent(
                 new EntrevueCreeeEvent(entrevueEnregistree)
@@ -447,13 +449,8 @@ public class EmployeurService {
 
         candidature.setStatut(decision);
         candidature.setMotifRefus(motifRefus);
-        Etudiant etudiant = candidature.getEtudiant();
-        boolean embauche = decision == StatutCandidature.ACCEPTEE
-                || candidatureRepository.existsByEtudiantAndStatut(etudiant, StatutCandidature.ACCEPTEE);
-        etudiant.setStatut(embauche ? StatutEtudiant.EMBAUCHE : StatutEtudiant.EN_RECHERCHE);
-        userAppRepository.save(etudiant);
-
         Candidature candidatureEnregistree = candidatureRepository.save(candidature);
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
         if (decision == StatutCandidature.ACCEPTEE) {
             eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
         }
@@ -463,8 +460,9 @@ public class EmployeurService {
     private void validerDecisionApresEntrevue(Entrevue entrevue)
             throws DecisionCandidatureInvalideException {
         boolean entrevueConfirmee = entrevue.getStatut() == StatutEntrevue.CONFIRMEE
-                || entrevue.getStatut() == StatutEntrevue.EN_ATTENTE_REPONSE;
-        if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_CONFIRMEE
+                || entrevue.getStatut() == StatutEntrevue.TERMINEE;
+        StatutCandidature statutCandidature = entrevue.getCandidature().getStatut();
+        if (statutCandidature != StatutCandidature.ENTREVUE_PLANIFIEE
                 || !entrevueConfirmee) {
             throw new DecisionCandidatureInvalideException();
         }

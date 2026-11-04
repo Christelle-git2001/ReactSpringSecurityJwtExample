@@ -2,5 +2,7 @@ package com.lacouf.rsbjwt.model.Enum;
 
 public enum StatutEtudiant {
     EN_RECHERCHE,
-    EMBAUCHE
+    EN_ATTENTE_ENTREVUE,
+    EN_ATTENTE_REPONSE,
+    STAGE_TROUVE
 }

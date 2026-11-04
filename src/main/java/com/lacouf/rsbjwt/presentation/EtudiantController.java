@@ -102,6 +102,12 @@ public class EtudiantController {
         );
     }
 
+    @PutMapping("/candidatures/{id}/stage-trouve")
+    public ResponseEntity<CandidatureDTO> declarerStageTrouve(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
+        return ResponseEntity.ok(etudiantService.declarerStageTrouve(id));
+    }
+
     @GetMapping("/convocations/{id}")
     public ResponseEntity<EntrevueDTO> getConvocation(@PathVariable Long id)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {

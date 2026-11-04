@@ -40,6 +40,13 @@ export async function obtenirCandidaturesEtudiant() {
     })
   }
 
+export async function declarerStageTrouve(id) {
+  return fetchJson(`/etudiant/candidatures/${id}/stage-trouve`, {
+    method: "PUT",
+    headers: { "Authorization": `Bearer ${getToken()}` },
+  });
+}
+
   export async function obtenirCvInfo(){
   const token = getToken();
     return fetchJson("/etudiant/cv", {

@@ -176,7 +176,8 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
-    "decision_invalid": "This decision is not allowed: the interview must be confirmed and completed, and no opposite decision may already be recorded.",
+    "decision_invalid": "Decision unavailable. Check that the interview is confirmed and completed.",
+    "stage_declaration_invalid": "Choose an accepted application. You cannot declare another internship if you have already chosen one.",
     "refusal_reason_invalid": "Please provide a non-blank refusal reason of no more than 1,000 characters.",
     "convocation_already_exists": "An interview is already scheduled for this application",
     "required": "This field is required.",
@@ -446,8 +447,42 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
+  "student_status": {
+    "title": "My status",
+    "declaration_title": "Complete your declaration",
+    "declaration_description": "To choose this application for your internship, select “Internship found” and confirm your choice.",
+    "confirm": "Confirm",
+    "loading": "Loading…",
+    "EN_RECHERCHE": {
+      "label": "Looking for an internship",
+      "description": "I am actively looking for an internship."
+    },
+    "EN_ATTENTE_ENTREVUE": {
+      "label": "Awaiting interview",
+      "description": "An interview is scheduled."
+    },
+    "EN_ATTENTE_REPONSE": {
+      "label": "Awaiting response",
+      "description": "I am waiting for an employer's response."
+    },
+    "STAGE_TROUVE": {
+      "label": "Internship found",
+      "description": "I have chosen my internship and will sign the agreement."
+    }
+  },
   "candidature": {
+    "view_agenda": "View calendar",
+    "hide_agenda": "Hide calendar",
+    "interview_details": "Interview details",
+    "interview_completed": "Interview completed",
+    "interview_step": "Interview",
+    "interview_states": {
+      "ENTREVUE_PLANIFIEE": "Scheduled",
+      "CONFIRMEE": "Confirmed",
+      "TERMINEE": "Completed"
+    },
     "my_applications": "My applications",
+    "declare_stage_found": "Declare my internship found",
     "newest_first": "Newest first",
     "oldest_first": "Oldest first",
     "search_placeholder": "Search applications…",
@@ -460,9 +495,9 @@
       "planifiee": "Interview scheduled",
       "confirmee": "Interview confirmed",
       "entrevue_refusee": "Interview declined",
-      "refusee": "Rejected",
+      "refusee": "Application rejected",
       "contrat_cree": "Agreement created",
-      "acceptee": "Accepted"
+      "acceptee": "Application accepted"
     },
     "position": "Job Title",
     "student_unknown": "Unknown student",
@@ -492,6 +527,10 @@
   },
   "notification": {
     "employeur": {
+      "stageTrouve": {
+        "title": "Internship chosen by the student",
+        "description": "{{ETUDIANT_NOM}} has chosen your offer “{{OFFRE_TITRE}}” for their internship."
+      },
       "convocationAcceptee": {
         "title": "Interview invitation accepted",
         "description": "{{ETUDIANT_NOM}} has confirmed attendance at the interview for the {{OFFRE_TITRE}} position."
@@ -573,6 +612,7 @@
     }
   },
   "agenda": {
+    "interviews_list": "Interviews",
     "no_interviews": "No interview",
     "clear_filter": "Show all interviews",
     "title": "Schedule",
@@ -610,7 +650,7 @@
     "no_matching": "No interviews match your search.",
     "to_confirm": "To confirm",
     "interview_to_confirm": "Interview to confirm",
-    "awaiting_decision": "Awaiting response",
+    "awaiting_decision": "Awaiting employer response",
     "offer": "Offer",
     "format": "Format",
     "date": "Date",
@@ -666,8 +706,11 @@
     "action_contract_signed_msg": "The contract was signed on",
     "action_review_cv": "The candidate has submitted their application. Review their CV and retain them for an interview.",
     "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
-    "action_accept_refuse": "The interview is scheduled. You will be able to accept or reject the application afterwards.",
+    "action_wait_confirmation": "Waiting for the student to confirm their attendance.",
+    "action_wait_interview": "The interview is scheduled. Waiting for it to take place.",
+    "action_accept_refuse": "The interview is completed. You can accept or reject the application.",
     "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",
+    "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
     "action_default": "Application process tracking in progress.",
     "cv_view_title" : "Student CV",

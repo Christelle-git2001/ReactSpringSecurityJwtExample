@@ -571,13 +571,13 @@ public class EmployeurControllerTest {
     void doitAccepterLeCandidatApresEntrevue() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.ACCEPTEE, null, StatutEtudiant.EMBAUCHE);
+                StatutCandidature.ACCEPTEE, null, StatutEtudiant.EN_RECHERCHE);
         when(employeurService.accepterCandidatApresEntrevue(1L)).thenReturn(decision);
 
         mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statut").value("ACCEPTEE"))
-                .andExpect(jsonPath("$.statutEtudiant").value("EMBAUCHE"));
+                .andExpect(jsonPath("$.statutEtudiant").value("EN_RECHERCHE"));
         verify(employeurService).accepterCandidatApresEntrevue(1L);
     }
 

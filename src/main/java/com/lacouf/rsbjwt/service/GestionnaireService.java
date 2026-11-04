@@ -370,7 +370,10 @@ public class GestionnaireService {
 
         Contrat contrat;
 
-        if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
+        if (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
+                && candidature.getEtudiant() != null
+                && candidature.getEtudiant().getCandidatureStage() != null
+                && candidatureId.equals(candidature.getEtudiant().getCandidatureStage().getId())) {
             contrat = Contrat.builder()
                     .candidature(candidature)
                     .gestionnaire(gestionnaire)
@@ -393,7 +396,8 @@ public class GestionnaireService {
                 .orElseThrow(UtilisateurIntrouvableException::new);
 
         return candidatureRepository.findByStatutIn(
-                        List.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE))
+                        List.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE,
+                                StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE))
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
