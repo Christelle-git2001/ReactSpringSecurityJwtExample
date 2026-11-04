@@ -338,8 +338,8 @@
       "information_stage": "Information de stage",
       "aucune_candidature" : "Recherche de stage en cours...",
       "employeur": "Employeur",
-      "statut_candidature" : "Statut",
-      "poste" : "Poste"
+      "poste" : "Poste",
+      "voir_detail" : "Voir les détails"
     },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",

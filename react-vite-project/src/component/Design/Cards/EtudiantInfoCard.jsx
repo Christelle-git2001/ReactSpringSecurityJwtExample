@@ -104,7 +104,7 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
                                 onClick={() => voirResumeOffre(candidature.offreId)}
                                 detailRows={[
                                     { label: t("etudiant.card_professeur.employeur"), value: candidature.employeurBusinessName },
-                                    { value: (<div className="flex justify-end"><span className={`badge ${statutCandidature.className}`}>{statutCandidature.label}</span></div>) },
+                                    { value: (<div className="flex justify-end"><span className={`badge p-4 ${statutCandidature.className}`}>{statutCandidature.label}</span></div>) },
                                     { label: t("etudiant.card_professeur.poste"), value: candidature.offreTitle }
                                 ]}
                                 variant="compact"

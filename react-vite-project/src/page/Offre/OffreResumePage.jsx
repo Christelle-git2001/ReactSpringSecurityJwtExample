@@ -123,7 +123,7 @@ const OffreResumePage = () => {
                     </div>
                 </ProfileSection>
                 <div className="flex justify-end mt-2">
-                    <Button onClick={() => navigate("/professeur")} variant="secondary">Retour</Button>
+                    <Button icon={true} role={"retour"} onClick={() => navigate("/professeur")}>{t("actions.back")}</Button>
                 </div>
             </div>
         </div>
