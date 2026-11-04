@@ -521,19 +521,18 @@
     "search_placeholder": "Rechercher une candidature…",
     "none": "Aucune candidature pour le moment.",
     "status": {
-      "contrat" : "Contrat",
+      "contrat": "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
-      "retenue_pour_entrevue" : "Retenue pour entrevue",
+      "retenue_pour_entrevue": "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
+      "entrevue_planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
       "entrevue_refusee": "Entrevue refusée",
       "refusee": "Candidature refusée",
       "contrat_cree": "Contrat créé",
       "acceptee": "Candidature acceptée"
-      "entrevue_planifiee" : "Entrevue planifiée",
-      "acceptee": "Acceptée"
     },
     "position": "Poste",
     "student_unknown": "Étudiant inconnu",
@@ -605,10 +604,6 @@
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
       },
-      "convocationEntrevue": {
-        "title": "Convocation à une entrevue",
-        "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour : {{OFFRE_TITRE}}."
-      },
       "candidatureAcceptee": {
         "title": "Votre candidature a été acceptée",
         "description": "Félicitations, votre candidature pour {{OFFRE_TITRE}} a été acceptée."
@@ -616,16 +611,17 @@
       "candidatureRefusee": {
         "title": "Votre candidature a été refusée",
         "description": "Votre candidature pour {{OFFRE_TITRE}} a été refusée. Vous pouvez consulter les détails dans votre espace."
-      }
       },
       "assignation": {
         "title": "Un professeur vous a été assigné",
-        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"      }
+        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur."
+      }
     },
     "teacher": {
       "assignation": {
         "title": "Nouveaux élèves assignés !",
-        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."      }
+        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."
+      }
     }
   },
   "drawer": {

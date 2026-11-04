@@ -13,6 +13,13 @@ public record EtudiantDTO(long id, String firstName, String lastName, String ema
                           StatutEtudiant statut, Long professeurId,
                           String professeurNom)
         implements UserDTO{
+    public EtudiantDTO(long id, String firstName, String lastName, String email, String matricule,
+                     String phoneNumber, String department, LocalDateTime previousLoginAt,
+                     Long professeurId, String professeurNom) {
+        this(id, firstName, lastName, email, matricule, phoneNumber, department,
+               previousLoginAt, null, professeurId, professeurNom);
+    }
+
     public static EtudiantDTO of(Etudiant etudiant) {
         return new EtudiantDTO(
                 etudiant.getId(),

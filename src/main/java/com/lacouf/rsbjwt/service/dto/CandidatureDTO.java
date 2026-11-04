@@ -21,7 +21,23 @@ public record CandidatureDTO(
         String motifRefus,
         StatutEtudiant statutEtudiant
 ) {
-    public static CandidatureDTO of(Candidature candidature) {
+   public CandidatureDTO(long id,
+                        long etudiantId,
+                        String etudiantFirstName,
+                        String etudiantLastName,
+                        String etudiantDepartment,
+                        Long offreId,
+                        String offreTitle,
+                        String employeurBusinessName,
+                        LocalDateTime dateCandidature,
+                        Long cvId,
+                        StatutCandidature statut) {
+       this(id, etudiantId, etudiantFirstName, etudiantLastName, etudiantDepartment,
+               offreId, offreTitle, employeurBusinessName, dateCandidature, cvId,
+               statut, null, null);
+   }
+
+   public static CandidatureDTO of(Candidature candidature) {
         if (candidature == null) {
             return null;
         }

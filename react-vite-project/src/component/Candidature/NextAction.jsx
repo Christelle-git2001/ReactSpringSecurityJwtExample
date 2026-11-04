@@ -192,6 +192,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
     const actionData = renderActionContent();
     const motifAffiche = motifRefus || candidature?.motifRefus || "";
     const peutAfficherMotifRefus = ["REFUSEE", "ENTREVUE_REFUSEE"].includes(statutActuel) && motifAffiche;
+    const peutDeciderApresEntrevue = statutActuel === "ENTREVUE_PLANIFIEE" && ["CONFIRMEE", "TERMINEE"].includes(statutEntrevue);
 
     return (
         <div className="w-full bg-cyan-50 border border-cyan-100 rounded-xl p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
@@ -213,7 +214,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             </div>
 
             <div className="flex flex-row items-center justify-end gap-2 w-full md:w-auto">
-                {statutActuel === "ENTREVUE_PLANIFIEE" && (
+                {peutDeciderApresEntrevue && (
                     <div className="flex items-center justify-end gap-2">
                         <Button type="button" variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting}>
                             {t("actions.accept_candidate")}

@@ -449,7 +449,10 @@ public class EmployeurService {
 
         candidature.setStatut(decision);
         candidature.setMotifRefus(motifRefus);
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        entrevue.setMotifRefus(motifRefus);
         Candidature candidatureEnregistree = candidatureRepository.save(candidature);
+        convocationRepository.save(entrevue);
         etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
         if (decision == StatutCandidature.ACCEPTEE) {
             eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
