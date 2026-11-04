@@ -111,7 +111,7 @@ const ProfesseurHome = ({user}) => {
             </div>
         )}
         <div className="w-full mt-5">
-            <SearchBar onChange={filtreActif} value={filtreValue}/>
+            <SearchBar className="mb-3" onChange={filtreActif} value={filtreValue}/>
             <FilterBar
                 onlyNew={onlyNew}
                 onOnlyNewChange={setOnlyNew}
