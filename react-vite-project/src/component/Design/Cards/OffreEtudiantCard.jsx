@@ -6,10 +6,13 @@ import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
 import { FiStar } from "react-icons/fi";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import Button from "../../Design/Button.jsx"
+import {useNavigate} from "react-router-dom";
 
-function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, statutCandidature }) {
+function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, candidature }) {
+    const navigate = useNavigate();
     const { t } = useTranslation();
-
+    const statutCandidature = candidature?.statut;
     const isTargeted = Boolean(offer?.isTarget);
     const status = getStatusConfig(statutCandidature, t, "candidature");
 
@@ -104,15 +107,18 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, st
                     )}
 
                     {error && <p role="alert" className="text-sm text-red-700">{t(error)}</p>}
-
-                    <PostulerButton
-                        offerId={offer?.id}
-                        hasApplied={hasApplied}
-                        onApply={onRead}
-                        onApplied={(id) => {
-                            onApplied?.(id);
-                        }}
-                    />
+                    {statutCandidature === "CONTRAT_CREE" ? (
+                        <Button icon={true} role={"details"} onClick={() => navigate("/etudiant/contrat", { state: { candidature } })}>Voir contrat</Button>
+                    ):(
+                        <PostulerButton
+                            offerId={offer?.id}
+                            hasApplied={hasApplied}
+                            onApply={onRead}
+                            onApplied={(id) => {
+                                onApplied?.(id);
+                            }}
+                        />
+                    )}
                 </div>
 
             </div>

@@ -124,7 +124,8 @@
     "only_news" : "Nouveaux Seulement",
     "collapse": "Réduire",
     "expand": "Développer",
-    "create_contract": "Créer le contrat"
+    "create_contract": "Créer le contrat",
+    "postuler": "Postuler"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -341,6 +342,9 @@
       "poste" : "Poste",
       "voir_detail" : "Voir les détails"
     },
+    "contrat_detail": {
+      "title": "Détails du contrat"
+    },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
     "noCvFound": "Cv non trouvé"
@@ -520,6 +524,10 @@
     "oldest_first": "Plus anciennes d’abord"
   },
   "notification": {
+    "nouveau_contrat": {
+      "title": "Nouveau contrat à signer",
+      "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
+    },
     "employeur": {
       "convocationAcceptee": {
         "title": "Convocation acceptée",
@@ -561,12 +569,14 @@
       },
       "assignation": {
         "title": "Un professeur vous a été assigné",
-        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"      }
+        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"
+      }
     },
     "teacher": {
       "assignation": {
         "title": "Nouveaux élèves assignés !",
-        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."      }
+        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."
+      }
     }
   },
   "drawer": {
@@ -581,6 +591,8 @@
     "replace": "Remplacer le document",
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
+  "contrat" : {
+    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage."  },
   "entrevue": {
     "mode_online_title": "En ligne",
     "mode_onsite_title": "Présentiel",

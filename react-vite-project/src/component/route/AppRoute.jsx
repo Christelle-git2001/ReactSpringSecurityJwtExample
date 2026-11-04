@@ -24,6 +24,7 @@ import EtudiantCandidatures from "../../page/Etudiant/EtudiantCandidatures.jsx";
 import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribution.jsx";
 import ViewProcess from "../Contrat/ViewProcess.jsx";
 import OffreResumePage from "../../page/Offre/OffreResumePage.jsx";
+import ContratEtudiant from "../../page/Etudiant/ContratEtudiant.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -65,6 +66,7 @@ export default function AppRoutes({
                 <Route path="/logout" element={<Logout setUser={setUser} />} />
                 <Route path="/etudiant" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/cv" element={<AccountEtudiant user={user}/>}/>
+                <Route path="/etudiant/contrat" element={<ContratEtudiant user={user}/>}/>
 
                 <Route path="/employeur" element={<EmployeurHome user={user}/>} />
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>

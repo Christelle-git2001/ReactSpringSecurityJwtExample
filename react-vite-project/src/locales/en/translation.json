@@ -124,7 +124,8 @@
     "loading": "Loading...",
     "collapse": "Collapse",
     "expand": "Expand",
-    "cancel" : "Cancel"
+    "cancel" : "Cancel",
+    "postuler": "Postuler"
   },
   "login": {
     "page_title": "Login",
@@ -287,6 +288,9 @@
       "poste" : "Position",
       "voir_detail": "View details"
     },
+    "contrat_detail": {
+      "title": "Contract details"
+    },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
     "noCvFound": "Cv not found"
   },
@@ -342,6 +346,9 @@
         "text" : "Assign"
       }
     }
+  },
+  "contrat": {
+    "aucun_contrat": "No contract has been produced yet. Please contact your internship manager."
   },
   "pdfVisio": {
     "nofiles": "No files selected",
@@ -521,6 +528,10 @@
     "oldest_first": "Oldest first"
   },
   "notification": {
+    "nouveau_contrat": {
+      "title": "New contract to sign",
+      "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
+    },
     "employeur": {
       "convocationAcceptee": {
         "title": "Interview invitation accepted",
@@ -562,7 +573,8 @@
       },
       "assignation": {
         "title": "A teacher has been assigned to you",
-        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"
+      }
     },
     "teacher": {
       "assignation": {

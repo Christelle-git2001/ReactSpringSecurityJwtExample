@@ -347,6 +347,7 @@ public class NotificationService {
                         VariableMapKey.ENTREVUE_ID, String.valueOf(entrevue.getId())
                 ))
                 .build();
+
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 
@@ -407,6 +408,54 @@ public class NotificationService {
 
             notificationRepository.save(notificationEtudiant);
         }
+    }
+
+    @EventListener
+    @Transactional
+    public void handleNouveauContratCree(NouveauContratCreeEvent event) {
+        Contrat contrat = event.contrat();
+
+        Candidature candidature = contrat.getCandidature();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Employeur employeur = offre.getEmployeur();
+        Etudiant etudiant = candidature.getEtudiant();
+
+        Notification notificationEmployeur = Notification.builder()
+                .titre("notification.nouveau_contrat.title")
+                .description("notification.nouveau_contrat.description")
+                .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                .role(Role.EMPLOYEUR)
+                .destinataire(employeur)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.EMPLOYEUR_CONTRAT
+                        .build(String.valueOf(contrat.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        notificationRepository.save(notificationEmployeur);
+
+        Notification notificationEtudiant = Notification.builder()
+                .titre("notification.nouveau_contrat.title")
+                .description("notification.nouveau_contrat.description")
+                .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                .role(Role.ETUDIANT)
+                .destinataire(etudiant)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.ETUDIANT_CONTRAT
+                        .build(String.valueOf(contrat.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        notificationRepository.save(notificationEtudiant);
     }
 
 }

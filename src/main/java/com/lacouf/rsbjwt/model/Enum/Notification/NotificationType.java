@@ -12,7 +12,8 @@ public enum NotificationType {
     CONVOCATION_ACCEPTEE("Une convocation a été acceptée"),
     CONVOCATION_REFUSEE("Une convocation a été refusée"),
     PROFESSEUR_ASSIGNE_ETUDIANT("Un étudiant vous a été assigné"),
-    ETUDIANT_ASSIGNE_PROFESSEUR("Un professeur vous a été assigné");
+    ETUDIANT_ASSIGNE_PROFESSEUR("Un professeur vous a été assigné"),
+    NOUVEAU_CONTRAT("Vous avez un nouveau contrat à signer");
 
     private final String label;
 

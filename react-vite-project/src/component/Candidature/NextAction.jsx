@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import {Role} from "../../enum/Role.jsx"
 import { useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { retenirCandidaturePourEntrevue, signerContratEmployeur, obtenirConvocationEmployeur } from "../../api/employeur.jsx";
+import {signerContratEtudiant} from "../../api/etudiant.jsx";
 
-function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
+function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,14 +27,33 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
         contrat?.dateSignatureEmployeur || candidature?.dateSignatureEmployeur || null
     );
 
+    const [dateSignatureEtudiant, setDateSignatureEtudiant] = useState(
+        contrat?.dateSignatureEtudiant || candidature?.dateSignatureEtudiant || null
+    );
+
     useEffect(() => {
-        const nouvelleDate = contrat?.dateSignatureEmployeur || candidature?.dateSignatureEmployeur;
-        if (nouvelleDate) {
-            setDateSignatureEmployeur(nouvelleDate);
+        switch (role) {
+            case Role.ETUDIANT: {
+                const nouvelleDateEtudiant = contrat?.dateSignatureEtudiant || candidature?.dateSignatureEtudiant;
+                if (nouvelleDateEtudiant) {
+                    setDateSignatureEtudiant(nouvelleDateEtudiant);
+                }
+                break;
+            }
+            case Role.EMPLOYEUR: {
+                const nouvelleDateEmployeur = contrat?.dateSignatureEmployeur || candidature?.dateSignatureEmployeur;
+                if (nouvelleDateEmployeur) {
+                    setDateSignatureEmployeur(nouvelleDateEmployeur);
+                }
+                break;
+            }
+            default:
+                break;
         }
-    }, [contrat, candidature]);
+    }, [contrat, candidature, role]);
 
     const isEmployeurSigned = Boolean(dateSignatureEmployeur);
+    const isEtudiantSigned = Boolean(dateSignatureEtudiant);
 
     const handleConvoquer = async () => {
         if (!candidature?.id) return;
@@ -55,10 +76,13 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
         if (!contratId) return;
         try {
             setIsSubmitting(true);
-            const updatedContrat = await signerContratEmployeur(contratId);
+            let updatedContrat;
 
-            const dateAujourdhui = updatedContrat?.dateSignatureEmployeur || new Date().toISOString().split("T")[0];
-            setDateSignatureEmployeur(dateAujourdhui);
+            if (role === Role.ETUDIANT) {
+                updatedContrat = await signerContratEtudiant(contratId);
+            } else if (role === Role.EMPLOYEUR) {
+                updatedContrat = await signerContratEmployeur(contratId);
+            }
 
             if (onSignatureSuccess) {
                 onSignatureSuccess(updatedContrat);
@@ -71,65 +95,97 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess }) {
     };
 
     const renderActionContent = () => {
-        if (isEmployeurSigned) {
-            return {
-                description: `${t("process.action_contract_signed_msg")} ${dateSignatureEmployeur}.`,
-                buttonText: null,
-                onClick: null,
-                disabled: false
-            };
-        }
-
-        switch (statutActuel) {
-            case "SOUMISE":
+        if (role === Role.ETUDIANT){
+            if (isEtudiantSigned) {
                 return {
-                    description: t("process.action_review_cv"),
-                    buttonText: t("actions.interview"),
-                    onClick: handleConvoquer,
-                    disabled: isSubmitting
-                };
-            case "RETENUE_POUR_ENTREVUE":
-                return {
-                    description: t("process.action_plan_interview"),
-                    buttonText: t("actions.plan_interview"),
-                    onClick: () => navigate("/employeur/entrevues", { state: { selectedCandidatureId: candidature?.id } }),
-                    disabled: false
-                };
-            case "ENTREVUE_PLANIFIEE":
-                return {
-                    description: t("process.action_accept_refuse"),
-                    buttonText: t("actions.manage_status"),
-                    onClick: () => {},
-                    disabled: false
-                };
-            case "ENTREVUE_REFUSEE":
-                return {
-                    description: t("convocation.refused_by_student", { defaultValue: t("candidature.status.entrevue_refusee") }),
+                    description: `${t("process.action_contract_signed_msg")} ${dateSignatureEtudiant}.`,
                     buttonText: null,
                     onClick: null,
                     disabled: false
                 };
-            case "STAGE_TROUVE":
+            }
+            switch (statutActuel) {
+                case "CONTRAT_CREE":
+                case "EN_ATTENTE_SIGNATURE_ETUDIANT":
+                    return {
+                        description: t("process.action_student_sign_contract"),
+                        buttonText: isSubmitting ? t("actions.signing") : t("actions.sign_contract"),
+                        onClick: handleSignerContrat,
+                        disabled: isSubmitting
+                    };
+                default:
+                    return {
+                        description: t("process.action_default_student"),
+                        buttonText: null,
+                        onClick: null,
+                        disabled: false
+                    };
+            }
+        }
+        if (role === Role.EMPLOYEUR) {
+            if (isEmployeurSigned) {
                 return {
-                    description: t("process.action_wait_contract"),
-                    buttonText: t("actions.waiting"),
-                    onClick: () => {},
-                    disabled: true
-                };
-            case "CONTRAT_CREE":
-                return {
-                    description: t("process.action_sign_contract"),
-                    buttonText: isSubmitting ? t("actions.signing") : t("actions.sign_contract"),
-                    onClick: handleSignerContrat,
-                    disabled: isSubmitting
-                };
-            default:
-                return {
-                    description: t("process.action_default"),
-                    buttonText: t("actions.view_details"),
-                    onClick: () => {},
+                    description: `${t("process.action_contract_signed_msg")} ${dateSignatureEmployeur}.`,
+                    buttonText: null,
+                    onClick: null,
                     disabled: false
                 };
+            }
+
+            switch (statutActuel) {
+                case "SOUMISE":
+                    return {
+                        description: t("process.action_review_cv"),
+                        buttonText: t("actions.interview"),
+                        onClick: handleConvoquer,
+                        disabled: isSubmitting
+                    };
+                case "RETENUE_POUR_ENTREVUE":
+                    return {
+                        description: t("process.action_plan_interview"),
+                        buttonText: t("actions.plan_interview"),
+                        onClick: () => navigate("/employeur/entrevues", {state: {selectedCandidatureId: candidature?.id}}),
+                        disabled: false
+                    };
+                case "ENTREVUE_PLANIFIEE":
+                    return {
+                        description: t("process.action_accept_refuse"),
+                        buttonText: t("actions.manage_status"),
+                        onClick: () => {
+                        },
+                        disabled: false
+                    };
+                case "ENTREVUE_REFUSEE":
+                    return {
+                        description: t("convocation.refused_by_student", {defaultValue: t("candidature.status.entrevue_refusee")}),
+                        buttonText: null,
+                        onClick: null,
+                        disabled: false
+                    };
+                case "STAGE_TROUVE":
+                    return {
+                        description: t("process.action_wait_contract"),
+                        buttonText: t("actions.waiting"),
+                        onClick: () => {
+                        },
+                        disabled: true
+                    };
+                case "CONTRAT_CREE":
+                    return {
+                        description: t("process.action_sign_contract"),
+                        buttonText: isSubmitting ? t("actions.signing") : t("actions.sign_contract"),
+                        onClick: handleSignerContrat,
+                        disabled: isSubmitting
+                    };
+                default:
+                    return {
+                        description: t("process.action_default"),
+                        buttonText: t("actions.view_details"),
+                        onClick: () => {
+                        },
+                        disabled: false
+                    };
+            }
         }
     };
 
