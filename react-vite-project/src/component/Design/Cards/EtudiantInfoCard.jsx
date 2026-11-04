@@ -7,6 +7,7 @@ import ExpandableList from "../Lists/ExpandableList.jsx";
 import ListItem from "../Lists/ListItem.jsx";
 import { useNavigate } from "react-router-dom";
 import {getStatusConfig} from "../../../utils/getStatusConfig.jsx";
+import {getDepartmentKey} from "../../../utils/departementConverter.js";
 
 const CardSectionHeader = ({ title }) => (
     <div className="pb-2 border-b-2  border-[#043462] mt-2 mb-2">
@@ -88,7 +89,7 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
 
             <CardSection>
                 <CardSectionHeader title={t("etudiant.card_professeur.information_scolaire")} />
-                <InfoRow label={t("general.departement")} value={etudiant?.department} />
+                <InfoRow label={t("general.departement")} value={t("departement." +getDepartmentKey(etudiant?.department))} />
             </CardSection>
 
             <CardSection>

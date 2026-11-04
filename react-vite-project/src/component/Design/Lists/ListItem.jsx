@@ -143,14 +143,13 @@ function ListItem({
                                 <dd>{value}</dd>
                             </div>
                         ))}
-                        {onClick && (
-                            <div className="flex justify-end me-2">
-                                <Button onClick={onClick} size="small" icon={false} role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
-                            </div>
-                        )}
                     </dl>
                 )}
-
+                {onClick && (
+                    <div className="flex justify-end me-2 mt-2">
+                        <Button className="w-full" onClick={onClick} size="small" icon={false} role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
+                    </div>
+                )}
             </div>
         )
     }

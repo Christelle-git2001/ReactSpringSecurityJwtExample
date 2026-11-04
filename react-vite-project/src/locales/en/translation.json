@@ -281,9 +281,10 @@
     "card_professeur": {
       "information_communication": "Communication information",
       "information_scolaire": "School Information",
-      "information_stage": "Internship Information",
+      "information_stage": "Internship request",
       "aucune_candidature": "Internship search in progress...",
       "employeur": "Employer",
+      "poste" : "Position",
       "voir_detail": "View details"
     },
     "noCVUpload": "No Curriculum Vitae Upload yet.",
