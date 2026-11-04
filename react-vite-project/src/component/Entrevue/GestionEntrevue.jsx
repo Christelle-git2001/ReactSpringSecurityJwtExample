@@ -43,7 +43,7 @@ function GestionEntrevue() {
             heure: timePart ? timePart.substring(0, 5) : "00:00",
             duree: dto.duree || 30,
             mode: dto.format || "EN_LIGNE",
-            decision: dto.statutCandidature ?? null
+            decision: dto.statutCandidature ?? null,
             candidatureComplete: candidatureCompleteFinal
         };
     };
