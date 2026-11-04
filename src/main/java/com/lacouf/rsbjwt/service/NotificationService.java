@@ -422,8 +422,8 @@ public class NotificationService {
         Etudiant etudiant = candidature.getEtudiant();
 
         Notification notificationEmployeur = Notification.builder()
-                .titre("notification.employeur.nouveauContrat.title")
-                .description("notification.employeur.nouveauContrat.description")
+                .titre("notification.nouveau_contrat.title")
+                .description("notification.nouveau_contrat.description")
                 .notificationType(NotificationType.NOUVEAU_CONTRAT)
                 .role(Role.EMPLOYEUR)
                 .destinataire(employeur)
@@ -440,8 +440,8 @@ public class NotificationService {
         notificationRepository.save(notificationEmployeur);
 
         Notification notificationEtudiant = Notification.builder()
-                .titre("notification.etudiant.nouveauContrat.title")
-                .description("notification.etudiant.nouveauContrat.description")
+                .titre("notification.nouveau_contrat.title")
+                .description("notification.nouveau_contrat.description")
                 .notificationType(NotificationType.NOUVEAU_CONTRAT)
                 .role(Role.ETUDIANT)
                 .destinataire(etudiant)

@@ -247,8 +247,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 emailNicolas,
                 "2222222",
                 Departement.INFORMATIQUE.name(),
-                "NoNeedButStillNeed",
-                "NoNeedButStillNeed"
+                "a",
+                "a"
         );
         etudiantService.creerCompteEtudiant(etudiantSarkozyDTO);
 

@@ -20,6 +20,8 @@ import { useNavigate } from "react-router-dom";
 import {ImCross} from "react-icons/im";
 import {FaCalendarAlt, FaCheck, FaQuestion} from "react-icons/fa";
 import {PiStudentBold} from "react-icons/pi";
+import {Role} from "../../enum/Role.jsx";
+import {obtenirCandidaturesEtudiant} from "../../api/etudiant.jsx";
 
 const ROUTES_PAR_TYPE = {
     CV_ATTENTE_VALIDATION: "/gestionnaire/cvs/details",
@@ -31,7 +33,16 @@ const ROUTES_PAR_TYPE = {
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
-    NOUVEAU_CONTRAT: "/employeur/candidatures/details",
+    NOUVEAU_CONTRAT: (pathname) => {
+        switch (true) {
+            case pathname.startsWith("/employeur"):
+                return "/employeur/candidatures/details";
+            case pathname.startsWith("/etudiant"):
+                return "/etudiant/contrat";
+            default:
+                return "/error";
+        }
+    }
 };
 
 const CONFIG_PAR_TYPE = {
@@ -85,7 +96,7 @@ const CONFIG_PAR_TYPE = {
     },
     NOUVEAU_CONTRAT: {
         icon: <FiFileText className="size-5" />,
-        tone: "blue",
+        tone: "purple",
     },
 };
 
@@ -123,7 +134,12 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
     const displayedNotifications = notificationsTriees.slice(0, 5);
 
     const onClick = async (notification) => {
-        const destination = ROUTES_PAR_TYPE[notification.notificationType];
+        const routeConfig = ROUTES_PAR_TYPE[notification.notificationType];
+        const role = window.location.pathname;
+        console.log(role);
+        const destination = typeof routeConfig === "function"
+            ? routeConfig(role)
+            : routeConfig;
 
         if (!notification.estLu) {
             try {
@@ -185,13 +201,12 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
                } else if (notification.notificationType === "NOUVEAU_CONTRAT") {
                    const candidatureId = notification.variables?.CANDIDATURE_ID;
-
                    if (!candidatureId) {
                        console.error("CANDIDATURE_ID absent :", notification.variables);
                        return;
                    }
 
-                   if (window.location.pathname.startsWith("/employeur")) {
+                   if (role.startsWith("/employeur")) {
                        try {
                            const [candidatures, offres] = await Promise.all([
                                getCandidaturesEmployeur(),
@@ -222,7 +237,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
                            closeNotification();
 
-                           navigate("/employeur/candidatures/details", {
+                           navigate(destination, {
                                state
                            });
 
@@ -232,17 +247,37 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                            setError("Impossible d'ouvrir les détails du contrat.");
                            return;
                        }
+                   }else if (role.startsWith("/etudiant")){
+                       try {
+                           const candidatures = await obtenirCandidaturesEtudiant();
+
+                           const candidature = candidatures.find(
+                               c => Number(c.id) === Number(candidatureId)
+                           );
+
+                           const state = {candidature}
+
+                           closeNotification();
+
+                           navigate(destination, {
+                               state
+                           });
+                       }catch (err){
+                           console.error(err)
+                       }
                    }
                    closeNotification();
-
-                   navigate(notification.urlCible, {
-                       state: {
-                           from: "/etudiant"
-                       }
-                   });
+                if (role.startsWith("/employeur")) {
+                    navigate(notification.urlCible, {
+                        state: {
+                            from: "/etudiant"
+                        }
+                    });
+                }
 
                    return;
                }
+
             closeNotification();
             navigate(destination, { state });
         }catch (error) {
@@ -308,6 +343,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                 ? `${notification.notificationType}_${statut}`
                                 : notification.notificationType;
                             const config = CONFIG_PAR_TYPE[configKey];
+                            console.log(config, notification.notificationType)
 
                             const titre = t(notification.titre, {
                                 ...notification.variables,

@@ -524,6 +524,10 @@
     "oldest_first": "Plus anciennes d’abord"
   },
   "notification": {
+    "nouveau_contrat": {
+      "title": "Nouveau contrat à signer",
+      "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
+    },
     "employeur": {
       "convocationAcceptee": {
         "title": "Convocation acceptée",
@@ -536,10 +540,6 @@
       "nouvelleCandidature": {
         "title": "Nouvelle candidature",
         "description": "{{ETUDIANT_NOM}} a postulé à votre offre : {{OFFRE_TITRE}}"
-      },
-      "nouveauContrat": {
-        "title": "Nouveau contrat à signer",
-        "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
       }
     },
     "gestionnaire": {
@@ -577,10 +577,6 @@
         "title": "Nouveaux élèves assignés !",
         "description": "Cliquez pour consulter la liste de vos nouveaux élèves."
       }
-    },
-    "nouveauContrat": {
-      "title": "Nouveau contrat à signer",
-      "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
     }
   },
   "drawer": {

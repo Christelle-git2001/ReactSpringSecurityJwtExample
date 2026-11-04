@@ -528,6 +528,10 @@
     "oldest_first": "Oldest first"
   },
   "notification": {
+    "nouveau_contrat": {
+      "title": "New contract to sign",
+      "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
+    },
     "employeur": {
       "convocationAcceptee": {
         "title": "Interview invitation accepted",
@@ -540,12 +544,7 @@
       "nouvelleCandidature": {
         "title": "New application received",
         "description": "{{ETUDIANT_NOM}} has applied to your offer : {{OFFRE_TITRE}}"
-      },
-        "nouveauContrat": {
-          "title": "New contract to sign",
-          "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
-        }
-
+      }
     },
     "gestionnaire": {
       "offre": {
@@ -581,10 +580,6 @@
       "assignation": {
         "title": "New Students Assigned!",
         "description": "Click to check your new student list."
-      },
-      "nouveauContrat": {
-        "title": "New contract to sign",
-        "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
       }
     }
   },
