@@ -40,6 +40,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ProfesseurService professeurService;
     private final CandidatureRepository candidatureRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public ReactSpringSecurityJwtApplication(
             GestionnaireRepository gestionnaireRepository,
@@ -53,7 +54,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             GestionnaireService gestionnaireService,
             CvEtudiantRepository cvEtudiantRepository,
             ProfesseurService professeurService,
-            CandidatureRepository candidatureRepository
+            CandidatureRepository candidatureRepository,
+            EntrevueRepository entrevueRepository
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
@@ -67,6 +69,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.professeurService = professeurService;
         this.candidatureRepository = candidatureRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     public static void main(String[] args) {
@@ -236,7 +239,24 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
         gestionnaireService.approuverOffre(devWebJr.id());
 
-        etudiantService.postuler(devWebJr.id(), emailAdrien);
+        CandidatureDTO candidatureAdrienDTO = etudiantService.postuler(devWebJr.id(), emailAdrien);
+        Candidature candidatureAdrien = candidatureRepository.findById(candidatureAdrienDTO.id()).orElseThrow();
+        candidatureAdrien.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+        candidatureRepository.save(candidatureAdrien);
+
+        LocalDateTime dateEntrevueAdrien = LocalDate.now().minusDays(1).atTime(10, 0);
+        Entrevue entrevueAdrien = Entrevue.builder()
+                .candidature(candidatureAdrien)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(dateEntrevueAdrien)
+                .duree(30)
+                .dateCreation(dateEntrevueAdrien.minusDays(2))
+                .build();
+        entrevueAdrien.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevueAdrien.setDateConfirmation(dateEntrevueAdrien.minusDays(1));
+        entrevueAdrien.setDateReponse(dateEntrevueAdrien.minusDays(1));
+        entrevueRepository.save(entrevueAdrien);
+        etudiantService.actualiserStatutEtudiant(candidatureAdrien.getEtudiant());
         cvEtudiantRepository.save(cvEtudiant);
 
         // --- Ajout de Nicolas Sarkozy (Parcours complet) ---
