@@ -572,6 +572,14 @@
       "convocationEntrevue": {
         "title": "Convocation à une entrevue",
         "description": "{{ENTREPRISE_NOM}} vous convoque à une entrevue pour : {{OFFRE_TITRE}}."
+      },
+      "candidatureAcceptee": {
+        "title": "Votre candidature a été acceptée",
+        "description": "Félicitations, votre candidature pour {{OFFRE_TITRE}} a été acceptée."
+      },
+      "candidatureRefusee": {
+        "title": "Votre candidature a été refusée",
+        "description": "Votre candidature pour {{OFFRE_TITRE}} a été refusée. Vous pouvez consulter les détails dans votre espace."
       }
     }
   },

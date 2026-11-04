@@ -14,7 +14,6 @@ import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -430,6 +429,34 @@ public class EtudiantServiceTest {
 
         assertThat(Files.exists(fichier)).isFalse();
         verify(cvEtudiantRepository).delete(cv);
+    }
+
+    @Test
+    void NeDoitPasMettreEnAttenteEntrevueAvantAcceptationConvocation() {
+        Candidature candidature = new Candidature(etudiant, new OffreDeStage());
+        candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+
+        Entrevue entrevueAConfirmer = Entrevue.builder()
+                .candidature(candidature)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1))
+                .dateCreation(LocalDateTime.now())
+                .build();
+        entrevueAConfirmer.setId(55L);
+        entrevueAConfirmer.setStatut(StatutEntrevue.A_CONFIRMER);
+
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevueAConfirmer));
+
+        etudiant.setStatut(StatutEtudiant.EN_RECHERCHE);
+        etudiantService.actualiserStatutEtudiant(etudiant);
+
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+
+        entrevueAConfirmer.setStatut(StatutEntrevue.CONFIRMEE);
+        etudiantService.actualiserStatutEtudiant(etudiant);
+
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_ATTENTE_ENTREVUE);
     }
 
     @Test

@@ -176,8 +176,7 @@ function EtudiantCandidatures() {
                            statusOptions={["TOUS", ...OPTIONS_STATUT_CANDIDATURE, "A_CONFIRMER", "EN_ATTENTE_REPONSE"]}
                            statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.interview_to_confirm"), EN_ATTENTE_REPONSE: t("convocation.awaiting_decision"),
                                ...Object.fromEntries(OPTIONS_STATUT_CANDIDATURE.map((statut) => [statut, getStatusConfig(statut, t, "candidature").label])) }}
-                           selectedTown={filtres.selectedTown} onTownChange={filtres.setSelectedTown}
-                           availableTowns={filtres.availableTowns} />
+                           showTownFilter={false} />
                 <div className="flex flex-wrap justify-end gap-3">
                     <Button variant="secondary" size="small" aria-expanded={agendaOuvert} aria-controls="agenda-candidatures"
                             onClick={() => setAgendaOuvert(!agendaOuvert)}>

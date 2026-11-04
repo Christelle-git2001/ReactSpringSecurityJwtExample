@@ -36,24 +36,24 @@ const CONFIG_PAR_TYPE = {
         tone: "blue",
     },
     OFFRE_ATTENTE_VALIDATION: {
-        icon: <FiBriefcase  className="size-5" />,
+        icon: <FiBriefcase className="size-5" />,
         tone: "green",
     },
     CV_STATUT_CHANGE_REFUSEE: {
-        icon: <ImCross />,
-        tone : "red"
+        icon: <ImCross className="size-4" />,
+        tone: "red"
     },
     CV_STATUT_CHANGE_ACCEPTEE: {
-        icon : <FaCheck />,
-        tone : "green"
+        icon: <FaCheck className="size-4" />,
+        tone: "green"
     },
     CV_STATUT_CHANGE: {
-        icon : <FaQuestion />,
-        tone : "yellow"
+        icon: <FaQuestion className="size-4" />,
+        tone: "yellow"
     },
     NOUVELLE_OFFRE_STAGE: {
-            icon: <FiBriefcase className="size-5" />,
-            tone: "green",
+        icon: <FiBriefcase className="size-5" />,
+        tone: "green",
     },
     NOUVELLE_CANDIDATURE: {
         icon: <FiUserPlus className="size-5" />,
@@ -64,17 +64,25 @@ const CONFIG_PAR_TYPE = {
         tone: "gray",
     },
     CONVOCATION_ACCEPTEE: {
-        icon: <FaCheck />,
+        icon: <FaCheck className="size-4" />,
         tone: "green",
     },
     CONVOCATION_REFUSEE: {
-        icon: <ImCross />,
+        icon: <ImCross className="size-4" />,
         tone: "red",
     },
     STAGE_TROUVE: {
-        icon: <FaCheck />,
+        icon: <FaCheck className="size-4" />,
         tone: "green",
     },
+};
+
+const TONE_CLASSES = {
+    blue: "bg-blue-100 text-blue-600",
+    green: "bg-green-100 text-green-600",
+    red: "bg-red-100 text-red-600",
+    yellow: "bg-yellow-100 text-yellow-600",
+    gray: "bg-slate-100 text-slate-600",
 };
 
 export default function Notification({ notifications = [], onMarkAsRead }) {
@@ -237,6 +245,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                 ? `${notification.notificationType}_${statut}`
                                 : notification.notificationType;
                             const config = CONFIG_PAR_TYPE[configKey];
+                            const toneClass = TONE_CLASSES[config?.tone] ?? TONE_CLASSES.gray;
 
                             const titre = t(notification.titre, {
                                 ...notification.variables,
@@ -253,7 +262,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                         onClick={() => onClick(notification)}
                                         className="w-full text-left flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
                                     >
-                                        <div className={`mt-0.5 p-1.5 rounded-full shrink-0 bg-${config?.tone}-100 text-${config?.tone}-600`}>
+                                        <div className={`mt-0.5 flex size-8 items-center justify-center rounded-full shrink-0 ${toneClass}`}>
                                             {config?.icon}
                                         </div>
                                         <div className="flex-1 min-w-0">

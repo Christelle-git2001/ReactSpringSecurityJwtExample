@@ -417,8 +417,7 @@ public class EtudiantService {
             }
             if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_PLANIFIEE) continue;
             enAttenteReponse |= entrevue.getStatut() == StatutEntrevue.TERMINEE;
-            enAttenteEntrevue |= entrevue.getStatut() == StatutEntrevue.CONFIRMEE
-                    || entrevue.getStatut() == StatutEntrevue.A_CONFIRMER;
+            enAttenteEntrevue |= entrevue.getStatut() == StatutEntrevue.CONFIRMEE;
         }
         StatutEtudiant statut = etudiant.getCandidatureStage() != null ? StatutEtudiant.STAGE_TROUVE
                 : enAttenteReponse ? StatutEtudiant.EN_ATTENTE_REPONSE

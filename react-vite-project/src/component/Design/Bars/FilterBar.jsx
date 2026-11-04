@@ -17,19 +17,20 @@ export default function FilterBar({
                                       availableOffers = [],
                                       className = "",
                                       statusLabels = {},
-                                      statusOptions = ["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"]
+                                      statusOptions = ["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"],
+                                      showTownFilter = (selectedTown !== undefined && onTownChange && availableTowns.length > 0)
                                   }) {
     const { t } = useTranslation();
 
     const showStatusFilter = selectedStatus !== undefined && onStatusChange;
     const showDomainFilter = availableDomains.length > 0 && onDomainChange;
-    const showTownFilter = availableTowns.length > 0 && onTownChange;
+    const effectiveTownFilter = Boolean(showTownFilter && selectedTown !== undefined && onTownChange && availableTowns.length > 0);
     const showOfferFilter = availableOffers.length > 0 && onOfferChange;
 
     const isFilterActive =
         (showStatusFilter && selectedStatus !== "TOUS") ||
         (showDomainFilter && selectedDomain !== "TOUS") ||
-        (showTownFilter && selectedTown !== "TOUS") ||
+        (effectiveTownFilter && selectedTown !== "TOUS") ||
         (showOfferFilter && selectedOfferId !== null && selectedOfferId !== "TOUS");
 
     return (
@@ -117,7 +118,7 @@ export default function FilterBar({
                     </div>
                 )}
 
-                {showTownFilter && (
+                {effectiveTownFilter && (
                     <div className="space-y-2 pt-2 border-t border-base-200">
                         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
                             {t("offre.lieu")}

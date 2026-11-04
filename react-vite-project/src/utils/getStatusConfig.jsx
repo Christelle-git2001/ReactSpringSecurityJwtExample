@@ -35,10 +35,10 @@ export function getStatusConfig(statut, t, type = "offre") {
 
     const candidatureClassNames = {
         SOUMISE: "bg-sky-100 text-sky-800 border-sky-200",
-        RETENUE_POUR_ENTREVUE: "bg-violet-100 text-violet-700 border-violet-200",
+        RETENUE_POUR_ENTREVUE: "bg-violet-100 text-violet-800 border-violet-200",
         ENTREVUE_PLANIFIEE: "bg-amber-100 text-amber-800 border-amber-200",
         ENTREVUE_REFUSEE: "bg-red-100 text-red-800 border-red-200",
-        EN_ATTENTE_REPONSE: "bg-amber-100 text-amber-800 border-amber-200",
+        EN_ATTENTE_REPONSE: "bg-gradient-to-r from-amber-200 via-orange-100 to-yellow-50 text-amber-900 border-amber-300 shadow-sm",
         ACCEPTEE: "bg-emerald-100 text-emerald-800 border-emerald-200",
         REFUSEE: "bg-red-100 text-red-800 border-red-200",
         STAGE_TROUVE: "bg-cyan-800 text-white border-cyan-900",

@@ -576,6 +576,14 @@
       "convocationEntrevue": {
         "title": "Interview invitation",
         "description": "{{ENTREPRISE_NOM}} convokes you for an interview for {{OFFRE_TITRE}}"
+      },
+      "candidatureAcceptee": {
+        "title": "Your application has been accepted",
+        "description": "Congratulations, your application for {{OFFRE_TITRE}} has been accepted."
+      },
+      "candidatureRefusee": {
+        "title": "Your application has been refused",
+        "description": "Your application for {{OFFRE_TITRE}} has been refused. You can check the details in your account."
       }
     }
   },

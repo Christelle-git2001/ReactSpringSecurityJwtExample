@@ -13,7 +13,6 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
     const [motifRefus, setMotifRefus] = useState("");
     const [motifError, setMotifError] = useState(false);
     const [entrevueId, setEntrevueId] = useState(null);
-    const [entrevueTerminee, setEntrevueTerminee] = useState(false);
     const [refusOuvert, setRefusOuvert] = useState(false);
     const [decisionError, setDecisionError] = useState(false);
 
@@ -29,11 +28,6 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                 if (!actif) return;
                 setEntrevueId(convocation.id);
                 setMotifRefus(convocation.motifRefus || "");
-                const finEntrevue = convocation.dateHeureEntrevue
-                    ? new Date(new Date(convocation.dateHeureEntrevue).getTime() + (convocation.duree || 0) * 60000)
-                    : null;
-                setEntrevueTerminee(convocation.statut === "TERMINEE"
-                    || (convocation.statut === "CONFIRMEE" && finEntrevue && finEntrevue <= new Date()));
             })
             .catch(() => { if (actif) setDecisionError(true); });
         return () => { actif = false; };
@@ -152,8 +146,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                 };
             case "ENTREVUE_PLANIFIEE":
                 return {
-                    description: t(statutEntrevue === "A_CONFIRMER" ? "process.action_wait_confirmation"
-                        : entrevueTerminee ? "process.action_accept_refuse" : "process.action_wait_interview"),
+                    description: t(statutEntrevue === "A_CONFIRMER" ? "process.action_wait_confirmation" : "process.action_wait_interview"),
                     buttonText: null,
                     onClick: null,
                     disabled: false
@@ -220,7 +213,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             </div>
 
             <div className="flex flex-row items-center justify-end gap-2 w-full md:w-auto">
-                {statutActuel === "ENTREVUE_PLANIFIEE" && entrevueTerminee && (
+                {statutActuel === "ENTREVUE_PLANIFIEE" && (
                     <div className="flex items-center justify-end gap-2">
                         <Button type="button" variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting}>
                             {t("actions.accept_candidate")}
