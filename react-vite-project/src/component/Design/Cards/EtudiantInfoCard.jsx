@@ -6,6 +6,7 @@ import { getCandidatureParEtudidant, getResumeOffre } from "../../../api/profess
 import ExpandableList from "../Lists/ExpandableList.jsx";
 import ListItem from "../Lists/ListItem.jsx";
 import { useNavigate } from "react-router-dom";
+import {getStatusConfig} from "../../../utils/getStatusConfig.jsx";
 
 const CardSectionHeader = ({ title }) => (
     <div className="pb-2 border-b-2  border-[#043462] mt-2 mb-2">
@@ -96,17 +97,19 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
                     <ExpandableList
                         items={candidaturesAffichees}
                         limit={1}
-                        renderItem={(candidature) => (
+                        renderItem={(candidature) =>{
+                            const statutCandidature = getStatusConfig(candidature.statut, t, "candidature");
+                            return  (
                             <ListItem
                                 onClick={() => voirResumeOffre(candidature.offreId)}
                                 detailRows={[
                                     { label: t("etudiant.card_professeur.employeur"), value: candidature.employeurBusinessName },
-                                    { label: t("etudiant.card_professeur.statut_candidature"), value: t("candidature.status." + candidature.statut.toLowerCase()) },
+                                    { value: (<div className="flex justify-end"><span className={`badge ${statutCandidature.className}`}>{statutCandidature.label}</span></div>) },
                                     { label: t("etudiant.card_professeur.poste"), value: candidature.offreTitle }
                                 ]}
                                 variant="compact"
                             />
-                        )}
+                        )}}
                     />
                 ) : (
                     <EmptyContentMessage message={t("etudiant.card_professeur.aucune_candidature")} />

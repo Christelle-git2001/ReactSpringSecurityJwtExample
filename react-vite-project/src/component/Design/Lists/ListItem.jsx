@@ -137,7 +137,7 @@ function ListItem({
                         {detailRows.map(({ label, value }, index) => (
                             <div key={`${label}-${index}`} className="min-w-0 pe-2 ps-2">
                                 <dt className="font-bold text-[#043462]">{label}</dt>
-                                <dd onClick={onClick && index === 0 ? onClick : undefined} className={`font-medium ${onClick && index === 0 ? "underline cursor-pointer":""}`}>{value}</dd>
+                                <dd>{value}</dd>
                             </div>
                         ))}
                     </dl>
