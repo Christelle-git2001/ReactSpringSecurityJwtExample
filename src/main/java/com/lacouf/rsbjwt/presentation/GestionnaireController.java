@@ -180,4 +180,13 @@ public class GestionnaireController {
         EntrevueDTO entrevueDTO = gestionnaireService.getEntrevueParCandidatureId(candidatureId);
         return ResponseEntity.ok(entrevueDTO);
     }
+
+    @PutMapping("/contrats/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException{
+
+        ContratDTO contratDTO = gestionnaireService.signerContrat(contratId);
+        return ResponseEntity.ok(contratDTO);
+    }
 }

@@ -1093,4 +1093,48 @@ class GestionnaireServiceTest {
         }
     }
 
+    @Test
+    void doitSignerUnContrat() throws ContratIntrouvableException {
+        Contrat contrat = new Contrat();
+        contrat.setId(1L);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        contrat.setCandidature(candidature);
+
+        Gestionnaire gestionnaire = new Gestionnaire();
+        gestionnaire.setId(20L);
+        contrat.setGestionnaire(gestionnaire);
+
+        when(contratRepository.findById(1L))
+                .thenReturn(Optional.of(contrat));
+
+        when(contratRepository.save(contrat))
+                .thenReturn(contrat);
+
+        ContratDTO result = gestionnaireService.signerContrat(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.candidatureId()).isEqualTo(10L);
+        assertThat(result.gestionnaireId()).isEqualTo(20L);
+        assertThat(result.dateSignatureGestionnaire())
+                .isEqualTo(LocalDate.now());
+
+        verify(contratRepository).findById(1L);
+        verify(contratRepository).save(contrat);
+    }
+
+    @Test
+    void doitLeverExceptionSiContratIntrouvablePourSignature() {
+        when(contratRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.signerContrat(1L))
+                .isInstanceOf(ContratIntrouvableException.class);
+
+        verify(contratRepository).findById(1L);
+        verify(contratRepository, never()).save(any(Contrat.class));
+    }
+
 }
