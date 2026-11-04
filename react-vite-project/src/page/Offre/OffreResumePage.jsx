@@ -7,6 +7,7 @@ import PDFOnPage from "../../component/PDF/PDFOnPage.jsx";
 import ProfileSection from "../../component/ProfileSection.jsx";
 import ProfileRow1x2 from "../../component/Design/Profile/ProfileRow1x2.jsx";
 import DividerHorizontal from "../../component/Design/Profile/DividerHorizontal.jsx";
+import Button from "../../component/Design/Button.jsx";
 const OffreResumePage = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -121,7 +122,9 @@ const OffreResumePage = () => {
                         <PDFOnPage isPdfLoading={isPdfLoading} pdfBlobUrl={pdfBlobUrl}/>
                     </div>
                 </ProfileSection>
-
+                <div className="flex justify-end mt-2">
+                    <Button onClick={() => navigate("/professeur")} variant="secondary">Retour</Button>
+                </div>
             </div>
         </div>
     )
