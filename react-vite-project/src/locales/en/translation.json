@@ -1,4 +1,5 @@
 {
+  "generic": {"error":"An error occurred."},
   "language": {
     "label": "Language"
   },
@@ -102,6 +103,9 @@
     "save": "Submit"
   },
   "actions": {
+    "download": "Download",
+    "view": "View",
+    "delete": "Delete",
     "create_contract": "Create contract",
     "sign_contract": "Sign the contract",
     "signing": "Signing...",
@@ -115,6 +119,7 @@
     "reset_filters": "Reset filters",
     "only_news" : "News Only",
     "back": "Back",
+    "close_interview": "Close interview",
     "backhome": "Back home",
     "reject": "Reject",
     "accept_candidate": "Accept application",
@@ -225,6 +230,8 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+    "view_created_contracts": "View created agreements",
+    "view_candidature_details": "View application",
     "view_contract": "Sign/View Contract",
     "contracts_to_create_count": "Contracts to create",
     "contracts_to_sign_count": "Contracts to sign",
@@ -394,6 +401,8 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "no_document_attached": "No document attached",
+    "default_document_name": "Internship offer",
     "new": "New Offers",
     "targeted": "Targeted",
     "targeted_badge": "Targeted offer",
@@ -445,6 +454,7 @@
     "clear": "Clear search"
   },
   "cv": {
+    "department_unknown": "Unknown department",
     "cv": "Upload CV",
     "read": "Read",
     "pending_title": "Curriculums Vitae",
@@ -512,6 +522,9 @@
     }
   },
   "candidature": {
+    "offre_sans_titre": "Untitled offer",
+    "etudiant_inconnu": "Unknown student",
+    "employer_unknown": "Unknown company",
     "view_agenda": "View calendar",
     "hide_agenda": "Hide calendar",
     "interview_details": "Interview details",
@@ -539,6 +552,7 @@
       "confirmee": "Interview confirmed",
       "entrevue_refusee": "Interview declined",
       "refusee": "Application rejected",
+      "signature_started": "Signing in progress",
       "contrat_cree": "Agreement created",
       "acceptee": "Application accepted"
     },
@@ -627,7 +641,11 @@
       }
     }
   },
-  "candidatureAcceptee": {
+  "candidatureRefusee": {
+  "title": "Your application was rejected",
+  "description": "Your application for {{OFFRE_TITRE}} at {{ENTREPRISE_NOM}} was rejected. View your application for the reason."
+},
+      "candidatureAcceptee": {
     "title": "Your application has been accepted",
     "description": "Congratulations, your application for {{OFFRE_TITRE}} has been accepted."
   },
@@ -727,6 +745,7 @@
     }
   },
   "process": {
+    "manager_signed": "Signed by the coordinator",
     "title": "Internship and Contract Process Tracking",
     "cv": "Curriculum Vitae",
     "cv_submitted": "CV available",
@@ -748,11 +767,15 @@
     "no_contrat": "No created contract, click on start signature process ",
     "waiting_parties_signatures": "Employer and student must sign first",
     "contract_signed_title": "Contract signed",
+    "action_student_sign_contract": "The agreement is ready. Review it, then sign it to continue the process.",
+    "action_default_student": "Check your application progress for the next step.",
     "next_action_title": "Next required action",
     "action_contract_signed_msg": "The contract was signed on",
     "action_review_cv": "The candidate has submitted their application. Review their CV and retain them for an interview.",
     "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
     "action_wait_confirmation": "Waiting for the student to confirm their attendance.",
+    "action_close_interview": "The interview is confirmed. Close it after it takes place to make your decision.",
+    "action_application_refused": "You have rejected this application.",
     "action_wait_interview": "The interview is scheduled. Waiting for it to take place.",
     "action_accept_refuse": "The interview is completed. You can accept or reject the application.",
     "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",

@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -409,6 +410,34 @@ public class EmployeurService {
     }
 
     @Transactional
+    public CandidatureDTO cloreEntrevue(Long entrevueId)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Entrevue entrevue = convocationRepository.findById(entrevueId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Candidature candidature = entrevue.getCandidature();
+        Employeur proprietaire = candidature.getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        if (entrevue.getStatut() != StatutEntrevue.CONFIRMEE && entrevue.getStatut() != StatutEntrevue.TERMINEE) {
+            throw new DecisionCandidatureInvalideException();
+        }
+
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        convocationRepository.save(entrevue);
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
+        return CandidatureDTO.of(candidature);
+    }
+
+    @Transactional
     public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
             OffreNonAutoriseeException, DecisionCandidatureInvalideException {
@@ -456,21 +485,18 @@ public class EmployeurService {
         etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
         if (decision == StatutCandidature.ACCEPTEE) {
             eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
+        } else {
+            eventPublisher.publishEvent(new CandidatureRefuseeEvent(candidatureEnregistree));
         }
         return CandidatureDTO.of(candidatureEnregistree);
     }
 
     private void validerDecisionApresEntrevue(Entrevue entrevue)
             throws DecisionCandidatureInvalideException {
-        boolean entrevueConfirmee = entrevue.getStatut() == StatutEntrevue.CONFIRMEE
-                || entrevue.getStatut() == StatutEntrevue.TERMINEE;
+        boolean entrevueTerminee = entrevue.getStatut() == StatutEntrevue.TERMINEE;
         StatutCandidature statutCandidature = entrevue.getCandidature().getStatut();
         if (statutCandidature != StatutCandidature.ENTREVUE_PLANIFIEE
-                || !entrevueConfirmee) {
-            throw new DecisionCandidatureInvalideException();
-        }
-        if (entrevue.getDateHeureEntrevue() == null || entrevue.getDuree() <= 0
-                || entrevue.getDateHeureEntrevue().plusMinutes(entrevue.getDuree()).isAfter(LocalDateTime.now())) {
+                || !entrevueTerminee) {
             throw new DecisionCandidatureInvalideException();
         }
     }

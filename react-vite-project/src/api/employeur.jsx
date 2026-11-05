@@ -108,6 +108,12 @@ export async function obtenirOffrePDF(id) {
     });
 }
 
+export async function cloreEntrevue(entrevueId) {
+    return fetchJson(`/employeur/entrevues/${entrevueId}/cloture`, {
+        method: "PUT",
+    });
+}
+
 export async function accepterCandidat(entrevueId) {
     return fetchJson(`/employeur/entrevues/${entrevueId}/acceptation`, {
         method: "PUT",

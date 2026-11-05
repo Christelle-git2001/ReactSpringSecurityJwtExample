@@ -88,6 +88,23 @@ const notificationStageTrouve = {
     estLu: false,
 };
 
+it.each(["CANDIDATURE_ACCEPTEE", "CANDIDATURE_REFUSEE"])("affiche une icone et cible la candidature pour %s", async notificationType => {
+    const decision = notificationType === "CANDIDATURE_ACCEPTEE" ? "candidatureAcceptee" : "candidatureRefusee";
+    afficherNotifications([{
+        id: 300, notificationType, estLu: false,
+        titre: `notification.etudiant.${decision}.title`,
+        description: `notification.etudiant.${decision}.description`,
+        variables: { CANDIDATURE_ID: "100", OFFRE_TITRE: "Stage Java", ENTREPRISE_NOM: "Entreprise A" },
+    }]);
+    const titre = await screen.findByText(notificationType === "CANDIDATURE_ACCEPTEE" ? "Votre candidature a été acceptée" : "Votre candidature a été refusée");
+    const bouton = titre.closest("button");
+    expect(bouton.firstElementChild.querySelector("svg")).not.toBeNull();
+    fireEvent.click(bouton);
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/etudiant", {
+        state: { candidatureId: "100", from: "/etudiant" },
+    }));
+});
+
 describe("Notification de nouvelle candidature (employeur)", () => {
     it("ne navigue pas si le marquage comme lu échoue", async () => {
         marquerNotificationLue.mockRejectedValue(new Error("Erreur serveur"));

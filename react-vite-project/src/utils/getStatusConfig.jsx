@@ -45,10 +45,13 @@ export function getStatusConfig(statut, t, type = "offre") {
         CONTRAT_CREE: "bg-blue-800 text-white border-blue-900",
     };
 
-    const statusLabels = labelKeys[type] || labelKeys.offre;
+    const estCandidature = type === "candidature" || type === "candidatureEtudiant";
+    const statusLabels = estCandidature ? labelKeys.candidature : labelKeys[type] || labelKeys.offre;
+    const labelKey = type === "candidatureEtudiant" && statut === "CONTRAT_CREE"
+        ? "candidature.status.signature_started" : statusLabels[statut];
 
     return {
-        label: statut ? t(statusLabels[statut], statut) : "-",
-        className: (type === "candidature" ? candidatureClassNames[statut] : classNames[statut]) || "badge-neutral",
+        label: statut ? t(labelKey, statut) : "-",
+        className: (estCandidature ? candidatureClassNames[statut] : classNames[statut]) || "badge-neutral",
     };
 }

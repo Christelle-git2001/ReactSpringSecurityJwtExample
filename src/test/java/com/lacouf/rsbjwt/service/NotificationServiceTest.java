@@ -775,6 +775,29 @@ public class NotificationServiceTest {
     }
 
     @Test
+    void doitNotifierLEtudiantDuRefusDeSaCandidature() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
+        offre.setId(10L);
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(60L);
+            return notification;
+        });
+
+        notificationService.handleCandidatureRefusee(new CandidatureRefuseeEvent(candidature));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(etudiant);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CANDIDATURE_REFUSEE);
+        assertThat(notification.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+        assertThat(notification.getTitre()).isEqualTo("notification.etudiant.candidatureRefusee.title");
+    }
+
+    @Test
     void doitNotifierLEmployeurDuStageChoisiParLEtudiant() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         Candidature candidature = new Candidature(etudiant, offre);

@@ -129,6 +129,14 @@ public class EmployeurController {
         List<EntrevueDTO> entrevues = employeurService.obtenirEntrevues();
         return ResponseEntity.ok(entrevues);
     }
+
+    @PutMapping("/entrevues/{id}/cloture")
+    public ResponseEntity<CandidatureDTO> cloreEntrevue(@PathVariable Long id)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return ResponseEntity.ok(employeurService.cloreEntrevue(id));
+    }
+
     @PutMapping("/entrevues/{id}/acceptation")
     public ResponseEntity<CandidatureDTO> accepterCandidat(@PathVariable Long id)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,

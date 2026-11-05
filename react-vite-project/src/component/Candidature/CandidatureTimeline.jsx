@@ -2,24 +2,26 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaCheck, FaTimesCircle } from "react-icons/fa";
 
-function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, regrouperEntrevue = false }) {
+function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, regrouperEntrevue = false, afficherSignature = false }) {
     const { t } = useTranslation();
     const estRefusee = statut === "ENTREVUE_REFUSEE";
+    const candidatureRefusee = statut === "REFUSEE";
 
     const steps = [
         { key: "SOUMISE", label: t("candidature.status.soumise") },
         { key: "RETENUE_POUR_ENTREVUE", label: t("candidature.status.retenue") },
         { key: "ENTREVUE_PLANIFIEE", label: t(estRefusee ? "candidature.status.entrevue_refusee" : regrouperEntrevue ? "candidature.interview_step" : "candidature.status.planifiee") },
         { key: "CONFIRMEE", label: t("candidature.status.confirmee") },
-        { key: "ACCEPTEE", label: t("candidature.status.acceptee") },
+        { key: "ACCEPTEE", label: t(candidatureRefusee ? "candidature.status.refusee" : "candidature.status.acceptee") },
         { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") },
+        ...(afficherSignature ? [{ key: "SIGNATURE_DEMARREE", label: t("candidature.status.signature_started") }] : []),
         { key: "CONTRAT_CREE", label: t("candidature.status.contrat") }
     ];
 
     const order = steps.map(s => s.key);
     const etapesVisibles = steps.filter(step => (afficherRetenue || step.key !== "RETENUE_POUR_ENTREVUE")
         && (!regrouperEntrevue || step.key !== "CONFIRMEE"));
-    const statutTimeline = estRefusee ? "ENTREVUE_PLANIFIEE"
+    const statutTimeline = afficherSignature && statut === "CONTRAT_CREE" ? "SIGNATURE_DEMARREE" : candidatureRefusee ? "ACCEPTEE" : estRefusee ? "ENTREVUE_PLANIFIEE"
         : statut === "ENTREVUE_PLANIFIEE" && ["CONFIRMEE", "TERMINEE"].includes(statutEntrevue)
             ? "CONFIRMEE" : statut;
 
@@ -29,7 +31,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
         return stepIndex <= currentIndex;
     };
 
-    const etatEntrevue = statutEntrevue === "TERMINEE" || ["ACCEPTEE", "STAGE_TROUVE", "CONTRAT_CREE"].includes(statut) ? "TERMINEE"
+    const etatEntrevue = statutEntrevue === "TERMINEE" || ["ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"].includes(statut) ? "TERMINEE"
         : statutEntrevue === "CONFIRMEE" ? "CONFIRMEE" : "ENTREVUE_PLANIFIEE";
     const contenuEtape = (step) => (
         <>
@@ -63,7 +65,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
 
                 {etapesVisibles.map((step, index) => {
                     const completed = isCompleted(step.key);
-                    const refus = estRefusee && step.key === "ENTREVUE_PLANIFIEE";
+                    const refus = (estRefusee && step.key === "ENTREVUE_PLANIFIEE") || (candidatureRefusee && step.key === "ACCEPTEE");
                     const completedClass = refus ? "text-red-800 bg-red-100 font-bold" : "text-[#043462] bg-[#99F0EF] font-bold";
 
                     return (

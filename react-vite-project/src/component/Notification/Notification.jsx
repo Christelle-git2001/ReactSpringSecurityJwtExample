@@ -29,7 +29,9 @@ const ROUTES_PAR_TYPE = {
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
     PROFESSEUR_ASSIGNE_ETUDIANT: "/professeur?filter=new",
-    CONVOCATION_ENTREVUE: "/etudiant/candidatures",
+    CONVOCATION_ENTREVUE: "/etudiant",
+    CANDIDATURE_ACCEPTEE: "/etudiant",
+    CANDIDATURE_REFUSEE: "/etudiant",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
     STAGE_TROUVE: "/employeur/candidatures/details",
@@ -79,6 +81,8 @@ const CONFIG_PAR_TYPE = {
         icon: <FaCalendarAlt className="size-5" />,
         tone: "gray",
     },
+    CANDIDATURE_ACCEPTEE: { icon: <FaCheck className="size-4" />, tone: "green" },
+    CANDIDATURE_REFUSEE: { icon: <ImCross className="size-4" />, tone: "red" },
     CONVOCATION_ACCEPTEE: {
         icon: <FaCheck className="size-4" />,
         tone: "green",
@@ -198,7 +202,15 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
             } else if (notification.notificationType === "CONVOCATION_ENTREVUE") {
                 state.id = notification.variables?.ENTREVUE_ID;
-                state.from = "/etudiant/candidatures";
+                state.from = "/etudiant";
+            } else if (["CANDIDATURE_ACCEPTEE", "CANDIDATURE_REFUSEE"].includes(notification.notificationType)) {
+                const candidatureId = notification.variables?.CANDIDATURE_ID;
+                if (!candidatureId) {
+                    setError(t("notifications.open_error"));
+                    return;
+                }
+                state.candidatureId = candidatureId;
+                state.from = "/etudiant";
             }
             else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE", "STAGE_TROUVE"]
                 .includes(notification.notificationType)) {
@@ -378,7 +390,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                         className="w-full text-left flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
                                     >
                                         <div className={`mt-0.5 flex size-8 items-center justify-center rounded-full shrink-0 ${toneClass}`}>
-                                            {config?.icon}
+                                            {config?.icon ?? <FiBell className="size-5" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-semibold text-[#043462] truncate">

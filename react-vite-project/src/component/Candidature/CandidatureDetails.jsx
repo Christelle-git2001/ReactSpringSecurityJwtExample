@@ -17,7 +17,10 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
     const outletContext = useOutletContext();
     const openDrawer = outletContext?.openDrawer;
 
-    const candidature = candidatureProp || location.state?.candidature;
+    const candidatureSource = candidatureProp || location.state?.candidature;
+    const [decision, setDecision] = useState(null);
+    useEffect(() => { setDecision(null); }, [candidatureSource?.id]);
+    const candidature = decision ? { ...candidatureSource, statut: decision.statut } : candidatureSource;
     const offer = offerProp || location.state?.offer || candidature?.offre;
     const retour = location.state?.from || "/employeur";
 
@@ -112,7 +115,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={statutEntrevue} regrouperEntrevue />}
+            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decision?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
             {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
             <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
@@ -122,6 +125,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     statutEntrevue={statutEntrevue}
                     contrat={contrat}
                     retourPath={retour}
+                    onProcessChange={setDecision}
                     onSignatureSuccess={() => {
                         rechargerContrat();
                     }}

@@ -4,10 +4,10 @@ import {Role} from "../../enum/Role.jsx"
 import { useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import MotifRefus from "../Design/MotifRefus.jsx";
-import { retenirCandidaturePourEntrevue, signerContratEmployeur, obtenirConvocationEmployeur, accepterCandidat, refuserCandidat } from "../../api/employeur.jsx";
+import { retenirCandidaturePourEntrevue, signerContratEmployeur, obtenirConvocationEmployeur, cloreEntrevue, accepterCandidat, refuserCandidat } from "../../api/employeur.jsx";
 import {signerContratEtudiant} from "../../api/etudiant.jsx";
 
-function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignatureSuccess, role }) {
+function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignatureSuccess, onProcessChange, role }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
@@ -18,10 +18,18 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
     const [entrevueId, setEntrevueId] = useState(null);
     const [refusOuvert, setRefusOuvert] = useState(false);
     const [decisionError, setDecisionError] = useState(false);
+    const [entrevueFermee, setEntrevueFermee] = useState(false);
+    const [entreeStatutLocal, setEntreeStatutLocal] = useState(statutEntrevue || null);
+
+    const activeEntrevueStatut = entreeStatutLocal ?? statutEntrevue;
 
     useEffect(() => {
         setStatutActuel(candidature?.statut);
     }, [candidature?.statut]);
+
+    useEffect(() => {
+        setEntreeStatutLocal(statutEntrevue || null);
+    }, [statutEntrevue]);
 
     useEffect(() => {
         if (statutActuel !== "ENTREVUE_PLANIFIEE" || !candidature?.id) return;
@@ -31,6 +39,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             .then((convocation) => {
                 if (!actif) return;
                 setEntrevueId(convocation?.id ?? null);
+                setEntreeStatutLocal(convocation?.statut ?? statutEntrevue ?? null);
                 setMotifRefus(convocation?.motifRefus || "");
             })
             .catch(() => {
@@ -116,6 +125,26 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
         }
     };
 
+    const handleCloreEntrevue = async () => {
+        if (!entrevueId) return;
+
+        setIsSubmitting(true);
+        setDecisionError(false);
+        try {
+            await cloreEntrevue(entrevueId);
+            setEntrevueFermee(true);
+            setEntreeStatutLocal("TERMINEE");
+            setStatutActuel("ENTREVUE_PLANIFIEE");
+            setRefusOuvert(false);
+            onProcessChange?.({ statut: "ENTREVUE_PLANIFIEE", statutEntrevue: "TERMINEE" });
+        } catch (error) {
+            console.error("Erreur lors de la clôture de l'entretien:", error);
+            setDecisionError(true);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleAccepterCandidat = async () => {
         if (!entrevueId) return;
 
@@ -123,7 +152,9 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
         setDecisionError(false);
         try {
             await accepterCandidat(entrevueId);
+            setEntreeStatutLocal("TERMINEE");
             setStatutActuel("ACCEPTEE");
+            onProcessChange?.({ statut: "ACCEPTEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
             console.error("Erreur lors de l'acceptation de la candidature:", error);
@@ -145,7 +176,9 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
         try {
             await refuserCandidat(entrevueId, motifRefus.trim());
             setMotifRefus(motifRefus.trim());
+            setEntreeStatutLocal("TERMINEE");
             setStatutActuel("REFUSEE");
+            onProcessChange?.({ statut: "REFUSEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
             console.error("Erreur lors du refus de la candidature:", error);
@@ -210,16 +243,16 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                     };
                 case "ENTREVUE_PLANIFIEE":
                     return {
-                        description: t("process.action_accept_refuse"),
-                        buttonText: t("actions.manage_status"),
-                        onClick: () => {
-                        },
+                        description: t(activeEntrevueStatut === "TERMINEE" ? "process.action_accept_refuse"
+                            : activeEntrevueStatut === "CONFIRMEE" ? "process.action_close_interview" : "process.action_wait_interview"),
+                        buttonText: null,
+                        onClick: null,
                         disabled: false
                     };
                 case "ENTREVUE_CONFIRMEE": {
-                    const terminee = statutEntrevue === "TERMINEE";
+                    const terminee = activeEntrevueStatut === "TERMINEE";
                     return {
-                        description: t(terminee ? "process.action_accept_refuse" : "process.action_wait_interview"),
+                        description: t(terminee ? "process.action_accept_refuse" : "process.action_close_interview"),
                         buttonText: null,
                         onClick: null,
                         disabled: false,
@@ -239,6 +272,8 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                         onClick: null,
                         disabled: false,
                     };
+                case "REFUSEE":
+                    return { description: t("process.action_application_refused"), buttonText: null, disabled: false };
                 case "STAGE_TROUVE":
                     return {
                         description: t("process.action_wait_contract"),
@@ -268,116 +303,72 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
     const actionData = renderActionContent();
     const motifAffiche = motifRefus || candidature?.motifRefus || "";
     const peutAfficherMotifRefus = ["REFUSEE", "ENTREVUE_REFUSEE"].includes(statutActuel) && motifAffiche;
-    const peutDeciderApresEntrevue = statutActuel === "ENTREVUE_PLANIFIEE" && ["CONFIRMEE", "TERMINEE"].includes(statutEntrevue);
+    const entrevueCloturee = activeEntrevueStatut === "TERMINEE" || entrevueFermee;
+    const estEtapeEntrevue = ["ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE"].includes(statutActuel);
+    const peutDeciderApresEntrevue = role === Role.EMPLOYEUR && estEtapeEntrevue && entrevueCloturee;
+    const peutCloreEntrevue = role === Role.EMPLOYEUR && estEtapeEntrevue && activeEntrevueStatut === "CONFIRMEE" && !entrevueCloturee;
 
     return (
-        <div className="w-full bg-cyan-50 border border-cyan-100 rounded-xl p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
-            <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-cyan-800">
-                    {isEmployeurSigned
-                        ? t("process.contract_signed_title")
-                        : t("process.next_action_title")}
-                </span>
-                <p className="text-sm text-gray-700">{actionData.description}</p>
-
-                {peutAfficherMotifRefus && (
-                    <p className="text-sm text-red-800 whitespace-pre-wrap break-words">
-                        <strong>{t("convocation.refusal_reason")} : </strong>
-                        {motifAffiche}
-                    </p>
-                )}
-
-                {decisionError && (
-                    <p role="alert" className="text-sm text-red-700">
-                        {t("error.generic")}
-                    </p>
-                )}
-            </div>
-
-            <div className="flex flex-row items-center justify-end gap-2 w-full md:w-auto">
-                {peutDeciderApresEntrevue && (
-                    <div className="flex items-center justify-end gap-2">
-                        <Button type="button" variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting}>
-                            {t("actions.accept_candidate")}
+        <div className="w-full overflow-hidden rounded-xl border border-cyan-100 bg-white shadow-sm">
+            <div className="bg-cyan-50 p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-cyan-800">
+                        {isEmployeurSigned || isEtudiantSigned ? t("process.contract_signed_title") : t("process.next_action_title")}
+                    </span>
+                    <p className="text-sm text-gray-700">{actionData.description}</p>
+                </div>
+                <div className="flex flex-wrap items-center justify-end gap-2 w-full md:w-auto">
+                    {peutCloreEntrevue && (
+                        <Button type="button" role="entrevue" onClick={handleCloreEntrevue} disabled={isSubmitting || !entrevueId}>
+                            {t("actions.close_interview")}
                         </Button>
-                        <Button
-                            type="button"
-                            variant="danger"
-                            size="small"
-                            onClick={() => {
-                                setRefusOuvert((ouvert) => !ouvert);
+                    )}
+                    {peutDeciderApresEntrevue && (
+                        <>
+                            <Button variant="success" onClick={handleAccepterCandidat} disabled={isSubmitting || !entrevueId}>
+                                {t("actions.accept_candidate")}
+                            </Button>
+                            <Button variant="danger" onClick={() => {
+                                setRefusOuvert(true);
                                 setMotifError(false);
                                 setDecisionError(false);
-                            }}
-                            disabled={isSubmitting}
-                        >
-                            {t("actions.reject_candidate")}
+                            }} disabled={isSubmitting || !entrevueId}>
+                                {t("actions.reject_candidate")}
+                            </Button>
+                        </>
+                    )}
+                    {actionData.buttonText && (
+                        <Button icon={false} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
+                                className={actionData.disabled ? "bg-gray-400 opacity-70" : ""}>
+                            {actionData.buttonText}
+                        </Button>
+                    )}
+                    <Button type="button" onClick={() => navigate(retourPath || "/employeur")} variant="secondary">
+                        {t("actions.back")}
+                    </Button>
+                </div>
+            </div>
+            {peutDeciderApresEntrevue && refusOuvert && (
+                <div className="w-full bg-white p-5">
+                    <MotifRefus value={motifRefus} onChange={value => { setMotifRefus(value); setMotifError(false); }}
+                                error={motifError} disabled={isSubmitting} maxLength={1000} />
+                    <div className="flex justify-end gap-2 mt-2">
+                        <Button variant="secondary" size="small" disabled={isSubmitting} onClick={() => { setRefusOuvert(false); setMotifError(false); }}>
+                            {t("actions.cancel_refusal")}
+                        </Button>
+                        <Button variant="danger" size="small" disabled={isSubmitting} onClick={handleRefuserCandidat}>
+                            {t("actions.confirm_rejection")}
                         </Button>
                     </div>
-                )}
-
-                {actionData.buttonText && (
-                    <Button
-                        icon={false}
-                        type="button"
-                        onClick={actionData.onClick}
-                        disabled={actionData.disabled}
-                        className={`text-white transition-colors ${
-                            actionData.disabled
-                                ? "bg-gray-400 cursor-not-allowed opacity-70"
-                                : "bg-cyan-600 hover:bg-cyan-700"
-                        }`}
-                    >
-                        {actionData.buttonText}
-                    </Button>
-                )}
-
-                {refusOuvert && statutActuel === "ENTREVUE_PLANIFIEE" && (
-                    <div className="min-w-64 md:w-80">
-                        <MotifRefus
-                            value={motifRefus}
-                            onChange={(value) => {
-                                setMotifRefus(value);
-                                setMotifError(false);
-                            }}
-                            error={motifError}
-                            disabled={isSubmitting}
-                            maxLength={1000}
-                        />
-                        <div className="mt-2 flex justify-end gap-2">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="small"
-                                disabled={isSubmitting}
-                                onClick={() => {
-                                    setRefusOuvert(false);
-                                    setMotifError(false);
-                                }}
-                            >
-                                {t("actions.cancel")}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="danger"
-                                size="small"
-                                disabled={isSubmitting}
-                                onClick={handleRefuserCandidat}
-                            >
-                                {t("actions.confirm_rejection")}
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                <Button
-                    type="button"
-                    onClick={() => navigate(retourPath || "/employeur")}
-                    variant="secondary"
-                >
-                    {t("actions.back")}
-                </Button>
-            </div>
+                </div>
+            )}
+            {peutAfficherMotifRefus && (
+                <div className="border-t border-gray-100 bg-white px-5 py-3 text-sm text-[#043462]">
+                    <strong>{t("convocation.refusal_reason")} : </strong>
+                    <span className="whitespace-pre-wrap break-words">{motifAffiche}</span>
+                </div>
+            )}
+            {decisionError && <p role="alert" className="px-5 py-3 text-sm text-red-700">{t("error.generic")}</p>}
         </div>
     );
 }

@@ -354,14 +354,24 @@ public class NotificationService {
     @EventListener
     @Transactional
     public NotificationDTO handleCandidatureAcceptee(CandidatureAccepteeEvent event) {
-        Candidature candidature = event.candidature();
+        return notifierDecisionCandidature(event.candidature(), true);
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleCandidatureRefusee(CandidatureRefuseeEvent event) {
+        return notifierDecisionCandidature(event.candidature(), false);
+    }
+
+    private NotificationDTO notifierDecisionCandidature(Candidature candidature, boolean acceptee) {
+        String cle = "notification.etudiant." + (acceptee ? "candidatureAcceptee" : "candidatureRefusee");
         Etudiant etudiant = candidature.getEtudiant();
         OffreDeStage offre = candidature.getOffreDeStage();
 
         Notification notification = Notification.builder()
-                .titre("notification.etudiant.candidatureAcceptee.title")
-                .description("notification.etudiant.candidatureAcceptee.description")
-                .notificationType(NotificationType.CANDIDATURE_ACCEPTEE)
+                .titre(cle + ".title")
+                .description(cle + ".description")
+                .notificationType(acceptee ? NotificationType.CANDIDATURE_ACCEPTEE : NotificationType.CANDIDATURE_REFUSEE)
                 .dateCreaction(LocalDateTime.now())
                 .role(Role.ETUDIANT)
                 .destinataire(etudiant)

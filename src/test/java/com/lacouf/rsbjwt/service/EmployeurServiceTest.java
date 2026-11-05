@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.service;
 import org.junit.jupiter.api.AfterEach;
 
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
@@ -184,7 +185,7 @@ public class EmployeurServiceTest {
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         Entrevue entrevue = new Entrevue();
         entrevue.setCandidature(candidature);
-        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
         entrevue.setDateHeureEntrevue(LocalDateTime.now().minusHours(2));
         entrevue.setDuree(30);
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
@@ -790,7 +791,7 @@ public class EmployeurServiceTest {
         assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
         verify(etudiantService).actualiserStatutEtudiant(etudiant);
         verify(candidatureRepository).save(candidature);
-        verifyNoInteractions(eventPublisher);
+        verify(eventPublisher).publishEvent(any(CandidatureRefuseeEvent.class));
     }
 
     @Test
@@ -803,7 +804,7 @@ public class EmployeurServiceTest {
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
         assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
-        verifyNoInteractions(eventPublisher);
+        verify(eventPublisher).publishEvent(any(CandidatureRefuseeEvent.class));
     }
 
     @Test
@@ -919,8 +920,8 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitRefuserDecisionAvantLEntrevue() {
-        creerEntrevueTerminee().setDateHeureEntrevue(LocalDateTime.now().plusDays(1));
+    void doitRefuserDecisionAvantLaClotureDeLEntrevue() {
+        creerEntrevueTerminee().setStatut(StatutEntrevue.CONFIRMEE);
         assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
                 .isInstanceOf(DecisionCandidatureInvalideException.class);
         verify(candidatureRepository, never()).save(any());
