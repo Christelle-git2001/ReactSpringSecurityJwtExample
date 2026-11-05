@@ -399,11 +399,13 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                 <Modal
                     title={t("student_status.declaration_title")}
                     description={t("student_status.declaration_description")}
-                    agreeLabel={t("student_status.confirm")}
-                    agreeDisabled={statutDeclare !== "STAGE_TROUVE" || submittingId !== null}
-                    onClickCancel={() => { if (submittingId === null) setDeclarationCandidature(null); }}
                     onClickCross={() => { if (submittingId === null) setDeclarationCandidature(null); }}
-                    onClickAgree={confirmerStage}
+                    button={
+                        <>
+                            <Button role="annulation" icon={true} type="button" onClick={() => { if (submittingId === null) setDeclarationCandidature(null); }} className="w-50">{t("actions.cancel")}</Button>
+                            <Button role="approbation" disabled={statutDeclare !== "STAGE_TROUVE" || submittingId !== null} icon={true} type="button" onClick={confirmerStage}  className="w-1/2">{t("student_status.confirm")}</Button>
+                        </>
+                    }
                 >
                     <div className="mt-4 space-y-3">
                         <p className="text-center text-sm font-medium text-[#043462]">
