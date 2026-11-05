@@ -152,3 +152,9 @@ export async function getEntrevueByCandidatureId(candidatureId) {
         method: "GET",
     });
 }
+
+export async function signerContratGestionnaire(contratId) {
+    return fetchJson(`/gestionnaire/contrats/${contratId}/signature`, {
+        method: "PUT",
+    });
+}
