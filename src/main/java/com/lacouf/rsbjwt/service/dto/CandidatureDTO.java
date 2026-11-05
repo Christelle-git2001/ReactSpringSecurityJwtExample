@@ -2,7 +2,6 @@ package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 import java.time.LocalDateTime;
 
@@ -17,40 +16,9 @@ public record CandidatureDTO(
         String employeurBusinessName,
         LocalDateTime dateCandidature,
         Long cvId,
-        StatutCandidature statut,
-        String motifRefus,
-        StatutEtudiant statutEtudiant,
-        boolean contratSigne
+        StatutCandidature statut
 ) {
-   public CandidatureDTO(long id, long etudiantId, String etudiantFirstName,
-                        String etudiantLastName, String etudiantDepartment, Long offreId,
-                        String offreTitle, String employeurBusinessName, LocalDateTime dateCandidature,
-                        Long cvId, StatutCandidature statut, String motifRefus, StatutEtudiant statutEtudiant) {
-       this(id, etudiantId, etudiantFirstName, etudiantLastName, etudiantDepartment,
-               offreId, offreTitle, employeurBusinessName, dateCandidature, cvId,
-               statut, motifRefus, statutEtudiant, false);
-   }
-   public CandidatureDTO(long id,
-                        long etudiantId,
-                        String etudiantFirstName,
-                        String etudiantLastName,
-                        String etudiantDepartment,
-                        Long offreId,
-                        String offreTitle,
-                        String employeurBusinessName,
-                        LocalDateTime dateCandidature,
-                        Long cvId,
-                        StatutCandidature statut) {
-       this(id, etudiantId, etudiantFirstName, etudiantLastName, etudiantDepartment,
-               offreId, offreTitle, employeurBusinessName, dateCandidature, cvId,
-               statut, null, null);
-   }
-
-   public static CandidatureDTO of(Candidature candidature) {
-        return of(candidature, null);
-   }
-
-   public static CandidatureDTO of(Candidature candidature, Contrat contrat) {
+    public static CandidatureDTO of(Candidature candidature) {
         if (candidature == null) {
             return null;
         }
@@ -76,12 +44,7 @@ public record CandidatureDTO(
                 (offre != null && offre.getEmployeur() != null) ? offre.getEmployeur().getBusinessName() : null,
                 candidature.getDateCandidature(),
                 cvId,
-                candidature.getStatut(),
-                candidature.getMotifRefus(),
-                etudiant != null ? etudiant.getStatut() : null,
-                contrat != null && contrat.getDateSignatureEtudiant() != null
-                        && contrat.getDateSignatureEmployeur() != null
-                        && contrat.getDateSignatureGestionnaire() != null
+                candidature.getStatut()
         );
     }
 }

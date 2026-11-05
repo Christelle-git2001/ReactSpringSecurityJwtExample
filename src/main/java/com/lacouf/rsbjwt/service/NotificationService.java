@@ -353,67 +353,6 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-    public NotificationDTO handleCandidatureAcceptee(CandidatureAccepteeEvent event) {
-        return notifierDecisionCandidature(event.candidature(), true);
-    }
-
-    @EventListener
-    @Transactional
-    public NotificationDTO handleCandidatureRefusee(CandidatureRefuseeEvent event) {
-        return notifierDecisionCandidature(event.candidature(), false);
-    }
-
-    private NotificationDTO notifierDecisionCandidature(Candidature candidature, boolean acceptee) {
-        String cle = "notification.etudiant." + (acceptee ? "candidatureAcceptee" : "candidatureRefusee");
-        Etudiant etudiant = candidature.getEtudiant();
-        OffreDeStage offre = candidature.getOffreDeStage();
-
-        Notification notification = Notification.builder()
-                .titre(cle + ".title")
-                .description(cle + ".description")
-                .notificationType(acceptee ? NotificationType.CANDIDATURE_ACCEPTEE : NotificationType.CANDIDATURE_REFUSEE)
-                .dateCreaction(LocalDateTime.now())
-                .role(Role.ETUDIANT)
-                .destinataire(etudiant)
-                .urlCible(ControllerPath.ETUDIANT_OFFRES.build())
-                .variables(Map.of(
-                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
-                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
-                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
-                        VariableMapKey.ENTREPRISE_NOM, offre.getEmployeur().getBusinessName()
-                ))
-                .build();
-
-        return NotificationDTO.of(notificationRepository.save(notification));
-    }
-
-    @EventListener
-    @Transactional
-    public NotificationDTO handleStageTrouve(StageTrouveEvent event) {
-        Candidature candidature = event.candidature();
-        Etudiant etudiant = candidature.getEtudiant();
-        OffreDeStage offre = candidature.getOffreDeStage();
-
-        Notification notification = Notification.builder()
-                .titre("notification.employeur.stageTrouve.title")
-                .description("notification.employeur.stageTrouve.description")
-                .notificationType(NotificationType.STAGE_TROUVE)
-                .dateCreaction(LocalDateTime.now())
-                .role(Role.EMPLOYEUR)
-                .destinataire(offre.getEmployeur())
-                .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
-                .variables(Map.of(
-                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
-                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
-                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
-                ))
-                .build();
-
-        return NotificationDTO.of(notificationRepository.save(notification));
-    }
-
-    @EventListener
-    @Transactional
     public void handleProfesseurAssigne(ProfesseurAssigneEvent event) {
         Professeur professeur = event.professeur();
         List<Etudiant> etudiants = event.etudiants();

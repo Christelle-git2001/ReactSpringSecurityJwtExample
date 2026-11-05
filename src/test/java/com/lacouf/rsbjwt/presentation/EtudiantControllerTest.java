@@ -1,7 +1,5 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -46,7 +44,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.times;
@@ -109,7 +106,6 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
-                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean"
         );
@@ -127,7 +123,6 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
-                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean"
         );
@@ -403,9 +398,7 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE,
-                null,
-                StatutEtudiant.EN_RECHERCHE
+                StatutCandidature.SOUMISE
         );
 
         Authentication authentication =
@@ -467,9 +460,7 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE,
-                null,
-                StatutEtudiant.EN_RECHERCHE
+                StatutCandidature.SOUMISE
         );
 
         Authentication authentication =
@@ -620,20 +611,6 @@ public class EtudiantControllerTest {
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(etudiantService);
-    }
-
-    @Test
-    void doitDeclarerLeStageTrouve() throws Exception {
-        CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
-                10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE);
-        when(etudiantService.declarerStageTrouve(20L)).thenReturn(candidature);
-
-        mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
-                .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
-        verify(etudiantService).declarerStageTrouve(20L);
     }
 
     @Test

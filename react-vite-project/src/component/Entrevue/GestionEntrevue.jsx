@@ -43,7 +43,6 @@ function GestionEntrevue() {
             heure: timePart ? timePart.substring(0, 5) : "00:00",
             duree: dto.duree || 30,
             mode: dto.format || "EN_LIGNE",
-            decision: dto.statutCandidature ?? null,
             candidatureComplete: candidatureCompleteFinal
         };
     };
@@ -102,12 +101,6 @@ function GestionEntrevue() {
         }
     };
 
-    const handleDecision = (entrevueId, decision) => {
-        setEntrevuesList((prev) =>
-            prev.map((e) => (e.id === entrevueId ? { ...e, decision } : e))
-        );
-    };
-
     return (
         <div>
             <div className="flex flex-col gap-1 text-start p-4">
@@ -141,7 +134,6 @@ function GestionEntrevue() {
                                 candidaturesList={candidaturesList}
                                 selectedDate={selectedDate}
                                 onDateSelect={setSelectedDate}
-                                onDecision={handleDecision}
                             />
                         )}
                     </div>

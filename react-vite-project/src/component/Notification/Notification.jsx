@@ -29,12 +29,9 @@ const ROUTES_PAR_TYPE = {
     CV_STATUT_CHANGE: "/etudiant/cv#televerser",
     NOUVELLE_OFFRE_STAGE: "/etudiant",
     PROFESSEUR_ASSIGNE_ETUDIANT: "/professeur?filter=new",
-    CONVOCATION_ENTREVUE: "/etudiant",
-    CANDIDATURE_ACCEPTEE: "/etudiant",
-    CANDIDATURE_REFUSEE: "/etudiant",
+    CONVOCATION_ENTREVUE: "/etudiant/candidatures",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
-    STAGE_TROUVE: "/employeur/candidatures/details",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
     NOUVEAU_CONTRAT: (pathname) => {
         switch (true) {
@@ -54,24 +51,24 @@ const CONFIG_PAR_TYPE = {
         tone: "blue",
     },
     OFFRE_ATTENTE_VALIDATION: {
-        icon: <FiBriefcase className="size-5" />,
+        icon: <FiBriefcase  className="size-5" />,
         tone: "green",
     },
     CV_STATUT_CHANGE_REFUSEE: {
-        icon: <ImCross className="size-4" />,
-        tone: "red"
+        icon: <ImCross />,
+        tone : "red"
     },
     CV_STATUT_CHANGE_ACCEPTEE: {
-        icon: <FaCheck className="size-4" />,
-        tone: "green"
+        icon : <FaCheck />,
+        tone : "green"
     },
     CV_STATUT_CHANGE: {
-        icon: <FaQuestion className="size-4" />,
-        tone: "yellow"
+        icon : <FaQuestion />,
+        tone : "yellow"
     },
     NOUVELLE_OFFRE_STAGE: {
-        icon: <FiBriefcase className="size-5" />,
-        tone: "green",
+            icon: <FiBriefcase className="size-5" />,
+            tone: "green",
     },
     NOUVELLE_CANDIDATURE: {
         icon: <FiUserPlus className="size-5" />,
@@ -81,14 +78,12 @@ const CONFIG_PAR_TYPE = {
         icon: <FaCalendarAlt className="size-5" />,
         tone: "gray",
     },
-    CANDIDATURE_ACCEPTEE: { icon: <FaCheck className="size-4" />, tone: "green" },
-    CANDIDATURE_REFUSEE: { icon: <ImCross className="size-4" />, tone: "red" },
     CONVOCATION_ACCEPTEE: {
-        icon: <FaCheck className="size-4" />,
+        icon: <FaCheck />,
         tone: "green",
     },
     CONVOCATION_REFUSEE: {
-        icon: <ImCross className="size-4" />,
+        icon: <ImCross />,
         tone: "red",
     },
     ETUDIANT_ASSIGNE_PROFESSEUR : {
@@ -99,25 +94,9 @@ const CONFIG_PAR_TYPE = {
         icon : <PiStudentBold/>,
         tone : "blue"
     },
-    STAGE_TROUVE: {
-        icon: <FaCheck className="size-4" />,
-        tone: "green",
-    },
     NOUVEAU_CONTRAT: {
         icon: <FiFileText className="size-5" />,
         tone: "purple",
-    },
-};
-
-const TONE_CLASSES = {
-    blue: "bg-blue-100 text-blue-600",
-    green: "bg-green-100 text-green-600",
-    red: "bg-red-100 text-red-600",
-    yellow: "bg-yellow-100 text-yellow-600",
-    gray: "bg-slate-100 text-slate-600",
-    STAGE_TROUVE: {
-        icon: <FaCheck />,
-        tone: "green",
     },
 };
 
@@ -202,17 +181,9 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
 
             } else if (notification.notificationType === "CONVOCATION_ENTREVUE") {
                 state.id = notification.variables?.ENTREVUE_ID;
-                state.from = "/etudiant";
-            } else if (["CANDIDATURE_ACCEPTEE", "CANDIDATURE_REFUSEE"].includes(notification.notificationType)) {
-                const candidatureId = notification.variables?.CANDIDATURE_ID;
-                if (!candidatureId) {
-                    setError(t("notifications.open_error"));
-                    return;
-                }
-                state.candidatureId = candidatureId;
-                state.from = "/etudiant";
+                state.from = "/etudiant/candidatures";
             }
-            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE", "STAGE_TROUVE"]
+            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"]
                 .includes(notification.notificationType)) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 const [candidatures, offres] = await Promise.all([
@@ -372,7 +343,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                 ? `${notification.notificationType}_${statut}`
                                 : notification.notificationType;
                             const config = CONFIG_PAR_TYPE[configKey];
-                            const toneClass = TONE_CLASSES[config?.tone] ?? TONE_CLASSES.gray;
+                            console.log(config, notification.notificationType)
 
                             const titre = t(notification.titre, {
                                 ...notification.variables,
@@ -389,8 +360,8 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                         onClick={() => onClick(notification)}
                                         className="w-full text-left flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors"
                                     >
-                                        <div className={`mt-0.5 flex size-8 items-center justify-center rounded-full shrink-0 ${toneClass}`}>
-                                            {config?.icon ?? <FiBell className="size-5" />}
+                                        <div className={`mt-0.5 p-1.5 rounded-full shrink-0 bg-${config?.tone}-100 text-${config?.tone}-600`}>
+                                            {config?.icon}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-semibold text-[#043462] truncate">

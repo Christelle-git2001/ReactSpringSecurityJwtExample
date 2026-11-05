@@ -6,8 +6,10 @@ public enum StatutCandidature {
     RETENUE_POUR_ENTREVUE,
     ENTREVUE_PLANIFIEE,
     ACCEPTEE,
-    REFUSEE,
+
+
     STAGE_TROUVE,
     CONTRAT_CREE,
+    ENTREVUE_CONFIRMEE,
     ENTREVUE_REFUSEE,
 }

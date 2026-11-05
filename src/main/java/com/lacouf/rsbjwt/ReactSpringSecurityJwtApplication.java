@@ -52,8 +52,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             GestionnaireService gestionnaireService,
             CvEtudiantRepository cvEtudiantRepository,
             ProfesseurService professeurService,
-            CandidatureRepository candidatureRepository,
-            EntrevueRepository entrevueRepository
+            CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;

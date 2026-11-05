@@ -6,7 +6,7 @@ import { getDepartmentKey } from "./departementConverter.js";
  * @param {Array} items Liste d'éléments à filtrer (offres, candidatures, cvs, etc.)
  * @param {Object} config Configuration d'extraction des données
  */
-export const useFilters = (items = [], config = {}, controls = {}) => {
+export const useFilters = (items = [], config = {}) => {
     const {
         getDomain = (item) => item?.domain || item?.etudiantDepartment || item?.etudiant?.department,
         getTown = (item) => item?.town || item?.ville || item?.location,
@@ -22,16 +22,10 @@ export const useFilters = (items = [], config = {}, controls = {}) => {
         },
     } = config;
 
-    const [localSearchTerm, setLocalSearchTerm] = useState("");
-    const searchTerm = controls.searchTerm ?? localSearchTerm;
-    const setSearchTerm = controls.setSearchTerm ?? setLocalSearchTerm;
-    const [localSelectedStatus, setLocalSelectedStatus] = useState("TOUS");
-    const selectedStatus = controls.selectedStatus ?? localSelectedStatus;
-    const setSelectedStatus = controls.setSelectedStatus ?? setLocalSelectedStatus;
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("TOUS");
     const [selectedDomain, setSelectedDomain] = useState("TOUS");
-    const [localSelectedTown, setLocalSelectedTown] = useState("TOUS");
-    const selectedTown = controls.selectedTown ?? localSelectedTown;
-    const setSelectedTown = controls.setSelectedTown ?? setLocalSelectedTown;
+    const [selectedTown, setSelectedTown] = useState("TOUS");
 
     const availableDomains = useMemo(() => {
         const rawDomains = items.map(getDomain).filter(Boolean);
