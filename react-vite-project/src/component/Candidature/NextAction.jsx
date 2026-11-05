@@ -211,6 +211,7 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role
             <div className="flex items-center gap-3 whitespace-nowrap">
                 {actionData.buttonText && (
                     <Button
+                        icon={false}
                         type="button"
                         onClick={actionData.onClick}
                         disabled={actionData.disabled}

@@ -240,12 +240,15 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
             <div className="pt-3 border-t border-gray-100 flex flex-wrap justify-end gap-3">
                 <Button
                     type="button"
-                    variant="secondary"
+                    role={"retour"}
+                    icon={true}
                     onClick={() => navigate("/employeur")}
                 >
                     {t("actions.backhome")}
                 </Button>
                 <Button
+                    icon={true}
+                    role={"soumettre"}
                     type="submit"
                     loading={isSubmitting}
                 >
