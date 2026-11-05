@@ -457,5 +457,123 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         candidatureJuzo.setStatut(StatutCandidature.STAGE_TROUVE);
         candidatureRepository.save(candidatureJuzo);
 
+        // --- Ajout de Jacob Frye (parcours partiel / entrevue passée) ---
+        String emailJacobFrye = "Jacob.Frye@gmail.com";
+
+        InscriptionEtudiantDTO etudiantJacobDTO = new InscriptionEtudiantDTO(
+                "Jacob",
+                "Frye",
+                "450-555-5525",
+                emailJacobFrye,
+                "4444444",
+                Departement.INFORMATIQUE.name(),
+                "a",
+                "a"
+        );
+        etudiantService.creerCompteEtudiant(etudiantJacobDTO);
+
+// 1. CV téléversé et approuvé
+        CvEtudiantDTO jacobFryeCvDTO = etudiantService.televerserCv(fakeCV, emailJacobFrye);
+        gestionnaireService.approuverCurriculumVitae(jacobFryeCvDTO.id());
+
+// 2. Postuler à l'offre
+        etudiantService.postuler(devWebJr.id(), emailJacobFrye);
+
+// Récupérer la candidature créée
+        Candidature candidatureJacob = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailJacobFrye))
+                .findFirst()
+                .orElseThrow();
+
+// 3. Simuler l'authentification de l'employeur pour retenir la candidature
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+        employeurService.retenirCandidaturePourEntrevue(candidatureJacob.getId());
+
+// 4. Mettre à jour le statut de la candidature pour la timeline
+        candidatureJacob.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+        candidatureRepository.save(candidatureJacob);
+
+// 5. Créer l'entrevue dans le passé en utilisant directement le repository (contourne la validation du service)
+        LocalDateTime dateEntrevueJacob = LocalDate.now().minusDays(2).atTime(14, 0);
+        Entrevue entrevueJacob = Entrevue.builder()
+                .candidature(candidatureJacob)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(dateEntrevueJacob)
+                .duree(30)
+                .dateCreation(dateEntrevueJacob.minusDays(2))
+                .build();
+
+        entrevueJacob.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevueJacob.setDateConfirmation(dateEntrevueJacob.minusDays(1));
+        entrevueJacob.setDateReponse(dateEntrevueJacob.minusDays(1));
+
+        entrevueRepository.save(entrevueJacob);
+        etudiantService.actualiserStatutEtudiant(candidatureJacob.getEtudiant());
+        cvEtudiantRepository.save(cvEtudiant);
+
+// Nettoyage du contexte de sécurité
+        SecurityContextHolder.clearContext();
+
+        // --- Ajout de Sephiroth Crescent (parcours partiel / entrevue passée) ---
+        String emailSephirothCrescent = "Sephiroth.Crescent@gmail.com";
+
+        InscriptionEtudiantDTO etudiantSephirothDTO = new InscriptionEtudiantDTO(
+                "Sephiroth",
+                "Crescent",
+                "450-555-5321",
+                emailSephirothCrescent,
+                "5555555",
+                Departement.INFORMATIQUE.name(),
+                "a",
+                "a"
+        );
+        etudiantService.creerCompteEtudiant(etudiantSephirothDTO);
+
+// 1. CV téléversé et approuvé
+        CvEtudiantDTO sephirothCrescentCvDTO = etudiantService.televerserCv(fakeCV, emailSephirothCrescent);
+        gestionnaireService.approuverCurriculumVitae(sephirothCrescentCvDTO.id());
+
+// 2. Postuler à l'offre
+        etudiantService.postuler(devWebJr.id(), emailSephirothCrescent);
+
+// Récupérer la candidature créée
+        Candidature candidatureSephiroth = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailSephirothCrescent))
+                .findFirst()
+                .orElseThrow();
+
+// 3. Simuler l'authentification de l'employeur pour retenir la candidature
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+        employeurService.retenirCandidaturePourEntrevue(candidatureSephiroth.getId());
+
+// 4. Mettre à jour le statut de la candidature pour la timeline
+        candidatureSephiroth.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+        candidatureRepository.save(candidatureSephiroth);
+
+// 5. Créer l'entrevue dans le passé en utilisant directement le repository (contourne la validation du service)
+        LocalDateTime dateEntrevueSephiroth = LocalDate.now().minusDays(2).atTime(14, 0);
+        Entrevue entrevueSephiroth = Entrevue.builder()
+                .candidature(candidatureSephiroth)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(dateEntrevueSephiroth)
+                .duree(30)
+                .dateCreation(dateEntrevueSephiroth.minusDays(2))
+                .build();
+
+        entrevueSephiroth.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevueSephiroth.setDateConfirmation(dateEntrevueSephiroth.minusDays(1));
+        entrevueSephiroth.setDateReponse(dateEntrevueSephiroth.minusDays(1));
+
+        entrevueRepository.save(entrevueSephiroth);
+        etudiantService.actualiserStatutEtudiant(candidatureSephiroth.getEtudiant());
+        cvEtudiantRepository.save(cvEtudiant);
+
+// Nettoyage du contexte de sécurité
+        SecurityContextHolder.clearContext();
+
     }
 }
