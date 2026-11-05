@@ -422,4 +422,16 @@ public class GestionnaireService {
                 .orElseThrow(() -> new EntrevueIntrouvableException());
         return EntrevueDTO.of(entrevue);
     }
+
+    @Transactional
+    public ContratDTO signerContrat(Long contratId) throws ContratIntrouvableException{
+        Contrat contrat = contratRepository.findById(contratId)
+                .orElseThrow(ContratIntrouvableException::new);
+
+        contrat.setDateSignatureGestionnaire(LocalDate.now());
+
+        Contrat saved = contratRepository.save(contrat);
+
+        return ContratDTO.of(saved);
+    }
 }
