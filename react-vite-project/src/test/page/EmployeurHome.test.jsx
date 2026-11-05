@@ -112,9 +112,14 @@ describe('Offres directement dans les cartes employeur', () => {
                 />
             </MemoryRouter>
         );
-        fireEvent.click(screen.getByText('candidature.list_title (1)'));
+        expect(screen.getByText('candidature.list_title (1)').closest('details')).toHaveAttribute('open');
         expect(screen.getByRole('button', { name: 'Sébastien Castonguay' })).toBeVisible();
         expect(screen.queryByText('Autre Étudiant')).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByText('candidature.list_title (1)'));
+        expect(screen.getByText('Sébastien Castonguay')).not.toBeVisible();
+        fireEvent.click(screen.getByText('candidature.list_title (1)'));
+        expect(screen.getByRole('button', { name: 'Sébastien Castonguay' })).toBeVisible();
     });
 
     it('ouvre une candidature et marque sa notification comme lue', async () => {
@@ -126,7 +131,7 @@ describe('Offres directement dans les cartes employeur', () => {
                 <EmployeurHome user={{ id: 5, firstName: 'Roger' }} />
             </MemoryRouter>
         );
-        fireEvent.click(await screen.findByText('candidature.list_title (1)'));
+        await screen.findByText('candidature.list_title (1)');
         fireEvent.click(screen.getByRole('button', { name: 'Sébastien Castonguay' }));
         await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/employeur/candidatures/details', {
             state: {
@@ -140,7 +145,7 @@ describe('Offres directement dans les cartes employeur', () => {
 
     it('affiche un message si aucune candidature n’est reçue', () => {
         render(<MemoryRouter><OffreStageCard offer={{ id: 1 }} /></MemoryRouter>);
-        fireEvent.click(screen.getByText('candidature.list_title (0)'));
+        expect(screen.getByText('candidature.list_title (0)').closest('details')).toHaveAttribute('open');
         expect(screen.getByText('candidature.no_candidatures')).toBeVisible();
     });
 

@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.service.dto;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 
 import java.time.LocalDateTime;
 
@@ -21,8 +22,19 @@ public record EntrevueDTO(
         StatutEntrevue statut,
         LocalDateTime dateReponse,
         EmployeurDTO employeur,
-        String motifRefus
+        String motifRefus,
+        StatutCandidature statutCandidature
 ) {
+
+        public EntrevueDTO(long id, LocalDateTime dateCreation, FormatEntrevue format,
+                           LocalDateTime dateHeureEntrevue, int duree, long candidatureId, long employeurId,
+                           String etudiantFirstName, String etudiantLastName, String offreTitle,
+                           LocalDateTime dateConfirmation, StatutEntrevue statut, LocalDateTime dateReponse,
+                           EmployeurDTO employeur, String motifRefus) {
+                this(id, dateCreation, format, dateHeureEntrevue, duree, candidatureId, employeurId,
+                        etudiantFirstName, etudiantLastName, offreTitle, dateConfirmation, statut, dateReponse,
+                        employeur, motifRefus, null);
+        }
 
         public EntrevueDTO(
                 long id,
@@ -82,7 +94,8 @@ public record EntrevueDTO(
                         entrevue.getStatut(),
                         entrevue.getDateReponse(),
                         employeur != null ? EmployeurDTO.of(employeur) : null,
-                        entrevue.getMotifRefus()
+                        entrevue.getMotifRefus(),
+                        candidature != null ? candidature.getStatut() : null
                 );
         }
 }
