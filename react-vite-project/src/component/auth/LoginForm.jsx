@@ -10,6 +10,7 @@ import ConnexionRapideGestionnaire from "../../config/ConnexionRapideGestionnair
 import ConnexionRapideStudent from "../../config/ConnexionRapideStudent.jsx";
 import ConnexionRapideEmployeur from "../../config/ConnexionRapideEmployeur.jsx";
 import ConnexionRapideStudentAdrien from "../../config/ConnexionRapideStudentAdrien.jsx";
+import ConnexionRapideToru from "../../config/ConnexionRapideToru.jsx";
 
 const LoginForm = ({ user, setError }) => {
     const navigate = useNavigate();
@@ -331,11 +332,20 @@ const LoginForm = ({ user, setError }) => {
                             </div>
 
                         </form>
-                        <div className="flex justify-around">
-                            <ConnexionRapideGestionnaire />
-                            <ConnexionRapideStudent/>
-                            <ConnexionRapideStudentAdrien/>
-                            <ConnexionRapideEmployeur/>
+                        <div className="grid grid-cols-12">
+                            <div className="col-span-3">
+                                <ConnexionRapideGestionnaire />
+                            </div>
+                            <div className="col-span-3 flex flex-col">
+                                <ConnexionRapideStudent/>
+                                <ConnexionRapideStudentAdrien/>
+                            </div>
+                            <div className="col-span-3">
+                                <ConnexionRapideToru/>
+                            </div>
+                            <div className="col-span-3">
+                                <ConnexionRapideEmployeur/>
+                            </div>
                         </div>
 
                     </div>

@@ -344,8 +344,13 @@ public class GestionnaireService {
         }
 
         etudiants.forEach(etudiant -> etudiant.setProfesseur(professeur));
-        return etudiantRepository.saveAll(etudiants)
-                .stream()
+        List<Etudiant> etudiantsEnregistres = etudiantRepository.saveAll(etudiants);
+
+        applicationEventPublisher.publishEvent(
+                new ProfesseurAssigneEvent(professeur, etudiantsEnregistres)
+        );
+
+        return etudiantsEnregistres.stream()
                 .map(EtudiantDTO::of)
                 .toList();
     }
@@ -381,7 +386,13 @@ public class GestionnaireService {
             throw new StatutCandidatureInvalideException();
         }
 
-        return ContratDTO.of(contratRepository.save(contrat));
+        Contrat contratEnregistre = contratRepository.save(contrat);
+
+        applicationEventPublisher.publishEvent(
+                new NouveauContratCreeEvent(contratEnregistre)
+        );
+
+        return ContratDTO.of(contratEnregistre);
     }
 
 

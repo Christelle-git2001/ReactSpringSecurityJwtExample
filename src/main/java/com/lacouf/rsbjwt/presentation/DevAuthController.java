@@ -3,16 +3,10 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.Exception.AucunGestionnaireTrouver;
 import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
 import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
-import com.lacouf.rsbjwt.model.Employeur;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.Gestionnaire;
-import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.repository.EmployeurRepository;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.GestionnaireRepository;
-import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -36,13 +30,15 @@ public class DevAuthController {
     private final EtudiantRepository etudiantRepository;
     private final EmployeurRepository employeurRepository;
     private final OffreDeStageRepository offreDeStageRepository;
+    private final ProfesseurRepository professeurRepository;
 
-    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, EmployeurRepository employeurRepository, OffreDeStageRepository offreDeStageRepository){
+    public DevAuthController(JwtTokenProvider jwtTokenProvider, GestionnaireRepository gestionnaireRepository, EtudiantRepository etudiantRepository, EmployeurRepository employeurRepository, OffreDeStageRepository offreDeStageRepository, ProfesseurRepository professeurRepository){
         this.jwtTokenProvider = jwtTokenProvider;
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.employeurRepository = employeurRepository;
         this.offreDeStageRepository = offreDeStageRepository;
+        this.professeurRepository = professeurRepository;
     }
 
     @PostMapping("/login/gestionnaire")
@@ -126,6 +122,28 @@ public class DevAuthController {
                 employeur.getEmail(),
                 null,
                 employeur.getAuthorities()
+        );
+
+        String token = jwtTokenProvider.generateToken(auth);
+
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/login/professeur")
+    public ResponseEntity<String> devLoginProfesseur() throws Exception {
+        Professeur professeur = professeurRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow(EmployeurIntrouvable::new);
+
+        professeur.setPreviousLoginAt(professeur.getLastLoginAt());
+        professeur.setLastLoginAt(LocalDateTime.now());
+        professeurRepository.save(professeur);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                professeur.getEmail(),
+                null,
+                professeur.getAuthorities()
         );
 
         String token = jwtTokenProvider.generateToken(auth);

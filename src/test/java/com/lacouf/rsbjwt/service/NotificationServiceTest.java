@@ -647,6 +647,110 @@ public class NotificationServiceTest {
         );
     }
 
+    @Test
+    void doitMettreAJourNotificationExistanteLorsProfesseurAssigne() {
+        Professeur professeur = new Professeur(
+                "Marie",
+                "Tremblay",
+                "marie.tremblay@example.com",
+                "password",
+                "P123",
+                "514-555-0100",
+                Departement.INFORMATIQUE
+        );
+        professeur.setId(99L);
+        Notification notificationExistante = Notification.builder()
+                .titre("notification.teacher.assignation.title")
+                .description("notification.teacher.assignation.description")
+                .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .dateCreaction(LocalDateTime.now())
+                .destinataire(professeur)
+                .role(Role.PROFESSEUR)
+                .urlCible("")
+                .variables(new HashMap<>(Map.of(VariableMapKey.ETUDIANT_IDS, "1")))
+                .build();
+
+        Etudiant nouvelEtudiant = new Etudiant("Marie", "Tremblay", "marie.tremblay@hotmail.com", "438-956-5859", Departement.INFORMATIQUE, "8585859", "YAYA");
+        nouvelEtudiant.setId(2L);
+
+        ProfesseurAssigneEvent event = new ProfesseurAssigneEvent(professeur, List.of(nouvelEtudiant));
+
+        when(notificationRepository.findByDestinataireAndNotificationTypeAndEstLuFalse(
+                professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT))
+                .thenReturn(Optional.of(notificationExistante));
+
+        when(notificationRepository.save(any(Notification.class)))
+                .thenReturn(notificationExistante);
+
+        notificationService.handleProfesseurAssigne(event);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(2)).save(captor.capture());
+
+        Notification notificationSauvegardee = captor.getAllValues().get(0);
+
+        assertThat(notificationSauvegardee.getVariables().get(VariableMapKey.ETUDIANT_IDS))
+                .isEqualTo("1, 2");
+    }
+
+    @Test
+    void doitCreerUneNotificationPourLeProfesseurEtChaqueEtudiantLorsAssignation() {
+        Professeur professeur = new Professeur(
+                "Marie",
+                "Tremblay",
+                "marie.tremblay@example.com",
+                "password",
+                "P123",
+                "514-555-0100",
+                Departement.INFORMATIQUE
+        );
+
+        Etudiant etudiant2 = new Etudiant(
+                "Paul",
+                "Martin",
+                "paul.martin@example.com",
+                "514-555-0101",
+                Departement.INFORMATIQUE,
+                "E123",
+                "password"
+        );
+
+        List<Etudiant> etudiants = List.of(etudiant, etudiant2);
+
+        ProfesseurAssigneEvent event =
+                new ProfesseurAssigneEvent(professeur, etudiants);
+
+        notificationService.handleProfesseurAssigne(event);
+
+        ArgumentCaptor<Notification> captor =
+                ArgumentCaptor.forClass(Notification.class);
+
+        verify(notificationRepository, times(3)).save(captor.capture());
+
+        List<Notification> notifications = captor.getAllValues();
+
+        // Une seule notification pour le professeur
+        assertThat(notifications)
+                .filteredOn(notification -> notification.getDestinataire() == professeur)
+                .hasSize(1);
+
+        // Une notification pour chaque étudiant
+        assertThat(notifications)
+                .filteredOn(notification -> notification.getRole() == Role.ETUDIANT)
+                .hasSize(2);
+
+        assertThat(notifications)
+                .filteredOn(notification ->
+                        notification.getNotificationType()
+                                == NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .hasSize(1);
+
+        assertThat(notifications)
+                .filteredOn(notification ->
+                        notification.getNotificationType()
+                                == NotificationType.ETUDIANT_ASSIGNE_PROFESSEUR)
+                .hasSize(2);
+    }
 
 
 }

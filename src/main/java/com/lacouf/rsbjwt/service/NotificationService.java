@@ -23,9 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -348,6 +347,115 @@ public class NotificationService {
                         VariableMapKey.ENTREVUE_ID, String.valueOf(entrevue.getId())
                 ))
                 .build();
+
         return NotificationDTO.of(notificationRepository.save(notification));
     }
+
+    @EventListener
+    @Transactional
+    public void handleProfesseurAssigne(ProfesseurAssigneEvent event) {
+        Professeur professeur = event.professeur();
+        List<Etudiant> etudiants = event.etudiants();
+        String etudiantsIdsAouter = etudiants.stream()
+                .map(e -> String.valueOf(e.getId()))
+                .collect(Collectors.joining(", "));
+
+        Notification notificationProfesseur = notificationRepository
+                .findByDestinataireAndNotificationTypeAndEstLuFalse(professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .map(existingNotif -> {
+                    String currentIds = existingNotif.getVariables().getOrDefault(VariableMapKey.ETUDIANT_IDS, "");
+
+                    Set<String> allIds = Arrays.stream(currentIds.split(","))
+                            .map(String::trim)
+                            .filter(id -> !id.isEmpty())
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+                    allIds.addAll(Arrays.asList(etudiantsIdsAouter.split(", ")));
+
+                    Map<VariableMapKey, String> updatedVariables = new HashMap<>(existingNotif.getVariables());
+                    updatedVariables.put(VariableMapKey.ETUDIANT_IDS, String.join(", ", allIds));
+                    existingNotif.setVariables(updatedVariables);
+
+                    return existingNotif;
+                })
+                .orElseGet(() ->
+                        Notification.builder()
+                                .titre("notification.teacher.assignation.title")
+                                .description("notification.teacher.assignation.description")
+                                .notificationType(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                                .dateCreaction(LocalDateTime.now())
+                                .destinataire(professeur)
+                                .role(Role.PROFESSEUR)
+                                .urlCible("")
+                                .variables(Map.of(VariableMapKey.ETUDIANT_IDS, etudiantsIdsAouter))
+                                .build()
+                );
+        notificationRepository.save(notificationProfesseur);
+        for (Etudiant etudiant : etudiants) {
+            Notification notificationEtudiant = Notification.builder()
+                    .titre("notification.etudiant.assignation.title")
+                    .description("notification.etudiant.assignation.description")
+                    .notificationType(NotificationType.ETUDIANT_ASSIGNE_PROFESSEUR)
+                    .dateCreaction(LocalDateTime.now())
+                    .destinataire(etudiant)
+                    .urlCible("")
+                    .role(Role.ETUDIANT)
+                    .variables(Map.of(
+                            VariableMapKey.PROFESSEUR_NOM,
+                            professeur.getFirstName() + " " + professeur.getLastName()
+                    ))
+                    .build();
+
+            notificationRepository.save(notificationEtudiant);
+        }
+    }
+
+    @EventListener
+    @Transactional
+    public void handleNouveauContratCree(NouveauContratCreeEvent event) {
+        Contrat contrat = event.contrat();
+
+        Candidature candidature = contrat.getCandidature();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Employeur employeur = offre.getEmployeur();
+        Etudiant etudiant = candidature.getEtudiant();
+
+        Notification notificationEmployeur = Notification.builder()
+                .titre("notification.nouveau_contrat.title")
+                .description("notification.nouveau_contrat.description")
+                .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                .role(Role.EMPLOYEUR)
+                .destinataire(employeur)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.EMPLOYEUR_CONTRAT
+                        .build(String.valueOf(contrat.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        notificationRepository.save(notificationEmployeur);
+
+        Notification notificationEtudiant = Notification.builder()
+                .titre("notification.nouveau_contrat.title")
+                .description("notification.nouveau_contrat.description")
+                .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                .role(Role.ETUDIANT)
+                .destinataire(etudiant)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.ETUDIANT_CONTRAT
+                        .build(String.valueOf(contrat.getId())))
+                .variables(Map.of(
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        notificationRepository.save(notificationEtudiant);
+    }
+
 }

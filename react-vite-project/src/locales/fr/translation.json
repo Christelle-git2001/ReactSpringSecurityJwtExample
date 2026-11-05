@@ -121,9 +121,11 @@
     "loading": "En cours...",
     "filter_by": "Filtrer par ",
     "reset_filters": "Réinitialiser les filtres",
+    "only_news" : "Nouveaux Seulement",
     "collapse": "Réduire",
     "expand": "Développer",
-    "create_contract": "Créer le contrat"
+    "create_contract": "Créer le contrat",
+    "postuler": "Postuler"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -250,7 +252,7 @@
     "history": "History",
     "collapse": "Réduire",
     "expand": "Développer",
-    "assignation" : "Assignation"
+    "assignation" : "Assignation des professeurs"
   },
   "sidebar": {
     "collapse": "Réduire le menu",
@@ -331,6 +333,18 @@
       "apply_button": "Postuler",
       "fromTo": "à"
     },
+    "card_professeur": {
+      "information_communication": "Information de communication",
+      "information_scolaire" : "Information Scolaire",
+      "information_stage": "Demande de Stage",
+      "aucune_candidature" : "Recherche de stage en cours...",
+      "employeur": "Employeur",
+      "poste" : "Poste",
+      "voir_detail" : "Voir les détails"
+    },
+    "contrat_detail": {
+      "title": "Détails du contrat"
+    },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
     "noCvFound": "Cv non trouvé"
@@ -340,6 +354,10 @@
       "view_offers": "Consultez vos offres créées, leur statut ainsi que leurs informations",
       "new_offer": "Créez une nouvelle offre de stage pour permettre à des étudiants de rejoindre votre entreprise !"
     }
+  },
+  "professeur": {
+    "etudiant_section_title": "Étudiants à charge",
+    "new_student": "Nouvel étudiant assigné"
   },
   "gestionnaire": {
     "card": {
@@ -354,6 +372,8 @@
         "professeur_without_name": "Ce professeur ne possède aucun nom",
         "professeur_without_department" : "Ce professeur ne possède aucun departement",
         "professeur_without_email" : "Ce professeur ne possède aucun Email",
+        "professeur_is_selected" : "Sélectioné(e)",
+        "nb_student_assign": "Étudiants assignés",
         "professeur_modal_title": "Souhaitez-vous réellement changer de professeur ?",
         "professeur_modal_description": "Tous les étudiants sélectionnés seront supprimés, souhaitez-vous continuer ?"
       },
@@ -440,6 +460,23 @@
       "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
+  "resume_offers" : {
+    "offers_section": "Renseignements sur l'offre",
+    "offers_sous_section" : {
+      "title" : "Titre",
+      "salaire": "Salaire",
+      "salaire_value": "{{salary}}$/Heure",
+      "description" : "description",
+      "start_date": "Date de début du stage",
+      "format_date" : "(AAAA-MM-JJ)",
+      "end_date": "Date de fin du stage",
+      "pdf": "Aperçu de l'offre"
+    },
+    "employer_section": "Renseignement sur l'employeur",
+    "employer_sous_section": {
+      "business_name": "Nom de la Compagnie"
+    }
+  },
   "candidature": {
     "my_applications": "Mes candidatures",
     "newest_first": "Plus récentes",
@@ -450,12 +487,14 @@
       "contrat" : "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
+      "retenue_pour_entrevue" : "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
       "entrevue_refusee": "Entrevue refusée",
       "refusee": "Refusée",
       "contrat_cree": "Contrat créé",
+      "entrevue_planifiee" : "Entrevue planifiée",
       "acceptee": "Acceptée"
     },
     "position": "Poste",
@@ -485,6 +524,10 @@
     "oldest_first": "Plus anciennes d’abord"
   },
   "notification": {
+    "nouveau_contrat": {
+      "title": "Nouveau contrat à signer",
+      "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
+    },
     "employeur": {
       "convocationAcceptee": {
         "title": "Convocation acceptée",
@@ -523,6 +566,16 @@
       "nouvelleOffre": {
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
+      },
+      "assignation": {
+        "title": "Un professeur vous a été assigné",
+        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"
+      }
+    },
+    "teacher": {
+      "assignation": {
+        "title": "Nouveaux élèves assignés !",
+        "description": "Cliquez pour consulter la liste de vos nouveaux élèves."
       }
     }
   },
@@ -538,6 +591,8 @@
     "replace": "Remplacer le document",
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
+  "contrat" : {
+    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage."  },
   "entrevue": {
     "mode_online_title": "En ligne",
     "mode_onsite_title": "Présentiel",
@@ -576,18 +631,6 @@
   "gestion_entrevue": {
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
-  },
-  "general": {
-    "nom" : "Nom",
-    "departement" : "Departement",
-    "matricule": "Matricule",
-    "email" : "Courriel",
-    "liste" : {
-      "open" : "Ouvrir la liste",
-      "close" : "Fermer la liste",
-      "title" : "Liste",
-      "empty" : "La liste est vide"
-    }
   },
   "process": {
     "title": "Suivi du processus de recherche de stage et de signature de contrat",
@@ -663,5 +706,19 @@
     "reason": "Motif du refus",
     "placeholder": "Veuillez entrer le motif du refus...",
     "required": "Veuillez préciser le motif du refus."
+  },
+  "general": {
+    "nom" : "Nom",
+    "departement" : "Département",
+    "matricule": "Matricule",
+    "email" : "Courriel",
+    "phone" : "Numéro de téléphone",
+    "town" : "Ville",
+    "liste" : {
+      "open" : "Ouvrir la liste",
+      "close" : "Fermer la liste",
+      "title" : "Liste",
+      "empty" : "La liste est vide"
+    }
   }
 }

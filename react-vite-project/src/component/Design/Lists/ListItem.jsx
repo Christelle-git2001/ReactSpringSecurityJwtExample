@@ -1,5 +1,7 @@
 import React from "react";
 import { FiChevronRight } from "react-icons/fi";
+import {useTranslation} from "react-i18next";
+import Button from "../Button.jsx";
 
 const toneClasses = {
     blue: {
@@ -71,6 +73,7 @@ function ListItem({
     isClickableCard = false,
     ariaLabel,
 }) {
+    const { t } = useTranslation();
     const styles = toneClasses[tone] || toneClasses.blue;
     const isRow = variant === "row";
     const isCompact = variant === "compact";
@@ -131,18 +134,23 @@ function ListItem({
 
     if (isCompact){
         return (
-            <>
+            <div className="text-gray-700 border-b pb-2">
                 {detailRows.length > 0 && (
-                    <dl className="flex justify-between text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4 border-b pb-2">
-                        {detailRows.map(({ label, value },index) => (
+                    <dl className="grid grid-cols-2 gap-2">
+                        {detailRows.map(({ label, value }, index) => (
                             <div key={`${label}-${index}`} className="min-w-0 pe-2 ps-2">
                                 <dt className="font-bold text-[#043462]">{label}</dt>
-                                <dd className="truncate font-medium">{value}</dd>
+                                <dd>{value}</dd>
                             </div>
                         ))}
                     </dl>
                 )}
-            </>
+                {onClick && (
+                    <div className="flex justify-end me-2 mt-2">
+                        <Button className="w-full" onClick={onClick} size="small" icon={false} role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
+                    </div>
+                )}
+            </div>
         )
     }
 

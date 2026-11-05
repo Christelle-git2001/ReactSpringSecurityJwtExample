@@ -12,6 +12,7 @@ import { useFilters } from "../../utils/useFilters.jsx";
 import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
+import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
@@ -173,11 +174,7 @@ const EtudiantHome = ({ user }) => {
             />
             <CvOnLandingPage />
 
-            <div className="w-full max-w-7xl">
-                <h1 className="welcome-message text-left">
-                    {t("home.welcome")} {user?.firstName} {user?.lastName}
-                </h1>
-            </div>
+            <WelcomeMessage user={user}/>
 
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <SearchBar
@@ -242,7 +239,7 @@ const EtudiantHome = ({ user }) => {
                                                         onPreview={setPreviewUrl}
                                                         onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
-                                                        statutCandidature={candidatures.find((c) => c.offreId === offer.id)?.statut}
+                                                        candidature={candidatures.find((c) => c.offreId === offer.id)}
                                                         onApplied={(id) => {
                                                             setIdsPostules((prev) =>
                                                                 prev.includes(id) ? prev : [...prev, id]

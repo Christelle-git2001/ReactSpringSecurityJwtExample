@@ -6,6 +6,7 @@ import { approuverCv, refuserCv, obtenirCvPDFGestionnaire } from "../../api/gest
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
 import { FaDownload } from "react-icons/fa";
 import { declencherTelechargement } from "../../utils/filesUtils.jsx";
+import PDFOnPage from "../PDF/PDFOnPage.jsx";
 
 function CvDetails({ cv: cvProp }) {
     const location = useLocation();
@@ -114,17 +115,7 @@ function CvDetails({ cv: cvProp }) {
 
                 <div className="flex flex-col gap-1.5">
                     <div className="w-full mt-1">
-                        {isPdfLoading ? (
-                            <div className="flex items-center justify-center p-12 border rounded-xl bg-gray-50">
-                                <span className="loading loading-spinner loading-md text-[#043462]" />
-                            </div>
-                        ) : pdfBlobUrl ? (
-                            <PDFContent cvUrlAAffiche={pdfBlobUrl} enablePageScroll={true} />
-                        ) : (
-                            <p className="text-xs text-gray-500 italic p-6 border rounded-xl bg-gray-50 text-center">
-                                {t("offre.document_error", "Impossible de charger le document.")}
-                            </p>
-                        )}
+                       <PDFOnPage isPdfLoading={isPdfLoading} pdfBlobUrl={pdfBlobUrl}/>
                     </div>
                 </div>
 

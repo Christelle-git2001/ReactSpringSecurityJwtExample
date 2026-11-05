@@ -10,6 +10,7 @@ import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.model.event.ProfesseurAssigneEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -17,9 +18,7 @@ import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
@@ -821,6 +820,16 @@ class GestionnaireServiceTest {
         verify(professeurRepository).findById(5L);
         verify(etudiantRepository).findAllById(List.of(1L, 2L));
         verify(etudiantRepository).saveAll(any());
+        ArgumentCaptor<ProfesseurAssigneEvent> captor =
+                ArgumentCaptor.forClass(ProfesseurAssigneEvent.class);
+
+        verify(applicationEventPublisher, times(1))
+                .publishEvent(captor.capture());
+
+        ProfesseurAssigneEvent event = captor.getValue();
+
+        assertThat(event.professeur()).isEqualTo(professeur);
+        assertThat(event.etudiants()).containsExactly(etudiant, etudiant2);
     }
 
     @Test
@@ -888,6 +897,8 @@ class GestionnaireServiceTest {
 
         verify(etudiantRepository, never())
                 .saveAll(any());
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(ProfesseurAssigneEvent.class));
     }
 
     @Test
@@ -924,6 +935,9 @@ class GestionnaireServiceTest {
 
         verify(etudiantRepository, never())
                 .saveAll(any());
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(ProfesseurAssigneEvent.class));
+
     }
 
     @Test
