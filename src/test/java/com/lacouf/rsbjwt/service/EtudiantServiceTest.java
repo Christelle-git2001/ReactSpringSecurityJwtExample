@@ -639,6 +639,28 @@ public class EtudiantServiceTest {
         verify(candidatureRepository).findByEtudiant(etudiant);
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(ints = {0, 1, 2, 3, 4})
+    void contratSigneSeulementApresLesTroisSignatures(int signatureManquante) throws Exception {
+        Candidature candidature = new Candidature(etudiant, new OffreDeStage());
+        candidature.setId(20L);
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        Contrat contrat = new Contrat();
+        contrat.setCandidature(candidature);
+        if (signatureManquante != 1) contrat.setDateSignatureEmployeur(LocalDate.now());
+        if (signatureManquante != 2) contrat.setDateSignatureEtudiant(LocalDate.now());
+        if (signatureManquante != 3) contrat.setDateSignatureGestionnaire(LocalDate.now());
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByEtudiant(etudiant)).thenReturn(List.of(candidature));
+        when(contratRepository.findByCandidatureId(20L))
+                .thenReturn(signatureManquante == 0 ? Optional.empty() : Optional.of(contrat));
+
+        CandidatureDTO resultat = etudiantService.getCandidaturesEtudiant().get(0);
+
+        assertThat(resultat.contratSigne()).isEqualTo(signatureManquante == 4);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
+    }
+
     @Test
     void doitRetournerListeVideQuandAucuneCandidature() throws Exception {
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))

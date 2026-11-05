@@ -153,7 +153,7 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                                     {t("agenda.today")}
                                 </span>
                             </div>
-                            <Button variant="secondary" size="small" className={`${compact ? "" : "ml-auto"} shrink-0`} onClick={handleClearFilter}>
+                            <Button variant="secondary" size="small" icon={false} className={`${compact ? "" : "ml-auto"} shrink-0`} onClick={handleClearFilter}>
                                 {t("agenda.clear_filter")}
                             </Button>
                         </div>

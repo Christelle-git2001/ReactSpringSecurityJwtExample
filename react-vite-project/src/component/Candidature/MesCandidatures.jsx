@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation, declarerStageTrouve } from "../../api/etudiant.jsx";
@@ -37,7 +37,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         setLocalCandidatures(liste);
         onCandidaturesChange?.(liste);
     };
-    const [candidaturesOuvertes, setCandidaturesOuvertes] = useState(Boolean(focusId || focusCandidatureId) || location.pathname.endsWith("/candidatures"));
+    const [candidaturesOuvertes, setCandidaturesOuvertes] = useState(true);
     const [agendaOuvert, setAgendaOuvert] = useState(false);
     const [selectedDate, setSelectedDate] = useState("");
     const [sortOrder, setSortOrder] = useState("desc");
@@ -45,10 +45,12 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     const [error, setError] = useState(false);
     const [focusedCardId, setFocusedCardId] = useState(null);
     const [focusedCandidatureId, setFocusedCandidatureId] = useState(null);
+    const [scrollRequest, setScrollRequest] = useState(0);
 
     const [submittingId, setSubmittingId] = useState(null);
     const [actionError, setActionError] = useState(null);
     const [refusingId, setRefusingId] = useState(null);
+    const suivisRefs = useRef(new Map());
     const [motifRefus, setMotifRefus] = useState("");
     const [motifError, setMotifError] = useState(false);
     const [confirmRefusId, setConfirmRefusId] = useState(null);
@@ -77,6 +79,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         const comparaison = (a.candidature.dateCandidature ?? "").localeCompare(b.candidature.dateCandidature ?? "");
         return sortOrder === "asc" ? comparaison : -comparaison;
     });
+    const visibleCardIds = candidaturesTriees.map(c => `${c.candidatureId}:${c.id ?? ""}`).join(",");
 
     const charger = () =>
         Promise.all([obtenirToutesConvocations(), obtenirCandidaturesEtudiant()])
@@ -103,6 +106,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         setCandidaturesOuvertes(true);
         setFocusedCardId(focusId ? Number(focusId) : null);
         setFocusedCandidatureId(focusCandidatureId ? Number(focusCandidatureId) : null);
+        setScrollRequest(request => request + 1);
         filtres.resetFilters();
         charger();
     }, [location.key]);
@@ -112,8 +116,13 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         const carte = focusedCandidatureId !== null
             ? document.querySelector('[data-candidature-id="' + focusedCandidatureId + '"]')
             : document.getElementById('entrevue-' + focusedCardId);
-        carte?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, [focusedCardId, focusedCandidatureId, loading, loadingProp, candidaturesOuvertes, filtres.itemsFiltres.length]);
+        if (!carte) return;
+        // Wait for the opened section and reset filters to reach the layout.
+        const frame = requestAnimationFrame(() => {
+            carte.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [focusedCardId, focusedCandidatureId, scrollRequest, loading, loadingProp, candidaturesOuvertes, visibleCardIds]);
 
     const repondre = async (id, action) => {
         setSubmittingId(id);
@@ -147,7 +156,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         }
     };
 
-    const ouvrirRefus = (id) => {
+    const ouvrirRefus = (id, candidatureId) => {
+        suivisRefs.current.get(candidatureId)?.removeAttribute("open");
         setRefusingId(id);
         setMotifRefus("");
         setMotifError(false);
@@ -187,11 +197,11 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     return (
         <div className="w-full">
             <details open={candidaturesOuvertes} onToggle={event => setCandidaturesOuvertes(event.currentTarget.open)}
-                     className="collapse collapse-arrow bg-transparent">
+                     className="collapse collapse-arrow overflow-visible transition-none bg-transparent">
                 <summary className="collapse-title px-0 text-xl font-bold text-[#043462]">
                     {t("candidature.my_applications")} ({filtres.itemsFiltres.length})
                 </summary>
-                <div className="collapse-content px-0">
+                <div className="collapse-content overflow-visible transition-none px-0">
                     <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
                     <div className="mb-4 flex flex-wrap justify-end gap-3">
                         <Button variant="secondary" size="small" icon={false} aria-expanded={agendaOuvert} aria-controls="agenda-candidatures"
@@ -215,6 +225,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                 setCandidaturesOuvertes(true);
                                 setFocusedCandidatureId(null);
                                 setFocusedCardId(entrevue.id);
+                                setScrollRequest(request => request + 1);
                             }} />
                 </section>
             )}
@@ -234,9 +245,9 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                 const candidature = c.candidature;
                                 const statutConfig = getStatusConfig(c.statutFiltre, t, "candidatureEtudiant");
                                 return (
-                                    <li key={c.candidatureId} data-candidature-id={c.candidatureId} id={c.id ? `entrevue-${c.id}` : `candidature-${c.candidatureId}`}>
-                                        <div className={`w-full rounded-2xl border bg-white shadow-sm overflow-hidden transition-all duration-500 ${
-                                            isFocused ? 'border-2 border-black ring-4 ring-gray-200' : 'border-gray-200'
+                                    <li key={c.candidatureId} data-candidature-id={c.candidatureId} id={c.id ? `entrevue-${c.id}` : `candidature-${c.candidatureId}`} className="scroll-mt-6">
+                                        <div className={`w-full rounded-2xl border border-gray-200 bg-white overflow-hidden transition-shadow duration-300 ${
+                                            isFocused ? 'shadow-[0_0_0_3px_#043462,0_6px_22px_#021b36aa]' : 'shadow-sm'
                                         }`}>
 
                                             <div className="flow-root bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
@@ -307,7 +318,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                 {aRepondre && !refusOuvert && (
                                                     <div className="flex gap-2">
                                                         <Button variant="danger" size="small" type="button" disabled={enCours}
-                                                                onClick={() => ouvrirRefus(c.id)}>
+                                                                onClick={() => ouvrirRefus(c.id, c.candidatureId)}>
                                                             {t("convocation.reject")}
                                                         </Button>
                                                         <Button variant="success" size="small" type="button" disabled={enCours}
@@ -327,14 +338,17 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
 
                                             </div>
 
-                                            <details open className="collapse collapse-arrow rounded-none border-t border-gray-100">
+                                            <details ref={element => {
+                                                if (element) suivisRefs.current.set(c.candidatureId, element);
+                                                else suivisRefs.current.delete(c.candidatureId);
+                                            }} className="collapse collapse-arrow rounded-none border-t border-gray-100">
                                                 <summary className="collapse-title min-h-0 px-5 py-3 text-sm font-semibold text-[#043462]">
                                                     {t("convocation.application_progress")}
                                                 </summary>
                                                 <div className="collapse-content overflow-x-auto px-4">
                                                     {candidature ? (
                                                         <div className="min-w-max py-2">
-                                                            <CandidatureTimeline statut={candidature.statut} statutEntrevue={c.statut} afficherRetenue={false} regrouperEntrevue afficherSignature />
+                                                            <CandidatureTimeline statut={candidature.statut} statutEntrevue={c.statut} contratSigne={candidature.contratSigne} afficherRetenue={false} regrouperEntrevue afficherSignature />
 
                                                         </div>
                                                     ) : (
@@ -345,7 +359,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
 
                                             {["REFUSEE", "ENTREVUE_REFUSEE"].includes(candidature.statut) && (candidature.motifRefus || c.motifRefus) && (
                                                 <div className="border-t border-gray-100 bg-white px-5 py-3 text-sm text-[#043462]">
-                                                    <strong>{t("convocation.refusal_reason")} : </strong>
+                                                    <strong className="text-red-600">{t("convocation.refusal_reason")} : </strong>
                                                     <span className="whitespace-pre-wrap break-words">{candidature.motifRefus || c.motifRefus}</span>
                                                 </div>
                                             )}

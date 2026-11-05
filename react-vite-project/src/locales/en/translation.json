@@ -610,6 +610,7 @@
     "none": "No applications for now.",
     "status": {
       "contrat": "Agreement",
+      "contrat_signe": "Signed agreement",
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",

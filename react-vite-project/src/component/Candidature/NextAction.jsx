@@ -310,14 +310,14 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
 
     return (
         <div className="w-full overflow-hidden rounded-xl border border-cyan-100 bg-white shadow-sm">
-            <div className="bg-cyan-50 p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
+            <div className="bg-cyan-50 p-4 md:p-5 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className="text-xs font-bold uppercase tracking-wider text-cyan-800">
                         {isEmployeurSigned || isEtudiantSigned ? t("process.contract_signed_title") : t("process.next_action_title")}
                     </span>
                     <p className="text-sm text-gray-700">{actionData.description}</p>
                 </div>
-                <div className="flex flex-wrap items-center justify-end gap-2 w-full md:w-auto">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-2 w-full xl:w-auto xl:shrink-0 [&>button]:whitespace-nowrap">
                     {peutCloreEntrevue && (
                         <Button type="button" role="entrevue" onClick={handleCloreEntrevue} disabled={isSubmitting || !entrevueId}>
                             {t("actions.close_interview")}
@@ -325,10 +325,10 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                     )}
                     {peutDeciderApresEntrevue && (
                         <>
-                            <Button variant="success" onClick={handleAccepterCandidat} disabled={isSubmitting || !entrevueId}>
+                            <Button variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting || !entrevueId}>
                                 {t("actions.accept_candidate")}
                             </Button>
-                            <Button variant="danger" onClick={() => {
+                            <Button variant="danger" size="small" onClick={() => {
                                 setRefusOuvert(true);
                                 setMotifError(false);
                                 setDecisionError(false);
@@ -338,12 +338,12 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                         </>
                     )}
                     {actionData.buttonText && (
-                        <Button icon={false} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
-                                className={actionData.disabled ? "bg-gray-400 opacity-70" : ""}>
+                        <Button variant="custom" icon={false} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
+                                className={`text-white ${actionData.disabled ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
                             {actionData.buttonText}
                         </Button>
                     )}
-                    <Button type="button" onClick={() => navigate(retourPath || "/employeur")} variant="secondary">
+                    <Button type="button" size="small" onClick={() => navigate(retourPath || "/employeur")} variant="secondary">
                         {t("actions.back")}
                     </Button>
                 </div>
@@ -364,7 +364,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             )}
             {peutAfficherMotifRefus && (
                 <div className="border-t border-gray-100 bg-white px-5 py-3 text-sm text-[#043462]">
-                    <strong>{t("convocation.refusal_reason")} : </strong>
+                    <strong className="text-red-600">{t("convocation.refusal_reason")} : </strong>
                     <span className="whitespace-pre-wrap break-words">{motifAffiche}</span>
                 </div>
             )}

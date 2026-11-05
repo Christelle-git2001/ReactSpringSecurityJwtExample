@@ -548,6 +548,7 @@
     "none": "Aucune candidature pour le moment.",
     "status": {
       "contrat": "Contrat",
+      "contrat_signe": "Contrat signé",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
       "retenue_pour_entrevue" : "Retenue pour entrevue",
