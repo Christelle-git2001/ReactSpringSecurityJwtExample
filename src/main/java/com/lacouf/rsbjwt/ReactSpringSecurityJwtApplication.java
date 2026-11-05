@@ -38,6 +38,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ProfesseurService professeurService;
     private final CandidatureRepository candidatureRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public ReactSpringSecurityJwtApplication(
             GestionnaireRepository gestionnaireRepository,
@@ -51,7 +52,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             GestionnaireService gestionnaireService,
             CvEtudiantRepository cvEtudiantRepository,
             ProfesseurService professeurService,
-            CandidatureRepository candidatureRepository
+            CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
@@ -65,6 +66,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.professeurService = professeurService;
         this.candidatureRepository = candidatureRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     public static void main(String[] args) {
@@ -491,14 +493,16 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         employeurService.retenirCandidaturePourEntrevue(candidatureJacob.getId());
 
         // 4. Planifier l'entrevue
-        CreationEntrevueDTO entDTOJacob = new CreationEntrevueDTO(
-                candidatureJacob.getId(),
-                FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().minusDays(3),
-                60
+        Entrevue entrevueJacob = new Entrevue();
+        entrevueJacob.setCandidature(candidatureJacob);
+        entrevueJacob.setFormat(FormatEntrevue.EN_LIGNE);
+        entrevueJacob.setDateHeureEntrevue(LocalDateTime.now().minusDays(3));
+        entrevueJacob.setDuree(60);
+        entrevueJacob.setStatut(StatutEntrevue.A_CONFIRMER);
+        entrevueJacob.setDateCreation(LocalDateTime.now());
 
-        );
+        entrevueRepository.save(entrevueJacob);
         SecurityContextHolder.clearContext();
-        employeurService.creerConvocation(entDTOJacob);
+
     }
 }
