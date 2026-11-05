@@ -141,7 +141,7 @@ describe("Consultation des nouvelles offres", () => {
     });
 
     it("ne classe pas une offre deja postulee parmi les nouvelles offres", async () => {
-        obtenirCandidaturesEtudiant.mockResolvedValue([{ offreId: 1 }]);
+        obtenirCandidaturesEtudiant.mockResolvedValue([{ id: 101, offreId: 1, statut: "SOUMISE" }]);
         afficherAccueil();
         await screen.findByText("offre.application_received");
         await waitFor(() => expect(getNotifications).toHaveBeenCalled());
