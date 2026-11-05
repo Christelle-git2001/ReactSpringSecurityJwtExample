@@ -96,7 +96,7 @@ describe('Composant CandidatureDetails', () => {
         expect(screen.getByText('candidature.status.contrat')).toHaveClass('font-bold');
     });
 
-    it('affiche la confirmation sans proposer la decision employeur', async () => {
+    it('propose la decision employeur quand lentrevue est terminee', async () => {
         obtenirConvocationEmployeur.mockResolvedValue({ id: 50, statut: 'TERMINEE' });
         render(
             <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -105,8 +105,7 @@ describe('Composant CandidatureDetails', () => {
         );
 
         await waitFor(() => expect(screen.getByText('candidature.interview_states.TERMINEE')).toHaveClass('text-white'));
-        expect(screen.queryByRole('button', { name: 'actions.accept_candidate' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'actions.manage_status' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /actions.manage_status/ })).toBeInTheDocument();
     });
 
     it('active la confirmation apres la reponse et la conserve apres la fin de lentrevue', () => {

@@ -29,6 +29,7 @@ const ROUTES_PAR_TYPE = {
     CONVOCATION_ENTREVUE: "/etudiant/candidatures",
     CONVOCATION_ACCEPTEE: "/employeur/candidatures/details",
     CONVOCATION_REFUSEE: "/employeur/candidatures/details",
+    STAGE_TROUVE: "/employeur/candidatures/details",
 };
 
 const CONFIG_PAR_TYPE = {
@@ -92,6 +93,10 @@ const TONE_CLASSES = {
     red: "bg-red-100 text-red-600",
     yellow: "bg-yellow-100 text-yellow-600",
     gray: "bg-slate-100 text-slate-600",
+    STAGE_TROUVE: {
+        icon: <FaCheck />,
+        tone: "green",
+    },
 };
 
 export default function Notification({ notifications = [], onMarkAsRead }) {
@@ -172,7 +177,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.id = notification.variables?.ENTREVUE_ID;
                 state.from = "/etudiant/candidatures";
             }
-            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"]
+            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE", "STAGE_TROUVE"]
                 .includes(notification.notificationType)) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 const [candidatures, offres] = await Promise.all([
