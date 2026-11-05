@@ -248,7 +248,7 @@ const GestionnaireAttribution = () => {
                             )}
                         />
                         <div className="flex justify-center mt-2">
-                            <Button type="button" onClick={onAssign} disabled={etudiantSelectionnes <= 0} className="btn">{t("gestionnaire.assignation.button.text")}</Button>
+                            <Button role="soumettre" type="button" onClick={onAssign} disabled={etudiantSelectionnes <= 0} className="btn">{t("gestionnaire.assignation.button.text")}</Button>
                         </div>
                     </div>
                 )}
