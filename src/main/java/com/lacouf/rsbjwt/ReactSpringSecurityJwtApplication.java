@@ -456,53 +456,5 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         candidatureJuzo.setStatut(StatutCandidature.STAGE_TROUVE);
         candidatureRepository.save(candidatureJuzo);
 
-        // --- Ajout de Jacob Frye (parcours partiel / entrevue passée) ---
-        String emailJacobFrye = "Jacob.Frye@gmail.com";
-
-        InscriptionEtudiantDTO etudiantJacobDTO = new InscriptionEtudiantDTO(
-                "Jacob",
-                "Frye",
-                "450-555-5525",
-                emailJacobFrye,
-                "4444444",
-                Departement.INFORMATIQUE.name(),
-                "a",
-                "a"
-        );
-        etudiantService.creerCompteEtudiant(etudiantJacobDTO);
-
-        // 1. CV téléversé et approuvé
-        CvEtudiantDTO jacobFryeCvDTO = etudiantService.televerserCv(jacobFryeFakeCv, emailJacobFrye);
-        gestionnaireService.approuverCurriculumVitae(jacobFryeCvDTO.id());
-
-        // 2. Postuler à l'offre
-        etudiantService.postuler(techSuppInfo.id(), emailJacobFrye);
-
-        // Récupérer la candidature créée
-        Candidature candidatureJacob = candidatureRepository.findAll().stream()
-                .filter(c -> c.getEtudiant().getEmail().equals(emailJacobFrye))
-                .findFirst()
-                .orElseThrow();
-
-        // Simuler l'authentification de l'employeur pour les actions nécessitant un contexte de sécurité
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
-        );
-
-        // 3. Retenir pour entrevue
-        employeurService.retenirCandidaturePourEntrevue(candidatureJacob.getId());
-
-        // 4. Planifier l'entrevue
-        Entrevue entrevueJacob = new Entrevue();
-        entrevueJacob.setCandidature(candidatureJacob);
-        entrevueJacob.setFormat(FormatEntrevue.EN_LIGNE);
-        entrevueJacob.setDateHeureEntrevue(LocalDateTime.now().minusDays(3));
-        entrevueJacob.setDuree(60);
-        entrevueJacob.setStatut(StatutEntrevue.A_CONFIRMER);
-        entrevueJacob.setDateCreation(LocalDateTime.now());
-
-        entrevueRepository.save(entrevueJacob);
-        SecurityContextHolder.clearContext();
-
     }
 }
