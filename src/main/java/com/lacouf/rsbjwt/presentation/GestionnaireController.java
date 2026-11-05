@@ -152,6 +152,11 @@ public class GestionnaireController {
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
 
+    @GetMapping("/candidatures/decisions")
+    public ResponseEntity<List<CandidatureDTO>> getDecisionsCandidatures() throws UtilisateurIntrouvableException {
+        return ResponseEntity.ok(gestionnaireService.getDecisionsCandidatures());
+    }
+
     @PostMapping("/candidatures/{candidatureId}/contrat")
     public ResponseEntity<ContratDTO> creerContrat(
             @PathVariable Long candidatureId)
@@ -179,5 +184,14 @@ public class GestionnaireController {
             throws EntrevueIntrouvableException {
         EntrevueDTO entrevueDTO = gestionnaireService.getEntrevueParCandidatureId(candidatureId);
         return ResponseEntity.ok(entrevueDTO);
+    }
+
+    @PutMapping("/contrats/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException{
+
+        ContratDTO contratDTO = gestionnaireService.signerContrat(contratId);
+        return ResponseEntity.ok(contratDTO);
     }
 }

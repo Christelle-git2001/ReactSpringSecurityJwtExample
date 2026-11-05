@@ -8,7 +8,8 @@ import {
     demarrerProcessusDeSignatureDeContrat,
     getContratByCandidatureId,
     getEntrevueByCandidatureId,
-    getTousLesCvs
+    getTousLesCvs,
+    signerContratGestionnaire
 } from "../../api/gestionnaire.jsx";
 import { obtenirContratPDF } from "../../api/pdf.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
@@ -41,6 +42,7 @@ function ViewProcess() {
 
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(false);
+    const [isSigning, setIsSigning] = useState(false);
 
     const chargerPdfContrat = useCallback(async (contratId) => {
         setIsPdfLoading(true);
@@ -135,6 +137,23 @@ function ViewProcess() {
             }
         } catch {
             setError("process.start_error");
+        }
+    };
+
+    const handleSignContract = async () => {
+        if (!contrat?.id) return;
+        setIsSigning(true);
+        setError(null);
+        try {
+            const contratMisAJour = await signerContratGestionnaire(contrat.id);
+            setContrat(contratMisAJour);
+            if (contratMisAJour?.id) {
+                chargerPdfContrat(contratMisAJour.id);
+            }
+        } catch {
+            setError("process.sign_error");
+        } finally {
+            setIsSigning(false);
         }
     };
 
@@ -269,21 +288,26 @@ function ViewProcess() {
                                 </Button>
                                 <button
                                     type="button"
-                                    disabled={isSignButtonDisabled}
+                                    onClick={handleSignContract}
+                                    disabled={isSignButtonDisabled || isSigning}
                                     title={
                                         !isBothPartiesSigned && !isGestionnaireSigned
                                             ? t("process.waiting_parties_signatures")
                                             : ""
                                     }
-                                    className={`px-4 py-2 rounded-md font-medium text-white transition-colors ${
-                                        isSignButtonDisabled
+                                    className={`px-4 py-2 rounded-md font-medium text-white transition-colors flex items-center justify-center min-w-[100px] ${
+                                        isSignButtonDisabled || isSigning
                                             ? "bg-gray-400 cursor-not-allowed opacity-70"
                                             : "bg-[#043462] hover:bg-[#03284d] cursor-pointer"
                                     }`}
                                 >
-                                    {isGestionnaireSigned
-                                        ? t("process.already_signed")
-                                        : t("process.sign_button")}
+                                    {isSigning ? (
+                                        <span className="loading loading-spinner loading-sm text-white" />
+                                    ) : isGestionnaireSigned ? (
+                                        t("process.already_signed")
+                                    ) : (
+                                        t("process.sign_button")
+                                    )}
                                 </button>
                             </div>
                         </div>

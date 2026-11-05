@@ -120,7 +120,7 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                         </div>
                     )}
 
-                    <details className="collapse collapse-arrow mt-4 rounded-none border-t border-gray-200">
+                    <details open className="collapse collapse-arrow mt-4 rounded-none border-t border-gray-200">
                         <summary className="collapse-title min-h-0 py-3 pl-0 text-xs font-bold text-[#043462]">
                             {t("candidature.list_title")} ({candidaturesOffre.length})
                         </summary>

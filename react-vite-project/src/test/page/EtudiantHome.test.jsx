@@ -1,14 +1,15 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import EtudiantHome from "../../page/Etudiant/EtudiantHome.jsx";
-import { obtenirCandidaturesEtudiant, obtenirOffres, postulerOffre } from "../../api/etudiant.jsx";
+import { obtenirCandidaturesEtudiant, obtenirOffres, obtenirToutesConvocations, postulerOffre } from "../../api/etudiant.jsx";
 import { obtenirOffrePDF } from "../../api/employeur.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 
-jest.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key) => key }) }));
+jest.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key) => key, i18n: { language: "fr" } }) }));
 jest.mock("../../component/CV/CvOnLandingPage.jsx", () => () => null);
+jest.mock("../../component/Entrevue/Agenda.jsx", () => () => null);
 jest.mock("../../api/etudiant.jsx", () => ({
-    obtenirCandidaturesEtudiant: jest.fn(), obtenirOffres: jest.fn(), postulerOffre: jest.fn(),
+    obtenirCandidaturesEtudiant: jest.fn(), obtenirOffres: jest.fn(), obtenirToutesConvocations: jest.fn(), postulerOffre: jest.fn(),
 }));
 jest.mock("../../api/employeur.jsx", () => ({ obtenirOffrePDF: jest.fn() }));
 jest.mock("../../api/notification.jsx", () => ({
@@ -45,6 +46,7 @@ describe("Consultation des nouvelles offres", () => {
         }];
         obtenirOffres.mockResolvedValue(offers);
         obtenirCandidaturesEtudiant.mockResolvedValue([]);
+        obtenirToutesConvocations.mockResolvedValue([]);
         getNotifications.mockImplementation(async () => notifications.map(n => ({ ...n })));
         marquerNotificationLue.mockImplementation(async (id) => {
             notifications.find(n => n.id === id).estLu = true;
@@ -139,7 +141,7 @@ describe("Consultation des nouvelles offres", () => {
     });
 
     it("ne classe pas une offre deja postulee parmi les nouvelles offres", async () => {
-        obtenirCandidaturesEtudiant.mockResolvedValue([{ offreId: 1 }]);
+        obtenirCandidaturesEtudiant.mockResolvedValue([{ id: 101, offreId: 1, statut: "SOUMISE" }]);
         afficherAccueil();
         await screen.findByText("offre.application_received");
         await waitFor(() => expect(getNotifications).toHaveBeenCalled());

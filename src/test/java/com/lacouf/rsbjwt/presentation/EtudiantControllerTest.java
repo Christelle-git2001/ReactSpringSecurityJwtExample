@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -15,6 +17,7 @@ import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.ReponseConvocationDTO;
+import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -108,6 +111,7 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean"
         );
@@ -125,6 +129,7 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean"
         );
@@ -400,7 +405,9 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         Authentication authentication =
@@ -462,7 +469,9 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                StatutEtudiant.EN_RECHERCHE
         );
 
         Authentication authentication =
@@ -613,5 +622,91 @@ public class EtudiantControllerTest {
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(etudiantService);
+    }
+
+    @Test
+    void doitDeclarerLeStageTrouve() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
+                10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE);
+        when(etudiantService.declarerStageTrouve(20L)).thenReturn(candidature);
+
+        mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
+                .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
+        verify(etudiantService).declarerStageTrouve(20L);
+    }
+
+    @Test
+    void doitSignerContratEtudiant() throws Exception {
+        Long contratId = 1L;
+
+        ContratDTO contratDTO = new ContratDTO(
+                contratId,
+                1L,
+                1L,
+                LocalDate.now(),
+                LocalDate.now(),
+                LocalDate.now()
+        );
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId))
+                .thenReturn(contratDTO);
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(contratId))
+                .andExpect(jsonPath("$.candidatureId").value(1))
+                .andExpect(jsonPath("$.dateSignatureEtudiant").exists());
+
+        verify(etudiantService, times(1)).signerContrat(contratId);
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandContratIntrouvablePourSignature() throws Exception {
+        Long contratId = 99L;
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId))
+                .thenThrow(new ContratIntrouvableException());
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication))
+                .andExpect(status().isNotFound());
+
+        verify(etudiantService, times(1)).signerContrat(contratId);
+    }
+
+    @Test
+    void doitRetournerForbiddenQuandEtudiantNonAutorisePourSignature() throws Exception {
+        Long contratId = 1L;
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId))
+                .thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication))
+                .andExpect(status().isForbidden());
+
+        verify(etudiantService, times(1)).signerContrat(contratId);
     }
 }

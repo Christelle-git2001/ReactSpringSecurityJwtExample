@@ -1,5 +1,15 @@
 package com.lacouf.rsbjwt.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import org.junit.jupiter.api.AfterEach;
+
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -10,6 +20,7 @@ import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
+import com.lacouf.rsbjwt.model.event.ProfesseurAssigneEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -17,9 +28,7 @@ import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
@@ -72,13 +81,13 @@ class GestionnaireServiceTest {
     private EtudiantRepository etudiantRepository;
 
     @Mock
+    private CandidatureRepository candidatureRepository;
+
+    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Mock
     private ProfesseurRepository professeurRepository;
-
-    @Mock
-    private CandidatureRepository candidatureRepository;
 
     @Mock
     private ContratRepository contratRepository;
@@ -120,6 +129,17 @@ class GestionnaireServiceTest {
         employeur.setId(1L);
 
         return employeur;
+    }
+
+    @AfterEach
+    void nettoyerAuthentification() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void connecterUtilisateur(UserApp utilisateur) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(gestionnaire.getEmail(), null));
+        when(userAppRepository.findUserAppByEmail(gestionnaire.getEmail())).thenReturn(Optional.of(utilisateur));
     }
 
     @Test
@@ -737,6 +757,45 @@ class GestionnaireServiceTest {
     }
 
     @Test
+    void doitRetournerLesDecisionsAvecLeStatutEtudiantEtLeMotif() throws Exception {
+        connecterUtilisateur(gestionnaire);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        Candidature acceptee = new Candidature(etudiant, null);
+        acceptee.setId(1L);
+        acceptee.setStatut(StatutCandidature.ACCEPTEE);
+        Etudiant autreEtudiant = new Etudiant();
+        autreEtudiant.setId(2L);
+        autreEtudiant.setStatut(StatutEtudiant.EN_RECHERCHE);
+        Candidature refusee = new Candidature(autreEtudiant, null);
+        refusee.setId(2L);
+        refusee.setStatut(StatutCandidature.REFUSEE);
+        refusee.setMotifRefus("Autre profil retenu");
+        List<StatutCandidature> statuts = List.of(StatutCandidature.ACCEPTEE, StatutCandidature.REFUSEE,
+                StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE);
+        when(candidatureRepository.findByStatutIn(statuts)).thenReturn(List.of(acceptee, refusee));
+
+        List<CandidatureDTO> resultats = gestionnaireService.getDecisionsCandidatures();
+
+        assertThat(resultats).hasSize(2);
+        assertThat(resultats.get(0).statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(resultats.get(0).statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
+        assertThat(resultats.get(1).statut()).isEqualTo(StatutCandidature.REFUSEE);
+        assertThat(resultats.get(1).statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        assertThat(resultats.get(1).motifRefus()).isEqualTo("Autre profil retenu");
+        verify(candidatureRepository).findByStatutIn(statuts);
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
+    void doitRefuserLaConsultationDesDecisionsParUnEtudiant() {
+        connecterUtilisateur(etudiant);
+        assertThatThrownBy(() -> gestionnaireService.getDecisionsCandidatures())
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+        verifyNoInteractions(candidatureRepository);
+    }
+
+
+    @Test
     void doitRetournerTousLesProfesseurs() {
         Professeur professeur1 = Professeur.builder()
                 .firstName("Jean")
@@ -821,6 +880,16 @@ class GestionnaireServiceTest {
         verify(professeurRepository).findById(5L);
         verify(etudiantRepository).findAllById(List.of(1L, 2L));
         verify(etudiantRepository).saveAll(any());
+        ArgumentCaptor<ProfesseurAssigneEvent> captor =
+                ArgumentCaptor.forClass(ProfesseurAssigneEvent.class);
+
+        verify(applicationEventPublisher, times(1))
+                .publishEvent(captor.capture());
+
+        ProfesseurAssigneEvent event = captor.getValue();
+
+        assertThat(event.professeur()).isEqualTo(professeur);
+        assertThat(event.etudiants()).containsExactly(etudiant, etudiant2);
     }
 
     @Test
@@ -888,6 +957,8 @@ class GestionnaireServiceTest {
 
         verify(etudiantRepository, never())
                 .saveAll(any());
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(ProfesseurAssigneEvent.class));
     }
 
     @Test
@@ -924,6 +995,9 @@ class GestionnaireServiceTest {
 
         verify(etudiantRepository, never())
                 .saveAll(any());
+        verify(applicationEventPublisher, never())
+                .publishEvent(any(ProfesseurAssigneEvent.class));
+
     }
 
     @Test
@@ -934,6 +1008,9 @@ class GestionnaireServiceTest {
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
         candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setEtudiant(etudiant);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
 
         Contrat contratSauvegarde = Contrat.builder()
                 .candidature(candidature)
@@ -972,6 +1049,22 @@ class GestionnaireServiceTest {
             verify(contratRepository).existsByCandidatureId(candidatureId);
             verify(contratRepository).save(any(Contrat.class));
         }
+    }
+
+    @Test
+    void doitRetournerLesStagesDeclares() throws Exception {
+        Candidature stage = new Candidature(etudiant, null);
+        stage.setId(10L);
+        stage.setStatut(StatutCandidature.STAGE_TROUVE);
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
+                .thenReturn(List.of(stage));
+
+        List<CandidatureDTO> resultats = gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE");
+
+        assertThat(resultats).hasSize(1);
+        assertThat(resultats.getFirst().id()).isEqualTo(10L);
+        assertThat(resultats.getFirst().statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        verify(candidatureRepository).findByStatut(StatutCandidature.STAGE_TROUVE);
     }
 
     @Test
@@ -1034,7 +1127,7 @@ class GestionnaireServiceTest {
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
 
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
 
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -1091,6 +1184,50 @@ class GestionnaireServiceTest {
             verify(contratRepository).existsByCandidatureId(candidatureId);
             verify(contratRepository, never()).save(any(Contrat.class));
         }
+    }
+
+    @Test
+    void doitSignerUnContrat() throws ContratIntrouvableException {
+        Contrat contrat = new Contrat();
+        contrat.setId(1L);
+
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        contrat.setCandidature(candidature);
+
+        Gestionnaire gestionnaire = new Gestionnaire();
+        gestionnaire.setId(20L);
+        contrat.setGestionnaire(gestionnaire);
+
+        when(contratRepository.findById(1L))
+                .thenReturn(Optional.of(contrat));
+
+        when(contratRepository.save(contrat))
+                .thenReturn(contrat);
+
+        ContratDTO result = gestionnaireService.signerContrat(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.candidatureId()).isEqualTo(10L);
+        assertThat(result.gestionnaireId()).isEqualTo(20L);
+        assertThat(result.dateSignatureGestionnaire())
+                .isEqualTo(LocalDate.now());
+
+        verify(contratRepository).findById(1L);
+        verify(contratRepository).save(contrat);
+    }
+
+    @Test
+    void doitLeverExceptionSiContratIntrouvablePourSignature() {
+        when(contratRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.signerContrat(1L))
+                .isInstanceOf(ContratIntrouvableException.class);
+
+        verify(contratRepository).findById(1L);
+        verify(contratRepository, never()).save(any(Contrat.class));
     }
 
 }

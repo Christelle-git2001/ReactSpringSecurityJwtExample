@@ -8,6 +8,7 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -27,9 +28,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -76,6 +80,8 @@ public class EtudiantServiceTest {
 
     @Mock
     private EntrevueRepository entrevueRepository;
+
+    @Mock ContratRepository contratRepository;
 
     @TempDir
     Path dossierCvTest;
@@ -431,6 +437,34 @@ public class EtudiantServiceTest {
     }
 
     @Test
+    void NeDoitPasMettreEnAttenteEntrevueAvantAcceptationConvocation() {
+        Candidature candidature = new Candidature(etudiant, new OffreDeStage());
+        candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+
+        Entrevue entrevueAConfirmer = Entrevue.builder()
+                .candidature(candidature)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(LocalDateTime.now().plusDays(1))
+                .dateCreation(LocalDateTime.now())
+                .build();
+        entrevueAConfirmer.setId(55L);
+        entrevueAConfirmer.setStatut(StatutEntrevue.A_CONFIRMER);
+
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevueAConfirmer));
+
+        etudiant.setStatut(StatutEtudiant.EN_RECHERCHE);
+        etudiantService.actualiserStatutEtudiant(etudiant);
+
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+
+        entrevueAConfirmer.setStatut(StatutEntrevue.CONFIRMEE);
+        etudiantService.actualiserStatutEtudiant(etudiant);
+
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_ATTENTE_ENTREVUE);
+    }
+
+    @Test
     void doitRetournerLesOffresAcceptees() throws Exception {
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
@@ -603,6 +637,28 @@ public class EtudiantServiceTest {
         assertThat(result.get(0).offreId()).isEqualTo(10L);
 
         verify(candidatureRepository).findByEtudiant(etudiant);
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(ints = {0, 1, 2, 3, 4})
+    void contratSigneSeulementApresLesTroisSignatures(int signatureManquante) throws Exception {
+        Candidature candidature = new Candidature(etudiant, new OffreDeStage());
+        candidature.setId(20L);
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        Contrat contrat = new Contrat();
+        contrat.setCandidature(candidature);
+        if (signatureManquante != 1) contrat.setDateSignatureEmployeur(LocalDate.now());
+        if (signatureManquante != 2) contrat.setDateSignatureEtudiant(LocalDate.now());
+        if (signatureManquante != 3) contrat.setDateSignatureGestionnaire(LocalDate.now());
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByEtudiant(etudiant)).thenReturn(List.of(candidature));
+        when(contratRepository.findByCandidatureId(20L))
+                .thenReturn(signatureManquante == 0 ? Optional.empty() : Optional.of(contrat));
+
+        CandidatureDTO resultat = etudiantService.getCandidaturesEtudiant().get(0);
+
+        assertThat(resultat.contratSigne()).isEqualTo(signatureManquante == 4);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
     }
 
     @Test
@@ -886,6 +942,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRetournerLesConvocationsEtActualiserLeStatut() throws Exception {
+        entrevue.setDuree(60);
         entrevue.setDateConfirmation(LocalDateTime.now().minusDays(2));
         entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
         entrevue.setStatut(StatutEntrevue.CONFIRMEE);
@@ -902,9 +959,7 @@ public class EtudiantServiceTest {
 
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).id()).isEqualTo(entrevue.getId());
-        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
-
-        verify(entrevueRepository).save(entrevue);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
     }
 
     @Test
@@ -1007,7 +1062,8 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitPasserEnAttenteReponseLorsDeLaConsultation() throws Exception {
+    void doitActualiserLeSuiviLorsDeLaConsultation() throws Exception {
+        entrevue.setDuree(60);
         entrevue.setDateConfirmation(LocalDateTime.now().minusDays(2));
         entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
         entrevue.setStatut(StatutEntrevue.CONFIRMEE);
@@ -1019,10 +1075,221 @@ public class EtudiantServiceTest {
                 entrevue.getId(), etudiant.getId()))
                 .thenReturn(Optional.of(entrevue));
 
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevue));
+
         etudiantService.getConvocationEtudiant(entrevue.getId());
 
-        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
+    }
 
+    @Test
+    void doitDeclarerLeStagePourLaCandidatureAcceptee() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+
+        CandidatureDTO resultat = etudiantService.declarerStageTrouve(20L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(com.lacouf.rsbjwt.model.Enum.StatutEtudiant.STAGE_TROUVE);
+        assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
+        verify(etudiantRepository).save(etudiant);
+        verify(candidatureRepository).save(candidature);
+        ArgumentCaptor<StageTrouveEvent> captor = ArgumentCaptor.forClass(StageTrouveEvent.class);
+        verify(applicationEventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().candidature()).isSameAs(candidature);
+    }
+
+    @Test
+    void neDoitPasNotifierDeuxFoisPourLeMemeStage() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+
+        etudiantService.declarerStageTrouve(20L);
+        etudiantService.declarerStageTrouve(20L);
+
+        verify(applicationEventPublisher).publishEvent(any(StageTrouveEvent.class));
+        verify(etudiantRepository).save(etudiant);
+    }
+
+    @Test
+    void doitRefuserDeDeclarerUneCandidatureNonAcceptee() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId()))
+                .thenReturn(Optional.of(entrevue.getCandidature()));
+
+        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(20L))
+                .isInstanceOf(DeclarationStageInvalideException.class);
+        verify(etudiantRepository, never()).save(any());
+    }
+
+    @Test
+    void doitRefuserDeDeclarerLaCandidatureDUnAutreEtudiant() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(99L, etudiant.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(99L))
+                .isInstanceOf(CandidatureIntrouvableException.class);
+        verify(etudiantRepository, never()).save(any());
+    }
+
+    @Test
+    void doitRefuserDeDeclarerUnDeuxiemeStage() {
+        Candidature stageChoisi = new Candidature();
+        stageChoisi.setId(30L);
+        etudiant.setCandidatureStage(stageChoisi);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId()))
+                .thenReturn(Optional.of(entrevue.getCandidature()));
+
+        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(20L))
+                .isInstanceOf(DeclarationStageInvalideException.class);
+        assertThat(etudiant.getCandidatureStage()).isSameAs(stageChoisi);
+    }
+    @Test
+    void doitAttendreLaFinDeLEntrevue() {
+        entrevue.getCandidature().setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusMinutes(10));
+        entrevue.setDuree(60);
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevue));
+        etudiantService.actualiserStatutEtudiant(etudiant);
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_ATTENTE_ENTREVUE);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+    }
+
+    @Test
+    void doitPasserAutomatiquementEnAttenteDeReponse() {
+        entrevue.getCandidature().setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setDuree(60);
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevue));
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusHours(2));
+        when(etudiantRepository.findAll()).thenReturn(List.of(etudiant));
+        etudiantService.actualiserStatutsEtudiants();
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_ATTENTE_REPONSE);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
         verify(entrevueRepository).save(entrevue);
+    }
+
+    @Test
+    void doitSignerContratAvecSucces() throws Exception {
+        Long contratId = 1L;
+
+        Gestionnaire gestionnaire = new Gestionnaire(
+                1L,
+                "Laurent",
+                "Losange",
+                "Laurent.Losange@hotmail.com",
+                "5858",
+                "458-458-4584"
+        );
+
+        gestionnaire.setId(1L);
+
+        Candidature candidature = Candidature.builder()
+                .etudiant(etudiant)
+                .offreDeStage(new OffreDeStage())
+                .build();
+
+        candidature.setId(1L);
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+
+        contrat.setId(contratId);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+
+        when(contratRepository.save(any(Contrat.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ContratDTO result = etudiantService.signerContrat(contratId);
+
+        assertThat(result).isNotNull();
+        assertThat(contrat.getDateSignatureEtudiant()).isEqualTo(LocalDate.now());
+
+        verify(etudiantRepository).findByCredentialsEmail(etudiant.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository).save(contrat);
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourSignatureContrat() {
+        Long contratId = 1L;
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.signerContrat(contratId))
+                .isInstanceOf(EtudiantIntrouvableException.class);
+
+        verify(contratRepository, never()).findById(anyLong());
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiContratIntrouvablePourSignature() {
+        Long contratId = 99L;
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.signerContrat(contratId))
+                .isInstanceOf(ContratIntrouvableException.class);
+
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository, never()).save(any());
+    }
+
+
+    @Test
+    void doitRevenirEnRechercheApresLaDecision() {
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        entrevue.setDuree(60);
+        etudiant.setStatut(StatutEtudiant.EN_ATTENTE_REPONSE);
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusHours(2));
+        entrevue.getCandidature().setStatut(StatutCandidature.REFUSEE);
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevue));
+        etudiantService.actualiserStatutEtudiant(etudiant);
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
+    }
+
+    @Test
+    void doitConserverLeStageTrouveMalgreUneAutreEntrevue() {
+        etudiant.setCandidatureStage(new Candidature());
+        when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))
+                .thenReturn(List.of(entrevue));
+        etudiantService.actualiserStatutEtudiant(etudiant);
+        assertThat(etudiant.getStatut()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
     }
 }

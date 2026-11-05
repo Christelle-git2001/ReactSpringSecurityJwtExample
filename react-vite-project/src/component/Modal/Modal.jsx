@@ -3,8 +3,7 @@ import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import Button from "../Design/Button.jsx";
 
-const Modal = ({onClickCancel,onClickAgree,onClickCross,renderItem,title,description,agreeLabel}) => {
-    const { t } = useTranslation();
+const Modal = ({onClickCross,title,description,button,children}) => {    const { t } = useTranslation();
     const [error, setError] = useState("");
     return (
         <dialog className="modal modal-open">
@@ -21,6 +20,7 @@ const Modal = ({onClickCancel,onClickAgree,onClickCross,renderItem,title,descrip
                     </button>
                 </div>
                 <p className="text-center">{description}</p>
+                {children}
 
                 <div className="modal-action">
                     {error && (
@@ -28,13 +28,11 @@ const Modal = ({onClickCancel,onClickAgree,onClickCross,renderItem,title,descrip
                                 {t(error)}
                             </p>
                         )}
-                    {renderItem && (
-                        {renderItem}
+                    {button && (
+                        <div className="flex justify-around  w-full mt-5">
+                            {button}
+                        </div>
                     )}
-                    <div className="flex justify-around  w-full mt-5">
-                        <Button variant="secondary" type="button" onClick={onClickCancel} className="w-50">{t("actions.cancel")}</Button>
-                        <Button type="button" onClick={onClickAgree} className="w-1/2">{agreeLabel ?? t("actions.approve")}</Button>
-                    </div>
                 </div>
             </div>
         </dialog>

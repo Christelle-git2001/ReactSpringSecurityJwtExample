@@ -1,5 +1,9 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -31,6 +35,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -70,6 +75,7 @@ public class GestionnaireControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1L,
                 "Jean"
         );
@@ -551,6 +557,20 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.title").value(offreDeStageDTO.title()))
                 .andExpect(jsonPath("$.statut").value(Statut.EN_ATTENTE.name()));
     }
+    @Test
+    void doitRetournerLesDecisionsDesCandidatures() throws Exception {
+        CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE);
+        when(gestionnaireService.getDecisionsCandidatures()).thenReturn(List.of(decision));
+
+        mockMvc.perform(get("/gestionnaire/candidatures/decisions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].statut").value("REFUSEE"))
+                .andExpect(jsonPath("$[0].motifRefus").value("Autre profil retenu"))
+                .andExpect(jsonPath("$[0].statutEtudiant").value("EN_RECHERCHE"));
+    }
+
 
     @Test
     void doitRetournerListeProfesseurs() throws Exception {
@@ -606,6 +626,7 @@ public class GestionnaireControllerTest {
                         "5143333333",
                         "INFORMATIQUE",
                         null,
+                        StatutEtudiant.EN_RECHERCHE,
                         1L,
                         "Jean Dupont"
                 )
@@ -650,4 +671,33 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.candidatureId").value(1L));
     }
+
+    @Test
+    void doitSignerUnContrat() throws Exception {
+        ContratDTO contratDTO = new ContratDTO(
+                1L,
+                10L,
+                20L,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        when(gestionnaireService.signerContrat(1L))
+                .thenReturn(contratDTO);
+
+        mockMvc.perform(put("/gestionnaire/contrats/1/signature"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.candidatureId").value(10))
+                .andExpect(jsonPath("$.gestionnaireId").value(20))
+                .andExpect(jsonPath("$.dateSignatureGestionnaire")
+                        .value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.dateSignatureEmployeur").doesNotExist())
+                .andExpect(jsonPath("$.dateSignatureEtudiant").doesNotExist());
+
+        verify(gestionnaireService).signerContrat(1L);
+    }
+
+
 }

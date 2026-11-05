@@ -38,6 +38,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ProfesseurService professeurService;
     private final CandidatureRepository candidatureRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public ReactSpringSecurityJwtApplication(
             GestionnaireRepository gestionnaireRepository,
@@ -51,7 +52,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             GestionnaireService gestionnaireService,
             CvEtudiantRepository cvEtudiantRepository,
             ProfesseurService professeurService,
-            CandidatureRepository candidatureRepository
+            CandidatureRepository candidatureRepository,
+            EntrevueRepository entrevueRepository
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
@@ -65,6 +67,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.professeurService = professeurService;
         this.candidatureRepository = candidatureRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     public static void main(String[] args) {
@@ -90,7 +93,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         InscriptionEtudiantDTO etudiantBadCvDTO = new InscriptionEtudiantDTO(
                 "Marc", "Disparu", "450-999-8888", "Marc.Disparu@hotmail.com",
-                "9999999", Departement.INFORMATIQUE.name(), "NoNeed", "NoNeed"
+                "9999999", Departement.TRAVAIL_SOCIAL.name(), "NoNeed", "NoNeed"
         );
         etudiantService.creerCompteEtudiant(etudiantBadCvDTO);
         Etudiant etudiantBadCv = etudiantRepository.findByMatricule("9999999").orElseThrow();
@@ -98,8 +101,8 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         InscriptionEtudiantDTO etudiantNotifCvDTO = new InscriptionEtudiantDTO( "Christelle","Nouga","450-716-1288","chrisNouga@gmail.com","6565688",Departement.INFORMATIQUE.name(),"motdepasse","motdepasse");
         etudiantService.creerCompteEtudiant(etudiantNotifCvDTO);
 
-        InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed" +
-                "","NoNeedButStillNeed");
+        InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger","Malinois","450-874-6586","Roger.Malinois@hotmail.com","Laval","Malinois inc",SecteurActivite.INFORMATIQUE,"NoNeedButStillNeed"
+                ,"NoNeedButStillNeed");
         employeurService.creeCompteEmployeur(employeurDTO);
 
         InscriptionProfesseurDTO inscriptionProfesseurDTO = new InscriptionProfesseurDTO("Toru","Shirazu","Toru.Shirazu@claurendeau.qc.ca","NoNeed","NoNeed","9325645","698-585-6666",Departement.INFORMATIQUE.name());
@@ -116,6 +119,81 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
                 "5 0 obj << /Length 200 >> stream\n" +
                 "BT /F1 14 Tf 20 260 Td (Adrien Agreste - Dev Java) Tj ET\n" +
+                "BT /F1 12 Tf 20 230 Td (Competences: Java, SQL, Git) Tj ET\n" +
+                "BT /F1 12 Tf 20 200 Td (Experience: Refonte UI, Debugging) Tj ET\n" +
+                "BT /F1 12 Tf 20 170 Td (Education: Tech. Info Montreal) Tj ET\n" +
+                "endstream\n" +
+                "endobj\n" +
+                "xref\n" +
+                "0 6\n" +
+                "0000000000 65535 f \n" +
+                "0000000010 00000 n \n" +
+                "0000000053 00000 n \n" +
+                "0000000100 00000 n \n" +
+                "0000000200 00000 n \n" +
+                "0000000260 00000 n \n" +
+                "trailer << /Size 6 /Root 1 0 R >>\n" +
+                "startxref\n" +
+                "330\n" +
+                "%%EOF";
+        String nicolasSarkozyCV = "%PDF-1.4\n" +
+                "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
+                "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 300] " +
+                "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n" +
+                "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
+                "5 0 obj << /Length 200 >> stream\n" +
+                "BT /F1 14 Tf 20 260 Td (Nicolas Sarkozy - Dev Java) Tj ET\n" +
+                "BT /F1 12 Tf 20 230 Td (Competences: Java, SQL, Git) Tj ET\n" +
+                "BT /F1 12 Tf 20 200 Td (Experience: Refonte UI, Debugging) Tj ET\n" +
+                "BT /F1 12 Tf 20 170 Td (Education: Tech. Info Montreal) Tj ET\n" +
+                "endstream\n" +
+                "endobj\n" +
+                "xref\n" +
+                "0 6\n" +
+                "0000000000 65535 f \n" +
+                "0000000010 00000 n \n" +
+                "0000000053 00000 n \n" +
+                "0000000100 00000 n \n" +
+                "0000000200 00000 n \n" +
+                "0000000260 00000 n \n" +
+                "trailer << /Size 6 /Root 1 0 R >>\n" +
+                "startxref\n" +
+                "330\n" +
+                "%%EOF";
+        String juzoSuzuyaCv = "%PDF-1.4\n" +
+                "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
+                "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 300] " +
+                "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n" +
+                "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
+                "5 0 obj << /Length 200 >> stream\n" +
+                "BT /F1 14 Tf 20 260 Td (Juzo Suzuya - Dev Java) Tj ET\n" +
+                "BT /F1 12 Tf 20 230 Td (Competences: Java, SQL, Git) Tj ET\n" +
+                "BT /F1 12 Tf 20 200 Td (Experience: Refonte UI, Debugging) Tj ET\n" +
+                "BT /F1 12 Tf 20 170 Td (Education: Tech. Info Montreal) Tj ET\n" +
+                "endstream\n" +
+                "endobj\n" +
+                "xref\n" +
+                "0 6\n" +
+                "0000000000 65535 f \n" +
+                "0000000010 00000 n \n" +
+                "0000000053 00000 n \n" +
+                "0000000100 00000 n \n" +
+                "0000000200 00000 n \n" +
+                "0000000260 00000 n \n" +
+                "trailer << /Size 6 /Root 1 0 R >>\n" +
+                "startxref\n" +
+                "330\n" +
+                "%%EOF";
+        String jacobFryeCv = "%PDF-1.4\n" +
+                "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
+                "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 300] " +
+                "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n" +
+                "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
+                "5 0 obj << /Length 200 >> stream\n" +
+                "BT /F1 14 Tf 20 260 Td (Jacob Frye - Dev Java) Tj ET\n" +
                 "BT /F1 12 Tf 20 230 Td (Competences: Java, SQL, Git) Tj ET\n" +
                 "BT /F1 12 Tf 20 200 Td (Experience: Refonte UI, Debugging) Tj ET\n" +
                 "BT /F1 12 Tf 20 170 Td (Education: Tech. Info Montreal) Tj ET\n" +
@@ -174,6 +252,27 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 minimalCV.getBytes()
         );
 
+        MultipartFile nicolasSarkozyFakeCv = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                nicolasSarkozyCV.getBytes()
+        );
+
+        MultipartFile juzoSuzuyaFakeCv = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                juzoSuzuyaCv.getBytes()
+        );
+
+        MultipartFile jacobFryeFakeCv = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                jacobFryeCv.getBytes()
+        );
+
         String employeurEmail = "Roger.Malinois@hotmail.com";
 
         OffreDeStageDTO devWebJr = null;
@@ -193,7 +292,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
-
+        OffreDeStageDTO techSuppInfo = null;
         CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
                 "Technicien Support Informatique",
                 "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
@@ -205,7 +304,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         );
 
         try {
-            employeurService.creerOffre(dto2, fakeOffre, employeurEmail);
+            techSuppInfo = employeurService.creerOffre(dto2, fakeOffre, employeurEmail);
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
@@ -233,8 +332,10 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         CvEtudiantDTO cvAdrien = etudiantService.televerserCv(fakeCV, "Adrien@gmail.com");
         gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
         gestionnaireService.approuverOffre(devWebJr.id());
+        gestionnaireService.approuverOffre(techSuppInfo.id());
 
         etudiantService.postuler(devWebJr.id(), emailAdrien);
+        etudiantService.postuler(techSuppInfo.id(),emailAdrien);
         cvEtudiantRepository.save(cvEtudiant);
 
         // --- Ajout de Nicolas Sarkozy (Parcours complet) ---
@@ -247,13 +348,13 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 emailNicolas,
                 "2222222",
                 Departement.INFORMATIQUE.name(),
-                "NoNeedButStillNeed",
-                "NoNeedButStillNeed"
+                "a",
+                "a"
         );
         etudiantService.creerCompteEtudiant(etudiantSarkozyDTO);
 
         // 1. CV téléversé et approuvé
-        CvEtudiantDTO cvNicolas = etudiantService.televerserCv(fakeCV, emailNicolas);
+        CvEtudiantDTO cvNicolas = etudiantService.televerserCv(nicolasSarkozyFakeCv, emailNicolas);
         gestionnaireService.approuverCurriculumVitae(cvNicolas.id());
 
         // 2. Postuler à l'offre
@@ -265,6 +366,11 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 .findFirst()
                 .orElseThrow();
 
+        OffreDeStageDTO finalTechSuppInfo = techSuppInfo;
+        Candidature candidatureAdrien = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailAdrien) && c.getOffreDeStage().getTitle().equals(finalTechSuppInfo.title())).findAny()
+                .orElseThrow();
+
         // Simuler l'authentification de l'employeur pour les actions nécessitant un contexte de sécurité
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
@@ -272,6 +378,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         // 3. Retenir pour entrevue
         employeurService.retenirCandidaturePourEntrevue(candidatureSarko.getId());
+        employeurService.retenirCandidaturePourEntrevue(candidatureAdrien.getId());
 
         // 4. Planifier l'entrevue
         CreationEntrevueDTO entDTO = new CreationEntrevueDTO(
@@ -281,12 +388,74 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 60
 
         );
+        CreationEntrevueDTO entDTOAdrien = new CreationEntrevueDTO(
+                candidatureAdrien.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(3),
+                60
+
+        );
         employeurService.creerConvocation(entDTO);
+        employeurService.creerConvocation(entDTOAdrien);
 
         // Nettoyer le contexte de sécurité après l'appel
         SecurityContextHolder.clearContext();
 
         candidatureSarko.setStatut(StatutCandidature.STAGE_TROUVE);
         candidatureRepository.save(candidatureSarko);
+
+        // --- Ajout de Juzo Suzuya (Parcours complet) ---
+        String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
+
+        InscriptionEtudiantDTO etudiantJuzoDTO = new InscriptionEtudiantDTO(
+                "Juzo",
+                "Suzuya",
+                "450-555-5585",
+                emailJuzoSuzuya,
+                "3333333",
+                Departement.INFORMATIQUE.name(),
+                "a",
+                "a"
+        );
+        etudiantService.creerCompteEtudiant(etudiantJuzoDTO);
+
+        // 1. CV téléversé et approuvé
+        CvEtudiantDTO juzoSuzuyaCvDTO = etudiantService.televerserCv(juzoSuzuyaFakeCv, emailJuzoSuzuya);
+        gestionnaireService.approuverCurriculumVitae(juzoSuzuyaCvDTO.id());
+
+        // 2. Postuler à l'offre
+        etudiantService.postuler(techSuppInfo.id(), emailJuzoSuzuya);
+
+        // Récupérer la candidature créée
+        Candidature candidatureJuzo = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailJuzoSuzuya))
+                .findFirst()
+                .orElseThrow();
+
+        // Simuler l'authentification de l'employeur pour les actions nécessitant un contexte de sécurité
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+
+        // 3. Retenir pour entrevue
+        employeurService.retenirCandidaturePourEntrevue(candidatureJuzo.getId());
+
+        // 4. Planifier l'entrevue
+        CreationEntrevueDTO entDTOJuzo = new CreationEntrevueDTO(
+                candidatureJuzo.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(3),
+                60
+
+        );
+
+        employeurService.creerConvocation(entDTOJuzo);
+
+        // Nettoyer le contexte de sécurité après l'appel
+        SecurityContextHolder.clearContext();
+
+        candidatureJuzo.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidatureRepository.save(candidatureJuzo);
+
     }
 }

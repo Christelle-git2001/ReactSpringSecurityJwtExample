@@ -3,10 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { obtenirCvPDFGestionnaire, getContratByCandidatureId } from "../../api/gestionnaire.jsx";
 import { obtenirContratPDF } from "../../api/pdf.jsx";
+import { obtenirConvocationEmployeur } from "../../api/employeur.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
 import OffreDetailsDrawerContent from "../Offer/OffreDetailsDrawerContent.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
+import {useContrat} from "../hook/useContrat.jsx";
+import {Role} from "../../enum/Role.jsx"
 
 function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, onOpenOffer }) {
     const location = useLocation();
@@ -14,20 +17,41 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
     const outletContext = useOutletContext();
     const openDrawer = outletContext?.openDrawer;
 
-    const candidature = candidatureProp || location.state?.candidature;
+    const candidatureSource = candidatureProp || location.state?.candidature;
+    const [decision, setDecision] = useState(null);
+    useEffect(() => { setDecision(null); }, [candidatureSource?.id]);
+    const candidature = decision ? { ...candidatureSource, statut: decision.statut } : candidatureSource;
     const offer = offerProp || location.state?.offer || candidature?.offre;
     const retour = location.state?.from || "/employeur";
 
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(true);
 
-    const [contrat, setContrat] = useState(null);
-    const [contratPdfBlobUrl, setContratPdfBlobUrl] = useState(null);
-    const [isContratLoading, setIsContratLoading] = useState(false);
-    const [hasContrat, setHasContrat] = useState(false);
 
     const cvId = candidature?.cvId;
     const candidatureId = candidature?.id;
+    const [statutEntrevue, setStatutEntrevue] = useState(null);
+    const [erreurEntrevue, setErreurEntrevue] = useState(false);
+
+    useEffect(() => {
+        if (!candidatureId || candidature?.statut !== "ENTREVUE_PLANIFIEE") return;
+        let actif = true;
+        setStatutEntrevue(null);
+        setErreurEntrevue(false);
+        obtenirConvocationEmployeur(candidatureId)
+            .then(entrevue => { if (actif) setStatutEntrevue(entrevue.statut); })
+            .catch(() => { if (actif) setErreurEntrevue(true); });
+        return () => { actif = false; };
+    }, [candidatureId, candidature?.statut]);
+
+    const {
+        contrat,
+        contratPdfBlobUrl,
+        hasContrat,
+        isContratLoading,
+        error,
+        rechargerContrat
+    } = useContrat(candidatureId,candidature.statut);
 
     useEffect(() => {
         let isMounted = true;
@@ -63,43 +87,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
         };
     }, [cvId]);
 
-    const chargerContratSiExiste = useCallback(async () => {
-        if (!candidatureId) return;
-        setIsContratLoading(true);
-        try {
-            let contratData = null;
 
-            try {
-                contratData = await getContratByCandidatureId(candidatureId);
-            } catch {
-                // Aucun contrat généré pour l'instant
-            }
-
-            if (contratData && contratData.id) {
-                setContrat(contratData);
-                const currentLang = i18n.language || "fr";
-                const res = await obtenirContratPDF(contratData.id, currentLang);
-                if (res && res.ok) {
-                    const blob = await res.blob();
-                    setContratPdfBlobUrl(URL.createObjectURL(blob));
-                    setHasContrat(true);
-                }
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsContratLoading(false);
-        }
-    }, [candidatureId, i18n.language]);
-
-    useEffect(() => {
-        chargerContratSiExiste();
-        return () => {
-            if (contratPdfBlobUrl) {
-                URL.revokeObjectURL(contratPdfBlobUrl);
-            }
-        };
-    }, [chargerContratSiExiste]);
 
     const getStudentName = () => {
         if (candidature?.etudiantFirstName || candidature?.etudiantLastName) {
@@ -110,6 +98,11 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
 
     return (
         <>
+            {error && (
+                <div className="bg-red-500 p-5 font-bold text-center">
+                    {error}
+                </div>
+            )}
             <div className="flex flex-col gap-1 mx-6 mt-3">
                 <h2 className="text-2xl font-bold text-[#043462]">
                     {t("candidature.details_title")}
@@ -122,15 +115,19 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} />}
+            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decision?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
+            {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
             <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction
+                    role={Role.EMPLOYEUR}
                     candidature={candidature}
+                    statutEntrevue={statutEntrevue}
                     contrat={contrat}
                     retourPath={retour}
+                    onProcessChange={setDecision}
                     onSignatureSuccess={() => {
-                        chargerContratSiExiste();
+                        rechargerContrat();
                     }}
                 />
 

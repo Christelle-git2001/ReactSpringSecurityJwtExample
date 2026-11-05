@@ -77,7 +77,8 @@ public class EtudiantController {
     public ResponseEntity<CandidatureDTO> postuler(@PathVariable Long offreId,
                                                   Authentication authentication)
             throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException,
-            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException, OffreNonAutoriseeException {
+            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException,
+            OffreNonAutoriseeException, StageDejaTrouveException {
         CandidatureDTO candidatureDTO = etudiantService.postuler(offreId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);
@@ -102,6 +103,12 @@ public class EtudiantController {
         );
     }
 
+    @PutMapping("/candidatures/{id}/stage-trouve")
+    public ResponseEntity<CandidatureDTO> declarerStageTrouve(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
+        return ResponseEntity.ok(etudiantService.declarerStageTrouve(id));
+    }
+
     @GetMapping("/convocations/{id}")
     public ResponseEntity<EntrevueDTO> getConvocation(@PathVariable Long id)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
@@ -122,5 +129,17 @@ public class EtudiantController {
                                                                  @Valid @RequestBody RefusConvocationDTO dto)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id, dto.motifRefus()));
+    }
+
+    @PutMapping("/contrats/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException,
+            OffreNonAutoriseeException,
+            EtudiantIntrouvableException {
+
+        ContratDTO contratDTO = etudiantService.signerContrat(contratId);
+
+        return ResponseEntity.ok(contratDTO);
     }
 }
