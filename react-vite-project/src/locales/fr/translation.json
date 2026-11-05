@@ -126,7 +126,8 @@
     "only_news" : "Nouveaux Seulement",
     "collapse": "Réduire",
     "expand": "Développer",
-    "create_contract": "Créer le contrat"
+    "create_contract": "Créer le contrat",
+    "postuler": "Postuler"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -350,12 +351,15 @@
     },
     "card_professeur": {
       "information_communication": "Information de communication",
-      "information_scolaire": "Information Scolaire",
+      "information_scolaire" : "Information Scolaire",
       "information_stage": "Demande de Stage",
-      "aucune_candidature": "Recherche de stage en cours...",
+      "aucune_candidature" : "Recherche de stage en cours...",
       "employeur": "Employeur",
-      "poste": "Poste",
-      "voir_detail": "Voir les détails"
+      "poste" : "Poste",
+      "voir_detail" : "Voir les détails"
+    },
+    "contrat_detail": {
+      "title": "Détails du contrat"
     },
     "listCvSubtitle": "Vos curriculum vitae",
     "noCVUpload": "Aucun Curriculum Vitae téléversé.",
@@ -395,10 +399,9 @@
         "anotherProfessor": "Cliquez pour choisir un autre enseignant",
         "warningAnotherProfessor": "Modifier le professeur ? Cela effacera les étudiants sélectionnés.",
         "student": "Veuillez sélectionner les étudiants à assigner à : {{prenom}} {{nom}}",
-        "finishToSelect": "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",
-        "studentList": {
-          "title": "Étudiants Sélectionnés",
-          "empty": "Aucun étudiant sélectionné"
+        "finishToSelect" : "Vous avez terminé de sélectionner les étudiants ? Appuyez sur le bouton \"Assigner\" de la liste d'étudiants sélectionnés.",        "studentList" : {
+          "title" : "Étudiants Sélectionnés",
+          "empty" : "Aucun étudiant sélectionné"
         }
       },
       "etudiant": {
@@ -534,9 +537,8 @@
       "contrat": "Contrat",
       "stage_trouve": "Stage trouvé",
       "soumise": "Candidature soumise",
-      "retenue_pour_entrevue": "Retenue pour entrevue",
+      "retenue_pour_entrevue" : "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
-      "retenue_pour_entrevue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
       "entrevue_planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
@@ -572,6 +574,10 @@
     "oldest_first": "Plus anciennes d’abord"
   },
   "notification": {
+    "nouveau_contrat": {
+      "title": "Nouveau contrat à signer",
+      "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
+    },
     "employeur": {
       "stageTrouve": {
         "title": "Stage choisi par l'étudiant",
@@ -625,7 +631,7 @@
       },
       "assignation": {
         "title": "Un professeur vous a été assigné",
-        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur."
+        "description": "{{PROFESSEUR_NOM}} vous a été assigné comme professeur tuteur"
       }
     },
     "teacher": {
@@ -647,6 +653,8 @@
     "replace": "Remplacer le document",
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
+  "contrat" : {
+    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage."  },
   "entrevue": {
     "accept": "Accepter",
     "reject": "Refuser",
@@ -761,8 +769,8 @@
     "refusal_reason_too_long": "Le motif ne doit pas dépasser 500 caractères.",
     "refused_message": "Vous avez refusé cette convocation.",
     "refused_by_student": "L'étudiant a refusé cette convocation.",
-    "accept": "Accepter",
-    "back": "Retour",
+    "accept" : "Accepter",
+    "back" : "Retour",
     "scheduled": "Entrevue planifiée",
     "confirmed": "Confirmée",
     "attendance_confirmed": "Votre présence à cette entrevue est confirmée.",
@@ -785,5 +793,19 @@
     "reason": "Motif du refus",
     "placeholder": "Veuillez entrer le motif du refus...",
     "required": "Veuillez préciser le motif du refus."
+  },
+  "general": {
+    "nom" : "Nom",
+    "departement" : "Département",
+    "matricule": "Matricule",
+    "email" : "Courriel",
+    "phone" : "Numéro de téléphone",
+    "town" : "Ville",
+    "liste" : {
+      "open" : "Ouvrir la liste",
+      "close" : "Fermer la liste",
+      "title" : "Liste",
+      "empty" : "La liste est vide"
+    }
   }
 }

@@ -14,6 +14,7 @@ import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
@@ -77,6 +80,8 @@ public class EtudiantServiceTest {
 
     @Mock
     private EntrevueRepository entrevueRepository;
+
+    @Mock ContratRepository contratRepository;
 
     @TempDir
     Path dossierCvTest;
@@ -933,7 +938,6 @@ public class EtudiantServiceTest {
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).id()).isEqualTo(entrevue.getId());
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
-
     }
 
     @Test
@@ -1151,6 +1155,98 @@ public class EtudiantServiceTest {
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
         verify(entrevueRepository).save(entrevue);
     }
+
+    @Test
+    void doitSignerContratAvecSucces() throws Exception {
+        Long contratId = 1L;
+
+        Gestionnaire gestionnaire = new Gestionnaire(
+                1L,
+                "Laurent",
+                "Losange",
+                "Laurent.Losange@hotmail.com",
+                "5858",
+                "458-458-4584"
+        );
+
+        gestionnaire.setId(1L);
+
+        Candidature candidature = Candidature.builder()
+                .etudiant(etudiant)
+                .offreDeStage(new OffreDeStage())
+                .build();
+
+        candidature.setId(1L);
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+
+        contrat.setId(contratId);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+
+        when(contratRepository.save(any(Contrat.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ContratDTO result = etudiantService.signerContrat(contratId);
+
+        assertThat(result).isNotNull();
+        assertThat(contrat.getDateSignatureEtudiant()).isEqualTo(LocalDate.now());
+
+        verify(etudiantRepository).findByCredentialsEmail(etudiant.getEmail());
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository).save(contrat);
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourSignatureContrat() {
+        Long contratId = 1L;
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.signerContrat(contratId))
+                .isInstanceOf(EtudiantIntrouvableException.class);
+
+        verify(contratRepository, never()).findById(anyLong());
+        verify(contratRepository, never()).save(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiContratIntrouvablePourSignature() {
+        Long contratId = 99L;
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.signerContrat(contratId))
+                .isInstanceOf(ContratIntrouvableException.class);
+
+        verify(contratRepository).findById(contratId);
+        verify(contratRepository, never()).save(any());
+    }
+
 
     @Test
     void doitRevenirEnRechercheApresLaDecision() {

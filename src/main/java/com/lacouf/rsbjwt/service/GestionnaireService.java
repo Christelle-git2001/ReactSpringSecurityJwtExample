@@ -389,7 +389,13 @@ public class GestionnaireService {
             throw new StatutCandidatureInvalideException();
         }
 
-        return ContratDTO.of(contratRepository.save(contrat));
+        Contrat contratEnregistre = contratRepository.save(contrat);
+
+        applicationEventPublisher.publishEvent(
+                new NouveauContratCreeEvent(contratEnregistre)
+        );
+
+        return ContratDTO.of(contratEnregistre);
     }
 
     public List<CandidatureDTO> getDecisionsCandidatures() throws UtilisateurIntrouvableException {
@@ -433,5 +439,17 @@ public class GestionnaireService {
         Entrevue entrevue = entrevueRepository.findByCandidatureId(candidatureId)
                 .orElseThrow(() -> new EntrevueIntrouvableException());
         return EntrevueDTO.of(entrevue);
+    }
+
+    @Transactional
+    public ContratDTO signerContrat(Long contratId) throws ContratIntrouvableException{
+        Contrat contrat = contratRepository.findById(contratId)
+                .orElseThrow(ContratIntrouvableException::new);
+
+        contrat.setDateSignatureGestionnaire(LocalDate.now());
+
+        Contrat saved = contratRepository.save(contrat);
+
+        return ContratDTO.of(saved);
     }
 }

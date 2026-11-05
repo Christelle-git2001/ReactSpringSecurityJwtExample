@@ -130,4 +130,16 @@ public class EtudiantController {
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id, dto.motifRefus()));
     }
+
+    @PutMapping("/contrats/{contratId}/signature")
+    public ResponseEntity<ContratDTO> signerContrat(
+            @PathVariable Long contratId)
+            throws ContratIntrouvableException,
+            OffreNonAutoriseeException,
+            EtudiantIntrouvableException {
+
+        ContratDTO contratDTO = etudiantService.signerContrat(contratId);
+
+        return ResponseEntity.ok(contratDTO);
+    }
 }

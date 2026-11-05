@@ -23,7 +23,7 @@ const ROLE_CONFIG = {
         Icon: HiXCircle
     },
     annulation: {
-        style: "border-gray-200 bg-gray-200 text-gray-700 enabled:hover:bg-gray-300 focus-visible:outline-gray-400",
+        style: "border-slate-500 bg-slate-300 text-gray-700 enabled:hover:bg-gray-300 focus-visible:outline-gray-400",
         Icon: HiArrowSmLeft
     },
     televerser: {

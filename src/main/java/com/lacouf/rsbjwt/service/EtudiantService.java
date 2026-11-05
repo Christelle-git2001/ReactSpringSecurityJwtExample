@@ -17,6 +17,7 @@ import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,12 +47,13 @@ public class EtudiantService {
     private final ApplicationEventPublisher eventPublisher;
     private final CandidatureRepository candidatureRepository;
     private final EntrevueRepository entrevueRepository;
+    private final ContratRepository contratRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
                            NotificationRepository notificationRepository, CandidatureRepository candidatureRepository,
-                           EntrevueRepository entrevueRepository) {
+                           EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -60,6 +62,7 @@ public class EtudiantService {
         this.eventPublisher = eventPublisher;
         this.candidatureRepository = candidatureRepository;
         this.entrevueRepository = entrevueRepository;
+        this.contratRepository = contratRepository;
     }
 
     @Transactional
@@ -426,5 +429,32 @@ public class EtudiantService {
             etudiant.setStatut(statut);
             etudiantRepository.save(etudiant);
         }
+    }
+
+    @Transactional
+    public ContratDTO signerContrat(Long contratId)
+            throws ContratIntrouvableException,
+            OffreNonAutoriseeException,
+            EtudiantIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Etudiant etudiant = etudiantRepository.findByCredentialsEmail(email)
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        Contrat contrat = contratRepository.findById(contratId)
+                .orElseThrow(ContratIntrouvableException::new);
+
+        Candidature candidature = contrat.getCandidature();
+
+        if (!candidature.getEtudiant().getId().equals(etudiant.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        contrat.setDateSignatureEtudiant(LocalDate.now());
+
+        return ContratDTO.of(contratRepository.save(contrat));
     }
 }

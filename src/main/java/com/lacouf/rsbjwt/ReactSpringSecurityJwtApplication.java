@@ -138,6 +138,31 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 "startxref\n" +
                 "330\n" +
                 "%%EOF";
+        String nicolasSarkozyCV = "%PDF-1.4\n" +
+                "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
+                "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n" +
+                "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 300 300] " +
+                "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj\n" +
+                "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n" +
+                "5 0 obj << /Length 200 >> stream\n" +
+                "BT /F1 14 Tf 20 260 Td (Nicolas Sarkozy - Dev Java) Tj ET\n" +
+                "BT /F1 12 Tf 20 230 Td (Competences: Java, SQL, Git) Tj ET\n" +
+                "BT /F1 12 Tf 20 200 Td (Experience: Refonte UI, Debugging) Tj ET\n" +
+                "BT /F1 12 Tf 20 170 Td (Education: Tech. Info Montreal) Tj ET\n" +
+                "endstream\n" +
+                "endobj\n" +
+                "xref\n" +
+                "0 6\n" +
+                "0000000000 65535 f \n" +
+                "0000000010 00000 n \n" +
+                "0000000053 00000 n \n" +
+                "0000000100 00000 n \n" +
+                "0000000200 00000 n \n" +
+                "0000000260 00000 n \n" +
+                "trailer << /Size 6 /Root 1 0 R >>\n" +
+                "startxref\n" +
+                "330\n" +
+                "%%EOF";
 
         String minimalOffre = "%PDF-1.4\n" +
                 "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n" +
@@ -179,6 +204,13 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 minimalCV.getBytes()
         );
 
+        MultipartFile nicolasSarkozyFakeCv = new MockMultipartFile(
+                "file",
+                "cv.pdf",
+                "application/pdf",
+                nicolasSarkozyCV.getBytes()
+        );
+
         String employeurEmail = "Roger.Malinois@hotmail.com";
 
         OffreDeStageDTO devWebJr = null;
@@ -198,7 +230,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
-
+        OffreDeStageDTO techSuppInfo = null;
         CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
                 "Technicien Support Informatique",
                 "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
@@ -210,7 +242,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         );
 
         try {
-            employeurService.creerOffre(dto2, fakeOffre, employeurEmail);
+            techSuppInfo = employeurService.creerOffre(dto2, fakeOffre, employeurEmail);
         } catch (DateFinAffichageApresDateDebutException e) {
             System.out.println(e.getMessage());
         }
@@ -238,25 +270,10 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         CvEtudiantDTO cvAdrien = etudiantService.televerserCv(fakeCV, "Adrien@gmail.com");
         gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
         gestionnaireService.approuverOffre(devWebJr.id());
+        gestionnaireService.approuverOffre(techSuppInfo.id());
 
-        CandidatureDTO candidatureAdrienDTO = etudiantService.postuler(devWebJr.id(), emailAdrien);
-        Candidature candidatureAdrien = candidatureRepository.findById(candidatureAdrienDTO.id()).orElseThrow();
-        candidatureAdrien.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
-        candidatureRepository.save(candidatureAdrien);
-
-        LocalDateTime dateEntrevueAdrien = LocalDate.now().minusDays(1).atTime(10, 0);
-        Entrevue entrevueAdrien = Entrevue.builder()
-                .candidature(candidatureAdrien)
-                .format(FormatEntrevue.EN_LIGNE)
-                .dateHeureEntrevue(dateEntrevueAdrien)
-                .duree(30)
-                .dateCreation(dateEntrevueAdrien.minusDays(2))
-                .build();
-        entrevueAdrien.setStatut(StatutEntrevue.CONFIRMEE);
-        entrevueAdrien.setDateConfirmation(dateEntrevueAdrien.minusDays(1));
-        entrevueAdrien.setDateReponse(dateEntrevueAdrien.minusDays(1));
-        entrevueRepository.save(entrevueAdrien);
-        etudiantService.actualiserStatutEtudiant(candidatureAdrien.getEtudiant());
+        etudiantService.postuler(devWebJr.id(), emailAdrien);
+        etudiantService.postuler(techSuppInfo.id(),emailAdrien);
         cvEtudiantRepository.save(cvEtudiant);
 
         // --- Ajout de Nicolas Sarkozy (Parcours complet) ---
@@ -269,13 +286,13 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 emailNicolas,
                 "2222222",
                 Departement.INFORMATIQUE.name(),
-                "NoNeedButStillNeed",
-                "NoNeedButStillNeed"
+                "a",
+                "a"
         );
         etudiantService.creerCompteEtudiant(etudiantSarkozyDTO);
 
         // 1. CV téléversé et approuvé
-        CvEtudiantDTO cvNicolas = etudiantService.televerserCv(fakeCV, emailNicolas);
+        CvEtudiantDTO cvNicolas = etudiantService.televerserCv(nicolasSarkozyFakeCv, emailNicolas);
         gestionnaireService.approuverCurriculumVitae(cvNicolas.id());
 
         // 2. Postuler à l'offre
@@ -287,6 +304,11 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 .findFirst()
                 .orElseThrow();
 
+        OffreDeStageDTO finalTechSuppInfo = techSuppInfo;
+        Candidature candidatureAdrien = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailAdrien) && c.getOffreDeStage().getTitle().equals(finalTechSuppInfo.title())).findAny()
+                .orElseThrow();
+
         // Simuler l'authentification de l'employeur pour les actions nécessitant un contexte de sécurité
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
@@ -294,6 +316,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         // 3. Retenir pour entrevue
         employeurService.retenirCandidaturePourEntrevue(candidatureSarko.getId());
+        employeurService.retenirCandidaturePourEntrevue(candidatureAdrien.getId());
 
         // 4. Planifier l'entrevue
         CreationEntrevueDTO entDTO = new CreationEntrevueDTO(
@@ -303,7 +326,15 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
                 60
 
         );
+        CreationEntrevueDTO entDTOAdrien = new CreationEntrevueDTO(
+                candidatureAdrien.getId(),
+                FormatEntrevue.EN_LIGNE,
+                LocalDateTime.now().plusDays(3),
+                60
+
+        );
         employeurService.creerConvocation(entDTO);
+        employeurService.creerConvocation(entDTOAdrien);
 
         // Nettoyer le contexte de sécurité après l'appel
         SecurityContextHolder.clearContext();

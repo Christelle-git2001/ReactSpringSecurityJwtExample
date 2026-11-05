@@ -8,6 +8,8 @@ import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
 import OffreDetailsDrawerContent from "../Offer/OffreDetailsDrawerContent.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
+import {useContrat} from "../hook/useContrat.jsx";
+import {Role} from "../../enum/Role.jsx"
 
 function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, onOpenOffer }) {
     const location = useLocation();
@@ -22,10 +24,6 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(true);
 
-    const [contrat, setContrat] = useState(null);
-    const [contratPdfBlobUrl, setContratPdfBlobUrl] = useState(null);
-    const [isContratLoading, setIsContratLoading] = useState(false);
-    const [hasContrat, setHasContrat] = useState(false);
 
     const cvId = candidature?.cvId;
     const candidatureId = candidature?.id;
@@ -42,6 +40,15 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
             .catch(() => { if (actif) setErreurEntrevue(true); });
         return () => { actif = false; };
     }, [candidatureId, candidature?.statut]);
+
+    const {
+        contrat,
+        contratPdfBlobUrl,
+        hasContrat,
+        isContratLoading,
+        error,
+        rechargerContrat
+    } = useContrat(candidatureId,candidature.statut);
 
     useEffect(() => {
         let isMounted = true;
@@ -77,43 +84,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
         };
     }, [cvId]);
 
-    const chargerContratSiExiste = useCallback(async () => {
-        if (!candidatureId) return;
-        setIsContratLoading(true);
-        try {
-            let contratData = null;
 
-            try {
-                contratData = await getContratByCandidatureId(candidatureId);
-            } catch {
-                // Aucun contrat généré pour l'instant
-            }
-
-            if (contratData && contratData.id) {
-                setContrat(contratData);
-                const currentLang = i18n.language || "fr";
-                const res = await obtenirContratPDF(contratData.id, currentLang);
-                if (res && res.ok) {
-                    const blob = await res.blob();
-                    setContratPdfBlobUrl(URL.createObjectURL(blob));
-                    setHasContrat(true);
-                }
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsContratLoading(false);
-        }
-    }, [candidatureId, i18n.language]);
-
-    useEffect(() => {
-        chargerContratSiExiste();
-        return () => {
-            if (contratPdfBlobUrl) {
-                URL.revokeObjectURL(contratPdfBlobUrl);
-            }
-        };
-    }, [chargerContratSiExiste]);
 
     const getStudentName = () => {
         if (candidature?.etudiantFirstName || candidature?.etudiantLastName) {
@@ -124,6 +95,11 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
 
     return (
         <>
+            {error && (
+                <div className="bg-red-500 p-5 font-bold text-center">
+                    {error}
+                </div>
+            )}
             <div className="flex flex-col gap-1 mx-6 mt-3">
                 <h2 className="text-2xl font-bold text-[#043462]">
                     {t("candidature.details_title")}
@@ -141,12 +117,13 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
 
             <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction
+                    role={Role.EMPLOYEUR}
                     candidature={candidature}
                     statutEntrevue={statutEntrevue}
                     contrat={contrat}
                     retourPath={retour}
                     onSignatureSuccess={() => {
-                        chargerContratSiExiste();
+                        rechargerContrat();
                     }}
                 />
 

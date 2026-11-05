@@ -384,10 +384,13 @@ function EtudiantCandidatures() {
                 <Modal
                     title={t("convocation.confirm_refusal")}
                     description={t("convocation.refusal_confirmation")}
-                    agreeLabel={t("convocation.confirm_refusal")}
-                    onClickCancel={() => setConfirmRefusId(null)}
                     onClickCross={() => setConfirmRefusId(null)}
-                    onClickAgree={confirmerRefus}
+                    button={
+                        <>
+                            <Button role="annulation" icon={true} type="button" onClick={() => setConfirmRefusId(null)} className="w-50">{t("actions.cancel")}</Button>
+                            <Button role="refus" icon={false} type="button" onClick={confirmerRefus}  className="w-1/2">{t("convocation.confirm_refusal")}</Button>
+                        </>
+                    }
                 />
             )}
         </div>

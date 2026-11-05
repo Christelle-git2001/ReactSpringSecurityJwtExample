@@ -35,6 +35,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -670,4 +671,33 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.candidatureId").value(1L));
     }
+
+    @Test
+    void doitSignerUnContrat() throws Exception {
+        ContratDTO contratDTO = new ContratDTO(
+                1L,
+                10L,
+                20L,
+                LocalDate.now(),
+                null,
+                null
+        );
+
+        when(gestionnaireService.signerContrat(1L))
+                .thenReturn(contratDTO);
+
+        mockMvc.perform(put("/gestionnaire/contrats/1/signature"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.candidatureId").value(10))
+                .andExpect(jsonPath("$.gestionnaireId").value(20))
+                .andExpect(jsonPath("$.dateSignatureGestionnaire")
+                        .value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.dateSignatureEmployeur").doesNotExist())
+                .andExpect(jsonPath("$.dateSignatureEtudiant").doesNotExist());
+
+        verify(gestionnaireService).signerContrat(1L);
+    }
+
+
 }

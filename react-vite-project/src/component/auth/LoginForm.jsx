@@ -11,6 +11,7 @@ import ConnexionRapideStudent from "../../config/ConnexionRapideStudent.jsx";
 import ConnexionRapideEmployeur from "../../config/ConnexionRapideEmployeur.jsx";
 import ConnexionRapideStudentAdrien from "../../config/ConnexionRapideStudentAdrien.jsx";
 import ConnexionRapideToru from "../../config/ConnexionRapideToru.jsx";
+import ConnexionRapideStudentNicolas from "../../config/ConnexionRapideStudentNicolas.jsx";
 
 const LoginForm = ({ user, setError }) => {
     const navigate = useNavigate();
@@ -339,6 +340,7 @@ const LoginForm = ({ user, setError }) => {
                             <div className="col-span-3 flex flex-col">
                                 <ConnexionRapideStudent/>
                                 <ConnexionRapideStudentAdrien/>
+                                <ConnexionRapideStudentNicolas/>
                             </div>
                             <div className="col-span-3">
                                 <ConnexionRapideToru/>

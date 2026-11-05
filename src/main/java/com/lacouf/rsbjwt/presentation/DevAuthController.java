@@ -107,6 +107,28 @@ public class DevAuthController {
         return ResponseEntity.ok(token);
     }
 
+    @PostMapping("/login/etudiant3")
+    public ResponseEntity<String> devLoginEtudiant3() throws Exception {
+        Etudiant etudiant = etudiantRepository.findByMatricule("2222222")
+                .stream()
+                .findFirst()
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        etudiant.setPreviousLoginAt(etudiant.getLastLoginAt());
+        etudiant.setLastLoginAt(LocalDateTime.now());
+        etudiantRepository.save(etudiant);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                etudiant.getEmail(),
+                null,
+                etudiant.getAuthorities()
+        );
+
+        String token = jwtTokenProvider.generateToken(auth);
+
+        return ResponseEntity.ok(token);
+    }
+
     @PostMapping("/login/employeur")
     public ResponseEntity<String> devLoginEmployeur() throws Exception {
         Employeur employeur = employeurRepository.findAll()

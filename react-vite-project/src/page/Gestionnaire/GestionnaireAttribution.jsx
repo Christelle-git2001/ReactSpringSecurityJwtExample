@@ -312,9 +312,13 @@ const GestionnaireAttribution = () => {
                 <Modal
                     title={t("gestionnaire.assignation.professeur.professeur_modal_title")}
                     description={t("gestionnaire.assignation.professeur.professeur_modal_description")}
-                    onClickCancel={handleCancelModal}
-                    onClickAgree={handleAgreeModal}
                     onClickCross={handleCancelModal}
+                    button={
+                        <>
+                            <Button role="annulation" icon={true} type="button" onClick={handleCancelModal} className="w-50">{t("actions.cancel")}</Button>
+                            <Button role="approbation" icon={true} type="button" onClick={handleAgreeModal}  className="w-1/2">{t("actions.approve")}</Button>
+                        </>
+                    }
                 />
             )}
         </div>
