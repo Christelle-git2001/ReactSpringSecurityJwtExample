@@ -1,12 +1,13 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import CandidatureDetails from '../../component/Candidature/CandidatureDetails.jsx';
 import CandidatureTimeline from '../../component/Candidature/CandidatureTimeline.jsx';
-import { obtenirConvocationEmployeur } from '../../api/employeur.jsx';
+import { accepterCandidat, obtenirConvocationEmployeur } from '../../api/employeur.jsx';
 
 jest.mock('../../api/employeur.jsx', () => ({
     obtenirConvocationEmployeur: jest.fn(),
+    accepterCandidat: jest.fn(),
 }));
 
 beforeAll(() => {
@@ -58,7 +59,7 @@ describe('Composant CandidatureDetails', () => {
 
     it('devrait afficher les détails de la candidature et charger le PDF', async () => {
         render(
-            <MemoryRouter>
+            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <CandidatureDetails candidature={mockCandidature} />
             </MemoryRouter>
         );
@@ -98,6 +99,7 @@ describe('Composant CandidatureDetails', () => {
 
     it('propose la decision employeur quand lentrevue est terminee', async () => {
         obtenirConvocationEmployeur.mockResolvedValue({ id: 50, statut: 'TERMINEE' });
+        accepterCandidat.mockResolvedValue({});
         render(
             <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <CandidatureDetails candidature={{ ...mockCandidature, statut: 'ENTREVUE_PLANIFIEE' }} />
@@ -105,7 +107,14 @@ describe('Composant CandidatureDetails', () => {
         );
 
         await waitFor(() => expect(screen.getByText('candidature.interview_states.TERMINEE')).toHaveClass('text-white'));
-        expect(screen.getByRole('button', { name: /actions.manage_status/ })).toBeInTheDocument();
+        const accepter = screen.getByRole('button', { name: 'actions.accept_candidate' });
+        expect(accepter).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'actions.reject_candidate' })).toBeEnabled();
+
+        fireEvent.click(accepter);
+        await waitFor(() => expect(accepterCandidat).toHaveBeenCalledWith(50));
+        await waitFor(() => expect(screen.getByText('candidature.status.acceptee')).toHaveClass('font-bold'));
+        expect(screen.queryByRole('button', { name: 'actions.accept_candidate' })).not.toBeInTheDocument();
     });
 
     it('active la confirmation apres la reponse et la conserve apres la fin de lentrevue', () => {
