@@ -3,7 +3,8 @@ import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import Button from "../Design/Button.jsx";
 
-const Modal = ({onClickCross,title,description,button,children}) => {    const { t } = useTranslation();
+const Modal = ({onClickCross,title,description,button}) => {
+    const { t } = useTranslation();
     const [error, setError] = useState("");
     return (
         <dialog className="modal modal-open">
@@ -20,7 +21,6 @@ const Modal = ({onClickCross,title,description,button,children}) => {    const {
                     </button>
                 </div>
                 <p className="text-center">{description}</p>
-                {children}
 
                 <div className="modal-action">
                     {error && (

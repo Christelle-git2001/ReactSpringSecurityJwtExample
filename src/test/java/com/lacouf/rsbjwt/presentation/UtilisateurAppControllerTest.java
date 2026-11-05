@@ -1,7 +1,5 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.auth.Role;
@@ -108,7 +106,6 @@ public class UtilisateurAppControllerTest {
                 "554-858-6958",
                 Departement.INFORMATIQUE.name(),
                 LocalDateTime.now(),
-                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean"
         );

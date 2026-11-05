@@ -33,9 +33,6 @@ public class Candidature {
     @Column(nullable = false)
     private StatutCandidature statut = StatutCandidature.SOUMISE;
 
-    @Column(length = 1000)
-    private String motifRefus;
-
     @Builder
     public Candidature(Etudiant etudiant, OffreDeStage offreDeStage) {
         this.etudiant = etudiant;

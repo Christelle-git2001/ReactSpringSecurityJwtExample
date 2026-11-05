@@ -4,6 +4,8 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
+import { FiStar } from "react-icons/fi";
+import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import Button from "../../Design/Button.jsx"
 import {useNavigate} from "react-router-dom";
 
@@ -11,6 +13,8 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, ca
     const navigate = useNavigate();
     const { t } = useTranslation();
     const statutCandidature = candidature?.statut;
+    const isTargeted = Boolean(offer?.isTarget);
+    const status = getStatusConfig(statutCandidature, t, "candidature");
 
     const offre = [
         { label: t("offre.employeur"), value: offer?.employeur?.businessName },
@@ -29,6 +33,7 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, ca
         fileNameFallback: offer?.fileName || `offre_${offer?.id}.pdf`,
     });
 
+    const targetedLabelText = t("offre.targeted", "Ciblée");
 
     return (
         <>
@@ -36,9 +41,26 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, ca
                 if (!event.target.closest("button, summary")) onRead?.(offer?.id);
             }} className="card relative w-full max-w-sm bg-base-100 gap-6 shadow-sm bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
 
+                {isTargeted && (
+                    <div className="absolute top-3 right-3 z-10">
+                        <span
+                            title={targetedLabelText}
+                            className="badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1"
+                        >
+                            <FiStar className="size-3 text-amber-600 fill-amber-500" />
+                            <span>{targetedLabelText}</span>
+                        </span>
+                    </div>
+                )}
+
                 <div className="card-body">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-col gap-2">
+                            {hasApplied && statutCandidature && !["SOUMISE", "RETENUE_POUR_ENTREVUE"].includes(statutCandidature) && (
+                                <span className={`badge badge-xs h-auto self-start rounded-full px-2 py-1 ${status.className}`}>
+                                    {status.label}
+                                </span>
+                            )}
                             <PdfActionButtons
                                 onView={async () => {
                                     const url = await obtenirCVUrlPDF();
