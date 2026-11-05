@@ -470,7 +470,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         etudiantService.creerCompteEtudiant(etudiantJacobDTO);
 
         // 1. CV téléversé et approuvé
-        CvEtudiantDTO jacobFryeCvDTO = etudiantService.televerserCv(juzoSuzuyaFakeCv, emailJacobFrye);
+        CvEtudiantDTO jacobFryeCvDTO = etudiantService.televerserCv(jacobFryeFakeCv, emailJacobFrye);
         gestionnaireService.approuverCurriculumVitae(jacobFryeCvDTO.id());
 
         // 2. Postuler à l'offre
@@ -492,13 +492,13 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         // 4. Planifier l'entrevue
         CreationEntrevueDTO entDTOJacob = new CreationEntrevueDTO(
-                candidatureJuzo.getId(),
+                candidatureJacob.getId(),
                 FormatEntrevue.EN_LIGNE,
                 LocalDateTime.now().minusDays(3),
                 60
 
         );
         SecurityContextHolder.clearContext();
-        employeurService.creerConvocation(entDTOJuzo);
+        employeurService.creerConvocation(entDTOJacob);
     }
 }
