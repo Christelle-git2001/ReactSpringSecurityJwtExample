@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import { useNavigate, useSearchParams} from "react-router-dom";
 import {getEtudiants} from "../../api/professeur.jsx";
@@ -40,26 +40,42 @@ const ProfesseurHome = ({user}) => {
 
     const fetchNouveauxEtudiants = useCallback(async (etudiants) => {
         if (!user?.id || etudiants.length === 0) return;
-
         try {
             const notification = await getNotifications(user.id);
             if (!Array.isArray(notification)) return;
             const notificationsFiltree = notification.filter((n) => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT" && !n.estLu)
-            setNotificationProfesseurEtudiant(notificationsFiltree);
-            const etudiantIds = notificationsFiltree
-                .flatMap((n) => {
-                    const rawIds = n.variables?.ETUDIANT_IDS;
-                    if (!rawIds) return [];
-                    return rawIds.split(',').map((id) => Number(id.trim()));
-                });
+            if (notificationsFiltree.length > 0) {
+                setNotificationProfesseurEtudiant(notificationsFiltree);
+                const etudiantIds = notificationsFiltree
+                    .flatMap((n) => {
+                        const rawIds = n.variables?.ETUDIANT_IDS;
+                        if (!rawIds) return [];
+                        return rawIds.split(',').map((id) => Number(id.trim()));
+                    });
 
-            const uniqueIds = [...new Set(etudiantIds)];
-            const nouveaux = etudiants.filter((e) => uniqueIds.includes(Number(e.id)));
-            setNouveauxEtudiantACharge(nouveaux);
+                const uniqueIds = [...new Set(etudiantIds)];
+                const nouveaux = etudiants.filter((e) => uniqueIds.includes(Number(e.id)));
+                setNouveauxEtudiantACharge(nouveaux);
+
+                await Promise.all(
+                    notificationsFiltree.map((n) => marquerNotificationLue(n.id))
+                );
+            }
         } catch (e) {
             setError(t("generic.error"));
         }
     }, [user?.id, t]);
+
+    const supprimeNotificationLorsDuDemontage = async  () => {
+        setNotificationProfesseurEtudiant((currentNotifs) => {
+            if (currentNotifs && currentNotifs.length > 0) {
+                Promise.all(
+                    currentNotifs.map((n) => marquerNotificationLue(n.id))
+                ).catch((err) => console.error("Erreur lors du marquage des notifications", err));
+            }
+            return [];
+        });
+    };
 
     const filtreActif = (event) => {
         setFiltreValue(event)
@@ -82,8 +98,12 @@ const ProfesseurHome = ({user}) => {
         if (listeEtudiantACharge.length > 0) {
             fetchNouveauxEtudiants(listeEtudiantACharge);
         }
-    }, [listeEtudiantACharge, fetchNouveauxEtudiants]);
 
+        return () => {
+            supprimeNotificationLorsDuDemontage();
+        };
+
+    }, [listeEtudiantACharge, fetchNouveauxEtudiants]);
     useEffect(() => {
         const filterParam = searchParams.get("filter");
         if (filterParam === "new") {
