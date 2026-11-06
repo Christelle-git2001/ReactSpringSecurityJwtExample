@@ -105,7 +105,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         employeurService.creeCompteEmployeur(employeurDTO);
 
         InscriptionProfesseurDTO inscriptionProfesseurDTO = new InscriptionProfesseurDTO("Toru","Shirazu","Toru.Shirazu@claurendeau.qc.ca","NoNeed","NoNeed","9325645","698-585-6666",Departement.INFORMATIQUE.name());
-        InscriptionProfesseurDTO inscriptionProfesseurDTO2 = new InscriptionProfesseurDTO("Evie","Frye","Evie.Frye@claurendeau.qc.ca","NoNeed","NoNeed","5486598","698-585-6266",Departement.TRAVAIL_SOCIAL.name());
+        InscriptionProfesseurDTO inscriptionProfesseurDTO2 = new InscriptionProfesseurDTO("Evie","Frye","Evie.Frye@claurendeau.qc.ca ","NoNeed","NoNeed","5486598","698-585-6266",Departement.TRAVAIL_SOCIAL.name());
 
         professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
         professeurService.creerCompteProfesseur(inscriptionProfesseurDTO2);
