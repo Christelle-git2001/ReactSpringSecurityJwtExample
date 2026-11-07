@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import { useNavigate, useSearchParams} from "react-router-dom";
 import {getEtudiants} from "../../api/professeur.jsx";
@@ -7,10 +7,12 @@ import EtudiantListItem from "../../component/Design/Lists/EtudiantListItem.jsx"
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import {getNotifications, marquerNotificationLue} from "../../api/notification.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
+import {useNotificationTrigger} from "../../component/Notification/UtilNotification.jsx";
 
 const ProfesseurHome = ({user}) => {
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const triggerRefresh = useNotificationTrigger((state) => state.triggerRefresh);
     const { t, i18n } = useTranslation();
     const [isInitialLoading,setIsInitialLoading] = useState(false);
     const [listeEtudiantACharge, setListeEtudiantACharge] = useState([]);
@@ -19,6 +21,8 @@ const ProfesseurHome = ({user}) => {
     const [onlyNew, setOnlyNew] = useState(false);
     const [searchParams] = useSearchParams();
     const [notificationProfesseurEtudiant, setNotificationProfesseurEtudiant] = useState([])
+    const notifsRef = useRef(notificationProfesseurEtudiant);
+
 
 
     const initListeEtudiant = useCallback(async () => {
@@ -40,26 +44,42 @@ const ProfesseurHome = ({user}) => {
 
     const fetchNouveauxEtudiants = useCallback(async (etudiants) => {
         if (!user?.id || etudiants.length === 0) return;
-
         try {
             const notification = await getNotifications(user.id);
             if (!Array.isArray(notification)) return;
             const notificationsFiltree = notification.filter((n) => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT" && !n.estLu)
-            setNotificationProfesseurEtudiant(notificationsFiltree);
-            const etudiantIds = notificationsFiltree
-                .flatMap((n) => {
-                    const rawIds = n.variables?.ETUDIANT_IDS;
-                    if (!rawIds) return [];
-                    return rawIds.split(',').map((id) => Number(id.trim()));
-                });
+            if (notificationsFiltree.length > 0) {
+                setNotificationProfesseurEtudiant(notificationsFiltree);
+                const etudiantIds = notificationsFiltree
+                    .flatMap((n) => {
+                        const rawIds = n.variables?.ETUDIANT_IDS;
+                        if (!rawIds) return [];
+                        return rawIds.split(',').map((id) => Number(id.trim()));
+                    });
 
-            const uniqueIds = [...new Set(etudiantIds)];
-            const nouveaux = etudiants.filter((e) => uniqueIds.includes(Number(e.id)));
-            setNouveauxEtudiantACharge(nouveaux);
+                const uniqueIds = [...new Set(etudiantIds)];
+                const nouveaux = etudiants.filter((e) => uniqueIds.includes(Number(e.id)));
+                setNouveauxEtudiantACharge(nouveaux);
+            }
         } catch (e) {
             setError(t("generic.error"));
         }
     }, [user?.id, t]);
+
+    const supprimeNotificationLorsDuDemontage = async () => {
+        const currentNotifs = notifsRef.current;
+        if (currentNotifs && currentNotifs.length > 0) {
+            console.log(currentNotifs.length, " notifications à marquer comme lues au départ");
+            try {
+                await Promise.all(
+                    currentNotifs.map((n) => marquerNotificationLue(n.id))
+                );
+                triggerRefresh();
+            } catch (err) {
+                console.error("Erreur lors du marquage des notifications", err);
+            }
+        }
+    };
 
     const filtreActif = (event) => {
         setFiltreValue(event)
@@ -85,6 +105,16 @@ const ProfesseurHome = ({user}) => {
     }, [listeEtudiantACharge, fetchNouveauxEtudiants]);
 
     useEffect(() => {
+        notifsRef.current = notificationProfesseurEtudiant;
+    }, [notificationProfesseurEtudiant]);
+
+    useEffect(() => {
+        return () => {
+            supprimeNotificationLorsDuDemontage();
+        };
+    }, []);
+
+    useEffect(() => {
         const filterParam = searchParams.get("filter");
         if (filterParam === "new") {
             setOnlyNew(true);
@@ -93,12 +123,20 @@ const ProfesseurHome = ({user}) => {
 
     useEffect(() => {
         const supprimeNotification = async () => {
-            const notifCible = notificationProfesseurEtudiant.find(n => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT");
 
-            if (notifCible) {
-                await marquerNotificationLue(notifCible.id);
+            try {
+                await Promise.all(
+                    notificationProfesseurEtudiant.map(n => marquerNotificationLue(n.id))
+                );
+                setNotificationProfesseurEtudiant([]);
+                if (!onlyNew) {
+                    setNouveauxEtudiantACharge([])
+                    triggerRefresh();
+                }
+            } catch (e) {
+                console.error("Erreur lors du marquage via filtre", e);
             }
-        }
+        };
         supprimeNotification();
     }, [onlyNew]);
 
