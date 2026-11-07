@@ -7,6 +7,7 @@ import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import logo from "../../../assets/logo.png";
 import Notification from "../../Notification/Notification.jsx";
 import { getNotifications } from "../../../api/notification.jsx";
+import {useNotificationTrigger} from "../../Notification/UtilNotification.jsx";
 import { FiUser, FiBriefcase,FiUserCheck,FiClipboard } from "react-icons/fi";
 
 const ROLES_AVEC_NOTIFICATIONS = ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR", "PROFESSEUR"];
@@ -16,29 +17,29 @@ function Header({ sidebarOpen, user }) {
     const { pathname } = useLocation();
     const [notifications, setNotifications] = useState([]);
 
-    console.log("Utilisateur connecté :", user);
-
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
-    const role = rawRole?.toString().replace("ROLE_", "");
+        const role = rawRole?.toString().replace("ROLE_", "");
 
-    const roleLabels = {
-        GESTIONNAIRE: "Gestionnaire",
-        ETUDIANT: "Étudiant",
-        EMPLOYEUR: "Employeur",
-        PROFESSEUR: "Professeur"
-    };
+        const roleLabels = {
+            GESTIONNAIRE: "Gestionnaire",
+            ETUDIANT: "Étudiant",
+            EMPLOYEUR: "Employeur",
+            PROFESSEUR: "Professeur"
+        };
 
-    const roleIcons = {
-        GESTIONNAIRE: FiClipboard,
-        ETUDIANT: FiUser,
-        EMPLOYEUR: FiBriefcase,
-        PROFESSEUR: FiUserCheck
-    };
+        const roleIcons = {
+            GESTIONNAIRE: FiClipboard,
+            ETUDIANT: FiUser,
+            EMPLOYEUR: FiBriefcase,
+            PROFESSEUR: FiUserCheck
+        };
 
     const RoleIcon = roleIcons[role] || FiUser;
 
+    const fetchKey = useNotificationTrigger((state) => state.refreshKey);
     const roleLabel = roleLabels[role] || role;
     const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+
 
     const peutRecevoir = Boolean(user?.isLoggedIn) && ROLES_AVEC_NOTIFICATIONS.includes(role);
 
@@ -61,7 +62,7 @@ function Header({ sidebarOpen, user }) {
         return () => {
             actif = false;
         };
-    }, [peutRecevoir, user?.id, pathname]);
+    }, [peutRecevoir, user?.id, pathname, fetchKey]);
 
     const handleMarkAsRead = (id) => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -83,32 +84,33 @@ function Header({ sidebarOpen, user }) {
             </label>
 
             <div className="px-4 flex items-center gap-4">
-                <div className="text-[#00CCCB] font-semibold flex items-center gap-2">
-                    <img src={logo} alt="logo" className="h-8 w-8" />
-                    <span>IKey</span>
-                </div>
-
-                {user?.isLoggedIn && (
-                    <>
-                        <div className="h-9 w-px bg-white/25" />
-
-                        <div className="flex items-center gap-2">
-                            <div className="size-9 rounded-lg bg-white/15 flex items-center justify-center">
-                                <RoleIcon className="text-white text-lg" />
+                            <div className="text-[#00CCCB] font-semibold flex items-center gap-2">
+                                <img src={logo} alt="logo" className="h-8 w-8" />
+                                <span>IKey</span>
                             </div>
 
-                            <div className="flex flex-col leading-tight">
-                                <span className="text-sm font-semibold text-white">
-                                    {fullName}
-                                </span>
-                                <span className="text-xs text-white/70">
-                                    {roleLabel}
-                                </span>
-                            </div>
+                            {user?.isLoggedIn && (
+                                <>
+                                    <div className="h-9 w-px bg-white/25" />
+
+                                    <div className="flex items-center gap-2">
+                                        <div className="size-9 rounded-lg bg-white/15 flex items-center justify-center">
+                                            <RoleIcon className="text-white text-lg" />
+                                        </div>
+
+                                        <div className="flex flex-col leading-tight">
+                                            <span className="text-sm font-semibold text-white">
+                                                {fullName}
+                                            </span>
+                                            <span className="text-xs text-white/70">
+                                                {roleLabel}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    </>
-                )}
-            </div>
+
             <div className="fixed top-4 right-4 z-50">
                 <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                     {peutRecevoir && (
