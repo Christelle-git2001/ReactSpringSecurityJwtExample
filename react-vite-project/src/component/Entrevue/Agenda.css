@@ -27,13 +27,9 @@
     position: absolute;
     bottom: 3px;
     left: 50%;
-    width: 5px;
-    height: 5px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    background: #043462;
+    background-color: #E53935;
     transform: translateX(-50%);
-}
-
-.interview-calendar calendar-month::part(interview selected)::after {
-    background: white;
 }

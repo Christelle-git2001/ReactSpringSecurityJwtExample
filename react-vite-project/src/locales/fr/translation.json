@@ -617,9 +617,9 @@
   },
   "agenda": {
     "no_interviews": "Aucune entrevue",
-    "clear_filter": "Voir toutes les entrevues",
+    "selected_day_interviews": "Afficher les entrevues du jour",
+    "all_interviews": "Afficher Toutes les entrevues",
     "title": "Agenda",
-    "all_interviews": "Entrevues planifiées :",
     "interview_day": "Jour avec une entrevue",
     "today": "Aujourd'hui",
     "previous_month": "Mois précédent",

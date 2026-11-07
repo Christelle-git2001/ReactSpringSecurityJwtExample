@@ -118,7 +118,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
         <form
             noValidate
             onSubmit={handleSubmit}
-            className="rounded-2xl bg-white p-6 border border-gray-200 flex flex-col gap-5 w-full min-w-0"
+            className="rounded-2xl bg-white p-6 border border-gray-200 flex flex-col gap-6 w-full min-w-0"
         >
             <h3 className="text-lg font-bold text-[#043462] border-b border-gray-100 pb-3">
                 {t("entrevue.add_title")}
@@ -130,8 +130,8 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
                 </div>
             )}
 
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-2">
                     <label htmlFor="candidature" className="text-sm font-semibold text-[#043462]">
                         {t("entrevue.select_candidature")}
                     </label>
