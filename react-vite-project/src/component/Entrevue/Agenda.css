@@ -33,3 +33,10 @@
     background-color: #E53935;
     transform: translateX(-50%);
 }
+
+.interview-calendar calendar-month::part(heading) {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #043462;
+}
+

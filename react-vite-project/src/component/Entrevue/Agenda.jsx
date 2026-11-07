@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Entrevue from "./Entrevue";
 import { FiCalendar, FiFilter } from "react-icons/fi";
+import { FaFilter } from "react-icons/fa";
 import Button from "../Design/Button.jsx";
 import { getCandidaturesEmployeur } from "../../api/employeur.jsx";
 import "./Agenda.css";
@@ -167,7 +168,11 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                     <Button
                         variant="secondary"
                         size="small"
-                        icon={<FiFilter className="w-4 h-4 shrink-0" aria-hidden="true" />}
+                        icon={
+                            showAllInterviews
+                                ? <FiFilter className="w-4 h-4" aria-hidden="true" />
+                                : <FaFilter className="w-4 h-4" aria-hidden="true" />
+                        }
                         className="ml-auto shrink-0"
                         onClick={handleToggleInterviews}
                     >
