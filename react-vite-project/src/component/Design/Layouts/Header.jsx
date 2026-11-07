@@ -7,6 +7,7 @@ import SideBarIcon from "../Icons/SideBarIcon.jsx";
 import logo from "../../../assets/logo.png";
 import Notification from "../../Notification/Notification.jsx";
 import { getNotifications } from "../../../api/notification.jsx";
+import {useNotificationTrigger} from "../../Notification/UtilNotification.jsx";
 
 const ROLES_AVEC_NOTIFICATIONS = ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR", "PROFESSEUR"];
 
@@ -14,7 +15,7 @@ function Header({ sidebarOpen, user }) {
     const { t } = useTranslation();
     const { pathname } = useLocation();
     const [notifications, setNotifications] = useState([]);
-
+    const fetchKey = useNotificationTrigger((state) => state.refreshKey);
     const rawRole = typeof user?.role === "object" ? user?.role?.name : user?.role;
     const role = rawRole?.toString().replace("ROLE_", "");
     const peutRecevoir = Boolean(user?.isLoggedIn) && ROLES_AVEC_NOTIFICATIONS.includes(role);
@@ -38,7 +39,7 @@ function Header({ sidebarOpen, user }) {
         return () => {
             actif = false;
         };
-    }, [peutRecevoir, user?.id, pathname]);
+    }, [peutRecevoir, user?.id, pathname, fetchKey]);
 
     const handleMarkAsRead = (id) => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
