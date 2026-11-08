@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useRef, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Entrevue from "./Entrevue";
-import { FiCalendar } from "react-icons/fi";
+import { FiCalendar, FiFilter } from "react-icons/fi";
+import { FaFilter } from "react-icons/fa";
 import Button from "../Design/Button.jsx";
 import { getCandidaturesEmployeur } from "../../api/employeur.jsx";
 import "./Agenda.css";
@@ -12,6 +13,10 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const calendarRef = useRef(null);
+
+    const [showAllInterviews, setShowAllInterviews] = useState(!selectedDate);
+    const [lastSelectedDate, setLastSelectedDate] = useState(selectedDate || "");
+
     const interviewDates = useMemo(
         () => new Set(entrevuesList.map((entrevue) => getCleanDate(entrevue?.date)).filter(Boolean)),
         [entrevuesList]
@@ -33,6 +38,9 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
 
         const handleDateChange = (e) => {
             const newDate = e.target.value;
+
+            setLastSelectedDate(newDate);
+            setShowAllInterviews(false);
             onDateSelect?.(newDate || "");
         };
 
@@ -42,10 +50,16 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
         };
     }, [onDateSelect, selectedDate]);
 
-    const handleClearFilter = () => {
-        onDateSelect?.("");
-        if (calendarRef.current) {
-            calendarRef.current.value = "";
+    const handleToggleInterviews = () => {
+        if (showAllInterviews) {
+            const date = lastSelectedDate ||
+                new Date().toLocaleDateString("en-CA");
+
+            setLastSelectedDate(date);
+            setShowAllInterviews(false);
+            onDateSelect?.(date);
+        } else {
+            setShowAllInterviews(true);
         }
     };
 
@@ -54,9 +68,11 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
     const formatDate = (date) => new Intl.DateTimeFormat(locale, { dateStyle: "long" })
         .format(new Date(`${date}T12:00:00`));
 
-    const filteredEntrevues = cleanSelectedDate
-        ? entrevuesList.filter((entrevue) => getCleanDate(entrevue?.date) === cleanSelectedDate)
-        : entrevuesList;
+    const filteredEntrevues = showAllInterviews
+        ? entrevuesList
+        : entrevuesList.filter(
+            (entrevue) => getCleanDate(entrevue?.date) === cleanSelectedDate
+        );
 
     const groupedEntrevues = filteredEntrevues.reduce((acc, entrevue) => {
         const dateKey = getCleanDate(entrevue?.date) === "" ? "sans_date" : getCleanDate(entrevue?.date);
@@ -109,7 +125,7 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
             </div>
 
             <div className="flex justify-center w-full">
-                <div className="w-full max-w-[600px] h-[360px] flex items-center justify-center">
+                <div className="w-full max-w-[700px] h-[430px] flex items-center justify-center">
                     <calendar-date
                         ref={calendarRef}
                         value={cleanSelectedDate}
@@ -138,16 +154,31 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                         <span className="inline-flex items-center gap-2">
-                            <span className="size-2 rounded-full bg-[#043462]" aria-hidden="true" />
+                            <span
+                                className="size-3 rounded-full bg-[#E53935]"
+                                aria-hidden="true"
+                            />
                             {t("agenda.interview_day")}
                         </span>
                         <span className="inline-flex items-center gap-2">
-                            <span className="size-3 rounded-sm border border-[#043462]" aria-hidden="true" />
+                            <span className="size-3 aspect-square rounded-none border-2 border-[#6B91B5] shrink-0" aria-hidden="true" />
                             {t("agenda.today")}
                         </span>
                     </div>
-                    <Button variant="secondary" size="small" className="ml-auto shrink-0" onClick={handleClearFilter}>
-                        {t("agenda.clear_filter")}
+                    <Button
+                        variant="secondary"
+                        size="small"
+                        icon={
+                            showAllInterviews
+                                ? <FiFilter className="w-4 h-4" aria-hidden="true" />
+                                : <FaFilter className="w-4 h-4" aria-hidden="true" />
+                        }
+                        className="ml-auto shrink-0"
+                        onClick={handleToggleInterviews}
+                    >
+                        {showAllInterviews
+                            ? t("agenda.selected_day_interviews")
+                            : t("agenda.all_interviews")}
                     </Button>
                 </div>
             </div>
