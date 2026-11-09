@@ -171,6 +171,7 @@ public class ProfesseurControllerTest {
                 "123-123-1234",
                 "INFORMATIQUE",
                 null,
+                null,
                 1L,
                 "Carole"
         );
@@ -183,6 +184,7 @@ public class ProfesseurControllerTest {
                 "7654321",
                 "123-123-1235",
                 "INFORMATIQUE",
+                null,
                 null,
                 1L,
                 "Carole"
@@ -228,7 +230,10 @@ public class ProfesseurControllerTest {
                 "Entreprise ABC",
                 LocalDateTime.now(),
                 2L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                null,
+                false
         );
 
         when(professeurService.getCandidaturesEtudiant(etudiantId))

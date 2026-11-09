@@ -39,15 +39,15 @@ public class GestionnaireService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmployeurRepository employeurRepository;
     private final EtudiantRepository etudiantRepository;
+    private final CandidatureRepository candidatureRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ProfesseurRepository professeurRepository;
-    private final CandidatureRepository candidatureRepository;
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -375,7 +375,10 @@ public class GestionnaireService {
 
         Contrat contrat;
 
-        if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
+        if (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
+                && candidature.getEtudiant() != null
+                && candidature.getEtudiant().getCandidatureStage() != null
+                && candidatureId.equals(candidature.getEtudiant().getCandidatureStage().getId())) {
             contrat = Contrat.builder()
                     .candidature(candidature)
                     .gestionnaire(gestionnaire)
@@ -394,7 +397,6 @@ public class GestionnaireService {
 
         return ContratDTO.of(contratEnregistre);
     }
-
 
     public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
         return  candidatureRepository.findByStatut(normaliserStatus(status))

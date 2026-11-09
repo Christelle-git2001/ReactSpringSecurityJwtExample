@@ -1,12 +1,19 @@
 package com.lacouf.rsbjwt.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.junit.jupiter.api.AfterEach;
+
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
@@ -26,7 +33,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.mockito.MockedStatic;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,13 +77,13 @@ class GestionnaireServiceTest {
     private EtudiantRepository etudiantRepository;
 
     @Mock
+    private CandidatureRepository candidatureRepository;
+
+    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Mock
     private ProfesseurRepository professeurRepository;
-
-    @Mock
-    private CandidatureRepository candidatureRepository;
 
     @Mock
     private ContratRepository contratRepository;
@@ -119,6 +125,11 @@ class GestionnaireServiceTest {
         employeur.setId(1L);
 
         return employeur;
+    }
+
+    @AfterEach
+    void nettoyerAuthentification() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -948,6 +959,9 @@ class GestionnaireServiceTest {
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
         candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setEtudiant(etudiant);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
 
         Contrat contratSauvegarde = Contrat.builder()
                 .candidature(candidature)
@@ -986,6 +1000,22 @@ class GestionnaireServiceTest {
             verify(contratRepository).existsByCandidatureId(candidatureId);
             verify(contratRepository).save(any(Contrat.class));
         }
+    }
+
+    @Test
+    void doitRetournerLesStagesDeclares() throws Exception {
+        Candidature stage = new Candidature(etudiant, null);
+        stage.setId(10L);
+        stage.setStatut(StatutCandidature.STAGE_TROUVE);
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
+                .thenReturn(List.of(stage));
+
+        List<CandidatureDTO> resultats = gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE");
+
+        assertThat(resultats).hasSize(1);
+        assertThat(resultats.getFirst().id()).isEqualTo(10L);
+        assertThat(resultats.getFirst().statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        verify(candidatureRepository).findByStatut(StatutCandidature.STAGE_TROUVE);
     }
 
     @Test
@@ -1048,7 +1078,7 @@ class GestionnaireServiceTest {
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
 
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
 
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
