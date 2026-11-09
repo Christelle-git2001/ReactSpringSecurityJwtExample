@@ -4,20 +4,30 @@ import { postulerOffre } from "../../api/etudiant.jsx";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button.jsx";
 
-function PostulerButton({ offerId, hasApplied = false, onApply, onApplied }) {
+function PostulerButton({ offerId, hasApplied = false, onApply, onApplied, user }) {
     const { t } = useTranslation();
     const [applied, setApplied] = useState(hasApplied);
     const [isApplying, setIsApplying] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+
     useEffect(() => {
         setApplied(hasApplied);
     }, [hasApplied]);
 
     const handleApply = async (e) => {
         e?.stopPropagation?.();
+
+        const hasStage = user?.statut === "STAGE_TROUVE" || user?.candidatureStage != null;
+
+        if (hasStage) {
+            setError("etudiant.offers.internship_found_locked");
+            return;
+        }
+
         setIsApplying(true);
         setError(null);
+
         try {
             onApply?.(offerId);
             await postulerOffre(offerId);
@@ -27,17 +37,27 @@ function PostulerButton({ offerId, hasApplied = false, onApply, onApplied }) {
             console.error("Erreur lors de la candidature:", err);
             if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
                 navigate("/login");
-                }
-            if (err?.status === 409) {
-                setApplied(true);
-                onApplied?.(offerId);
-            } else {
-                setError("etudiant.offers.apply_error");
+                return;
             }
+            if (err?.status === 409 || err?.status === 403) {
+                setError("etudiant.offers.internship_found_locked");
+                return;
+            }
+            setError("etudiant.offers.apply_error");
         } finally {
             setIsApplying(false);
         }
     };
+
+    const hasStage = user?.statut === "STAGE_TROUVE" || user?.candidatureStage != null;
+
+    if (hasStage) {
+        return (
+            <p className="text-center font-semibold text-gray-600 py-2">
+                {t("etudiant.offers.internship_found_locked")}
+            </p>
+        );
+    }
 
     if (applied) {
         return (
