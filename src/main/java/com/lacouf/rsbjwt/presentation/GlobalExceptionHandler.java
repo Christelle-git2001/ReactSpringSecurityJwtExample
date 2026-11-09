@@ -324,8 +324,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErreurDTO(e.getMessage()));
     }
 
-    @ExceptionHandler(StageDejaTrouveException.class)
-    public ResponseEntity<ErreurDTO> handleStageDejaTrouveException(StageDejaTrouveException e) {
+    @ExceptionHandler({StageDejaTrouveException.class, ActionsCandidatureDesactiveesException.class})
+    public ResponseEntity<ErreurDTO> handleStageDejaTrouveException(Exception e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
 }

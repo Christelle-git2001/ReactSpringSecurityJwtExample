@@ -1284,4 +1284,22 @@ public class EtudiantServiceTest {
             assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
         }
     }
+
+    @Test
+    void doitBloquerLesReponsesAuxAutresConvocationsApresStageChoisi() {
+        Candidature stage = new Candidature();
+        stage.setId(999L);
+        etudiant.setCandidatureStage(stage);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        assertThatThrownBy(() -> etudiantService.accepterConvocationEtudiant(entrevue.getId()))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId(), "Autre stage choisi"))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        verify(entrevueRepository, never()).save(any());
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(applicationEventPublisher);
+    }
 }

@@ -938,4 +938,37 @@ public class EmployeurServiceTest {
         verify(candidatureRepository, times(1)).save(candidature);
         verify(eventPublisher, times(1)).publishEvent(any(CandidatureAccepteeEvent.class));
     }
+
+    @Test
+    void doitBloquerLesDecisionsEtLaClotureSiUnAutreStageEstChoisi() {
+        Entrevue entrevue = creerEntrevueTerminee();
+        Candidature stage = new Candidature();
+        stage.setId(999L);
+        etudiant.setCandidatureStage(stage);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+
+        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        assertThatThrownBy(() -> employeurService.cloreEntrevue(1L))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
+        verify(candidatureRepository, never()).save(any());
+        verify(convocationRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void neDoitPlusRetenirUneAutreCandidatureApresLeStageChoisi() {
+        Candidature stage = new Candidature();
+        stage.setId(999L);
+        etudiant.setCandidatureStage(stage);
+        when(candidatureRepository.findById(candidature.getId())).thenReturn(Optional.of(candidature));
+
+        assertThatThrownBy(() -> employeurService.retenirCandidaturePourEntrevue(candidature.getId()))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        verify(candidatureRepository, never()).save(any());
+    }
 }

@@ -327,6 +327,8 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
         if (convocationRepository
                 .findByCandidatureId(dto.candidatureId())
                 .isPresent()) {
@@ -369,6 +371,8 @@ public class EmployeurService {
         Candidature candidature = candidatureRepository
                 .findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
 
         if (candidature.getStatut() == StatutCandidature.SOUMISE) {
             candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
@@ -427,6 +431,8 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
         if (entrevue.getStatut() != StatutEntrevue.CONFIRMEE && entrevue.getStatut() != StatutEntrevue.TERMINEE) {
             throw new DecisionCandidatureInvalideException();
         }
@@ -470,6 +476,8 @@ public class EmployeurService {
         if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
             throw new OffreNonAutoriseeException();
         }
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
 
         if (candidature.getStatut() == decision) {
             return CandidatureDTO.of(candidature);

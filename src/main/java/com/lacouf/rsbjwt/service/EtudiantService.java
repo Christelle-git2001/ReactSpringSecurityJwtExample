@@ -317,6 +317,7 @@ public class EtudiantService {
     private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse, String motifRefus)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
+        verifierActionsCandidatureAutorisees(entrevue.getCandidature());
         if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
             if (entrevue.getStatut() != reponse
                     && !(reponse == StatutEntrevue.CONFIRMEE
@@ -389,6 +390,7 @@ public class EtudiantService {
         if (candidature.getStatut() != StatutCandidature.ACCEPTEE) {
             throw new DeclarationStageInvalideException();
         }
+        actualiserStatutEtudiant(etudiant);
         candidature.setStatut(StatutCandidature.STAGE_TROUVE);
         candidatureRepository.save(candidature);
         etudiant.setCandidatureStage(candidature);
@@ -411,6 +413,7 @@ public class EtudiantService {
         LocalDateTime maintenant = LocalDateTime.now();
         boolean enAttenteReponse = false;
         for (Entrevue entrevue : entrevues) {
+            if (actionsCandidatureDesactivees(entrevue.getCandidature())) continue;
             if (entrevue.getStatut() == StatutEntrevue.CONFIRMEE
                     && entrevue.getDateHeureEntrevue() != null && entrevue.getDuree() > 0
                     && !entrevue.getDateHeureEntrevue().plusMinutes(entrevue.getDuree()).isAfter(maintenant)) {
@@ -454,4 +457,23 @@ public class EtudiantService {
 
         return ContratDTO.of(contratRepository.save(contrat));
     }
+
+    static boolean actionsCandidatureDesactivees(Candidature candidature) {
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant == null) return false;
+        Candidature stageChoisi = etudiant.getCandidatureStage();
+        if (stageChoisi != null) {
+            return !java.util.Objects.equals(stageChoisi.getId(), candidature.getId());
+        }
+        return etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
+                && candidature.getStatut() != StatutCandidature.STAGE_TROUVE
+                && candidature.getStatut() != StatutCandidature.CONTRAT_CREE;
+    }
+
+    static void verifierActionsCandidatureAutorisees(Candidature candidature) {
+        if (actionsCandidatureDesactivees(candidature)) {
+            throw new ActionsCandidatureDesactiveesException();
+        }
+    }
+
 }
