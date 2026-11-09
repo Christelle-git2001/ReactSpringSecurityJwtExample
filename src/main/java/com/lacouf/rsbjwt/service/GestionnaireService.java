@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -343,7 +344,10 @@ public class GestionnaireService {
             throw new UtilisateurIntrouvableException();
         }
 
-        etudiants.forEach(etudiant -> etudiant.setProfesseur(professeur));
+        etudiants.forEach(etudiant -> {
+            etudiant.setProfesseur(professeur);
+            etudiant.setProfessorAssignedAt(LocalDateTime.now());
+        });
         List<Etudiant> etudiantsEnregistres = etudiantRepository.saveAll(etudiants);
 
         applicationEventPublisher.publishEvent(

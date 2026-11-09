@@ -72,7 +72,8 @@ public class GestionnaireControllerTest {
                 "INFORMATIQUE",
                 null,
                 1L,
-                "Jean"
+                "Jean",
+                LocalDateTime.now()
         );
 
         offreDeStageDTO = new OffreDeStageDTO(
@@ -608,7 +609,8 @@ public class GestionnaireControllerTest {
                         "INFORMATIQUE",
                         null,
                         1L,
-                        "Jean Dupont"
+                        "Jean Dupont",
+                        LocalDateTime.now()
                 )
         );
 

@@ -107,7 +107,8 @@ public class EtudiantControllerTest {
                 "INFORMATIQUE",
                 null,
                 1l,
-                "Jean"
+                "Jean",
+                LocalDateTime.now()
         );
     }
 
@@ -124,7 +125,8 @@ public class EtudiantControllerTest {
                 "INFORMATIQUE",
                 null,
                 1l,
-                "Jean"
+                "Jean",
+                LocalDateTime.now()
         );
 
         when(etudiantService.creerCompteEtudiant(any(InscriptionEtudiantDTO.class)))

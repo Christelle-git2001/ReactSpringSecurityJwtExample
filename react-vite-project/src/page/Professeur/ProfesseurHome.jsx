@@ -41,45 +41,49 @@ const ProfesseurHome = ({user}) => {
         }
     }, [user, navigate, t]);
 
+    const extraireEtudiantIds = (notifications) => {
+        const allIds = notifications.flatMap((n) => {
+            const rawIds = n.variables?.ETUDIANT_IDS;
+            if (!rawIds) return [];
+            return rawIds.split(',').map((id) => Number(id.trim()));
+        });
+        return [...new Set(allIds)];
+    };
+
 
     const fetchNouveauxEtudiants = useCallback(async (etudiants) => {
-        if (!user?.id || etudiants.length === 0) return;
+        if (!user?.id || !etudiants || etudiants.length === 0) return;
         try {
             const notification = await getNotifications(user.id);
             if (!Array.isArray(notification)) return;
             const notificationsFiltree = notification.filter((n) => n.notificationType === "PROFESSEUR_ASSIGNE_ETUDIANT" && !n.estLu)
-            if (notificationsFiltree.length > 0) {
-                setNotificationProfesseurEtudiant(notificationsFiltree);
-                const etudiantIds = notificationsFiltree
-                    .flatMap((n) => {
-                        const rawIds = n.variables?.ETUDIANT_IDS;
-                        if (!rawIds) return [];
-                        return rawIds.split(',').map((id) => Number(id.trim()));
-                    });
+            if (notificationsFiltree.length === 0) return;
+            setNotificationProfesseurEtudiant(notificationsFiltree);
+            const uniqueIds = extraireEtudiantIds(notificationsFiltree);
+            const nouveaux = etudiants.filter((e) => {
+                if (!uniqueIds.includes(Number(e.id))) return false;
+                if (!user.previousLoginAt) return true;
+                 const dateAssignation = new Date(e.professorAssignedAt).getTime();
+                 const dateConnexion = new Date(user.previousLoginAt).getTime();
+                 return dateAssignation > dateConnexion;
+            });
 
-                const uniqueIds = [...new Set(etudiantIds)];
-                const nouveaux = etudiants.filter((e) => uniqueIds.includes(Number(e.id)));
+            if (!nouveaux || nouveaux.length === 0) {
+                try {
+                    await Promise.all(
+                        notificationsFiltree.map((n) => marquerNotificationLue(n.id))
+                    );
+                    setNotificationProfesseurEtudiant([]);
+                    triggerRefresh();
+                } catch (err) {
+                }
+            }else{
                 setNouveauxEtudiantACharge(nouveaux);
             }
         } catch (e) {
             setError(t("generic.error"));
         }
     }, [user?.id, t]);
-
-    const supprimeNotificationLorsDuDemontage = async () => {
-        const currentNotifs = notifsRef.current;
-        if (currentNotifs && currentNotifs.length > 0) {
-            console.log(currentNotifs.length, " notifications à marquer comme lues au départ");
-            try {
-                await Promise.all(
-                    currentNotifs.map((n) => marquerNotificationLue(n.id))
-                );
-                triggerRefresh();
-            } catch (err) {
-                console.error("Erreur lors du marquage des notifications", err);
-            }
-        }
-    };
 
     const filtreActif = (event) => {
         setFiltreValue(event)
@@ -108,11 +112,6 @@ const ProfesseurHome = ({user}) => {
         notifsRef.current = notificationProfesseurEtudiant;
     }, [notificationProfesseurEtudiant]);
 
-    useEffect(() => {
-        return () => {
-            supprimeNotificationLorsDuDemontage();
-        };
-    }, []);
 
     useEffect(() => {
         const filterParam = searchParams.get("filter");
@@ -141,62 +140,62 @@ const ProfesseurHome = ({user}) => {
     }, [onlyNew]);
 
     return(
-    <>
-       <WelcomeMessage user={user}/>
-        {error && (
-            <div className="bg-red-500">
-                <p>{error}</p>
-            </div>
-        )}
-        <div className="w-full mt-5">
-            <SearchBar className="mb-3" onChange={filtreActif} value={filtreValue}/>
-            <FilterBar
-                onlyNew={onlyNew}
-                onOnlyNewChange={setOnlyNew}
-            />
-            {isInitialLoading ? (
+        <>
+            <WelcomeMessage user={user}/>
+            {error && (
+                <div className="bg-red-500">
+                    <p>{error}</p>
+                </div>
+            )}
+            <div className="w-full mt-5">
+                <SearchBar className="mb-3" onChange={filtreActif} value={filtreValue}/>
+                <FilterBar
+                    onlyNew={onlyNew}
+                    onOnlyNewChange={setOnlyNew}
+                />
+                {isInitialLoading ? (
                     <div className="flex items-center justify-center p-12 border rounded-xl bg-gray-50 mt-5">
                         <span className="loading loading-spinner loading-md text-[#043462]" />
                     </div>
                 ) : (
-                <details open className="collapse collapse-arrow bg-transparent mt-5">
+                    <details open className="collapse collapse-arrow bg-transparent mt-5">
 
-                    <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("professeur.etudiant_section_title")} ({listeEtudiantACharge.length})
-                    </summary>
+                        <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
+                            {t("professeur.etudiant_section_title")} ({listeEtudiantACharge.length})
+                        </summary>
 
-                    <div className="collapse-content transition-all duration-300 ease-in-out px-0">
-                        <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
-                        <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
-                            <div className="grid grid-cols-12 gap-4 w-full">
-                                {listeEtudiantACharge
-                                    .filter((etudiant) => {
-                                        return Object.values(etudiant).some((valeur) =>
-                                            String(valeur).toLowerCase().includes(String(filtreValue).toLowerCase())
-                                        );
-                                    })
-                                    .filter((etudiant) => {
-                                        if (!onlyNew) return true;
-                                        return nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
-                                    })
-                                    .sort((a, b) => trierEtudiantsNouveauxEnPremier(a, b, nouveauEtudiantACharge))
-                                    .map((etudiant) => {
-                                        const isNew = nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
+                        <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                            <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
+                            <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
+                                <div className="grid grid-cols-12 gap-4 w-full">
+                                    {listeEtudiantACharge
+                                        .filter((etudiant) => {
+                                            return Object.values(etudiant).some((valeur) =>
+                                                String(valeur).toLowerCase().includes(String(filtreValue).toLowerCase())
+                                            );
+                                        })
+                                        .filter((etudiant) => {
+                                            if (!onlyNew) return true;
+                                            return nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
+                                        })
+                                        .sort((a, b) => trierEtudiantsNouveauxEnPremier(a, b, nouveauEtudiantACharge))
+                                        .map((etudiant) => {
+                                            const isNew = nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
 
-                                        return (
-                                            <div key={etudiant.id} className="col-span-6">
-                                                <EtudiantListItem etudiant={etudiant} isNew={isNew} />
-                                            </div>
-                                        );
-                                    })}
+                                            return (
+                                                <div key={etudiant.id} className="col-span-6">
+                                                    <EtudiantListItem etudiant={etudiant} isNew={isNew} />
+                                                </div>
+                                            );
+                                        })}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </details>
-            )}
+                    </details>
+                )}
 
-        </div>
-    </>
-  );
+            </div>
+        </>
+    );
 }
 export default ProfesseurHome;
