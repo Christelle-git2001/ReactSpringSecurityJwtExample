@@ -66,7 +66,8 @@
     "document": "Additional document (PDF)",
     "choose_file": "Choose a file",
     "cancel": "Cancel",
-    "submit": "Submit",
+    "submit": "Submit"
+  },
     "errors": {
       "select_company": "Please select a company",
       "select_student": "Please select a student",
@@ -82,11 +83,9 @@
       "display_end_date_required": "Please select an offer display end date.",
       "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
       "display_end_date_before_today": "The offer display end date cannot be in the past.",
-      "start_date_before_today": "The start date cannot be before today.",
-      "password_invalid": "The password is incorrect.",
-      "password_required": "Please enter your password."
-    }
-  },
+      "start_date_before_today": "The start date cannot be before today."
+    },
+
   "edit_offer": {
     "title": "Edit internship offer",
     "subtitle": "Edit the information for your internship offer.",
@@ -191,7 +190,9 @@
     "generic": "An error occurred. Please try again.",
     "notification_path": "The destination of this notification does not exist. Please try again later.",
     "rejection_comment_required": "A comment is required when rejecting a CV.",
-    "convocation_not_found": "Interview invitation not found."
+    "convocation_not_found": "Interview invitation not found.",
+    "password_invalid": "The password is incorrect.",
+    "password_required": "Please enter your password."
   },
   "success": {
     "student_added": "Student added successfully.",
