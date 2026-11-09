@@ -7,7 +7,7 @@ import PostulerButton from "../PostulerButton.jsx";
 import Button from "../../Design/Button.jsx"
 import {useNavigate} from "react-router-dom";
 
-function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, candidature }) {
+function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, candidature, user }) {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const statutCandidature = candidature?.statut;
@@ -89,6 +89,7 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, ca
                         <Button icon={true} role={"details"} onClick={() => navigate("/etudiant/contrat", { state: { candidature } })}>Voir contrat</Button>
                     ):(
                         <PostulerButton
+                            user={user}
                             offerId={offer?.id}
                             hasApplied={hasApplied}
                             onApply={onRead}

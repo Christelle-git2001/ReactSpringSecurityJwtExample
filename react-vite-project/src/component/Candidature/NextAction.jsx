@@ -7,6 +7,8 @@ import MotifRefus from "../Design/MotifRefus.jsx";
 import { retenirCandidaturePourEntrevue, signerContratEmployeur, obtenirConvocationEmployeur, cloreEntrevue, accepterCandidat, refuserCandidat } from "../../api/employeur.jsx";
 import {signerContratEtudiant} from "../../api/etudiant.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
+import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
+import ActionsDesactivees from "./ActionsDesactivees.jsx";
 
 function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignatureSuccess, onProcessChange, role }) {
     const { t } = useTranslation();
@@ -20,6 +22,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
     const [entrevueId, setEntrevueId] = useState(null);
     const [refusOuvert, setRefusOuvert] = useState(false);
     const [decisionError, setDecisionError] = useState(false);
+    const [actionsBloquees, setActionsBloquees] = useState(false);
     const [entrevueFermee, setEntrevueFermee] = useState(false);
     const [entreeStatutLocal, setEntreeStatutLocal] = useState(statutEntrevue || null);
 
@@ -27,7 +30,8 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
 
     useEffect(() => {
         setStatutActuel(candidature?.statut);
-    }, [candidature?.statut]);
+        setActionsBloquees(actionsCandidatureDesactivees(candidature));
+    }, [candidature?.id, candidature?.statut, candidature?.statutEtudiant]);
 
     useEffect(() => {
         setEntreeStatutLocal(statutEntrevue || null);
@@ -97,6 +101,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                 state: { selectedCandidatureId: candidature.id },
             });
         } catch (error) {
+            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -121,6 +126,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
                 onSignatureSuccess(updatedContrat);
             }
         } catch (error) {
+            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -141,6 +147,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             setRefusOuvert(false);
             onProcessChange?.({ statut: "ENTREVUE_PLANIFIEE", statutEntrevue: "TERMINEE" });
         } catch (error) {
+            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
             console.error("Erreur lors de la clôture de l'entretien:", error);
             setDecisionError(true);
         } finally {
@@ -161,6 +168,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             onProcessChange?.({ statut: "ACCEPTEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
+            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
             console.error("Erreur lors de l'acceptation de la candidature:", error);
             setDecisionError(true);
         } finally {
@@ -186,6 +194,7 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             onProcessChange?.({ statut: "REFUSEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
+            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
             console.error("Erreur lors du refus de la candidature:", error);
             setDecisionError(true);
         } finally {
@@ -304,6 +313,14 @@ function NextAction({ candidature, statutEntrevue, contrat, retourPath, onSignat
             }
         }
     };
+
+    if (actionsBloquees || actionsCandidatureDesactivees(candidature)) {
+        return <div className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-4">
+            <ActionsDesactivees />
+            <div className="flex justify-end"><Button variant="secondary" size="small"
+                onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
+        </div>;
+    }
 
     const actionData = renderActionContent();
     const motifAffiche = motifRefus || candidature?.motifRefus || "";

@@ -120,7 +120,7 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                     </h2>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#043462] text-white">
-                   {t("agenda.all_interviews")} {entrevuesList.length}
+                   {t("agenda.interviews_list")} : {entrevuesList.length}
                 </span>
             </div>
 

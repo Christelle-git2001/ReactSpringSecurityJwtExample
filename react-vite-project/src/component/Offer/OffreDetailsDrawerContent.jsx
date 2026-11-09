@@ -159,6 +159,7 @@ function OffreDetailsDrawerContent({
                 {!showStatus && (
                     <div className="pt-4 border-t border-gray-100">
                         <PostulerButton
+                            user={{ statut: candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE") ? "STAGE_TROUVE" : undefined }}
                             offerId={offer?.id}
                             hasApplied={hasApplied}
                             onApplied={onApplied}

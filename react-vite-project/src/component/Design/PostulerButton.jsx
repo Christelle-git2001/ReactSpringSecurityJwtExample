@@ -53,7 +53,7 @@ function PostulerButton({ offerId, hasApplied = false, onApply, onApplied, user 
 
     if (hasStage) {
         return (
-            <p className="text-center font-semibold text-gray-600 py-2">
+            <p className="text-center font-semibold text-red-600 py-2">
                 {t("etudiant.offers.internship_found_locked")}
             </p>
         );

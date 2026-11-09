@@ -7,6 +7,9 @@ import Button from "../Design/Button.jsx";
 import Modal from "../Modal/Modal.jsx";
 import EmptyContentMessage from "../Design/EmptyContentMessage.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
+import { FiLock } from "react-icons/fi";
+import ActionsDesactivees from "./ActionsDesactivees.jsx";
+import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
 import DeclarationStageModal from "./DeclarationStageModal.jsx";
 import Agenda from "../Entrevue/Agenda.jsx";
 import Sort from "../Design/Sort.jsx";
@@ -59,6 +62,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     const [declarationCandidature, setDeclarationCandidature] = useState(null);
     const [statutDeclare, setStatutDeclare] = useState("");
     const [declarationErreur, setDeclarationErreur] = useState(false);
+
+    const stageDeclare = candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE" || ["STAGE_TROUVE", "CONTRAT_CREE"].includes(c.statut));
 
     const visibles = candidatures.map((candidature) => {
         const convocation = convocations.find((c) => c.candidatureId === candidature.id);
@@ -152,6 +157,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                 ...(c.id === decision.id ? decision : c),
                 statutEtudiant: decision.statutEtudiant,
             })));
+            await charger();
             setDeclarationCandidature(null);
         } catch {
             setDeclarationErreur(true);
@@ -220,6 +226,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                 <section id="agenda-candidatures" className="mb-6">
                     <Agenda compact entrevuesList={convocations.filter(c => c.statut !== "REFUSEE").map(c => ({
                         id: c.id, candidatureId: c.candidatureId,
+                        statut: c.statut,
+                        candidatureComplete: candidatures.find(candidature => String(candidature.id) === String(c.candidatureId)),
                         posteTitre: c.offreTitle, candidatNom: c.employeur?.businessName,
                         date: c.dateHeureEntrevue?.split("T")[0], heure: c.dateHeureEntrevue?.split("T")[1]?.slice(0, 5),
                         duree: c.duree, mode: c.format,
@@ -235,6 +243,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
             )}
 
             <div>
+                    {stageDeclare && <div role="status" className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900"><FaCheckCircle className="size-6 shrink-0" aria-hidden="true" /><div><p className="font-bold">{t("candidature.final_stage_declared")}</p><p className="text-sm">{t("candidature.other_actions_disabled")}</p></div></div>}
                     {actionError && <p role="alert" className="mb-3 text-sm text-red-700">{t(actionError)}</p>}
 
                     {filtres.itemsFiltres.length === 0 ? (
@@ -247,14 +256,17 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                 const refusOuvert = refusingId === c.id;
                                 const isFocused = (focusedCardId !== null && focusedCardId === c.id) || focusedCandidatureId === c.candidatureId;
                                 const candidature = c.candidature;
+                                const actionsDesactivees = actionsCandidatureDesactivees(candidature);
+                                const stageChoisi = stageDeclare && !actionsDesactivees && ["STAGE_TROUVE", "CONTRAT_CREE"].includes(candidature.statut);
                                 const statutConfig = getStatusConfig(c.statutFiltre, t, "candidatureEtudiant");
                                 return (
                                     <li key={c.candidatureId} data-candidature-id={c.candidatureId} id={c.id ? `entrevue-${c.id}` : `candidature-${c.candidatureId}`} className="scroll-mt-6">
-                                        <div className={`w-full rounded-2xl border border-gray-200 bg-white overflow-hidden transition-shadow duration-300 ${
+                                        <div className={`w-full rounded-2xl border ${stageChoisi ? "border-emerald-400 ring-1 ring-emerald-200" : actionsDesactivees ? "border-slate-300" : "border-gray-200"} bg-white overflow-hidden transition-shadow duration-300 ${
                                             isFocused ? 'shadow-[0_0_0_3px_#043462,0_6px_22px_#021b36aa]' : 'shadow-sm'
                                         }`}>
 
-                                            <div className="flow-root bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
+                                            <div className={`flow-root ${actionsDesactivees ? "bg-slate-100" : stageChoisi ? "bg-emerald-50" : "bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]"}`}>
+                                            <fieldset disabled={actionsDesactivees} className="min-w-0 [&_button:disabled]:!bg-slate-200 [&_button:disabled]:!text-slate-500 [&_button:disabled]:!border-slate-300">
                                             <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 p-5">
                                                 <div className="hidden sm:flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
                                                     <FaBriefcase className="size-6" aria-hidden="true" />
@@ -269,12 +281,13 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                 </div>
 
                                                 <div className="ml-auto flex shrink-0 flex-col items-end gap-2">
-                                                <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold ${aRepondre ? "bg-amber-100 text-amber-800 border-amber-200" : c.statut === "CONFIRMEE" && candidature.statut === "ENTREVUE_PLANIFIEE" ? "bg-green-100 text-green-700 border-green-200" : statutConfig.className}`}>
+                                                {actionsDesactivees && <span className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"><FiLock aria-hidden="true" />{t("candidature.actions_disabled")}</span>}
+                                                <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold ${actionsDesactivees ? "bg-slate-200 text-slate-600 border-slate-300" : aRepondre ? "bg-amber-100 text-amber-800 border-amber-200" : c.statut === "CONFIRMEE" && candidature.statut === "ENTREVUE_PLANIFIEE" ? "bg-green-100 text-green-700 border-green-200" : statutConfig.className}`}>
                                                     {c.statut === "CONFIRMEE" && <FaCheckCircle aria-hidden="true" />}
                                                     {aRepondre ? t("candidature.status.planifiee") : statutConfig.label}
                                                 </span>
 
-                                                {candidature.statut === "ACCEPTEE" && candidature.statutEtudiant !== "STAGE_TROUVE" && (
+                                                {candidature.statut === "ACCEPTEE" && (
                                                     <Button size="small" type="button" disabled={enCours}
                                                             onClick={() => {
                                                                 setDeclarationCandidature(candidature);
@@ -340,6 +353,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                 </section>
                                             )}
 
+                                            </fieldset>
+                                            {actionsDesactivees && <div className="mx-4 mb-3"><ActionsDesactivees /></div>}
                                             </div>
 
                                             <details ref={element => {
@@ -368,7 +383,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                 </div>
                                             )}
 
-                                            {aRepondre && refusOuvert && (
+                                            {aRepondre && !actionsDesactivees && refusOuvert && (
                                                 <div className="w-full p-5 flex flex-col gap-2">
                                                     <MotifRefus
                                                         id={`motif-${c.id}`}

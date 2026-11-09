@@ -273,6 +273,7 @@ const EtudiantHome = ({ user }) => {
                                                         <PageSeparator />
                                                     )}
                                                     <OffreEtudiantCard
+                                                        user={{ ...user, statut: candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE") ? "STAGE_TROUVE" : user?.statut }}
                                                         key={offer.id}
                                                         offer={offer}
                                                         onPreview={setPreviewUrl}

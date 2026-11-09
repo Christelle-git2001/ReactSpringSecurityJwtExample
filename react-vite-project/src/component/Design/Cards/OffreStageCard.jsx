@@ -1,12 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit, FiStar, FiUser } from 'react-icons/fi';
+import { FiEdit, FiLock, FiStar, FiUser } from 'react-icons/fi';
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import { actionsCandidatureDesactivees } from "../../../utils/candidatureActions.js";
 
 function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = false, showPdfActions = true }) {
     const { t } = useTranslation();
@@ -140,11 +141,17 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                                             >
                                                 <FiUser className="size-4 shrink-0" aria-hidden="true" />
                                                 <span className="min-w-0 flex-1 break-words">{candidature.etudiantFirstName} {candidature.etudiantLastName}</span>
-                                                {candidature.statut && (
-                                                    <span className={`badge badge-xs ml-auto h-auto max-w-[55%] shrink-0 whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
-                                                        {statutCandidature.label}
-                                                    </span>
-                                                )}
+                                                <span className="ml-auto flex max-w-[55%] shrink-0 flex-col items-end gap-1 text-right">
+                                                    {actionsCandidatureDesactivees(candidature) && <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                                                        <FiLock className="size-3.5 shrink-0" aria-hidden="true" />
+                                                        {t("candidature.actions_disabled")}
+                                                    </span>}
+                                                    {candidature.statut && (
+                                                        <span className={`badge badge-xs h-auto max-w-full whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
+                                                            {statutCandidature.label}
+                                                        </span>
+                                                    )}
+                                                </span>
                                             </button>
                                         </li>
                                         );

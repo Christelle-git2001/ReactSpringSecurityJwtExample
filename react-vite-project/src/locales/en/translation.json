@@ -585,6 +585,11 @@
     }
   },
   "candidature": {
+    "actions_disabled": "Actions disabled",
+    "actions_disabled_description": "A final internship has already been selected. You can still view this application, but it can no longer be changed.",
+    "final_stage_selected": "Final internship selected",
+    "final_stage_declared": "Final internship declared",
+    "other_actions_disabled": "Actions on your other applications are disabled.",
     "offre_sans_titre": "Untitled offer",
     "etudiant_inconnu": "Unknown student",
     "employer_unknown": "Unknown company",
@@ -754,6 +759,9 @@
     }
   },
   "agenda": {
+    "interview_cancelled": "Interview cancelled — internship found",
+    "interview_completed": "Interview completed",
+    "clear_filter": "Show all interviews",
     "interviews_list": "Interviews",
     "no_interviews": "No interview",
     "selected_day_interviews": "Show today's interviews",
@@ -823,7 +831,7 @@
     "not_started": "Process not started",
     "start_button": "Start the signature process",
     "sign_button": "Sign the contract",
-    "already_signed": "Contract already signed",
+    "already_signed": "Contract signed",
     "completed_on": "Completed on",
     "start_error": "Error while starting the process",
     "sign_error": "Error while signing the contract",

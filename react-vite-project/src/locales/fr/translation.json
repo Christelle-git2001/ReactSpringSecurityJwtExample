@@ -523,6 +523,11 @@
     }
   },
   "candidature": {
+    "actions_disabled": "Actions désactivées",
+    "actions_disabled_description": "Un stage final a déjà été choisi. Cette candidature reste consultable, mais ne peut plus être modifiée.",
+    "final_stage_selected": "Stage final sélectionné",
+    "final_stage_declared": "Stage final déclaré",
+    "other_actions_disabled": "Les actions sur vos autres candidatures sont désactivées.",
     "offre_sans_titre": "Offre sans titre",
     "etudiant_inconnu": "Étudiant inconnu",
     "employer_unknown": "Entreprise inconnue",
@@ -695,6 +700,9 @@
     }
   },
   "agenda": {
+    "interview_cancelled": "Entrevue annulée — stage trouvé",
+    "interview_completed": "Entrevue terminée",
+    "clear_filter": "Afficher toutes les entrevues",
     "interviews_list": "Entrevues",
     "no_interviews": "Aucune entrevue",
     "selected_day_interviews": "Afficher les entrevues du jour",
@@ -741,7 +749,7 @@
     "not_started": "Processus non démarré",
     "start_button": "Démarrer le processus de signature",
     "sign_button": "Signer le contrat",
-    "already_signed": "Contrat déjà signé",
+    "already_signed": "Contrat signé",
     "completed_on": "Effectué le",
     "start_error": "Erreur lors du démarrage du processus",
     "sign_error": "Erreur lors de la signature du contrat",
