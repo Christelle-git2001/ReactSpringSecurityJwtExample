@@ -310,4 +310,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(MotDePasseInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
+            MotDePasseInvalideException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }

@@ -428,11 +428,25 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId) throws ContratIntrouvableException{
+    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException{
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+
+        Gestionnaire gestionnaire = userAppRepository.findUserAppByEmail(email)
+                .filter(Gestionnaire.class::isInstance)
+                .map(Gestionnaire.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        if (!passwordEncoder.matches(motDePasse, gestionnaire.getPassword())) {
+            throw new MotDePasseInvalideException();
+        }
+
         Contrat contrat = contratRepository.findById(contratId)
                 .orElseThrow(ContratIntrouvableException::new);
 
-        contrat.setDateSignatureGestionnaire(LocalDate.now());
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
 

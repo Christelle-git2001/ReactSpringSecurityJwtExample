@@ -555,67 +555,103 @@ public class EmployeurControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
 
+    @Test
     void doitSignerContratAvecSucces() throws Exception {
+        String motDePasse = "Losange12%";
 
         ContratDTO contratDTO = new ContratDTO(
                 1L,
                 1L,
                 1L,
                 null,
-                LocalDate.now(),
+                LocalDateTime.now(),
                 null
-
         );
-        when(employeurService.signerContrat(1L)).thenReturn(contratDTO);
+
+        when(employeurService.signerContrat(1L, motDePasse))
+                .thenReturn(contratDTO);
+
         mockMvc.perform(put("/employeur/contrats/1/signature")
-
                         .principal(principal)
-
-                        .contentType(MediaType.APPLICATION_JSON))
-
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "Losange12%"
+                            }
+                            """))
                 .andExpect(status().isOk())
-
                 .andExpect(jsonPath("$.id").value(1L))
-
                 .andExpect(jsonPath("$.dateSignatureEmployeur").exists());
-
     }
-
-
 
     @Test
-
     void doitRetournerNotFoundQuandContratIntrouvablePourSignature() throws Exception {
+        String motDePasse = "Losange12%";
 
-        when(employeurService.signerContrat(99L)).thenThrow(new ContratIntrouvableException());
+        when(employeurService.signerContrat(99L, motDePasse))
+                .thenThrow(new ContratIntrouvableException());
+
         mockMvc.perform(put("/employeur/contrats/99/signature")
-
                         .principal(principal)
-
-                        .contentType(MediaType.APPLICATION_JSON))
-
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "Losange12%"
+                            }
+                            """))
                 .andExpect(status().isNotFound());
-
     }
-
-
 
     @Test
     void doitRetournerForbiddenQuandOffreNonAutoriseePourSignature() throws Exception {
+        String motDePasse = "Losange12%";
 
-        when(employeurService.signerContrat(1L)).thenThrow(new OffreNonAutoriseeException());
+        when(employeurService.signerContrat(1L, motDePasse))
+                .thenThrow(new OffreNonAutoriseeException());
 
         mockMvc.perform(put("/employeur/contrats/1/signature")
-
                         .principal(principal)
-
-                        .contentType(MediaType.APPLICATION_JSON))
-
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "Losange12%"
+                            }
+                            """))
                 .andExpect(status().isForbidden());
-
     }
+
+    @Test
+    void doitRetournerUnauthorizedQuandMotDePasseInvalidePourSignature() throws Exception {
+        String motDePasse = "MauvaisMotDePasse";
+
+        when(employeurService.signerContrat(1L, motDePasse))
+                .thenThrow(new MotDePasseInvalideException());
+
+        mockMvc.perform(put("/employeur/contrats/1/signature")
+                        .principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "MauvaisMotDePasse"
+                            }
+                            """))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandMotDePasseManquantPourSignature() throws Exception {
+        mockMvc.perform(put("/employeur/contrats/1/signature")
+                        .principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": ""
+                            }
+                            """))
+                .andExpect(status().isBadRequest());
+    }
+
 
 
 }
