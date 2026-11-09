@@ -613,17 +613,19 @@ public class EtudiantControllerTest {
         verifyNoInteractions(etudiantService);
     }
 
+
     @Test
     void doitSignerContratEtudiant() throws Exception {
         Long contratId = 1L;
+        String motDePasse = "111111";
 
         ContratDTO contratDTO = new ContratDTO(
                 contratId,
                 1L,
                 1L,
-                LocalDate.now(),
-                LocalDate.now(),
-                LocalDate.now()
+                null,
+                null,
+                LocalDateTime.now()
         );
 
         Authentication authentication =
@@ -632,22 +634,30 @@ public class EtudiantControllerTest {
                         null
                 );
 
-        when(etudiantService.signerContrat(contratId))
+        when(etudiantService.signerContrat(contratId, motDePasse))
                 .thenReturn(contratDTO);
 
         mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
-                        .principal(authentication))
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "111111"
+                            }
+                            """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(contratId))
                 .andExpect(jsonPath("$.candidatureId").value(1))
                 .andExpect(jsonPath("$.dateSignatureEtudiant").exists());
 
-        verify(etudiantService, times(1)).signerContrat(contratId);
+        verify(etudiantService, times(1))
+                .signerContrat(contratId, motDePasse);
     }
 
     @Test
     void doitRetournerNotFoundQuandContratIntrouvablePourSignature() throws Exception {
         Long contratId = 99L;
+        String motDePasse = "111111";
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
@@ -655,19 +665,27 @@ public class EtudiantControllerTest {
                         null
                 );
 
-        when(etudiantService.signerContrat(contratId))
+        when(etudiantService.signerContrat(contratId, motDePasse))
                 .thenThrow(new ContratIntrouvableException());
 
         mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
-                        .principal(authentication))
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "111111"
+                            }
+                            """))
                 .andExpect(status().isNotFound());
 
-        verify(etudiantService, times(1)).signerContrat(contratId);
+        verify(etudiantService)
+                .signerContrat(contratId, motDePasse);
     }
 
     @Test
     void doitRetournerForbiddenQuandEtudiantNonAutorisePourSignature() throws Exception {
         Long contratId = 1L;
+        String motDePasse = "111111";
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
@@ -675,13 +693,69 @@ public class EtudiantControllerTest {
                         null
                 );
 
-        when(etudiantService.signerContrat(contratId))
+        when(etudiantService.signerContrat(contratId, motDePasse))
                 .thenThrow(new OffreNonAutoriseeException());
 
         mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
-                        .principal(authentication))
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "111111"
+                            }
+                            """))
                 .andExpect(status().isForbidden());
 
-        verify(etudiantService, times(1)).signerContrat(contratId);
+        verify(etudiantService)
+                .signerContrat(contratId, motDePasse);
+    }
+
+    @Test
+    void doitRetournerUnauthorizedQuandMotDePasseInvalidePourSignature() throws Exception {
+        Long contratId = 1L;
+        String motDePasse = "mauvaisMotDePasse";
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        when(etudiantService.signerContrat(contratId, motDePasse))
+                .thenThrow(new MotDePasseInvalideException());
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", contratId)
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "mauvaisMotDePasse"
+                            }
+                            """))
+                .andExpect(status().isUnauthorized());
+
+        verify(etudiantService)
+                .signerContrat(contratId, motDePasse);
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandMotDePasseManquantPourSignature() throws Exception {
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        "christelle@gmail.com",
+                        null
+                );
+
+        mockMvc.perform(put("/etudiant/contrats/{contratId}/signature", 1L)
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": ""
+                            }
+                            """))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(etudiantService);
     }
 }
