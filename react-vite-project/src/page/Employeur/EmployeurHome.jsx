@@ -136,7 +136,7 @@ const EmployeurHome = ({ user }) => {
                                     }
                                 />
                             ) : (
-                                <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full mt-4">
+                                <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] items-start gap-4 w-full mt-4">
                                     {filteredOffres.map((offer) => (
                                         <OffreStageCard
                                             key={offer.id}

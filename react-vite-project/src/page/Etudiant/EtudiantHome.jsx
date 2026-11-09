@@ -227,7 +227,7 @@ const EtudiantHome = ({ user }) => {
                                                 <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
                                             </div>
                                         )}
-                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full">
+                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] items-start gap-4 w-full">
                                             {[...nouvellesOffres, ...autresOffres].map((offer, index) => (
                                                 <div key={offer.id} className="contents">
                                                     {index === nouvellesOffres.length && index > 0 && (
