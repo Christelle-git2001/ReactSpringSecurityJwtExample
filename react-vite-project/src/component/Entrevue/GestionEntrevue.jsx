@@ -112,18 +112,16 @@ function GestionEntrevue() {
                 </p>
             </div>
 
-            <div className="w-full h-full p-4 md:p-8 flex flex-col gap-16 items-center">
-                <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl justify-center lg:items-start">
-
-                    <div className="w-full lg:w-[420px] lg:h-fit lg:sticky lg:top-6 shrink-0">
+            <div className="w-full min-h-full p-4 md:p-8 flex flex-col gap-10 items-center">
+                <div className="flex flex-col lg:flex-row gap-10 xl:gap-14 w-full max-w-[1400px] justify-center lg:items-start">
+                    <div className="w-full lg:w-[600px] lg:h-fit lg:sticky lg:top-6 shrink-0">
                         <AddEntrevue
                             candidatures={candidaturesList}
                             initialCandidatureId={preselectedCandidatureId}
                             onSave={handleAddEntrevue}
                         />
                     </div>
-                    <div className="hidden lg:block flex-1"></div>
-                    <div className="w-full lg:max-w-xl">
+                    <div className="w-full lg:w-[650px]">
                         {loading ? (
                             <div className="flex items-center justify-center p-12 bg-white rounded-2xl border border-gray-200">
                                 <span className="loading loading-spinner loading-md text-[#043462]" />

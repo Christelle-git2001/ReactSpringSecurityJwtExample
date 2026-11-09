@@ -35,7 +35,7 @@ Nous conservons les mêmes points d'action que le sprint 2 et ajoutons les suiva
 **Sprint 4**
 
 **-- Points d'action --**
-1. Mercredi 12 h (veille de la demo): La pull request doit être ouverte et signalée dans le groupe 
-(informer en même temps si on manque de disponibilité pour finir)
-2. Changements terminés le plus tôt possible (idéalement 3 jours).
 
+1. Mercredi 12 h (veille de la demo): La pull request doit être ouverte et signalée dans le groupe
+   (informer en même temps si on manque de disponibilité pour finir)
+2. Changements terminés le plus tôt possible (idéalement 3 jours).
