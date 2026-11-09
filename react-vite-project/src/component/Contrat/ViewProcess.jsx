@@ -295,10 +295,10 @@ function ViewProcess() {
                                             ? t("process.waiting_parties_signatures")
                                             : ""
                                     }
-                                    className={`px-4 py-2 rounded-md font-medium text-white transition-colors flex items-center justify-center min-w-[100px] ${
+                                    className={`px-4 py-2 rounded-md font-medium bg-cyan-600 text-white transition-colors flex items-center justify-center min-w-[100px] focus-visible:outline-cyan-600 ${
                                         isSignButtonDisabled || isSigning
-                                            ? "bg-gray-400 cursor-not-allowed opacity-70"
-                                            : "bg-[#043462] hover:bg-[#03284d] cursor-pointer"
+                                            ? "cursor-not-allowed opacity-70"
+                                            : "hover:bg-cyan-700 cursor-pointer"
                                     }`}
                                 >
                                     {isSigning ? (
