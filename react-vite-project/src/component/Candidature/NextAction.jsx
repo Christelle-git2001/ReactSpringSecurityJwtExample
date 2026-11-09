@@ -13,6 +13,9 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role
     const [statutActuel, setStatutActuel] = useState(candidature?.statut);
     const [motifRefus, setMotifRefus] = useState("");
     const [motifError, setMotifError] = useState(false);
+    const [modalOuverte, setModalOuverte] = useState(false);
+    const [motDePasse, setMotDePasse] = useState("");
+    const [erreurSignature, setErreurSignature] = useState("");
 
     useEffect(() => {
         if (statutActuel !== "ENTREVUE_REFUSEE" || !candidature?.id) return;
@@ -71,24 +74,43 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role
         }
     };
 
+    const ouvrirModalSignature = () => {
+        setMotDePasse("");
+        setErreurSignature("");
+        setModalOuverte(true);
+    };
+
     const handleSignerContrat = async () => {
         const contratId = contrat?.id || candidature?.contratId;
-        if (!contratId) return;
+
+        if (!contratId || !motDePasse.trim()) return;
+
         try {
             setIsSubmitting(true);
+            setErreurSignature("");
+
             let updatedContrat;
 
             if (role === Role.ETUDIANT) {
-                updatedContrat = await signerContratEtudiant(contratId);
+                updatedContrat = await signerContratEtudiant(contratId, motDePasse);
             } else if (role === Role.EMPLOYEUR) {
-                updatedContrat = await signerContratEmployeur(contratId);
+                updatedContrat = await signerContratEmployeur(contratId, motDePasse);
             }
 
             if (onSignatureSuccess) {
                 onSignatureSuccess(updatedContrat);
             }
+
+            setModalOuverte(false);
+            setMotDePasse("");
+
         } catch (error) {
             console.error(error);
+            setErreurSignature(
+                t(error.message, {
+                    defaultValue: t("error.generic")
+                })
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -110,7 +132,7 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role
                     return {
                         description: t("process.action_student_sign_contract"),
                         buttonText: isSubmitting ? t("actions.signing") : t("actions.sign_contract"),
-                        onClick: handleSignerContrat,
+                        onClick: ouvrirModalSignature,
                         disabled: isSubmitting
                     };
                 default:
@@ -174,7 +196,7 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role
                     return {
                         description: t("process.action_sign_contract"),
                         buttonText: isSubmitting ? t("actions.signing") : t("actions.sign_contract"),
-                        onClick: handleSignerContrat,
+                        onClick: ouvrirModalSignature,
                         disabled: isSubmitting
                     };
                 default:
@@ -233,6 +255,56 @@ function NextAction({ candidature, contrat, retourPath, onSignatureSuccess, role
                     {t("actions.back")}
                 </Button>
             </div>
+            {modalOuverte && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+
+                        <h2 className="text-lg font-bold text-gray-900">
+                             {t("contrat.confirm_signature")}
+                        </h2>
+
+                        <p className="mt-2 text-sm text-gray-600">
+                             {t("contrat.enter_password")}
+                        </p>
+
+                        <input
+                            type="password"
+                            value={motDePasse}
+                            onChange={(e) => setMotDePasse(e.target.value)}
+                            placeholder={t("register.password")}
+                            className="mt-4 w-full rounded-lg border border-gray-300 p-3 focus:border-cyan-600 focus:outline-none"
+                        />
+
+                        {erreurSignature && (
+                            <p role="alert" className="mt-2 text-sm text-red-600">
+                                {erreurSignature}
+                            </p>
+                        )}
+
+                        <div className="mt-6 flex justify-end gap-3">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => setModalOuverte(false)}
+                                disabled={isSubmitting}
+                            >
+                                {t("actions.cancel")}
+                            </Button>
+
+                            <Button
+                                type="button"
+                                onClick={handleSignerContrat}
+                                disabled={isSubmitting || !motDePasse.trim()}
+                                className="bg-cyan-600 text-white hover:bg-cyan-700"
+                            >
+                                {isSubmitting
+                                    ? t("actions.signing")
+                                    : t("actions.confirm")}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

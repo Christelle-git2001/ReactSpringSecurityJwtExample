@@ -125,7 +125,8 @@
     "collapse": "Réduire",
     "expand": "Développer",
     "create_contract": "Créer le contrat",
-    "postuler": "Postuler"
+    "postuler": "Postuler",
+    "confirm" : "Confirmer"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -228,7 +229,9 @@
     "generic": "Une erreur est survenue. Veuillez réessayer.",
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
     "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
-    "convocation_not_found": "Convocation d’entrevue introuvable."
+    "convocation_not_found": "Convocation d’entrevue introuvable.",
+    "password_invalid": "Le mot de passe est incorrect.",
+    "password_required": "Veuillez saisir votre mot de passe."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -591,8 +594,11 @@
     "replace": "Remplacer le document",
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
-  "contrat" : {
-    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage."  },
+  "contrat": {
+    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage.",
+    "confirm_signature": "Confirmer la signature",
+    "enter_password": "Veuillez saisir votre mot de passe pour confirmer la signature."
+  },
   "entrevue": {
     "mode_online_title": "En ligne",
     "mode_onsite_title": "Présentiel",

@@ -82,7 +82,9 @@
       "display_end_date_required": "Please select an offer display end date.",
       "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
       "display_end_date_before_today": "The offer display end date cannot be in the past.",
-      "start_date_before_today": "The start date cannot be before today."
+      "start_date_before_today": "The start date cannot be before today.",
+      "password_invalid": "The password is incorrect.",
+      "password_required": "Please enter your password."
     }
   },
   "edit_offer": {
@@ -125,7 +127,8 @@
     "collapse": "Collapse",
     "expand": "Expand",
     "cancel" : "Cancel",
-    "postuler": "Postuler"
+    "postuler": "Postuler",
+    "confirm": "Confirm"
   },
   "login": {
     "page_title": "Login",
@@ -348,7 +351,9 @@
     }
   },
   "contrat": {
-    "aucun_contrat": "No contract has been produced yet. Please contact your internship manager."
+    "aucun_contrat": "No contract has been produced yet. Please contact your internship manager.",
+    "confirm_signature": "Confirm signature",
+    "enter_password": "Please enter your password to confirm the signature."
   },
   "pdfVisio": {
     "nofiles": "No files selected",

@@ -2,6 +2,9 @@ import BASE_URL from "../config/Config.jsx";
 
 export async function fetchJson(path, options = {}) {
     const res = await fetchApi(path, options);
+
+    if (res.status === 204) return null;
+
     return res.json();
 }
 
