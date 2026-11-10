@@ -6,6 +6,7 @@ import useAuth from "./utils/useAuth.js";
 import { addEtudiant, addProfesseur, addEmployeur } from "./utils/userService.js";
 import Drawer from "./component/Design/Drawer.jsx";
 import {Toaster} from "react-hot-toast";
+import ChatBox from "./component/ChatBot/ChatBox.jsx";
 
 function App() {
     const { user, setUser, error, setError } = useAuth();
@@ -39,6 +40,7 @@ function App() {
             />
             <Drawer id="my-drawer-5" content={drawerContent} />
             <Toaster />
+            {user && <ChatBox/>}
         </div>
     );
 }
