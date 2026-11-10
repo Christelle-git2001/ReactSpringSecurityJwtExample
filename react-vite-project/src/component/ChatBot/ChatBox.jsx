@@ -135,6 +135,22 @@ function ChatBot() {
                             </div>
                         </div>
                     ))}
+
+                    {/* Suggestions rapides */}
+                    {suggestionsMontrees && !chargement && (
+                        <div className="pt-1 space-y-1.5">
+                            {SUGGESTIONS.map((s, i) => (
+                                <button key={i}
+                                        onClick={() => envoyer(s)}
+                                        className="w-full text-left text-xs px-3 py-1.5 rounded-xl
+                                                   border border-[#043462]/20 text-[#043462] bg-white
+                                                   hover:bg-[#043462] hover:text-white
+                                                   transition-colors duration-150">
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Saisie */}
