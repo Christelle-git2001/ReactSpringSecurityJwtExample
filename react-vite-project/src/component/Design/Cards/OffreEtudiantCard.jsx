@@ -4,13 +4,9 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
-import Button from "../../Design/Button.jsx"
-import {useNavigate} from "react-router-dom";
 
-function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, candidature, user }) {
-    const navigate = useNavigate();
+function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, user }) {
     const { t } = useTranslation();
-    const statutCandidature = candidature?.statut;
 
     const offre = [
         { label: t("offre.employeur"), value: offer?.employeur?.businessName },
@@ -85,19 +81,15 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, ca
                     )}
 
                     {error && <p role="alert" className="text-sm text-red-700">{t(error)}</p>}
-                    {statutCandidature === "CONTRAT_CREE" ? (
-                        <Button icon={true} role={"details"} onClick={() => navigate("/etudiant/contrat", { state: { candidature } })}>Voir contrat</Button>
-                    ):(
-                        <PostulerButton
-                            user={user}
-                            offerId={offer?.id}
-                            hasApplied={hasApplied}
-                            onApply={onRead}
-                            onApplied={(id) => {
-                                onApplied?.(id);
-                            }}
-                        />
-                    )}
+                    <PostulerButton
+                        user={user}
+                        offerId={offer?.id}
+                        hasApplied={hasApplied}
+                        onApply={onRead}
+                        onApplied={(id) => {
+                            onApplied?.(id);
+                        }}
+                    />
                 </div>
 
             </div>

@@ -51,18 +51,18 @@ function PostulerButton({ offerId, hasApplied = false, onApply, onApplied, user 
 
     const hasStage = user?.statut === "STAGE_TROUVE" || user?.candidatureStage != null;
 
-    if (hasStage) {
-        return (
-            <p className="text-center font-semibold text-red-600 py-2">
-                {t("etudiant.offers.internship_found_locked")}
-            </p>
-        );
-    }
-
     if (applied) {
         return (
             <p className="text-center font-semibold text-green-700 py-2">
                 {t("offre.application_received")}
+            </p>
+        );
+    }
+
+    if (hasStage) {
+        return (
+            <p className="text-center font-semibold text-red-600 py-2">
+                {t("etudiant.offers.internship_found_locked")}
             </p>
         );
     }

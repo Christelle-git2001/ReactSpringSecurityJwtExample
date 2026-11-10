@@ -1,21 +1,17 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
-import { obtenirCvPDFGestionnaire, getContratByCandidatureId } from "../../api/gestionnaire.jsx";
-import { obtenirContratPDF } from "../../api/pdf.jsx";
+import { useLocation } from "react-router-dom";
+import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { obtenirConvocationEmployeur } from "../../api/employeur.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
-import OffreDetailsDrawerContent from "../Offer/OffreDetailsDrawerContent.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
 import {useContrat} from "../hook/useContrat.jsx";
 import {Role} from "../../enum/Role.jsx"
 
-function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, onOpenOffer }) {
+function CandidatureDetails({ candidature: candidatureProp, offer: offerProp }) {
     const location = useLocation();
-    const { t, i18n } = useTranslation();
-    const outletContext = useOutletContext();
-    const openDrawer = outletContext?.openDrawer;
+    const { t } = useTranslation();
 
     const candidatureSource = candidatureProp || location.state?.candidature;
     const [decision, setDecision] = useState(null);

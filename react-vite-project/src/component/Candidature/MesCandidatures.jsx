@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation, declarerStageTrouve } from "../../api/etudiant.jsx";
 import { FaBriefcase, FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt, FaVideo, FaUsers } from "react-icons/fa";
 import Button from "../Design/Button.jsx";
@@ -28,6 +28,7 @@ const FORMAT_KEYS = {
 function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange, loading: loadingProp = false, convocations: convocationsProp, onConvocationsChange, filters, offres = [] }) {
     const { t, i18n } = useTranslation();
     const location = useLocation();
+    const navigate = useNavigate();
     const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const focusId = location.state?.id;
     const focusCandidatureId = location.state?.candidatureId;
@@ -243,7 +244,6 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
             )}
 
             <div>
-                    {stageDeclare && <div role="status" className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900"><FaCheckCircle className="size-6 shrink-0" aria-hidden="true" /><div><p className="font-bold">{t("candidature.final_stage_declared")}</p><p className="text-sm">{t("candidature.other_actions_disabled")}</p></div></div>}
                     {actionError && <p role="alert" className="mb-3 text-sm text-red-700">{t(actionError)}</p>}
 
                     {filtres.itemsFiltres.length === 0 ? (
@@ -282,10 +282,17 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
 
                                                 <div className="ml-auto flex shrink-0 flex-col items-end gap-2">
                                                 {actionsDesactivees && <span className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700"><FiLock aria-hidden="true" />{t("candidature.actions_disabled")}</span>}
-                                                <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold ${actionsDesactivees ? "bg-slate-200 text-slate-600 border-slate-300" : aRepondre ? "bg-amber-100 text-amber-800 border-amber-200" : c.statut === "CONFIRMEE" && candidature.statut === "ENTREVUE_PLANIFIEE" ? "bg-green-100 text-green-700 border-green-200" : statutConfig.className}`}>
+                                                {!["ENTREVUE_PLANIFIEE", "A_CONFIRMER"].includes(c.statutFiltre) && <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold ${actionsDesactivees ? "bg-slate-200 text-slate-600 border-slate-300" : statutConfig.className}`}>
                                                     {c.statut === "CONFIRMEE" && <FaCheckCircle aria-hidden="true" />}
-                                                    {aRepondre ? t("candidature.status.planifiee") : statutConfig.label}
-                                                </span>
+                                                    {statutConfig.label}
+                                                </span>}
+
+                                                {candidature.statut === "CONTRAT_CREE" && (
+                                                    <Button size="small" type="button" role="details" icon={true}
+                                                            onClick={() => navigate("/etudiant/contrat", { state: { candidature } })}>
+                                                        {t("candidature.view_contract")}
+                                                    </Button>
+                                                )}
 
                                                 {candidature.statut === "ACCEPTEE" && (
                                                     <Button size="small" type="button" disabled={enCours}

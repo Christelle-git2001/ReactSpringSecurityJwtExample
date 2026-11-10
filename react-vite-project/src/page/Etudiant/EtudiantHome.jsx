@@ -279,7 +279,6 @@ const EtudiantHome = ({ user }) => {
                                                         onPreview={setPreviewUrl}
                                                         onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
-                                                        candidature={candidatures.find((c) => c.offreId === offer.id)}
                                                         onApplied={(id) => {
                                                             setIdsPostules((prev) =>
                                                                 prev.includes(id) ? prev : [...prev, id]

@@ -585,6 +585,7 @@
     }
   },
   "candidature": {
+    "view_contract": "View contract",
     "actions_disabled": "Actions disabled",
     "actions_disabled_description": "A final internship has already been selected. You can still view this application, but it can no longer be changed.",
     "final_stage_selected": "Final internship selected",
