@@ -136,6 +136,33 @@ function ChatBot() {
                         </div>
                     ))}
                 </div>
+
+                {/* Saisie */}
+                <div className="p-3 border-t border-gray-100 bg-white flex gap-2 shrink-0">
+                    <textarea
+                        ref={inputRef}
+                        rows={1}
+                        value={saisie}
+                        onChange={e => setSaisie(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Posez votre question…"
+                        disabled={chargement}
+                        className="flex-1 resize-none rounded-xl border border-gray-200 px-3 py-2
+                                   text-xs focus:outline-none focus:border-[#043462]
+                                   disabled:opacity-50 transition-colors"
+                    />
+                    <button
+                        onClick={() => envoyer()}
+                        disabled={!saisie.trim() || chargement}
+                        className="w-9 h-9 shrink-0 rounded-xl bg-[#043462] text-white
+                                   flex items-center justify-center
+                                   hover:bg-[#0a4a80] disabled:opacity-40 disabled:cursor-not-allowed
+                                   transition-colors"
+                        aria-label="Envoyer"
+                    >
+                        <FaPaperPlane size={13} />
+                    </button>
+                </div>
             </div>
         </>
     );
