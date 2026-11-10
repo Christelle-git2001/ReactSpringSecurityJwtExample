@@ -24,6 +24,12 @@ function TexteBot({ texte }) {
     );
 }
 
+const SUGGESTIONS = [
+    "Combien d'étudiants sont inscrits ?",
+    "Quels CV attendent une validation ?",
+    "Quels contrats attendent ma signature ?",
+    "Combien ont trouvé un stage ?",
+];
 
 function ChatBot() {
     const [ouvert, setOuvert] = useState(false);
@@ -35,8 +41,10 @@ function ChatBot() {
     ]);
     const [saisie, setSaisie] = useState("");
     const [chargement, setChargement] = useState(false);
+    const [suggestionsMontrees, setSuggestionsMontrees] = useState(true);
 
     const messagesRef = useRef(null);
+    const inputRef = useRef(null);
 
     // Scroll au bas à chaque nouveau message
     useEffect(() => {
@@ -45,9 +53,26 @@ function ChatBot() {
     }, [messages, chargement]);
 
 
+    const envoyer = async (texteForce) => {
+        const question = (texteForce ?? saisie).trim();
+        if (!question || chargement) return;
 
+        setSaisie("");
+        setSuggestionsMontrees(false);
+        setMessages(prev => [...prev, { role: "user", texte: question }]);
+        setChargement(true);
 
+        const reponse = getMockReponse(question);
+        setMessages(prev => [...prev, { role: "bot", texte: reponse }]);
+        setChargement(false);
+    };
 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            envoyer();
+        }
+    };
 
     return (
         <>
@@ -88,6 +113,28 @@ function ChatBot() {
                     >
                         <FaTimes size={14} />
                     </button>
+                </div>
+
+                {/* Messages */}
+                <div ref={messagesRef}
+                     className="flex-1 overflow-y-auto px-3 py-3 space-y-3 bg-gray-50">
+
+                    {messages.map((msg, i) => (
+                        <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                            {msg.role === "bot" && (
+                                <div className="w-6 h-6 rounded-full bg-[#00CCCB] flex items-center justify-center shrink-0 mt-1 mr-2">
+                                    <FaRobot size={11} className="text-[#043462]" />
+                                </div>
+                            )}
+                            <div className={`max-w-[78%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
+                                msg.role === "user"
+                                    ? "bg-[#043462] text-white rounded-br-sm"
+                                    : "bg-white text-gray-800 border border-gray-200 rounded-bl-sm shadow-sm"
+                            }`}>
+                                <TexteBot texte={msg.texte} />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </>
