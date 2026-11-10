@@ -12,6 +12,8 @@ import ConnexionRapideEmployeur from "../../config/ConnexionRapideEmployeur.jsx"
 import ConnexionRapideStudentAdrien from "../../config/ConnexionRapideStudentAdrien.jsx";
 import ConnexionRapideToru from "../../config/ConnexionRapideToru.jsx";
 import ConnexionRapideStudentNicolas from "../../config/ConnexionRapideStudentNicolas.jsx";
+import ConnexionRapideStudentJacob from "../../config/ConnexionRapideStudentJacob.jsx";
+import ConnexionRapideStudentSephiroth from "../../config/ConnexionRapideStudentSephiroth.jsx";
 
 const LoginForm = ({ user, setError }) => {
     const navigate = useNavigate();

@@ -52,3 +52,5 @@ export function getStatusConfig(statut, t, type = "offre") {
         className: (type === "candidature" ? candidatureClassNames[statut] : classNames[statut]) || "badge-neutral",
     };
 }
+
+export const STATUTS_CANDIDATURE = ["SOUMISE", "RETENUE_POUR_ENTREVUE", "ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE", "ENTREVUE_REFUSEE", "ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"];

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,8 @@ public class Etudiant extends UserApp {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professeur_id")
     private Professeur professeur;
+
+    private LocalDateTime professorAssignedAt;
 
 
     @Builder

@@ -159,7 +159,7 @@ const GestionnaireAttribution = () => {
                         {isAssign && (
                             <div className="col-span-3">
                                 <div className="flex justify-center items-center  h-full">
-                                    <Button type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
+                                    <Button icon={false} type="button" onClick={restart} disabled={!isAssign} className="btn">{t("gestionnaire.assignation.etudiant.assign_restart")}</Button>
                                 </div>
                             </div>
                         )}
@@ -247,9 +247,11 @@ const GestionnaireAttribution = () => {
                                 />
                             )}
                         />
-                        <div className="flex justify-center mt-2">
-                            <Button role="soumettre" type="button" onClick={onAssign} disabled={etudiantSelectionnes <= 0} className="btn">{t("gestionnaire.assignation.button.text")}</Button>
-                        </div>
+                        {etudiantSelectionnes.length > 0 && (
+                            <div className="flex justify-center mt-2">
+                                <Button role="soumettre" type="button" onClick={onAssign} disabled={etudiantSelectionnes.length <= 0} className="btn">{t("gestionnaire.assignation.button.text")}</Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

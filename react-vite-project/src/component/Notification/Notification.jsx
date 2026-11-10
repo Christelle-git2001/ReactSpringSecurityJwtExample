@@ -136,7 +136,6 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
     const onClick = async (notification) => {
         const routeConfig = ROUTES_PAR_TYPE[notification.notificationType];
         const role = window.location.pathname;
-        console.log(role);
         const destination = typeof routeConfig === "function"
             ? routeConfig(role)
             : routeConfig;
@@ -343,7 +342,6 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                                 ? `${notification.notificationType}_${statut}`
                                 : notification.notificationType;
                             const config = CONFIG_PAR_TYPE[configKey];
-                            console.log(config, notification.notificationType)
 
                             const titre = t(notification.titre, {
                                 ...notification.variables,

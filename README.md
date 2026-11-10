@@ -1,10 +1,10 @@
-**Sprint 2**
+**Sprint 1**
 
 **-- Points d'actions --**
 1. Les tâches "In Review" doivent être révisées dans les 18 heures suivant le pull request .
 2. Accumuler au moins 6 heures de temps de travail dans les 4 jours qui suivent la planification (avant le daily de mardi).
 
-**Sprint 3**
+**Sprint 2**
 
 **-- Points d'action --**
 
@@ -21,14 +21,21 @@ Nous conservons les mêmes points d'action que le sprint 2 et ajoutons les suiva
 4. Relire l'énoncé du TP pour s'assurer que toutes nos stories respectent les exigences demandées.
 
 
-**Sprint 4**
+**Sprint 3**
 
 **-- Points d'action --**
 
 1. Faire les modifications attendues dans les 24 heures
-2. Lorsqu'on prend une décision qui impacte le UX du logiciel,communiquer et attendre la réaction de tous les membres de l'équipe dans les 24h  pour effectuer le changement
+2. Lorsqu'on prend une décision qui impacte le UX/UI du logiciel,communiquer et attendre la réaction de tous les membres de l'équipe dans les 24h  pour effectuer le changement
 
 **-- Définition de done : --**
-1- Tous les tests backend (et anciennement frontend) passend
+1- Tous les tests backend (et anciennement frontend) passent
 2- Toutes les tâches à part les plans de démo sont à "0" (heures restantes) dans JIRA.
 
+**Sprint 4**
+
+**-- Points d'action --**
+
+1. Mercredi 12 h (veille de la demo): La pull request doit être ouverte et signalée dans le groupe
+   (informer en même temps si on manque de disponibilité pour finir)
+2. Changements terminés le plus tôt possible (idéalement 3 jours).

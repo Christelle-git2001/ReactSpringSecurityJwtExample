@@ -4,15 +4,15 @@ import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Contrat;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ContratDTO(
         long id,
         Long candidatureId,
         Long gestionnaireId,
-        LocalDate dateSignatureGestionnaire,
-        LocalDate dateSignatureEmployeur,
-        LocalDate dateSignatureEtudiant
+        LocalDateTime dateSignatureGestionnaire,
+        LocalDateTime dateSignatureEmployeur,
+        LocalDateTime dateSignatureEtudiant
 ) {
 
     public static ContratDTO of(Contrat contrat){

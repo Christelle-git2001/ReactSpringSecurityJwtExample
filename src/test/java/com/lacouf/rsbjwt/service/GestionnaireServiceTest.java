@@ -1108,47 +1108,128 @@ class GestionnaireServiceTest {
     }
 
     @Test
-    void doitSignerUnContrat() throws ContratIntrouvableException {
+    void doitSignerUnContratAvecSucces() throws Exception {
+        Long contratId = 1L;
+        String emailGestionnaire = gestionnaire.getEmail();
+        String motDePasse = "5858";
+
         Contrat contrat = new Contrat();
-        contrat.setId(1L);
+        contrat.setId(contratId);
 
         Candidature candidature = new Candidature();
         candidature.setId(10L);
         contrat.setCandidature(candidature);
-
-        Gestionnaire gestionnaire = new Gestionnaire();
-        gestionnaire.setId(20L);
         contrat.setGestionnaire(gestionnaire);
 
-        when(contratRepository.findById(1L))
-                .thenReturn(Optional.of(contrat));
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
 
-        when(contratRepository.save(contrat))
-                .thenReturn(contrat);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(emailGestionnaire);
 
-        ContratDTO result = gestionnaireService.signerContrat(1L);
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMock =
+                     mockStatic(SecurityContextHolder.class)) {
 
-        assertThat(result).isNotNull();
-        assertThat(result.id()).isEqualTo(1L);
-        assertThat(result.candidatureId()).isEqualTo(10L);
-        assertThat(result.gestionnaireId()).isEqualTo(20L);
-        assertThat(result.dateSignatureGestionnaire())
-                .isEqualTo(LocalDate.now());
+            securityContextHolderMock
+                    .when(SecurityContextHolder::getContext)
+                    .thenReturn(securityContext);
 
-        verify(contratRepository).findById(1L);
-        verify(contratRepository).save(contrat);
+            when(userAppRepository.findUserAppByEmail(emailGestionnaire))
+                    .thenReturn(Optional.of(gestionnaire));
+
+            when(passwordEncoder.matches(motDePasse, gestionnaire.getPassword()))
+                    .thenReturn(true);
+
+            when(contratRepository.findById(contratId))
+                    .thenReturn(Optional.of(contrat));
+
+            when(contratRepository.save(contrat))
+                    .thenReturn(contrat);
+
+            ContratDTO result =
+                    gestionnaireService.signerContrat(contratId, motDePasse);
+
+            assertThat(result).isNotNull();
+            assertThat(result.id()).isEqualTo(contratId);
+            assertThat(result.candidatureId()).isEqualTo(10L);
+            assertThat(result.gestionnaireId()).isEqualTo(gestionnaire.getId());
+            assertThat(result.dateSignatureGestionnaire()).isNotNull();
+
+            verify(userAppRepository).findUserAppByEmail(emailGestionnaire);
+            verify(passwordEncoder).matches(motDePasse, gestionnaire.getPassword());
+            verify(contratRepository).findById(contratId);
+            verify(contratRepository).save(contrat);
+        }
+    }
+
+    @Test
+    void doitLeverExceptionSiMotDePasseInvalidePourSignature() {
+        Long contratId = 1L;
+        String emailGestionnaire = gestionnaire.getEmail();
+        String motDePasse = "mauvaisMotDePasse";
+
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(emailGestionnaire);
+
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMock =
+                     mockStatic(SecurityContextHolder.class)) {
+
+            securityContextHolderMock
+                    .when(SecurityContextHolder::getContext)
+                    .thenReturn(securityContext);
+
+            when(userAppRepository.findUserAppByEmail(emailGestionnaire))
+                    .thenReturn(Optional.of(gestionnaire));
+
+            when(passwordEncoder.matches(motDePasse, gestionnaire.getPassword()))
+                    .thenReturn(false);
+
+            assertThatThrownBy(() ->
+                    gestionnaireService.signerContrat(contratId, motDePasse)
+            ).isInstanceOf(MotDePasseInvalideException.class);
+
+            verify(passwordEncoder).matches(motDePasse, gestionnaire.getPassword());
+            verify(contratRepository, never()).save(any(Contrat.class));
+        }
     }
 
     @Test
     void doitLeverExceptionSiContratIntrouvablePourSignature() {
-        when(contratRepository.findById(1L))
-                .thenReturn(Optional.empty());
+        Long contratId = 1L;
+        String emailGestionnaire = gestionnaire.getEmail();
+        String motDePasse = "5858";
 
-        assertThatThrownBy(() -> gestionnaireService.signerContrat(1L))
-                .isInstanceOf(ContratIntrouvableException.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
 
-        verify(contratRepository).findById(1L);
-        verify(contratRepository, never()).save(any(Contrat.class));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(emailGestionnaire);
+
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMock =
+                     mockStatic(SecurityContextHolder.class)) {
+
+            securityContextHolderMock
+                    .when(SecurityContextHolder::getContext)
+                    .thenReturn(securityContext);
+
+            when(userAppRepository.findUserAppByEmail(emailGestionnaire))
+                    .thenReturn(Optional.of(gestionnaire));
+
+            when(passwordEncoder.matches(motDePasse, gestionnaire.getPassword()))
+                    .thenReturn(true);
+
+            when(contratRepository.findById(contratId))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                    gestionnaireService.signerContrat(contratId, motDePasse)
+            ).isInstanceOf(ContratIntrouvableException.class);
+
+            verify(contratRepository).findById(contratId);
+            verify(contratRepository, never()).save(any(Contrat.class));
+        }
     }
-
 }

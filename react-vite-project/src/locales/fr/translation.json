@@ -125,7 +125,8 @@
     "collapse": "Réduire",
     "expand": "Développer",
     "create_contract": "Créer le contrat",
-    "postuler": "Postuler"
+    "postuler": "Postuler",
+    "confirm" : "Confirmer"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -228,7 +229,9 @@
     "generic": "Une erreur est survenue. Veuillez réessayer.",
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
     "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
-    "convocation_not_found": "Convocation d’entrevue introuvable."
+    "convocation_not_found": "Convocation d’entrevue introuvable.",
+    "password_invalid": "Le mot de passe est incorrect.",
+    "password_required": "Veuillez saisir votre mot de passe."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -340,7 +343,11 @@
       "aucune_candidature" : "Recherche de stage en cours...",
       "employeur": "Employeur",
       "poste" : "Poste",
-      "voir_detail" : "Voir les détails"
+      "voir_detail" : "Voir les détails",
+      "voir_entrevue": "Voir les demandes de stage",
+      "date_application" : "Candidature soumise le",
+      "candidatures_etudiant_titre" : "Candidature de : {{prenom}} {{nom}}",
+      "voir_etudiants" : "Voir tous les étudiants"
     },
     "contrat_detail": {
       "title": "Détails du contrat"
@@ -591,8 +598,11 @@
     "replace": "Remplacer le document",
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
-  "contrat" : {
-    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage."  },
+  "contrat": {
+    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage.",
+    "confirm_signature": "Confirmer la signature",
+    "enter_password": "Veuillez saisir votre mot de passe pour confirmer la signature."
+  },
   "entrevue": {
     "mode_online_title": "En ligne",
     "mode_onsite_title": "Présentiel",
@@ -617,9 +627,9 @@
   },
   "agenda": {
     "no_interviews": "Aucune entrevue",
-    "clear_filter": "Voir toutes les entrevues",
+    "selected_day_interviews": "Afficher les entrevues du jour",
+    "all_interviews": "Afficher Toutes les entrevues",
     "title": "Agenda",
-    "all_interviews": "Entrevues planifiées :",
     "interview_day": "Jour avec une entrevue",
     "today": "Aujourd'hui",
     "previous_month": "Mois précédent",
@@ -713,6 +723,7 @@
     "matricule": "Matricule",
     "email" : "Courriel",
     "phone" : "Numéro de téléphone",
+    "description" : "Description",
     "town" : "Ville",
     "liste" : {
       "open" : "Ouvrir la liste",

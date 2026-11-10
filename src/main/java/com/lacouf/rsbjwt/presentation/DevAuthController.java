@@ -129,6 +129,50 @@ public class DevAuthController {
         return ResponseEntity.ok(token);
     }
 
+    @PostMapping("/login/etudiant4")
+    public ResponseEntity<String> devLoginEtudiant4() throws Exception {
+        Etudiant etudiant = etudiantRepository.findByMatricule("4444444")
+                .stream()
+                .findFirst()
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        etudiant.setPreviousLoginAt(etudiant.getLastLoginAt());
+        etudiant.setLastLoginAt(LocalDateTime.now());
+        etudiantRepository.save(etudiant);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                etudiant.getEmail(),
+                null,
+                etudiant.getAuthorities()
+        );
+
+        String token = jwtTokenProvider.generateToken(auth);
+
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/login/etudiant5")
+    public ResponseEntity<String> devLoginEtudiant5() throws Exception {
+        Etudiant etudiant = etudiantRepository.findByMatricule("5555555")
+                .stream()
+                .findFirst()
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        etudiant.setPreviousLoginAt(etudiant.getLastLoginAt());
+        etudiant.setLastLoginAt(LocalDateTime.now());
+        etudiantRepository.save(etudiant);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                etudiant.getEmail(),
+                null,
+                etudiant.getAuthorities()
+        );
+
+        String token = jwtTokenProvider.generateToken(auth);
+
+        return ResponseEntity.ok(token);
+    }
+
     @PostMapping("/login/employeur")
     public ResponseEntity<String> devLoginEmployeur() throws Exception {
         Employeur employeur = employeurRepository.findAll()
@@ -172,6 +216,7 @@ public class DevAuthController {
 
         return ResponseEntity.ok(token);
     }
+
 
     @PostMapping("/create/offre")
     public ResponseEntity<HttpStatus> devCreeOffre() throws EmployeurIntrouvable {
