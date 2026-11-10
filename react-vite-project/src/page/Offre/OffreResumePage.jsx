@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useState } from "react";
 import { obtenirOffrePDF } from "../../api/employeur.jsx";
+import PDFOnPage from "../../component/PDF/PDFOnPage.jsx";
 import Button from "../../component/Design/Button.jsx";
 import {
     FaBriefcase, FaCalendarAlt, FaDollarSign, FaAlignLeft,
@@ -191,7 +192,14 @@ const OffreResumePage = () => {
                     </SectionCard>
                 )}
 
-
+                {/* PDF */}
+                <SectionCard title={
+                    <span className="inline-flex items-center gap-2">
+                        {t("resume_offers.offers_sous_section.pdf")}
+                    </span>
+                }>
+                    <PDFOnPage isPdfLoading={isPdfLoading} pdfBlobUrl={pdfBlobUrl} />
+                </SectionCard>
 
                 {/* Bouton retour bas */}
                 <div className="flex justify-end pb-4">
