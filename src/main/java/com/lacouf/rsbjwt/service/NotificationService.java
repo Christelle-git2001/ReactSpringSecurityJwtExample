@@ -360,6 +360,8 @@ public class NotificationService {
                 .map(e -> String.valueOf(e.getId()))
                 .collect(Collectors.joining(", "));
 
+        LocalDateTime lastLogin = professeur.getLastLoginAt();
+
         Notification notificationProfesseur = notificationRepository
                 .findByDestinataireAndNotificationTypeAndEstLuFalse(professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
                 .map(existingNotif -> {
@@ -370,10 +372,33 @@ public class NotificationService {
                             .filter(id -> !id.isEmpty())
                             .collect(Collectors.toCollection(LinkedHashSet::new));
 
-                    allIds.addAll(Arrays.asList(etudiantsIdsAouter.split(", ")));
+                    if (!etudiantsIdsAouter.isEmpty()) {
+                        allIds.addAll(Arrays.asList(etudiantsIdsAouter.split(",\\s*")));
+                    }
+
+                    List<Long> idsAsLong = allIds.stream()
+                            .map(Long::valueOf)
+                            .toList();
+
+                    Map<Long, Etudiant> etudiantsMap = etudiantRepository.findAllById(idsAsLong)
+                            .stream()
+                            .collect(Collectors.toMap(Etudiant::getId, e -> e));
+
+                    Set<String> filteredIds = allIds.stream()
+                            .filter(idStr -> {
+                                Etudiant etudiant = etudiantsMap.get(Long.valueOf(idStr));
+                                if (etudiant == null || etudiant.getProfessorAssignedAt() == null) {
+                                    return false;
+                                }
+                                if (lastLogin == null) {
+                                    return true;
+                                }
+                                return etudiant.getProfessorAssignedAt().isAfter(lastLogin);
+                            })
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
 
                     Map<VariableMapKey, String> updatedVariables = new HashMap<>(existingNotif.getVariables());
-                    updatedVariables.put(VariableMapKey.ETUDIANT_IDS, String.join(", ", allIds));
+                    updatedVariables.put(VariableMapKey.ETUDIANT_IDS, String.join(", ", filteredIds));
                     existingNotif.setVariables(updatedVariables);
 
                     return existingNotif;

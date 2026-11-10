@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -26,9 +26,9 @@ public class Contrat {
     @JoinColumn(name = "gestionnaire_id", nullable = false)
     private Gestionnaire gestionnaire;
 
-    private LocalDate dateSignatureEmployeur ;
-    private LocalDate dateSignatureEtudiant ;
-    private LocalDate dateSignatureGestionnaire ;
+    private LocalDateTime dateSignatureEmployeur;
+    private LocalDateTime dateSignatureEtudiant;
+    private LocalDateTime dateSignatureGestionnaire;
 
     @Builder
     public Contrat(Candidature candidature, Gestionnaire gestionnaire) {

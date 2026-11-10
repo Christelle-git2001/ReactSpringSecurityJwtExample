@@ -1033,6 +1033,7 @@ public class EtudiantServiceTest {
     @Test
     void doitSignerContratAvecSucces() throws Exception {
         Long contratId = 1L;
+        String motDePasse = "Passewod123";
 
         Gestionnaire gestionnaire = new Gestionnaire(
                 1L,
@@ -1069,22 +1070,27 @@ public class EtudiantServiceTest {
         when(contratRepository.findById(contratId))
                 .thenReturn(Optional.of(contrat));
 
+        when(passwordEncoder.matches(motDePasse, etudiant.getPassword()))
+                .thenReturn(true);
+
         when(contratRepository.save(any(Contrat.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        ContratDTO result = etudiantService.signerContrat(contratId);
+        ContratDTO result = etudiantService.signerContrat(contratId, motDePasse);
 
         assertThat(result).isNotNull();
-        assertThat(contrat.getDateSignatureEtudiant()).isEqualTo(LocalDate.now());
+        assertThat(contrat.getDateSignatureEtudiant()).isNotNull();
 
         verify(etudiantRepository).findByCredentialsEmail(etudiant.getEmail());
         verify(contratRepository).findById(contratId);
+        verify(passwordEncoder).matches(motDePasse, etudiant.getPassword());
         verify(contratRepository).save(contrat);
     }
 
     @Test
     void doitLeverExceptionSiEtudiantIntrouvablePourSignatureContrat() {
         Long contratId = 1L;
+        String motDePasse = "Passewod123";
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
@@ -1093,16 +1099,19 @@ public class EtudiantServiceTest {
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> etudiantService.signerContrat(contratId))
+        assertThatThrownBy(() ->
+                etudiantService.signerContrat(contratId, motDePasse))
                 .isInstanceOf(EtudiantIntrouvableException.class);
 
         verify(contratRepository, never()).findById(anyLong());
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(contratRepository, never()).save(any());
     }
 
     @Test
     void doitLeverExceptionSiContratIntrouvablePourSignature() {
         Long contratId = 99L;
+        String motDePasse = "Passewod123";
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
@@ -1114,11 +1123,59 @@ public class EtudiantServiceTest {
         when(contratRepository.findById(contratId))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> etudiantService.signerContrat(contratId))
+        assertThatThrownBy(() ->
+                etudiantService.signerContrat(contratId, motDePasse))
                 .isInstanceOf(ContratIntrouvableException.class);
 
         verify(contratRepository).findById(contratId);
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(contratRepository, never()).save(any());
     }
 
+    @Test
+    void doitLeverExceptionSiMotDePasseInvalidePourSignatureContrat() {
+        Long contratId = 1L;
+        String motDePasse = "MauvaisMotDePasse";
+
+        Gestionnaire gestionnaire = new Gestionnaire(
+                1L,
+                "Laurent",
+                "Losange",
+                "Laurent.Losange@hotmail.com",
+                "5858",
+                "458-458-4584"
+        );
+
+        Candidature candidature = Candidature.builder()
+                .etudiant(etudiant)
+                .offreDeStage(new OffreDeStage())
+                .build();
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+
+        contrat.setId(contratId);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(etudiant.getEmail(), null)
+        );
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(contratRepository.findById(contratId))
+                .thenReturn(Optional.of(contrat));
+
+        when(passwordEncoder.matches(motDePasse, etudiant.getPassword()))
+                .thenReturn(false);
+
+        assertThatThrownBy(() ->
+                etudiantService.signerContrat(contratId, motDePasse))
+                .isInstanceOf(MotDePasseInvalideException.class);
+
+        verify(passwordEncoder).matches(motDePasse, etudiant.getPassword());
+        verify(contratRepository, never()).save(any());
+    }
 }

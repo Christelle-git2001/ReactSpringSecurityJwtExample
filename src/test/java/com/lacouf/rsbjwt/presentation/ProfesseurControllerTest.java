@@ -172,7 +172,8 @@ public class ProfesseurControllerTest {
                 "INFORMATIQUE",
                 null,
                 1L,
-                "Carole"
+                "Carole",
+                LocalDateTime.now()
         );
 
         EtudiantDTO etudiant2 = new EtudiantDTO(
@@ -185,7 +186,8 @@ public class ProfesseurControllerTest {
                 "INFORMATIQUE",
                 null,
                 1L,
-                "Carole"
+                "Carole",
+                LocalDateTime.now()
         );
 
         when(professeurService.getEtudiantsAssignes())

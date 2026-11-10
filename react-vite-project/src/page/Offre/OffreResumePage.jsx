@@ -13,7 +13,7 @@ const OffreResumePage = () => {
     const { t } = useTranslation();
     const [errors, setErrors] = useState({});
     const location = useLocation();
-    const resumeOffre = location.state;
+    const resumeOffre = location.state.resumeOffre;
     const employeur = resumeOffre.employeurDTO;
     const [isPdfLoading, setIsPdfLoading] = useState(true);
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
@@ -123,7 +123,7 @@ const OffreResumePage = () => {
                     </div>
                 </ProfileSection>
                 <div className="flex justify-end mt-2">
-                    <Button icon={true} role={"retour"} onClick={() => navigate("/professeur")}>{t("actions.back")}</Button>
+                    <Button icon={true} role={"retour"} onClick={() => navigate("/professeur", {state: {etudiant : location.state.etudiant, candidatures : location.state.candidatures}})}>{t("actions.back")}</Button>
                 </div>
             </div>
         </div>
