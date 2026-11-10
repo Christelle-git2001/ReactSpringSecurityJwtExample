@@ -52,6 +52,10 @@ function ChatBot() {
             messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }, [messages, chargement]);
 
+    // Focus sur l'input à l'ouverture
+    useEffect(() => {
+        if (ouvert) setTimeout(() => inputRef.current?.focus(), 150);
+    }, [ouvert]);
 
     const envoyer = async (texteForce) => {
         const question = (texteForce ?? saisie).trim();
