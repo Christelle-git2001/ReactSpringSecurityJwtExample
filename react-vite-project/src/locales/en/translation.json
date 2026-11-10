@@ -290,7 +290,11 @@
       "aucune_candidature": "Internship search in progress...",
       "employeur": "Employer",
       "poste" : "Position",
-      "voir_detail": "View details"
+      "voir_detail": "View details",
+      "voir_entrevue": "View internship applications",
+      "date_application" : "Applied on",
+      "candidatures_etudiant_titre" : "{{prenom}} {{nom}}'s applications",
+      "voir_etudiants" : "View all students"
     },
     "contrat_detail": {
       "title": "Contract details"
@@ -721,6 +725,7 @@
     "email" : "Email",
     "phone" : "Phone Number",
     "town" : "Town",
+    "description" : "Description",
     "liste" : {
       "open" : "Open the list",
       "close" : "Close the list",

@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { FiHash } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import EmptyContentMessage from "../EmptyContentMessage.jsx";
-import { getCandidatureParEtudidant, getResumeOffre } from "../../../api/professeur.jsx";
-import ExpandableList from "../Lists/ExpandableList.jsx";
-import ListItem from "../Lists/ListItem.jsx";
-import { useNavigate } from "react-router-dom";
-import {getStatusConfig} from "../../../utils/getStatusConfig.jsx";
+import { getCandidatureParEtudidant } from "../../../api/professeur.jsx";
 import {getDepartmentKey} from "../../../utils/departementConverter.js";
+import Button from "../Button.jsx";
 
 const CardSectionHeader = ({ title }) => (
     <div className="pb-2 border-b-2  border-[#043462] mt-2 mb-2">
@@ -18,7 +15,7 @@ const CardSectionHeader = ({ title }) => (
 );
 
 const CardSection = ({children}) => (
-    <div className=" p-2 bg-[radial-gradient(circle_at_top_left,_#00CCCB30,_transparent_70%)]  rounded-t-2xl pb-3 border">
+    <div>
         {children}
     </div>
 )
@@ -32,21 +29,10 @@ const InfoRow = ({ label, value }) => {
     );
 };
 
-const EtudiantInfoCard = ({ etudiant, isNew }) => {
-    const navigate = useNavigate();
+const EtudiantInfoCard = ({ etudiant, isNew, entrevueEtudiantSelectedSetter }) => {
     const { t } = useTranslation();
     const [candidatures, setCandidatures] = useState([]);
     const [error, setError] = useState("");
-
-    const voirResumeOffre = async (offreID) => {
-        if (!offreID) return;
-        try {
-            const resumeOffre = await getResumeOffre(offreID);
-            navigate("/professeur/resumeOffre", { state: resumeOffre });
-        } catch (e) {
-            setError(t("generic.error"));
-        }
-    };
 
     const candidaturesAffichees = (() => {
         const stageTrouve = candidatures.find(c => c.statut === "STAGE_TROUVE");
@@ -95,23 +81,13 @@ const EtudiantInfoCard = ({ etudiant, isNew }) => {
             <CardSection>
                 <CardSectionHeader title={t("etudiant.card_professeur.information_stage")} />
                 {candidatures && candidatures.length > 0 ? (
-                    <ExpandableList
-                        items={candidaturesAffichees}
-                        limit={1}
-                        renderItem={(candidature) =>{
-                            const statutCandidature = getStatusConfig(candidature.statut, t, "candidature");
-                            return  (
-                            <ListItem
-                                onClick={() => voirResumeOffre(candidature.offreId)}
-                                detailRows={[
-                                    { label: t("etudiant.card_professeur.employeur"), value: candidature.employeurBusinessName },
-                                    { value: (<div className="flex justify-end"><span className={`badge p-4 ${statutCandidature.className}`}>{statutCandidature.label}</span></div>) },
-                                    { label: t("etudiant.card_professeur.poste"), value: candidature.offreTitle }
-                                ]}
-                                variant="compact"
-                            />
-                        )}}
-                    />
+                    <Button onClick={() => {
+                        entrevueEtudiantSelectedSetter({
+                        etudiant : etudiant,
+                        candidatures : candidatures
+                    })
+                    }}
+                            role="details" className="w-full">{t("etudiant.card_professeur.voir_entrevue")}</Button>
                 ) : (
                     <EmptyContentMessage message={t("etudiant.card_professeur.aucune_candidature")} />
                 )}

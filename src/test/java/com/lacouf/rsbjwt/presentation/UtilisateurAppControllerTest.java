@@ -107,7 +107,8 @@ public class UtilisateurAppControllerTest {
                 Departement.INFORMATIQUE.name(),
                 LocalDateTime.now(),
                 1l,
-                "Jean"
+                "Jean",
+                LocalDateTime.now()
         );
 
         when(userAppService.getMe("Bearer fake-jwt-token"))

@@ -343,7 +343,11 @@
       "aucune_candidature" : "Recherche de stage en cours...",
       "employeur": "Employeur",
       "poste" : "Poste",
-      "voir_detail" : "Voir les détails"
+      "voir_detail" : "Voir les détails",
+      "voir_entrevue": "Voir les demandes de stage",
+      "date_application" : "Candidature soumise le",
+      "candidatures_etudiant_titre" : "Candidature de : {{prenom}} {{nom}}",
+      "voir_etudiants" : "Voir tous les étudiants"
     },
     "contrat_detail": {
       "title": "Détails du contrat"
@@ -719,6 +723,7 @@
     "matricule": "Matricule",
     "email" : "Courriel",
     "phone" : "Numéro de téléphone",
+    "description" : "Description",
     "town" : "Ville",
     "liste" : {
       "open" : "Ouvrir la liste",

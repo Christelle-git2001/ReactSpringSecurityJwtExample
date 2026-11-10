@@ -344,7 +344,10 @@ public class GestionnaireService {
             throw new UtilisateurIntrouvableException();
         }
 
-        etudiants.forEach(etudiant -> etudiant.setProfesseur(professeur));
+        etudiants.forEach(etudiant -> {
+            etudiant.setProfesseur(professeur);
+            etudiant.setProfessorAssignedAt(LocalDateTime.now());
+        });
         List<Etudiant> etudiantsEnregistres = etudiantRepository.saveAll(etudiants);
 
         applicationEventPublisher.publishEvent(
