@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
-import { useNavigate, useSearchParams} from "react-router-dom";
+import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
 import {getEtudiants} from "../../api/professeur.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import EtudiantListItem from "../../component/Design/Lists/EtudiantListItem.jsx";
@@ -8,8 +8,13 @@ import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import {getNotifications, marquerNotificationLue} from "../../api/notification.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import {useNotificationTrigger} from "../../component/Notification/UtilNotification.jsx";
+import ShowEtudiantEntrevue from "./ShowEtudiantEntrevue.jsx";
+import {useFilters} from "../../utils/useFilters.jsx";
+import {getStatusConfig, STATUTS_CANDIDATURE} from "../../utils/getStatusConfig.jsx";
+import Button from "../../component/Design/Button.jsx";
 
 const ProfesseurHome = ({user}) => {
+    const location = useLocation();
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const triggerRefresh = useNotificationTrigger((state) => state.triggerRefresh);
@@ -22,6 +27,10 @@ const ProfesseurHome = ({user}) => {
     const [searchParams] = useSearchParams();
     const [notificationProfesseurEtudiant, setNotificationProfesseurEtudiant] = useState([])
     const notifsRef = useRef(notificationProfesseurEtudiant);
+    const [entrevueEtudiantSelectionee, setEntrevueEtudiantSelectionee] = useState({
+        etudiant: location.state?.etudiant ?? null,
+        candidatures: location.state?.candidatures ?? []
+    });
 
 
 
@@ -50,6 +59,10 @@ const ProfesseurHome = ({user}) => {
         return [...new Set(allIds)];
     };
 
+    const etudiantEstSelectionee = () => {
+        return entrevueEtudiantSelectionee.etudiant && entrevueEtudiantSelectionee.candidatures.length > 0;
+    }
+
 
     const fetchNouveauxEtudiants = useCallback(async (etudiants) => {
         if (!user?.id || !etudiants || etudiants.length === 0) return;
@@ -76,6 +89,7 @@ const ProfesseurHome = ({user}) => {
                     setNotificationProfesseurEtudiant([]);
                     triggerRefresh();
                 } catch (err) {
+                    setError(t("generic.error"));
                 }
             }else{
                 setNouveauxEtudiantACharge(nouveaux);
@@ -97,6 +111,10 @@ const ProfesseurHome = ({user}) => {
         if (!isANew && isBNew) return 1;
         return 0;
     };
+
+    const candidatureFilters = useFilters(entrevueEtudiantSelectionee.candidatures, {
+        getStatus: (c) => c.statut
+    });
 
     useEffect(() => {
         initListeEtudiant();
@@ -139,6 +157,10 @@ const ProfesseurHome = ({user}) => {
         supprimeNotification();
     }, [onlyNew]);
 
+    useEffect(() => {
+        setFiltreValue("");
+    }, [etudiantEstSelectionee()]);
+
     return(
         <>
             <WelcomeMessage user={user}/>
@@ -148,52 +170,85 @@ const ProfesseurHome = ({user}) => {
                 </div>
             )}
             <div className="w-full mt-5">
-                <SearchBar className="mb-3" onChange={filtreActif} value={filtreValue}/>
-                <FilterBar
-                    onlyNew={onlyNew}
-                    onOnlyNewChange={setOnlyNew}
-                />
-                {isInitialLoading ? (
-                    <div className="flex items-center justify-center p-12 border rounded-xl bg-gray-50 mt-5">
-                        <span className="loading loading-spinner loading-md text-[#043462]" />
+                <div className="flex items-center gap-3 mb-3">
+                    <div className={etudiantEstSelectionee() ? "w-3/4" : "w-full"}>
+                        <SearchBar onChange={filtreActif} value={filtreValue} />
                     </div>
-                ) : (
-                    <details open className="collapse collapse-arrow bg-transparent mt-5">
 
-                        <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
-                            {t("professeur.etudiant_section_title")} ({listeEtudiantACharge.length})
-                        </summary>
-
-                        <div className="collapse-content transition-all duration-300 ease-in-out px-0">
-                            <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
-                            <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
-                                <div className="grid grid-cols-12 gap-4 w-full">
-                                    {listeEtudiantACharge
-                                        .filter((etudiant) => {
-                                            return Object.values(etudiant).some((valeur) =>
-                                                String(valeur).toLowerCase().includes(String(filtreValue).toLowerCase())
-                                            );
-                                        })
-                                        .filter((etudiant) => {
-                                            if (!onlyNew) return true;
-                                            return nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
-                                        })
-                                        .sort((a, b) => trierEtudiantsNouveauxEnPremier(a, b, nouveauEtudiantACharge))
-                                        .map((etudiant) => {
-                                            const isNew = nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
-
-                                            return (
-                                                <div key={etudiant.id} className="col-span-6">
-                                                    <EtudiantListItem etudiant={etudiant} isNew={isNew} />
-                                                </div>
-                                            );
-                                        })}
-                                </div>
-                            </div>
+                    {etudiantEstSelectionee() && (
+                        <div className="w-1/4">
+                            <Button
+                                role="retour"
+                                onClick={() => {
+                                    setEntrevueEtudiantSelectionee({
+                                        etudiant: null,
+                                        candidatures: []
+                                    })
+                                    setFiltreValue("");
+                                }}
+                                className="w-full btn-sm flex items-center justify-center gap-2"
+                            >
+                                {t("etudiant.card_professeur.voir_etudiants")}
+                            </Button>
                         </div>
-                    </details>
-                )}
+                    )}
+                </div>
+                <FilterBar
+                    onlyNew={etudiantEstSelectionee() ? undefined : onlyNew}
+                    onOnlyNewChange={etudiantEstSelectionee() ? undefined : setOnlyNew}
+                    selectedStatus={etudiantEstSelectionee() ? candidatureFilters.selectedStatus : undefined}
+                    onStatusChange={etudiantEstSelectionee() ? candidatureFilters.setSelectedStatus : undefined}
+                    statusOptions={["TOUS", ...STATUTS_CANDIDATURE, "A_CONFIRMER"]}
+                    statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.interview_to_confirm"),
+                        ...Object.fromEntries(STATUTS_CANDIDATURE.map((statut) => [statut, getStatusConfig(statut, t, "candidature").label])) }}
+                    className="mb-5"
+                />
+                {etudiantEstSelectionee() ? (
+                    <ShowEtudiantEntrevue etudiant={entrevueEtudiantSelectionee.etudiant} candidatures={entrevueEtudiantSelectionee.candidatures} filtreText={filtreValue} filtreButton={candidatureFilters}/>
+                ):(
+                    <>
+                        {isInitialLoading ? (
+                            <div className="flex items-center justify-center p-12 border rounded-xl bg-gray-50 mt-5">
+                                <span className="loading loading-spinner loading-md text-[#043462]" />
+                            </div>
+                        ) : (
+                            <details open className="collapse collapse-arrow bg-transparent mt-5">
 
+                                <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
+                                    {t("professeur.etudiant_section_title")} ({listeEtudiantACharge.length})
+                                </summary>
+
+                                <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                                    <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
+                                    <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
+                                        <div className="grid grid-cols-12 gap-4 w-full">
+                                            {listeEtudiantACharge
+                                                .filter((etudiant) => {
+                                                    return Object.values(etudiant).some((valeur) =>
+                                                        String(valeur).toLowerCase().includes(String(filtreValue).toLowerCase())
+                                                    );
+                                                })
+                                                .filter((etudiant) => {
+                                                    if (!onlyNew) return true;
+                                                    return nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
+                                                })
+                                                .sort((a, b) => trierEtudiantsNouveauxEnPremier(a, b, nouveauEtudiantACharge))
+                                                .map((etudiant) => {
+                                                    const isNew = nouveauEtudiantACharge.some((n) => Number(n.id) === Number(etudiant.id));
+
+                                                    return (
+                                                        <div key={etudiant.id} className="col-span-6">
+                                                            <EtudiantListItem etudiant={etudiant} isNew={isNew} entrevueEtudiantSelectedSetter={setEntrevueEtudiantSelectionee} />
+                                                        </div>
+                                                    );
+                                                })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        )}
+                    </>
+                )}
             </div>
         </>
     );

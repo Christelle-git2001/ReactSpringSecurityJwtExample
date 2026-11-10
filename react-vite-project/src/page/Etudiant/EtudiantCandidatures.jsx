@@ -12,9 +12,7 @@ import CandidatureTimeline from "../../component/Candidature/CandidatureTimeline
 import Sort from "../../component/Design/Sort.jsx";
 import MotifRefus from "../../component/Design/MotifRefus.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
-import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
-
-const STATUTS_CANDIDATURE = ["SOUMISE", "RETENUE_POUR_ENTREVUE", "ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE", "ENTREVUE_REFUSEE", "ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"];
+import {getStatusConfig, STATUTS_CANDIDATURE} from "../../utils/getStatusConfig.jsx";
 
 const FORMAT_KEYS = {
     EN_LIGNE: "entrevue.mode_online_title",
