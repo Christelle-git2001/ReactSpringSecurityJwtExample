@@ -5,6 +5,7 @@ import { obtenirOffrePDF } from "../../api/employeur.jsx";
 import Button from "../../component/Design/Button.jsx";
 import {
     FaBriefcase, FaCalendarAlt, FaDollarSign, FaAlignLeft,
+    FaUser, FaMapMarkerAlt, FaPhone, FaEnvelope, FaBuilding,
     FaArrowLeft
 } from "react-icons/fa";
 
@@ -148,6 +149,47 @@ const OffreResumePage = () => {
                     </div>
                 </SectionCard>
 
+                {/* Renseignements sur l'employeur */}
+                {employeur && (
+                    <SectionCard title={t("resume_offers.employer_section")}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <InfoLine
+                                icon={FaUser}
+                                label={t("general.nom")}
+                                value={`${employeur.firstName} ${employeur.lastName}`}
+                            />
+                            <InfoLine
+                                icon={FaBuilding}
+                                label={t("resume_offers.employer_sous_section.business_name")}
+                                value={employeur.businessName}
+                            />
+                            <InfoLine
+                                icon={FaMapMarkerAlt}
+                                label={t("general.town")}
+                                value={employeur.town}
+                            />
+                            <InfoLine
+                                icon={FaPhone}
+                                label={t("general.phone")}
+                                value={employeur.phone}
+                            />
+                            <div className="sm:col-span-2">
+                                <InfoLine
+                                    icon={FaEnvelope}
+                                    label={t("general.email")}
+                                    value={employeur.email}
+                                />
+                            </div>
+                            <div className="sm:col-span-2">
+                                <InfoLine
+                                    icon={FaBriefcase}
+                                    label={t("general.departement")}
+                                    value={t(`departement.${employeur.businessSector}`, employeur.businessSector)}
+                                />
+                            </div>
+                        </div>
+                    </SectionCard>
+                )}
 
 
 
