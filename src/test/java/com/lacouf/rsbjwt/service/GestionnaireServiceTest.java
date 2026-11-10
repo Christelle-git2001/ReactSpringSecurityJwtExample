@@ -747,6 +747,28 @@ class GestionnaireServiceTest {
     }
 
     @Test
+    void doitRefuserUneOffreCibleePourUnEtudiantAvecStageTrouve() {
+        CreationOffreCibleeDTO dto = new CreationOffreCibleeDTO(
+                "Stage Java", "Description", 30.0, Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(2), LocalDate.now().plusDays(30),
+                LocalDate.now().plusDays(1), 1L, 1L);
+        Etudiant etudiant = new Etudiant();
+        etudiant.setId(1L);
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(creerEmployeurTest()));
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        for (boolean stageRattache : new boolean[]{false, true}) {
+            etudiant.setStatut(stageRattache ? StatutEtudiant.EN_RECHERCHE : StatutEtudiant.STAGE_TROUVE);
+            etudiant.setCandidatureStage(stageRattache ? new Candidature() : null);
+
+            assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, null))
+                    .isInstanceOf(StageDejaTrouveException.class);
+        }
+
+        verifyNoInteractions(offreDeStageRepository, applicationEventPublisher);
+    }
+
+    @Test
     void doitRetournerTousLesProfesseurs() {
         Professeur professeur1 = Professeur.builder()
                 .firstName("Jean")
