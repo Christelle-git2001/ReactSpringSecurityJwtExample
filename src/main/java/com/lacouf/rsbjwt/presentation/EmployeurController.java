@@ -150,4 +150,10 @@ public class EmployeurController {
 
         return ResponseEntity.ok(contratDTO);
     }
+
+    @PutMapping("/evaluer/candidature")
+    public ResponseEntity<EvaluationStagiaireDTO> evaluerUnStagiaire(@Valid @RequestBody EvaluationStagiaireDTO evaluationStagiaireDTO ) throws CandidatureIntrouvableException {
+        EvaluationStagiaireDTO evaluationStagiaire = employeurService.evaluerStagiaire(evaluationStagiaireDTO);
+        return ResponseEntity.ok(evaluationStagiaire);
+    }
 }
