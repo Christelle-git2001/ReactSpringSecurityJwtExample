@@ -26,7 +26,7 @@ function NextAction({
     onProcessChange,
     role
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
 
@@ -87,7 +87,7 @@ function NextAction({
     }, [statutEntrevue]);
 
     useEffect(() => {
-        if (statutActuel !== "ENTREVUE_PLANIFIEE" || !candidature?.id) return;
+        if (!["ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE", "ENTREVUE_REFUSEE"].includes(statutActuel) || !candidature?.id) return;
 
         let actif = true;
 
@@ -170,9 +170,6 @@ function NextAction({
 
     const handleSignerContrat = async () => {
         const contratId = contrat?.id || candidature?.contratId;
-        if (!contratId) return;
-
-
         if (!contratId || !motDePasse.trim()) return;
 
         try {
@@ -433,63 +430,66 @@ function NextAction({
     const peutCloreEntrevue = role === Role.EMPLOYEUR && estEtapeEntrevue && activeEntrevueStatut === "CONFIRMEE" && !entrevueCloturee;
 
     return (
-        <div className="w-full bg-cyan-50 border border-cyan-100 rounded-xl p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
-
-            <div className="flex flex-col gap-1">
-
-                <span className="text-xs font-bold uppercase tracking-wider text-cyan-800">
-                    {isEmployeurSigned
-                        ? t("process.contract_signed_title")
-                        : t("process.next_action_title")}
-                </span>
-
-                <p className="text-sm text-gray-700">
-                    {actionData?.description}
-                </p>
-
-                {motifRefus && (
-                    <p className="text-sm text-red-800 whitespace-pre-wrap break-words">
-                        <strong>
-                            {t("convocation.refusal_reason")} :{" "}
-                        </strong>
-                        {motifRefus}
-                    </p>
-                )}
-
-                {motifError && (
-                    <p role="alert" className="text-sm text-red-700">
-                        {t("error.generic")}
-                    </p>
-                )}
-            </div>
-
-            <div className="flex items-center gap-3 whitespace-nowrap">
-
-                {actionData?.buttonText && (
-                    <Button
-                        icon={false}
-                        type="button"
-                        onClick={actionData.onClick}
-                        disabled={actionData.disabled}
-                        className={`text-white transition-colors ${
-                            actionData.disabled
-                                ? "bg-gray-400 cursor-not-allowed opacity-70"
-                                : "bg-cyan-600 hover:bg-cyan-700"
-                        }`}
-                    >
-                        {actionData.buttonText}
+        <div className="w-full overflow-hidden rounded-xl border border-cyan-100 bg-white shadow-sm">
+            <div className="bg-cyan-50 p-4 md:p-5 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-cyan-800">
+                        {isEmployeurSigned || isEtudiantSigned ? t("process.contract_signed_title") : t("process.next_action_title")}
+                    </span>
+                    <p className="text-sm text-gray-700">{actionData.description}</p>
+                </div>
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-2 w-full xl:w-auto xl:shrink-0 [&>button]:whitespace-nowrap">
+                    {peutCloreEntrevue && (
+                        <Button type="button" variant="custom" icon={false} className="bg-cyan-600 text-white enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600" onClick={handleCloreEntrevue} disabled={isSubmitting || !entrevueId}>
+                            {t("actions.close_interview")}
+                        </Button>
+                    )}
+                    {peutDeciderApresEntrevue && (
+                        <>
+                            <Button variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting || !entrevueId}>
+                                {t("actions.accept_candidate")}
+                            </Button>
+                            <Button variant="danger" size="small" onClick={() => {
+                                setRefusOuvert(true);
+                                setMotifError(false);
+                                setDecisionError(false);
+                            }} disabled={isSubmitting || !entrevueId}>
+                                {t("actions.reject_candidate")}
+                            </Button>
+                        </>
+                    )}
+                    {actionData.buttonText && (
+                        <Button variant="custom" icon={false} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
+                                className={`text-white ${actionData.disabled && actionData.onClick !== ouvrirModalSignature ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
+                            {actionData.buttonText}
+                        </Button>
+                    )}
+                    <Button type="button" size="small" onClick={() => navigate(retourPath || "/employeur")} variant="secondary">
+                        {t("actions.back")}
                     </Button>
-                )}
-
-                <Button
-                    type="button"
-                    onClick={() => navigate(retourPath || "/employeur")}
-                    variant="secondary"
-                >
-                    {t("actions.back")}
-                </Button>
+                </div>
             </div>
-
+            {peutDeciderApresEntrevue && refusOuvert && (
+                <div className="w-full bg-white p-5">
+                    <MotifRefus value={motifRefus} onChange={value => { setMotifRefus(value); setMotifError(false); }}
+                                error={motifError} disabled={isSubmitting} maxLength={1000} />
+                    <div className="flex justify-end gap-2 mt-2">
+                        <Button variant="secondary" size="small" disabled={isSubmitting} onClick={() => { setRefusOuvert(false); setMotifError(false); }}>
+                            {t("actions.cancel_refusal")}
+                        </Button>
+                        <Button variant="danger" size="small" disabled={isSubmitting} onClick={handleRefuserCandidat}>
+                            {t("actions.confirm_rejection")}
+                        </Button>
+                    </div>
+                </div>
+            )}
+            {peutAfficherMotifRefus && (
+                <div className="border-t border-gray-100 bg-white px-5 py-3 text-sm text-[#043462]">
+                    <strong className="text-red-600">{t("convocation.refusal_reason")} : </strong>
+                    <span className="whitespace-pre-wrap break-words">{motifAffiche}</span>
+                </div>
+            )}
+            {decisionError && <p role="alert" className="px-5 py-3 text-sm text-red-700">{t("error.generic")}</p>}
             {modalOuverte && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 

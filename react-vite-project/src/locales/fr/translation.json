@@ -243,7 +243,7 @@
     "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
     "convocation_not_found": "Convocation d’entrevue introuvable.",
     "password_invalid": "Le mot de passe est incorrect.",
-    "password_required": "Veuillez saisir votre mot de passe."
+    "password_required": "Veuillez saisir votre mot de passe.",
     "internship_found_locked": "L'étudiant a déjà déclaré un stage trouvé."
   },
   "success": {
@@ -554,6 +554,7 @@
       "retenue_pour_entrevue" : "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
+      "entrevue_planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
       "entrevue_refusee": "Entrevue refusée",
       "refusee": "Candidature refusée",
@@ -635,10 +636,6 @@
         "titre": "Nouvelle offre de stage",
         "description": "Une offre de {{OFFRE_TITRE}} est maintenant disponible chez {{ENTREPRISE_NOM}}."
       },
-      "candidatureRefusee": {
-  "title": "Votre candidature a été refusée",
-  "description": "Votre candidature pour {{OFFRE_TITRE}} chez {{ENTREPRISE_NOM}} a été refusée. Consultez votre candidature pour connaître le motif."
-},
       "candidatureAcceptee": {
         "title": "Votre candidature a été acceptée",
         "description": "Félicitations, votre candidature pour {{OFFRE_TITRE}} a été acceptée."
@@ -720,20 +717,6 @@
   "gestion_entrevue": {
     "title": "Gestion des entrevues",
     "subtitle": "Planifiez vos rendez-vous et consultez votre calendrier en temps réel."
-  },
-  "general": {
-    "nom": "Nom",
-    "departement": "Département",
-    "matricule": "Matricule",
-    "email": "Courriel",
-    "phone": "Numéro de téléphone",
-    "town": "Ville",
-    "liste": {
-      "open": "Ouvrir la liste",
-      "close": "Fermer la liste",
-      "title": "Liste",
-      "empty": "La liste est vide"
-    }
   },
   "process": {
     "manager_signed": "Signé par le gestionnaire",

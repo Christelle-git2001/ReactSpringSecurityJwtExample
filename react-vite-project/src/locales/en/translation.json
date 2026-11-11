@@ -67,8 +67,7 @@
     "document": "Additional document (PDF)",
     "choose_file": "Choose a file",
     "cancel": "Cancel",
-    "submit": "Submit"
-  },
+    "submit": "Submit",
     "errors": {
       "select_company": "Please select a company",
       "select_student": "Please select a student",
@@ -85,8 +84,8 @@
       "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
       "display_end_date_before_today": "The offer display end date cannot be in the past.",
       "start_date_before_today": "The start date cannot be before today."
-    },
-
+    }
+  },
   "edit_offer": {
     "title": "Edit internship offer",
     "subtitle": "Edit the information for your internship offer.",
@@ -201,8 +200,7 @@
     "notification_path": "The destination of this notification does not exist. Please try again later.",
     "rejection_comment_required": "A comment is required when rejecting a CV.",
     "convocation_not_found": "Interview invitation not found.",
-    "internship_found_locked": "The student has already declared an internship found"
-    "convocation_not_found": "Interview invitation not found.",
+    "internship_found_locked": "The student has already declared an internship found",
     "password_invalid": "The password is incorrect.",
     "password_required": "Please enter your password."
   },
@@ -644,6 +642,14 @@
         "titre": "New Internship Opportunity",
         "description": "A {{OFFRE_TITRE}} position is now available at {{ENTREPRISE_NOM}}."
       },
+      "candidatureAcceptee": {
+        "title": "Your application has been accepted",
+        "description": "Congratulations, your application for {{OFFRE_TITRE}} has been accepted."
+      },
+      "candidatureRefusee": {
+        "title": "Your application has been refused",
+        "description": "Your application for {{OFFRE_TITRE}} has been refused. You can check the details in your account."
+      },
       "assignation": {
         "title": "A teacher has been assigned to you",
         "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
@@ -654,18 +660,6 @@
         "description": "Click to check your new student list."
       }
     }
-  },
-  "candidatureRefusee": {
-  "title": "Your application was rejected",
-  "description": "Your application for {{OFFRE_TITRE}} at {{ENTREPRISE_NOM}} was rejected. View your application for the reason."
-},
-      "candidatureAcceptee": {
-    "title": "Your application has been accepted",
-    "description": "Congratulations, your application for {{OFFRE_TITRE}} has been accepted."
-  },
-  "candidatureRefusee": {
-    "title": "Your application has been refused",
-    "description": "Your application for {{OFFRE_TITRE}} has been refused. You can check the details in your account."
   },
   "drawer": {
     "details": "Details",

@@ -987,4 +987,36 @@ public class EmployeurServiceTest {
                 .isInstanceOf(ActionsCandidatureDesactiveesException.class);
         verify(candidatureRepository, never()).save(any());
     }
+    @Test
+    void doitAccepterLeCandidatSansDeclarerSonStage() throws Exception {
+        creerEntrevueTerminee();
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        assertThat(resultat.motifRefus()).isNull();
+        verify(etudiantService).actualiserStatutEtudiant(etudiant);
+        verify(candidatureRepository).save(candidature);
+        ArgumentCaptor<CandidatureAccepteeEvent> captor = ArgumentCaptor.forClass(CandidatureAccepteeEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().candidature()).isSameAs(candidature);
+    }
+
+    @Test
+    void doitRefuserLeCandidatAvecUnMotif() throws Exception {
+        creerEntrevueTerminee();
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        CandidatureDTO resultat = employeurService.refuserCandidatApresEntrevue(1L, "  Experience insuffisante  ");
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
+        assertThat(resultat.motifRefus()).isEqualTo("Experience insuffisante");
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        verify(etudiantService).actualiserStatutEtudiant(etudiant);
+        verify(candidatureRepository).save(candidature);
+        verify(eventPublisher).publishEvent(any(CandidatureRefuseeEvent.class));
+    }
+
 }
