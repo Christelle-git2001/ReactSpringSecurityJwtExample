@@ -86,7 +86,9 @@ const EmployeurHome = ({ user }) => {
 
     useEffect(() => {
         getCandidaturesEmployeur()
-            .then((res) => setCandidatures(res))
+            .then((res) => {
+                setCandidatures(res || []);
+            })
             .catch((err) => {
                 console.error("Erreur lors du chargement des candidatures:", err);
                 if (err?.message === "UNAUTHORIZED" || err?.status === 401) {

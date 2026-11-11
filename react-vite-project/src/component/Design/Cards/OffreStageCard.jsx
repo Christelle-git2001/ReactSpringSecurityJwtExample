@@ -131,7 +131,11 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                             ) : (
                                 <ul className="max-h-48 space-y-1 overflow-y-auto">
                                     {candidaturesOffre.map(candidature => {
-                                        const statutCandidature = getStatusConfig(candidature.statut, t, "candidature");
+                                        const statutCandidature = getStatusConfig(
+                                            candidature.statut === "CONTRAT_CREE" && candidature.contratSigne
+                                                ? "CONTRAT_SIGNE" : candidature.statut,
+                                            t, "candidature"
+                                        );
                                         return (
                                         <li key={candidature.id}>
                                             <button

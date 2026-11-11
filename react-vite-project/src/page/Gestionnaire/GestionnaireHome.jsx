@@ -8,7 +8,7 @@ import CandidatureListItem from "../../component/Design/Lists/CandidatureListIte
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus, getContratByCandidatureId } from "../../api/gestionnaire.jsx";
+import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus } from "../../api/gestionnaire.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
@@ -151,17 +151,6 @@ const GestionnaireHome = ({ user }) => {
             ]);
             setCandidaturesStageTrouve(stageTrouveData || []);
             setCandidaturesContratCree(contratCreeData || []);
-            const contrats = await Promise.allSettled((contratCreeData || []).map(async candidature => {
-                const contrat = await getContratByCandidatureId(candidature.id);
-                return {
-                    ...candidature,
-                    contratSigne: Boolean(contrat?.dateSignatureEtudiant
-                        && contrat?.dateSignatureEmployeur && contrat?.dateSignatureGestionnaire),
-                };
-            }));
-            setCandidaturesContratCree(contrats.map((resultat, index) =>
-                resultat.status === "fulfilled" ? resultat.value : contratCreeData[index]
-            ));
         } catch (err) {
             console.log(err);
         }
