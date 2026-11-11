@@ -36,7 +36,7 @@ public abstract class UserApp  {
     private List<Notification> notifications;
 
     @OneToMany(mappedBy = "utilisateur")
-    private List<InscriptionSession> inscriptionsSessions = new ArrayList<>();
+    private List<Inscription> inscriptions = new ArrayList<>();
 
     public UserApp(String firstName, String lastName, String phoneNumber, Credentials credentials) {
         this.firstName = firstName;

@@ -1,8 +1,8 @@
 package com.lacouf.rsbjwt.service.dto;
 
-import com.lacouf.rsbjwt.model.Enum.Session;
+import com.lacouf.rsbjwt.model.Enum.Saison;
 
-    public record SessionInfoDTO(
-            Session session,
+    public record SessionDTO(
+            Saison saison,
             int annee
     ) {}
