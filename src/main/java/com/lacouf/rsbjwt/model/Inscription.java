@@ -1,7 +1,7 @@
 
 package com.lacouf.rsbjwt.model;
 
-import com.lacouf.rsbjwt.model.Enum.Session;
+import com.lacouf.rsbjwt.model.Enum.Saison;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +28,7 @@ public class InscriptionSession {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Session session;
+    private Saison session;
 
     @Column(name = "annee_session", nullable = false)
     private int anneeSession;
@@ -39,7 +39,7 @@ public class InscriptionSession {
     @OneToOne(mappedBy = "inscriptionSession")
     private CvEtudiant cv;
 
-    public InscriptionSession(UserApp utilisateur, Session session, int anneeSession) {
+    public InscriptionSession(UserApp utilisateur, Saison session, int anneeSession) {
         this.utilisateur = utilisateur;
         this.session = session;
         this.anneeSession = anneeSession;

@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.model.Enum;
 
-public enum Session {
+public enum Saison {
     AUTOMNE,
     HIVER,
     ETE
