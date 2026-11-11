@@ -410,7 +410,10 @@ public class GestionnaireService {
     public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
         return  candidatureRepository.findByStatut(normaliserStatus(status))
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(candidature -> CandidatureDTO.of(candidature,
+                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
+                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
+                                : null))
                 .toList();
     }
 

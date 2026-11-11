@@ -273,7 +273,10 @@ public class EmployeurService {
 
         return candidatures
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(candidature -> CandidatureDTO.of(candidature,
+                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
+                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
+                                : null))
                 .toList();
     }
 
