@@ -11,6 +11,7 @@ import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.service.dto.EvaluationStagiaire.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -40,6 +41,7 @@ public class EmployeurService {
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
+    private final EvaluationStagiaireRepository evaluationStagiaireRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -47,7 +49,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+            EntrevueRepository entrevueRepository, ContratRepository contratRepository, EvaluationStagiaireRepository evaluationStagiaireRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -56,6 +58,7 @@ public class EmployeurService {
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
+        this.evaluationStagiaireRepository = evaluationStagiaireRepository;
     }
 
     @Transactional
@@ -437,5 +440,22 @@ public class EmployeurService {
         Contrat saved = contratRepository.save(contrat);
 
         return ContratDTO.of(saved);
+    }
+
+    @Transactional
+    public EvaluationStagiaireDTO evaluerStagiaire(EvaluationStagiaireDTO evaluationStagiaireDTO) throws CandidatureIntrouvableException {
+        Candidature candidature = candidatureRepository.findById(evaluationStagiaireDTO.candidatureID()).orElseThrow(CandidatureIntrouvableException::new);
+        EvaluationStagiaire evaluationStagiaire = EvaluationStagiaire.builder()
+                .candidature(candidature)
+                .superviseur(SuperviseurStageDTO.toEntity(evaluationStagiaireDTO.supervisueurStageDTO()))
+                .evaluationProductivite(EvaluationProductiviteDTO.toEntity(evaluationStagiaireDTO.evaluationProductiviteDTO()))
+                .qualiteTravail(QualiteTravailDTO.toEntity(evaluationStagiaireDTO.qualiteTravailDTO()))
+                .qualiteSociale(QualiteSocialeDTO.toEntity(evaluationStagiaireDTO.qualiteSocialDTO()))
+                .habiletePersonelle(HabiletePersonelleDTO.toEntity(evaluationStagiaireDTO.habiletePersonelleDTO()))
+                .appreciationGlobal(AppreciationGlobaleDTO.toEntity(evaluationStagiaireDTO.appreciationGlobalDTO()))
+                .build();
+        return EvaluationStagiaireDTO.toDto(
+            evaluationStagiaireRepository.save(evaluationStagiaire)
+        );
     }
 }
