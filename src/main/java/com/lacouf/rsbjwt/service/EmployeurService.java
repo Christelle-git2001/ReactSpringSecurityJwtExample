@@ -40,6 +40,8 @@ public class EmployeurService {
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
+    private final SessionService sessionService ;
+    private final InscriptionRepository inscriptionRepository;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -47,7 +49,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+            EntrevueRepository entrevueRepository, ContratRepository contratRepository, SessionService sessionService, InscriptionRepository inscriptionRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -56,15 +58,26 @@ public class EmployeurService {
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
+        this.sessionService = sessionService;
+        this.inscriptionRepository = inscriptionRepository;
     }
 
     @Transactional
-    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
-       validerInscriptionEmployeur(inscriptionEmployeurDTO);
+    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO)
+            throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+        validerInscriptionEmployeur(inscriptionEmployeurDTO);
         String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
         Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
-        Employeur employeurCreer =  employeurRepository.save(employeur);
-       return EmployeurDTO.of(employeurCreer);
+        Employeur employeurCreer = employeurRepository.save(employeur);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+        Inscription inscription = new Inscription(
+                employeurCreer,
+                sessionDto.saison(),
+                sessionDto.annee()
+        );
+        inscriptionRepository.save(inscription);
+        employeurCreer.getInscriptions().add(inscription);
+        return EmployeurDTO.of(employeurCreer);
     }
 
 
