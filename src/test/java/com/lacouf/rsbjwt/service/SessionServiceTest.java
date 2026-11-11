@@ -1,12 +1,15 @@
 
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.model.Enum.Session;
-import com.lacouf.rsbjwt.service.dto.SessionInfoDTO;
+import com.lacouf.rsbjwt.model.Enum.Saison;
+import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,98 +23,195 @@ class SessionServiceTest {
     }
 
     @Test
-    void doitRetournerSessionAutomne() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
-                LocalDate.of(2026, 8, 20)
-        );
-
-        assertEquals(Session.AUTOMNE, resultat.session());
-        assertEquals(2026, resultat.annee());
-    }
-
-    @Test
     void doitRetournerSessionHiver() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
+        SessionDTO resultat = sessionService.getSession(
                 LocalDate.of(2026, 1, 15)
         );
 
-        assertEquals(Session.HIVER, resultat.session());
+        assertEquals(Saison.HIVER, resultat.saison());
         assertEquals(2026, resultat.annee());
     }
 
     @Test
-    void doitRetournerSessionEte() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
-                LocalDate.of(2026, 7, 15)
+    void doitRetournerSessionHiverLe10Juin() {
+        SessionDTO resultat = sessionService.getSession(
+                LocalDate.of(2026, 6, 10)
         );
 
-        assertEquals(Session.ETE, resultat.session());
-        assertEquals(2026, resultat.annee());
+        assertEquals(Saison.HIVER, resultat.saison());
     }
 
     @Test
-    void doitRetournerSessionHiver2027PourAutomne2026() {
-        SessionInfoDTO resultat = sessionService.getSessionStageAVenir(
-                LocalDate.of(2026, 11, 10)
+    void doitRetournerSessionAutomneLe11Juin() {
+        SessionDTO resultat = sessionService.getSession(
+                LocalDate.of(2026, 6, 11)
         );
 
-        assertEquals(Session.HIVER, resultat.session());
+        assertEquals(Saison.AUTOMNE, resultat.saison());
+    }
+
+    @Test
+    void doitRetournerSessionAutomneLe19Aout() {
+        SessionDTO resultat = sessionService.getSession(
+                LocalDate.of(2026, 8, 19)
+        );
+
+        assertEquals(Saison.AUTOMNE, resultat.saison());
+    }
+
+    @Test
+    void doitRetournerSessionAutomneLe20Aout() {
+        SessionDTO resultat = sessionService.getSession(
+                LocalDate.of(2026, 8, 20)
+        );
+
+        assertEquals(Saison.AUTOMNE, resultat.saison());
+    }
+
+    @Test
+    void doitRetournerSessionAutomneLe31Decembre() {
+        SessionDTO resultat = sessionService.getSession(
+                LocalDate.of(2026, 12, 31)
+        );
+
+        assertEquals(Saison.AUTOMNE, resultat.saison());
+    }
+
+    @Test
+    void doitRetournerSessionHiverLe1erJanvier() {
+        SessionDTO resultat = sessionService.getSession(
+                LocalDate.of(2027, 1, 1)
+        );
+
+        assertEquals(Saison.HIVER, resultat.saison());
         assertEquals(2027, resultat.annee());
     }
 
     @Test
-    void doitRetournerSessionEte2026PourHiver2026() {
-        SessionInfoDTO resultat = sessionService.getSessionStageAVenir(
-                LocalDate.of(2026, 3, 15)
-        );
+    void doitRetournerLaSessionActuelle() {
+        SessionDTO resultat = sessionService.getSessionActuelle();
 
-        assertEquals(Session.ETE, resultat.session());
+        SessionDTO attendu = sessionService.getSession(LocalDate.now());
+
+        assertEquals(attendu, resultat);
+    }
+
+    @Test
+    void doitAssignerLaBonneSession() {
+        LocalDate date = LocalDate.of(2026, 11, 10);
+
+        SessionDTO resultat = sessionService.assignerSession(date);
+
+        assertEquals(Saison.AUTOMNE, resultat.saison());
         assertEquals(2026, resultat.annee());
     }
 
     @Test
-    void doitRetournerSessionAutomne2026PourEte2026() {
-        SessionInfoDTO resultat = sessionService.getSessionStageAVenir(
-                LocalDate.of(2026, 7, 15)
+    void doitRetournerLaPeriodeAutomne() {
+        SessionService.SessionPeriode periode =
+                sessionService.getPeriodeSession(Saison.AUTOMNE, 2026);
+
+        assertEquals(
+                LocalDateTime.of(2026, 8, 20, 0, 0),
+                periode.debut()
         );
 
-        assertEquals(Session.AUTOMNE, resultat.session());
-        assertEquals(2026, resultat.annee());
+        assertEquals(
+                LocalDateTime.of(2026, 12, 31, 23, 59, 59),
+                periode.fin()
+        );
     }
 
     @Test
-    void le19AoutDoitEtreSessionEte() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
-                LocalDate.of(2026, 8, 19)
+    void doitRetournerLaPeriodeHiver() {
+        SessionService.SessionPeriode periode =
+                sessionService.getPeriodeSession(Saison.HIVER, 2026);
+
+        assertEquals(
+                LocalDateTime.of(2026, 1, 1, 0, 0),
+                periode.debut()
         );
 
-        assertEquals(Session.ETE, resultat.session());
+        assertEquals(
+                LocalDateTime.of(2026, 8, 19, 23, 59, 59),
+                periode.fin()
+        );
     }
 
     @Test
-    void le20AoutDoitEtreSessionAutomne() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
-                LocalDate.of(2026, 8, 20)
+    void doitFiltrerLesElementsSelonLaSession() {
+        List<LocalDateTime> dates = List.of(
+                LocalDateTime.of(2026, 8, 19, 12, 0),
+                LocalDateTime.of(2026, 8, 20, 12, 0),
+                LocalDateTime.of(2026, 10, 15, 12, 0),
+                LocalDateTime.of(2027, 1, 10, 12, 0)
         );
 
-        assertEquals(Session.AUTOMNE, resultat.session());
+        List<LocalDateTime> resultat =
+                sessionService.filtrerParSession(
+                        dates,
+                        Saison.AUTOMNE,
+                        2026,
+                        Function.identity()
+                );
+
+        assertEquals(2, resultat.size());
+
+        assertEquals(
+                LocalDateTime.of(2026, 8, 20, 12, 0),
+                resultat.get(0)
+        );
+
+        assertEquals(
+                LocalDateTime.of(2026, 10, 15, 12, 0),
+                resultat.get(1)
+        );
     }
 
     @Test
-    void le31DecembreDoitEtreSessionAutomne() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
-                LocalDate.of(2026, 12, 31)
+    void doitIgnorerLesDatesNullesLorsDuFiltrage() {
+        List<LocalDateTime> dates = java.util.Arrays.asList(
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                null,
+                LocalDateTime.of(2027, 1, 10, 12, 0)
         );
 
-        assertEquals(Session.AUTOMNE, resultat.session());
+        List<LocalDateTime> resultat =
+                sessionService.filtrerParSession(
+                        dates,
+                        Saison.AUTOMNE,
+                        2026,
+                        Function.identity()
+                );
+
+        assertEquals(1, resultat.size());
     }
 
     @Test
-    void le1erJanvierDoitEtreSessionHiver() {
-        SessionInfoDTO resultat = sessionService.getSessionFromDate(
-                LocalDate.of(2027, 1, 1)
+    void doitFiltrerSelonLaSessionActuelle() {
+        List<LocalDateTime> dates = List.of(
+                LocalDateTime.now().minusMonths(1),
+                LocalDateTime.now().plusMonths(1),
+                LocalDateTime.now().plusYears(1)
         );
 
-        assertEquals(Session.HIVER, resultat.session());
+        List<LocalDateTime> resultat =
+                sessionService.filtrerParSessionActuelle(
+                        dates,
+                        Function.identity()
+                );
+
+        SessionDTO actuelle = sessionService.getSessionActuelle();
+
+        SessionService.SessionPeriode periode =
+                sessionService.getPeriodeSession(
+                        actuelle.saison(),
+                        actuelle.annee()
+                );
+
+        assertTrue(resultat.stream().allMatch(date ->
+                !date.isBefore(periode.debut())
+                        && !date.isAfter(periode.fin())
+        ));
     }
 }
