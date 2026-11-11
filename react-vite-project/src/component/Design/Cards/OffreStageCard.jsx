@@ -9,7 +9,7 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import { actionsCandidatureDesactivees } from "../../../utils/candidatureActions.js";
 
-function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = false, showPdfActions = true }) {
+function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandidature, onEdit = false, showPdfActions = true }) {
     const { t } = useTranslation();
     const {
         pdfUrl,
@@ -131,11 +131,25 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                             ) : (
                                 <ul className="max-h-48 space-y-1 overflow-y-auto">
                                     {candidaturesOffre.map(candidature => {
-                                        const statutCandidature = getStatusConfig(
+                                        let statutCandidature = getStatusConfig(
                                             candidature.statut === "CONTRAT_CREE" && candidature.contratSigne
                                                 ? "CONTRAT_SIGNE" : candidature.statut,
                                             t, "candidature"
                                         );
+                                        const entrevue = entrevues.find(e => e.candidatureId === candidature.id);
+                                        if (candidature.statut === "ENTREVUE_PLANIFIEE") {
+                                            if (entrevue?.statut === "CONFIRMEE") {
+                                                statutCandidature = {
+                                                    label: t("candidature.status.confirmee"),
+                                                    className: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                                                };
+                                            } else if (entrevue?.statut === "TERMINEE") {
+                                                statutCandidature = {
+                                                    label: t("candidature.interview_completed"),
+                                                    className: "bg-blue-100 text-blue-800 border-blue-200",
+                                                };
+                                            }
+                                        }
                                         return (
                                         <li key={candidature.id}>
                                             <button

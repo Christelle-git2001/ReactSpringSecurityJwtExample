@@ -238,6 +238,7 @@
     "view_contract": "Sign/View Contract",
     "contracts_to_create_count": "Contracts to create",
     "contracts_to_sign_count": "Contracts to sign",
+    "contracts_signed_count": "Signed contracts",
     "contracts_to_create_title": "Contracts to Create",
     "contracts_to_sign_title": "Created Contracts / To Sign",
     "no_contracts_to_create": "No contracts to create at the moment.",

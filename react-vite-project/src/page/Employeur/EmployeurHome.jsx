@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
-import { getOffresEmployeur, getCandidaturesEmployeur } from "../../api/employeur.jsx";
+import { getOffresEmployeur, getCandidaturesEmployeur, getEntrevuesEmployeur } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
@@ -16,6 +16,7 @@ const EmployeurHome = ({ user }) => {
 
     const [offres, setOffres] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [entrevues, setEntrevues] = useState([]);
     const [selectedOfferId, setSelectedOfferId] = useState(null);
 
     const offreFilters = useFilters(offres, {
@@ -97,6 +98,14 @@ const EmployeurHome = ({ user }) => {
             });
     }, [navigate]);
 
+    useEffect(() => {
+        if (!candidatures.some(c => c.statut === "ENTREVUE_PLANIFIEE")) return;
+
+        getEntrevuesEmployeur()
+            .then(res => setEntrevues(res || []))
+            .catch(console.error);
+    }, [candidatures]);
+
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
           <WelcomeMessage user={user}/>
@@ -144,6 +153,7 @@ const EmployeurHome = ({ user }) => {
                                             key={offer.id}
                                             offer={offer}
                                             candidatures={candidatures}
+                                            entrevues={entrevues}
                                             onViewCandidature={handleViewCandidature}
                                             onEdit={handleEdit}
                                         />

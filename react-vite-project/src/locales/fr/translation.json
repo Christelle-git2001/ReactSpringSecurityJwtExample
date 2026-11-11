@@ -294,6 +294,7 @@
     "view_contract": "Signer/Voir Contrat",
     "contracts_to_create_count": "Contrats à créer",
     "contracts_to_sign_count": "Contrats à signer",
+    "contracts_signed_count": "Contrats signés",
     "contracts_to_create_title": "Contrats à créer",
     "contracts_to_sign_title": "Contrats créés / À signer",
     "no_contracts_to_create": "Aucun contrat à créer pour le moment.",
