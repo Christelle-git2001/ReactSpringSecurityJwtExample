@@ -47,12 +47,14 @@ public class EtudiantService {
     private final CandidatureRepository candidatureRepository;
     private final EntrevueRepository entrevueRepository;
     private final ContratRepository contratRepository;
+    private final InscriptionRepository inscriptionRepository;
+    private final  SessionService sessionService;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
                            NotificationRepository notificationRepository, CandidatureRepository candidatureRepository,
-                           EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+                           EntrevueRepository entrevueRepository, ContratRepository contratRepository, InscriptionRepository inscriptionRepository, SessionService sessionService) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -62,6 +64,8 @@ public class EtudiantService {
         this.candidatureRepository = candidatureRepository;
         this.entrevueRepository = entrevueRepository;
         this.contratRepository = contratRepository;
+        this.inscriptionRepository = inscriptionRepository;
+        this.sessionService = sessionService;
     }
 
     @Transactional
@@ -79,7 +83,28 @@ public class EtudiantService {
                 .password(passwordEncoder.encode(inscriptionEtudiantDto.password()))
                 .build();
 
-        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+        Etudiant etudiantSauvegarde = etudiantRepository.save(etudiant);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+        Inscription inscription = new Inscription(etudiantSauvegarde, sessionDto.saison(), sessionDto.annee());
+        inscriptionRepository.save(inscription);
+        etudiantSauvegarde.getInscriptions().add(inscription);
+
+        return EtudiantDTO.of(etudiantSauvegarde);
+    }
+
+    @Transactional
+    public void reinscrireEtudiant(String email) throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+
+        boolean dejaInscrit = etudiant.getInscriptions().stream()
+                .anyMatch(i -> i.getSession() == sessionDto.saison() && i.getAnneeSession() == sessionDto.annee());
+
+        if (!dejaInscrit) {
+            Inscription nouvelleInscription = new Inscription(etudiant, sessionDto.saison(), sessionDto.annee());
+            inscriptionRepository.save(nouvelleInscription);
+            etudiant.getInscriptions().add(nouvelleInscription);
+        }
     }
 
     private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException, MatriculeNonConforme {
