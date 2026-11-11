@@ -1,4 +1,3 @@
-
 package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.Saison;
@@ -9,14 +8,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "inscription_session",
-        uniqueConstraints = @UniqueConstraint(name = "uk_utilisateur_session_annee", columnNames = {"utilisateur_id", "session", "annee_session"}
+        name = "inscription",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_utilisateur_session_annee",
+                columnNames = {"utilisateur_id", "session", "annee_session"}
         )
 )
 @Getter
 @Setter
 @NoArgsConstructor
-public class InscriptionSession {
+public class Inscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,10 +37,10 @@ public class InscriptionSession {
     @Column(nullable = false)
     private LocalDateTime dateInscription;
 
-    @OneToOne(mappedBy = "inscriptionSession")
+    @OneToOne(mappedBy = "inscription")
     private CvEtudiant cv;
 
-    public InscriptionSession(UserApp utilisateur, Saison session, int anneeSession) {
+    public Inscription(UserApp utilisateur, Saison session, int anneeSession) {
         this.utilisateur = utilisateur;
         this.session = session;
         this.anneeSession = anneeSession;
