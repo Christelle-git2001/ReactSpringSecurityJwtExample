@@ -124,18 +124,18 @@ function Agenda({ entrevuesList = [], candidaturesList = [], selectedDate, onDat
                 </span>
             </div>
 
-            <div className={compact ? "grid gap-4 md:grid-cols-[280px_minmax(0,1fr)]" : "contents"}>
+            <div className={compact ? "grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)]" : "contents"}>
                 <div className={compact ? "min-w-0 space-y-3" : "contents"}>
                     <div className="flex justify-center w-full">
-                        <div className={`w-full flex items-center justify-center ${compact ? "max-w-[300px] h-[300px]" : "max-w-[700px] h-[430px]"}`}>
+                        <div className={`w-full flex items-center justify-center ${compact ? "max-w-[360px]" : "max-w-[700px] h-[430px]"}`}>
                             <calendar-date
                                 ref={calendarRef}
                                 value={cleanSelectedDate}
                                 locale={locale}
                                 first-day-of-week="1"
                                 aria-label={t("agenda.title")}
-                                className="cally interview-calendar bg-white border border-gray-200 shadow-sm rounded-2xl p-3
-                               w-full h-full overflow-hidden flex flex-col"
+                                className={`cally interview-calendar bg-white border border-gray-200 shadow-sm rounded-2xl p-3
+                               w-full ${compact ? "h-auto [&_calendar-month::part(day)]:size-8" : "h-full"} overflow-hidden flex flex-col`}
                             >
                                 <svg aria-label={t("agenda.previous_month")} className="fill-current size-4 text-[#043462]" slot="previous"
                                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
