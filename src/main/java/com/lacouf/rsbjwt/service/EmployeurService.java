@@ -152,8 +152,12 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UserNotFoundException::new);
 
-        return employeur.getOffres()
-                .stream()
+        List<OffreDeStage> offresSession = sessionService.filtrerParSessionActuelle(
+                employeur.getOffres(),
+                OffreDeStage::getCreatedAt
+        );
+
+        return offresSession.stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -280,7 +284,12 @@ public class EmployeurService {
         List<Candidature> candidatures =
                 candidatureRepository.findByOffreDeStage_Employeur(employeur);
 
-        return candidatures
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        return candidaturesFiltrees
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
