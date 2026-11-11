@@ -312,8 +312,13 @@ public class EtudiantService {
 
         List<Entrevue> entrevues = entrevueRepository
                 .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
-        entrevues.forEach(this::actualiserStatutApresEntrevue);
 
+        entrevues = sessionService.filtrerParSessionActuelle(
+                entrevues,
+                Entrevue::getDateCreation
+        );
+
+        entrevues.forEach(this::actualiserStatutApresEntrevue);
         return entrevues
                 .stream()
                 .map(EntrevueDTO::of)
@@ -391,9 +396,16 @@ public class EtudiantService {
 
     public List<CandidatureDTO> getCandidaturesEtudiant()
             throws EtudiantIntrouvableException {
+
         Etudiant etudiant = getEtudiantConnecte();
 
-        return candidatureRepository.findByEtudiant(etudiant)
+        List<Candidature> candidatures =
+                candidatureRepository.findByEtudiant(etudiant);
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        Candidature::getDateCandidature
+                )
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
