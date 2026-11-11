@@ -529,7 +529,7 @@
   "candidature": {
     "view_contract": "View contract",
     "actions_disabled": "Actions disabled",
-    "actions_disabled_description": "A final internship has already been selected. You can still view this application, but it can no longer be changed.",
+    "actions_disabled_description": "A final internship has already been selected for this student. You can still view this application, but it can no longer be changed.",
     "final_stage_selected": "Final internship selected",
     "final_stage_declared": "Final internship declared",
     "other_actions_disabled": "Actions on your other applications are disabled.",

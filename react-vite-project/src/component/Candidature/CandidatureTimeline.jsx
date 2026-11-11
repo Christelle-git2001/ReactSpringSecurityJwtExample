@@ -60,7 +60,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
     );
 
     return (
-        <div className="w-full bg-transparent p-4 rounded-xl mb-6 flex justify-center">
+        <div className="w-full bg-transparent px-4 pt-4 rounded-xl flex justify-center">
             <ul className="timeline timeline-horizontal inline-flex justify-center max-w-3xl">
 
                 {etapesVisibles.map((step, index) => {
@@ -78,11 +78,11 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
                             )}
 
                             {index % 2 === 0 ? (
-                                <div className={`timeline-start timeline-box text-xs md:text-sm ${completed ? completedClass : "text-gray-400"}`}>
+                                <div className={`timeline-start timeline-box text-[15px] md:text-[16px] px-2 py-1.5 ${completed ? completedClass : "text-gray-400"}`}>
                                     {contenuEtape(step)}
                                 </div>
                             ) : (
-                                <div className={`timeline-end timeline-box text-xs md:text-sm ${completed ? completedClass : "text-gray-400"}`}>
+                                <div className={`timeline-end timeline-box text-[15px] md:text-[16px] px-2 py-1.5 ${completed ? completedClass : "text-gray-400"}`}>
                                     {contenuEtape(step)}
                                 </div>
                             )}

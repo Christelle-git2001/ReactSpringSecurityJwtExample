@@ -523,7 +523,7 @@
   "candidature": {
     "view_contract": "Voir le contrat",
     "actions_disabled": "Actions désactivées",
-    "actions_disabled_description": "Un stage final a déjà été choisi. Cette candidature reste consultable, mais ne peut plus être modifiée.",
+    "actions_disabled_description": "Un stage final a déjà été choisi pour cet étudiant. Cette candidature reste consultable, mais ne peut plus être modifiée.",
     "final_stage_selected": "Stage final sélectionné",
     "final_stage_declared": "Stage final déclaré",
     "other_actions_disabled": "Les actions sur vos autres candidatures sont désactivées.",

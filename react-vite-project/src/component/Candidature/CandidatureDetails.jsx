@@ -114,7 +114,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp }) 
             {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decision?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
             {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
-            <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
+            <div className="px-6 pb-6 pt-2 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction
                     role={Role.EMPLOYEUR}
                     candidature={candidature}
