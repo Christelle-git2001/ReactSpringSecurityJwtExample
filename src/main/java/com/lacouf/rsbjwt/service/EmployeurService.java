@@ -510,8 +510,8 @@ public class EmployeurService {
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId)
-            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
+    public ContratDTO signerContrat(Long contratId, String motDePasse)
+            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException, MotDePasseInvalideException{
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -519,6 +519,10 @@ public class EmployeurService {
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
                 .orElseThrow(UtilisateurIntrouvableException::new);
+
+        if (!passwordEncoder.matches(motDePasse, employeur.getPassword())) {
+            throw new MotDePasseInvalideException();
+        }
 
         Contrat contrat = contratRepository.findById(contratId)
                 .orElseThrow(ContratIntrouvableException::new);
@@ -533,7 +537,7 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        contrat.setDateSignatureEmployeur(LocalDate.now());
+        contrat.setDateSignatureEmployeur(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
 

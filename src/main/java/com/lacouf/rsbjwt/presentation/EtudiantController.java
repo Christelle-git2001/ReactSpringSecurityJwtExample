@@ -133,12 +133,15 @@ public class EtudiantController {
 
     @PutMapping("/contrats/{contratId}/signature")
     public ResponseEntity<ContratDTO> signerContrat(
-            @PathVariable Long contratId)
+            @PathVariable Long contratId,
+            @Valid @RequestBody ConfirmationSignatureDTO dto)
             throws ContratIntrouvableException,
             OffreNonAutoriseeException,
-            EtudiantIntrouvableException {
+            EtudiantIntrouvableException,
+            MotDePasseInvalideException {
 
-        ContratDTO contratDTO = etudiantService.signerContrat(contratId);
+        ContratDTO contratDTO =
+                etudiantService.signerContrat(contratId, dto.motDePasse());
 
         return ResponseEntity.ok(contratDTO);
     }

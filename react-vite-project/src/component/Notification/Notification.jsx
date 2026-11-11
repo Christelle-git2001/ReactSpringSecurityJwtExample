@@ -157,7 +157,6 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
     const onClick = async (notification) => {
         const routeConfig = ROUTES_PAR_TYPE[notification.notificationType];
         const role = window.location.pathname;
-        console.log(role);
         const destination = typeof routeConfig === "function"
             ? routeConfig(role)
             : routeConfig;

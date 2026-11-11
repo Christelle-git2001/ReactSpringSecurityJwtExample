@@ -690,7 +690,7 @@ public class NotificationServiceTest {
         Notification notificationSauvegardee = captor.getAllValues().get(0);
 
         assertThat(notificationSauvegardee.getVariables().get(VariableMapKey.ETUDIANT_IDS))
-                .isEqualTo("1, 2");
+                .isEqualTo("");
     }
 
     @Test

@@ -183,10 +183,15 @@ public class GestionnaireController {
 
     @PutMapping("/contrats/{contratId}/signature")
     public ResponseEntity<ContratDTO> signerContrat(
-            @PathVariable Long contratId)
-            throws ContratIntrouvableException{
+            @PathVariable Long contratId,
+            @Valid @RequestBody ConfirmationSignatureDTO dto)
+            throws ContratIntrouvableException,
+            UtilisateurIntrouvableException,
+            MotDePasseInvalideException {
 
-        ContratDTO contratDTO = gestionnaireService.signerContrat(contratId);
+        ContratDTO contratDTO =
+                gestionnaireService.signerContrat(contratId, dto.motDePasse());
+
         return ResponseEntity.ok(contratDTO);
     }
 }

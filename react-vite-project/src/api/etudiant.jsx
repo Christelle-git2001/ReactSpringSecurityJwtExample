@@ -127,8 +127,12 @@ function getToken(){
   return token;
 }
 
-export async function signerContratEtudiant(contratId) {
-  return fetchJson(`/etudiant/contrats/${contratId}/signature`, {
-    method: "PUT",
-  });
+export async function signerContratEtudiant(contratId, motDePasse) {
+    return fetchJson(`/etudiant/contrats/${contratId}/signature`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ motDePasse }),
+    });
 }

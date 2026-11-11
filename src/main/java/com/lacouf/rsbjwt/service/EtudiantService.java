@@ -13,17 +13,21 @@ import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.lacouf.rsbjwt.repository.NotificationRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -432,10 +436,9 @@ public class EtudiantService {
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId)
-            throws ContratIntrouvableException,
-            OffreNonAutoriseeException,
-            EtudiantIntrouvableException {
+    public ContratDTO signerContrat(Long contratId, String motDePasse)
+            throws ContratIntrouvableException, OffreNonAutoriseeException,
+            EtudiantIntrouvableException, MotDePasseInvalideException{
 
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -453,7 +456,11 @@ public class EtudiantService {
             throw new OffreNonAutoriseeException();
         }
 
-        contrat.setDateSignatureEtudiant(LocalDate.now());
+        if (!passwordEncoder.matches(motDePasse, etudiant.getPassword())) {
+            throw new MotDePasseInvalideException();
+        }
+
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
 
         return ContratDTO.of(contratRepository.save(contrat));
     }

@@ -132,7 +132,8 @@
     "collapse": "Réduire",
     "expand": "Développer",
     "create_contract": "Créer le contrat",
-    "postuler": "Postuler"
+    "postuler": "Postuler",
+    "confirm" : "Confirmer"
   },
   "search": {
     "placeholder": "Rechercher par titre et description...",
@@ -241,6 +242,8 @@
     "notification_path": "La destination demandée est introuvable. Veuillez réessayer plus tard.",
     "rejection_comment_required": "Le commentaire est obligatoire en cas de refus.",
     "convocation_not_found": "Convocation d’entrevue introuvable.",
+    "password_invalid": "Le mot de passe est incorrect.",
+    "password_required": "Veuillez saisir votre mot de passe."
     "internship_found_locked": "L'étudiant a déjà déclaré un stage trouvé."
   },
   "success": {
@@ -356,16 +359,11 @@
       "aucune_candidature" : "Recherche de stage en cours...",
       "employeur": "Employeur",
       "poste" : "Poste",
-      "voir_detail" : "Voir les détails"
-    },
-    "card_professeur": {
-      "information_communication": "Information de communication",
-      "information_scolaire" : "Information Scolaire",
-      "information_stage": "Demande de Stage",
-      "aucune_candidature" : "Recherche de stage en cours...",
-      "employeur": "Employeur",
-      "poste" : "Poste",
-      "voir_detail" : "Voir les détails"
+      "voir_detail" : "Voir les détails",
+      "voir_entrevue": "Voir les demandes de stage",
+      "date_application" : "Candidature soumise le",
+      "candidatures_etudiant_titre" : "Candidature de : {{prenom}} {{nom}}",
+      "voir_etudiants" : "Voir tous les étudiants"
     },
     "contrat_detail": {
       "title": "Détails du contrat"
@@ -423,7 +421,7 @@
         "assign_restart": "Assigner à nouveau"
       },
       "button": {
-        "text": "Assigner"
+        "text" : "Assigner"
       }
     }
   },
@@ -486,15 +484,15 @@
       "dont_forget_CV": "S'il-vous-plait, n'oubliez pas de téléverser votre CV !"
     }
   },
-  "resume_offers": {
+  "resume_offers" : {
     "offers_section": "Renseignements sur l'offre",
-    "offers_sous_section": {
-      "title": "Titre",
+    "offers_sous_section" : {
+      "title" : "Titre",
       "salaire": "Salaire",
       "salaire_value": "{{salary}}$/Heure",
-      "description": "description",
+      "description" : "description",
       "start_date": "Date de début du stage",
-      "format_date": "(AAAA-MM-JJ)",
+      "format_date" : "(AAAA-MM-JJ)",
       "end_date": "Date de fin du stage",
       "pdf": "Aperçu de l'offre"
     },
@@ -556,7 +554,6 @@
       "retenue_pour_entrevue" : "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
       "planifiee": "Entrevue planifiée",
-      "entrevue_planifiee": "Entrevue planifiée",
       "confirmee": "Entrevue confirmée",
       "entrevue_refusee": "Entrevue refusée",
       "refusee": "Candidature refusée",
@@ -674,8 +671,11 @@
     "replace": "Remplacer le document",
     "file_hint": "Format accepté : PDF | Taille maximale : {{maxSize}} Mo"
   },
-  "contrat" : {
-    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage."  },
+  "contrat": {
+    "aucun_contrat": "Aucun contrat n'a été produit pour l'instant. Veuillez communiquer avec votre gestionnaire de stage.",
+    "confirm_signature": "Confirmer la signature",
+    "enter_password": "Veuillez saisir votre mot de passe pour confirmer la signature."
+  },
   "entrevue": {
     "accept": "Accepter",
     "reject": "Refuser",
@@ -754,13 +754,14 @@
     "completed_on": "Effectué le",
     "start_error": "Erreur lors du démarrage du processus",
     "sign_error": "Erreur lors de la signature du contrat",
-    "no_signature": "Aucune signature",
-    "no_contrat": "Aucun contrat créé, cliquer sur démarrer le processus de signature pour en créer un",
-    "waiting_parties_signatures": "L'employeur et l'étudiant doivent d'abord signer le contrat",
+    "no_signature" : "Aucune signature",
+    "no_contrat" : "Aucun contrat créé, cliquer sur démarrer le processus de signature pour en créer un",
+    "waiting_parties_signatures" : "L'employeur et l'étudiant doivent d'abord signer le contrat",
     "contract_signed_title": "Contrat signé",
     "action_student_sign_contract": "Le contrat est prêt. Consultez-le, puis signez-le pour poursuivre le processus.",
     "action_default_student": "Consultez le suivi de votre candidature pour connaître la prochaine étape.",
     "next_action_title": "Prochaine action requise",
+
     "action_contract_signed_msg": "Le contrat a été signé le",
     "action_review_cv": "Le candidat a soumis sa candidature. Revoyez son CV et retenez-le pour une entrevue.",
     "action_plan_interview": "Le candidat est retenu. Planifiez l'entrevue dès maintenant.",
@@ -829,6 +830,7 @@
     "matricule": "Matricule",
     "email" : "Courriel",
     "phone" : "Numéro de téléphone",
+    "description" : "Description",
     "town" : "Ville",
     "liste" : {
       "open" : "Ouvrir la liste",

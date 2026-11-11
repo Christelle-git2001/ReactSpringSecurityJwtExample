@@ -328,4 +328,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErreurDTO> handleStageDejaTrouveException(Exception e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
+    @ExceptionHandler(MotDePasseInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
+            MotDePasseInvalideException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }

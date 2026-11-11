@@ -67,7 +67,8 @@
     "document": "Additional document (PDF)",
     "choose_file": "Choose a file",
     "cancel": "Cancel",
-    "submit": "Submit",
+    "submit": "Submit"
+  },
     "errors": {
       "select_company": "Please select a company",
       "select_student": "Please select a student",
@@ -84,8 +85,8 @@
       "display_end_date_after_start_date": "The offer display end date must be before or equal to the internship start date.",
       "display_end_date_before_today": "The offer display end date cannot be in the past.",
       "start_date_before_today": "The start date cannot be before today."
-    }
-  },
+    },
+
   "edit_offer": {
     "title": "Edit internship offer",
     "subtitle": "Edit the information for your internship offer.",
@@ -113,7 +114,7 @@
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
     "view_details": "View details",
-    "interview": "Select for interview",
+    "interview":"Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
@@ -132,7 +133,8 @@
     "collapse": "Collapse",
     "expand": "Expand",
     "cancel" : "Cancel",
-    "postuler": "Postuler"
+    "postuler": "Postuler",
+    "confirm": "Confirm"
   },
   "login": {
     "page_title": "Login",
@@ -200,6 +202,9 @@
     "rejection_comment_required": "A comment is required when rejecting a CV.",
     "convocation_not_found": "Interview invitation not found.",
     "internship_found_locked": "The student has already declared an internship found"
+    "convocation_not_found": "Interview invitation not found.",
+    "password_invalid": "The password is incorrect.",
+    "password_required": "Please enter your password."
   },
   "success": {
     "student_added": "Student added successfully.",
@@ -300,7 +305,11 @@
       "aucune_candidature": "Internship search in progress...",
       "employeur": "Employer",
       "poste" : "Position",
-      "voir_detail": "View details"
+      "voir_detail": "View details",
+      "voir_entrevue": "View internship applications",
+      "date_application" : "Applied on",
+      "candidatures_etudiant_titre" : "{{prenom}} {{nom}}'s applications",
+      "voir_etudiants" : "View all students"
     },
     "contrat_detail": {
       "title": "Contract details"
@@ -334,73 +343,6 @@
         "nb_student_assign": "Assigned students",
         "professeur_is_selected" : "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
       "select": {
@@ -429,7 +371,9 @@
     }
   },
   "contrat": {
-    "aucun_contrat": "No contract has been produced yet. Please contact your internship manager."
+    "aucun_contrat": "No contract has been produced yet. Please contact your internship manager.",
+    "confirm_signature": "Confirm signature",
+    "enter_password": "Please enter your password to confirm the signature."
   },
   "pdfVisio": {
     "nofiles": "No files selected",
@@ -794,7 +738,7 @@
     "format": "Format",
     "date": "Date",
     "time": "Time",
-    "reject": "Reject",
+    "reject" : "Reject",
     "confirm_refusal": "Confirm decline",
     "refusal_confirmation": "Do you want to decline this interview invitation? The employer will be notified of your decision.",
     "refusal_reason": "Reason for declining",
@@ -872,14 +816,15 @@
     "nom": "Name",
     "departement": "Department",
     "matricule": "Matricule",
-    "email": "Email",
-    "phone": "Phone Number",
-    "town": "Town",
-    "liste": {
-      "open": "Open the list",
-      "close": "Close the list",
-      "title": "List",
-      "empty": "The list is empty"
+    "email" : "Email",
+    "phone" : "Phone Number",
+    "town" : "Town",
+    "description" : "Description",
+    "liste" : {
+      "open" : "Open the list",
+      "close" : "Close the list",
+      "title" : "List",
+      "empty" : "The list is empty"
     }
   }
 }

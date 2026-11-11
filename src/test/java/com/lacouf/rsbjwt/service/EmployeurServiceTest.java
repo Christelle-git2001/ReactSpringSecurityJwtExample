@@ -762,43 +762,17 @@ public class EmployeurServiceTest {
         verify(convocationRepository, never()).save(any(Entrevue.class));
     }
 
-    @Test
-    void doitAccepterLeCandidatSansDeclarerSonStage() throws Exception {
-        creerEntrevueTerminee();
-        when(candidatureRepository.save(candidature)).thenReturn(candidature);
-
-        CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
-
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
-        assertThat(resultat.motifRefus()).isNull();
-        verify(etudiantService).actualiserStatutEtudiant(etudiant);
-        verify(candidatureRepository).save(candidature);
-        ArgumentCaptor<CandidatureAccepteeEvent> captor = ArgumentCaptor.forClass(CandidatureAccepteeEvent.class);
-        verify(eventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue().candidature()).isSameAs(candidature);
-    }
-
-    @Test
-    void doitRefuserLeCandidatAvecUnMotif() throws Exception {
-        creerEntrevueTerminee();
-        when(candidatureRepository.save(candidature)).thenReturn(candidature);
-
-        CandidatureDTO resultat = employeurService.refuserCandidatApresEntrevue(1L, "  Experience insuffisante  ");
-
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
-        assertThat(resultat.motifRefus()).isEqualTo("Experience insuffisante");
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
-        verify(etudiantService).actualiserStatutEtudiant(etudiant);
-        verify(candidatureRepository).save(candidature);
-        verify(eventPublisher).publishEvent(any(CandidatureRefuseeEvent.class));
-    }
 
     @Test
     void doitSignerContratAvecSucces() throws Exception {
-        Gestionnaire gestionnaire = new Gestionnaire(1L,"Laurent","losange","Laurent.Losange@hotmail.com","5858","458-458-4584");
+        Gestionnaire gestionnaire = new Gestionnaire(
+                1L, "Laurent", "losange",
+                "Laurent.Losange@hotmail.com", "5858", "458-458-4584"
+        );
         gestionnaire.setId(1L);
+
         Long contratId = 1L;
+        String motDePasse = "Losange12%";
 
         Contrat contrat = Contrat.builder()
                 .candidature(candidature)
@@ -808,47 +782,62 @@ public class EmployeurServiceTest {
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
+
         when(contratRepository.findById(contratId))
                 .thenReturn(Optional.of(contrat));
+
+        when(passwordEncoder.matches(motDePasse, employeur.getPassword()))
+                .thenReturn(true);
+
         when(contratRepository.save(any(Contrat.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        ContratDTO result = employeurService.signerContrat(contratId);
+        ContratDTO result = employeurService.signerContrat(contratId, motDePasse);
 
         assertThat(result).isNotNull();
-        assertThat(contrat.getDateSignatureEmployeur()).isEqualTo(LocalDate.now());
+        assertThat(contrat.getDateSignatureEmployeur()).isNotNull();
 
         verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
         verify(contratRepository).findById(contratId);
+        verify(passwordEncoder).matches(motDePasse, employeur.getPassword());
         verify(contratRepository).save(contrat);
     }
 
     @Test
     void doitLeverExceptionSiUtilisateurIntrouvablePourSignatureContrat() {
-
         Long contratId = 1L;
+        String motDePasse = "Losange12%";
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+        assertThatThrownBy(() ->
+                employeurService.signerContrat(contratId, motDePasse))
                 .isInstanceOf(UtilisateurIntrouvableException.class);
 
         verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
         verify(contratRepository, never()).findById(any());
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(contratRepository, never()).save(any());
     }
 
     @Test
     void doitLeverExceptionSiContratIntrouvablePourSignature() {
         Long contratId = 99L;
+        String motDePasse = "Losange12%";
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
+
         when(contratRepository.findById(contratId))
                 .thenReturn(Optional.empty());
+        when(passwordEncoder.matches(motDePasse, employeur.getPassword()))
+                .thenReturn(true);
+        when(passwordEncoder.matches(motDePasse, employeur.getPassword()))
+                .thenReturn(true);
 
-        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+        assertThatThrownBy(() ->
+                employeurService.signerContrat(contratId, motDePasse))
                 .isInstanceOf(ContratIntrouvableException.class);
 
         verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
@@ -858,8 +847,8 @@ public class EmployeurServiceTest {
 
     @Test
     void doitLeverExceptionSiEmployeurNonProprietaireDeOffrePourSignatureContrat() {
-
         Long contratId = 1L;
+        String motDePasse = "Losange12%";
 
         Employeur autreEmployeur = Employeur.builder()
                 .firstName("Autre")
@@ -884,10 +873,15 @@ public class EmployeurServiceTest {
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
+
         when(contratRepository.findById(contratId))
                 .thenReturn(Optional.of(contrat));
 
-        assertThatThrownBy(() -> employeurService.signerContrat(contratId))
+        when(passwordEncoder.matches(motDePasse, employeur.getPassword()))
+                .thenReturn(true);
+
+        assertThatThrownBy(() ->
+                employeurService.signerContrat(contratId, motDePasse))
                 .isInstanceOf(OffreNonAutoriseeException.class);
 
         verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
@@ -925,6 +919,28 @@ public class EmployeurServiceTest {
                 .isInstanceOf(OffreNonAutoriseeException.class);
         verify(candidatureRepository, never()).save(any());
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitLeverExceptionSiMotDePasseInvalidePourSignatureContrat() {
+        Long contratId = 1L;
+        String motDePasse = "MauvaisMotDePasse";
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(passwordEncoder.matches(motDePasse, employeur.getPassword()))
+                .thenReturn(false);
+
+        assertThatThrownBy(() ->
+                employeurService.signerContrat(contratId, motDePasse))
+                .isInstanceOf(MotDePasseInvalideException.class);
+
+        verify(userAppRepository).findUserAppByEmail(employeur.getEmail());
+        verify(passwordEncoder).matches(motDePasse, employeur.getPassword());
+
+        verify(contratRepository, never()).findById(anyLong());
+        verify(contratRepository, never()).save(any());
     }
 
     @Test

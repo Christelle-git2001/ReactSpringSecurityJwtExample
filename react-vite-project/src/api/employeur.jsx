@@ -51,9 +51,13 @@ export async function getEntrevuesEmployeur() {
     });
 }
 
-export async function signerContratEmployeur(contratId) {
+export async function signerContratEmployeur(contratId, motDePasse) {
     return fetchJson(`/employeur/contrats/${contratId}/signature`, {
         method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ motDePasse }),
     });
 }
 

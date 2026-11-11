@@ -160,9 +160,16 @@ public class EmployeurController {
 
     @PutMapping("/contrats/{contratId}/signature")
     public ResponseEntity<ContratDTO> signerContrat(
-            @PathVariable Long contratId)
-            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
-        ContratDTO contratDTO = employeurService.signerContrat(contratId);
+            @PathVariable Long contratId,
+            @Valid @RequestBody ConfirmationSignatureDTO dto)
+            throws ContratIntrouvableException,
+            OffreNonAutoriseeException,
+            UtilisateurIntrouvableException,
+            MotDePasseInvalideException {
+
+        ContratDTO contratDTO =
+                employeurService.signerContrat(contratId, dto.motDePasse());
+
         return ResponseEntity.ok(contratDTO);
     }
 }
