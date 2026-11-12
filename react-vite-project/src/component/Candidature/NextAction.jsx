@@ -9,6 +9,7 @@ import {
     obtenirConvocationEmployeur
 } from "../../api/employeur.jsx";
 import { signerContratEtudiant } from "../../api/etudiant.jsx";
+import EvaluationStagiaire from "../Evaluation/EvaluationStagiaire.jsx";
 
 function NextAction({
     candidature,
@@ -41,6 +42,9 @@ function NextAction({
         candidature?.dateSignatureEtudiant ||
         null
     );
+
+    const [evaluationOuverte, setEvaluationOuverte] = useState(false);
+    const [evaluationSoumise, setEvaluationSoumise] = useState(false);
 
     const formatDateSignature = (dateString) => {
         if (!dateString) return "";
@@ -225,6 +229,17 @@ function NextAction({
         }
 
         if (role === Role.EMPLOYEUR) {
+
+            if (statutActuel === "CONTRAT_CREE" && stageTermine) {
+                return evaluationSoumise
+                    ? { description: t("evaluation.success"), buttonText: null, onClick: null, disabled: false }
+                    : {
+                        description: t("process.action_evaluate_intern"),
+                        buttonText: t("actions.evaluate_intern"),
+                        onClick: () => setEvaluationOuverte(true),
+                        disabled: false
+                    };
+            }
 
             if (isEmployeurSigned) {
                 return {
@@ -427,6 +442,17 @@ function NextAction({
                         </div>
                     </div>
                 </div>
+            )}
+            {evaluationOuverte && (
+                <EvaluationStagiaire
+                    candidature={candidature}
+                    offer={offer}
+                    onClose={() => setEvaluationOuverte(false)}
+                    onSuccess={() => {
+                        setEvaluationOuverte(false);
+                        setEvaluationSoumise(true);
+                    }}
+                />
             )}
         </div>
     );
