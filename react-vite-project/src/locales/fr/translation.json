@@ -331,6 +331,7 @@
     "view_less": "Voir moins"
   },
   "etudiant": {
+    "assigned_professor": "Professeur assigné",
     "card": {
       "account": "Gérez vos informations personnelles, mettez à jour votre profil et consultez les détails de votre compte. ",
       "view_offers": "Consultez les offres de stage disponibles et postulez à celles qui correspondent à vos intérêts et compétences. ",
@@ -351,7 +352,7 @@
       "details_button": "Détails",
       "apply_button": "Postuler",
       "fromTo": "à",
-      "internship_found_locked": "Vous avez déjà déclaré un stage trouvé. Vous ne pouvez plus postuler à une autre offre."
+      "internship_found_locked": "Stage trouvé : impossible de postuler à d'autres offres."
     },
     "card_professeur": {
       "information_communication": "Information de communication",
@@ -363,7 +364,7 @@
       "voir_detail" : "Voir les détails",
       "voir_entrevue": "Voir les demandes de stage",
       "date_application" : "Candidature soumise le",
-      "candidatures_etudiant_titre" : "Candidature de : {{prenom}} {{nom}}",
+      "candidatures_etudiant_titre" : "Candidatures de : {{prenom}} {{nom}}",
       "voir_etudiants" : "Voir tous les étudiants"
     },
     "contrat_detail": {
@@ -595,6 +596,12 @@
       "description": "Un contrat a été créé pour le poste : {{OFFRE_TITRE}}. Veuillez le consulter et le signer."
     },
     "employeur": {
+      "validation": {
+        "title_acceptee": "Offre de stage acceptée",
+        "description_acceptee": "Votre offre « {{OFFRE_TITRE}} » a été acceptée par le gestionnaire.",
+        "title_refusee": "Offre de stage refusée",
+        "description_refusee": "Votre offre « {{OFFRE_TITRE}} » a été refusée. Consultez l’offre pour connaître le motif."
+      },
       "stageTrouve": {
         "title": "Stage choisi par l'étudiant",
         "description": "{{ETUDIANT_NOM}} a choisi votre offre « {{OFFRE_TITRE}} » comme stage."
@@ -613,6 +620,14 @@
       }
     },
     "gestionnaire": {
+      "contratASigner": {
+        "title": "Contrat à signer",
+        "description": "{{ETUDIANT_NOM}} et l’employeur ont signé le contrat pour « {{OFFRE_TITRE}} ». Votre signature est maintenant attendue."
+      },
+      "stageTrouve": {
+        "title": "Processus de contrat à démarrer",
+        "description": "{{ETUDIANT_NOM}} a déclaré un stage trouvé pour l’offre « {{OFFRE_TITRE}} ». Vous pouvez démarrer le processus de contrat."
+      },
       "offre": {
         "title": "Nouvelle offre à valider",
         "description": "L'offre « {{OFFRE_TITRE}} » est en attente de validation."

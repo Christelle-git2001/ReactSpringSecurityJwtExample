@@ -12,6 +12,8 @@ import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
 import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -423,6 +425,7 @@ public class EtudiantService {
                     && !entrevue.getDateHeureEntrevue().plusMinutes(entrevue.getDuree()).isAfter(maintenant)) {
                 entrevue.setStatut(StatutEntrevue.TERMINEE);
                 entrevueRepository.save(entrevue);
+                eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
             }
             if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_PLANIFIEE) continue;
             enAttenteReponse |= entrevue.getStatut() == StatutEntrevue.TERMINEE;
@@ -462,7 +465,9 @@ public class EtudiantService {
 
         contrat.setDateSignatureEtudiant(LocalDateTime.now());
 
-        return ContratDTO.of(contratRepository.save(contrat));
+        Contrat contratEnregistre = contratRepository.save(contrat);
+        eventPublisher.publishEvent(new ContratSigneEvent(contratEnregistre));
+        return ContratDTO.of(contratEnregistre);
     }
 
     static boolean actionsCandidatureDesactivees(Candidature candidature) {

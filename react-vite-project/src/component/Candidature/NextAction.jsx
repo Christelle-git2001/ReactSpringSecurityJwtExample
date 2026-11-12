@@ -459,8 +459,9 @@ function NextAction({
                         </>
                     )}
                     {actionData.buttonText && (
-                        <Button variant="custom" icon={false} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
-                                className={`text-white ${actionData.disabled && actionData.onClick !== ouvrirModalSignature ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
+                        <Button role={actionData.onClick === ouvrirModalSignature ? "signature" : "custom"}
+                                icon={actionData.onClick === ouvrirModalSignature} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
+                                className={actionData.onClick === ouvrirModalSignature ? "" : `text-white ${actionData.disabled ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
                             {actionData.buttonText}
                         </Button>
                     )}
@@ -532,11 +533,10 @@ function NextAction({
                             </Button>
 
                             <Button
-                                icon={false}
+                                role="soumettre"
                                 type="button"
                                 onClick={handleSignerContrat}
                                 disabled={isSubmitting || !motDePasse.trim()}
-                                className="bg-[#5CE1E6] text-[#043462] hover:bg-[#043462] hover:text-white transition-colors"
                             >
                                 {isSubmitting
                                     ? t("actions.signing")

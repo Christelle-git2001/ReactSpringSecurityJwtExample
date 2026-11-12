@@ -275,6 +275,7 @@
     "view_less": "View less"
   },
   "etudiant": {
+    "assigned_professor": "Assigned professor",
     "card": {
       "account": "Manage your personal information, update your profile, and view your account details. ",
       "view_offers": "Explore available internship offers, filter by title, location and view detailed information about each offer.",
@@ -295,7 +296,7 @@
       "apply_button": "Apply",
       "fromTo": "to",
       "cv_approval_required": "Your CV must be approved before you can view job offers.",
-      "internship_found_locked": "You have already declared an internship as found. You can no longer apply to another offer."
+      "internship_found_locked": "Internship found: applying to other offers is unavailable."
     },
     "card_professeur": {
       "information_communication": "Communication information",
@@ -601,6 +602,12 @@
       "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
     },
     "employeur": {
+      "validation": {
+        "title_acceptee": "Internship offer approved",
+        "description_acceptee": "Your offer “{{OFFRE_TITRE}}” has been approved by the internship manager.",
+        "title_refusee": "Internship offer rejected",
+        "description_refusee": "Your offer “{{OFFRE_TITRE}}” has been rejected. View the offer for the reason."
+      },
       "stageTrouve": {
         "title": "Internship chosen by the student",
         "description": "{{ETUDIANT_NOM}} has chosen your offer “{{OFFRE_TITRE}}” for their internship."
@@ -619,6 +626,14 @@
       }
     },
     "gestionnaire": {
+      "contratASigner": {
+        "title": "Contract awaiting your signature",
+        "description": "{{ETUDIANT_NOM}} and the employer have signed the contract for “{{OFFRE_TITRE}}”. Your signature is now required."
+      },
+      "stageTrouve": {
+        "title": "Contract process ready to start",
+        "description": "{{ETUDIANT_NOM}} has declared an internship found for the offer “{{OFFRE_TITRE}}”. You can start the contract process."
+      },
       "offre": {
         "title": "New offer to review",
         "description": "The offer “{{OFFRE_TITRE}}” is awaiting review."

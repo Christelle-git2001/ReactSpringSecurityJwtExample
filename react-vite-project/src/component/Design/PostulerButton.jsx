@@ -61,7 +61,7 @@ function PostulerButton({ offerId, hasApplied = false, onApply, onApplied, user 
 
     if (hasStage) {
         return (
-            <p className="text-center font-semibold text-red-600 py-2">
+            <p className="text-center font-semibold text-slate-600 py-2">
                 {t("etudiant.offers.internship_found_locked")}
             </p>
         );
@@ -70,7 +70,7 @@ function PostulerButton({ offerId, hasApplied = false, onApply, onApplied, user 
     return (
         <div>
             {error && (
-                <p className="text-xs text-red-600 mb-1 text-center">{t(error)}</p>
+                <p className={`text-xs mb-1 text-center ${error === "etudiant.offers.internship_found_locked" ? "text-slate-600" : "text-red-600"}`}>{t(error)}</p>
             )}
             <Button role="postuler" icon={true} onClick={handleApply} disabled={isApplying} className="w-full">
                 {isApplying ? (

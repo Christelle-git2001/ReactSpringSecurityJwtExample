@@ -130,6 +130,8 @@ public class GestionnaireService {
         applicationEventPublisher.publishEvent(
                 new OffreDeStageApprouveeEvent(offreEnregistree)
         );
+        applicationEventPublisher.publishEvent(new OffreStatutModifieEvent(
+                offreEnregistree.getEmployeur(), Statut.ACCEPTEE, offreEnregistree));
 
         applicationEventPublisher.publishEvent(
                 new OffreSupprimerSoNotificationGestionnaireEvent(
@@ -158,6 +160,8 @@ public class GestionnaireService {
         offre.setRejectionComment(commentaire);
 
         OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
+        applicationEventPublisher.publishEvent(new OffreStatutModifieEvent(
+                offreEnregistree.getEmployeur(), Statut.REFUSEE, offreEnregistree));
 
         applicationEventPublisher.publishEvent(
                 new OffreSupprimerSoNotificationGestionnaireEvent(
@@ -459,6 +463,7 @@ public class GestionnaireService {
         contrat.setDateSignatureGestionnaire(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
+        applicationEventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
     }
