@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Enum.Saison;
+import com.lacouf.rsbjwt.context.SessionContext;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +13,18 @@ import java.util.function.Function;
 @Service
 public class SessionService {
 
+    private final SessionContext sessionContext;
+
+    public SessionService(SessionContext sessionContext) {
+        this.sessionContext = sessionContext;
+    }
+
     public record SessionPeriode(LocalDateTime debut, LocalDateTime fin) {}
 
     public SessionDTO getSessionActuelle() {
+        if (sessionContext.hasSessionCible()) {
+            return sessionContext.getSessionCible();
+        }
         return getSession(LocalDate.now());
     }
 
