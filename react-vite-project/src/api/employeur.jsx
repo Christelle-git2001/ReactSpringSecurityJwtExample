@@ -115,3 +115,16 @@ export async function obtenirOffrePDF(id) {
 export async function obtenirConvocationEmployeur(candidatureId) {
     return fetchJson(`/employeur/candidatures/${candidatureId}/entrevue`, { method: "GET" });
 }
+
+export async function obtenirStagiaires() {
+    const candidatures = await getCandidaturesEmployeur();
+    return (candidatures ?? []).filter(c => c.statut === "CONTRAT_CREE");
+}
+
+export async function evaluerStagiaire(evaluation) {
+    return fetchJson("/employeur/evaluer/candidature", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(evaluation),
+    });
+}
