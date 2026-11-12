@@ -414,6 +414,28 @@ public class NotificationService {
 
     @EventListener
     @Transactional
+    public NotificationDTO handleStageTrouveGestionnaire(StageTrouveEvent event) {
+        Candidature candidature = event.candidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+        Notification notification = Notification.builder()
+                .titre("notification.gestionnaire.stageTrouve.title")
+                .description("notification.gestionnaire.stageTrouve.description")
+                .notificationType(NotificationType.CONTRAT_A_CREER)
+                .role(Role.GESTIONNAIRE)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.GESTIONNAIRE_CANDIDATURE_CONTRAT.build(String.valueOf(candidature.getId())))
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
     public void handleProfesseurAssigne(ProfesseurAssigneEvent event) {
         Professeur professeur = event.professeur();
         List<Etudiant> etudiants = event.etudiants();

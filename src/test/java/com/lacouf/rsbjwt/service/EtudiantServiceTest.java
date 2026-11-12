@@ -1080,6 +1080,22 @@ public class EtudiantServiceTest {
     }
 
     @Test
+    void neDoitPasNotifierDeNouveauPourUnStageDejaDeclare() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+
+        CandidatureDTO resultat = etudiantService.declarerStageTrouve(20L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        verify(applicationEventPublisher, never()).publishEvent(any(StageTrouveEvent.class));
+        verify(candidatureRepository, never()).save(any());
+    }
+
+    @Test
     void doitRefuserDeDeclarerUneCandidatureNonAcceptee() {
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId()))
