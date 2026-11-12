@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface CvEtudiantRepository extends JpaRepository<CvEtudiant, Long> {
     Optional<CvEtudiant> findByEtudiant(Etudiant etudiant);
     List<CvEtudiant> findByStatut(Statut statut);
+    long countByStatut(Statut statut);
 }

@@ -15,6 +15,7 @@ import java.util.List;
 public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long> {
 
     List<OffreDeStage> findByStatut(Statut statut);
+    long countByStatut(Statut statut);
 
     @Query("SELECT o FROM OffreDeStage o WHERE o.statut = :statut " +
             "AND o.domain = :domain " +

@@ -25,6 +25,7 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
     List<Candidature> findByStatutAndOffreDeStageEmployeurId(StatutCandidature statut, Long emplyeurId);
 
     List<Candidature> findByStatut(StatutCandidature statut);
+    long countByStatut(StatutCandidature statut);
 
     @Query("SELECT c FROM Candidature c WHERE c.statut = :statut " +
             "AND NOT EXISTS (SELECT contrat.id FROM Contrat contrat WHERE contrat.candidature = c)")

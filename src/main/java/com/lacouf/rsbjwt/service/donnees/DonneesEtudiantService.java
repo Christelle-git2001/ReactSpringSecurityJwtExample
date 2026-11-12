@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service.donnees;
 
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
@@ -58,5 +59,30 @@ public class DonneesEtudiantService {
 
     public List<CvEtudiantDTO> obtenirCvEnAttente() {
         return cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE).stream().map(CvEtudiantDTO::of).toList();
+    }
+
+    public long compterCvParStatut(Statut statut) {
+        if (statut == null) throw new IllegalArgumentException("Le statut du CV est obligatoire.");
+        return cvEtudiantRepository.countByStatut(statut);
+    }
+
+    public List<EtudiantDTO> obtenirEtudiantsAvecCvRefuse() {
+        return etudiantRepository.findByCvStatut(Statut.REFUSEE).stream().map(EtudiantDTO::of).toList();
+    }
+
+    public long compterEtudiantsParDepartement(Departement departement) {
+        if (departement == null) throw new IllegalArgumentException("Le département est obligatoire.");
+        return etudiantRepository.countByDepartment(departement);
+    }
+
+    public List<EtudiantDTO> obtenirEtudiantsSansEntrevue() {
+        return etudiantRepository.findSansEntrevue().stream().map(EtudiantDTO::of).toList();
+    }
+
+    public List<EtudiantDTO> obtenirEtudiantsParProfesseur(Long professeurId) {
+        if (professeurId == null || professeurId <= 0) {
+            throw new IllegalArgumentException("L'identifiant du professeur doit être positif.");
+        }
+        return etudiantRepository.findAllByProfesseurId(professeurId).stream().map(EtudiantDTO::of).toList();
     }
 }
