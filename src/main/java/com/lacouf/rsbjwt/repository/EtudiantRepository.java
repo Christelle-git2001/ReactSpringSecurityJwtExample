@@ -17,4 +17,9 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
 
     long countByCvIsNull();
     long countByCandidatureStageIsNullAndStatutNot(StatutEtudiant statut);
+    List<Etudiant> findByCvIsNull();
+    List<Etudiant> findByCandidatureStageIsNullAndStatutNot(StatutEtudiant statut);
+    long countByCandidatureStageIsNotNullOrStatut(StatutEtudiant statut);
+    List<Etudiant> findByCandidatureStageIsNotNullOrStatut(StatutEtudiant statut);
+    List<Etudiant> findByProfesseurIsNull();
 }
