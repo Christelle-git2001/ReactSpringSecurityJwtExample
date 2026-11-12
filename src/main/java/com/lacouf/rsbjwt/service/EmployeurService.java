@@ -305,13 +305,20 @@ public class EmployeurService {
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
-                .orElseThrow(UtilisateurIntrouvableException::new);
+                .orElseThrow(UserNotFoundException::new);
 
-        return candidatureRepository
+        List<Candidature> candidatures = candidatureRepository
                 .findByStatutAndOffreDeStageEmployeurId(
                         StatutCandidature.RETENUE_POUR_ENTREVUE,
                         employeur.getId()
-                )
+                );
+
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        return candidaturesFiltrees
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
