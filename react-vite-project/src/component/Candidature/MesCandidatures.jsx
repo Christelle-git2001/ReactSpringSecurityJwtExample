@@ -8,6 +8,7 @@ import Modal from "../Modal/Modal.jsx";
 import EmptyContentMessage from "../Design/EmptyContentMessage.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import { FiLock } from "react-icons/fi";
+import { HiBadgeCheck } from "react-icons/hi";
 import ActionsDesactivees from "./ActionsDesactivees.jsx";
 import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
 import DeclarationStageModal from "./DeclarationStageModal.jsx";
@@ -84,6 +85,9 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     }, filters);
 
     const candidaturesTriees = [...filtres.itemsFiltres].sort((a, b) => {
+        const stageA = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(a.candidature.statut);
+        const stageB = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(b.candidature.statut);
+        if (stageA !== stageB) return stageA ? -1 : 1;
         const comparaison = (a.candidature.dateCandidature ?? "").localeCompare(b.candidature.dateCandidature ?? "");
         return sortOrder === "asc" ? comparaison : -comparaison;
     });
@@ -295,7 +299,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                 )}
 
                                                 {candidature.statut === "ACCEPTEE" && (
-                                                    <Button size="small" type="button" disabled={enCours}
+                                                    <Button role="soumettre" size="small" type="button" disabled={enCours} icon={<HiBadgeCheck className="size-5 shrink-0" aria-hidden="true" />}
                                                             onClick={() => {
                                                                 setDeclarationCandidature(candidature);
                                                                 setStatutDeclare(candidature.statutEtudiant ?? "EN_RECHERCHE");

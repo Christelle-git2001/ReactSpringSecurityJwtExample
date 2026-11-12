@@ -18,6 +18,7 @@ import Sort from "../../component/Design/Sort.jsx";
 import { getCandidatureStatus, OPTIONS_STATUT_CANDIDATURE } from "../../utils/candidatureStatus.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
+import { HiAcademicCap } from "react-icons/hi";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
@@ -204,6 +205,18 @@ const EtudiantHome = ({ user }) => {
 
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
                 <StatutEtudiant user={user} candidatures={candidatures} loading={chargementCandidatures} />
+
+                {user?.professeurNom && (
+                    <section aria-label={t("etudiant.assigned_professor")} className="flex items-center gap-3 rounded-2xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50 via-white to-violet-50 px-4 py-3 text-[#043462] shadow-sm">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100">
+                            <HiAcademicCap className="size-5" aria-hidden="true" />
+                        </div>
+                        <div className="min-w-0">
+                            <h2 className="font-bold">{t("etudiant.assigned_professor")}</h2>
+                            <p className="text-sm text-gray-600 break-words">{user.professeurNom}</p>
+                        </div>
+                    </section>
+                )}
 
                 <SearchBar
                     value={offreFilters.searchTerm}

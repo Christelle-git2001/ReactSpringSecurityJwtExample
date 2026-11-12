@@ -6,6 +6,7 @@ import {useTranslation} from "react-i18next";
 import {useNavigate} from "react-router-dom";
 import {formaterDate} from "../../utils/cvFormatters.jsx";
 import Button from "../../component/Design/Button.jsx";
+import { HiEye } from "react-icons/hi";
 
 const ShowEtudiantEntrevue = ({etudiant , candidatures, filtreText , filtreButton}) => {
     const navigate = useNavigate();
@@ -60,6 +61,7 @@ const ShowEtudiantEntrevue = ({etudiant , candidatures, filtreText , filtreButto
                             onClick={() => voirResumeOffre(candidature.offreId)}
                             actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
                             actionLabel={t("etudiant.card_professeur.voir_detail")}
+                            actionIcon={<HiEye className="size-4 shrink-0" aria-hidden="true" />}
                             badge={statutCandidature.label}
                             badgeClassName={statutCandidature.className + " text-sm"}
                             detailRows={[

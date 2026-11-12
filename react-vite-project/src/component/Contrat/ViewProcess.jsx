@@ -318,29 +318,25 @@ function ViewProcess() {
                                 >
                                     {t("actions.back", "Retour")}
                                 </Button>
-                                <button
+                                <Button
+                                    role="signature"
                                     type="button"
                                     onClick={ouvrirModalSignature}
                                     disabled={isSignButtonDisabled || isSigning}
+                                    loading={isSigning}
                                     title={
                                         !isBothPartiesSigned && !isGestionnaireSigned
                                             ? t("process.waiting_parties_signatures")
                                             : ""
                                     }
-                                    className={`px-4 py-2 rounded-md font-medium bg-cyan-600 text-white transition-colors flex items-center justify-center min-w-[100px] focus-visible:outline-cyan-600 ${
-                                        isSignButtonDisabled || isSigning
-                                            ? "cursor-not-allowed opacity-70"
-                                            : "hover:bg-cyan-700 cursor-pointer"
-                                    }`}
+                                    className="min-w-[100px]"
                                 >
-                                    {isSigning ? (
-                                        <span className="loading loading-spinner loading-sm text-white" />
-                                    ) : isGestionnaireSigned ? (
+                                    {isGestionnaireSigned ? (
                                         t("process.already_signed")
                                     ) : (
                                         t("process.sign_button")
                                     )}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     ) : (
@@ -387,7 +383,7 @@ function ViewProcess() {
                             </Button>
 
                             <Button
-                                icon={false}
+                                role="soumettre"
                                 type="button"
                                 onClick={handleSignContract}
                                 disabled={isSigning || !motDePasse.trim()}

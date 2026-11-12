@@ -510,7 +510,7 @@ function OfferForm({
                     <Button variant="secondary" type="button" onClick={onCancel}>
                         {t("add_offer.cancel")}
                     </Button>
-                    <Button type="submit" disabled={etudiantStageTrouve}>
+                    <Button role="soumettre" type="submit" disabled={etudiantStageTrouve}>
                         {t(submitLabelKey)}
                     </Button>
                 </div>
