@@ -84,8 +84,8 @@ public class GestionnaireService {
         SessionDTO sessionActuelle = sessionService.getSessionActuelle();
         List<Etudiant> etudiantsInscrits = tousLesEtudiants.stream()
                 .filter(etudiant -> etudiant.getInscriptions().stream()
-                        .anyMatch(i -> i.getSession() == sessionActuelle.saison()
-                                && i.getAnneeSession() == sessionActuelle.annee()))
+                        .anyMatch(i -> i.getSaison() == sessionActuelle.saison()
+                                && i.getAnnee() == sessionActuelle.annee()))
                 .toList();
 
         return etudiantsInscrits.stream()

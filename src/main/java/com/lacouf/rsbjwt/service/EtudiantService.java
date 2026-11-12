@@ -98,7 +98,7 @@ public class EtudiantService {
         SessionDTO sessionDto = sessionService.getSessionActuelle();
 
         boolean dejaInscrit = etudiant.getInscriptions().stream()
-                .anyMatch(i -> i.getSession() == sessionDto.saison() && i.getAnneeSession() == sessionDto.annee());
+                .anyMatch(i -> i.getSaison() == sessionDto.saison() && i.getAnnee() == sessionDto.annee());
 
         if (!dejaInscrit) {
             Inscription nouvelleInscription = new Inscription(etudiant, sessionDto.saison(), sessionDto.annee());

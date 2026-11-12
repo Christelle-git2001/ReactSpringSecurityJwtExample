@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Table(
         name = "inscription",
         uniqueConstraints = @UniqueConstraint(
-                name = "uk_utilisateur_session_annee",
-                columnNames = {"utilisateur_id", "session", "annee_session"}
+                name = "uk_utilisateur_saison_annee",
+                columnNames = {"utilisateur_id", "saison", "annee"}
         )
 )
 @Getter
@@ -29,21 +29,18 @@ public class Inscription {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Saison session;
+    private Saison saison;
 
-    @Column(name = "annee_session", nullable = false)
-    private int anneeSession;
+    @Column(name = "annee", nullable = false)
+    private int annee;
 
     @Column(nullable = false)
     private LocalDateTime dateInscription;
 
-    @OneToOne(mappedBy = "inscription")
-    private CvEtudiant cv;
-
-    public Inscription(UserApp utilisateur, Saison session, int anneeSession) {
+    public Inscription(UserApp utilisateur, Saison saison, int annee) {
         this.utilisateur = utilisateur;
-        this.session = session;
-        this.anneeSession = anneeSession;
+        this.saison = saison;
+        this.annee = annee;
         this.dateInscription = LocalDateTime.now();
     }
 }
