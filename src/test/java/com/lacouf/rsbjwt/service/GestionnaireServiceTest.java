@@ -14,8 +14,9 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.OffreStatutModifieEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.ProfesseurAssigneEvent;
@@ -34,7 +35,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.mockito.MockedStatic;
 import org.springframework.web.multipart.MultipartFile;
@@ -232,6 +232,7 @@ class GestionnaireServiceTest {
 
         OffreDeStageDTO result =
                 gestionnaireService.approuverOffre(1L);
+        verify(applicationEventPublisher).publishEvent(new OffreStatutModifieEvent(offre.getEmployeur(), Statut.ACCEPTEE, offre));
 
         assertThat(result).isNotNull();
 
@@ -306,6 +307,7 @@ class GestionnaireServiceTest {
 
         OffreDeStageDTO result =
                 gestionnaireService.refuserOffre(1L, commentaire);
+        verify(applicationEventPublisher).publishEvent(new OffreStatutModifieEvent(offre.getEmployeur(), Statut.REFUSEE, offre));
 
         assertThat(result).isNotNull();
 
@@ -1202,6 +1204,7 @@ class GestionnaireServiceTest {
 
             ContratDTO result =
                     gestionnaireService.signerContrat(contratId, motDePasse);
+            verify(applicationEventPublisher).publishEvent(new ContratSigneEvent(contrat));
 
             assertThat(result).isNotNull();
             assertThat(result.id()).isEqualTo(contratId);

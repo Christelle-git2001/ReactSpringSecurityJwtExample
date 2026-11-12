@@ -4,11 +4,14 @@ import org.junit.jupiter.api.AfterEach;
 
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
+import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -181,7 +184,7 @@ public class EmployeurServiceTest {
         );
     }
 
-    private Entrevue creerEntrevueTerminee() {
+     private Entrevue creerEntrevueTerminee() {
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         Entrevue entrevue = new Entrevue();
         entrevue.setCandidature(candidature);
@@ -632,7 +635,7 @@ public class EmployeurServiceTest {
         verify(convocationRepository).save(any(Entrevue.class));
         verify(candidatureRepository, times(2)).save(candidature);
 
-        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<EntrevueCreeeEvent> captor = ArgumentCaptor.forClass(EntrevueCreeeEvent.class);
 
         verify(eventPublisher).publishEvent(captor.capture());
 
@@ -793,6 +796,7 @@ public class EmployeurServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         ContratDTO result = employeurService.signerContrat(contratId, motDePasse);
+        verify(eventPublisher).publishEvent(new ContratSigneEvent(contrat));
 
         assertThat(result).isNotNull();
         assertThat(contrat.getDateSignatureEmployeur()).isNotNull();
@@ -898,6 +902,28 @@ public class EmployeurServiceTest {
 
         verify(candidatureRepository, never()).save(any());
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitSignalerLaCandidatureRetenuePourRetirerLaNotification() throws Exception {
+        candidature.setStatut(StatutCandidature.SOUMISE);
+        when(candidatureRepository.findById(candidature.getId())).thenReturn(Optional.of(candidature));
+
+        employeurService.retenirCandidaturePourEntrevue(candidature.getId());
+
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        verify(eventPublisher).publishEvent(new CandidatureRetenueEvent(candidature));
+    }
+
+    @Test
+    void doitSignalerLaCloturePourRetirerLaNotification() throws Exception {
+        Entrevue entrevue = creerEntrevueTerminee();
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+
+        employeurService.cloreEntrevue(1L);
+
+        assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
+        verify(eventPublisher).publishEvent(new EntrevueTermineeEvent(entrevue));
     }
 
     @Test
@@ -1019,4 +1045,61 @@ public class EmployeurServiceTest {
         verify(eventPublisher).publishEvent(any(CandidatureRefuseeEvent.class));
     }
 
+    @Test
+    void doitRetournerLesEntrevuesDeLEmployeurSaufCellesRefusees() throws Exception {
+        Entrevue confirmee = Entrevue.builder().candidature(candidature).build();
+        confirmee.setStatut(StatutEntrevue.CONFIRMEE);
+        confirmee.setId(30L);
+        Entrevue refusee = Entrevue.builder().candidature(candidature).build();
+        refusee.setStatut(StatutEntrevue.REFUSEE);
+        refusee.setId(31L);
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(convocationRepository.findByEmployeurId(employeur.getId())).thenReturn(List.of(confirmee, refusee));
+
+        assertThat(employeurService.obtenirEntrevues()).extracting(EntrevueDTO::id).containsExactly(30L);
+    }
+
+    @Test
+    void doitRefuserLaListeDesEntrevuesSiLEmployeurEstIntrouvable() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.obtenirEntrevues())
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+        verifyNoInteractions(convocationRepository);
+    }
+
+    @Test
+    void doitRefuserLaClotureSiLEntrevueEstIntrouvable() {
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
+        when(convocationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeurService.cloreEntrevue(99L))
+                .isInstanceOf(ConvocationIntrouvableException.class);
+        verify(convocationRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitRefuserLaClotureDeLEntrevueDUnAutreEmployeur() {
+        creerEntrevueTerminee();
+        Employeur autreEmployeur = new Employeur();
+        autreEmployeur.setId(99L);
+        offreDeStage.setEmployeur(autreEmployeur);
+
+        assertThatThrownBy(() -> employeurService.cloreEntrevue(1L))
+                .isInstanceOf(OffreNonAutoriseeException.class);
+        verify(convocationRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitRefuserDeCloreUneEntrevueNonConfirmee() {
+        Entrevue entrevue = creerEntrevueTerminee();
+        entrevue.setStatut(StatutEntrevue.A_CONFIRMER);
+
+        assertThatThrownBy(() -> employeurService.cloreEntrevue(1L))
+                .isInstanceOf(DecisionCandidatureInvalideException.class);
+        verify(convocationRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
 }

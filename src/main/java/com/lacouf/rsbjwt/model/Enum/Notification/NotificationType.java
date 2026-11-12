@@ -17,7 +17,8 @@ public enum NotificationType {
     CONTRAT_A_CREER("Un stage a été trouvé : le processus de contrat peut démarrer"),
     PROFESSEUR_ASSIGNE_ETUDIANT("Un étudiant vous a été assigné"),
     ETUDIANT_ASSIGNE_PROFESSEUR("Un professeur vous a été assigné"),
-    NOUVEAU_CONTRAT("Vous avez un nouveau contrat à signer");
+    NOUVEAU_CONTRAT("Vous avez un nouveau contrat à signer"),
+    CONTRAT_A_SIGNER("Un contrat attend la signature du gestionnaire");
 
     private final String label;
 

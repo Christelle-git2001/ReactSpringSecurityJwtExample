@@ -6,8 +6,11 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
+import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -380,6 +383,7 @@ public class EmployeurService {
         if (candidature.getStatut() == StatutCandidature.SOUMISE) {
             candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
             candidatureRepository.save(candidature);
+            eventPublisher.publishEvent(new CandidatureRetenueEvent(candidature));
         }
         return CandidatureDTO.of(candidature);
     }
@@ -442,6 +446,7 @@ public class EmployeurService {
 
         entrevue.setStatut(StatutEntrevue.TERMINEE);
         convocationRepository.save(entrevue);
+        eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
         etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
         return CandidatureDTO.of(candidature);
     }
@@ -543,6 +548,7 @@ public class EmployeurService {
         contrat.setDateSignatureEmployeur(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
+        eventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
     }
