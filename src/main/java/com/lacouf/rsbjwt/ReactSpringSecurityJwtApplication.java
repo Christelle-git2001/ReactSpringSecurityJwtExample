@@ -38,6 +38,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private final EntrevueRepository entrevueRepository;
     private final PDFService pdfService;
     private final InscriptionRepository inscriptionRepository;
+    private final ContratRepository contratRepository;
 
     public ReactSpringSecurityJwtApplication(
             GestionnaireRepository gestionnaireRepository,
@@ -54,7 +55,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             CandidatureRepository candidatureRepository,
             EntrevueRepository entrevueRepository,
             PDFService pdfService,
-            InscriptionRepository inscriptionRepository
+            InscriptionRepository inscriptionRepository, ContratRepository contratRepository
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
@@ -71,6 +72,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         this.entrevueRepository = entrevueRepository;
         this.pdfService = pdfService;
         this.inscriptionRepository = inscriptionRepository;
+        this.contratRepository = contratRepository;
     }
 
     public static void main(String[] args) {
@@ -309,7 +311,6 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
     private void creerSessionHiver2026() throws Exception {
         String employeurEmail = "Roger.Malinois@hotmail.com";
 
-        // Création sécurisée de l'employeur si absent
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseGet(() -> {
             InscriptionEmployeurDTO empDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "password", "password");
             try {
@@ -318,93 +319,98 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
             return employeurRepository.findByEmail(employeurEmail).orElseThrow();
         });
 
-        // 1. Création d'un étudiant exclusif à Hiver 2026
-        InscriptionEtudiantDTO ancienUniqueDTO = new InscriptionEtudiantDTO(
-                "Charles", "Ancien", "450-333-3333", "charles.ancien@gmail.com",
-                "7777777", Departement.INFORMATIQUE.name(), "password", "password"
-        );
-        etudiantService.creerCompteEtudiant(ancienUniqueDTO);
+        // 1. Étudiants et inscriptions pour Hiver 2026
+        Etudiant etudiantCharles = etudiantRepository.findByMatricule("7777777").orElseGet(() -> {
+            InscriptionEtudiantDTO dto = new InscriptionEtudiantDTO("Charles", "Ancien", "450-333-3333", "charles.ancien@gmail.com", "7777777", Departement.INFORMATIQUE.name(), "password", "password");
+            try { etudiantService.creerCompteEtudiant(dto); } catch (Exception ignored) {}
+            return etudiantRepository.findByMatricule("7777777").orElseThrow();
+        });
         ajouterInscriptionSecurisee("7777777", Saison.HIVER, 2026);
-        Etudiant etudiantCharles = etudiantRepository.findByMatricule("7777777").orElseThrow();
 
-        // 2. Création d'un étudiant réinscrit (Hiver 2026 ET Automne 2026)
-        InscriptionEtudiantDTO reinscritDTO = new InscriptionEtudiantDTO(
-                "Julie", "Reinscrite", "450-444-4444", "julie.reinscrite@gmail.com",
-                "5555555", Departement.INFORMATIQUE.name(), "password", "password"
-        );
-        etudiantService.creerCompteEtudiant(reinscritDTO);
+        Etudiant etudiantJulie = etudiantRepository.findByMatricule("5555555").orElseGet(() -> {
+            InscriptionEtudiantDTO dto = new InscriptionEtudiantDTO("Julie", "Reinscrite", "450-444-4444", "julie.reinscrite@gmail.com", "5555555", Departement.INFORMATIQUE.name(), "password", "password");
+            try { etudiantService.creerCompteEtudiant(dto); } catch (Exception ignored) {}
+            return etudiantRepository.findByMatricule("5555555").orElseThrow();
+        });
         ajouterInscriptionSecurisee("5555555", Saison.HIVER, 2026);
         ajouterInscriptionSecurisee("5555555", Saison.AUTOMNE, 2026);
-        Etudiant etudiantJulie = etudiantRepository.findByMatricule("5555555").orElseThrow();
 
-        // 3. Création directe de l'offre de stage pour Hiver 2026 (contourne la validation des dates passées)
-        CreationOffreDeStageDTO offreHiverDTO = new CreationOffreDeStageDTO(
+        // 2. Offre de stage ancrée en Hiver 2026
+        OffreDeStage offreHiver = new OffreDeStage(
                 "Programmeur Fullstack (Hiver)",
                 "Stage de développement web pour la session d'hiver.",
                 24.00,
                 Departement.INFORMATIQUE,
+                LocalDate.of(2026, 2, 1),
                 LocalDate.of(2026, 5, 15),
                 LocalDate.of(2026, 1, 15),
-                LocalDate.of(2026, 1, 10)
-        );
-
-        OffreDeStage offreHiver = new OffreDeStage(
-                offreHiverDTO.title(),
-                offreHiverDTO.description(),
-                offreHiverDTO.salary(),
-                offreHiverDTO.domain(),
-                offreHiverDTO.startDate(),
-                offreHiverDTO.endDate(),
-                offreHiverDTO.displayEndDate(),
                 Statut.ACCEPTEE,
                 "offre_hiver.pdf",
                 "uploads/offres",
                 employeur,
                 "",
-                LocalDateTime.of(2026, 1, 5, 10, 0)
+                LocalDateTime.of(2026, 1, 10, 10, 0)
         );
-
         OffreDeStage offreHiverSaved = offreDeStageRepository.save(offreHiver);
 
-        // 4. CVs pour ces étudiants
-        MultipartFile cvCharlesFile = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantCharles).getInputStream());
-        CvEtudiantDTO cvCharlesDTO = etudiantService.televerserCv(cvCharlesFile, "charles.ancien@gmail.com");
-        gestionnaireService.approuverCurriculumVitae(cvCharlesDTO.id());
-
-        MultipartFile cvJulieFile = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantJulie).getInputStream());
-        CvEtudiantDTO cvJulieDTO = etudiantService.televerserCv(cvJulieFile, "julie.reinscrite@gmail.com");
-        gestionnaireService.approuverCurriculumVitae(cvJulieDTO.id());
-
-        // 5. Candidatures
-        etudiantService.postuler(offreHiverSaved.getId(), "charles.ancien@gmail.com");
-        etudiantService.postuler(offreHiverSaved.getId(), "julie.reinscrite@gmail.com");
-
-        Candidature candCharles = candidatureRepository.findAll().stream()
-                .filter(c -> c.getEtudiant().getEmail().equals("charles.ancien@gmail.com") && c.getOffreDeStage().getId().equals(offreHiverSaved.getId()))
-                .findFirst().orElseThrow();
-
-        Candidature candJulie = candidatureRepository.findAll().stream()
-                .filter(c -> c.getEtudiant().getEmail().equals("julie.reinscrite@gmail.com") && c.getOffreDeStage().getId().equals(offreHiverSaved.getId()))
-                .findFirst().orElseThrow();
-
-        // 6. Entrevues et Contrat Signé (Stage Trouvé)
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
-        );
-
-        employeurService.retenirCandidaturePourEntrevue(candCharles.getId());
-        employeurService.retenirCandidaturePourEntrevue(candJulie.getId());
-
-        employeurService.creerConvocation(new CreationEntrevueDTO(candCharles.getId(), FormatEntrevue.EN_LIGNE, LocalDateTime.of(2026, 2, 10, 10, 0), 60));
-        employeurService.creerConvocation(new CreationEntrevueDTO(candJulie.getId(), FormatEntrevue.EN_LIGNE, LocalDateTime.of(2026, 2, 10, 11, 0), 60));
-
-        SecurityContextHolder.clearContext();
-
+        // 3. Candidatures directes via le builder
+        Candidature candCharles = Candidature.builder()
+                .etudiant(etudiantCharles)
+                .offreDeStage(offreHiverSaved)
+                .dateCandidature(LocalDateTime.of(2026, 1, 12, 14, 0))
+                .build();
         candCharles.setStatut(StatutCandidature.STAGE_TROUVE);
         candidatureRepository.save(candCharles);
 
+        Candidature candJulie = Candidature.builder()
+                .etudiant(etudiantJulie)
+                .offreDeStage(offreHiverSaved)
+                .dateCandidature(LocalDateTime.of(2026, 1, 13, 9, 30))
+                .build();
         candJulie.setStatut(StatutCandidature.STAGE_TROUVE);
         candidatureRepository.save(candJulie);
+
+        // 4. Entrevues directes via le repository
+        Entrevue entrevueCharles = Entrevue.builder()
+                .candidature(candCharles)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(LocalDateTime.of(2026, 2, 10, 10, 0))
+                .duree(60)
+                .build();
+        entrevueRepository.save(entrevueCharles);
+
+        Entrevue entrevueJulie = Entrevue.builder()
+                .candidature(candJulie)
+                .format(FormatEntrevue.EN_LIGNE)
+                .dateHeureEntrevue(LocalDateTime.of(2026, 2, 10, 11, 0))
+                .duree(60)
+                .build();
+        entrevueRepository.save(entrevueJulie);
+
+        // 5. Contrats (avec l'entité Contrat originale et utilisation des setters)
+        Gestionnaire gestionnaire = gestionnaireRepository.findAll().stream().findFirst().orElse(null);
+
+        if (gestionnaire != null) {
+            Contrat contratCharles = Contrat.builder()
+                    .candidature(candCharles)
+                    .gestionnaire(gestionnaire)
+                    .build();
+            contratCharles.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 15, 10, 0));
+            contratCharles.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 15, 11, 0));
+            contratCharles.setDateSignatureGestionnaire(LocalDateTime.of(2026, 2, 15, 12, 0));
+            contratRepository.save(contratCharles);
+
+            Contrat contratJulie = Contrat.builder()
+                    .candidature(candJulie)
+                    .gestionnaire(gestionnaire)
+                    .build();
+            contratJulie.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 16, 14, 0));
+            contratJulie.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 16, 15, 0));
+            contratRepository.save(contratJulie);
+
+            System.out.println("ID Candidature créé : " + candCharles.getId()) ;
+            System.out.println("ID Contrat créé : " + contratCharles.getId());
+        }
     }
 
     private void ajouterInscriptionSecurisee(String matricule, Saison saison, int annee) {

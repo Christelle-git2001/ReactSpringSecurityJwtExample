@@ -34,9 +34,9 @@ public class Candidature {
     private StatutCandidature statut = StatutCandidature.SOUMISE;
 
     @Builder
-    public Candidature(Etudiant etudiant, OffreDeStage offreDeStage) {
+    public Candidature(Etudiant etudiant, OffreDeStage offreDeStage, LocalDateTime dateCandidature) {
         this.etudiant = etudiant;
         this.offreDeStage = offreDeStage;
-        this.dateCandidature = LocalDateTime.now();
+        this.dateCandidature = dateCandidature != null ? dateCandidature : LocalDateTime.now();
     }
 }

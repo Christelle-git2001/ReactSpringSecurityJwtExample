@@ -284,10 +284,15 @@ public class EmployeurService {
         List<Candidature> candidatures =
                 candidatureRepository.findByOffreDeStage_Employeur(employeur);
 
+        System.out.println("Nombre total de candidatures trouvées en base : " + candidatures.size());
+
         List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
                 candidatures,
                 candidature -> candidature.getOffreDeStage().getCreatedAt()
         );
+
+        System.out.println("Nombre de candidatures APRÈS FILTRE SESSION : " + candidaturesFiltrees.size());
+        System.out.println("SESSION ACTIVE EN COURS : " + sessionService.getSessionActuelle());
 
         return candidaturesFiltrees
                 .stream()

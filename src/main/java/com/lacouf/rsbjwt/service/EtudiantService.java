@@ -292,7 +292,10 @@ public class EtudiantService {
             throw new CandidatureDejaExistanteException();
         }
 
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .etudiant(etudiant)
+                .offreDeStage(offre)
+                .build();
 
         Candidature candidatureEnregistree =
                 candidatureRepository.save(candidature);
