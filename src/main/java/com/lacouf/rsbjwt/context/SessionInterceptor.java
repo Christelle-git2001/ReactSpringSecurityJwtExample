@@ -26,9 +26,14 @@ public class SessionInterceptor implements HandlerInterceptor {
                 int annee = Integer.parseInt(parts[1]);
                 sessionContext.setSessionCible(saison, annee);
             } catch (Exception e) {
-                // Format invalide ignoré, on garde la session par défaut
+                System.out.println(e.getMessage());
             }
         }
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        sessionContext.clear();
     }
 }
