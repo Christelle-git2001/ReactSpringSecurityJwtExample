@@ -398,7 +398,14 @@ public class EtudiantService {
             throws EtudiantIntrouvableException {
         Etudiant etudiant = getEtudiantConnecte();
 
-        return candidatureRepository.findByEtudiant(etudiant)
+        List<Candidature> candidatures = candidatureRepository.findByEtudiant(etudiant);
+
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        return candidaturesFiltrees
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
