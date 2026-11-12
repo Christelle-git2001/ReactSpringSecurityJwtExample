@@ -426,7 +426,12 @@ public class EmployeurService {
 
         List<Entrevue> entrevues = convocationRepository.findByEmployeurId(employeur.getId());
 
-        return entrevues
+        List<Entrevue> entrevuesFiltrees = sessionService.filtrerParSessionActuelle(
+                entrevues,
+                entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
+        );
+
+        return entrevuesFiltrees
                 .stream()
                 .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
                 .map(EntrevueDTO::of)
