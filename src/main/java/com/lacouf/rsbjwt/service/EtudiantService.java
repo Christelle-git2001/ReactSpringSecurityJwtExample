@@ -317,9 +317,15 @@ public class EtudiantService {
 
         List<Entrevue> entrevues = entrevueRepository
                 .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
+
         entrevues.forEach(this::actualiserStatutApresEntrevue);
 
-        return entrevues
+        List<Entrevue> entrevuesFiltrees = sessionService.filtrerParSessionActuelle(
+                entrevues,
+                entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
+        );
+
+        return entrevuesFiltrees
                 .stream()
                 .map(EntrevueDTO::of)
                 .toList();
