@@ -153,8 +153,12 @@ export async function getEntrevueByCandidatureId(candidatureId) {
     });
 }
 
-export async function signerContratGestionnaire(contratId) {
+export async function signerContratGestionnaire(contratId, motDePasse) {
     return fetchJson(`/gestionnaire/contrats/${contratId}/signature`, {
         method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ motDePasse })
     });
 }

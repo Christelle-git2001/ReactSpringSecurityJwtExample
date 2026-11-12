@@ -171,8 +171,10 @@ public class ProfesseurControllerTest {
                 "123-123-1234",
                 "INFORMATIQUE",
                 null,
+                null,
                 1L,
-                "Carole"
+                "Carole",
+                LocalDateTime.now()
         );
 
         EtudiantDTO etudiant2 = new EtudiantDTO(
@@ -184,8 +186,10 @@ public class ProfesseurControllerTest {
                 "123-123-1235",
                 "INFORMATIQUE",
                 null,
+                null,
                 1L,
-                "Carole"
+                "Carole",
+                LocalDateTime.now()
         );
 
         when(professeurService.getEtudiantsAssignes())
@@ -228,7 +232,10 @@ public class ProfesseurControllerTest {
                 "Entreprise ABC",
                 LocalDateTime.now(),
                 2L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                null,
+                false
         );
 
         when(professeurService.getCandidaturesEtudiant(etudiantId))

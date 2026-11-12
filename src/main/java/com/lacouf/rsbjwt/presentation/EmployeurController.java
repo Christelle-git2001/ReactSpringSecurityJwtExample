@@ -130,6 +130,28 @@ public class EmployeurController {
         return ResponseEntity.ok(entrevues);
     }
 
+    @PutMapping("/entrevues/{id}/cloture")
+    public ResponseEntity<CandidatureDTO> cloreEntrevue(@PathVariable Long id)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return ResponseEntity.ok(employeurService.cloreEntrevue(id));
+    }
+
+    @PutMapping("/entrevues/{id}/acceptation")
+    public ResponseEntity<CandidatureDTO> accepterCandidat(@PathVariable Long id)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return ResponseEntity.ok(employeurService.accepterCandidatApresEntrevue(id));
+    }
+
+    @PutMapping("/entrevues/{id}/refus")
+    public ResponseEntity<CandidatureDTO> refuserCandidat(
+            @PathVariable Long id, @Valid @RequestBody RefusCandidatureDTO dto)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+        return ResponseEntity.ok(employeurService.refuserCandidatApresEntrevue(id, dto.motifRefus()));
+    }
+
     @GetMapping("/candidatures/{candidatureId}/entrevue")
     public ResponseEntity<EntrevueDTO> obtenirConvocation(@PathVariable Long candidatureId)
             throws ConvocationIntrouvableException, OffreNonAutoriseeException {
@@ -138,9 +160,16 @@ public class EmployeurController {
 
     @PutMapping("/contrats/{contratId}/signature")
     public ResponseEntity<ContratDTO> signerContrat(
-            @PathVariable Long contratId)
-            throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException {
-        ContratDTO contratDTO = employeurService.signerContrat(contratId);
+            @PathVariable Long contratId,
+            @Valid @RequestBody ConfirmationSignatureDTO dto)
+            throws ContratIntrouvableException,
+            OffreNonAutoriseeException,
+            UtilisateurIntrouvableException,
+            MotDePasseInvalideException {
+
+        ContratDTO contratDTO =
+                employeurService.signerContrat(contratId, dto.motDePasse());
+
         return ResponseEntity.ok(contratDTO);
     }
 }

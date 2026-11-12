@@ -15,6 +15,9 @@ import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import java.io.ByteArrayOutputStream;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -62,11 +65,32 @@ public class PDFService {
         return new Paragraph(text).setTextAlignment(TextAlignment.CENTER);
     }
 
-    private void ajouterBlocSignature(List<IElement> elements, String labelKey, String nomComplet, LocalDate dateSignature, ResourceBundle messages) {
-        elements.add(new Paragraph(messages.getString(labelKey)).setBold().setMarginTop(10));
+    private void ajouterBlocSignature(
+            List<IElement> elements,
+            String labelKey,
+            String nomComplet,
+            LocalDateTime dateSignature,
+            ResourceBundle messages) {
+
+        elements.add(new Paragraph(messages.getString(labelKey))
+                .setBold()
+                .setMarginTop(10));
 
         if (dateSignature != null) {
-            elements.add(new Paragraph(MessageFormat.format(messages.getString("contrat.signe"), nomComplet, dateSignature)));
+
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+            String dateFormatee = dateSignature.format(formatter);
+
+            elements.add(new Paragraph(
+                    MessageFormat.format(
+                            messages.getString("contrat.signe"),
+                            nomComplet,
+                            dateFormatee
+                    )
+            ));
+
         } else {
             elements.add(new Paragraph("_________________________________________"));
             elements.add(new Paragraph(nomComplet));
@@ -160,10 +184,29 @@ public class PDFService {
             elements.add(new Paragraph(messages.getString("contrat.respect")));
             elements.add(new Paragraph(messages.getString("contrat.foi")).setMarginBottom(15));
 
-            ajouterBlocSignature(elements, "signature.etudiant", etudiant.getFirstName() + " " + etudiant.getLastName(), contrat.getDateSignatureEtudiant(), messages);
-            ajouterBlocSignature(elements, "signature.employeur", employeur.getFirstName() + " " + employeur.getLastName(), contrat.getDateSignatureEmployeur(), messages);
-            ajouterBlocSignature(elements, "signature.gestionnaire", gestionnaire.getFirstName() + " " + gestionnaire.getLastName(), contrat.getDateSignatureGestionnaire(), messages);
+            ajouterBlocSignature(
+                    elements,
+                    "signature.etudiant",
+                    etudiant.getFirstName() + " " + etudiant.getLastName(),
+                    contrat.getDateSignatureEtudiant(),
+                    messages
+            );
 
+            ajouterBlocSignature(
+                    elements,
+                    "signature.employeur",
+                    employeur.getFirstName() + " " + employeur.getLastName(),
+                    contrat.getDateSignatureEmployeur(),
+                    messages
+            );
+
+            ajouterBlocSignature(
+                    elements,
+                    "signature.gestionnaire",
+                    gestionnaire.getFirstName() + " " + gestionnaire.getLastName(),
+                    contrat.getDateSignatureGestionnaire(),
+                    messages
+            );
             for (IElement element : elements) {
                 if (element instanceof AreaBreak areaBreak) {
                     document.add(areaBreak);

@@ -11,9 +11,14 @@ public enum NotificationType {
     CONVOCATION_ENTREVUE("Vous êtes convoqué à une entrevue"),
     CONVOCATION_ACCEPTEE("Une convocation a été acceptée"),
     CONVOCATION_REFUSEE("Une convocation a été refusée"),
+    CANDIDATURE_ACCEPTEE("Votre candidature a été acceptée"),
+    CANDIDATURE_REFUSEE("Votre candidature a ?t? refus?e"),
+    STAGE_TROUVE("Un étudiant a choisi votre offre de stage"),
+    CONTRAT_A_CREER("Un stage a été trouvé : le processus de contrat peut démarrer"),
     PROFESSEUR_ASSIGNE_ETUDIANT("Un étudiant vous a été assigné"),
     ETUDIANT_ASSIGNE_PROFESSEUR("Un professeur vous a été assigné"),
-    NOUVEAU_CONTRAT("Vous avez un nouveau contrat à signer");
+    NOUVEAU_CONTRAT("Vous avez un nouveau contrat à signer"),
+    CONTRAT_A_SIGNER("Un contrat attend la signature du gestionnaire");
 
     private final String label;
 

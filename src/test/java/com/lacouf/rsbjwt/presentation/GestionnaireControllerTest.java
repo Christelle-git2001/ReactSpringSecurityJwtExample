@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -71,8 +73,10 @@ public class GestionnaireControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1L,
-                "Jean"
+                "Jean",
+                LocalDateTime.now()
         );
 
         offreDeStageDTO = new OffreDeStageDTO(
@@ -607,8 +611,10 @@ public class GestionnaireControllerTest {
                         "5143333333",
                         "INFORMATIQUE",
                         null,
+                        StatutEtudiant.EN_RECHERCHE,
                         1L,
-                        "Jean Dupont"
+                        "Jean Dupont",
+                        LocalDateTime.now()
                 )
         );
 
@@ -652,32 +658,95 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.candidatureId").value(1L));
     }
 
+
     @Test
     void doitSignerUnContrat() throws Exception {
+        Long contratId = 1L;
+        String motDePasse = "5858";
+
+        LocalDateTime dateSignature = LocalDateTime.now();
+
         ContratDTO contratDTO = new ContratDTO(
-                1L,
+                contratId,
                 10L,
                 20L,
-                LocalDate.now(),
+                dateSignature,
                 null,
                 null
+
         );
 
-        when(gestionnaireService.signerContrat(1L))
+        when(gestionnaireService.signerContrat(contratId, motDePasse))
                 .thenReturn(contratDTO);
 
-        mockMvc.perform(put("/gestionnaire/contrats/1/signature"))
+        mockMvc.perform(put("/gestionnaire/contrats/{contratId}/signature", contratId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "5858"
+                            }
+                            """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").value(contratId))
                 .andExpect(jsonPath("$.candidatureId").value(10))
                 .andExpect(jsonPath("$.gestionnaireId").value(20))
-                .andExpect(jsonPath("$.dateSignatureGestionnaire")
-                        .value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.dateSignatureGestionnaire").exists())
                 .andExpect(jsonPath("$.dateSignatureEmployeur").doesNotExist())
                 .andExpect(jsonPath("$.dateSignatureEtudiant").doesNotExist());
 
-        verify(gestionnaireService).signerContrat(1L);
+        verify(gestionnaireService).signerContrat(contratId, motDePasse);
     }
 
+    @Test
+    void doitRetournerNotFoundQuandContratIntrouvablePourSignature() throws Exception {
+        Long contratId = 99L;
+        String motDePasse = "5858";
+
+        when(gestionnaireService.signerContrat(contratId, motDePasse))
+                .thenThrow(new ContratIntrouvableException());
+
+        mockMvc.perform(put("/gestionnaire/contrats/{contratId}/signature", contratId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "5858"
+                            }
+                            """))
+                .andExpect(status().isNotFound());
+
+        verify(gestionnaireService).signerContrat(contratId, motDePasse);
+    }
+
+    @Test
+    void doitRetournerUnauthorizedQuandMotDePasseInvalidePourSignature() throws Exception {
+        Long contratId = 1L;
+        String motDePasse = "mauvaisMotDePasse";
+
+        when(gestionnaireService.signerContrat(contratId, motDePasse))
+                .thenThrow(new MotDePasseInvalideException());
+
+        mockMvc.perform(put("/gestionnaire/contrats/{contratId}/signature", contratId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": "mauvaisMotDePasse"
+                            }
+                            """))
+                .andExpect(status().isUnauthorized());
+
+        verify(gestionnaireService).signerContrat(contratId, motDePasse);
+    }
+
+    @Test
+    void doitRetournerBadRequestQuandMotDePasseManquantPourSignature() throws Exception {
+        mockMvc.perform(put("/gestionnaire/contrats/{contratId}/signature", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "motDePasse": ""
+                            }
+                            """))
+                .andExpect(status().isBadRequest());
+    }
 
 }

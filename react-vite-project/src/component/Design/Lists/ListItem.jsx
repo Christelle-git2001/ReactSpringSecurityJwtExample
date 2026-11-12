@@ -65,6 +65,7 @@ function ListItem({
     tone = "blue",
     variant = "card",
     actionLabel,
+    actionIcon,
     actionClassName,
     showChevron = true,
     wrapText = false,
@@ -147,7 +148,7 @@ function ListItem({
                 )}
                 {onClick && (
                     <div className="flex justify-end me-2 mt-2">
-                        <Button className="w-full" onClick={onClick} size="small" icon={false} role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
+                        <Button className="w-full" onClick={onClick} size="small" role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
                     </div>
                 )}
             </div>
@@ -159,10 +160,11 @@ function ListItem({
              className={`${isClickableCard ? "cursor-pointer" : ""} rounded-xl border ${styles.border} bg-base-100 p-4 shadow-sm ${styles.gradient} ${isSelected ? selectionStyle:""}`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-1 items-start gap-3">
-                    <div className={`size-11 shrink-0 rounded-xl flex items-center justify-center ${styles.icon}`}>
-                        {icon}
-                    </div>
-
+                    {icon && (
+                        <div className={`size-11 shrink-0 rounded-xl flex items-center justify-center ${styles.icon}`}>
+                            {icon}
+                        </div>
+                    )}
                     <div className="min-w-0 flex-1">
                         <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
                             <p className="truncate text-sm font-bold text-[#043462]">
@@ -188,7 +190,7 @@ function ListItem({
                         )}
 
                         {detailRows.length > 0 && (
-                            <dl className="mt-3 grid gap-2 text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4">
+                            <dl className="mt-3 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 lg:grid-cols-4">
                                 {detailRows.map(({ label, value },index) => (
                                     <div key={`${label}-${index}`} className="min-w-0">
                                         <dt className="font-bold text-[#043462]">{label}</dt>
@@ -207,6 +209,7 @@ function ListItem({
                         className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
                         aria-label={ariaLabel}
                     >
+                        {actionIcon}
                         {actionLabel || <FiChevronRight className="size-4" />}
                     </button>
                 )}

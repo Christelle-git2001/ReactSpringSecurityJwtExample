@@ -6,17 +6,24 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -49,8 +56,7 @@ public class EtudiantService {
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
-                           NotificationRepository notificationRepository, CandidatureRepository candidatureRepository,
-                           EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+                           CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -230,9 +236,15 @@ public class EtudiantService {
 
     @Transactional
     public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
-            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException, OffreNonAutoriseeException {
+            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException,
+            OffreNonAutoriseeException, StageDejaTrouveException {
 
         Etudiant etudiant = trouverEtudiantParEmail(etudiantEmail);
+
+        if (etudiant.getCandidatureStage() != null
+                || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
+            throw new StageDejaTrouveException();
+        }
 
         CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
                 .orElseThrow(CurriculumVitaeIntrouvable::new);
@@ -274,7 +286,7 @@ public class EtudiantService {
     public EntrevueDTO getConvocationEtudiant(Long convocationId)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
-        actualiserStatutApresEntrevue(entrevue);
+        actualiserStatutEtudiant(entrevue.getCandidature().getEtudiant());
         return EntrevueDTO.of(entrevue);
     }
 
@@ -285,7 +297,7 @@ public class EtudiantService {
 
         List<Entrevue> entrevues = entrevueRepository
                 .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
-        entrevues.forEach(this::actualiserStatutApresEntrevue);
+        actualiserStatutEtudiant(etudiant);
 
         return entrevues
                 .stream()
@@ -311,10 +323,11 @@ public class EtudiantService {
     private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse, String motifRefus)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
+        verifierActionsCandidatureAutorisees(entrevue.getCandidature());
         if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
             if (entrevue.getStatut() != reponse
                     && !(reponse == StatutEntrevue.CONFIRMEE
-                    && entrevue.getStatut() == StatutEntrevue.EN_ATTENTE_REPONSE)) {
+                    && entrevue.getStatut() == StatutEntrevue.TERMINEE)) {
                 throw new ConvocationInvalideException();
             }
         } else {
@@ -335,17 +348,8 @@ public class EtudiantService {
             entrevueRepository.save(entrevue);
             eventPublisher.publishEvent(new ConvocationRepondueEvent(entrevue));
         }
-        actualiserStatutApresEntrevue(entrevue);
+        actualiserStatutEtudiant(entrevue.getCandidature().getEtudiant());
         return ReponseConvocationDTO.of(entrevue);
-    }
-
-    private void actualiserStatutApresEntrevue(Entrevue entrevue) {
-        if (entrevue.getDateConfirmation() != null
-                && entrevue.getStatut() == StatutEntrevue.CONFIRMEE
-                && !entrevue.getDateHeureEntrevue().isAfter(LocalDateTime.now())) {
-            entrevue.setStatut(StatutEntrevue.EN_ATTENTE_REPONSE);
-            entrevueRepository.save(entrevue);
-        }
     }
 
     private Entrevue getEntrevueEtudiant(Long convocationId)
@@ -362,21 +366,82 @@ public class EtudiantService {
         return trouverEtudiantParEmail(email);
     }
 
+    @Transactional
     public List<CandidatureDTO> getCandidaturesEtudiant()
             throws EtudiantIntrouvableException {
         Etudiant etudiant = getEtudiantConnecte();
 
+        actualiserStatutEtudiant(etudiant);
         return candidatureRepository.findByEtudiant(etudiant)
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(candidature -> CandidatureDTO.of(candidature,
+                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
+                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
+                                : null))
                 .toList();
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId)
-            throws ContratIntrouvableException,
-            OffreNonAutoriseeException,
-            EtudiantIntrouvableException {
+    public CandidatureDTO declarerStageTrouve(Long candidatureId)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
+        Etudiant etudiant = getEtudiantConnecte();
+        Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
+                .orElseThrow(CandidatureIntrouvableException::new);
+        if (etudiant.getCandidatureStage() != null) {
+            if (!etudiant.getCandidatureStage().getId().equals(candidatureId)) {
+                throw new DeclarationStageInvalideException();
+            }
+            return CandidatureDTO.of(candidature);
+        }
+        if (candidature.getStatut() != StatutCandidature.ACCEPTEE) {
+            throw new DeclarationStageInvalideException();
+        }
+        actualiserStatutEtudiant(etudiant);
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidatureRepository.save(candidature);
+        etudiant.setCandidatureStage(candidature);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiantRepository.save(etudiant);
+        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
+        return CandidatureDTO.of(candidature);
+    }
+
+    @Scheduled(fixedDelay = 30000, initialDelay = 30000)
+    @Transactional
+    public void actualiserStatutsEtudiants() {
+        etudiantRepository.findAll().forEach(this::actualiserStatutEtudiant);
+    }
+
+    @Transactional
+    public void actualiserStatutEtudiant(Etudiant etudiant) {
+        List<Entrevue> entrevues = entrevueRepository
+                .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
+        LocalDateTime maintenant = LocalDateTime.now();
+        boolean enAttenteReponse = false;
+        for (Entrevue entrevue : entrevues) {
+            if (actionsCandidatureDesactivees(entrevue.getCandidature())) continue;
+            if (entrevue.getStatut() == StatutEntrevue.CONFIRMEE
+                    && entrevue.getDateHeureEntrevue() != null && entrevue.getDuree() > 0
+                    && !entrevue.getDateHeureEntrevue().plusMinutes(entrevue.getDuree()).isAfter(maintenant)) {
+                entrevue.setStatut(StatutEntrevue.TERMINEE);
+                entrevueRepository.save(entrevue);
+                eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
+            }
+            if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_PLANIFIEE) continue;
+            enAttenteReponse |= entrevue.getStatut() == StatutEntrevue.TERMINEE;
+        }
+        StatutEtudiant statut = etudiant.getCandidatureStage() != null ? StatutEtudiant.STAGE_TROUVE
+                : enAttenteReponse ? StatutEtudiant.EN_ATTENTE_REPONSE : StatutEtudiant.EN_RECHERCHE;
+        if (etudiant.getStatut() != statut) {
+            etudiant.setStatut(statut);
+            etudiantRepository.save(etudiant);
+        }
+    }
+
+    @Transactional
+    public ContratDTO signerContrat(Long contratId, String motDePasse)
+            throws ContratIntrouvableException, OffreNonAutoriseeException,
+            EtudiantIntrouvableException, MotDePasseInvalideException{
 
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -394,8 +459,33 @@ public class EtudiantService {
             throw new OffreNonAutoriseeException();
         }
 
-        contrat.setDateSignatureEtudiant(LocalDate.now());
+        if (!passwordEncoder.matches(motDePasse, etudiant.getPassword())) {
+            throw new MotDePasseInvalideException();
+        }
 
-        return ContratDTO.of(contratRepository.save(contrat));
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+
+        Contrat contratEnregistre = contratRepository.save(contrat);
+        eventPublisher.publishEvent(new ContratSigneEvent(contratEnregistre));
+        return ContratDTO.of(contratEnregistre);
     }
+
+    static boolean actionsCandidatureDesactivees(Candidature candidature) {
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant == null) return false;
+        Candidature stageChoisi = etudiant.getCandidatureStage();
+        if (stageChoisi != null) {
+            return !java.util.Objects.equals(stageChoisi.getId(), candidature.getId());
+        }
+        return etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
+                && candidature.getStatut() != StatutCandidature.STAGE_TROUVE
+                && candidature.getStatut() != StatutCandidature.CONTRAT_CREE;
+    }
+
+    static void verifierActionsCandidatureAutorisees(Candidature candidature) {
+        if (actionsCandidatureDesactivees(candidature)) {
+            throw new ActionsCandidatureDesactiveesException();
+        }
+    }
+
 }

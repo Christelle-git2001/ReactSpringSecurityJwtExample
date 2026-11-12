@@ -147,7 +147,7 @@ public class GestionnaireController {
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException, StageDejaTrouveException {
         OffreDeStageDTO offreDTO = gestionnaireService.creerOffreCiblee(dto, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
@@ -183,10 +183,15 @@ public class GestionnaireController {
 
     @PutMapping("/contrats/{contratId}/signature")
     public ResponseEntity<ContratDTO> signerContrat(
-            @PathVariable Long contratId)
-            throws ContratIntrouvableException{
+            @PathVariable Long contratId,
+            @Valid @RequestBody ConfirmationSignatureDTO dto)
+            throws ContratIntrouvableException,
+            UtilisateurIntrouvableException,
+            MotDePasseInvalideException {
 
-        ContratDTO contratDTO = gestionnaireService.signerContrat(contratId);
+        ContratDTO contratDTO =
+                gestionnaireService.signerContrat(contratId, dto.motDePasse());
+
         return ResponseEntity.ok(contratDTO);
     }
 }

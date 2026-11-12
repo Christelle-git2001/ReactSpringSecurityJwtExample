@@ -13,11 +13,15 @@ import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.ArgumentCaptor;
@@ -45,6 +49,9 @@ public class NotificationServiceTest {
 
     @Mock
     private EtudiantRepository etudiantRepository;
+
+    @Mock
+    private CandidatureRepository candidatureRepository;
 
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
@@ -87,6 +94,12 @@ public class NotificationServiceTest {
         notificationEmployeur.setId(40L);
     }
 
+    private Notification notificationCandidature(NotificationType type, String candidatureId) {
+        Notification notification = new Notification();
+        notification.setNotificationType(type);
+        notification.setVariables(Map.of(VariableMapKey.CANDIDATURE_ID, candidatureId));
+        return notification;
+    }
     @Test
     void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
@@ -536,22 +549,28 @@ public class NotificationServiceTest {
         verify(notificationRepository).save(any(Notification.class));
     }
 
-    @Test
-    void doitCreerUneNotificationLorsChamgementStatutOffre(){
+    @ParameterizedTest
+    @EnumSource(value = Statut.class, names = {"ACCEPTEE", "REFUSEE"})
+    void doitNotifierLEmployeurDuStatutDeSonOffre(Statut statut){
         OffreDeStage offre = OffreDeStage.builder()
                 .title("Développeur frontend")
                 .description("Développement d'une application web")
                 .salary(25.0)
-                .statut(Statut.EN_ATTENTE)
+                .statut(statut)
                 .createdAt(LocalDateTime.now())
                 .employeur(employeur)
                 .build();
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationEmployeur);
 
-        NotificationDTO notificationDTO = notificationService.handleOffreStatutModifie(new OffreStatutModifieEvent(gestionnaire,offre.getStatut(),offre));
+        notificationService.handleOffreStatutModifie(new OffreStatutModifieEvent(employeur, statut, offre));
 
-        assertThat(notificationDTO.description()).isEqualTo(notificationEmployeur.getDescription());
-        assertThat(notificationDTO.variables()).isEqualTo(notificationEmployeur.getVariables());
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(employeur);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.OFFRE_STATUT_CHANGE);
+        assertThat(notification.getUrlCible()).isEqualTo("/employeur");
+        assertThat(notification.getVariables()).containsEntry(VariableMapKey.STATUT_FICHIER, statut.name());
     }
 
     @Test
@@ -690,7 +709,7 @@ public class NotificationServiceTest {
         Notification notificationSauvegardee = captor.getAllValues().get(0);
 
         assertThat(notificationSauvegardee.getVariables().get(VariableMapKey.ETUDIANT_IDS))
-                .isEqualTo("1, 2");
+                .isEqualTo("");
     }
 
     @Test
@@ -752,5 +771,253 @@ public class NotificationServiceTest {
                 .hasSize(2);
     }
 
+    @Test
+    void doitNotifierLEtudiantDeLAcceptationDeSaCandidature() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
+        offre.setId(10L);
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Notification reponse = notificationCandidature(NotificationType.CONVOCATION_ACCEPTEE, "20");
+        when(notificationRepository.getNotificationByDestinataire(employeur)).thenReturn(List.of(reponse));
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(60L);
+            return notification;
+        });
 
+        notificationService.handleCandidatureAcceptee(new CandidatureAccepteeEvent(candidature));
+        verify(notificationRepository).delete(reponse);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(etudiant);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CANDIDATURE_ACCEPTEE);
+        assertThat(notification.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+    }
+
+    @Test
+    void doitNotifierLEtudiantDuRefusDeSaCandidature() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
+        offre.setId(10L);
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Notification reponse = notificationCandidature(NotificationType.CONVOCATION_REFUSEE, "20");
+        when(notificationRepository.getNotificationByDestinataire(employeur)).thenReturn(List.of(reponse));
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(60L);
+            return notification;
+        });
+
+        notificationService.handleCandidatureRefusee(new CandidatureRefuseeEvent(candidature));
+        verify(notificationRepository).delete(reponse);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(etudiant);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CANDIDATURE_REFUSEE);
+        assertThat(notification.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+        assertThat(notification.getTitre()).isEqualTo("notification.etudiant.candidatureRefusee.title");
+    }
+
+    @Test
+    void doitNotifierLesDeuxSignatairesQuandLeContratEstCree() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
+        offre.setId(10L);
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        Contrat contrat = Contrat.builder().candidature(candidature).build();
+        contrat.setId(30L);
+
+        notificationService.handleNouveauContratCree(new NouveauContratCreeEvent(contrat));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(2)).save(captor.capture());
+        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire).containsExactly(employeur, etudiant);
+        assertThat(captor.getAllValues()).extracting(Notification::getNotificationType)
+                .containsOnly(NotificationType.NOUVEAU_CONTRAT);
+        verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
+    }
+
+    @Test
+    void doitNotifierLeGestionnaireQuandLesDeuxAutresSignaturesSontPresentes() {
+        notificationService.handleContratSigne(new ContratSigneEvent(contratAvecDeuxSignatures()));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getRole()).isEqualTo(Role.GESTIONNAIRE);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CONTRAT_A_SIGNER);
+        assertThat(notification.getUrlCible()).isEqualTo("/gestionnaire/candidatures/20/contrat");
+        assertThat(notification.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"false,false", "true,false", "false,true"})
+    void doitAttendreLesDeuxSignaturesAvantDeNotifierLeGestionnaire(boolean etudiantSigne, boolean employeurSigne) {
+        Contrat contrat = contratAvecDeuxSignatures();
+        if (!etudiantSigne) contrat.setDateSignatureEtudiant(null);
+        if (!employeurSigne) contrat.setDateSignatureEmployeur(null);
+
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+
+        verify(notificationRepository, never()).save(any(Notification.class));
+    }
+
+    @Test
+    void neDoitPasDupliquerLeRappelDeSignatureDuGestionnaire() {
+        when(notificationRepository.findByNotificationTypeAndUrlCible(
+                NotificationType.CONTRAT_A_SIGNER, "/gestionnaire/candidatures/20/contrat"))
+                .thenReturn(Optional.of(new Notification()));
+
+        notificationService.handleContratSigne(new ContratSigneEvent(contratAvecDeuxSignatures()));
+
+        verify(notificationRepository, never()).save(any(Notification.class));
+    }
+
+    @Test
+    void doitRetirerLeRappelApresLaSignatureDuGestionnaire() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+
+        verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
+        verify(notificationRepository, never()).save(any(Notification.class));
+    }
+
+    private Contrat contratAvecDeuxSignatures() {
+        Candidature candidature = new Candidature(etudiant,
+                OffreDeStage.builder().title("Stage Java").employeur(employeur).build());
+        candidature.setId(20L);
+        Contrat contrat = Contrat.builder().candidature(candidature).build();
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+        contrat.setDateSignatureEmployeur(LocalDateTime.now());
+        return contrat;
+    }
+
+    @Test
+    void doitInviterLeGestionnaireADemarrerLeContratQuandUnStageEstTrouve() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
+
+        notificationService.handleStageTrouveGestionnaire(new StageTrouveEvent(candidature));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getRole()).isEqualTo(Role.GESTIONNAIRE);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CONTRAT_A_CREER);
+        assertThat(notification.getUrlCible()).isEqualTo("/gestionnaire/candidatures/20/contrat");
+        assertThat(notification.getVariables())
+                .containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+    }
+
+    @Test
+    void doitNotifierLEmployeurDuStageChoisiParLEtudiant() {
+        OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
+        Candidature candidature = new Candidature(etudiant, offre);
+        candidature.setId(20L);
+        when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(61L);
+            return notification;
+        });
+
+        notificationService.handleStageTrouve(new StageTrouveEvent(candidature));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getDestinataire()).isSameAs(employeur);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.STAGE_TROUVE);
+        assertThat(notification.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+    }
+
+    @Test
+    void doitNotifierLEtudiantQuandUneEntrevueEstCreee() {
+        Candidature candidature = contratAvecDeuxSignatures().getCandidature();
+        Entrevue entrevue = Entrevue.builder().candidature(candidature)
+                .dateHeureEntrevue(LocalDateTime.of(2027, 1, 15, 10, 0)).build();
+        entrevue.setId(30L);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
+
+        notificationService.handleEntrevueCreee(new EntrevueCreeeEvent(entrevue));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        assertThat(captor.getValue().getDestinataire()).isSameAs(etudiant);
+        assertThat(captor.getValue().getNotificationType()).isEqualTo(NotificationType.CONVOCATION_ENTREVUE);
+        assertThat(captor.getValue().getVariables()).containsEntry(VariableMapKey.ENTREVUE_ID, "30")
+                .containsEntry(VariableMapKey.ENTREVUE_DATE, "2027-01-15T10:00");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = NotificationType.class, names = {"CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE"})
+    void doitRetirerSeulementLaReponseDeLEntrevueTerminee(NotificationType type) {
+        Entrevue entrevue = Entrevue.builder()
+                .candidature(contratAvecDeuxSignatures().getCandidature()).build();
+        entrevue.setId(30L);
+        Notification reponse = notificationCandidature(type, "20");
+        reponse.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "30"));
+        Notification autreEntrevue = notificationCandidature(type, "21");
+        autreEntrevue.setVariables(Map.of(VariableMapKey.ENTREVUE_ID, "31"));
+        Notification autreType = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "20");
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(reponse, autreEntrevue, autreType));
+
+        notificationService.handleEntrevueTerminee(new EntrevueTermineeEvent(entrevue));
+
+        verify(notificationRepository).delete(reponse);
+        verify(notificationRepository, never()).delete(autreEntrevue);
+        verify(notificationRepository, never()).delete(autreType);
+    }
+
+    @Test
+    void doitRetirerSeulementLaNouvelleCandidatureRetenuePourEntrevue() {
+        Candidature candidature = contratAvecDeuxSignatures().getCandidature();
+        Notification nouvelle = notificationCandidature(NotificationType.NOUVELLE_CANDIDATURE, "20");
+        Notification autreCandidature = notificationCandidature(NotificationType.NOUVELLE_CANDIDATURE, "21");
+        Notification contrat = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "20");
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(nouvelle, autreCandidature, contrat));
+
+        notificationService.handleCandidatureRetenue(new CandidatureRetenueEvent(candidature));
+
+        verify(notificationRepository).delete(nouvelle);
+        verify(notificationRepository, never()).delete(autreCandidature);
+        verify(notificationRepository, never()).delete(contrat);
+    }
+
+    @Test
+    void doitRetirerLesNotificationsDesCandidaturesFigeesApresLeStageTrouve() {
+        Candidature stage = contratAvecDeuxSignatures().getCandidature();
+        Candidature autreCandidature = new Candidature(etudiant, stage.getOffreDeStage());
+        autreCandidature.setId(21L);
+        Notification convocation = notificationCandidature(NotificationType.CONVOCATION_ENTREVUE, "21");
+        Notification acceptation = notificationCandidature(NotificationType.CANDIDATURE_ACCEPTEE, "20");
+        Notification refus = notificationCandidature(NotificationType.CANDIDATURE_REFUSEE, "21");
+        Notification contrat = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "20");
+        Notification nouvelle = notificationCandidature(NotificationType.NOUVELLE_CANDIDATURE, "20");
+        Notification confirmee = notificationCandidature(NotificationType.CONVOCATION_ACCEPTEE, "21");
+        Notification refusee = notificationCandidature(NotificationType.CONVOCATION_REFUSEE, "21");
+        Notification autreEtudiant = notificationCandidature(NotificationType.NOUVELLE_CANDIDATURE, "99");
+        when(notificationRepository.getNotificationByDestinataire(etudiant))
+                .thenReturn(List.of(convocation, acceptation, refus, contrat));
+        when(candidatureRepository.findByEtudiant(etudiant)).thenReturn(List.of(stage, autreCandidature));
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(nouvelle, confirmee, refusee, autreEtudiant));
+
+        notificationService.handleNotificationsApresStageTrouve(new StageTrouveEvent(stage));
+
+        for (Notification obsolete : List.of(convocation, acceptation, refus, nouvelle, confirmee, refusee)) {
+            verify(notificationRepository).delete(obsolete);
+        }
+        verify(notificationRepository, never()).delete(contrat);
+        verify(notificationRepository, never()).delete(autreEtudiant);
+    }
 }

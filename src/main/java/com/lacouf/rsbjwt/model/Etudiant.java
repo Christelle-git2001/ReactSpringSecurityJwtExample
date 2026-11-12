@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.model;
 
 import com.lacouf.rsbjwt.model.Enum.Departement;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.auth.Role;
 import jakarta.persistence.*;
@@ -8,7 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,15 @@ public class Etudiant extends UserApp {
     private String matricule;
     private Departement department ;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @ColumnDefault("'EN_RECHERCHE'")
+    private StatutEtudiant statut = StatutEtudiant.EN_RECHERCHE;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "candidature_stage_id", unique = true)
+    private Candidature candidatureStage;
+
     @OneToOne(mappedBy = "etudiant")
     private CvEtudiant cv;
 
@@ -32,6 +44,8 @@ public class Etudiant extends UserApp {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professeur_id")
     private Professeur professeur;
+
+    private LocalDateTime professorAssignedAt;
 
 
     @Builder

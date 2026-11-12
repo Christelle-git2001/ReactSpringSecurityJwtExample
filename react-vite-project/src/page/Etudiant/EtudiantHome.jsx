@@ -7,26 +7,37 @@ import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import PageSeparator from "../../component/Design/PageSeparator.jsx";
+import StatutEtudiant from "../../component/Candidature/StatutEtudiant.jsx";
 import PdfPreviewDialog from "../../component/PDF/PdfPreviewDialog.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
-import { obtenirCandidaturesEtudiant, obtenirOffres } from "../../api/etudiant.jsx";
+import { obtenirCandidaturesEtudiant, obtenirOffres, obtenirToutesConvocations } from "../../api/etudiant.jsx";
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
+import MesCandidatures from "../../component/Candidature/MesCandidatures.jsx";
+import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
+import Sort from "../../component/Design/Sort.jsx";
+import { getCandidatureStatus, OPTIONS_STATUT_CANDIDATURE } from "../../utils/candidatureStatus.js";
+import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
+import { HiAcademicCap } from "react-icons/hi";
 
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
 
     const location = useLocation();
     const navigate = useNavigate();
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
 
     const [offres, setOffres] = useState([]);
+    const [sortOrder, setSortOrder] = useState("desc");
     const [unreadOfferIds, setUnreadOfferIds] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const hasDepartment = Boolean(user?.department);
     const [idsPostules, setIdsPostules] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [convocations, setConvocations] = useState([]);
+    const [chargementCandidatures, setChargementCandidatures] = useState(true);
     const [previewUrl, setPreviewUrl] = useState(null);
     const previewDialogRef = useRef(null);
 
@@ -44,17 +55,31 @@ const EtudiantHome = ({ user }) => {
     const offreFilters = useFilters(offres, {
         getDomain: (o) => o.domain,
         getTown: (o) => o?.employeur?.town,
-        getStatus: (o) => o.statut,
+        getStatus: (o) => {
+            const candidature = candidatures.find(c => String(c.offreId) === String(o.id));
+            return getCandidatureStatus(candidature, convocations.find(c => c.candidatureId === candidature?.id)) ?? "SANS_CANDIDATURE";
+        },
         getSearchableText: (o) => `${o.title || ""} ${o.description || ""} ${o?.employeur?.businessName || ""}`,
     });
 
     useEffect(() => {
-        obtenirCandidaturesEtudiant()
-            .then((liste) => {
+        Promise.all([obtenirCandidaturesEtudiant(), obtenirToutesConvocations()])
+            .then(([liste, entrevues]) => {
+                setConvocations(entrevues ?? []);
                 setIdsPostules(liste.map((c) => c.offreId));
                 setCandidatures(liste);
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setChargementCandidatures(false));
+    }, []);
+
+    useEffect(() => {
+        if (location.state?.candidatureId || location.state?.id) offreFilters.resetFilters();
+    }, [location.key]);
+
+    const actualiserCandidatures = useCallback((liste) => {
+        setCandidatures(liste);
+        setIdsPostules(liste.map(c => c.offreId));
     }, []);
 
     const chargerNotificationsOffres = useCallback(async () => {
@@ -91,6 +116,7 @@ const EtudiantHome = ({ user }) => {
 
             if (notification) {
                 await marquerNotificationLue(notification.id);
+                triggerNotifications();
             }
             setUnreadOfferIds((prev) =>
                 prev.filter((id) => id !== String(offreId))
@@ -98,7 +124,7 @@ const EtudiantHome = ({ user }) => {
         } catch (error) {
             console.error("Erreur lors du marquage :", error);
         }
-    }, [user?.id]);
+    }, [user?.id, triggerNotifications]);
 
     const ouvrirOffreParId = useCallback((offreId) => {
         const offre = offres.find(
@@ -150,7 +176,11 @@ const EtudiantHome = ({ user }) => {
         const nouvelles = [];
         const autres = [];
 
-        offreFilters.itemsFiltres.forEach((offer) => {
+        const offresTriees = [...offreFilters.itemsFiltres].sort((a, b) => {
+            const comparaison = (a.createdAt ?? "").localeCompare(b.createdAt ?? "") || Number(a.id) - Number(b.id);
+            return sortOrder === "asc" ? comparaison : -comparaison;
+        });
+        offresTriees.forEach((offer) => {
             if (unreadOfferIds.includes(String(offer.id))
                     && !idsPostules.some((id) => String(id) === String(offer.id))) {
                 nouvelles.push(offer);
@@ -163,7 +193,7 @@ const EtudiantHome = ({ user }) => {
             nouvellesOffres: nouvelles,
             autresOffres: autres,
         };
-    }, [offreFilters.itemsFiltres, unreadOfferIds, idsPostules]);
+    }, [offreFilters.itemsFiltres, unreadOfferIds, idsPostules, sortOrder]);
 
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
@@ -177,6 +207,20 @@ const EtudiantHome = ({ user }) => {
             <WelcomeMessage user={user}/>
 
             <div className="w-full max-w-7xl space-y-4 mb-6 mt-6">
+                <StatutEtudiant user={user} candidatures={candidatures} loading={chargementCandidatures} />
+
+                {user?.professeurNom && (
+                    <section aria-label={t("etudiant.assigned_professor")} className="flex items-center gap-3 rounded-2xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50 via-white to-violet-50 px-4 py-3 text-[#043462] shadow-sm">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100">
+                            <HiAcademicCap className="size-5" aria-hidden="true" />
+                        </div>
+                        <div className="min-w-0">
+                            <h2 className="font-bold">{t("etudiant.assigned_professor")}</h2>
+                            <p className="text-sm text-gray-600 break-words">{user.professeurNom}</p>
+                        </div>
+                    </section>
+                )}
+
                 <SearchBar
                     value={offreFilters.searchTerm}
                     onChange={offreFilters.setSearchTerm}
@@ -184,6 +228,13 @@ const EtudiantHome = ({ user }) => {
                 />
 
                 <FilterBar
+                    selectedStatus={offreFilters.selectedStatus}
+                    onStatusChange={offreFilters.setSelectedStatus}
+                    statusOptions={["TOUS", ...OPTIONS_STATUT_CANDIDATURE]}
+                    statusLabels={{ TOUS: t("status.tous"), A_CONFIRMER: t("convocation.interview_to_confirm"),
+                        EN_ATTENTE_REPONSE: t("convocation.awaiting_decision"),
+                        ...Object.fromEntries(OPTIONS_STATUT_CANDIDATURE.filter(s => !["A_CONFIRMER", "EN_ATTENTE_REPONSE"].includes(s))
+                            .map(s => [s, getStatusConfig(s, t, "candidatureEtudiant").label])) }}
                     selectedTown={offreFilters.selectedTown}
                     onTownChange={offreFilters.setSelectedTown}
                     availableTowns={offreFilters.availableTowns}
@@ -194,11 +245,15 @@ const EtudiantHome = ({ user }) => {
                 <details open className="collapse collapse-arrow bg-transparent">
 
                     <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("nav.view_offers")}
+                        {t("nav.view_offers")} ({offreFilters.itemsFiltres.length})
                     </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
+                        <div className="flex justify-end mb-4">
+                            <Sort sortOrder={sortOrder} onSortChange={setSortOrder}
+                                  className="border border-[#043462]/20 bg-white text-[#043462] shadow-sm" />
+                        </div>
                         <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
                             {!isInitialLoading && hasDepartment && error && (
                                 <EmptyContentMessage
@@ -227,24 +282,24 @@ const EtudiantHome = ({ user }) => {
                                                 <div className="h-px flex-1 bg-green-400/50" aria-hidden="true" />
                                             </div>
                                         )}
-                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full">
+                                        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] items-start gap-4 w-full">
                                             {[...nouvellesOffres, ...autresOffres].map((offer, index) => (
                                                 <div key={offer.id} className="contents">
                                                     {index === nouvellesOffres.length && index > 0 && (
                                                         <PageSeparator />
                                                     )}
                                                     <OffreEtudiantCard
+                                                        user={{ ...user, statut: candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE") ? "STAGE_TROUVE" : user?.statut }}
                                                         key={offer.id}
                                                         offer={offer}
                                                         onPreview={setPreviewUrl}
                                                         onRead={unreadOfferIds.includes(String(offer.id)) ? marquerNotificationOffreCommeLue : undefined}
                                                         hasApplied={idsPostules.includes(offer.id)}
-                                                        candidature={candidatures.find((c) => c.offreId === offer.id)}
                                                         onApplied={(id) => {
                                                             setIdsPostules((prev) =>
                                                                 prev.includes(id) ? prev : [...prev, id]
                                                             );
-                                                            obtenirCandidaturesEtudiant().then(setCandidatures).catch(console.error);
+                                                            obtenirCandidaturesEtudiant().then(actualiserCandidatures).catch(console.error);
                                                         }}
                                                     />
                                                 </div>
@@ -256,6 +311,9 @@ const EtudiantHome = ({ user }) => {
                         </div>
                     </div>
                 </details>
+                <MesCandidatures candidatures={candidatures} onCandidaturesChange={actualiserCandidatures}
+                                 convocations={convocations} onConvocationsChange={setConvocations}
+                                 filters={offreFilters} offres={offres} loading={chargementCandidatures} />
             </div>
         </div>
     );

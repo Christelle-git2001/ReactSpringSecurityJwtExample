@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import StepProcess from "./StepProcess";
 import Button from "../Design/Button.jsx";
+import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import {
     demarrerProcessusDeSignatureDeContrat,
@@ -13,6 +14,18 @@ import {
 } from "../../api/gestionnaire.jsx";
 import { obtenirContratPDF } from "../../api/pdf.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return null;
+
+    const [date, heure] = String(dateString).split("T");
+
+    if (!heure) return date;
+
+    const heureFormatee = heure.substring(0, 5);
+
+    return `${date} à ${heureFormatee}`;
+};
 
 const formatDateOnly = (dateString) => {
     if (!dateString) return null;
@@ -27,6 +40,7 @@ const formatTimeOnly = (dateString) => {
 };
 
 function ViewProcess() {
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const { t, i18n } = useTranslation();
     const { candidatureId } = useParams();
     const location = useLocation();
@@ -43,6 +57,8 @@ function ViewProcess() {
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(false);
     const [isSigning, setIsSigning] = useState(false);
+    const [modalOuverte, setModalOuverte] = useState(false);
+    const [motDePasse, setMotDePasse] = useState("");
 
     const chargerPdfContrat = useCallback(async (contratId) => {
         setIsPdfLoading(true);
@@ -131,6 +147,7 @@ function ViewProcess() {
     const handleStartProcess = async () => {
         try {
             const nouveauContrat = await demarrerProcessusDeSignatureDeContrat(candidatureId);
+            triggerNotifications();
             setContrat(nouveauContrat);
             if (nouveauContrat?.id) {
                 chargerPdfContrat(nouveauContrat.id);
@@ -140,21 +157,40 @@ function ViewProcess() {
         }
     };
 
-    const handleSignContract = async () => {
-        if (!contrat?.id) return;
-        setIsSigning(true);
+   const handleSignContract = async () => {
+       if (!contrat?.id || !motDePasse.trim()) return;
+
+       setIsSigning(true);
+       setError(null);
+
+       try {
+           const contratMisAJour = await signerContratGestionnaire(
+               contrat.id,
+               motDePasse
+           );
+
+           setContrat(contratMisAJour);
+           triggerNotifications();
+
+           if (contratMisAJour?.id) {
+               chargerPdfContrat(contratMisAJour.id);
+           }
+
+           setModalOuverte(false);
+           setMotDePasse("");
+
+       } catch (error) {
+           console.error(error);
+           setError(error.message || "process.sign_error");
+       } finally {
+           setIsSigning(false);
+       }
+   };
+
+    const ouvrirModalSignature = () => {
+        setMotDePasse("");
         setError(null);
-        try {
-            const contratMisAJour = await signerContratGestionnaire(contrat.id);
-            setContrat(contratMisAJour);
-            if (contratMisAJour?.id) {
-                chargerPdfContrat(contratMisAJour.id);
-            }
-        } catch {
-            setError("process.sign_error");
-        } finally {
-            setIsSigning(false);
-        }
+        setModalOuverte(true);
     };
 
     const heureEntrevue = entrevue?.heure || formatTimeOnly(entrevue?.dateHeureEntrevue);
@@ -217,15 +253,15 @@ function ViewProcess() {
                                     <span className="block space-y-1 mt-1">
                                         <span className="block">
                                             <strong className="text-[#043462]">{t("process.employer_signed", "Employeur")} :</strong>{" "}
-                                            {formatDateOnly(contrat?.dateSignatureEmployeur) || t("process.no_signature", "Non")}
+                                            {formatDateTime(contrat?.dateSignatureEmployeur) || t("process.no_signature", "Non")}
                                         </span>
                                         <span className="block">
                                             <strong className="text-[#043462]">{t("process.student_signed", "Étudiant")} :</strong>{" "}
-                                            {formatDateOnly(contrat?.dateSignatureEtudiant) || t("process.no_signature", "Non")}
+                                            {formatDateTime(contrat?.dateSignatureEtudiant) || t("process.no_signature", "Non")}
                                         </span>
                                         <span className="block">
                                             <strong className="text-[#043462]">{t("process.manager_signed", "Gestionnaire")} :</strong>{" "}
-                                            {formatDateOnly(contrat?.dateSignatureGestionnaire) || t("process.no_signature", "Non")}
+                                            {formatDateTime(contrat?.dateSignatureGestionnaire) || t("process.no_signature", "Non")}
                                         </span>
                                     </span>
                                 ) : (
@@ -286,29 +322,25 @@ function ViewProcess() {
                                 >
                                     {t("actions.back", "Retour")}
                                 </Button>
-                                <button
+                                <Button
+                                    role="signature"
                                     type="button"
-                                    onClick={handleSignContract}
+                                    onClick={ouvrirModalSignature}
                                     disabled={isSignButtonDisabled || isSigning}
+                                    loading={isSigning}
                                     title={
                                         !isBothPartiesSigned && !isGestionnaireSigned
                                             ? t("process.waiting_parties_signatures")
                                             : ""
                                     }
-                                    className={`px-4 py-2 rounded-md font-medium text-white transition-colors flex items-center justify-center min-w-[100px] ${
-                                        isSignButtonDisabled || isSigning
-                                            ? "bg-gray-400 cursor-not-allowed opacity-70"
-                                            : "bg-[#043462] hover:bg-[#03284d] cursor-pointer"
-                                    }`}
+                                    className="min-w-[100px]"
                                 >
-                                    {isSigning ? (
-                                        <span className="loading loading-spinner loading-sm text-white" />
-                                    ) : isGestionnaireSigned ? (
+                                    {isGestionnaireSigned ? (
                                         t("process.already_signed")
                                     ) : (
                                         t("process.sign_button")
                                     )}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     ) : (
@@ -318,6 +350,56 @@ function ViewProcess() {
                     )}
                 </div>
             </div>
+            {modalOuverte && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+
+                        <h2 className="text-lg font-bold text-gray-900">
+                            {t("contrat.confirm_signature")}
+                        </h2>
+
+                        <p className="mt-2 text-sm text-gray-600">
+                            {t("contrat.enter_password")}
+                        </p>
+
+                        <input
+                            type="password"
+                            value={motDePasse}
+                            onChange={(e) => setMotDePasse(e.target.value)}
+                            placeholder={t("register.password")}
+                            className="mt-4 w-full rounded-lg border border-gray-300 p-3 focus:border-cyan-600 focus:outline-none"
+                        />
+
+                        {error && (
+                            <p role="alert" className="mt-2 text-sm text-red-600">
+                                {t(error, { defaultValue: t("error.generic") })}
+                            </p>
+                        )}
+
+                        <div className="mt-6 flex justify-end gap-3">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => setModalOuverte(false)}
+                                disabled={isSigning}
+                            >
+                                {t("actions.cancel")}
+                            </Button>
+
+                            <Button
+                                role="soumettre"
+                                type="button"
+                                onClick={handleSignContract}
+                                disabled={isSigning || !motDePasse.trim()}
+                            >
+                                {isSigning
+                                    ? t("actions.signing")
+                                    : t("actions.confirm")}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

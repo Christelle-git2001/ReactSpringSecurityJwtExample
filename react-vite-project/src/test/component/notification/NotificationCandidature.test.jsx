@@ -74,6 +74,7 @@ function afficherNotifications() {
         </I18nextProvider>
     );
 
+    document.querySelector("details.dropdown").open = true;
     return { onMarkAsRead, notifications };
 }
 

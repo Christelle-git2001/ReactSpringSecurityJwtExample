@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OffreStageCard from "../../component/Design/Cards/OffreStageCard.jsx";
-import { getOffresEmployeur, getCandidaturesEmployeur } from "../../api/employeur.jsx";
+import { getOffresEmployeur, getCandidaturesEmployeur, getEntrevuesEmployeur } from "../../api/employeur.jsx";
 import { useTranslation } from "react-i18next";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
+import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
 
     const [offres, setOffres] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
+    const [entrevues, setEntrevues] = useState([]);
     const [selectedOfferId, setSelectedOfferId] = useState(null);
 
     const offreFilters = useFilters(offres, {
@@ -34,6 +37,26 @@ const EmployeurHome = ({ user }) => {
         if (!selectedOfferId || selectedOfferId === "TOUS") return true;
         return o.id === selectedOfferId;
     });
+
+    const marquerNotificationOffreCommeLue = async (offreId) => {
+        if (!user?.id) return;
+        const offer = offres.find(offre => String(offre.id) === String(offreId));
+        if (!offer) return;
+        try {
+            const notifications = await getNotifications(user.id);
+            const titreUnique = offres.filter(o => o.title === offer.title).length === 1;
+            const notificationsOffre = notifications.filter(notification =>
+                notification.notificationType === "OFFRE_STATUT_CHANGE" && !notification.estLu && (
+                    String(notification.variables?.OFFRE_ID) === String(offer.id)
+                    || (!notification.variables?.OFFRE_ID && titreUnique
+                        && notification.variables?.OFFRE_TITRE === offer.title)
+                ));
+            await Promise.all(notificationsOffre.map(notification => marquerNotificationLue(notification.id)));
+            if (notificationsOffre.length > 0) triggerNotifications();
+        } catch (error) {
+            console.error("Erreur lors du marquage de la notification de l'offre :", error);
+        }
+    };
 
     const handleEdit = (offer) => {
         navigate("/employeur/offres/modifier", {
@@ -86,7 +109,9 @@ const EmployeurHome = ({ user }) => {
 
     useEffect(() => {
         getCandidaturesEmployeur()
-            .then((res) => setCandidatures(res))
+            .then((res) => {
+                setCandidatures(res || []);
+            })
             .catch((err) => {
                 console.error("Erreur lors du chargement des candidatures:", err);
                 if (err?.message === "UNAUTHORIZED" || err?.status === 401) {
@@ -94,6 +119,14 @@ const EmployeurHome = ({ user }) => {
                 }
             });
     }, [navigate]);
+
+    useEffect(() => {
+        if (!candidatures.some(c => c.statut === "ENTREVUE_PLANIFIEE")) return;
+
+        getEntrevuesEmployeur()
+            .then(res => setEntrevues(res || []))
+            .catch(console.error);
+    }, [candidatures]);
 
     return (
         <div className="w-full mx-auto px-6 sm:px-8 lg:px-10 py-6 flex flex-col items-center">
@@ -136,14 +169,16 @@ const EmployeurHome = ({ user }) => {
                                     }
                                 />
                             ) : (
-                                <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-start gap-4 w-full mt-4">
+                                <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] items-start gap-4 w-full mt-4">
                                     {filteredOffres.map((offer) => (
                                         <OffreStageCard
                                             key={offer.id}
                                             offer={offer}
                                             candidatures={candidatures}
+                                            entrevues={entrevues}
                                             onViewCandidature={handleViewCandidature}
                                             onEdit={handleEdit}
+                                            onRead={marquerNotificationOffreCommeLue}
                                         />
                                     ))}
                                 </div>

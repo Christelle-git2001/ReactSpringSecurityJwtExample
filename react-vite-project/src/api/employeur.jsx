@@ -51,9 +51,13 @@ export async function getEntrevuesEmployeur() {
     });
 }
 
-export async function signerContratEmployeur(contratId) {
+export async function signerContratEmployeur(contratId, motDePasse) {
     return fetchJson(`/employeur/contrats/${contratId}/signature`, {
         method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ motDePasse }),
     });
 }
 
@@ -105,6 +109,26 @@ export async function obtenirOffrePDF(id) {
     return fetch(`http://localhost:8080/employeur/offres/${id}/download`, {
         method: "GET",
         headers: headers,
+    });
+}
+
+export async function cloreEntrevue(entrevueId) {
+    return fetchJson(`/employeur/entrevues/${entrevueId}/cloture`, {
+        method: "PUT",
+    });
+}
+
+export async function accepterCandidat(entrevueId) {
+    return fetchJson(`/employeur/entrevues/${entrevueId}/acceptation`, {
+        method: "PUT",
+    });
+}
+
+export async function refuserCandidat(entrevueId, motifRefus) {
+    return fetchJson(`/employeur/entrevues/${entrevueId}/refus`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motifRefus }),
     });
 }
 
