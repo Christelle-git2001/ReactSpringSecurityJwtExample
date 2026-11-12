@@ -90,7 +90,9 @@ public class NotificationServiceTest {
     @Test
     void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(20L);
         Entrevue entrevue = Entrevue.builder().candidature(candidature)
                 .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
@@ -133,7 +135,9 @@ public class NotificationServiceTest {
     @Test
     void doitNotifierLEmployeurDuRefusDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(20L);
         Entrevue entrevue = Entrevue.builder().candidature(candidature)
                 .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
@@ -174,7 +178,9 @@ public class NotificationServiceTest {
         offre.setId(20L);
         offre.setTitle("Developpeur Java");
         offre.setEmployeur(employeur);
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(30L);
         notificationEmployeur.setVariables(Map.of(
                 VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",

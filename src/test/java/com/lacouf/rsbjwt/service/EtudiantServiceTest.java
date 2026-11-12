@@ -2,12 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -60,6 +55,12 @@ public class EtudiantServiceTest {
 
     @InjectMocks
     private EtudiantService etudiantService;
+
+    @Mock
+    private SessionService sessionService;
+
+    @Mock
+    private InscriptionRepository inscriptionRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -135,7 +136,9 @@ public class EtudiantServiceTest {
         offre.setTitle("Stage informatique");
         offre.setEmployeur(employeur);
 
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(20L);
 
         entrevue = Entrevue.builder()
@@ -154,6 +157,8 @@ public class EtudiantServiceTest {
 
     @Test
     void doitCreerCompteEtudiant() throws Exception{
+        SessionDTO sessionMock = new SessionDTO(Saison.HIVER, 2026);
+        when(sessionService.getSessionActuelle()).thenReturn(sessionMock);
 
         when(etudiantRepository.save(any(Etudiant.class)))
                 .thenReturn(etudiant);
@@ -170,9 +175,6 @@ public class EtudiantServiceTest {
                 .returns(etudiant.getEmail(), EtudiantDTO::email)
                 .returns(etudiant.getMatricule(), EtudiantDTO::matricule)
                 .returns(etudiant.getPhoneNumber(), EtudiantDTO::phoneNumber);
-
-
-
     }
 
     @Test
@@ -588,7 +590,10 @@ public class EtudiantServiceTest {
         OffreDeStage offre = new OffreDeStage();
         offre.setId(10L);
 
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).
+                build();
         candidature.setId(1L);
         offre.setEmployeur(employeur);
 
