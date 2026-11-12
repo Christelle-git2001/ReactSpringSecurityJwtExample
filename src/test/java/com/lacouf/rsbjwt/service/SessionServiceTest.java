@@ -2,6 +2,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Enum.Saison;
+import com.lacouf.rsbjwt.context.SessionContext;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class SessionServiceTest {
 
     private SessionService sessionService;
+    private SessionContext sessionContext;
 
     @BeforeEach
     void setUp() {
-        sessionService = new SessionService();
+        sessionService = new SessionService(sessionContext);
     }
 
     @Test
