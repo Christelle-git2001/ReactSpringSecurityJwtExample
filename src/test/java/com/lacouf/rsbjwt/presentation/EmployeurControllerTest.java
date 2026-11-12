@@ -584,6 +584,48 @@ public class EmployeurControllerTest {
     }
 
     @Test
+    void doitCloreEntrevue() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.ENTREVUE_PLANIFIEE, null, StatutEtudiant.EN_RECHERCHE, false);
+        when(employeurService.cloreEntrevue(1L)).thenReturn(candidature);
+
+        mockMvc.perform(put("/employeur/entrevues/1/cloture").principal(principal))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.statut").value("ENTREVUE_PLANIFIEE"));
+        verify(employeurService).cloreEntrevue(1L);
+    }
+
+    @Test
+    void doitRefuserClotureEntrevueNonAutorisee() throws Exception {
+        when(employeurService.cloreEntrevue(1L)).thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(put("/employeur/entrevues/1/cloture").principal(principal))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void doitObtenirConvocationParCandidature() throws Exception {
+        when(employeurService.obtenirConvocation(10L)).thenReturn(convocationEntrevueDTO);
+
+        mockMvc.perform(get("/employeur/candidatures/10/entrevue").principal(principal))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(convocationEntrevueDTO.id()))
+                .andExpect(jsonPath("$.candidatureId").value(convocationEntrevueDTO.candidatureId()))
+                .andExpect(jsonPath("$.statut").value("A_CONFIRMER"));
+        verify(employeurService).obtenirConvocation(10L);
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandConvocationIntrouvable() throws Exception {
+        when(employeurService.obtenirConvocation(10L)).thenThrow(new ConvocationIntrouvableException());
+
+        mockMvc.perform(get("/employeur/candidatures/10/entrevue").principal(principal))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void doitRefuserLeCandidatApresEntrevueAvecUnMotif() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
