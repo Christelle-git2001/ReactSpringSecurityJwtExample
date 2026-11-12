@@ -45,10 +45,11 @@ public class GestionnaireService {
     private final CandidatureRepository candidatureRepository;
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
+    private final SessionService sessionService;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository){
+                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -62,6 +63,7 @@ public class GestionnaireService {
         this.candidatureRepository = candidatureRepository;
         this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
+        this.sessionService = sessionService;
     }
 
     @Transactional
@@ -96,16 +98,18 @@ public class GestionnaireService {
     }
 
     public List<OffreDeStageDTO> getOffresEnAttente() {
-        return offreDeStageRepository
-                .findByStatut(Statut.EN_ATTENTE)
+        List<OffreDeStage> offres = offreDeStageRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
 
     public List<OffreDeStageDTO> getToutesLesOffres() {
-        return offreDeStageRepository
-                .findAll()
+        List<OffreDeStage> offres = offreDeStageRepository.findAll();
+
+        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
