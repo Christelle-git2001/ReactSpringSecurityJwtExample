@@ -1,5 +1,15 @@
 package com.lacouf.rsbjwt.presentation;
 
+import static org.mockito.ArgumentMatchers.anyString;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+
+import static org.mockito.Mockito.never;
+
+import static org.mockito.Mockito.verify;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.core.io.ByteArrayResource;
@@ -125,7 +135,8 @@ public class EmployeurControllerTest {
                 1L,
                 "Jean",
                 "Tremblay",
-                "Développeur web"
+                "Développeur web",
+                null, StatutEntrevue.A_CONFIRMER, null, null, null, null
         );
     }
 
@@ -531,7 +542,10 @@ public class EmployeurControllerTest {
                 "Entreprise ABC",
                 LocalDateTime.now(),
                 null,
-                StatutCandidature.RETENUE_POUR_ENTREVUE
+                StatutCandidature.RETENUE_POUR_ENTREVUE,
+                null,
+                StatutEtudiant.EN_RECHERCHE,
+                false
         );
 
         when(employeurService.obtenirCandidaturesConvoquees())
@@ -555,6 +569,86 @@ public class EmployeurControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void doitAccepterLeCandidatApresEntrevue() throws Exception {
+        CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.ACCEPTEE, null, StatutEtudiant.EN_RECHERCHE, false);
+        when(employeurService.accepterCandidatApresEntrevue(1L)).thenReturn(decision);
+
+        mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("ACCEPTEE"))
+                .andExpect(jsonPath("$.statutEtudiant").value("EN_RECHERCHE"));
+        verify(employeurService).accepterCandidatApresEntrevue(1L);
+    }
+
+    @Test
+    void doitCloreEntrevue() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.ENTREVUE_PLANIFIEE, null, StatutEtudiant.EN_RECHERCHE, false);
+        when(employeurService.cloreEntrevue(1L)).thenReturn(candidature);
+
+        mockMvc.perform(put("/employeur/entrevues/1/cloture").principal(principal))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.statut").value("ENTREVUE_PLANIFIEE"));
+        verify(employeurService).cloreEntrevue(1L);
+    }
+
+    @Test
+    void doitRefuserClotureEntrevueNonAutorisee() throws Exception {
+        when(employeurService.cloreEntrevue(1L)).thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(put("/employeur/entrevues/1/cloture").principal(principal))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void doitObtenirConvocationParCandidature() throws Exception {
+        when(employeurService.obtenirConvocation(10L)).thenReturn(convocationEntrevueDTO);
+
+        mockMvc.perform(get("/employeur/candidatures/10/entrevue").principal(principal))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(convocationEntrevueDTO.id()))
+                .andExpect(jsonPath("$.candidatureId").value(convocationEntrevueDTO.candidatureId()))
+                .andExpect(jsonPath("$.statut").value("A_CONFIRMER"));
+        verify(employeurService).obtenirConvocation(10L);
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandConvocationIntrouvable() throws Exception {
+        when(employeurService.obtenirConvocation(10L)).thenThrow(new ConvocationIntrouvableException());
+
+        mockMvc.perform(get("/employeur/candidatures/10/entrevue").principal(principal))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRefuserLeCandidatApresEntrevueAvecUnMotif() throws Exception {
+        CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE, false);
+        when(employeurService.refuserCandidatApresEntrevue(1L, "Autre profil retenu")).thenReturn(decision);
+
+        mockMvc.perform(put("/employeur/entrevues/1/refus").principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RefusCandidatureDTO("Autre profil retenu"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("REFUSEE"))
+                .andExpect(jsonPath("$.motifRefus").value("Autre profil retenu"))
+                .andExpect(jsonPath("$.statutEtudiant").value("EN_RECHERCHE"));
+    }
+
+    @Test
+    void doitRetournerBadRequestPourUnMotifVide() throws Exception {
+        mockMvc.perform(put("/employeur/entrevues/1/refus").principal(principal)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RefusCandidatureDTO("   "))))
+                .andExpect(status().isBadRequest());
+        verify(employeurService, never()).refuserCandidatApresEntrevue(anyLong(), anyString());
+    }
 
     @Test
     void doitSignerContratAvecSucces() throws Exception {
@@ -652,6 +746,58 @@ public class EmployeurControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void doitRetournerLesCandidaturesDeLEmployeur() throws Exception {
+        when(employeurService.obtenirCandidatures()).thenReturn(List.of());
 
+        mockMvc.perform(get("/employeur/candidatures"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$").isArray());
+        verify(employeurService).obtenirCandidatures();
+    }
 
+    @Test
+    void doitRetournerLesCandidaturesPourLOffreDemandee() throws Exception {
+        when(employeurService.getCandidaturesParOffre(10L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/employeur/offres/10/candidatures"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$").isArray());
+        verify(employeurService).getCandidaturesParOffre(10L);
+    }
+
+    @Test
+    void doitRefuserLesCandidaturesDUneOffreNonAutorisee() throws Exception {
+        when(employeurService.getCandidaturesParOffre(10L)).thenThrow(new OffreNonAutoriseeException());
+
+        mockMvc.perform(get("/employeur/offres/10/candidatures"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void doitRetournerLesEntrevuesDeLEmployeur() throws Exception {
+        when(employeurService.obtenirEntrevues()).thenReturn(List.of(convocationEntrevueDTO));
+
+        mockMvc.perform(get("/employeur/entrevues"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1));
+        verify(employeurService).obtenirEntrevues();
+    }
+
+    @Test
+    void doitRetenirLaCandidatureDemandeePourEntrevue() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
+                "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.RETENUE_POUR_ENTREVUE, null, StatutEtudiant.EN_RECHERCHE, false);
+        when(employeurService.retenirCandidaturePourEntrevue(20L)).thenReturn(candidature);
+
+        mockMvc.perform(put("/employeur/candidatures/20"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.statut").value("RETENUE_POUR_ENTREVUE"));
+        verify(employeurService).retenirCandidaturePourEntrevue(20L);
+    }
+
+    @Test
+    void doitRetournerNotFoundPourUneCandidatureARetenirIntrouvable() throws Exception {
+        when(employeurService.retenirCandidaturePourEntrevue(99L)).thenThrow(new CandidatureIntrouvableException());
+
+        mockMvc.perform(put("/employeur/candidatures/99"))
+                .andExpect(status().isNotFound());
+    }
 }

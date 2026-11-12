@@ -6,6 +6,11 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
+import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -40,6 +45,7 @@ public class EmployeurService {
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
+    private final EtudiantService etudiantService;
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -47,7 +53,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+            ContratRepository contratRepository, EtudiantService etudiantService) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -56,6 +62,7 @@ public class EmployeurService {
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
+        this.etudiantService = etudiantService;
     }
 
     @Transactional
@@ -269,7 +276,10 @@ public class EmployeurService {
 
         return candidatures
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(candidature -> CandidatureDTO.of(candidature,
+                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
+                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
+                                : null))
                 .toList();
     }
 
@@ -323,6 +333,8 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
         if (convocationRepository
                 .findByCandidatureId(dto.candidatureId())
                 .isPresent()) {
@@ -351,6 +363,7 @@ public class EmployeurService {
 
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         candidatureRepository.save(candidature);
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
 
         eventPublisher.publishEvent(
                 new EntrevueCreeeEvent(entrevueEnregistree)
@@ -365,9 +378,12 @@ public class EmployeurService {
                 .findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
 
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
         if (candidature.getStatut() == StatutCandidature.SOUMISE) {
             candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
             candidatureRepository.save(candidature);
+            eventPublisher.publishEvent(new CandidatureRetenueEvent(candidature));
         }
         return CandidatureDTO.of(candidature);
     }
@@ -405,6 +421,103 @@ public class EmployeurService {
     }
 
     @Transactional
+    public CandidatureDTO cloreEntrevue(Long entrevueId)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Entrevue entrevue = convocationRepository.findById(entrevueId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Candidature candidature = entrevue.getCandidature();
+        Employeur proprietaire = candidature.getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
+        if (entrevue.getStatut() != StatutEntrevue.CONFIRMEE && entrevue.getStatut() != StatutEntrevue.TERMINEE) {
+            throw new DecisionCandidatureInvalideException();
+        }
+
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        convocationRepository.save(entrevue);
+        eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
+        return CandidatureDTO.of(candidature);
+    }
+
+    @Transactional
+    public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return enregistrerDecision(entrevueId, StatutCandidature.ACCEPTEE, null);
+    }
+
+    @Transactional
+    public CandidatureDTO refuserCandidatApresEntrevue(Long entrevueId, String motifRefus)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+        if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 1000) {
+            throw new MotifRefusInvalideException();
+        }
+        return enregistrerDecision(entrevueId, StatutCandidature.REFUSEE, motifRefus.strip());
+    }
+
+    private CandidatureDTO enregistrerDecision(Long entrevueId, StatutCandidature decision, String motifRefus)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Entrevue entrevue = convocationRepository.findById(entrevueId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Candidature candidature = entrevue.getCandidature();
+        Employeur proprietaire = candidature.getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
+        if (candidature.getStatut() == decision) {
+            return CandidatureDTO.of(candidature);
+        }
+        validerDecisionApresEntrevue(entrevue);
+
+        candidature.setStatut(decision);
+        candidature.setMotifRefus(motifRefus);
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        entrevue.setMotifRefus(motifRefus);
+        Candidature candidatureEnregistree = candidatureRepository.save(candidature);
+        convocationRepository.save(entrevue);
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
+        if (decision == StatutCandidature.ACCEPTEE) {
+            eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
+        } else {
+            eventPublisher.publishEvent(new CandidatureRefuseeEvent(candidatureEnregistree));
+        }
+        return CandidatureDTO.of(candidatureEnregistree);
+    }
+
+    private void validerDecisionApresEntrevue(Entrevue entrevue)
+            throws DecisionCandidatureInvalideException {
+        boolean entrevueTerminee = entrevue.getStatut() == StatutEntrevue.TERMINEE;
+        StatutCandidature statutCandidature = entrevue.getCandidature().getStatut();
+        if (statutCandidature != StatutCandidature.ENTREVUE_PLANIFIEE
+                || !entrevueTerminee) {
+            throw new DecisionCandidatureInvalideException();
+        }
+    }
+
+    @Transactional
     public ContratDTO signerContrat(Long contratId, String motDePasse)
             throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException, MotDePasseInvalideException{
 
@@ -435,6 +548,7 @@ public class EmployeurService {
         contrat.setDateSignatureEmployeur(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
+        eventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
     }

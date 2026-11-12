@@ -15,6 +15,7 @@ import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
@@ -33,12 +34,14 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserAppRepository userAppRepository;
     private final EtudiantRepository etudiantRepository;
+    private final CandidatureRepository candidatureRepository;
 
     public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
-                               EtudiantRepository etudiantRepository) {
+                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
         this.etudiantRepository = etudiantRepository;
+        this.candidatureRepository = candidatureRepository;
     }
 
     @EventListener
@@ -105,10 +108,11 @@ public class NotificationService {
                 .notificationType(NotificationType.OFFRE_STATUT_CHANGE)
                 .dateCreaction(LocalDateTime.now())
                 .role(Role.EMPLOYEUR)
-                .urlCible("/employeur/offres")
+                .urlCible("/employeur")
                 .destinataire(destinataire)
                 .variables(Map.of(
                         VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
                         VariableMapKey.STATUT_FICHIER, event.statut().name()
                 ))
                 .build();
@@ -318,6 +322,47 @@ public class NotificationService {
 
     @EventListener
     @Transactional
+    public void handleEntrevueTerminee(EntrevueTermineeEvent event) {
+        Entrevue entrevue = event.entrevue();
+        Employeur employeur = entrevue.getCandidature().getOffreDeStage().getEmployeur();
+        notificationRepository.getNotificationByDestinataire(employeur).stream()
+                .filter(notification -> (notification.getNotificationType() == NotificationType.CONVOCATION_ACCEPTEE
+                        || notification.getNotificationType() == NotificationType.CONVOCATION_REFUSEE)
+                        && String.valueOf(entrevue.getId()).equals(notification.getVariables().get(VariableMapKey.ENTREVUE_ID)))
+                .forEach(notificationRepository::delete);
+    }
+
+    @EventListener
+    @Transactional
+    public void handleCandidatureRetenue(CandidatureRetenueEvent event) {
+        supprimerNotificationsEmployeur(event.candidature(), NotificationType.NOUVELLE_CANDIDATURE);
+    }
+
+    private void supprimerNotificationsEmployeur(Candidature candidature, NotificationType... types) {
+        Employeur employeur = candidature.getOffreDeStage().getEmployeur();
+        notificationRepository.getNotificationByDestinataire(employeur).stream()
+                .filter(notification -> Arrays.asList(types).contains(notification.getNotificationType())
+                        && String.valueOf(candidature.getId()).equals(notification.getVariables().get(VariableMapKey.CANDIDATURE_ID)))
+                .forEach(notificationRepository::delete);
+    }
+
+    @EventListener
+    @Transactional
+    public void handleNotificationsApresStageTrouve(StageTrouveEvent event) {
+        Etudiant etudiant = event.candidature().getEtudiant();
+        notificationRepository.getNotificationByDestinataire(etudiant).stream()
+                .filter(notification -> List.of(NotificationType.CONVOCATION_ENTREVUE,
+                        NotificationType.CANDIDATURE_ACCEPTEE, NotificationType.CANDIDATURE_REFUSEE)
+                        .contains(notification.getNotificationType()))
+                .forEach(notificationRepository::delete);
+        for (Candidature candidature : candidatureRepository.findByEtudiant(etudiant)) {
+            supprimerNotificationsEmployeur(candidature, NotificationType.NOUVELLE_CANDIDATURE,
+                    NotificationType.CONVOCATION_ACCEPTEE, NotificationType.CONVOCATION_REFUSEE);
+        }
+    }
+
+    @EventListener
+    @Transactional
     public NotificationDTO handleConvocationRepondue(ConvocationRepondueEvent event) {
         Entrevue entrevue = event.entrevue();
         Candidature candidature = entrevue.getCandidature();
@@ -348,6 +393,91 @@ public class NotificationService {
                 ))
                 .build();
 
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleCandidatureAcceptee(CandidatureAccepteeEvent event) {
+        return notifierDecisionCandidature(event.candidature(), true);
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleCandidatureRefusee(CandidatureRefuseeEvent event) {
+        return notifierDecisionCandidature(event.candidature(), false);
+    }
+
+    private NotificationDTO notifierDecisionCandidature(Candidature candidature, boolean acceptee) {
+        supprimerNotificationsEmployeur(candidature, NotificationType.NOUVELLE_CANDIDATURE,
+                NotificationType.CONVOCATION_ACCEPTEE, NotificationType.CONVOCATION_REFUSEE);
+        String cle = "notification.etudiant." + (acceptee ? "candidatureAcceptee" : "candidatureRefusee");
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Notification notification = Notification.builder()
+                .titre(cle + ".title")
+                .description(cle + ".description")
+                .notificationType(acceptee ? NotificationType.CANDIDATURE_ACCEPTEE : NotificationType.CANDIDATURE_REFUSEE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.ETUDIANT)
+                .destinataire(etudiant)
+                .urlCible(ControllerPath.ETUDIANT_OFFRES.build())
+                .variables(Map.of(
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
+                        VariableMapKey.OFFRE_ID, String.valueOf(offre.getId()),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.ENTREPRISE_NOM, offre.getEmployeur().getBusinessName()
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleStageTrouve(StageTrouveEvent event) {
+        Candidature candidature = event.candidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+
+        Notification notification = Notification.builder()
+                .titre("notification.employeur.stageTrouve.title")
+                .description("notification.employeur.stageTrouve.description")
+                .notificationType(NotificationType.STAGE_TROUVE)
+                .dateCreaction(LocalDateTime.now())
+                .role(Role.EMPLOYEUR)
+                .destinataire(offre.getEmployeur())
+                .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
+
+        return NotificationDTO.of(notificationRepository.save(notification));
+    }
+
+    @EventListener
+    @Transactional
+    public NotificationDTO handleStageTrouveGestionnaire(StageTrouveEvent event) {
+        Candidature candidature = event.candidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+        Notification notification = Notification.builder()
+                .titre("notification.gestionnaire.stageTrouve.title")
+                .description("notification.gestionnaire.stageTrouve.description")
+                .notificationType(NotificationType.CONTRAT_A_CREER)
+                .role(Role.GESTIONNAIRE)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.GESTIONNAIRE_CANDIDATURE_CONTRAT.build(String.valueOf(candidature.getId())))
+                .variables(Map.of(
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                ))
+                .build();
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 
@@ -437,10 +567,43 @@ public class NotificationService {
 
     @EventListener
     @Transactional
+    public void handleContratSigne(ContratSigneEvent event) {
+        Contrat contrat = event.contrat();
+        Candidature candidature = contrat.getCandidature();
+        String urlCible = ControllerPath.GESTIONNAIRE_CANDIDATURE_CONTRAT.build(String.valueOf(candidature.getId()));
+        if (contrat.getDateSignatureGestionnaire() != null) {
+            notificationRepository.deleteByUrlCible(urlCible);
+            return;
+        }
+        if (contrat.getDateSignatureEtudiant() == null || contrat.getDateSignatureEmployeur() == null) return;
+        if (notificationRepository.findByNotificationTypeAndUrlCible(NotificationType.CONTRAT_A_SIGNER, urlCible).isPresent()) return;
+
+        Etudiant etudiant = candidature.getEtudiant();
+        Notification notification = Notification.builder()
+                .titre("notification.gestionnaire.contratASigner.title")
+                .description("notification.gestionnaire.contratASigner.description")
+                .notificationType(NotificationType.CONTRAT_A_SIGNER)
+                .role(Role.GESTIONNAIRE)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(urlCible)
+                .variables(Map.of(
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, candidature.getOffreDeStage().getTitle()
+                ))
+                .build();
+        notificationRepository.save(notification);
+    }
+
+    @EventListener
+    @Transactional
     public void handleNouveauContratCree(NouveauContratCreeEvent event) {
         Contrat contrat = event.contrat();
 
         Candidature candidature = contrat.getCandidature();
+        supprimerNotificationsEmployeur(candidature, NotificationType.STAGE_TROUVE);
+        notificationRepository.deleteByUrlCible(
+                ControllerPath.GESTIONNAIRE_CANDIDATURE_CONTRAT.build(String.valueOf(candidature.getId())));
         OffreDeStage offre = candidature.getOffreDeStage();
 
         Employeur employeur = offre.getEmployeur();
