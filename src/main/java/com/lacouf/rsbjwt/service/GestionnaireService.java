@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
@@ -40,16 +41,16 @@ public class GestionnaireService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmployeurRepository employeurRepository;
     private final EtudiantRepository etudiantRepository;
+    private final CandidatureRepository candidatureRepository;
     private final Path STORAGE_OFFRE = Paths.get("uploads", "offres");
     private final ProfesseurRepository professeurRepository;
-    private final CandidatureRepository candidatureRepository;
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
     private final SessionService sessionService;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               ProfesseurRepository professeurRepository, CandidatureRepository candidatureRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -112,18 +113,16 @@ public class GestionnaireService {
     }
 
     public List<OffreDeStageDTO> getOffresEnAttente() {
-        List<OffreDeStage> offres = offreDeStageRepository.findByStatut(Statut.EN_ATTENTE);
-
-        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
+        return offreDeStageRepository
+                .findByStatut(Statut.EN_ATTENTE)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
 
     public List<OffreDeStageDTO> getToutesLesOffres() {
-        List<OffreDeStage> offres = offreDeStageRepository.findAll();
-
-        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
+        return offreDeStageRepository
+                .findAll()
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
@@ -147,6 +146,8 @@ public class GestionnaireService {
         applicationEventPublisher.publishEvent(
                 new OffreDeStageApprouveeEvent(offreEnregistree)
         );
+        applicationEventPublisher.publishEvent(new OffreStatutModifieEvent(
+                offreEnregistree.getEmployeur(), Statut.ACCEPTEE, offreEnregistree));
 
         applicationEventPublisher.publishEvent(
                 new OffreSupprimerSoNotificationGestionnaireEvent(
@@ -273,13 +274,17 @@ public class GestionnaireService {
     public OffreDeStageDTO creerOffreCiblee(
             CreationOffreCibleeDTO creationOffreCibleeDTO,
             MultipartFile file
-    ) throws FichierCorrompuException, FichierTypeInvalideException, IOException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException {
+    ) throws FichierCorrompuException, FichierTypeInvalideException, IOException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, UtilisateurIntrouvableException, StageDejaTrouveException {
 
         Employeur employeur = employeurRepository.findById(creationOffreCibleeDTO.employeurId())
                 .orElseThrow(() -> new UtilisateurIntrouvableException());
 
         Etudiant etudiant = etudiantRepository.findById(creationOffreCibleeDTO.etudiantId())
                 .orElseThrow(() -> new UtilisateurIntrouvableException());
+
+        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
+            throw new StageDejaTrouveException();
+        }
 
         validerDates(creationOffreCibleeDTO);
 
@@ -401,7 +406,10 @@ public class GestionnaireService {
 
         Contrat contrat;
 
-        if(candidature.getStatut().equals(StatutCandidature.STAGE_TROUVE)){
+        if (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
+                && candidature.getEtudiant() != null
+                && candidature.getEtudiant().getCandidatureStage() != null
+                && candidatureId.equals(candidature.getEtudiant().getCandidatureStage().getId())) {
             contrat = Contrat.builder()
                     .candidature(candidature)
                     .gestionnaire(gestionnaire)
@@ -420,7 +428,6 @@ public class GestionnaireService {
 
         return ContratDTO.of(contratEnregistre);
     }
-
 
     public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
         List<Candidature> candidatures = candidatureRepository.findByStatut(normaliserStatus(status));
@@ -475,6 +482,7 @@ public class GestionnaireService {
         contrat.setDateSignatureGestionnaire(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
+        applicationEventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
     }

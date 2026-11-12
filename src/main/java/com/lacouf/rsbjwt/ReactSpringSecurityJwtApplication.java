@@ -261,8 +261,7 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
 
         SecurityContextHolder.clearContext();
 
-        candidatureSarko.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candidatureSarko);
+        preparerStageTrouve(candidatureSarko.getId());
 
         // Juzo (Inscrit Automne 2026)
         String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
@@ -304,8 +303,23 @@ public class ReactSpringSecurityJwtApplication implements CommandLineRunner {
         employeurService.creerConvocation(entDTOJuzo);
         SecurityContextHolder.clearContext();
 
-        candidatureJuzo.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candidatureJuzo);
+        preparerStageTrouve(candidatureJuzo.getId());
+    }
+
+    private void preparerStageTrouve(Long candidatureId) {
+        Candidature candidature = candidatureRepository.findById(candidatureId).orElseThrow();
+        Etudiant etudiant = etudiantRepository.findById(candidature.getEtudiant().getId()).orElseThrow();
+
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidatureRepository.save(candidature);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
+        etudiantRepository.save(etudiant);
+
+        Entrevue entrevue = entrevueRepository.findByCandidatureId(candidatureId).orElseThrow();
+        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        entrevueRepository.save(entrevue);
     }
 
     private void creerSessionHiver2026() throws Exception {

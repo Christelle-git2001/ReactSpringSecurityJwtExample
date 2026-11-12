@@ -7,9 +7,10 @@ function EmptyContentMessage({ message, buttonLabel, onButtonClick, textClassNam
 
             {buttonLabel && onButtonClick && (
                 <Button
+                    role="retour"
                     type="button"
                     onClick={onButtonClick}
-                    className="mt-4 bg-[#043462] text-white hover:bg-[#03284d]"
+                    className="mt-4"
                 >
                     {buttonLabel}
                 </Button>

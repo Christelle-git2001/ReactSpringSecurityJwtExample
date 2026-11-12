@@ -1,22 +1,25 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
-import { obtenirCvPDFGestionnaire, getContratByCandidatureId } from "../../api/gestionnaire.jsx";
-import { obtenirContratPDF } from "../../api/pdf.jsx";
+import { useLocation } from "react-router-dom";
+import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
+import { obtenirConvocationEmployeur } from "../../api/employeur.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
-import OffreDetailsDrawerContent from "../Offer/OffreDetailsDrawerContent.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
 import {useContrat} from "../hook/useContrat.jsx";
 import {Role} from "../../enum/Role.jsx"
+import { marquerNotificationsContratCommeLues } from "../../api/notification.jsx";
+import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 
-function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, onOpenOffer }) {
+function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, user }) {
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const location = useLocation();
-    const { t, i18n } = useTranslation();
-    const outletContext = useOutletContext();
-    const openDrawer = outletContext?.openDrawer;
+    const { t } = useTranslation();
 
-    const candidature = candidatureProp || location.state?.candidature;
+    const candidatureSource = candidatureProp || location.state?.candidature;
+    const [decision, setDecision] = useState(null);
+    useEffect(() => { setDecision(null); }, [candidatureSource?.id]);
+    const candidature = decision ? { ...candidatureSource, statut: decision.statut } : candidatureSource;
     const offer = offerProp || location.state?.offer || candidature?.offre;
     const retour = location.state?.from || "/employeur";
 
@@ -26,6 +29,19 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
 
     const cvId = candidature?.cvId;
     const candidatureId = candidature?.id;
+    const [statutEntrevue, setStatutEntrevue] = useState(null);
+    const [erreurEntrevue, setErreurEntrevue] = useState(false);
+
+    useEffect(() => {
+        if (!candidatureId || candidature?.statut !== "ENTREVUE_PLANIFIEE") return;
+        let actif = true;
+        setStatutEntrevue(null);
+        setErreurEntrevue(false);
+        obtenirConvocationEmployeur(candidatureId)
+            .then(entrevue => { if (actif) setStatutEntrevue(entrevue.statut); })
+            .catch(() => { if (actif) setErreurEntrevue(true); });
+        return () => { actif = false; };
+    }, [candidatureId, candidature?.statut]);
 
     const {
         contrat,
@@ -35,6 +51,13 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
         error,
         rechargerContrat
     } = useContrat(candidatureId,candidature.statut);
+
+    useEffect(() => {
+        if (!contrat?.dateSignatureEmployeur || !user?.id || !candidatureId) return;
+        marquerNotificationsContratCommeLues(user.id, candidatureId)
+            .then(nombre => { if (nombre > 0) triggerNotifications(); })
+            .catch(console.error);
+    }, [contrat?.dateSignatureEmployeur, user?.id, candidatureId, triggerNotifications]);
 
     useEffect(() => {
         let isMounted = true;
@@ -98,14 +121,17 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} />}
+            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decision?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
+            {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
-            <div className="p-6 flex flex-col gap-6 max-w-5xl mx-auto w-full">
+            <div className="px-6 pb-6 pt-2 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction
                     role={Role.EMPLOYEUR}
                     candidature={candidature}
+                    statutEntrevue={statutEntrevue}
                     contrat={contrat}
                     retourPath={retour}
+                    onProcessChange={setDecision}
                     onSignatureSuccess={() => {
                         rechargerContrat();
                     }}
