@@ -249,8 +249,13 @@ public class EtudiantService {
         List<OffreDeStage> toutesLesOffres = new ArrayList<>();
         toutesLesOffres.addAll(offresGenerales);
         toutesLesOffres.addAll(offresCiblees);
-        
-        return toutesLesOffres.stream()
+
+        List<OffreDeStage> offresFiltrees = sessionService.filtrerParSessionActuelle(
+                toutesLesOffres,
+                OffreDeStage::getCreatedAt
+        );
+
+        return offresFiltrees.stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
