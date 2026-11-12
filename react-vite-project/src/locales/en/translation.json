@@ -732,5 +732,14 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "session": {
+    "label": "Academic session",
+    "select": "Select session",
+    "saisons": {
+      "AUTOMNE": "Fall",
+      "HIVER": "Winter",
+      "ETE": "Summer"
+    }
   }
 }

@@ -731,5 +731,14 @@
       "title" : "Liste",
       "empty" : "La liste est vide"
     }
+  },
+  "session": {
+    "label": "Session académique",
+    "select": "Choisir une session",
+    "saisons": {
+      "AUTOMNE": "Automne",
+      "HIVER": "Hiver",
+      "ETE": "Été"
+    }
   }
 }

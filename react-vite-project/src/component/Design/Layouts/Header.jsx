@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitch from "../../../locales/LanguageSwitch.jsx";
 import ThemeToggle from "../ThemeToggle.jsx";
 import SideBarIcon from "../Icons/SideBarIcon.jsx";
+import SessionSwitch from "../SessionSwitch.jsx";
 import logo from "../../../assets/logo.png";
 import Notification from "../../Notification/Notification.jsx";
 import { getNotifications } from "../../../api/notification.jsx";
@@ -109,7 +110,11 @@ function Header({ sidebarOpen, user }) {
                                     </div>
                                 </>
                             )}
-                        </div>
+
+                <div className="h-9 w-px bg-white/25" />
+
+                <SessionSwitch />
+            </div>
 
             <div className="fixed top-4 right-4 z-50">
                 <div className="flex flex-wrap items-center gap-3 sm:gap-6">
