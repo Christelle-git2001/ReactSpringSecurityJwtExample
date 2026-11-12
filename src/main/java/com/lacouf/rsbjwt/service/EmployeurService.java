@@ -583,6 +583,8 @@ public class EmployeurService {
 
         Contrat saved = contratRepository.save(contrat);
 
+        eventPublisher.publishEvent(new ContratSigneEvent(saved));
+
         return ContratDTO.of(saved);
     }
 }

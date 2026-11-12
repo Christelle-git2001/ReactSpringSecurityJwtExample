@@ -7,6 +7,9 @@ import com.lacouf.rsbjwt.repository.InscriptionRepository;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,17 +17,23 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
 
-    private SessionService sessionService;
-    private SessionContext sessionContext;
-    private InscriptionRepository inscriptionRepository;
+        private SessionService sessionService;
 
-    @BeforeEach
-    void setUp() {
-        sessionService = new SessionService(sessionContext, inscriptionRepository);
-    }
+        @Mock
+        private SessionContext sessionContext;
+
+        @Mock
+        private InscriptionRepository inscriptionRepository;
+
+        @BeforeEach
+        void setUp() {
+            sessionService = new SessionService(sessionContext, inscriptionRepository);
+        }
 
     @Test
     void doitRetournerSessionHiver() {
@@ -93,6 +102,9 @@ class SessionServiceTest {
 
     @Test
     void doitRetournerLaSessionActuelle() {
+
+        when(sessionContext.hasSessionCible()).thenReturn(false);
+
         SessionDTO resultat = sessionService.getSessionActuelle();
 
         SessionDTO attendu = sessionService.getSession(LocalDate.now());
@@ -193,6 +205,9 @@ class SessionServiceTest {
 
     @Test
     void doitFiltrerSelonLaSessionActuelle() {
+
+        when(sessionContext.hasSessionCible()).thenReturn(false);
+
         List<LocalDateTime> dates = List.of(
                 LocalDateTime.now().minusMonths(1),
                 LocalDateTime.now().plusMonths(1),

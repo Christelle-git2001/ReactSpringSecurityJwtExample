@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.model.event.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.junit.jupiter.api.AfterEach;
@@ -14,12 +15,6 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
-import com.lacouf.rsbjwt.model.event.OffreStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
-import com.lacouf.rsbjwt.model.event.ProfesseurAssigneEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -89,6 +84,9 @@ class GestionnaireServiceTest {
 
     @Mock
     private ContratRepository contratRepository;
+
+    @Mock
+    private SessionService sessionService;
 
 
     @InjectMocks
@@ -285,6 +283,7 @@ class GestionnaireServiceTest {
                 .save(any());
     }
 
+
     @Test
     void doitRefuserUneOffreEnAttente()
             throws OffreIntrouvableException,
@@ -302,12 +301,10 @@ class GestionnaireServiceTest {
         when(offreDeStageRepository.save(offre))
                 .thenReturn(offre);
 
-        String commentaire =
-                "L'offre ne respecte pas les exigences.";
+        String commentaire = "L'offre ne respecte pas les exigences.";
 
         OffreDeStageDTO result =
                 gestionnaireService.refuserOffre(1L, commentaire);
-        verify(applicationEventPublisher).publishEvent(new OffreStatutModifieEvent(offre.getEmployeur(), Statut.REFUSEE, offre));
 
         assertThat(result).isNotNull();
 
@@ -317,11 +314,15 @@ class GestionnaireServiceTest {
         assertThat(offre.getRejectionComment())
                 .isEqualTo(commentaire);
 
-        verify(offreDeStageRepository)
-                .findById(1L);
+        verify(offreDeStageRepository).findById(1L);
+        verify(offreDeStageRepository).save(offre);
 
-        verify(offreDeStageRepository)
-                .save(offre);
+        verify(applicationEventPublisher).publishEvent(
+                new OffreSupprimerSoNotificationGestionnaireEvent(
+                        ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                                .build("1")
+                )
+        );
     }
 
     @Test
@@ -416,6 +417,10 @@ class GestionnaireServiceTest {
         List<CvEtudiant> listCv = List.of(cvEtudiant);
 
         when(cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)).thenReturn(listCv);
+        when(sessionService.filtrerParSessionActuelle(
+                eq(listCv),
+                any()
+        )).thenReturn(listCv);
 
         List<CvEtudiantDTO> cvEtudiantDTOs = gestionnaireService.getCurriculumVitaeEnAttente();
 
@@ -446,6 +451,10 @@ class GestionnaireServiceTest {
         listCv.add(cvRefuse);
 
         when(cvEtudiantRepository.findAll()).thenReturn(listCv);
+        when(sessionService.filtrerParSessionActuelle(
+                eq(listCv),
+                any()
+        )).thenReturn(listCv);
 
         List<CvEtudiantDTO> cvEtudiantDTOs = gestionnaireService.getTousLesCvs();
 
@@ -1028,20 +1037,34 @@ class GestionnaireServiceTest {
         }
     }
 
+
     @Test
     void doitRetournerLesStagesDeclares() throws Exception {
-        Candidature stage = new Candidature(etudiant, null);
+
+        Candidature stage = new Candidature(etudiant, null, LocalDateTime.now());
         stage.setId(10L);
         stage.setStatut(StatutCandidature.STAGE_TROUVE);
-        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
-                .thenReturn(List.of(stage));
 
-        List<CandidatureDTO> resultats = gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE");
+        List<Candidature> candidatures = List.of(stage);
+
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
+                .thenReturn(candidatures);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(candidatures),
+                any()
+        )).thenReturn(candidatures);
+
+        List<CandidatureDTO> resultats =
+                gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE");
 
         assertThat(resultats).hasSize(1);
         assertThat(resultats.getFirst().id()).isEqualTo(10L);
-        assertThat(resultats.getFirst().statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
-        verify(candidatureRepository).findByStatut(StatutCandidature.STAGE_TROUVE);
+        assertThat(resultats.getFirst().statut())
+                .isEqualTo(StatutCandidature.STAGE_TROUVE);
+
+        verify(candidatureRepository)
+                .findByStatut(StatutCandidature.STAGE_TROUVE);
     }
 
     @Test

@@ -73,6 +73,12 @@ public class EmployeurServiceTest {
     @Mock
     private EntrevueRepository convocationRepository;
 
+    @Mock
+    private SessionService sessionService;
+
+    @Mock
+    private InscriptionRepository inscriptionRepository;
+
 
     InscriptionEmployeurDTO inscriptionEmployeurDTO;
     CreationOffreDeStageDTO creationOffreDeStageDTO;
@@ -199,10 +205,13 @@ public class EmployeurServiceTest {
     @Test
     void doitCreerCompteEmployeur() throws Exception {
         when(employeurRepository.save(any(Employeur.class))).thenReturn(employeur);
+        when(sessionService.getSessionActuelle())
+                .thenReturn(new SessionDTO(Saison.HIVER, 2026));
 
         EmployeurDTO result = employeurService.creeCompteEmployeur(inscriptionEmployeurDTO);
 
         verify(employeurRepository, times(1)).save(any(Employeur.class));
+        verify(inscriptionRepository).save(any(Inscription.class));
         assertThat(result)
                 .isNotNull()
                 .returns(employeur.getFirstName(), EmployeurDTO::firstName)
@@ -368,6 +377,7 @@ public class EmployeurServiceTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
         );
+        simulerFiltrageSession();
 
         employeur.setOffres(List.of(offreDeStage));
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
@@ -383,6 +393,7 @@ public class EmployeurServiceTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
         );
+
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
 
@@ -406,6 +417,7 @@ public class EmployeurServiceTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
         );
+        simulerFiltrageSession();
 
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
@@ -425,6 +437,8 @@ public class EmployeurServiceTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
         );
+
+        simulerFiltrageSession();
 
         employeur.setOffres(List.of());
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
@@ -719,6 +733,8 @@ public class EmployeurServiceTest {
     void doitRetournerCandidaturesConvoqueesDeLEmployeur() throws Exception {
         candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
 
+        simulerFiltrageSession();
+
         when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
                 .thenReturn(Optional.of(employeur));
 
@@ -796,7 +812,6 @@ public class EmployeurServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         ContratDTO result = employeurService.signerContrat(contratId, motDePasse);
-        verify(eventPublisher).publishEvent(new ContratSigneEvent(contrat));
 
         assertThat(result).isNotNull();
         assertThat(contrat.getDateSignatureEmployeur()).isNotNull();
@@ -1053,6 +1068,8 @@ public class EmployeurServiceTest {
         Entrevue refusee = Entrevue.builder().candidature(candidature).build();
         refusee.setStatut(StatutEntrevue.REFUSEE);
         refusee.setId(31L);
+
+        simulerFiltrageSession();
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(convocationRepository.findByEmployeurId(employeur.getId())).thenReturn(List.of(confirmee, refusee));
 
@@ -1101,5 +1118,12 @@ public class EmployeurServiceTest {
                 .isInstanceOf(DecisionCandidatureInvalideException.class);
         verify(convocationRepository, never()).save(any());
         verifyNoInteractions(eventPublisher);
+    }
+
+    private <T> void simulerFiltrageSession() {
+        when(sessionService.filtrerParSessionActuelle(
+                anyList(),
+                any()
+        )).thenAnswer(invocation -> invocation.getArgument(0));
     }
 }

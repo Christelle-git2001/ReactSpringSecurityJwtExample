@@ -321,20 +321,20 @@ public class EtudiantService {
     @Transactional
     public List<EntrevueDTO> getConvocationsEtudiant()
             throws EtudiantIntrouvableException {
+
         Etudiant etudiant = getEtudiantConnecte();
 
         List<Entrevue> entrevues = entrevueRepository
                 .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
 
-        entrevues.forEach(this::actualiserStatutApresEntrevue);
+        actualiserStatutEtudiant(etudiant);
 
         List<Entrevue> entrevuesFiltrees = sessionService.filtrerParSessionActuelle(
                 entrevues,
                 entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
         );
 
-        return entrevuesFiltrees
-                .stream()
+        return entrevuesFiltrees.stream()
                 .map(EntrevueDTO::of)
                 .toList();
     }
@@ -420,9 +420,14 @@ public class EtudiantService {
                 candidature -> candidature.getOffreDeStage().getCreatedAt()
         );
 
-        return candidaturesFiltrees
-                .stream()
-                .map(CandidatureDTO::of)
+        return candidaturesFiltrees.stream()
+                .map(candidature -> {
+                    Contrat contrat = contratRepository
+                            .findByCandidatureId(candidature.getId())
+                            .orElse(null);
+
+                    return CandidatureDTO.of(candidature, contrat);
+                })
                 .toList();
     }
 
