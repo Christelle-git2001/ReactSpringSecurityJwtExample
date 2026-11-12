@@ -67,7 +67,7 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, us
 
                     {offer?.description && (
                         <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
-                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
+                            <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
                             </summary>
                             <div className="collapse-content p-0">

@@ -14,6 +14,7 @@ import { obtenirCandidaturesEtudiant, obtenirOffres, obtenirToutesConvocations }
 import { getDepartmentKey } from "../../utils/departementConverter.js";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import MesCandidatures from "../../component/Candidature/MesCandidatures.jsx";
+import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
 import Sort from "../../component/Design/Sort.jsx";
 import { getCandidatureStatus, OPTIONS_STATUT_CANDIDATURE } from "../../utils/candidatureStatus.js";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
@@ -25,6 +26,7 @@ const EtudiantHome = ({ user }) => {
 
     const location = useLocation();
     const navigate = useNavigate();
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
 
     const [offres, setOffres] = useState([]);
     const [sortOrder, setSortOrder] = useState("desc");
@@ -114,6 +116,7 @@ const EtudiantHome = ({ user }) => {
 
             if (notification) {
                 await marquerNotificationLue(notification.id);
+                triggerNotifications();
             }
             setUnreadOfferIds((prev) =>
                 prev.filter((id) => id !== String(offreId))
@@ -121,7 +124,7 @@ const EtudiantHome = ({ user }) => {
         } catch (error) {
             console.error("Erreur lors du marquage :", error);
         }
-    }, [user?.id]);
+    }, [user?.id, triggerNotifications]);
 
     const ouvrirOffreParId = useCallback((offreId) => {
         const offre = offres.find(
@@ -242,7 +245,7 @@ const EtudiantHome = ({ user }) => {
                 <details open className="collapse collapse-arrow bg-transparent">
 
                     <summary className="collapse-title text-xl font-bold text-[#043462] px-0">
-                        {t("nav.view_offers")}
+                        {t("nav.view_offers")} ({offreFilters.itemsFiltres.length})
                     </summary>
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">

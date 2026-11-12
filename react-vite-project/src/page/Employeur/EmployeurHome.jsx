@@ -8,11 +8,13 @@ import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
 import { useFilters } from "../../utils/useFilters.jsx";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
+import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
 
     const [offres, setOffres] = useState([]);
     const [candidatures, setCandidatures] = useState([]);
@@ -35,6 +37,26 @@ const EmployeurHome = ({ user }) => {
         if (!selectedOfferId || selectedOfferId === "TOUS") return true;
         return o.id === selectedOfferId;
     });
+
+    const marquerNotificationOffreCommeLue = async (offreId) => {
+        if (!user?.id) return;
+        const offer = offres.find(offre => String(offre.id) === String(offreId));
+        if (!offer) return;
+        try {
+            const notifications = await getNotifications(user.id);
+            const titreUnique = offres.filter(o => o.title === offer.title).length === 1;
+            const notificationsOffre = notifications.filter(notification =>
+                notification.notificationType === "OFFRE_STATUT_CHANGE" && !notification.estLu && (
+                    String(notification.variables?.OFFRE_ID) === String(offer.id)
+                    || (!notification.variables?.OFFRE_ID && titreUnique
+                        && notification.variables?.OFFRE_TITRE === offer.title)
+                ));
+            await Promise.all(notificationsOffre.map(notification => marquerNotificationLue(notification.id)));
+            if (notificationsOffre.length > 0) triggerNotifications();
+        } catch (error) {
+            console.error("Erreur lors du marquage de la notification de l'offre :", error);
+        }
+    };
 
     const handleEdit = (offer) => {
         navigate("/employeur/offres/modifier", {
@@ -156,6 +178,7 @@ const EmployeurHome = ({ user }) => {
                                             entrevues={entrevues}
                                             onViewCandidature={handleViewCandidature}
                                             onEdit={handleEdit}
+                                            onRead={marquerNotificationOffreCommeLue}
                                         />
                                     ))}
                                 </div>

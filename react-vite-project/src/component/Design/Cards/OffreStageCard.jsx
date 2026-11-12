@@ -9,7 +9,7 @@ import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import { actionsCandidatureDesactivees } from "../../../utils/candidatureActions.js";
 
-function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandidature, onEdit = false, showPdfActions = true }) {
+function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandidature, onEdit = false, showPdfActions = true, onRead }) {
     const { t } = useTranslation();
     const {
         pdfUrl,
@@ -59,8 +59,12 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                             </span>
                             {showPdfActions && (
                                 <PdfActionButtons variant="card" ghost
-                                    onView={viewPDF}
-                                    onDownload={() => gererTelechargement(offer?.fileName)}
+                                    onView={async () => {
+                                        if (await viewPDF()) onRead?.(offer?.id);
+                                    }}
+                                    onDownload={async () => {
+                                        if (await gererTelechargement(offer?.fileName)) onRead?.(offer?.id);
+                                    }}
                                 />
                             )}
                         </div>
@@ -93,7 +97,7 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
 
                     {offer?.description && (
                         <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
-                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
+                            <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
                             </summary>
                             <div className="collapse-content p-0">
@@ -107,22 +111,22 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                     )}
 
                     {currentStatusKey === "REFUSEE" && offer?.rejectionComment && (
-                        <div className="mt-2 text-xs">
-                            <p className="py-1 text-xs font-bold text-red-700">
+                        <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                            <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-red-700">
                                 {t("offre.rejection_comment")}
-                            </p>
-                            <div className="p-0">
+                            </summary>
+                            <div className="collapse-content p-0">
                                 <div className="mt-1 bg-red-50 border border-red-200 p-3 rounded-lg">
                                     <p className="text-red-600 break-words">
                                         {offer.rejectionComment}
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </details>
                     )}
 
                     <details open className="collapse collapse-arrow mt-4 rounded-none border-t border-gray-200">
-                        <summary className="collapse-title min-h-0 py-3 pl-0 text-xs font-bold text-[#043462]">
+                        <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-3 pl-0 text-xs font-bold text-[#043462]">
                             {t("candidature.list_title")} ({candidaturesOffre.length})
                         </summary>
                         <div className="collapse-content px-0">

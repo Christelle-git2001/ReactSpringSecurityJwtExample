@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import StepProcess from "./StepProcess";
 import Button from "../Design/Button.jsx";
+import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import {
     demarrerProcessusDeSignatureDeContrat,
@@ -39,6 +40,7 @@ const formatTimeOnly = (dateString) => {
 };
 
 function ViewProcess() {
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const { t, i18n } = useTranslation();
     const { candidatureId } = useParams();
     const location = useLocation();
@@ -145,6 +147,7 @@ function ViewProcess() {
     const handleStartProcess = async () => {
         try {
             const nouveauContrat = await demarrerProcessusDeSignatureDeContrat(candidatureId);
+            triggerNotifications();
             setContrat(nouveauContrat);
             if (nouveauContrat?.id) {
                 chargerPdfContrat(nouveauContrat.id);
@@ -167,6 +170,7 @@ function ViewProcess() {
            );
 
            setContrat(contratMisAJour);
+           triggerNotifications();
 
            if (contratMisAJour?.id) {
                chargerPdfContrat(contratMisAJour.id);

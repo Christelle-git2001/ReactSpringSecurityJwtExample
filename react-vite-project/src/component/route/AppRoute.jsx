@@ -71,7 +71,7 @@ export default function AppRoutes({
                 <Route path="/employeur/account" element={<AccountEmployeur/>}/>
                 <Route path="/employeur/offres/nouvelle" element={<AddOffer />} />
                 <Route path="/employeur/offres/modifier" element={<EditOffer />} />
-                <Route path="/employeur/candidatures/details" element={<CandidatureDetails />} />
+                <Route path="/employeur/candidatures/details" element={<CandidatureDetails user={user} />} />
                 <Route path="/employeur/entrevues" element={<GestionEntrevue />} />
                 <Route path="/etudiant/candidatures" element={<EtudiantHome user={user} />} />
                 <Route path="/etudiant/entrevues" element={<EtudiantHome user={user} />} />

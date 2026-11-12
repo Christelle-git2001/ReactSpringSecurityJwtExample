@@ -142,12 +142,14 @@ describe('Offres directement dans les cartes employeur', () => {
         expect(screen.getByText('candidature.no_candidatures')).toBeVisible();
     });
 
-    it('affiche le commentaire de refus d’une offre refusée', () => {
+    it('affiche le commentaire de refus après ouverture du volet', () => {
         render(
             <MemoryRouter>
                 <OffreStageCard offer={{ id: 1, statut: 'REFUSEE', rejectionComment: 'Précisez les tâches.' }} />
             </MemoryRouter>
         );
+        expect(screen.getByText('Précisez les tâches.')).not.toBeVisible();
+        fireEvent.click(screen.getByText('offre.rejection_comment'));
         expect(screen.getByText('Précisez les tâches.')).toBeVisible();
     });
 

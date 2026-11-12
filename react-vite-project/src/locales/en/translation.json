@@ -602,6 +602,12 @@
       "description": "A contract has been created for the position: {{OFFRE_TITRE}}. Please review and sign it."
     },
     "employeur": {
+      "validation": {
+        "title_acceptee": "Internship offer approved",
+        "description_acceptee": "Your offer “{{OFFRE_TITRE}}” has been approved by the internship manager.",
+        "title_refusee": "Internship offer rejected",
+        "description_refusee": "Your offer “{{OFFRE_TITRE}}” has been rejected. View the offer for the reason."
+      },
       "stageTrouve": {
         "title": "Internship chosen by the student",
         "description": "{{ETUDIANT_NOM}} has chosen your offer “{{OFFRE_TITRE}}” for their internship."
@@ -620,6 +626,14 @@
       }
     },
     "gestionnaire": {
+      "contratASigner": {
+        "title": "Contract awaiting your signature",
+        "description": "{{ETUDIANT_NOM}} and the employer have signed the contract for “{{OFFRE_TITRE}}”. Your signature is now required."
+      },
+      "stageTrouve": {
+        "title": "Contract process ready to start",
+        "description": "{{ETUDIANT_NOM}} has declared an internship found for the offer “{{OFFRE_TITRE}}”. You can start the contract process."
+      },
       "offre": {
         "title": "New offer to review",
         "description": "The offer “{{OFFRE_TITRE}}” is awaiting review."

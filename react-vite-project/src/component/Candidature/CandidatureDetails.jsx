@@ -8,8 +8,11 @@ import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
 import {useContrat} from "../hook/useContrat.jsx";
 import {Role} from "../../enum/Role.jsx"
+import { marquerNotificationsContratCommeLues } from "../../api/notification.jsx";
+import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 
-function CandidatureDetails({ candidature: candidatureProp, offer: offerProp }) {
+function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, user }) {
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const location = useLocation();
     const { t } = useTranslation();
 
@@ -48,6 +51,13 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp }) 
         error,
         rechargerContrat
     } = useContrat(candidatureId,candidature.statut);
+
+    useEffect(() => {
+        if (!contrat?.dateSignatureEmployeur || !user?.id || !candidatureId) return;
+        marquerNotificationsContratCommeLues(user.id, candidatureId)
+            .then(nombre => { if (nombre > 0) triggerNotifications(); })
+            .catch(console.error);
+    }, [contrat?.dateSignatureEmployeur, user?.id, candidatureId, triggerNotifications]);
 
     useEffect(() => {
         let isMounted = true;
