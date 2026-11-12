@@ -79,6 +79,20 @@ public class GestionnaireService {
         return GestionnaireDTO.create(gestionnaireRepository.save(gestionnaire));
     }
 
+    public List<EtudiantDTO> getEtudiantsInscritsSessionActuelle() {
+        List<Etudiant> tousLesEtudiants = etudiantRepository.findAll();
+        SessionDTO sessionActuelle = sessionService.getSessionActuelle();
+        List<Etudiant> etudiantsInscrits = tousLesEtudiants.stream()
+                .filter(etudiant -> etudiant.getInscriptions().stream()
+                        .anyMatch(i -> i.getSession() == sessionActuelle.saison()
+                                && i.getAnneeSession() == sessionActuelle.annee()))
+                .toList();
+
+        return etudiantsInscrits.stream()
+                .map(EtudiantDTO::of)
+                .toList();
+    }
+
     public List<SecteurEmployeurDTO> getAllSecteurs() {
         return Arrays.stream(SecteurActivite.values())
                 .map(secteur -> new SecteurEmployeurDTO(
