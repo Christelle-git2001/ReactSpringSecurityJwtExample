@@ -172,7 +172,9 @@ public class GestionnaireService {
     }
 
     public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){
-        return cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)
+        List<CvEtudiant> cvs = cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(cvs, CvEtudiant::getUploadDate)
                 .stream()
                 .map(CvEtudiantDTO::of)
                 .toList();
@@ -226,7 +228,9 @@ public class GestionnaireService {
     }
 
     public List<CvEtudiantDTO> getTousLesCvs() {
-        return cvEtudiantRepository.findAll()
+        List<CvEtudiant> cvs = cvEtudiantRepository.findAll();
+
+        return sessionService.filtrerParSessionActuelle(cvs, CvEtudiant::getUploadDate)
                 .stream()
                 .map(CvEtudiantDTO::of)
                 .toList();
