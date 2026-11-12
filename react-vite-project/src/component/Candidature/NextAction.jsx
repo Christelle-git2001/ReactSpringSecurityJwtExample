@@ -15,7 +15,8 @@ function NextAction({
     contrat,
     retourPath,
     onSignatureSuccess,
-    role
+    role,
+    offer
 }) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
@@ -114,6 +115,8 @@ function NextAction({
 
     const isEmployeurSigned = Boolean(dateSignatureEmployeur);
     const isEtudiantSigned = Boolean(dateSignatureEtudiant);
+    const aujourdhui = new Date().toLocaleDateString("en-CA"); // AAAA-MM-JJ
+    const stageTermine = Boolean(offer?.endDate) && offer.endDate < aujourdhui;
 
     const handleConvoquer = async () => {
         if (!candidature?.id) return;

@@ -105,6 +105,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, on
                     role={Role.EMPLOYEUR}
                     candidature={candidature}
                     contrat={contrat}
+                    offer={offer}
                     retourPath={retour}
                     onSignatureSuccess={() => {
                         rechargerContrat();
