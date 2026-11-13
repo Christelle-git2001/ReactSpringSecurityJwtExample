@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Configuration Azure locale (contient la clé API)
+/application-chatbot-local.properties
