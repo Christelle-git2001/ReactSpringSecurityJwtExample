@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service.chatbot;
 
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
+import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTemporelTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -14,12 +15,15 @@ public class ChatbotService {
     private final ChatClient chatClient;
     private final ChatbotGestionnaireTools gestionnaireTools;
     private final Resource promptGestionnaire;
+    private final ChatbotGestionnaireTemporelTools temporels;
 
     public ChatbotService(ChatClient chatClient, ChatbotGestionnaireTools gestionnaireTools,
-                          @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire) {
+                          @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire,
+                          ChatbotGestionnaireTemporelTools temporels) {
         this.chatClient = chatClient;
         this.gestionnaireTools = gestionnaireTools;
         this.promptGestionnaire = promptGestionnaire;
+        this.temporels = temporels;
     }
 
     @PreAuthorize("hasAuthority('GESTIONNAIRE')")
@@ -31,7 +35,7 @@ public class ChatbotService {
         return chatClient.prompt()
                 .system(promptGestionnaire)
                 .user(question.trim())
-                .tools(gestionnaireTools)
+                .tools(gestionnaireTools, temporels)
                 .call()
                 .content();
     }

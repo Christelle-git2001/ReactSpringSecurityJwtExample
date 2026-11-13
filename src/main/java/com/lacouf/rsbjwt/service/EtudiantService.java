@@ -470,7 +470,7 @@ public class EtudiantService {
         return ContratDTO.of(contratEnregistre);
     }
 
-    static boolean actionsCandidatureDesactivees(Candidature candidature) {
+    public static boolean actionsCandidatureDesactivees(Candidature candidature) {
         Etudiant etudiant = candidature.getEtudiant();
         if (etudiant == null) return false;
         Candidature stageChoisi = etudiant.getCandidatureStage();

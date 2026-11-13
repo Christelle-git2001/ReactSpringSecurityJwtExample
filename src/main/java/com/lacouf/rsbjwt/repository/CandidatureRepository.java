@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 public interface CandidatureRepository extends JpaRepository<Candidature, Long> {
     Optional<Candidature> findByIdAndEtudiantId(Long id, Long etudiantId);
@@ -26,6 +27,8 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findByStatut(StatutCandidature statut);
     long countByStatut(StatutCandidature statut);
+    List<Candidature> findByDateCandidatureGreaterThanEqualAndDateCandidatureLessThanOrderByDateCandidatureAsc(LocalDateTime debut, LocalDateTime fin);
+    long countByDateCandidatureGreaterThanEqualAndDateCandidatureLessThan(LocalDateTime debut, LocalDateTime fin);
 
     @Query("SELECT c FROM Candidature c WHERE c.statut = :statut " +
             "AND NOT EXISTS (SELECT contrat.id FROM Contrat contrat WHERE contrat.candidature = c)")

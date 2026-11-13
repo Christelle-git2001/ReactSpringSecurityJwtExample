@@ -10,12 +10,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long> {
-
     List<OffreDeStage> findByStatut(Statut statut);
     long countByStatut(Statut statut);
+    List<OffreDeStage> findByCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtAsc(LocalDateTime debut, LocalDateTime fin);
+    long countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(LocalDateTime debut, LocalDateTime fin);
+    List<OffreDeStage> findByDisplayEndDateAfterOrderByDisplayEndDateAsc(LocalDate date);
+    long countByDisplayEndDateAfter(LocalDate date);
+    List<OffreDeStage> findByDisplayEndDateBetweenOrderByDisplayEndDateAsc(LocalDate debut, LocalDate fin);
+    List<OffreDeStage> findByStartDateBetweenOrderByStartDateAsc(LocalDate debut, LocalDate fin);
 
     @Query("SELECT o FROM OffreDeStage o WHERE o.statut = :statut " +
             "AND o.domain = :domain " +

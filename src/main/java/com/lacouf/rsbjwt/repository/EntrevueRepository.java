@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 
 public interface EntrevueRepository
         extends JpaRepository<Entrevue, Long> {
-
     Optional<Entrevue> findByCandidatureId(Long candidatureId);
 
     Optional<Entrevue> findByIdAndCandidatureEtudiantId(Long entrevueId, Long etudiantId);
@@ -24,6 +23,9 @@ public interface EntrevueRepository
     List<Entrevue> findByEmployeurId(@Param("employeurId") Long employeurId);
 
     long countByStatut(StatutEntrevue statut);
+    List<Entrevue> findByDateHeureEntrevueGreaterThanEqualAndDateHeureEntrevueLessThanOrderByDateHeureEntrevueAsc(LocalDateTime debut, LocalDateTime fin);
+    long countByDateHeureEntrevueGreaterThanEqualAndDateHeureEntrevueLessThan(LocalDateTime debut, LocalDateTime fin);
+    List<Entrevue> findByCandidatureOffreDeStageEmployeurBusinessNameContainingIgnoreCaseOrderByDateHeureEntrevueAsc(String entreprise);
     List<Entrevue> findByDateHeureEntrevueAfterAndStatutInOrderByDateHeureEntrevueAsc(
             LocalDateTime date, List<StatutEntrevue> statuts);
 }
