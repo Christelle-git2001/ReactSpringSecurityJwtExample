@@ -80,20 +80,6 @@ public class GestionnaireService {
         return GestionnaireDTO.create(gestionnaireRepository.save(gestionnaire));
     }
 
-    public List<EtudiantDTO> getEtudiantsInscritsSessionActuelle() {
-        List<Etudiant> tousLesEtudiants = etudiantRepository.findAll();
-        SessionDTO sessionActuelle = sessionService.getSessionActuelle();
-        List<Etudiant> etudiantsInscrits = tousLesEtudiants.stream()
-                .filter(etudiant -> etudiant.getInscriptions().stream()
-                        .anyMatch(i -> i.getSaison() == sessionActuelle.saison()
-                                && i.getAnnee() == sessionActuelle.annee()))
-                .toList();
-
-        return etudiantsInscrits.stream()
-                .map(EtudiantDTO::of)
-                .toList();
-    }
-
     public List<SecteurEmployeurDTO> getAllSecteurs() {
         return Arrays.stream(SecteurActivite.values())
                 .map(secteur -> new SecteurEmployeurDTO(
@@ -113,16 +99,18 @@ public class GestionnaireService {
     }
 
     public List<OffreDeStageDTO> getOffresEnAttente() {
-        return offreDeStageRepository
-                .findByStatut(Statut.EN_ATTENTE)
+        List<OffreDeStage> offres = offreDeStageRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
 
     public List<OffreDeStageDTO> getToutesLesOffres() {
-        return offreDeStageRepository
-                .findAll()
+        List<OffreDeStage> offres = offreDeStageRepository.findAll();
+
+        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
@@ -340,8 +328,10 @@ public class GestionnaireService {
     }
 
     public List<EtudiantDTO> getAllEtudiants() {
-        return etudiantRepository.findAll()
-                .stream()
+        List<Etudiant> tousLesEtudiants = etudiantRepository.findAll();
+        List<Etudiant> etudiantsInscrits = sessionService.filtrerUtilisateursParSessionActuelle(tousLesEtudiants);
+
+        return etudiantsInscrits.stream()
                 .map(EtudiantDTO::of)
                 .toList();
     }

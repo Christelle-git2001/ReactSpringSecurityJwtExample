@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.context.SessionContext;
+import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.repository.InscriptionRepository;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.springframework.stereotype.Service;
@@ -77,6 +78,18 @@ public class SessionService {
     public <T> List<T> filtrerParSessionActuelle(List<T> elements, Function<T, LocalDateTime> dateExtractor) {
         SessionDTO sessionActuelle = getSessionActuelle();
         return filtrerParSession(elements, sessionActuelle.saison(), sessionActuelle.annee(), dateExtractor);
+    }
+
+    public <T extends UserApp> List<T> filtrerUtilisateursParSession(List<T> utilisateurs, Saison saison, int annee) {
+        return utilisateurs.stream()
+                .filter(user -> user.getInscriptions().stream()
+                        .anyMatch(i -> i.getSaison() == saison && i.getAnnee() == annee))
+                .toList();
+    }
+
+    public <T extends UserApp> List<T> filtrerUtilisateursParSessionActuelle(List<T> utilisateurs) {
+        SessionDTO sessionActuelle = getSessionActuelle();
+        return filtrerUtilisateursParSession(utilisateurs, sessionActuelle.saison(), sessionActuelle.annee());
     }
 
     public List<SessionDTO> getSessionsDisponibles() {
