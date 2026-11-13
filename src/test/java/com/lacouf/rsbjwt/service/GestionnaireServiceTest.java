@@ -192,14 +192,20 @@ class GestionnaireServiceTest {
 
     @Test
     void doitRetournerLesOffresEnAttente() {
-
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
         offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
+        List<OffreDeStage> offres = List.of(offre);
+
         when(offreDeStageRepository.findByStatut(Statut.EN_ATTENTE))
-                .thenReturn(List.of(offre));
+                .thenReturn(offres);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(offres),
+                any()
+        )).thenReturn(offres);
 
         List<OffreDeStageDTO> result =
                 gestionnaireService.getOffresEnAttente();
@@ -211,6 +217,9 @@ class GestionnaireServiceTest {
 
         verify(offreDeStageRepository)
                 .findByStatut(Statut.EN_ATTENTE);
+
+        verify(sessionService)
+                .filtrerParSessionActuelle(eq(offres), any());
     }
 
     @Test
@@ -691,10 +700,18 @@ class GestionnaireServiceTest {
         offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
-        when(offreDeStageRepository.findAll())
-                .thenReturn(List.of(offre));
+        List<OffreDeStage> offres = List.of(offre);
 
-        List<OffreDeStageDTO> result = gestionnaireService.getToutesLesOffres();
+        when(offreDeStageRepository.findAll())
+                .thenReturn(offres);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(offres),
+                any()
+        )).thenReturn(offres);
+
+        List<OffreDeStageDTO> result =
+                gestionnaireService.getToutesLesOffres();
 
         assertThat(result)
                 .hasSize(1)
@@ -703,6 +720,9 @@ class GestionnaireServiceTest {
                 .containsExactly(1L, "Développeur Java");
 
         verify(offreDeStageRepository).findAll();
+
+        verify(sessionService)
+                .filtrerParSessionActuelle(eq(offres), any());
     }
 
     @Test
