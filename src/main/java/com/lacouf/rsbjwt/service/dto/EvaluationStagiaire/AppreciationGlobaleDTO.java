@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.dto.EvaluationStagiaire;
 
+import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
 import com.lacouf.rsbjwt.model.Evaluation.AppreciationGlobal;
 import lombok.Builder;
 
@@ -9,7 +10,7 @@ public record AppreciationGlobaleDTO(
         String descriptionAppreciation,
         Boolean discussionAvecStagiaire,
         double supervisionTime,
-        Boolean renewExperience,
+        ChoixAccueil renewExperience,
         String experienceSuffisante
 ) {
 
