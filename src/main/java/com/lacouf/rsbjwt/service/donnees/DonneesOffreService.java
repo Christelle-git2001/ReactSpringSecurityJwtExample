@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
 import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
@@ -22,8 +25,8 @@ public class DonneesOffreService {
                 .stream().map(OffreDeStageDTO::of).toList();
     }
 
-    public long compterOffresParStatut(Statut statut) {
-        if (statut == null) throw new IllegalArgumentException("Le statut de l'offre est obligatoire.");
+    public long compterOffresParStatut(Statut statut) throws ParametreDonneesInvalideException {
+        if (statut == null) throw new ParametreDonneesInvalideException(Code.STATUT_OFFRE_OBLIGATOIRE);
         return offreDeStageRepository.countByStatut(statut);
     }
 

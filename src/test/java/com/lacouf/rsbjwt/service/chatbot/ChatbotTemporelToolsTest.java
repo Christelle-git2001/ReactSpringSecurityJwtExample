@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.service.chatbot;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+
 import com.lacouf.rsbjwt.model.Enum.ModeResultat;
 import com.lacouf.rsbjwt.model.Enum.SignataireContrat;
 import com.lacouf.rsbjwt.service.chatbot.tools.*;
@@ -29,7 +31,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void unComptageNeChargePasLaListe() {
+    void unComptageNeChargePasLaListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(donnees.compterOffresAfficheesEntre(jour, jour)).thenReturn(4L);
         assertThat(tools.consulterOffresAfficheesEntre(jour, jour, ModeResultat.NOMBRE).nombre()).isEqualTo(4);
@@ -37,7 +39,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void retourneLesOffresAfficheesEnModeListe() {
+    void retourneLesOffresAfficheesEnModeListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         var offres = List.of(OffreDeStageDTO.empty());
         when(donnees.obtenirOffresAfficheesEntre(jour, jour)).thenReturn(offres);
@@ -50,7 +52,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void consulteLaFinDAffichageEnModeNombreEtListe() {
+    void consulteLaFinDAffichageEnModeNombreEtListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         var offres = List.of(OffreDeStageDTO.empty());
         when(donnees.compterOffresAvecFinAffichageApres(jour)).thenReturn(3L);
@@ -63,7 +65,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void consulteLesCandidaturesEnModeNombreEtListe() {
+    void consulteLesCandidaturesEnModeNombreEtListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(donnees.compterCandidaturesDeposeesEntre(jour, jour)).thenReturn(2L);
 
@@ -77,7 +79,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void consulteLesCvEnModeNombreEtListe() {
+    void consulteLesCvEnModeNombreEtListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(donnees.compterCvDeposesEntre(jour, jour)).thenReturn(5L);
 
@@ -91,7 +93,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void consulteLesEntrevuesEnModeNombreEtListe() {
+    void consulteLesEntrevuesEnModeNombreEtListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(donnees.compterEntrevuesEntre(jour, jour)).thenReturn(7L);
 
@@ -105,7 +107,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void consulteLesSignaturesEnTransmettantLeSignataireEtLeMode() {
+    void consulteLesSignaturesEnTransmettantLeSignataireEtLeMode() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(donnees.compterContratsSignesEntre(SignataireContrat.EMPLOYEUR, jour, jour)).thenReturn(4L);
 
@@ -119,19 +121,19 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void refuseUnModeAbsentAvantDeConsulterLesDonnees() {
+    void refuseUnModeAbsentAvantDeConsulterLesDonnees() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterOffresAfficheesEntre(jour, jour, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterOffresAvecFinAffichageApres(jour, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterCandidaturesDeposeesEntre(jour, jour, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterCvDeposesEntre(jour, jour, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterEntrevuesEntre(jour, jour, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterContratsSignesEntre(SignataireContrat.ETUDIANT, jour, jour, null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> tools.consulterOffresAfficheesEntre(jour, jour, null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> tools.consulterOffresAvecFinAffichageApres(jour, null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> tools.consulterCandidaturesDeposeesEntre(jour, jour, null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> tools.consulterCvDeposesEntre(jour, jour, null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> tools.consulterEntrevuesEntre(jour, jour, null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> tools.consulterContratsSignesEntre(SignataireContrat.ETUDIANT, jour, jour, null));
         verifyNoInteractions(donnees);
     }
 
     @Test
-    void transmetLesDatesDesListesEtLaReferenceTemporelle() {
+    void transmetLesDatesDesListesEtLaReferenceTemporelle() throws ParametreDonneesInvalideException {
         LocalDate debut = LocalDate.of(2026, 11, 9);
         LocalDate fin = LocalDate.of(2026, 11, 15);
         var offres = List.of(OffreDeStageDTO.empty());
@@ -146,7 +148,7 @@ class ChatbotTemporelToolsTest {
     }
 
     @Test
-    void springAiConvertitLesDatesEtLesEnumsDesArgumentsJson() {
+    void springAiConvertitLesDatesEtLesEnumsDesArgumentsJson() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(donnees.compterContratsSignesEntre(SignataireContrat.GESTIONNAIRE, jour, jour)).thenReturn(6L);
         var callback = Arrays.stream(ToolCallbacks.from(tools))

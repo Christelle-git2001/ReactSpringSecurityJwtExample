@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+
 import com.lacouf.rsbjwt.service.donnees.DonneesEtudiantService;
 import com.lacouf.rsbjwt.service.donnees.DonneesOffreService;
 import com.lacouf.rsbjwt.service.donnees.DonneesCandidatureService;
@@ -105,7 +107,7 @@ public class ChatbotGestionnaireTools {
     }
 
     @Tool(description = "Compte les CV déposés selon leur statut : EN_ATTENTE, ACCEPTEE (approuvés) ou REFUSEE.")
-    public long compterCvParStatut(@ToolParam(description = "Statut des CV à compter") Statut statut) {
+    public long compterCvParStatut(@ToolParam(description = "Statut des CV à compter") Statut statut) throws ParametreDonneesInvalideException {
         return donneesEtudiantService.compterCvParStatut(statut);
     }
 
@@ -116,7 +118,7 @@ public class ChatbotGestionnaireTools {
 
     @Tool(description = "Compte les étudiants inscrits dans le département demandé.")
     public long compterEtudiantsParDepartement(
-            @ToolParam(description = "Département, par exemple INFORMATIQUE ou SOINS_INFIRMIERS") Departement departement) {
+            @ToolParam(description = "Département, par exemple INFORMATIQUE ou SOINS_INFIRMIERS") Departement departement) throws ParametreDonneesInvalideException {
         return donneesEtudiantService.compterEtudiantsParDepartement(departement);
     }
 
@@ -132,24 +134,24 @@ public class ChatbotGestionnaireTools {
 
     @Tool(description = "Liste les étudiants assignés au professeur demandé. Chercher d'abord son identifiant avec obtenirProfesseurs si seul son nom est fourni. En cas d'homonymes, demander une précision.")
     public List<EtudiantDTO> obtenirEtudiantsParProfesseur(
-            @ToolParam(description = "Identifiant du professeur fourni par l'utilisateur ou obtenu avec obtenirProfesseurs. Ne jamais l'inventer.") Long professeurId) {
+            @ToolParam(description = "Identifiant du professeur fourni par l'utilisateur ou obtenu avec obtenirProfesseurs. Ne jamais l'inventer.") Long professeurId) throws ParametreDonneesInvalideException {
         return donneesEtudiantService.obtenirEtudiantsParProfesseur(professeurId);
     }
 
     @Tool(description = "Compte les candidatures selon leur statut de candidature. ENTREVUE_PLANIFIEE ne permet pas de savoir si l'entrevue est confirmée ou terminée : utiliser alors les outils d'entrevue.")
     public long compterCandidaturesParStatut(
-            @ToolParam(description = "Statut de candidature, par exemple SOUMISE, ACCEPTEE ou REFUSEE") StatutCandidature statut) {
+            @ToolParam(description = "Statut de candidature, par exemple SOUMISE, ACCEPTEE ou REFUSEE") StatutCandidature statut) throws ParametreDonneesInvalideException {
         return donneesCandidatureService.compterCandidaturesParStatut(statut);
     }
 
     @Tool(description = "Liste les candidatures selon leur statut, avec les étudiants et les offres concernés. Pour CONTRAT_CREE, indique aussi si les trois signatures sont présentes.")
     public List<CandidatureDTO> obtenirCandidaturesParStatut(
-            @ToolParam(description = "Statut des candidatures à consulter") StatutCandidature statut) {
+            @ToolParam(description = "Statut des candidatures à consulter") StatutCandidature statut) throws ParametreDonneesInvalideException {
         return donneesCandidatureService.obtenirCandidaturesParStatut(statut);
     }
 
     @Tool(description = "Compte les offres selon leur statut : EN_ATTENTE, ACCEPTEE ou REFUSEE, y compris les offres dont l'affichage est expiré.")
-    public long compterOffresParStatut(@ToolParam(description = "Statut des offres à compter") Statut statut) {
+    public long compterOffresParStatut(@ToolParam(description = "Statut des offres à compter") Statut statut) throws ParametreDonneesInvalideException {
         return donneesOffreService.compterOffresParStatut(statut);
     }
 
@@ -165,7 +167,7 @@ public class ChatbotGestionnaireTools {
 
     @Tool(description = "Compte les entrevues selon leur statut enregistré : A_CONFIRMER, CONFIRMEE, REFUSEE ou TERMINEE. Le statut d'entrevue est distinct du statut de candidature.")
     public long compterEntrevuesParStatut(
-            @ToolParam(description = "Statut des entrevues à compter") StatutEntrevue statut) {
+            @ToolParam(description = "Statut des entrevues à compter") StatutEntrevue statut) throws ParametreDonneesInvalideException {
         return donneesEntrevueService.compterEntrevuesParStatut(statut);
     }
 

@@ -7,6 +7,7 @@ import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.tool.execution.ToolExecutionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -328,6 +329,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErreurDTO> handleStageDejaTrouveException(Exception e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
+
     @ExceptionHandler(MotDePasseInvalideException.class)
     public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
             MotDePasseInvalideException e) {
@@ -336,4 +338,15 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(ParametreDonneesInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleParametreDonneesInvalide(ParametreDonneesInvalideException e) {
+        return ResponseEntity.badRequest().body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ToolExecutionException.class)
+    public ResponseEntity<ErreurDTO> handleErreurExecutionOutil(ToolExecutionException e) {
+        logger.error("Erreur interne pendant un appel d'outil du chatbot", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErreurDTO("chatbot.errors.technical_error"));
+    }
 }

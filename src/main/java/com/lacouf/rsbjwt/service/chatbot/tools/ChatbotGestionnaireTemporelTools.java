@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+
 import com.lacouf.rsbjwt.model.Enum.ModeResultat;
 import com.lacouf.rsbjwt.model.Enum.SignataireContrat;
 import com.lacouf.rsbjwt.service.donnees.DonneesTemporellesService;
@@ -30,7 +33,7 @@ public class ChatbotGestionnaireTemporelTools {
     public ResultatDonneesDTO consulterOffresAfficheesEntre(
             @ToolParam(description = "Premier jour inclus, YYYY-MM-DD") LocalDate debut,
             @ToolParam(description = "Dernier jour inclus, YYYY-MM-DD") LocalDate fin,
-            @ToolParam(description = "NOMBRE pour un comptage, LISTE pour les offres affichées") ModeResultat mode) {
+            @ToolParam(description = "NOMBRE pour un comptage, LISTE pour les offres affichées") ModeResultat mode) throws ParametreDonneesInvalideException {
         verifierMode(mode);
         return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterOffresAfficheesEntre(debut, fin))
                 : ResultatDonneesDTO.liste(donnees.obtenirOffresAfficheesEntre(debut, fin));
@@ -39,51 +42,51 @@ public class ChatbotGestionnaireTemporelTools {
     @Tool(description = "Liste ou compte les offres dont la FIN d'affichage est strictement après le jour fourni. Pour la date de mise en ligne après approbation, utiliser consulterOffresAfficheesEntre. Ne pas inventer l'année.")
     public ResultatDonneesDTO consulterOffresAvecFinAffichageApres(
             @ToolParam(description = "Jour exclu de la recherche, YYYY-MM-DD") LocalDate date,
-            @ToolParam(description = "NOMBRE ou LISTE") ModeResultat mode) {
+            @ToolParam(description = "NOMBRE ou LISTE") ModeResultat mode) throws ParametreDonneesInvalideException {
         verifierMode(mode);
         return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterOffresAvecFinAffichageApres(date))
                 : ResultatDonneesDTO.liste(donnees.obtenirOffresAvecFinAffichageApres(date));
     }
 
     @Tool(description = "Liste les offres dont la fin d'affichage se situe entre les deux jours inclus. Inclut tous les statuts : indiquer le statut des offres et ne pas les présenter toutes comme disponibles.")
-    public List<OffreDeStageDTO> obtenirOffresExpirantEntre(LocalDate debut, LocalDate fin) {
+    public List<OffreDeStageDTO> obtenirOffresExpirantEntre(LocalDate debut, LocalDate fin) throws ParametreDonneesInvalideException {
         return donnees.obtenirOffresExpirantEntre(debut, fin);
     }
 
     @Tool(description = "Liste les offres dont le début du stage se situe entre deux jours inclus. Les dates sont celles du stage, pas celles de création ou de fin d'affichage.")
-    public List<OffreDeStageDTO> obtenirOffresAvecDebutStageEntre(LocalDate debut, LocalDate fin) {
+    public List<OffreDeStageDTO> obtenirOffresAvecDebutStageEntre(LocalDate debut, LocalDate fin) throws ParametreDonneesInvalideException {
         return donnees.obtenirOffresAvecDebutStageEntre(debut, fin);
     }
 
     @Tool(description = "Liste ou compte les candidatures déposées entre deux jours inclus. Ne confondre ni dépôt ni acceptation avec les dates d'entrevue.")
-    public ResultatDonneesDTO consulterCandidaturesDeposeesEntre(LocalDate debut, LocalDate fin, ModeResultat mode) {
+    public ResultatDonneesDTO consulterCandidaturesDeposeesEntre(LocalDate debut, LocalDate fin, ModeResultat mode) throws ParametreDonneesInvalideException {
         verifierMode(mode);
         return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterCandidaturesDeposeesEntre(debut, fin))
                 : ResultatDonneesDTO.liste(donnees.obtenirCandidaturesDeposeesEntre(debut, fin));
     }
 
     @Tool(description = "Liste ou compte les CV déposés entre deux jours inclus selon uploadDate, tous statuts confondus. Ce sont les dépôts des versions présentes en base, pas un historique des versions supprimées.")
-    public ResultatDonneesDTO consulterCvDeposesEntre(LocalDate debut, LocalDate fin, ModeResultat mode) {
+    public ResultatDonneesDTO consulterCvDeposesEntre(LocalDate debut, LocalDate fin, ModeResultat mode) throws ParametreDonneesInvalideException {
         verifierMode(mode);
         return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterCvDeposesEntre(debut, fin))
                 : ResultatDonneesDTO.liste(donnees.obtenirCvDeposesEntre(debut, fin));
     }
 
     @Tool(description = "Liste ou compte les entrevues dont la date prévue se situe entre deux jours inclus, tous statuts enregistrés compris. Distinguer les refusées des rendez-vous maintenus et indiquer les statuts.")
-    public ResultatDonneesDTO consulterEntrevuesEntre(LocalDate debut, LocalDate fin, ModeResultat mode) {
+    public ResultatDonneesDTO consulterEntrevuesEntre(LocalDate debut, LocalDate fin, ModeResultat mode) throws ParametreDonneesInvalideException {
         verifierMode(mode);
         return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterEntrevuesEntre(debut, fin))
                 : ResultatDonneesDTO.liste(donnees.obtenirEntrevuesEntre(debut, fin));
     }
 
     @Tool(description = "Liste ou compte les contrats signés entre deux jours inclus par le signataire choisi. Une signature individuelle ne signifie pas que les trois parties ont signé.")
-    public ResultatDonneesDTO consulterContratsSignesEntre(SignataireContrat signataire, LocalDate debut, LocalDate fin, ModeResultat mode) {
+    public ResultatDonneesDTO consulterContratsSignesEntre(SignataireContrat signataire, LocalDate debut, LocalDate fin, ModeResultat mode) throws ParametreDonneesInvalideException {
         verifierMode(mode);
         return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterContratsSignesEntre(signataire, debut, fin))
                 : ResultatDonneesDTO.liste(donnees.obtenirContratsSignesEntre(signataire, debut, fin));
     }
 
-    private void verifierMode(ModeResultat mode) {
-        if (mode == null) throw new IllegalArgumentException("chatbot.errors.mode_required");
+    private void verifierMode(ModeResultat mode) throws ParametreDonneesInvalideException {
+        if (mode == null) throw new ParametreDonneesInvalideException(Code.MODE_OBLIGATOIRE);
     }
 }

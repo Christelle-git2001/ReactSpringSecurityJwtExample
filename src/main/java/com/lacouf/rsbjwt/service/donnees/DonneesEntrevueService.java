@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.repository.EntrevueRepository;
 import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
@@ -24,8 +27,8 @@ public class DonneesEntrevueService {
                 .stream().map(EntrevueDTO::of).toList();
     }
 
-    public long compterEntrevuesParStatut(StatutEntrevue statut) {
-        if (statut == null) throw new IllegalArgumentException("Le statut d'entrevue est obligatoire.");
+    public long compterEntrevuesParStatut(StatutEntrevue statut) throws ParametreDonneesInvalideException {
+        if (statut == null) throw new ParametreDonneesInvalideException(Code.STATUT_ENTREVUE_OBLIGATOIRE);
         return entrevueRepository.countByStatut(statut);
     }
 }

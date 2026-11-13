@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.ContratRepository;
@@ -25,13 +28,13 @@ public class DonneesCandidatureService {
                 .stream().map(CandidatureDTO::of).toList();
     }
 
-    public long compterCandidaturesParStatut(StatutCandidature statut) {
-        if (statut == null) throw new IllegalArgumentException("Le statut de candidature est obligatoire.");
+    public long compterCandidaturesParStatut(StatutCandidature statut) throws ParametreDonneesInvalideException {
+        if (statut == null) throw new ParametreDonneesInvalideException(Code.STATUT_CANDIDATURE_OBLIGATOIRE);
         return candidatureRepository.countByStatut(statut);
     }
 
-    public List<CandidatureDTO> obtenirCandidaturesParStatut(StatutCandidature statut) {
-        if (statut == null) throw new IllegalArgumentException("Le statut de candidature est obligatoire.");
+    public List<CandidatureDTO> obtenirCandidaturesParStatut(StatutCandidature statut) throws ParametreDonneesInvalideException {
+        if (statut == null) throw new ParametreDonneesInvalideException(Code.STATUT_CANDIDATURE_OBLIGATOIRE);
         return candidatureRepository.findByStatut(statut).stream()
                 .map(candidature -> CandidatureDTO.of(candidature,
                         statut == StatutCandidature.CONTRAT_CREE

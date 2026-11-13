@@ -836,5 +836,23 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "chatbot": {
+    "errors": {
+      "cv_status_required": "The CV status is required.",
+      "department_required": "The department is required.",
+      "invalid_professor": "The professor ID must be positive.",
+      "offer_status_required": "The offer status is required.",
+      "interview_status_required": "The interview status is required.",
+      "application_status_required": "The application status is required.",
+      "invalid_dates": "Dates are required, must be between years 1 and 9998, and the end must not precede the start.",
+      "search_required": "Specify the position and company, with at most 200 characters each.",
+      "invalid_interview": "The interview ID must be positive.",
+      "interview_missing": "This interview could not be found.",
+      "signer_required": "Specify the signer: student, employer or internship manager.",
+      "mode_required": "Specify the result mode: list or count.",
+      "technical_error": "An error occurred while retrieving the data. Please try again later."
+    }
   }
+
 }

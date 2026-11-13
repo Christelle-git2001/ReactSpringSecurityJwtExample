@@ -837,5 +837,23 @@
       "title" : "Liste",
       "empty" : "La liste est vide"
     }
+  },
+  "chatbot": {
+    "errors": {
+      "cv_status_required": "Le statut du CV est obligatoire.",
+      "department_required": "Le département est obligatoire.",
+      "invalid_professor": "L'identifiant du professeur doit être positif.",
+      "offer_status_required": "Le statut de l'offre est obligatoire.",
+      "interview_status_required": "Le statut de l'entrevue est obligatoire.",
+      "application_status_required": "Le statut de la candidature est obligatoire.",
+      "invalid_dates": "Les dates doivent être présentes, entre les années 1 et 9998, et la fin ne doit pas précéder le début.",
+      "search_required": "Précisez le poste et l'entreprise, avec un maximum de 200 caractères chacun.",
+      "invalid_interview": "L'identifiant de l'entrevue doit être positif.",
+      "interview_missing": "Cette entrevue est introuvable.",
+      "signer_required": "Précisez le signataire : étudiant, employeur ou gestionnaire.",
+      "mode_required": "Précisez le mode de résultat : liste ou nombre.",
+      "technical_error": "Une erreur est survenue pendant la consultation. Veuillez réessayer plus tard."
+    }
   }
+
 }

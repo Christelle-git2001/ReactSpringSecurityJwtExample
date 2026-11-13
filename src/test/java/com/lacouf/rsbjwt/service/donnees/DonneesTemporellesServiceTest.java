@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.model.Enum.*;
@@ -33,7 +35,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void inclutLaJourneeEntiereSansChargerLaListePourCompter() {
+    void inclutLaJourneeEntiereSansChargerLaListePourCompter() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(offres.countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(jour.atStartOfDay(), jour.plusDays(1).atStartOfDay())).thenReturn(3L);
 
@@ -43,22 +45,22 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void refuseUnePeriodeInverseeOuUneDateAbsente() {
+    void refuseUnePeriodeInverseeOuUneDateAbsente() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        assertThatIllegalArgumentException().isThrownBy(() -> service.obtenirCvDeposesEntre(jour, jour.minusDays(1)));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterEntrevuesEntre(null, jour));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterOffresAvecFinAffichageApres(null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.obtenirCvDeposesEntre(jour, jour.minusDays(1)));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterEntrevuesEntre(null, jour));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterOffresAvecFinAffichageApres(null));
         verifyNoInteractions(offres, cvs, entrevues);
     }
 
     @Test
-    void distingueLesSignaturesDesTroisParties() {
+    void distingueLesSignaturesDesTroisParties() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         for (SignataireContrat signataire : SignataireContrat.values()) {
             service.compterContratsSignesEntre(signataire, jour, jour);
             verify(contrats).countSignesEntre(signataire.name(), jour.atStartOfDay(), jour.plusDays(1).atStartOfDay());
         }
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterContratsSignesEntre(null, jour, jour));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterContratsSignesEntre(null, jour, jour));
     }
 
     @Test
@@ -71,7 +73,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void recherchePlusieursCorrespondancesSansChoisirUnEtudiantArbitrairement() {
+    void recherchePlusieursCorrespondancesSansChoisirUnEtudiantArbitrairement() throws ParametreDonneesInvalideException {
         Entrevue premiere = entrevue(1, "Développeur Web Junior", "2026-11-13T10:00:00");
         Entrevue seconde = entrevue(2, "Dev junior", "2026-11-14T10:00:00");
         Entrevue autre = entrevue(3, "Comptable", "2026-11-14T11:00:00");
@@ -82,7 +84,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void indiqueQuUneEntrevueDemainEstAVenir() {
+    void indiqueQuUneEntrevueDemainEstAVenir() throws ParametreDonneesInvalideException {
         Entrevue entrevue = entrevue(1, "Dev junior", "2026-11-13T10:00:00");
         when(entrevues.findById(1L)).thenReturn(Optional.of(entrevue));
 
@@ -95,7 +97,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void indiqueQuUneEntrevueCommenceeDepuisQuinzeMinutesEstEnCours() {
+    void indiqueQuUneEntrevueCommenceeDepuisQuinzeMinutesEstEnCours() throws ParametreDonneesInvalideException {
         Entrevue entrevue = entrevue(1, "Dev junior", "2026-11-12T09:45:00");
         when(entrevues.findById(1L)).thenReturn(Optional.of(entrevue));
 
@@ -108,7 +110,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void indiqueQuUneEntrevueHierEstPassee() {
+    void indiqueQuUneEntrevueHierEstPassee() throws ParametreDonneesInvalideException {
         Entrevue entrevue = entrevue(1, "Dev junior", "2026-11-11T10:00:00");
         when(entrevues.findById(1L)).thenReturn(Optional.of(entrevue));
 
@@ -121,7 +123,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void nePresentePasUneEntrevueRefuseeOuFigeeCommeUnRendezVousActif() {
+    void nePresentePasUneEntrevueRefuseeOuFigeeCommeUnRendezVousActif() throws ParametreDonneesInvalideException {
         Entrevue entrevue = entrevue(1, "Dev junior", "2026-11-13T10:00:00");
         when(entrevues.findById(1L)).thenReturn(Optional.of(entrevue));
         entrevue.setStatut(StatutEntrevue.REFUSEE);
@@ -133,7 +135,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void tientCompteDuChangementDHeurePourLeDelaiReel() {
+    void tientCompteDuChangementDHeurePourLeDelaiReel() throws ParametreDonneesInvalideException {
         Clock changementHeure = Clock.fixed(Instant.parse("2026-11-01T04:30:00Z"), ZoneId.of("America/Toronto"));
         service = new DonneesTemporellesService(offres, candidatures, cvs, entrevues, contrats, changementHeure);
         when(entrevues.findById(1L)).thenReturn(Optional.of(entrevue(1, "Dev junior", "2026-11-01T02:30:00")));
@@ -157,7 +159,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void retourneLesOffresAfficheesPendantLesJourneesIncluses() {
+    void retourneLesOffresAfficheesPendantLesJourneesIncluses() throws ParametreDonneesInvalideException {
         LocalDate debut = LocalDate.of(2026, 11, 9);
         LocalDate fin = LocalDate.of(2026, 11, 15);
         OffreDeStage offre = offre(1);
@@ -175,7 +177,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void rechercheLaFinDAffichageApresLaDateDemandee() {
+    void rechercheLaFinDAffichageApresLaDateDemandee() throws ParametreDonneesInvalideException {
         LocalDate date = LocalDate.of(2026, 11, 15);
         when(offres.findByDisplayEndDateAfterOrderByDisplayEndDateAsc(date)).thenReturn(List.of(offre(1)));
         when(offres.countByDisplayEndDateAfter(date)).thenReturn(1L);
@@ -185,7 +187,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void rechercheLesOffresExpirantDansLaPeriodeSansChangerLesDates() {
+    void rechercheLesOffresExpirantDansLaPeriodeSansChangerLesDates() throws ParametreDonneesInvalideException {
         LocalDate debut = LocalDate.of(2026, 11, 9);
         LocalDate fin = LocalDate.of(2026, 11, 15);
         when(offres.findByDisplayEndDateBetweenOrderByDisplayEndDateAsc(debut, fin)).thenReturn(List.of(offre(1)));
@@ -194,7 +196,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void rechercheLesOffresParDebutDuStageEtNonParCreation() {
+    void rechercheLesOffresParDebutDuStageEtNonParCreation() throws ParametreDonneesInvalideException {
         LocalDate debut = LocalDate.of(2027, 1, 1);
         LocalDate fin = LocalDate.of(2027, 1, 31);
         when(offres.findByStartDateBetweenOrderByStartDateAsc(debut, fin)).thenReturn(List.of(offre(1)));
@@ -204,7 +206,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void listeLesCandidaturesEtDistingueUnContratPartiellementSigne() {
+    void listeLesCandidaturesEtDistingueUnContratPartiellementSigne() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         Candidature soumise = entrevue(1, "Dev junior", "2026-11-13T10:00:00").getCandidature();
         Candidature retenue = entrevue(2, "Dev junior", "2026-11-13T10:00:00").getCandidature();
@@ -224,7 +226,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void uneCandidatureSansContratEnBaseResteNonSignee() {
+    void uneCandidatureSansContratEnBaseResteNonSignee() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         Candidature candidature = entrevue(1, "Dev junior", "2026-11-13T10:00:00").getCandidature();
         candidature.setStatut(StatutCandidature.CONTRAT_CREE);
@@ -235,7 +237,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void compteLesCandidaturesSansChargerLesContratsOuLaListe() {
+    void compteLesCandidaturesSansChargerLesContratsOuLaListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 12, 31);
         when(candidatures.countByDateCandidatureGreaterThanEqualAndDateCandidatureLessThan(
                 jour.atStartOfDay(), LocalDate.of(2027, 1, 1).atStartOfDay())).thenReturn(3L);
@@ -246,7 +248,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void listeLesCvDeposesSansExclureLesCvRefuses() {
+    void listeLesCvDeposesSansExclureLesCvRefuses() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         Etudiant etudiant = new Etudiant();
         etudiant.setId(1L);
@@ -266,7 +268,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void compteLesCvDeposesSansChargerLaListe() {
+    void compteLesCvDeposesSansChargerLaListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(cvs.countByUploadDateGreaterThanEqualAndUploadDateLessThan(
                 jour.atStartOfDay(), jour.plusDays(1).atStartOfDay())).thenReturn(2L);
@@ -276,7 +278,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void listeLesEntrevuesDeLaPeriodeAvecLeurStatutReel() {
+    void listeLesEntrevuesDeLaPeriodeAvecLeurStatutReel() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         Entrevue entrevue = entrevue(1, "Dev junior", "2026-11-12T10:00:00");
         entrevue.setStatut(StatutEntrevue.REFUSEE);
@@ -288,7 +290,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void compteLesEntrevuesSansChargerLaListe() {
+    void compteLesEntrevuesSansChargerLaListe() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         when(entrevues.countByDateHeureEntrevueGreaterThanEqualAndDateHeureEntrevueLessThan(
                 jour.atStartOfDay(), jour.plusDays(1).atStartOfDay())).thenReturn(5L);
@@ -298,7 +300,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void listeLesContratsSelonLeSignataireSansExigerLesTroisSignatures() {
+    void listeLesContratsSelonLeSignataireSansExigerLesTroisSignatures() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         Contrat contrat = contrat(entrevue(1, "Dev junior", "2026-11-13T10:00:00").getCandidature());
         contrat.setDateSignatureEtudiant(jour.atTime(9, 0));
@@ -314,7 +316,7 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void unePeriodeSansDonneesRetourneDesListesVidesEtDesComptagesNuls() {
+    void unePeriodeSansDonneesRetourneDesListesVidesEtDesComptagesNuls() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         assertThat(service.obtenirOffresAfficheesEntre(jour, jour)).isEmpty();
         assertThat(service.obtenirOffresAvecFinAffichageApres(jour)).isEmpty();
@@ -333,9 +335,9 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void refuseLesAnneesHorsLimitesEtAccepteLaDerniereJourneeSupportee() {
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterOffresAvecFinAffichageApres(LocalDate.of(0, 1, 1)));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterOffresAvecFinAffichageApres(LocalDate.of(9999, 1, 1)));
+    void refuseLesAnneesHorsLimitesEtAccepteLaDerniereJourneeSupportee() throws ParametreDonneesInvalideException {
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterOffresAvecFinAffichageApres(LocalDate.of(0, 1, 1)));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterOffresAvecFinAffichageApres(LocalDate.of(9999, 1, 1)));
         verifyNoInteractions(offres);
         LocalDate dernierJour = LocalDate.of(9998, 12, 31);
         service.compterOffresAfficheesEntre(dernierJour, dernierJour);
@@ -344,40 +346,40 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void refuseUnSignataireAbsentPourLaListeDesContrats() {
+    void refuseUnSignataireAbsentPourLaListeDesContrats() throws ParametreDonneesInvalideException {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        assertThatIllegalArgumentException().isThrownBy(() -> service.obtenirContratsSignesEntre(null, jour, jour));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.obtenirContratsSignesEntre(null, jour, jour));
         verifyNoInteractions(contrats);
     }
 
     @Test
-    void refuseUneRechercheSansPosteOuEntrepriseValide() {
-        assertThatIllegalArgumentException().isThrownBy(() -> service.rechercherEntrevues(null, "Malinois"));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.rechercherEntrevues("Dev", " "));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.rechercherEntrevues("!", "Malinois"));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.rechercherEntrevues("Dev", "!"));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.rechercherEntrevues("x".repeat(201), "Malinois"));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.rechercherEntrevues("Dev", "x".repeat(201)));
+    void refuseUneRechercheSansPosteOuEntrepriseValide() throws ParametreDonneesInvalideException {
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.rechercherEntrevues(null, "Malinois"));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.rechercherEntrevues("Dev", " "));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.rechercherEntrevues("!", "Malinois"));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.rechercherEntrevues("Dev", "!"));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.rechercherEntrevues("x".repeat(201), "Malinois"));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.rechercherEntrevues("Dev", "x".repeat(201)));
         verifyNoInteractions(entrevues);
     }
 
     @Test
-    void rechercheSansCorrespondanceRetourneUneListeVide() {
+    void rechercheSansCorrespondanceRetourneUneListeVide() throws ParametreDonneesInvalideException {
         assertThat(service.rechercherEntrevues("Dev junior", "Malinois inc")).isEmpty();
     }
 
     @Test
-    void refuseUnIdentifiantDEntrevueInvalideOuInexistant() {
-        assertThatIllegalArgumentException().isThrownBy(() -> service.calculerTempsAvantEntrevue(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.calculerTempsAvantEntrevue(0L));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.calculerTempsAvantEntrevue(-1L));
+    void refuseUnIdentifiantDEntrevueInvalideOuInexistant() throws ParametreDonneesInvalideException {
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.calculerTempsAvantEntrevue(null));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.calculerTempsAvantEntrevue(0L));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.calculerTempsAvantEntrevue(-1L));
         verifyNoInteractions(entrevues);
-        assertThatIllegalArgumentException().isThrownBy(() -> service.calculerTempsAvantEntrevue(99L))
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.calculerTempsAvantEntrevue(99L))
                 .withMessage("chatbot.errors.interview_missing");
     }
 
     @Test
-    void distingueLeDebutExactLaFinExacteEtLeStatutTermine() {
+    void distingueLeDebutExactLaFinExacteEtLeStatutTermine() throws ParametreDonneesInvalideException {
         Entrevue entrevue = entrevue(1, "Dev junior", "2026-11-12T10:00:00");
         when(entrevues.findById(1L)).thenReturn(Optional.of(entrevue));
         assertThat(service.calculerTempsAvantEntrevue(1L).etat()).isEqualTo("EN_COURS");

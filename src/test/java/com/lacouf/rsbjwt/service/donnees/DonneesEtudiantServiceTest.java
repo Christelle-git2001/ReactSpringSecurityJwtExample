@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -127,7 +129,7 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void compteLesCvPourChaqueStatutSansChargerLesCv() {
+    void compteLesCvPourChaqueStatutSansChargerLesCv() throws ParametreDonneesInvalideException {
         for (Statut statut : Statut.values()) {
             when(cvs.countByStatut(statut)).thenReturn(2L);
             assertThat(service.compterCvParStatut(statut)).isEqualTo(2);
@@ -137,8 +139,9 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void refuseUnStatutDeCvAbsent() {
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterCvParStatut(null));
+    void refuseUnStatutDeCvAbsent() throws ParametreDonneesInvalideException {
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterCvParStatut(null))
+                .withMessage("chatbot.errors.cv_status_required");
         verifyNoInteractions(cvs);
     }
 
@@ -151,7 +154,7 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void compteLesEtudiantsDuDepartementDemande() {
+    void compteLesEtudiantsDuDepartementDemande() throws ParametreDonneesInvalideException {
         when(etudiants.countByDepartment(Departement.INFORMATIQUE)).thenReturn(8L);
 
         assertThat(service.compterEtudiantsParDepartement(Departement.INFORMATIQUE)).isEqualTo(8);
@@ -160,8 +163,9 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void refuseUnDepartementAbsent() {
-        assertThatIllegalArgumentException().isThrownBy(() -> service.compterEtudiantsParDepartement(null));
+    void refuseUnDepartementAbsent() throws ParametreDonneesInvalideException {
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.compterEtudiantsParDepartement(null))
+                .withMessage("chatbot.errors.department_required");
         verifyNoInteractions(etudiants);
     }
 
@@ -174,7 +178,7 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void retourneUniquementLesEtudiantsDuProfesseurDemande() {
+    void retourneUniquementLesEtudiantsDuProfesseurDemande() throws ParametreDonneesInvalideException {
         when(etudiants.findAllByProfesseurId(7L)).thenReturn(List.of(etudiant));
 
         assertThat(service.obtenirEtudiantsParProfesseur(7L)).extracting(dto -> dto.id()).containsExactly(1L);
@@ -182,15 +186,16 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void refuseUnIdentifiantDeProfesseurAbsentNulOuNegatif() {
-        assertThatIllegalArgumentException().isThrownBy(() -> service.obtenirEtudiantsParProfesseur(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.obtenirEtudiantsParProfesseur(0L));
-        assertThatIllegalArgumentException().isThrownBy(() -> service.obtenirEtudiantsParProfesseur(-1L));
+    void refuseUnIdentifiantDeProfesseurAbsentNulOuNegatif() throws ParametreDonneesInvalideException {
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.obtenirEtudiantsParProfesseur(null))
+                .withMessage("chatbot.errors.invalid_professor");
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.obtenirEtudiantsParProfesseur(0L));
+        assertThatExceptionOfType(ParametreDonneesInvalideException.class).isThrownBy(() -> service.obtenirEtudiantsParProfesseur(-1L));
         verifyNoInteractions(etudiants);
     }
 
     @Test
-    void retourneDesListesVidesQuandAucunEtudiantOuCvNeCorrespond() {
+    void retourneDesListesVidesQuandAucunEtudiantOuCvNeCorrespond() throws ParametreDonneesInvalideException {
         assertThat(service.obtenirEtudiantsSansCv()).isEmpty();
         assertThat(service.obtenirEtudiantsSansStage()).isEmpty();
         assertThat(service.obtenirEtudiantsAvecStage()).isEmpty();
@@ -202,7 +207,7 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
-    void retourneZeroQuandAucunEtudiantOuCvNeCorrespondAuxComptages() {
+    void retourneZeroQuandAucunEtudiantOuCvNeCorrespondAuxComptages() throws ParametreDonneesInvalideException {
         assertThat(service.compterEtudiantsInscrits()).isZero();
         assertThat(service.compterEtudiantsSansCv()).isZero();
         assertThat(service.compterEtudiantsSansStage()).isZero();
