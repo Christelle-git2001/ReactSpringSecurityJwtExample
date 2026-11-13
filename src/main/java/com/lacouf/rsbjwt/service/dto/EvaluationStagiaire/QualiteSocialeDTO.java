@@ -10,7 +10,8 @@ public record QualiteSocialeDTO(
         Long adaptationScore,
         Long critiqueAcceptationScore,
         Long respectScore,
-        Long listenScore
+        Long listenScore,
+        String commentaire
 ) {
 
     public static QualiteSocial toEntity(QualiteSocialeDTO dto) {
@@ -22,6 +23,7 @@ public record QualiteSocialeDTO(
                 .critiqueAcceptationScore(dto.critiqueAcceptationScore())
                 .respectScore(dto.respectScore())
                 .listenScore(dto.listenScore())
+                .commentaire(dto.commentaire)
                 .build();
     }
 
@@ -33,7 +35,8 @@ public record QualiteSocialeDTO(
                 entity.getAdaptationScore(),
                 entity.getCritiqueAcceptationScore(),
                 entity.getRespectScore(),
-                entity.getListenScore()
+                entity.getListenScore(),
+                entity.getCommentaire()
         );
     }
 }

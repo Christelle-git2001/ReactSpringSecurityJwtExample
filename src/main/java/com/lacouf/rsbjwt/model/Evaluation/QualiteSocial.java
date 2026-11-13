@@ -16,15 +16,17 @@ public class QualiteSocial {
     private Long critiqueAcceptationScore;
     private Long respectScore;
     private Long listenScore;
+    private String commentaire;
 
     public QualiteSocial(){}
 
-    public QualiteSocial(Long socialScore, Long teamWorkScore, Long adaptationScore, Long critiqueAcceptationScore, Long respectScore, Long listenScore){
+    public QualiteSocial(Long socialScore, Long teamWorkScore, Long adaptationScore, Long critiqueAcceptationScore, Long respectScore, Long listenScore, String commentaire){
         this.socialScore = socialScore;
         this.teamWorkScore = teamWorkScore;
         this.adaptationScore = adaptationScore;
         this.critiqueAcceptationScore = critiqueAcceptationScore;
         this.respectScore = respectScore;
         this.listenScore = listenScore;
+        this.commentaire = commentaire;
     }
 }

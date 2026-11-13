@@ -9,7 +9,8 @@ public record EvaluationProductiviteDTO(
         Long comprehensionScore,
         Long rythmeScore,
         Long prioriteScore,
-        Long echeancierScore
+        Long echeancierScore,
+        String commentaire
 ) {
 
     public static EvaluationProductivite toEntity(EvaluationProductiviteDTO dto) {
@@ -22,6 +23,7 @@ public record EvaluationProductiviteDTO(
                 .rythmeScore(dto.rythmeScore())
                 .prioriteScore(dto.prioriteScore())
                 .echeancierScore(dto.echeancierScore())
+                .commentaire(dto.commentaire)
                 .build();
     }
 
@@ -34,7 +36,8 @@ public record EvaluationProductiviteDTO(
                 entity.getComprehensionScore(),
                 entity.getRythmeScore(),
                 entity.getPrioriteScore(),
-                entity.getEcheancierScore()
+                entity.getEcheancierScore(),
+                entity.getCommentaire()
         );
     }
 }

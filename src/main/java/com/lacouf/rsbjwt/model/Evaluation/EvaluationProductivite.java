@@ -15,16 +15,18 @@ public class EvaluationProductivite {
     private Long rythmeScore;
     private Long prioriteScore;
     private Long echeancierScore;
+    private String commentaire;
 
     public EvaluationProductivite() {
 
     }
 
-    public EvaluationProductivite(Long planificationScore, Long comprehensionScore, Long rythmeScore, Long prioriteScore, Long echeancierScore) {
+    public EvaluationProductivite(Long planificationScore, Long comprehensionScore, Long rythmeScore, Long prioriteScore, Long echeancierScore, String commentaire) {
         this.planificationScore = planificationScore;
         this.comprehensionScore = comprehensionScore;
         this.rythmeScore = rythmeScore;
         this.prioriteScore = prioriteScore;
         this.echeancierScore = echeancierScore;
+        this.commentaire = commentaire;
     }
 }

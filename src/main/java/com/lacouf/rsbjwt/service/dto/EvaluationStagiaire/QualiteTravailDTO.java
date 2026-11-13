@@ -9,7 +9,8 @@ public record QualiteTravailDTO(
         Long minutieScore,
         Long checkBoxScore,
         Long perfectionnementResearchScore,
-        Long analystScore
+        Long analystScore,
+        String commentaire
 ) {
 
     public static QualiteTravail toEntity(QualiteTravailDTO dto) {
@@ -30,7 +31,8 @@ public record QualiteTravailDTO(
                 entity.getMinutieScore(),
                 entity.getCheckBoxScore(),
                 entity.getPerfectionnementResearchScore(),
-                entity.getAnalystScore()
+                entity.getAnalystScore(),
+                entity.getCommentaire()
         );
     }
 }

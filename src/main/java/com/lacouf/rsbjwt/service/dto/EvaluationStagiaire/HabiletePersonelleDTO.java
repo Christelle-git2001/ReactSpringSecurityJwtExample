@@ -10,7 +10,8 @@ public record HabiletePersonelleDTO(
         Long initiativeScore,
         Long securityScore,
         Long responsabiliteScore,
-        Long ponctuelScore
+        Long ponctuelScore,
+        String commentaire
 ) {
 
     public static HabiletePersonelle toEntity(HabiletePersonelleDTO dto) {
@@ -22,6 +23,7 @@ public record HabiletePersonelleDTO(
                 .securityScore(dto.securityScore())
                 .responsabiliteScore(dto.responsabiliteScore())
                 .ponctuelScore(dto.ponctuelScore())
+                .commentaire(dto.commentaire)
                 .build();
     }
 
@@ -33,7 +35,8 @@ public record HabiletePersonelleDTO(
                 entity.getInitiativeScore(),
                 entity.getSecurityScore(),
                 entity.getResponsabiliteScore(),
-                entity.getPonctuelScore()
+                entity.getPonctuelScore(),
+                entity.getCommentaire()
         );
     }
 }
