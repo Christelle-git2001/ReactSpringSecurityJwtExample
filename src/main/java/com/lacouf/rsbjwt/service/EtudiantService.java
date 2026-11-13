@@ -235,6 +235,13 @@ public class EtudiantService {
             CurriculumVitaeNonApprouveException, CurriculumVitaeIntrouvable {
 
         Etudiant etudiant = trouverEtudiantParEmail(email);
+        SessionDTO sessionActuelle = sessionService.getSessionActuelle();
+        boolean estInscritSessionActuelle = etudiant.getInscriptions().stream()
+                .anyMatch(i -> i.getSaison() == sessionActuelle.saison() && i.getAnnee() == sessionActuelle.annee());
+
+        if (!estInscritSessionActuelle) {
+            return new ArrayList<>();
+        }
 
         CvEtudiant cv = cvEtudiantRepository.findByEtudiant(etudiant)
                 .orElseThrow(CurriculumVitaeIntrouvable::new);
@@ -264,6 +271,7 @@ public class EtudiantService {
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
+
 
     @Transactional
     public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
