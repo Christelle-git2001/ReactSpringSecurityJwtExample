@@ -16,8 +16,8 @@ import java.util.List;
 public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long> {
     List<OffreDeStage> findByStatut(Statut statut);
     long countByStatut(Statut statut);
-    List<OffreDeStage> findByCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtAsc(LocalDateTime debut, LocalDateTime fin);
-    long countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(LocalDateTime debut, LocalDateTime fin);
+    List<OffreDeStage> findByApprovedAtGreaterThanEqualAndApprovedAtLessThanOrderByApprovedAtAsc(LocalDateTime debut, LocalDateTime fin);
+    long countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(LocalDateTime debut, LocalDateTime fin);
     List<OffreDeStage> findByDisplayEndDateAfterOrderByDisplayEndDateAsc(LocalDate date);
     long countByDisplayEndDateAfter(LocalDate date);
     List<OffreDeStage> findByDisplayEndDateBetweenOrderByDisplayEndDateAsc(LocalDate debut, LocalDate fin);

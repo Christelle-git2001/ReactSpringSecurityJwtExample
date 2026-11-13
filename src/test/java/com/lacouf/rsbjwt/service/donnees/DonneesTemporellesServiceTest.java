@@ -35,10 +35,10 @@ class DonneesTemporellesServiceTest {
     @Test
     void inclutLaJourneeEntiereSansChargerLaListePourCompter() {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        when(offres.countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(jour.atStartOfDay(), jour.plusDays(1).atStartOfDay())).thenReturn(3L);
+        when(offres.countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(jour.atStartOfDay(), jour.plusDays(1).atStartOfDay())).thenReturn(3L);
 
-        assertThat(service.compterOffresCreeesEntre(jour, jour)).isEqualTo(3);
-        verify(offres).countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(jour.atStartOfDay(), jour.plusDays(1).atStartOfDay());
+        assertThat(service.compterOffresAfficheesEntre(jour, jour)).isEqualTo(3);
+        verify(offres).countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(jour.atStartOfDay(), jour.plusDays(1).atStartOfDay());
         verifyNoMoreInteractions(offres);
     }
 
@@ -157,15 +157,21 @@ class DonneesTemporellesServiceTest {
     }
 
     @Test
-    void retourneLesOffresCreeesPendantLesJourneesIncluses() {
+    void retourneLesOffresAfficheesPendantLesJourneesIncluses() {
         LocalDate debut = LocalDate.of(2026, 11, 9);
         LocalDate fin = LocalDate.of(2026, 11, 15);
         OffreDeStage offre = offre(1);
-        when(offres.findByCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtAsc(
+        offre.setCreatedAt(debut.minusMonths(1).atStartOfDay());
+        offre.setApprovedAt(debut.atTime(14, 0));
+        when(offres.findByApprovedAtGreaterThanEqualAndApprovedAtLessThanOrderByApprovedAtAsc(
                 debut.atStartOfDay(), fin.plusDays(1).atStartOfDay())).thenReturn(List.of(offre));
 
-        assertThat(service.obtenirOffresCreeesEntre(debut, fin))
-                .singleElement().satisfies(dto -> assertThat(dto.title()).isEqualTo("Dev junior"));
+        assertThat(service.obtenirOffresAfficheesEntre(debut, fin))
+                .singleElement().satisfies(dto -> {
+                    assertThat(dto.title()).isEqualTo("Dev junior");
+                    assertThat(dto.approvedAt()).isEqualTo(debut.atTime(14, 0));
+                    assertThat(dto.createdAt()).isEqualTo(debut.minusMonths(1).atStartOfDay());
+                });
     }
 
     @Test
@@ -310,7 +316,7 @@ class DonneesTemporellesServiceTest {
     @Test
     void unePeriodeSansDonneesRetourneDesListesVidesEtDesComptagesNuls() {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        assertThat(service.obtenirOffresCreeesEntre(jour, jour)).isEmpty();
+        assertThat(service.obtenirOffresAfficheesEntre(jour, jour)).isEmpty();
         assertThat(service.obtenirOffresAvecFinAffichageApres(jour)).isEmpty();
         assertThat(service.obtenirOffresExpirantEntre(jour, jour)).isEmpty();
         assertThat(service.obtenirOffresAvecDebutStageEntre(jour, jour)).isEmpty();
@@ -318,7 +324,7 @@ class DonneesTemporellesServiceTest {
         assertThat(service.obtenirCvDeposesEntre(jour, jour)).isEmpty();
         assertThat(service.obtenirEntrevuesEntre(jour, jour)).isEmpty();
         assertThat(service.obtenirContratsSignesEntre(SignataireContrat.ETUDIANT, jour, jour)).isEmpty();
-        assertThat(service.compterOffresCreeesEntre(jour, jour)).isZero();
+        assertThat(service.compterOffresAfficheesEntre(jour, jour)).isZero();
         assertThat(service.compterOffresAvecFinAffichageApres(jour)).isZero();
         assertThat(service.compterCandidaturesDeposeesEntre(jour, jour)).isZero();
         assertThat(service.compterCvDeposesEntre(jour, jour)).isZero();
@@ -332,8 +338,8 @@ class DonneesTemporellesServiceTest {
         assertThatIllegalArgumentException().isThrownBy(() -> service.compterOffresAvecFinAffichageApres(LocalDate.of(9999, 1, 1)));
         verifyNoInteractions(offres);
         LocalDate dernierJour = LocalDate.of(9998, 12, 31);
-        service.compterOffresCreeesEntre(dernierJour, dernierJour);
-        verify(offres).countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+        service.compterOffresAfficheesEntre(dernierJour, dernierJour);
+        verify(offres).countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(
                 dernierJour.atStartOfDay(), LocalDate.of(9999, 1, 1).atStartOfDay());
     }
 

@@ -230,8 +230,11 @@ class GestionnaireServiceTest {
         when(offreDeStageRepository.save(offre))
                 .thenReturn(offre);
 
+        LocalDateTime avantApprobation = LocalDateTime.now();
         OffreDeStageDTO result =
                 gestionnaireService.approuverOffre(1L);
+        assertThat(offre.getApprovedAt()).isBetween(avantApprobation, LocalDateTime.now());
+        assertThat(result.approvedAt()).isEqualTo(offre.getApprovedAt());
         verify(applicationEventPublisher).publishEvent(new OffreStatutModifieEvent(offre.getEmployeur(), Statut.ACCEPTEE, offre));
 
         assertThat(result).isNotNull();
@@ -307,6 +310,7 @@ class GestionnaireServiceTest {
 
         OffreDeStageDTO result =
                 gestionnaireService.refuserOffre(1L, commentaire);
+        assertThat(offre.getApprovedAt()).isNull();
         verify(applicationEventPublisher).publishEvent(new OffreStatutModifieEvent(offre.getEmployeur(), Statut.REFUSEE, offre));
 
         assertThat(result).isNotNull();

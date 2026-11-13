@@ -24,29 +24,29 @@ class ChatbotTemporelToolsTest {
         assertThat(schemas).hasSize(35);
         assertThat(Arrays.stream(schemas).map(s -> s.getToolDefinition().name()).toList()).doesNotHaveDuplicates();
         assertThat(Arrays.stream(schemas).map(s -> s.getToolDefinition().name()).toList()).doesNotContain("rechercherEntrevuesPourConfirmation");
-        var offres = Arrays.stream(schemas).filter(s -> s.getToolDefinition().name().equals("consulterOffresCreeesEntre")).findFirst().orElseThrow();
+        var offres = Arrays.stream(schemas).filter(s -> s.getToolDefinition().name().equals("consulterOffresAfficheesEntre")).findFirst().orElseThrow();
         assertThat(offres.getToolDefinition().inputSchema()).contains("LISTE", "NOMBRE");
     }
 
     @Test
     void unComptageNeChargePasLaListe() {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        when(donnees.compterOffresCreeesEntre(jour, jour)).thenReturn(4L);
-        assertThat(tools.consulterOffresCreeesEntre(jour, jour, ModeResultat.NOMBRE).nombre()).isEqualTo(4);
-        verify(donnees, never()).obtenirOffresCreeesEntre(any(), any());
+        when(donnees.compterOffresAfficheesEntre(jour, jour)).thenReturn(4L);
+        assertThat(tools.consulterOffresAfficheesEntre(jour, jour, ModeResultat.NOMBRE).nombre()).isEqualTo(4);
+        verify(donnees, never()).obtenirOffresAfficheesEntre(any(), any());
     }
 
     @Test
-    void retourneLesOffresCreeesEnModeListe() {
+    void retourneLesOffresAfficheesEnModeListe() {
         LocalDate jour = LocalDate.of(2026, 11, 12);
         var offres = List.of(OffreDeStageDTO.empty());
-        when(donnees.obtenirOffresCreeesEntre(jour, jour)).thenReturn(offres);
+        when(donnees.obtenirOffresAfficheesEntre(jour, jour)).thenReturn(offres);
 
-        var resultat = tools.consulterOffresCreeesEntre(jour, jour, ModeResultat.LISTE);
+        var resultat = tools.consulterOffresAfficheesEntre(jour, jour, ModeResultat.LISTE);
 
         assertThat(resultat.nombre()).isNull();
         assertThat(resultat.resultats()).isEqualTo(offres);
-        verify(donnees, never()).compterOffresCreeesEntre(any(), any());
+        verify(donnees, never()).compterOffresAfficheesEntre(any(), any());
     }
 
     @Test
@@ -121,7 +121,7 @@ class ChatbotTemporelToolsTest {
     @Test
     void refuseUnModeAbsentAvantDeConsulterLesDonnees() {
         LocalDate jour = LocalDate.of(2026, 11, 12);
-        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterOffresCreeesEntre(jour, jour, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterOffresAfficheesEntre(jour, jour, null));
         assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterOffresAvecFinAffichageApres(jour, null));
         assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterCandidaturesDeposeesEntre(jour, jour, null));
         assertThatIllegalArgumentException().isThrownBy(() -> tools.consulterCvDeposesEntre(jour, jour, null));

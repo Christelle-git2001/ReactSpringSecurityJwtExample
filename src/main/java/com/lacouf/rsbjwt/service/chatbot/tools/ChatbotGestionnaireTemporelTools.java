@@ -26,17 +26,17 @@ public class ChatbotGestionnaireTemporelTools {
         return donnees.obtenirDateReference();
     }
 
-    @Tool(description = "Liste ou compte les offres créées entre deux jours inclus. La création n'est pas la publication après approbation. Pour aujourd'hui ou cette semaine, consulter d'abord obtenirDateReference.")
-    public ResultatDonneesDTO consulterOffresCreeesEntre(
+    @Tool(description = "Liste ou compte les offres affichées après approbation entre deux jours inclus, selon approvedAt, et non leur date de création. Inclut les offres expirées depuis. Les anciennes offres sans date d'approbation sont exclues. Pour aujourd'hui ou cette semaine, consulter d'abord obtenirDateReference.")
+    public ResultatDonneesDTO consulterOffresAfficheesEntre(
             @ToolParam(description = "Premier jour inclus, YYYY-MM-DD") LocalDate debut,
             @ToolParam(description = "Dernier jour inclus, YYYY-MM-DD") LocalDate fin,
-            @ToolParam(description = "NOMBRE pour un comptage, LISTE pour les offres") ModeResultat mode) {
+            @ToolParam(description = "NOMBRE pour un comptage, LISTE pour les offres affichées") ModeResultat mode) {
         verifierMode(mode);
-        return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterOffresCreeesEntre(debut, fin))
-                : ResultatDonneesDTO.liste(donnees.obtenirOffresCreeesEntre(debut, fin));
+        return mode == ModeResultat.NOMBRE ? ResultatDonneesDTO.nombre(donnees.compterOffresAfficheesEntre(debut, fin))
+                : ResultatDonneesDTO.liste(donnees.obtenirOffresAfficheesEntre(debut, fin));
     }
 
-    @Tool(description = "Liste ou compte les offres dont la FIN d'affichage est strictement après le jour fourni. Si la question dit seulement date d'affichage, demander si elle vise la création ou la fin d'affichage. Ne pas inventer l'année.")
+    @Tool(description = "Liste ou compte les offres dont la FIN d'affichage est strictement après le jour fourni. Pour la date de mise en ligne après approbation, utiliser consulterOffresAfficheesEntre. Ne pas inventer l'année.")
     public ResultatDonneesDTO consulterOffresAvecFinAffichageApres(
             @ToolParam(description = "Jour exclu de la recherche, YYYY-MM-DD") LocalDate date,
             @ToolParam(description = "NOMBRE ou LISTE") ModeResultat mode) {

@@ -123,6 +123,7 @@ public class GestionnaireService {
         }
 
         offre.setStatut(Statut.ACCEPTEE);
+        offre.setApprovedAt(LocalDateTime.now());
         offre.setRejectionComment(null);
 
         OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);

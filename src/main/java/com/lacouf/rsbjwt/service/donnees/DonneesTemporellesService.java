@@ -47,15 +47,15 @@ public class DonneesTemporellesService {
         this.horloge = horloge;
     }
 
-    public List<OffreDeStageDTO> obtenirOffresCreeesEntre(LocalDate debut, LocalDate fin) {
+    public List<OffreDeStageDTO> obtenirOffresAfficheesEntre(LocalDate debut, LocalDate fin) {
         verifierPeriode(debut, fin);
-        return offres.findByCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtAsc(debut.atStartOfDay(), fin.plusDays(1).atStartOfDay())
+        return offres.findByApprovedAtGreaterThanEqualAndApprovedAtLessThanOrderByApprovedAtAsc(debut.atStartOfDay(), fin.plusDays(1).atStartOfDay())
                 .stream().map(OffreDeStageDTO::of).toList();
     }
 
-    public long compterOffresCreeesEntre(LocalDate debut, LocalDate fin) {
+    public long compterOffresAfficheesEntre(LocalDate debut, LocalDate fin) {
         verifierPeriode(debut, fin);
-        return offres.countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(debut.atStartOfDay(), fin.plusDays(1).atStartOfDay());
+        return offres.countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(debut.atStartOfDay(), fin.plusDays(1).atStartOfDay());
     }
 
     public List<OffreDeStageDTO> obtenirOffresAvecFinAffichageApres(LocalDate date) {
