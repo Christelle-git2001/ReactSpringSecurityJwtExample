@@ -79,46 +79,73 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         }
 
         String emailAdrien = "Adrien@gmail.com";
+        String emailNicolas = "Nicolas.Sarkozy@gmail.com";
         String employeurEmail = "Roger.Malinois@hotmail.com";
 
-        GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8, "Pascal", "Belmont", "Pascal.Belmont@hotmail.com", "565-985-5858", "NoNeedButStillNeed", LocalDateTime.now());
-        gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+        if (gestionnaireRepository.findAll().isEmpty()) {
+            try {
+                GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8, "Pascal", "Belmont", "Pascal.Belmont@hotmail.com", "565-985-5858", "NoNeedButStillNeed", LocalDateTime.now());
+                gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+            } catch (Exception ignored) {}
+        }
 
         // Sébastien (Inscrit Automne 2026)
-        InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO("Sebastien", "Castonguay", "450-716-1217", "Sebastien.Castonguay@hotmail.com", "6565656", Departement.INFORMATIQUE.name(), "NoNeedButStillNeed", "NoNeedButStillNeed");
-        etudiantService.creerCompteEtudiant(etudiantDTO);
+        if (etudiantRepository.findByMatricule("6565656").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO("Sebastien", "Castonguay", "450-716-1217", "Sebastien.Castonguay@hotmail.com", "6565656", Departement.INFORMATIQUE.name(), "NoNeedButStillNeed", "NoNeedButStillNeed");
+                etudiantService.creerCompteEtudiant(etudiantDTO);
+            } catch (Exception ignored) {}
+        }
         ajouterInscriptionSecurisee("6565656", Saison.AUTOMNE, 2026);
 
         // Adrien (Inscrit Automne 2026)
-        InscriptionEtudiantDTO etudiantDTO2 = new InscriptionEtudiantDTO("Adrien", "Agreste", "450-716-1216", emailAdrien, "1111111", Departement.INFORMATIQUE.name(), "NoNeedButStillNeed", "NoNeedButStillNeed");
-        etudiantService.creerCompteEtudiant(etudiantDTO2);
+        if (etudiantRepository.findByMatricule("1111111").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantDTO2 = new InscriptionEtudiantDTO("Adrien", "Agreste", "450-716-1216", emailAdrien, "1111111", Departement.INFORMATIQUE.name(), "NoNeedButStillNeed", "NoNeedButStillNeed");
+                etudiantService.creerCompteEtudiant(etudiantDTO2);
+            } catch (Exception ignored) {}
+        }
         Etudiant etudiantAdrienObj = etudiantRepository.findByMatricule("1111111").orElseThrow();
         ajouterInscriptionSecurisee("1111111", Saison.AUTOMNE, 2026);
 
         // Marc (Inscrit Automne 2026)
-        InscriptionEtudiantDTO etudiantBadCvDTO = new InscriptionEtudiantDTO(
-                "Marc", "Disparu", "450-999-8888", "Marc.Disparu@hotmail.com",
-                "9999999", Departement.TRAVAIL_SOCIAL.name(), "NoNeed", "NoNeed"
-        );
-        etudiantService.creerCompteEtudiant(etudiantBadCvDTO);
+        if (etudiantRepository.findByMatricule("9999999").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantBadCvDTO = new InscriptionEtudiantDTO(
+                        "Marc", "Disparu", "450-999-8888", "Marc.Disparu@hotmail.com",
+                        "9999999", Departement.TRAVAIL_SOCIAL.name(), "NoNeed", "NoNeed"
+                );
+                etudiantService.creerCompteEtudiant(etudiantBadCvDTO);
+            } catch (Exception ignored) {}
+        }
         Etudiant etudiantBadCv = etudiantRepository.findByMatricule("9999999").orElseThrow();
         ajouterInscriptionSecurisee("9999999", Saison.AUTOMNE, 2026);
 
         // Christelle (Inscrite Automne 2026)
-        InscriptionEtudiantDTO etudiantNotifCvDTO = new InscriptionEtudiantDTO("Christelle", "Nouga", "450-716-1288", "chrisNouga@gmail.com", "6565688", Departement.INFORMATIQUE.name(), "motdepasse", "motdepasse");
-        etudiantService.creerCompteEtudiant(etudiantNotifCvDTO);
+        if (etudiantRepository.findByMatricule("6565688").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantNotifCvDTO = new InscriptionEtudiantDTO("Christelle", "Nouga", "450-716-1288", "chrisNouga@gmail.com", "6565688", Departement.INFORMATIQUE.name(), "motdepasse", "motdepasse");
+                etudiantService.creerCompteEtudiant(etudiantNotifCvDTO);
+            } catch (Exception ignored) {}
+        }
         ajouterInscriptionSecurisee("6565688", Saison.AUTOMNE, 2026);
 
         if (employeurRepository.findByEmail(employeurEmail).isEmpty()) {
-            InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "NoNeedButStillNeed", "NoNeedButStillNeed");
-            employeurService.creeCompteEmployeur(employeurDTO);
+            try {
+                InscriptionEmployeurDTO employeurDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "NoNeedButStillNeed", "NoNeedButStillNeed");
+                employeurService.creeCompteEmployeur(employeurDTO);
+            } catch (Exception ignored) {}
         }
 
-        InscriptionProfesseurDTO inscriptionProfesseurDTO = new InscriptionProfesseurDTO("Toru", "Shirazu", "Toru.Shirazu@claurendeau.qc.ca", "NoNeed", "NoNeed", "9325645", "698-585-6666", Departement.INFORMATIQUE.name());
-        InscriptionProfesseurDTO inscriptionProfesseurDTO2 = new InscriptionProfesseurDTO("Evie", "Frye", "Evie.Frye@claurendeau.qc.ca", "NoNeed", "NoNeed", "5486598", "698-585-6266", Departement.TRAVAIL_SOCIAL.name());
+        try {
+            InscriptionProfesseurDTO inscriptionProfesseurDTO = new InscriptionProfesseurDTO("Toru", "Shirazu", "Toru.Shirazu@claurendeau.qc.ca", "NoNeed", "NoNeed", "9325645", "698-585-6666", Departement.INFORMATIQUE.name());
+            professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
+        } catch (Exception ignored) {}
 
-        professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
-        professeurService.creerCompteProfesseur(inscriptionProfesseurDTO2);
+        try {
+            InscriptionProfesseurDTO inscriptionProfesseurDTO2 = new InscriptionProfesseurDTO("Evie", "Frye", "Evie.Frye@claurendeau.qc.ca", "NoNeed", "NoNeed", "5486598", "698-585-6266", Departement.TRAVAIL_SOCIAL.name());
+            professeurService.creerCompteProfesseur(inscriptionProfesseurDTO2);
+        } catch (Exception ignored) {}
 
         CreationOffreDeStageDTO dto1 = new CreationOffreDeStageDTO(
                 "Développeur Web Junior",
@@ -160,130 +187,171 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             System.out.println(e.getMessage());
         }
 
-        OffreDeStage offreDeStage = new OffreDeStage("Technician Reseaux",
-                "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
-                20.0,
-                Departement.INFORMATIQUE,
-                LocalDate.now().plusDays(5),
-                LocalDate.now().plusMonths(2),
-                LocalDate.now().minusDays(2),
-                Statut.ACCEPTEE,
-                "offre.pdf",
-                "uploads/offres",
-                employeur,
-                "",
-                LocalDateTime.now()
-        );
-        offreDeStageRepository.save(offreDeStage);
+        if (offreDeStageRepository.findAll().stream().noneMatch(o -> o.getTitle().equals("Technician Reseaux"))) {
+            OffreDeStage offreDeStage = new OffreDeStage("Technician Reseaux",
+                    "Support aux utilisateurs, diagnostic matériel, installation de logiciels.",
+                    20.0,
+                    Departement.INFORMATIQUE,
+                    LocalDate.now().plusDays(5),
+                    LocalDate.now().plusMonths(2),
+                    LocalDate.now().minusDays(2),
+                    Statut.ACCEPTEE,
+                    "offre.pdf",
+                    "uploads/offres",
+                    employeur,
+                    "",
+                    LocalDateTime.now()
+            );
+            offreDeStageRepository.save(offreDeStage);
+        }
 
-        CvEtudiant cvEtudiant = new CvEtudiant("CV_Marc_Disparu", "application/pdf", 1024L, "none", LocalDateTime.now(), etudiantBadCv);
+        if (cvEtudiantRepository.findByEtudiant(etudiantBadCv).isEmpty()) {
+            CvEtudiant cvEtudiant = new CvEtudiant("CV_Marc_Disparu", "application/pdf", 1024L, "none", LocalDateTime.now(), etudiantBadCv);
+            cvEtudiantRepository.save(cvEtudiant);
+        }
 
-        CvEtudiantDTO cvAdrien = etudiantService.televerserCv(realCvAdrien, emailAdrien);
-        gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
-        if (devWebJr != null) gestionnaireService.approuverOffre(devWebJr.id());
-        if (techSuppInfo != null) gestionnaireService.approuverOffre(techSuppInfo.id());
+        try {
+            CvEtudiantDTO cvAdrien = etudiantService.televerserCv(realCvAdrien, emailAdrien);
+            gestionnaireService.approuverCurriculumVitae(cvAdrien.id());
+        } catch (Exception ignored) {}
 
-        if (devWebJr != null) etudiantService.postuler(devWebJr.id(), emailAdrien);
-        if (techSuppInfo != null) etudiantService.postuler(techSuppInfo.id(), emailAdrien);
-        cvEtudiantRepository.save(cvEtudiant);
+        if (devWebJr != null) {
+            try { gestionnaireService.approuverOffre(devWebJr.id()); } catch (Exception ignored) {}
+            try { etudiantService.postuler(devWebJr.id(), emailAdrien); } catch (Exception ignored) {}
+        }
+        if (techSuppInfo != null) {
+            try { gestionnaireService.approuverOffre(techSuppInfo.id()); } catch (Exception ignored) {}
+            try { etudiantService.postuler(techSuppInfo.id(), emailAdrien); } catch (Exception ignored) {}
+        }
 
         // Nicolas (Inscrit Automne 2026)
-        String emailNicolas = "Nicolas.Sarkozy@gmail.com";
-        InscriptionEtudiantDTO etudiantSarkozyDTO = new InscriptionEtudiantDTO(
-                "Nicolas", "Sarkozy", "450-555-5555", emailNicolas, "2222222",
-                Departement.INFORMATIQUE.name(), "a", "a"
-        );
-        etudiantService.creerCompteEtudiant(etudiantSarkozyDTO);
+        if (etudiantRepository.findByMatricule("2222222").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantSarkozyDTO = new InscriptionEtudiantDTO(
+                        "Nicolas", "Sarkozy", "450-555-5555", emailNicolas, "2222222",
+                        Departement.INFORMATIQUE.name(), "a", "a"
+                );
+                etudiantService.creerCompteEtudiant(etudiantSarkozyDTO);
+            } catch (Exception ignored) {}
+        }
         Etudiant etudiantSarkoObj = etudiantRepository.findByMatricule("2222222").orElseThrow();
         ajouterInscriptionSecurisee("2222222", Saison.AUTOMNE, 2026);
 
-        MultipartFile realCvSarko = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantSarkoObj).getInputStream());
-
-        CvEtudiantDTO cvNicolas = etudiantService.televerserCv(realCvSarko, emailNicolas);
-        gestionnaireService.approuverCurriculumVitae(cvNicolas.id());
+        try {
+            MultipartFile realCvSarko = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantSarkoObj).getInputStream());
+            CvEtudiantDTO cvNicolas = etudiantService.televerserCv(realCvSarko, emailNicolas);
+            gestionnaireService.approuverCurriculumVitae(cvNicolas.id());
+        } catch (Exception ignored) {}
 
         if (devWebJr != null) {
-            etudiantService.postuler(devWebJr.id(), emailNicolas);
+            try { etudiantService.postuler(devWebJr.id(), emailNicolas); } catch (Exception ignored) {}
         }
 
         Candidature candidatureSarko = candidatureRepository.findAll().stream()
                 .filter(c -> c.getEtudiant().getEmail().equals(emailNicolas))
                 .findFirst()
-                .orElseThrow();
+                .orElse(null);
 
         OffreDeStageDTO finalTechSuppInfo = techSuppInfo;
         Candidature candidatureAdrien = candidatureRepository.findAll().stream()
                 .filter(c -> c.getEtudiant().getEmail().equals(emailAdrien) && finalTechSuppInfo != null && c.getOffreDeStage().getTitle().equals(finalTechSuppInfo.title()))
                 .findAny()
-                .orElseThrow();
+                .orElse(null);
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
         );
 
-        employeurService.retenirCandidaturePourEntrevue(candidatureSarko.getId());
-        employeurService.retenirCandidaturePourEntrevue(candidatureAdrien.getId());
+        if (candidatureSarko != null) {
+            try { employeurService.retenirCandidaturePourEntrevue(candidatureSarko.getId()); } catch (Exception ignored) {}
+        }
+        if (candidatureAdrien != null) {
+            try { employeurService.retenirCandidaturePourEntrevue(candidatureAdrien.getId()); } catch (Exception ignored) {}
+        }
 
-        CreationEntrevueDTO entDTO = new CreationEntrevueDTO(
-                candidatureSarko.getId(),
-                FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(3),
-                60
-        );
-        CreationEntrevueDTO entDTOAdrien = new CreationEntrevueDTO(
-                candidatureAdrien.getId(),
-                FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(3),
-                60
-        );
-        employeurService.creerConvocation(entDTO);
-        employeurService.creerConvocation(entDTOAdrien);
+        if (candidatureSarko != null && entrevueRepository.findByCandidatureId(candidatureSarko.getId()).isEmpty()) {
+            try {
+                CreationEntrevueDTO entDTO = new CreationEntrevueDTO(
+                        candidatureSarko.getId(),
+                        FormatEntrevue.EN_LIGNE,
+                        LocalDateTime.now().plusDays(3),
+                        60
+                );
+                employeurService.creerConvocation(entDTO);
+            } catch (Exception ignored) {}
+        }
+
+        if (candidatureAdrien != null && entrevueRepository.findByCandidatureId(candidatureAdrien.getId()).isEmpty()) {
+            try {
+                CreationEntrevueDTO entDTOAdrien = new CreationEntrevueDTO(
+                        candidatureAdrien.getId(),
+                        FormatEntrevue.EN_LIGNE,
+                        LocalDateTime.now().plusDays(3),
+                        60
+                );
+                employeurService.creerConvocation(entDTOAdrien);
+            } catch (Exception ignored) {}
+        }
 
         SecurityContextHolder.clearContext();
 
-        preparerStageTrouve(candidatureSarko.getId());
+        if (candidatureSarko != null) {
+            try { preparerStageTrouve(candidatureSarko.getId()); } catch (Exception ignored) {}
+        }
 
         // Juzo (Inscrit Automne 2026)
         String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
-        InscriptionEtudiantDTO etudiantJuzoDTO = new InscriptionEtudiantDTO(
-                "Juzo", "Suzuya", "450-555-5585", emailJuzoSuzuya, "3333333",
-                Departement.INFORMATIQUE.name(), "a", "a"
-        );
-        etudiantService.creerCompteEtudiant(etudiantJuzoDTO);
+        if (etudiantRepository.findByMatricule("3333333").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantJuzoDTO = new InscriptionEtudiantDTO(
+                        "Juzo", "Suzuya", "450-555-5585", emailJuzoSuzuya, "3333333",
+                        Departement.INFORMATIQUE.name(), "a", "a"
+                );
+                etudiantService.creerCompteEtudiant(etudiantJuzoDTO);
+            } catch (Exception ignored) {}
+        }
         ajouterInscriptionSecurisee("3333333", Saison.AUTOMNE, 2026);
         Etudiant etudiantJuzoObj = etudiantRepository.findByMatricule("3333333").orElseThrow();
 
-        MultipartFile realCvJuzo = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantJuzoObj).getInputStream());
-
-        CvEtudiantDTO juzoSuzuyaCvDTO = etudiantService.televerserCv(realCvJuzo, emailJuzoSuzuya);
-        gestionnaireService.approuverCurriculumVitae(juzoSuzuyaCvDTO.id());
+        try {
+            MultipartFile realCvJuzo = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantJuzoObj).getInputStream());
+            CvEtudiantDTO juzoSuzuyaCvDTO = etudiantService.televerserCv(realCvJuzo, emailJuzoSuzuya);
+            gestionnaireService.approuverCurriculumVitae(juzoSuzuyaCvDTO.id());
+        } catch (Exception ignored) {}
 
         if (techSuppInfo != null) {
-            etudiantService.postuler(techSuppInfo.id(), emailJuzoSuzuya);
+            try { etudiantService.postuler(techSuppInfo.id(), emailJuzoSuzuya); } catch (Exception ignored) {}
         }
 
         Candidature candidatureJuzo = candidatureRepository.findAll().stream()
                 .filter(c -> c.getEtudiant().getEmail().equals(emailJuzoSuzuya))
                 .findFirst()
-                .orElseThrow();
+                .orElse(null);
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
         );
 
-        employeurService.retenirCandidaturePourEntrevue(candidatureJuzo.getId());
+        if (candidatureJuzo != null) {
+            try { employeurService.retenirCandidaturePourEntrevue(candidatureJuzo.getId()); } catch (Exception ignored) {}
+            if (entrevueRepository.findByCandidatureId(candidatureJuzo.getId()).isEmpty()) {
+                try {
+                    CreationEntrevueDTO entDTOJuzo = new CreationEntrevueDTO(
+                            candidatureJuzo.getId(),
+                            FormatEntrevue.EN_LIGNE,
+                            LocalDateTime.now().plusDays(3),
+                            60
+                    );
+                    employeurService.creerConvocation(entDTOJuzo);
+                } catch (Exception ignored) {}
+            }
+        }
 
-        CreationEntrevueDTO entDTOJuzo = new CreationEntrevueDTO(
-                candidatureJuzo.getId(),
-                FormatEntrevue.EN_LIGNE,
-                LocalDateTime.now().plusDays(3),
-                60
-        );
-
-        employeurService.creerConvocation(entDTOJuzo);
         SecurityContextHolder.clearContext();
 
-        preparerStageTrouve(candidatureJuzo.getId());
+        if (candidatureJuzo != null) {
+            try { preparerStageTrouve(candidatureJuzo.getId()); } catch (Exception ignored) {}
+        }
     }
 
     private void preparerStageTrouve(Long candidatureId) {
@@ -296,10 +364,12 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         etudiant.setCandidatureStage(candidature);
         etudiantRepository.save(etudiant);
 
-        Entrevue entrevue = entrevueRepository.findByCandidatureId(candidatureId).orElseThrow();
-        entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
-        entrevue.setStatut(StatutEntrevue.TERMINEE);
-        entrevueRepository.save(entrevue);
+        Entrevue entrevue = entrevueRepository.findByCandidatureId(candidatureId).orElseGet(() -> null);
+        if (entrevue != null) {
+            entrevue.setDateHeureEntrevue(LocalDateTime.now().minusDays(1));
+            entrevue.setStatut(StatutEntrevue.TERMINEE);
+            entrevueRepository.save(entrevue);
+        }
     }
 
     private void ajouterInscriptionSecurisee(String matricule, Saison saison, int annee) {

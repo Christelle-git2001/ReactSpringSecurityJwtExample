@@ -5,9 +5,12 @@ import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.GestionnaireDTO;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.GestionnaireService;
+import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -28,6 +31,8 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
     private final EmployeurService employeurService;
     private final EtudiantRepository etudiantRepository;
     private final EtudiantService etudiantService;
+    private final ProfesseurRepository professeurRepository;
+    private final ProfesseurService professeurService;
     private final OffreDeStageRepository offreDeStageRepository;
     private final CandidatureRepository candidatureRepository;
     private final EntrevueRepository entrevueRepository;
@@ -38,12 +43,15 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final PDFService pdfService;
     private final Environment environment;
+    private final UserAppRepository userAppRepository;
 
     public Hiver2026DataInitializer(
             EmployeurRepository employeurRepository,
             EmployeurService employeurService,
             EtudiantRepository etudiantRepository,
             EtudiantService etudiantService,
+            ProfesseurRepository professeurRepository,
+            ProfesseurService professeurService,
             OffreDeStageRepository offreDeStageRepository,
             CandidatureRepository candidatureRepository,
             EntrevueRepository entrevueRepository,
@@ -53,12 +61,15 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
             InscriptionRepository inscriptionRepository,
             CvEtudiantRepository cvEtudiantRepository,
             PDFService pdfService,
-            Environment environment
+            Environment environment,
+            UserAppRepository userAppRepository
     ) {
         this.employeurRepository = employeurRepository;
         this.employeurService = employeurService;
         this.etudiantRepository = etudiantRepository;
         this.etudiantService = etudiantService;
+        this.professeurRepository = professeurRepository;
+        this.professeurService = professeurService;
         this.offreDeStageRepository = offreDeStageRepository;
         this.candidatureRepository = candidatureRepository;
         this.entrevueRepository = entrevueRepository;
@@ -69,6 +80,7 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.pdfService = pdfService;
         this.environment = environment;
+        this.userAppRepository = userAppRepository;
     }
 
     @Override
@@ -88,6 +100,14 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
     private void creerSessionHiver2026() throws Exception {
         String employeurEmail = "Roger.Malinois@hotmail.com";
 
+        // S'assurer qu'un gestionnaire existe en base pour pouvoir lier les contrats
+        if (gestionnaireRepository.findAll().isEmpty()) {
+            try {
+                GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8, "Pascal", "Belmont", "Pascal.Belmont@hotmail.com", "565-985-5858", "password", LocalDateTime.now());
+                gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+            } catch (Exception ignored) {}
+        }
+
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseGet(() -> {
             InscriptionEmployeurDTO empDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "password", "password");
             try {
@@ -95,6 +115,16 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
             return employeurRepository.findByEmail(employeurEmail).orElseThrow();
         });
+
+        // 0. Création ou récupération du professeur Toru
+        Professeur toru = professeurRepository.findByMatricule("9325645").orElseGet(() -> {
+            InscriptionProfesseurDTO profDTO = new InscriptionProfesseurDTO("Toru", "Shirazu", "Toru.Shirazu@claurendeau.qc.ca", "password", "password", "9325645", "698-585-6666", Departement.INFORMATIQUE.name());
+            try {
+                professeurService.creerCompteProfesseur(profDTO);
+            } catch (Exception ignored) {}
+            return professeurRepository.findByMatricule("9325645").orElseThrow();
+        });
+        ajouterInscriptionUtilisateurSecurise(toru.getEmail(), Saison.HIVER, 2026);
 
         // 1. Étudiants et inscriptions pour Hiver 2026
         Etudiant etudiantCharles = etudiantRepository.findByMatricule("7777777").orElseGet(() -> {
@@ -111,6 +141,16 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
         });
         ajouterInscriptionSecurisee("5555555", Saison.HIVER, 2026);
         ajouterInscriptionSecurisee("5555555", Saison.AUTOMNE, 2026);
+
+        LocalDateTime dateAssignationHiver = LocalDateTime.of(2026, 2, 5, 10, 0);
+
+        etudiantCharles.setProfesseur(toru);
+        etudiantCharles.setProfessorAssignedAt(dateAssignationHiver);
+        etudiantRepository.save(etudiantCharles);
+
+        etudiantJulie.setProfesseur(toru);
+        etudiantJulie.setProfessorAssignedAt(dateAssignationHiver);
+        etudiantRepository.save(etudiantJulie);
 
         // 2. Création et approbation des CVs pour Charles et Julie
         creerEtApprouverCv(etudiantCharles, "charles.ancien@gmail.com");
@@ -134,14 +174,20 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
         );
         OffreDeStage offreHiverSaved = offreDeStageRepository.save(offreHiver);
 
-        // 4. Candidatures directes via le builder
+        // 4. Candidatures directes via le builder (Statut STAGE_TROUVE requis pour que le contrat soit cohérent)
         Candidature candCharles = Candidature.builder()
                 .etudiant(etudiantCharles)
                 .offreDeStage(offreHiverSaved)
                 .dateCandidature(LocalDateTime.of(2026, 1, 12, 14, 0))
                 .build();
         candCharles.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candCharles);
+        candCharles = candidatureRepository.save(candCharles);
+        System.out.println(">>> ID de la candidature de Charles : " + candCharles.getId());
+
+        // Mettre à jour l'étudiant avec sa candidature de stage
+        etudiantCharles.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiantCharles.setCandidatureStage(candCharles);
+        etudiantRepository.save(etudiantCharles);
 
         Candidature candJulie = Candidature.builder()
                 .etudiant(etudiantJulie)
@@ -149,23 +195,32 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                 .dateCandidature(LocalDateTime.of(2026, 1, 13, 9, 30))
                 .build();
         candJulie.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candJulie);
+        candJulie = candidatureRepository.save(candJulie);
+        System.out.println(">>> ID de la candidature de Julie : " + candJulie.getId());
+
+        etudiantJulie.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiantJulie.setCandidatureStage(candJulie);
+        etudiantRepository.save(etudiantJulie);
 
         // 5. Entrevues directes via le repository
         Entrevue entrevueCharles = Entrevue.builder()
                 .candidature(candCharles)
                 .format(FormatEntrevue.EN_LIGNE)
                 .dateHeureEntrevue(LocalDateTime.of(2026, 2, 10, 10, 0))
+                .dateCreation(LocalDateTime.of(2026, 1, 15, 10, 0))
                 .duree(60)
                 .build();
+        entrevueCharles.setStatut(StatutEntrevue.TERMINEE);
         entrevueRepository.save(entrevueCharles);
 
         Entrevue entrevueJulie = Entrevue.builder()
                 .candidature(candJulie)
                 .format(FormatEntrevue.EN_LIGNE)
                 .dateHeureEntrevue(LocalDateTime.of(2026, 2, 10, 11, 0))
+                .dateCreation(LocalDateTime.of(2026, 1, 15, 10, 0))
                 .duree(60)
                 .build();
+        entrevueJulie.setStatut(StatutEntrevue.TERMINEE);
         entrevueRepository.save(entrevueJulie);
 
         // 6. Contrats générés et signés
@@ -173,23 +228,31 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
 
         if (gestionnaire != null) {
             // Contrat Charles (Signé par les 3 parties)
-            Contrat contratCharles = Contrat.builder()
-                    .candidature(candCharles)
-                    .gestionnaire(gestionnaire)
-                    .build();
-            contratCharles.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 15, 10, 0));
-            contratCharles.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 15, 11, 0));
-            contratCharles.setDateSignatureGestionnaire(LocalDateTime.of(2026, 2, 15, 12, 0));
-            contratRepository.save(contratCharles);
+            if (contratRepository.findByCandidatureId(candCharles.getId()).isEmpty()) {
+                Contrat contratCharles = Contrat.builder()
+                        .candidature(candCharles)
+                        .gestionnaire(gestionnaire)
+                        .build();
+                contratCharles.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 15, 10, 0));
+                contratCharles.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 15, 11, 0));
+                contratCharles.setDateSignatureGestionnaire(LocalDateTime.of(2026, 2, 15, 12, 0));
+                contratRepository.save(contratCharles);
+                candCharles.setStatut(StatutCandidature.CONTRAT_CREE);
+                candidatureRepository.save(candCharles);
+            }
 
             // Contrat Julie (Signé par l'étudiant et l'employeur)
-            Contrat contratJulie = Contrat.builder()
-                    .candidature(candJulie)
-                    .gestionnaire(gestionnaire)
-                    .build();
-            contratJulie.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 16, 14, 0));
-            contratJulie.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 16, 15, 0));
-            contratRepository.save(contratJulie);
+            if (contratRepository.findByCandidatureId(candJulie.getId()).isEmpty()) {
+                Contrat contratJulie = Contrat.builder()
+                        .candidature(candJulie)
+                        .gestionnaire(gestionnaire)
+                        .build();
+                contratJulie.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 16, 14, 0));
+                contratJulie.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 16, 15, 0));
+                contratRepository.save(contratJulie);
+                candJulie.setStatut(StatutCandidature.CONTRAT_CREE);
+                candidatureRepository.save(candJulie);
+            }
 
             System.out.println("Session Hiver 2026 initialisée avec succès !");
         }
@@ -214,6 +277,19 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
 
         if (!dejaInscrit) {
             Inscription nouvelleInscription = new Inscription(etudiant, saison, annee);
+            inscriptionRepository.save(nouvelleInscription);
+        }
+    }
+
+    private void ajouterInscriptionUtilisateurSecurise(String email, Saison saison, int annee) {
+        UserApp utilisateur = userAppRepository.findUserAppByEmail(email).orElseThrow();
+        boolean dejaInscrit = inscriptionRepository.findAll().stream()
+                .anyMatch(i -> i.getUtilisateur().getId().equals(utilisateur.getId())
+                        && i.getSaison() == saison
+                        && i.getAnnee() == annee);
+
+        if (!dejaInscrit) {
+            Inscription nouvelleInscription = new Inscription(utilisateur, saison, annee);
             inscriptionRepository.save(nouvelleInscription);
         }
     }
