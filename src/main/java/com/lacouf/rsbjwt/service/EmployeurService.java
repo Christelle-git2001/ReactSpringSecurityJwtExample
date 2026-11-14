@@ -528,6 +528,7 @@ public class EmployeurService {
     }
 
 
+
     @Transactional
     public ContratDTO signerContrat(Long contratId, String motDePasse)
             throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException, MotDePasseInvalideException{

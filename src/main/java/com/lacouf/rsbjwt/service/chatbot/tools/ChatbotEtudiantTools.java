@@ -1,4 +1,3 @@
-
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
 import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
@@ -10,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import com.lacouf.rsbjwt.Exception.CurriculumVitaeIntrouvable;
 import com.lacouf.rsbjwt.Exception.CurriculumVitaeNonApprouveException;
+import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
 
 import java.util.List;
 
