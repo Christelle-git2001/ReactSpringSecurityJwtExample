@@ -2,30 +2,26 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
-import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
-import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
-import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.lacouf.rsbjwt.model.Enum.Departement;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.lacouf.rsbjwt.repository.NotificationRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -50,11 +46,14 @@ public class EtudiantService {
     private final CandidatureRepository candidatureRepository;
     private final EntrevueRepository entrevueRepository;
     private final ContratRepository contratRepository;
+    private final InscriptionRepository inscriptionRepository;
+    private final  SessionService sessionService;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
-                           CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository, ContratRepository contratRepository) {
+                           NotificationRepository notificationRepository, CandidatureRepository candidatureRepository,
+                           EntrevueRepository entrevueRepository, ContratRepository contratRepository, InscriptionRepository inscriptionRepository, SessionService sessionService) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -64,6 +63,8 @@ public class EtudiantService {
         this.candidatureRepository = candidatureRepository;
         this.entrevueRepository = entrevueRepository;
         this.contratRepository = contratRepository;
+        this.inscriptionRepository = inscriptionRepository;
+        this.sessionService = sessionService;
     }
 
     @Transactional
@@ -81,7 +82,28 @@ public class EtudiantService {
                 .password(passwordEncoder.encode(inscriptionEtudiantDto.password()))
                 .build();
 
-        return EtudiantDTO.of(etudiantRepository.save(etudiant));
+        Etudiant etudiantSauvegarde = etudiantRepository.save(etudiant);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+        Inscription inscription = new Inscription(etudiantSauvegarde, sessionDto.saison(), sessionDto.annee());
+        inscriptionRepository.save(inscription);
+        etudiantSauvegarde.getInscriptions().add(inscription);
+
+        return EtudiantDTO.of(etudiantSauvegarde);
+    }
+
+    @Transactional
+    public void reinscrireEtudiant(String email) throws EtudiantIntrouvableException {
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+
+        boolean dejaInscrit = etudiant.getInscriptions().stream()
+                .anyMatch(i -> i.getSession() == sessionDto.saison() && i.getAnneeSession() == sessionDto.annee());
+
+        if (!dejaInscrit) {
+            Inscription nouvelleInscription = new Inscription(etudiant, sessionDto.saison(), sessionDto.annee());
+            inscriptionRepository.save(nouvelleInscription);
+            etudiant.getInscriptions().add(nouvelleInscription);
+        }
     }
 
     private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException, MatriculeNonConforme {
@@ -234,8 +256,7 @@ public class EtudiantService {
 
     @Transactional
     public CandidatureDTO postuler(Long offreId, String etudiantEmail) throws EtudiantIntrouvableException, OffreIntrouvableException,
-            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException,
-            OffreNonAutoriseeException, StageDejaTrouveException {
+            OffreDeStageIndisponibleException, CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException, OffreNonAutoriseeException, StageDejaTrouveException {
 
         Etudiant etudiant = trouverEtudiantParEmail(etudiantEmail);
 
@@ -284,7 +305,7 @@ public class EtudiantService {
     public EntrevueDTO getConvocationEtudiant(Long convocationId)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
-        actualiserStatutEtudiant(entrevue.getCandidature().getEtudiant());
+        actualiserStatutApresEntrevue(entrevue);
         return EntrevueDTO.of(entrevue);
     }
 
@@ -295,8 +316,13 @@ public class EtudiantService {
 
         List<Entrevue> entrevues = entrevueRepository
                 .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
-        actualiserStatutEtudiant(etudiant);
 
+        entrevues = sessionService.filtrerParSessionActuelle(
+                entrevues,
+                Entrevue::getDateCreation
+        );
+
+        entrevues.forEach(this::actualiserStatutApresEntrevue);
         return entrevues
                 .stream()
                 .map(EntrevueDTO::of)
@@ -321,11 +347,10 @@ public class EtudiantService {
     private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse, String motifRefus)
             throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
-        verifierActionsCandidatureAutorisees(entrevue.getCandidature());
         if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
             if (entrevue.getStatut() != reponse
                     && !(reponse == StatutEntrevue.CONFIRMEE
-                    && entrevue.getStatut() == StatutEntrevue.TERMINEE)) {
+                    && entrevue.getStatut() == StatutEntrevue.EN_ATTENTE_REPONSE)) {
                 throw new ConvocationInvalideException();
             }
         } else {
@@ -346,8 +371,17 @@ public class EtudiantService {
             entrevueRepository.save(entrevue);
             eventPublisher.publishEvent(new ConvocationRepondueEvent(entrevue));
         }
-        actualiserStatutEtudiant(entrevue.getCandidature().getEtudiant());
+        actualiserStatutApresEntrevue(entrevue);
         return ReponseConvocationDTO.of(entrevue);
+    }
+
+    private void actualiserStatutApresEntrevue(Entrevue entrevue) {
+        if (entrevue.getDateConfirmation() != null
+                && entrevue.getStatut() == StatutEntrevue.CONFIRMEE
+                && !entrevue.getDateHeureEntrevue().isAfter(LocalDateTime.now())) {
+            entrevue.setStatut(StatutEntrevue.EN_ATTENTE_REPONSE);
+            entrevueRepository.save(entrevue);
+        }
     }
 
     private Entrevue getEntrevueEtudiant(Long convocationId)
@@ -364,76 +398,21 @@ public class EtudiantService {
         return trouverEtudiantParEmail(email);
     }
 
-    @Transactional
     public List<CandidatureDTO> getCandidaturesEtudiant()
             throws EtudiantIntrouvableException {
+
         Etudiant etudiant = getEtudiantConnecte();
 
-        actualiserStatutEtudiant(etudiant);
-        return candidatureRepository.findByEtudiant(etudiant)
+        List<Candidature> candidatures =
+                candidatureRepository.findByEtudiant(etudiant);
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        Candidature::getDateCandidature
+                )
                 .stream()
-                .map(candidature -> CandidatureDTO.of(candidature,
-                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
-                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
-                                : null))
+                .map(CandidatureDTO::of)
                 .toList();
-    }
-
-    @Transactional
-    public CandidatureDTO declarerStageTrouve(Long candidatureId)
-            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
-        Etudiant etudiant = getEtudiantConnecte();
-        Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
-                .orElseThrow(CandidatureIntrouvableException::new);
-        if (etudiant.getCandidatureStage() != null) {
-            if (!etudiant.getCandidatureStage().getId().equals(candidatureId)) {
-                throw new DeclarationStageInvalideException();
-            }
-            return CandidatureDTO.of(candidature);
-        }
-        if (candidature.getStatut() != StatutCandidature.ACCEPTEE) {
-            throw new DeclarationStageInvalideException();
-        }
-        actualiserStatutEtudiant(etudiant);
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candidature);
-        etudiant.setCandidatureStage(candidature);
-        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
-        etudiantRepository.save(etudiant);
-        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
-        return CandidatureDTO.of(candidature);
-    }
-
-    @Scheduled(fixedDelay = 30000, initialDelay = 30000)
-    @Transactional
-    public void actualiserStatutsEtudiants() {
-        etudiantRepository.findAll().forEach(this::actualiserStatutEtudiant);
-    }
-
-    @Transactional
-    public void actualiserStatutEtudiant(Etudiant etudiant) {
-        List<Entrevue> entrevues = entrevueRepository
-                .findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId());
-        LocalDateTime maintenant = LocalDateTime.now();
-        boolean enAttenteReponse = false;
-        for (Entrevue entrevue : entrevues) {
-            if (actionsCandidatureDesactivees(entrevue.getCandidature())) continue;
-            if (entrevue.getStatut() == StatutEntrevue.CONFIRMEE
-                    && entrevue.getDateHeureEntrevue() != null && entrevue.getDuree() > 0
-                    && !entrevue.getDateHeureEntrevue().plusMinutes(entrevue.getDuree()).isAfter(maintenant)) {
-                entrevue.setStatut(StatutEntrevue.TERMINEE);
-                entrevueRepository.save(entrevue);
-                eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
-            }
-            if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_PLANIFIEE) continue;
-            enAttenteReponse |= entrevue.getStatut() == StatutEntrevue.TERMINEE;
-        }
-        StatutEtudiant statut = etudiant.getCandidatureStage() != null ? StatutEtudiant.STAGE_TROUVE
-                : enAttenteReponse ? StatutEtudiant.EN_ATTENTE_REPONSE : StatutEtudiant.EN_RECHERCHE;
-        if (etudiant.getStatut() != statut) {
-            etudiant.setStatut(statut);
-            etudiantRepository.save(etudiant);
-        }
     }
 
     @Transactional
@@ -565,6 +544,7 @@ public class EtudiantService {
                 ProfesseurDTO.of(professeur)
         );
     }
+
 
 
 }

@@ -5,14 +5,7 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
-import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
-import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
-import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
-import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
-import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
-import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
+import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -45,6 +38,8 @@ public class EmployeurService {
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
+    private final SessionService sessionService ;
+    private final InscriptionRepository inscriptionRepository;
     private final EtudiantService etudiantService;
 
     public EmployeurService(
@@ -53,7 +48,8 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            ContratRepository contratRepository, EtudiantService etudiantService) {
+            EntrevueRepository entrevueRepository, ContratRepository contratRepository, SessionService sessionService,
+            InscriptionRepository inscriptionRepository, EtudiantService etudiantService) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -62,16 +58,27 @@ public class EmployeurService {
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
+        this.sessionService = sessionService;
+        this.inscriptionRepository = inscriptionRepository;
         this.etudiantService = etudiantService;
     }
 
     @Transactional
-    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
-       validerInscriptionEmployeur(inscriptionEmployeurDTO);
+    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO)
+            throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+        validerInscriptionEmployeur(inscriptionEmployeurDTO);
         String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
         Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
-        Employeur employeurCreer =  employeurRepository.save(employeur);
-       return EmployeurDTO.of(employeurCreer);
+        Employeur employeurCreer = employeurRepository.save(employeur);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+        Inscription inscription = new Inscription(
+                employeurCreer,
+                sessionDto.saison(),
+                sessionDto.annee()
+        );
+        inscriptionRepository.save(inscription);
+        employeurCreer.getInscriptions().add(inscription);
+        return EmployeurDTO.of(employeurCreer);
     }
 
 
@@ -146,8 +153,12 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UserNotFoundException::new);
 
-        return employeur.getOffres()
-                .stream()
+        List<OffreDeStage> offresSession = sessionService.filtrerParSessionActuelle(
+                employeur.getOffres(),
+                OffreDeStage::getCreatedAt
+        );
+
+        return offresSession.stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -274,12 +285,14 @@ public class EmployeurService {
         List<Candidature> candidatures =
                 candidatureRepository.findByOffreDeStage_Employeur(employeur);
 
-        return candidatures
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        return candidaturesFiltrees
                 .stream()
-                .map(candidature -> CandidatureDTO.of(candidature,
-                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
-                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
-                                : null))
+                .map(CandidatureDTO::of)
                 .toList();
     }
 
@@ -333,8 +346,6 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
-
         if (convocationRepository
                 .findByCandidatureId(dto.candidatureId())
                 .isPresent()) {
@@ -363,7 +374,6 @@ public class EmployeurService {
 
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         candidatureRepository.save(candidature);
-        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
 
         eventPublisher.publishEvent(
                 new EntrevueCreeeEvent(entrevueEnregistree)
@@ -517,6 +527,7 @@ public class EmployeurService {
         }
     }
 
+
     @Transactional
     public ContratDTO signerContrat(Long contratId, String motDePasse)
             throws ContratIntrouvableException, OffreNonAutoriseeException, UtilisateurIntrouvableException, MotDePasseInvalideException{
@@ -548,7 +559,6 @@ public class EmployeurService {
         contrat.setDateSignatureEmployeur(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
-        eventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
     }
