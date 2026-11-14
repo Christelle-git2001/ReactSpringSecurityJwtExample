@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,6 +40,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
     private final EntrevueRepository entrevueRepository;
     private final PDFService pdfService;
     private final InscriptionRepository inscriptionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public CurrentSessionDataInitializer(
             GestionnaireRepository gestionnaireRepository,
@@ -54,7 +56,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             CandidatureRepository candidatureRepository,
             EntrevueRepository entrevueRepository,
             PDFService pdfService,
-            InscriptionRepository inscriptionRepository
+            InscriptionRepository inscriptionRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
@@ -70,6 +73,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         this.entrevueRepository = entrevueRepository;
         this.pdfService = pdfService;
         this.inscriptionRepository = inscriptionRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -97,6 +101,31 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
         ajouterInscriptionSecurisee("6565656", Saison.AUTOMNE, 2026);
+
+        // --- SCÉNARIO DE RÉINSCRIPTION POUR JULIE ---
+        // 1. S'assurer que Julie existe et possède son inscription de session passée (Hiver 2026)
+        if (etudiantRepository.findByMatricule("5555555").isEmpty()) {
+            Etudiant julie = Etudiant.builder()
+                    .firstName("Julie")
+                    .lastName("Reinscrite")
+                    .phoneNumber("450-444-4444")
+                    .email("julie.reinscrite@gmail.com")
+                    .matricule("5555555")
+                    .department(Departement.INFORMATIQUE)
+                    .password(passwordEncoder.encode("NoNeedButStillNeed"))
+                    .build();
+            etudiantRepository.save(julie);
+        }
+        ajouterInscriptionSecurisee("5555555", Saison.HIVER, 2026);
+
+        // 2. Déclencher la réinscription pour la session courante (Automne 2026)
+        try {
+            etudiantService.reinscrireEtudiant("julie.reinscrite@gmail.com");
+            System.out.println(">>> Réinscription de Julie effectuée avec succès !");
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la réinscription de Julie : " + e.getMessage());
+        }
+        // ---------------------------------------------
 
         // Adrien (Inscrit Automne 2026)
         if (etudiantRepository.findByMatricule("1111111").isEmpty()) {

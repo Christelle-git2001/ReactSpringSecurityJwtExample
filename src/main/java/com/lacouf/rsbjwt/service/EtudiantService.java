@@ -102,13 +102,42 @@ public class EtudiantService {
         Etudiant etudiant = trouverEtudiantParEmail(email);
         SessionDTO sessionDto = sessionService.getSessionActuelle();
 
-        boolean dejaInscrit = etudiant.getInscriptions().stream()
-                .anyMatch(i -> i.getSaison() == sessionDto.saison() && i.getAnnee() == sessionDto.annee());
+        System.out.println(">>> Tentative de réinscription pour : " + email);
+        System.out.println(">>> Session cible actuelle : " + sessionDto.saison() + " " + sessionDto.annee());
+
+        // Vérification directe en base via le repository
+        boolean dejaInscrit = inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(
+                etudiant, sessionDto.saison(), sessionDto.annee()
+        );
+
+        System.out.println(">>> Déjà inscrit en base pour cette session ? " + dejaInscrit);
 
         if (!dejaInscrit) {
+            System.out.println(">>> Exécution de la réinscription en cours...");
+
             Inscription nouvelleInscription = new Inscription(etudiant, sessionDto.saison(), sessionDto.annee());
             inscriptionRepository.save(nouvelleInscription);
-            etudiant.getInscriptions().add(nouvelleInscription);
+
+            if (etudiant.getInscriptions() != null) {
+                etudiant.getInscriptions().add(nouvelleInscription);
+            }
+
+            etudiant.setStatut(StatutEtudiant.EN_RECHERCHE);
+            etudiant.setCandidatureStage(null);
+            etudiant.setProfesseur(null);
+            etudiant.setProfessorAssignedAt(null);
+
+            cvEtudiantRepository.findByEtudiant(etudiant).ifPresent(cv -> {
+                cv.setStatut(Statut.EN_ATTENTE);
+                cv.setUploadDate(LocalDateTime.now());
+                cv.setRejectionComment(null);
+                cvEtudiantRepository.save(cv);
+            });
+
+            etudiantRepository.save(etudiant);
+            System.out.println(">>> Réinscription effectuée avec succès pour " + email);
+        } else {
+            System.out.println(">>> IGNORÉ : L'étudiant " + email + " est déjà inscrit pour la session " + sessionDto.saison() + " " + sessionDto.annee());
         }
     }
 
