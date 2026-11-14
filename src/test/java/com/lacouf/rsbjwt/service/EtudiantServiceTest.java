@@ -163,6 +163,19 @@ public class EtudiantServiceTest {
         )).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
+    private void inscrireEtudiantSessionActuelle() {
+        SessionDTO sessionActuelle = sessionService.getSessionActuelle();
+
+        Inscription inscription = new Inscription(
+                etudiant,
+                sessionActuelle.saison(),
+                sessionActuelle.annee()
+        );
+
+        etudiant.getInscriptions().add(inscription);
+    }
+
+
     @AfterEach
     void nettoyerAuthentification() {
         SecurityContextHolder.clearContext();
@@ -452,6 +465,8 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRetournerLesOffresAcceptees() throws Exception {
+        inscrireEtudiantSessionActuelle();
+
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
         offre.setTitle("Développeur Java");
@@ -491,6 +506,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRetournerListeVideQuandAucuneOffreAcceptee() throws Exception {
+        inscrireEtudiantSessionActuelle();
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
@@ -530,6 +546,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRefuserAccesAuxOffresSiCvNonApprouve() throws Exception {
+        inscrireEtudiantSessionActuelle();
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
