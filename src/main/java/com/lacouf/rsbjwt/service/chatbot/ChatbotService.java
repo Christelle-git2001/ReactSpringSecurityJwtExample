@@ -1,41 +1,72 @@
+
 package com.lacouf.rsbjwt.service.chatbot;
 
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTemporelTools;
+import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @Profile("chatbot")
 public class ChatbotService {
+
     private final ChatClient chatClient;
     private final ChatbotGestionnaireTools gestionnaireTools;
-    private final Resource promptGestionnaire;
     private final ChatbotGestionnaireTemporelTools temporels;
+    private final ChatbotEtudiantTools etudiantTools;
 
-    public ChatbotService(ChatClient chatClient, ChatbotGestionnaireTools gestionnaireTools,
-                          @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire,
-                          ChatbotGestionnaireTemporelTools temporels) {
+    private final Resource promptGestionnaire;
+    private final Resource promptEtudiant;
+
+    public ChatbotService(
+            ChatClient chatClient,
+            ChatbotGestionnaireTools gestionnaireTools,
+            ChatbotGestionnaireTemporelTools temporels,
+            ChatbotEtudiantTools etudiantTools,
+            @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire,
+            @Value("classpath:prompts/chatbot-etudiant.st") Resource promptEtudiant) {
+
         this.chatClient = chatClient;
         this.gestionnaireTools = gestionnaireTools;
-        this.promptGestionnaire = promptGestionnaire;
         this.temporels = temporels;
+        this.etudiantTools = etudiantTools;
+        this.promptGestionnaire = promptGestionnaire;
+        this.promptEtudiant = promptEtudiant;
     }
 
-    @PreAuthorize("hasAuthority('GESTIONNAIRE')")
+    @PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT')")
     public String poserQuestion(String question) {
+
         if (question == null || question.isBlank()) {
             throw new IllegalArgumentException("La question ne doit pas être vide.");
         }
 
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        boolean estGestionnaire = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("GESTIONNAIRE"));
+
+        if (estGestionnaire) {
+            return chatClient.prompt()
+                    .system(promptGestionnaire)
+                    .user(question.trim())
+                    .tools(gestionnaireTools, temporels)
+                    .call()
+                    .content();
+        }
+
         return chatClient.prompt()
-                .system(promptGestionnaire)
+                .system(promptEtudiant)
                 .user(question.trim())
-                .tools(gestionnaireTools, temporels)
+                .tools(etudiantTools)
                 .call()
                 .content();
     }

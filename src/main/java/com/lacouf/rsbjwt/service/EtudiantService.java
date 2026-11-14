@@ -15,21 +15,17 @@ import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,6 +34,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -487,5 +485,86 @@ public class EtudiantService {
             throw new ActionsCandidatureDesactiveesException();
         }
     }
+
+
+    public MonCvTeleverseDTO getMonCv() throws EtudiantIntrouvableException {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        return cvEtudiantRepository.findByEtudiant(etudiant)
+                .map(cv -> new MonCvTeleverseDTO(true, CvEtudiantDTO.of(cv)))
+                .orElseGet(() -> new MonCvTeleverseDTO(false, null));
+    }
+
+
+    public List<OffreDeStageDTO> getOffresNonPostulees()
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException,
+            CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        List<OffreDeStageDTO> offresDisponibles =
+                getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()
+                );
+
+        Set<Long> offresPostulees = candidatureRepository
+                .findByEtudiant(etudiant)
+                .stream()
+                .map(candidature -> candidature.getOffreDeStage().getId())
+                .collect(Collectors.toSet());
+
+        return offresDisponibles.stream()
+                .filter(offre -> !offresPostulees.contains(offre.id()))
+                .toList();
+    }
+
+
+    public List<OffreDeStageDTO> getNouvellesOffresDepuisDerniereVisite()
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException,
+            CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        LocalDateTime derniereVisite = etudiant.getPreviousLoginAt();
+
+        List<OffreDeStageDTO> offresDisponibles =
+                getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()
+                );
+
+        if (derniereVisite == null) {
+            return offresDisponibles.stream()
+                    .filter(offre -> offre.approvedAt() != null)
+                    .toList();
+        }
+
+        return offresDisponibles.stream()
+                .filter(offre -> offre.approvedAt() != null)
+                .filter(offre -> offre.approvedAt().isAfter(derniereVisite))
+                .toList();
+    }
+
+    public MonProfesseurAssigneDTO getMonProfesseur()
+            throws EtudiantIntrouvableException {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Professeur professeur = etudiant.getProfesseur();
+
+        if (professeur == null) {
+            return new MonProfesseurAssigneDTO(false, null);
+        }
+
+        return new MonProfesseurAssigneDTO(
+                true,
+                ProfesseurDTO.of(professeur)
+        );
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
+import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
@@ -20,6 +21,7 @@ import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -644,6 +646,25 @@ public class NotificationService {
                 .build();
 
         notificationRepository.save(notificationEtudiant);
+    }
+
+    public List<NotificationDTO> getNotificationsNonLuesEtudiant()
+            throws EtudiantIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Etudiant etudiant = etudiantRepository
+                .findByCredentialsEmail(email)
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        return notificationRepository
+                .getNotificationByDestinataire(etudiant)
+                .stream()
+                .filter(notification -> !notification.isEstLu())
+                .map(NotificationDTO::of)
+                .toList();
     }
 
 }
