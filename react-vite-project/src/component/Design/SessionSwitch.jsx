@@ -109,7 +109,7 @@ const SessionSwitch = () => {
                     const isActive = selectedSession === sessionKey;
 
                     return (
-                        <li key={sessionKey}>
+                        <li key={sessionKey} className="pb-2">
                             <button
                                 type="button"
                                 onClick={() => handleSelectSession(session)}

@@ -852,5 +852,17 @@
     "success": "Réinscription effectuée avec succès.",
     "error": "Une erreur est survenue lors de la réinscription.",
     "loading": "Réinscription en cours..."
+  },
+  "roles": {
+    "gestionnaire": "Gestionnaire",
+    "etudiant": "Étudiant",
+    "employeur": "Employeur",
+    "professeur": "Professeur"
+  },
+  "header": {
+    "actions": "Actions",
+    "preferences": "Préférences",
+    "theme": "Thème",
+    "language": "Langue"
   }
 }
