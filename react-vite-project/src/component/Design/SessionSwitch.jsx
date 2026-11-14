@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiCalendar, FiChevronDown, FiCheck } from "react-icons/fi";
 import { getSessions, getSessionActuelle } from "../../api/session.jsx";
 
 const SessionSwitch = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [sessions, setSessions] = useState([]);
     const [selectedSession, setSelectedSession] = useState(
         () => localStorage.getItem("sessionCible") || ""
@@ -45,6 +48,15 @@ const SessionSwitch = () => {
         };
     }, []);
 
+    const getHomeRoute = () => {
+        const path = location.pathname;
+        if (path.startsWith("/etudiant")) return "/etudiant";
+        if (path.startsWith("/employeur")) return "/employeur";
+        if (path.startsWith("/professeur")) return "/professeur";
+        if (path.startsWith("/gestionnaire")) return "/gestionnaire";
+        return "/";
+    };
+
     const handleSelectSession = (session) => {
         const sessionKey = `${session.saison}-${session.annee}`;
         if (sessionKey === selectedSession) return;
@@ -52,6 +64,11 @@ const SessionSwitch = () => {
         setSelectedSession(sessionKey);
         localStorage.setItem("sessionCible", sessionKey);
         window.dispatchEvent(new CustomEvent("sessionChanged", { detail: sessionKey }));
+
+        const homeRoute = getHomeRoute();
+        if (location.pathname !== homeRoute) {
+            navigate(homeRoute);
+        }
     };
 
     const formatSessionLabel = (saison, annee) => {
