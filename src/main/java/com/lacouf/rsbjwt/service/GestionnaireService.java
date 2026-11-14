@@ -46,10 +46,11 @@ public class GestionnaireService {
     private final ProfesseurRepository professeurRepository;
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
+    private final SessionService sessionService;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -63,6 +64,7 @@ public class GestionnaireService {
         this.candidatureRepository = candidatureRepository;
         this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
+        this.sessionService = sessionService;
     }
 
     @Transactional
@@ -97,16 +99,18 @@ public class GestionnaireService {
     }
 
     public List<OffreDeStageDTO> getOffresEnAttente() {
-        return offreDeStageRepository
-                .findByStatut(Statut.EN_ATTENTE)
+        List<OffreDeStage> offres = offreDeStageRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
 
     public List<OffreDeStageDTO> getToutesLesOffres() {
-        return offreDeStageRepository
-                .findAll()
+        List<OffreDeStage> offres = offreDeStageRepository.findAll();
+
+        return sessionService.filtrerParSessionActuelle(offres, OffreDeStage::getCreatedAt)
                 .stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
@@ -160,8 +164,6 @@ public class GestionnaireService {
         offre.setRejectionComment(commentaire);
 
         OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
-        applicationEventPublisher.publishEvent(new OffreStatutModifieEvent(
-                offreEnregistree.getEmployeur(), Statut.REFUSEE, offreEnregistree));
 
         applicationEventPublisher.publishEvent(
                 new OffreSupprimerSoNotificationGestionnaireEvent(
@@ -173,7 +175,9 @@ public class GestionnaireService {
     }
 
     public List<CvEtudiantDTO> getCurriculumVitaeEnAttente(){
-        return cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)
+        List<CvEtudiant> cvs = cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(cvs, CvEtudiant::getUploadDate)
                 .stream()
                 .map(CvEtudiantDTO::of)
                 .toList();
@@ -227,7 +231,9 @@ public class GestionnaireService {
     }
 
     public List<CvEtudiantDTO> getTousLesCvs() {
-        return cvEtudiantRepository.findAll()
+        List<CvEtudiant> cvs = cvEtudiantRepository.findAll();
+
+        return sessionService.filtrerParSessionActuelle(cvs, CvEtudiant::getUploadDate)
                 .stream()
                 .map(CvEtudiantDTO::of)
                 .toList();
@@ -322,8 +328,10 @@ public class GestionnaireService {
     }
 
     public List<EtudiantDTO> getAllEtudiants() {
-        return etudiantRepository.findAll()
-                .stream()
+        List<Etudiant> tousLesEtudiants = etudiantRepository.findAll();
+        List<Etudiant> etudiantsInscrits = sessionService.filtrerUtilisateursParSessionActuelle(tousLesEtudiants);
+
+        return etudiantsInscrits.stream()
                 .map(EtudiantDTO::of)
                 .toList();
     }
@@ -412,12 +420,13 @@ public class GestionnaireService {
     }
 
     public List<CandidatureDTO> getCandidaturesByStatus(String status) throws StatutCandidatureInvalideException {
-        return  candidatureRepository.findByStatut(normaliserStatus(status))
-                .stream()
-                .map(candidature -> CandidatureDTO.of(candidature,
-                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
-                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
-                                : null))
+        List<Candidature> candidatures = candidatureRepository.findByStatut(normaliserStatus(status));
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                ).stream()
+                .map(CandidatureDTO::of)
                 .toList();
     }
 

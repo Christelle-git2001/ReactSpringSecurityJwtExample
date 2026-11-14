@@ -103,7 +103,9 @@ public class NotificationServiceTest {
     @Test
     void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(20L);
         Entrevue entrevue = Entrevue.builder().candidature(candidature)
                 .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
@@ -146,7 +148,9 @@ public class NotificationServiceTest {
     @Test
     void doitNotifierLEmployeurDuRefusDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(20L);
         Entrevue entrevue = Entrevue.builder().candidature(candidature)
                 .dateHeureEntrevue(LocalDateTime.now().plusDays(1)).build();
@@ -187,7 +191,9 @@ public class NotificationServiceTest {
         offre.setId(20L);
         offre.setTitle("Developpeur Java");
         offre.setEmployeur(employeur);
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = Candidature.builder()
+                .offreDeStage(offre)
+                .etudiant(etudiant).build();
         candidature.setId(30L);
         notificationEmployeur.setVariables(Map.of(
                 VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
@@ -775,7 +781,7 @@ public class NotificationServiceTest {
     void doitNotifierLEtudiantDeLAcceptationDeSaCandidature() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         offre.setId(10L);
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         Notification reponse = notificationCandidature(NotificationType.CONVOCATION_ACCEPTEE, "20");
         when(notificationRepository.getNotificationByDestinataire(employeur)).thenReturn(List.of(reponse));
@@ -800,7 +806,7 @@ public class NotificationServiceTest {
     void doitNotifierLEtudiantDuRefusDeSaCandidature() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         offre.setId(10L);
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         Notification reponse = notificationCandidature(NotificationType.CONVOCATION_REFUSEE, "20");
         when(notificationRepository.getNotificationByDestinataire(employeur)).thenReturn(List.of(reponse));
@@ -826,7 +832,7 @@ public class NotificationServiceTest {
     void doitNotifierLesDeuxSignatairesQuandLeContratEstCree() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         offre.setId(10L);
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         Contrat contrat = Contrat.builder().candidature(candidature).build();
         contrat.setId(30L);
@@ -890,7 +896,7 @@ public class NotificationServiceTest {
 
     private Contrat contratAvecDeuxSignatures() {
         Candidature candidature = new Candidature(etudiant,
-                OffreDeStage.builder().title("Stage Java").employeur(employeur).build());
+                OffreDeStage.builder().title("Stage Java").employeur(employeur).build(), LocalDateTime.now());
         candidature.setId(20L);
         Contrat contrat = Contrat.builder().candidature(candidature).build();
         contrat.setDateSignatureEtudiant(LocalDateTime.now());
@@ -901,7 +907,7 @@ public class NotificationServiceTest {
     @Test
     void doitInviterLeGestionnaireADemarrerLeContratQuandUnStageEstTrouve() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
 
@@ -920,7 +926,7 @@ public class NotificationServiceTest {
     @Test
     void doitNotifierLEmployeurDuStageChoisiParLEtudiant() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         when(notificationRepository.save(any(Notification.class))).thenAnswer(invocation -> {
             Notification notification = invocation.getArgument(0);
@@ -996,7 +1002,7 @@ public class NotificationServiceTest {
     @Test
     void doitRetirerLesNotificationsDesCandidaturesFigeesApresLeStageTrouve() {
         Candidature stage = contratAvecDeuxSignatures().getCandidature();
-        Candidature autreCandidature = new Candidature(etudiant, stage.getOffreDeStage());
+        Candidature autreCandidature = new Candidature(etudiant, stage.getOffreDeStage(), LocalDateTime.now());
         autreCandidature.setId(21L);
         Notification convocation = notificationCandidature(NotificationType.CONVOCATION_ENTREVUE, "21");
         Notification acceptation = notificationCandidature(NotificationType.CANDIDATURE_ACCEPTEE, "20");

@@ -2,13 +2,7 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
@@ -82,6 +76,12 @@ public class EtudiantServiceTest {
 
     @Mock ContratRepository contratRepository;
 
+    @Mock
+    private SessionService sessionService;
+
+    @Mock
+    private InscriptionRepository inscriptionRepository;
+
     @TempDir
     Path dossierCvTest;
 
@@ -136,7 +136,12 @@ public class EtudiantServiceTest {
         offre.setTitle("Stage informatique");
         offre.setEmployeur(employeur);
 
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(
+                etudiant,
+                offre,
+                LocalDateTime.now()
+        );
+
         candidature.setId(20L);
 
         entrevue = Entrevue.builder()
@@ -146,7 +151,30 @@ public class EtudiantServiceTest {
                 .dateCreation(LocalDateTime.now())
                 .build();
         entrevue.setId(30L);
+
+        lenient().when(sessionService.getSessionActuelle())
+                .thenReturn(new SessionDTO(Saison.HIVER,
+                        LocalDate.now().getYear()
+                ));
+
+        lenient().when(sessionService.filtrerParSessionActuelle(
+                anyList(),
+                any()
+        )).thenAnswer(invocation -> invocation.getArgument(0));
     }
+
+    private void inscrireEtudiantSessionActuelle() {
+        SessionDTO sessionActuelle = sessionService.getSessionActuelle();
+
+        Inscription inscription = new Inscription(
+                etudiant,
+                sessionActuelle.saison(),
+                sessionActuelle.annee()
+        );
+
+        etudiant.getInscriptions().add(inscription);
+    }
+
 
     @AfterEach
     void nettoyerAuthentification() {
@@ -437,6 +465,8 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRetournerLesOffresAcceptees() throws Exception {
+        inscrireEtudiantSessionActuelle();
+
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
         offre.setTitle("Développeur Java");
@@ -476,6 +506,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRetournerListeVideQuandAucuneOffreAcceptee() throws Exception {
+        inscrireEtudiantSessionActuelle();
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
@@ -515,6 +546,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitRefuserAccesAuxOffresSiCvNonApprouve() throws Exception {
+        inscrireEtudiantSessionActuelle();
 
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
                 .thenReturn(Optional.of(etudiant));
@@ -589,7 +621,11 @@ public class EtudiantServiceTest {
         OffreDeStage offre = new OffreDeStage();
         offre.setId(10L);
 
-        Candidature candidature = new Candidature(etudiant, offre);
+        Candidature candidature = new Candidature(
+                etudiant,
+                offre,
+                LocalDateTime.now()
+        );
         candidature.setId(1L);
         offre.setEmployeur(employeur);
 
@@ -1034,7 +1070,7 @@ public class EtudiantServiceTest {
 
     @Test
     void doitResterEnRechercheAvantUneEntrevueFuture() {
-        Candidature candidature = new Candidature(etudiant, new OffreDeStage());
+        Candidature candidature = new Candidature(etudiant, new OffreDeStage(), LocalDateTime.now());
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
 
         Entrevue entrevueAConfirmer = Entrevue.builder()
@@ -1335,7 +1371,7 @@ public class EtudiantServiceTest {
     @Test
     void contratSigneSeulementApresLesTroisSignatures() throws Exception {
         for (int signatureManquante = 0; signatureManquante <= 4; signatureManquante++) {
-            Candidature candidature = new Candidature(etudiant, new OffreDeStage());
+            Candidature candidature = new Candidature(etudiant, new OffreDeStage(), LocalDateTime.now());
             candidature.setId(20L);
             candidature.setStatut(StatutCandidature.CONTRAT_CREE);
 
@@ -1386,7 +1422,7 @@ public class EtudiantServiceTest {
         Etudiant autreEtudiant = new Etudiant();
         autreEtudiant.setId(99L);
         Contrat contrat = Contrat.builder()
-                .candidature(new Candidature(autreEtudiant, new OffreDeStage())).build();
+                .candidature(new Candidature(autreEtudiant, new OffreDeStage(), LocalDateTime.now())).build();
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(contratRepository.findById(1L)).thenReturn(Optional.of(contrat));
 
