@@ -230,7 +230,7 @@ function NextAction({
 
         if (role === Role.EMPLOYEUR) {
 
-            if (statutActuel === "CONTRAT_CREE" && stageTermine) {
+            if (statutActuel === "CONTRAT_CREE") {
                 return evaluationSoumise
                     ? { description: t("evaluation.success"), buttonText: null, onClick: null, disabled: false }
                     : {
