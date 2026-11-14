@@ -78,7 +78,7 @@ function Header({ sidebarOpen, user }) {
 
                 <div className="text-[#00CCCB] font-semibold flex items-center gap-2 shrink-0">
                     <img src={logo} alt="logo" className="h-8 w-8" />
-                    <span className="hidden sm:inline text-white">IKey</span>
+                    <span className="hidden sm:inline">IKey</span>
                 </div>
 
                 {user?.isLoggedIn && (
