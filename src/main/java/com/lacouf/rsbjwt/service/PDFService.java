@@ -306,7 +306,7 @@ public class PDFService {
         return new ByteArrayResource(outputStream.toByteArray());
     }
 
-    public Resource createEvaluationStagiaire(String langue, Long candidatureId) throws IOException, CandidatureIntrouvableException, EvaluationStagiaireIntrouvable {
+    public Resource createEvaluationStagiaire(String langue, Long candidatureId) throws IOException, EvaluationStagiaireIntrouvable {
 
         EvaluationStagiaire evaluationStagiaire = evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(candidatureId).orElseThrow(EvaluationStagiaireIntrouvable::new);
         Candidature candidature = evaluationStagiaire.getCandidature();
