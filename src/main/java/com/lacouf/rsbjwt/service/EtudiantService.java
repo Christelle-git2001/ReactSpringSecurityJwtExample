@@ -100,21 +100,23 @@ public class EtudiantService {
     @Transactional
     public void reinscrireEtudiant(String email) throws EtudiantIntrouvableException {
         Etudiant etudiant = trouverEtudiantParEmail(email);
+        executerReinscription(etudiant);
+    }
+
+    @Transactional
+    public void reinscrireEtudiant() throws EtudiantIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+        executerReinscription(etudiant);
+    }
+
+    private void executerReinscription(Etudiant etudiant) {
         SessionDTO sessionDto = sessionService.getSessionActuelle();
-
-        System.out.println(">>> Tentative de réinscription pour : " + email);
-        System.out.println(">>> Session cible actuelle : " + sessionDto.saison() + " " + sessionDto.annee());
-
-        // Vérification directe en base via le repository
         boolean dejaInscrit = inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(
                 etudiant, sessionDto.saison(), sessionDto.annee()
         );
 
-        System.out.println(">>> Déjà inscrit en base pour cette session ? " + dejaInscrit);
-
         if (!dejaInscrit) {
-            System.out.println(">>> Exécution de la réinscription en cours...");
-
             Inscription nouvelleInscription = new Inscription(etudiant, sessionDto.saison(), sessionDto.annee());
             inscriptionRepository.save(nouvelleInscription);
 
@@ -135,9 +137,6 @@ public class EtudiantService {
             });
 
             etudiantRepository.save(etudiant);
-            System.out.println(">>> Réinscription effectuée avec succès pour " + email);
-        } else {
-            System.out.println(">>> IGNORÉ : L'étudiant " + email + " est déjà inscrit pour la session " + sessionDto.saison() + " " + sessionDto.annee());
         }
     }
 

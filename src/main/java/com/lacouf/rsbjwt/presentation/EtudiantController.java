@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +33,12 @@ public class EtudiantController {
     public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException, MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException, MatriculeNonConforme {
         EtudiantDTO etudiantDto = etudiantService.creerCompteEtudiant(inscriptionEtudiantDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(etudiantDto);
+    }
+
+    @PostMapping("/reinscription")
+    public ResponseEntity<Void> reinscrireEtudiant() throws EtudiantIntrouvableException {
+            etudiantService.reinscrireEtudiant();
+            return ResponseEntity.ok().build();
     }
 
     @PostMapping("/cv")
