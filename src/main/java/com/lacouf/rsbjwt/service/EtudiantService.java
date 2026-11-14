@@ -103,6 +103,17 @@ public class EtudiantService {
         executerReinscription(etudiant);
     }
 
+    @Transactional(readOnly = true)
+    public List<InscriptionDTO> getInscriptionsEtudiant() throws EtudiantIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Etudiant etudiant = trouverEtudiantParEmail(email);
+
+        return inscriptionRepository.findByUtilisateur(etudiant)
+                .stream()
+                .map(InscriptionDTO::of)
+                .toList();
+    }
+
     @Transactional
     public void reinscrireEtudiant() throws EtudiantIntrouvableException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -41,6 +41,16 @@ public class EtudiantController {
             return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/inscriptions")
+    public ResponseEntity<List<InscriptionDTO>> getMesInscriptions() {
+        try {
+            List<InscriptionDTO> inscriptions = etudiantService.getInscriptionsEtudiant();
+            return ResponseEntity.ok(inscriptions);
+        } catch (EtudiantIntrouvableException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/cv")
     public ResponseEntity<CvEtudiantDTO> televerserCv(@RequestParam("file") MultipartFile file, Authentication authentication)
             throws FichierCorrompuException, FichierTropVolumineuxException, FichierTypeInvalideException,
