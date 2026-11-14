@@ -8,6 +8,27 @@ export async function inscrireEtudiant(etudiant) {
   });
 }
 
+export async function reinscrireEtudiant() {
+  const token = getToken();
+  return fetchJson("/etudiant/reinscription", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+}
+
+export async function obtenirInscriptionsEtudiant() {
+  const token = getToken();
+  return fetchJson("/etudiant/inscriptions", {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    ignoreSession: true
+  });
+}
+
 export async function televerserCV(file) {
   const formData = new FormData();
   formData.append("file", file);

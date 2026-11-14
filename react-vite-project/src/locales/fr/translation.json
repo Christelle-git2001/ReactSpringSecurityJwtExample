@@ -846,5 +846,11 @@
       "HIVER": "Hiver",
       "ETE": "Été"
     }
+  },
+  "reinscription": {
+    "button": "Se réinscrire",
+    "success": "Réinscription effectuée avec succès.",
+    "error": "Une erreur est survenue lors de la réinscription.",
+    "loading": "Réinscription en cours..."
   }
 }

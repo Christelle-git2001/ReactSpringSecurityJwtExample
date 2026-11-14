@@ -10,6 +10,7 @@ import Notification from "../../Notification/Notification.jsx";
 import { getNotifications } from "../../../api/notification.jsx";
 import {useNotificationTrigger} from "../../Notification/UtilNotification.jsx";
 import { FiUser, FiBriefcase,FiUserCheck,FiClipboard } from "react-icons/fi";
+import ReinscriptionButton from "../Buttons/ReinscriptionButton.jsx";
 
 const ROLES_AVEC_NOTIFICATIONS = ["GESTIONNAIRE", "ETUDIANT", "EMPLOYEUR", "PROFESSEUR"];
 
@@ -118,6 +119,7 @@ function Header({ sidebarOpen, user }) {
 
             <div className="fixed top-4 right-4 z-50">
                 <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+                    <ReinscriptionButton user={user} />
                     {peutRecevoir && (
                         <Notification
                             notifications={notifications}

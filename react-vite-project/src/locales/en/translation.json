@@ -845,5 +845,11 @@
       "HIVER": "Winter",
       "ETE": "Summer"
     }
+  },
+  "reinscription": {
+    "button": "Re-enroll",
+    "success": "Re-enrollment completed successfully.",
+    "error": "An error occurred during re-enrollment.",
+    "loading": "Re-enrolling..."
   }
 }

@@ -5,5 +5,5 @@ export async function getSessions() {
 }
 
 export async function getSessionActuelle() {
-    return await fetchJson("/session/actuelle");
+    return await fetchJson("/session/actuelle", { ignoreSession: true });
 }
