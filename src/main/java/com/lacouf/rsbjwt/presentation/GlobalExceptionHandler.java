@@ -318,4 +318,12 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(EvaluationStagiaireIntrouvable.class)
+    public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
+            EvaluationStagiaireIntrouvable e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }

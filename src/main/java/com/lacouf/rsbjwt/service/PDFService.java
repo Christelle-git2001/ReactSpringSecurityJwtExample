@@ -3,15 +3,21 @@ package com.lacouf.rsbjwt.service;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
-import com.itextpdf.layout.properties.AreaBreakType;
-import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.*;
+import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
+import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.model.*;
+import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
+import com.lacouf.rsbjwt.model.Evaluation.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.EvaluationStagiaireDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,19 +32,22 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 @Service
 @Transactional(readOnly = true)
 public class PDFService {
     private final String FRANCAIS = "fr";
     private final ContratRepository contratRepository;
+    private final int NB_COLUMN_EVALUATION = 5;
+    private final CandidatureRepository candidatureRepository;
+    private final EvaluationStagiaireRepository evaluationStagiaireRepository;
 
-    public PDFService(ContratRepository contratRepository) {
+    public PDFService(ContratRepository contratRepository, CandidatureRepository candidatureRepository, EvaluationStagiaireRepository evaluationStagiaireRepository) {
         this.contratRepository = contratRepository;
+        this.candidatureRepository = candidatureRepository;
+        this.evaluationStagiaireRepository = evaluationStagiaireRepository;
     }
 
     private Paragraph addTitre(String cleDeTraduction, int fontSize, ResourceBundle messages) {
@@ -295,5 +304,521 @@ public class PDFService {
         }
 
         return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+    public Resource createEvaluationStagiaire(String langue, Long candidatureId) throws IOException, CandidatureIntrouvableException, EvaluationStagiaireIntrouvable {
+
+        EvaluationStagiaire evaluationStagiaire = evaluationStagiaireRepository.findById(candidatureId).orElseThrow(EvaluationStagiaireIntrouvable::new);
+        Candidature candidature = evaluationStagiaire.getCandidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        Professeur professeur = etudiant.getProfesseur();
+        OffreDeStage offreDeStage = candidature.getOffreDeStage();
+        Employeur employeur = offreDeStage.getEmployeur();
+        SuperviseurInfo superviseurInfo = evaluationStagiaire.getSuperviseur();
+
+        EvaluationProductivite evaluationProductivite = evaluationStagiaire.getEvaluationProductivite();
+        QualiteTravail qualiteTravail = evaluationStagiaire.getQualiteTravail();
+        QualiteSocial qualiteSocial = evaluationStagiaire.getQualiteSociale();
+        HabiletePersonelle habiletePersonelle = evaluationStagiaire.getHabiletePersonelle();
+        AppreciationGlobal appreciationGlobal = evaluationStagiaire.getAppreciationGlobal();
+
+
+
+        Locale locale = new Locale(langue != null ? langue : FRANCAIS);
+        ResourceBundle messages = ResourceBundle.getBundle("i18n.messages", locale);
+
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try(
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+        ) {
+            int sectionNumber = 1;
+
+            document.add(addDoubleTextTable("application.titre", "employeur_evaluation.ATE", messages).setMarginBottom(15));
+            document.add(addTitre("employeur_evaluation.titre", 20, messages).setMarginBottom(15));
+
+            LinkedHashMap<String, String> clefDeTraductionTab = buildInformationMap(etudiant, employeur, superviseurInfo);
+            document.add(addInformationBox(clefDeTraductionTab, messages));
+            document.add(addCenteredParagraph("employeur_evaluation.behaviour_instruction", messages).setBold().setMarginTop(20f).setMarginBottom(20f));
+
+            LinkedHashMap<String, String> criteriaProduction = mapToCriteriaMap(
+                    "productivite",
+                    evaluationProductivite.getPlanificationScore(),
+                    evaluationProductivite.getComprehensionScore(),
+                    evaluationProductivite.getRythmeScore(),
+                    evaluationProductivite.getPrioriteScore(),
+                    evaluationProductivite.getEcheancierScore()
+                    );
+            String commentaire = evaluationProductivite.getCommentaire();
+            document.add(addEvaluationBoxFiveChecks(sectionNumber, "productivite_titre", "productivite_subtitle", criteriaProduction, commentaire, messages).setMarginBottom(15f));
+            document.add(new Paragraph(messages.getString("evaluation.N/A_meaning")).setBold());
+
+            sectionNumber += 1;
+            LinkedHashMap<String, String> criteriaQualiteTravail = mapToCriteriaMap(
+                    "qualite_travail",
+                    qualiteTravail.getCompleteTaskScore(),
+                    qualiteTravail.getMinutieScore(),
+                    qualiteTravail.getCheckBoxScore(),
+                    qualiteTravail.getPerfectionnementResearchScore(),
+                    qualiteTravail.getAnalystScore()
+            );
+            commentaire = qualiteTravail.getCommentaire();
+            document.add(addEvaluationBoxFiveChecks(sectionNumber, "qualite_travail_titre", "qualite_travail_subtitle", criteriaQualiteTravail, commentaire, messages).setMarginBottom(15f));
+            document.add(new Paragraph(messages.getString("evaluation.N/A_meaning")).setBold());
+
+            sectionNumber += 1;
+            LinkedHashMap<String, String> criteriaQualiteSocial = mapToCriteriaMap(
+                    "qualite_social",
+                    qualiteSocial.getSocialScore(),
+                    qualiteSocial.getTeamWorkScore(),
+                    qualiteSocial.getAdaptationScore(),
+                    qualiteSocial.getCritiqueAcceptationScore(),
+                    qualiteSocial.getRespectScore(),
+                    qualiteSocial.getListenScore()
+            );
+            commentaire = qualiteSocial.getCommentaire();
+            document.add(addEvaluationBoxFiveChecks(sectionNumber, "qualite_social_titre", "qualite_social_subtitle", criteriaQualiteSocial, commentaire, messages).setMarginBottom(15f));
+            document.add(new Paragraph(messages.getString("evaluation.N/A_meaning")).setBold());
+
+            sectionNumber += 1;
+            LinkedHashMap<String, String> criteriaHabiletePersonelle = mapToCriteriaMap(
+                    "habilete_personnelle",
+                    habiletePersonelle.getMotivationScore(),
+                    habiletePersonelle.getTellIdeaScore(),
+                    habiletePersonelle.getInitiativeScore(),
+                    habiletePersonelle.getSecurityScore(),
+                    habiletePersonelle.getResponsabiliteScore(),
+                    habiletePersonelle.getPonctuelScore()
+            );
+            commentaire = habiletePersonelle.getCommentaire();
+
+            document.add(addEvaluationBoxFiveChecks(sectionNumber, "habilete_personnelle_titre", "habilete_personnelle_subtitle", criteriaHabiletePersonelle, commentaire, messages).setMarginBottom(15f));
+            document.add(new Paragraph(messages.getString("evaluation.N/A_meaning")).setBold());
+            document.add(addEvaluationBoxGlobale("appreciation_globale.titre", String.valueOf(appreciationGlobal.getAttenteEmployeurScore()), appreciationGlobal.getDescriptionAppreciation(), appreciationGlobal.getDiscussionAvecStagiaire(), messages).setMarginBottom(15f));
+            document.add(addHeuresEncadrementBox(String.valueOf(appreciationGlobal.getSupervisionTime()), messages).setMarginBottom(15f));
+            document.add(addSectionFinaleBox(appreciationGlobal.getRenewExperience(), appreciationGlobal.getExperienceSuffisante(), superviseurInfo.getFirstName() + " " + superviseurInfo.getLastName(), superviseurInfo.getFonction(), LocalDateTime.now(), messages).setMarginBottom(15f));
+            document.add(addReturnFormBox(professeur, messages));
+            document.add(addFooterInstitutionnel(messages));
+        }
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+    private LinkedHashMap<String, String> mapToCriteriaMap(String prefix, Long... scores) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        char suffix = 'a';
+        for (Long score : scores) {
+            String key = prefix + "_" + suffix;
+            String value = (score == null || score == 0) ? "N/A" : String.valueOf(score);
+            map.put(key, value);
+            suffix++;
+        }
+        return map;
+    }
+
+    private LinkedHashMap<String, String> buildInformationMap(Etudiant etudiant, Employeur employeur, SuperviseurInfo superviseur) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("etudiant_nom", etudiant.getFirstName() + " " + etudiant.getLastName());
+        map.put("etudiant_programme", etudiant.getDepartment().getLabel());
+        map.put("entreprise_nom", employeur.getBusinessName());
+        map.put("superviseur_nom", superviseur.getFirstName() + " " + superviseur.getLastName());
+        map.put("superviseur_fonction", superviseur.getFonction());
+        map.put("superviseur_telephone", superviseur.getPhone());
+        return map;
+    }
+
+
+
+    private Table addDoubleTextTable(String cleDeTraductionText1, String cleDeTraductionText2, ResourceBundle messages){
+        Table table = new Table(UnitValue.createPercentArray(new float[]{50, 50}));
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+
+        Cell cellLeft = new Cell().add(new Paragraph(messages.getString(cleDeTraductionText1)));
+        cellLeft.setTextAlignment(TextAlignment.LEFT);
+        cellLeft.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+        cellLeft.setBold();
+        cellLeft.setFontSize(15);
+        table.addCell(cellLeft);
+
+        Cell cellRight = new Cell().add(new Paragraph(messages.getString(cleDeTraductionText2)));
+        cellRight.setTextAlignment(TextAlignment.RIGHT);
+        cellRight.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+        cellRight.setBold();
+        cellRight.setFontSize(15);
+        table.addCell(cellRight);
+
+        return table;
+    }
+
+    private Table addInformationBox(Map<String,String> clefDeTraductionTab, ResourceBundle messages){
+        Table table = new Table(1).setBorder(new SolidBorder(1)).setWidth(UnitValue.createPercentValue(100));
+        clefDeTraductionTab.forEach((key,value) -> {
+            Text textKey = new Text(messages.getString(key) + " : ");
+            textKey.setBold();
+            Text textValue = new Text(value + " ");
+            Paragraph paragraph = new Paragraph(textKey).add(textValue);
+            paragraph.addTabStops(new TabStop(480f, TabAlignment.RIGHT, new SolidLine(1f)));
+            paragraph.add(new Tab());
+            Cell cell = new Cell().add(paragraph);
+            cell.setBorder(Border.NO_BORDER);
+            cell.setPaddingTop(5);
+            cell.setPaddingBottom(5);
+            cell.setPaddingLeft(5);
+
+            table.addCell(cell);
+        });
+        return table;
+    }
+
+    private Table addEvaluationBoxFiveChecks(Integer sectionNumber, String titleKey, String subtitleKey, Map<String,String> evaluationCriteriaKey, String commentaire, ResourceBundle messages){
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        Paragraph paragraphTitle = new Paragraph(sectionNumber + ". " + messages.getString(titleKey))
+                .setBold()
+                .setFontSize(17)
+                .setTextAlignment(TextAlignment.CENTER);
+
+
+        boolean hasSubtitle = (subtitleKey != null && !subtitleKey.isEmpty());
+
+        Cell cellTitle = createCellSansBordure(paragraphTitle);
+        if (!hasSubtitle) {
+            cellTitle.setBorderBottom(new SolidBorder(1));
+        }
+        table.addCell(cellTitle);
+
+        if (hasSubtitle) {
+            Paragraph paragraphSubTitle = new Paragraph(messages.getString(subtitleKey))
+                    .setTextAlignment(TextAlignment.CENTER);
+
+            Cell cellSubTitle = createCellSansBordure(paragraphSubTitle);
+            cellSubTitle.setBorderBottom(new SolidBorder(1));
+            table.addCell(cellSubTitle);
+        }
+        table.addCell(createCellSansBordure(new Paragraph()).add(addSousTableEvaluationBox(evaluationCriteriaKey, commentaire, messages)));
+
+        return table;
+    }
+
+    private Table addSousTableEvaluationBox(Map<String, String> evaluationCriteriaKey, String commentaire, ResourceBundle messages) {
+        float[] columnWidths = {40f, 12f, 12f, 12f, 12f, 12f};
+        Table gridTable = new Table(UnitValue.createPercentArray(columnWidths))
+                .setWidth(UnitValue.createPercentValue(100));
+
+        String[] headerKeys = {
+                "evaluation.stagiaire_capacite",
+                "evaluation.totalement_en_accord",
+                "evaluation.plutot_en_accord",
+                "evaluation.plutot_en_désaccord",
+                "evaluation.totalement_en_désaccord",
+                "evaluation.na"
+        };
+
+        gridTable.addCell(createCellSansBordure(new Paragraph(messages.getString(headerKeys[0]))).setBold());
+        for (int i = 1; i < headerKeys.length; i++) {
+            gridTable.addCell(createCellSansBordureBoldCenter(new Paragraph(messages.getString(headerKeys[i]))));
+        }
+
+        char letter = 'a';
+        for (Map.Entry<String, String> entry : evaluationCriteriaKey.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            gridTable.addCell(createCellSansBordure(new Paragraph(letter + ") " + messages.getString(key))));
+            letter++;
+
+            for (int i = 0; i < NB_COLUMN_EVALUATION; i++) {
+                boolean isChecked = value.equals(String.valueOf(i + 1)) || ("N/A".equals(value) && i == NB_COLUMN_EVALUATION - 1);
+                String symbole = isChecked ? "[ X ]" : "[    ]";
+                gridTable.addCell(createCellSansBordureBoldCenter(new Paragraph(symbole)));
+            }
+        }
+
+
+        gridTable.addCell(createCommentaryLine(commentaire,"evaluation.commentaire",messages));
+
+
+        return gridTable;
+    }
+
+    private Table addEvaluationBoxGlobale(String titleKey, String appreciationScore, String commentaire, Boolean discuteAvecStagiaire, ResourceBundle messages) {
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        Paragraph paragraphTitle = new Paragraph(messages.getString(titleKey))
+                .setBold()
+                .setFontSize(14)
+                .setTextAlignment(TextAlignment.CENTER);
+
+        Cell cellTitle = createCellSansBordure(paragraphTitle);
+        table.addCell(cellTitle);
+
+        float[] appreciationWidths = {85f, 15f};
+        Table gridAppreciation = new Table(UnitValue.createPercentArray(appreciationWidths))
+                .setWidth(UnitValue.createPercentValue(85))
+                .setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+        String[] appreciationKeys = {
+                "appreciation_globale.depasse_beaucoup",
+                "appreciation_globale.depasse",
+                "appreciation_globale.repond_pleinement",
+                "appreciation_globale.repond_partiellement",
+                "appreciation_globale.ne_repond_pas"
+        };
+
+        for (int i = 0; i < appreciationKeys.length; i++) {
+            int expectedScore = appreciationKeys.length - i;
+            boolean isChecked = appreciationScore != null && appreciationScore.equals(String.valueOf(expectedScore));
+            String symbole = isChecked ? "[ X ]" : "[    ]";
+
+            gridAppreciation.addCell(createCellSansBordure(new Paragraph(messages.getString(appreciationKeys[i]))));
+            gridAppreciation.addCell(createCellSansBordureBoldCenter(new Paragraph(symbole)));
+        }
+
+        Cell cellAppreciationContainer = createCellSansBordure(new Paragraph()).add(gridAppreciation);
+        cellAppreciationContainer.setMarginBottom(10f);
+        table.addCell(cellAppreciationContainer);
+
+        table.addCell(createCommentaryLine(commentaire,"appreciation_globale.precisez", messages));
+
+        boolean ouiChecked = (discuteAvecStagiaire != null && discuteAvecStagiaire);
+        boolean nonChecked = (discuteAvecStagiaire != null && !discuteAvecStagiaire);
+
+        String symboleOui = ouiChecked ? "[ X ]" : "[    ]";
+        String symboleNon = nonChecked ? "[ X ]" : "[    ]";
+
+        Table discussionTable = new Table(new float[]{1, 1, 1})
+                .setWidth(UnitValue.createPercentValue(80));
+
+        discussionTable.addCell(createCellSansBordure(new Paragraph(messages.getString("appreciation_globale.discutee"))).setPaddingRight(20f));
+        discussionTable.addCell(createCellSansBordure(new Paragraph(messages.getString("oui") + " " + symboleOui)).setPaddingRight(20f));
+        discussionTable.addCell(createCellSansBordure(new Paragraph(messages.getString("non") + " " + symboleNon)));
+
+        table.addCell(createCellSansBordure(new Paragraph()).add(discussionTable));
+
+        return table;
+    }
+
+    private Table addSectionFinaleBox(ChoixAccueil accueilStagiaireChoix, String formationSuffisante, String nom, String fonction, LocalDateTime date, ResourceBundle messages) {
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        Paragraph titleParagraph = new Paragraph(messages.getString("appreciation_globale.accueil_futur"))
+                .setFontSize(15)
+                .setTextAlignment(TextAlignment.LEFT);
+        table.addCell(createCellSansBordure(titleParagraph));
+
+        boolean ouiChecked = ChoixAccueil.OUI.equals(accueilStagiaireChoix);
+        boolean nonChecked = ChoixAccueil.NON.equals(accueilStagiaireChoix);
+        boolean peutEtreChecked = ChoixAccueil.PEUT_ETRE.equals(accueilStagiaireChoix) || accueilStagiaireChoix == null;
+
+        String symboleOui = ouiChecked ? "[ X ]" : "[    ]";
+        String symboleNon = nonChecked ? "[ X ]" : "[    ]";
+        String symbolePeutEtre = peutEtreChecked ? "[ X ]" : "[    ]";
+
+        Paragraph optionsParagraph = new Paragraph()
+                .setTextAlignment(TextAlignment.CENTER)
+                .add(messages.getString("oui") + " " + symboleOui)
+                .add(new Text("       "))
+                .add(messages.getString("non") + " " + symboleNon)
+                .add(new Text("       "))
+                .add(messages.getString("peut_etre") + " " + symbolePeutEtre).setBold();
+
+        Cell optionsCell = createCellSansBordure(optionsParagraph);
+        optionsCell.setMarginBottom(8f);
+        table.addCell(optionsCell);
+
+        table.addCell(createCommentaryLine(formationSuffisante,"appreciation_globale.formation_technique",messages));
+
+        table.addCell(addSignatureSection(nom, fonction, date, messages));
+
+        return table;
+    }
+
+    private Cell addSignatureSection(String nom, String fonction, LocalDateTime date, ResourceBundle messages) {
+        Table sigTable = new Table(new float[]{1f, 1f})
+                .setWidth(UnitValue.createPercentValue(100));
+
+        String dateFormatted = formatDateString(date);
+
+        Paragraph nomPara = new Paragraph()
+                .add(messages.getString("nom") + " : ")
+                .add(new Text(nom != null ? nom : "").setUnderline());
+
+        Paragraph fonctionPara = new Paragraph()
+                .add(messages.getString("superviseur_fonction") + " : ")
+                .add(new Text(fonction != null ? fonction : "").setUnderline());
+
+        sigTable.addCell(createCellSansBordure(nomPara));
+        sigTable.addCell(createCellSansBordure(fonctionPara));
+
+
+        Paragraph signaturePara = new Paragraph()
+                .add(messages.getString("contrat.signatures") + " : ____________________");
+
+        Paragraph datePara = new Paragraph()
+                .add(messages.getString("label.date") + " : ")
+                .add(new Text(dateFormatted).setUnderline());
+
+        sigTable.addCell(createCellSansBordure(signaturePara));
+        sigTable.addCell(createCellSansBordure(datePara));
+
+        Cell wrapperCell = new Cell().add(sigTable);
+        wrapperCell.setBorder(Border.NO_BORDER);
+        wrapperCell.setMarginTop(10f);
+
+        return wrapperCell;
+    }
+
+    private Table addHeuresEncadrementBox(String heuresEncadrement, ResourceBundle messages) {
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        Table innerTable = new Table(new float[]{1, 1})
+                .setHorizontalAlignment(HorizontalAlignment.LEFT);
+
+        Paragraph labelParagraph = new Paragraph(messages.getString("appreciation_globale.heures_encadrement"))
+                .setBold();
+        innerTable.addCell(createCellSansBordure(labelParagraph).setPaddingRight(8f));
+
+        String valeurAffichee = (heuresEncadrement != null && !heuresEncadrement.trim().isEmpty())
+                ? heuresEncadrement
+                : "";
+
+        Paragraph valeurParagraph = new Paragraph(valeurAffichee)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER);
+
+        Cell cellValeur = createCellSansBordure(valeurParagraph)
+                .setWidth(55f);
+
+        innerTable.addCell(cellValeur);
+
+        Cell containerCell = createCellSansBordure(new Paragraph())
+                .add(innerTable)
+                .setPaddingTop(6f)
+                .setPaddingBottom(6f)
+                .setPaddingLeft(6f);
+
+        table.addCell(containerCell);
+
+        return table;
+    }
+
+    private Table addReturnFormBox(Professeur professeur, ResourceBundle messages) {
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        Table innerTable = new Table(2)
+                .setWidth(UnitValue.createPercentValue(100));
+
+        Paragraph labelParagraph = new Paragraph(messages.getString("return.message"))
+                .setBold();
+        innerTable.addCell(createCellSansBordure(labelParagraph));
+
+        String nomComplet = "";
+        if (professeur != null) {
+            String prenom = professeur.getFirstName() != null ? professeur.getFirstName() : "";
+            String nom = professeur.getLastName() != null ? professeur.getLastName() : "";
+            nomComplet = (prenom + " " + nom).trim();
+        }
+        String email = (professeur != null && professeur.getEmail() != null) ? professeur.getEmail() : "";
+
+        Paragraph contactParagraph = new Paragraph()
+                .add(new Text(nomComplet + (!nomComplet.isEmpty() && !email.isEmpty() ? " " : "")).setItalic());
+        Paragraph emailContact = new Paragraph(new Text(email).setItalic());
+
+        Cell cellContact = createCellSansBordure(contactParagraph);
+        cellContact.add(emailContact);
+        cellContact.setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE);
+        innerTable.addCell(cellContact);
+
+        Cell containerCell = createCellSansBordure(new Paragraph())
+                .add(innerTable)
+                .setPaddingTop(6f)
+                .setPaddingBottom(6f)
+                .setPaddingLeft(6f)
+                .setPaddingRight(6f);
+
+        table.addCell(containerCell);
+
+        return table;
+    }
+
+    private Div addFooterInstitutionnel(ResourceBundle messages) {
+        Div footerDiv = new Div().setKeepTogether(true);
+
+        Paragraph merciPara = new Paragraph(messages.getString("footer.merci"))
+                .setItalic()
+                .setBold()
+                .setFontSize(11)
+                .setMarginTop(12f)
+                .setMarginBottom(6f);
+        footerDiv.add(merciPara);
+
+        Paragraph infoCollege = new Paragraph()
+                .add(new Text(messages.getString("application.titre") + "\n").setFontSize(9))
+                .add(new Text(messages.getString("employeur_evaluation.ATE") + "\n").setFontSize(9))
+                .add(new Text(formatDateString(LocalDateTime.now())).setFontSize(8));
+
+        footerDiv.add(infoCollege);
+
+        return footerDiv;
+    }
+
+    private String formatDateString(LocalDateTime date){
+        String dateFormatted = "";
+        if (date != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale.FRENCH);
+            dateFormatted = date.format(formatter);
+        }
+        return dateFormatted;
+    }
+
+    private Cell createCellSansBordure(Paragraph paragraph){
+        Cell cell = new Cell();
+        cell.setBorder(Border.NO_BORDER);
+        return cell.add(paragraph);
+    }
+
+    private Cell createCellSansBordureBoldCenter(Paragraph paragraph){
+        Cell cell = new Cell();
+        cell.setBorder(Border.NO_BORDER).setBold().setTextAlignment(TextAlignment.CENTER);
+        return cell.add(paragraph);
+    }
+
+    private Cell createCommentaryLine(String commentaire, String questionKey, ResourceBundle messages){
+        commentaire = commentaire != null && !commentaire.trim().isEmpty() ? commentaire : "";
+        Paragraph paragraphCommentaireTitle = new Paragraph(messages.getString(questionKey) + " : ");
+        paragraphCommentaireTitle.setMarginBottom(5f);
+        Paragraph paragraphCommentaire = new Paragraph(commentaire);
+        Paragraph ligneSupplementaire = new Paragraph();
+
+        ligneSupplementaire.setMarginBottom(15f);
+        ligneSupplementaire.setPaddingTop(10f);
+
+        paragraphCommentaire.addTabStops(new TabStop(480f, TabAlignment.RIGHT, new SolidLine(1f)));
+        paragraphCommentaire.add(new Tab());
+        ligneSupplementaire.addTabStops(new TabStop(480f, TabAlignment.RIGHT, new SolidLine(1f)));
+        ligneSupplementaire.add(new Tab());
+
+        return new Cell()
+                .setBorder(Border.NO_BORDER)
+                .add(paragraphCommentaireTitle)
+                .add(paragraphCommentaire)
+                .add(ligneSupplementaire);
     }
 }
