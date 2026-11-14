@@ -308,7 +308,7 @@ public class PDFService {
 
     public Resource createEvaluationStagiaire(String langue, Long candidatureId) throws IOException, CandidatureIntrouvableException, EvaluationStagiaireIntrouvable {
 
-        EvaluationStagiaire evaluationStagiaire = evaluationStagiaireRepository.findById(candidatureId).orElseThrow(EvaluationStagiaireIntrouvable::new);
+        EvaluationStagiaire evaluationStagiaire = evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(candidatureId).orElseThrow(EvaluationStagiaireIntrouvable::new);
         Candidature candidature = evaluationStagiaire.getCandidature();
         Etudiant etudiant = candidature.getEtudiant();
         Professeur professeur = etudiant.getProfesseur();
