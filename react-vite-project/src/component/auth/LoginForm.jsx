@@ -35,6 +35,7 @@ const LoginForm = ({ user, setError }) => {
 
   useEffect(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("sessionCible");
   }, []);
 
   useEffect(() => {
