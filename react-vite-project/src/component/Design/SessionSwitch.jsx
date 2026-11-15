@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiCalendar, FiChevronDown, FiCheck } from "react-icons/fi";
 import { getSessions, getSessionActuelle } from "../../api/session.jsx";
 
-const SessionSwitch = () => {
+const SessionSwitch = ({ userId }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
@@ -15,26 +15,44 @@ const SessionSwitch = () => {
 
     useEffect(() => {
         let actif = true;
+        if (!userId) return;
 
         async function initSessions() {
             try {
                 const data = await getSessions();
                 if (!actif) return;
-                setSessions(data || []);
+                const disponibles = data || [];
+                setSessions(disponibles);
 
                 const cachedSession = localStorage.getItem("sessionCible");
-                if (!cachedSession && data?.length > 0) {
+                const contientSession = (cle) => disponibles.some(
+                    (session) => `${session.saison}-${session.annee}` === cle
+                );
+                if (contientSession(cachedSession)) {
+                    setSelectedSession(cachedSession);
+                    return;
+                }
+
+                let defaut = disponibles.length > 0
+                    ? `${disponibles[0].saison}-${disponibles[0].annee}` : "";
+                if (disponibles.length > 0) {
                     try {
                         const sessionActuelle = await getSessionActuelle();
-                        const defaut = `${sessionActuelle.saison}-${sessionActuelle.annee}`;
-                        setSelectedSession(defaut);
-                        localStorage.setItem("sessionCible", defaut);
-                        window.dispatchEvent(new CustomEvent("sessionChanged", { detail: defaut }));
-                    } catch (e) {
-                        const defaut = `${data[0].saison}-${data[0].annee}`;
-                        setSelectedSession(defaut);
-                        localStorage.setItem("sessionCible", defaut);
+                        const cleActuelle = `${sessionActuelle.saison}-${sessionActuelle.annee}`;
+                        if (contientSession(cleActuelle)) defaut = cleActuelle;
+                    } catch {
+                        // La session inscrite la plus récente reste le choix par défaut.
                     }
+                }
+                if (!actif) return;
+                setSelectedSession(defaut);
+                if (defaut) {
+                    localStorage.setItem("sessionCible", defaut);
+                } else {
+                    localStorage.removeItem("sessionCible");
+                }
+                if ((cachedSession || "") !== defaut) {
+                    window.dispatchEvent(new CustomEvent("sessionChanged", { detail: defaut }));
                 }
             } catch (err) {
                 console.error("Erreur lors du chargement des sessions", err);
@@ -46,7 +64,7 @@ const SessionSwitch = () => {
         return () => {
             actif = false;
         };
-    }, []);
+    }, [userId]);
 
     const getHomeRoute = () => {
         const path = location.pathname;
@@ -99,9 +117,9 @@ const SessionSwitch = () => {
 
             <ul
                 tabIndex={0}
-                className="menu dropdown-content mt-2 w-48 rounded-2xl bg-white p-1.5 text-xs font-medium text-[#043462] shadow-lg border border-slate-100 z-50"
+                className={`menu dropdown-content flex-nowrap mt-2 w-48 rounded-2xl bg-white p-1.5 text-xs font-medium text-[#043462] shadow-lg border border-slate-100 z-50 ${sessions.length >= 5 ? "max-h-52 overflow-y-auto" : ""}`}
             >
-                <li className="menu-title px-3 py-1 text-[10px] uppercase tracking-wider text-slate-400">
+                <li className="menu-title shrink-0 px-3 py-1 text-[10px] uppercase tracking-wider text-slate-400">
                     {t("session.label")}
                 </li>
                 {sessions.map((session) => {
@@ -109,7 +127,7 @@ const SessionSwitch = () => {
                     const isActive = selectedSession === sessionKey;
 
                     return (
-                        <li key={sessionKey} className="pb-2">
+                        <li key={sessionKey} className="shrink-0 pb-2">
                             <button
                                 type="button"
                                 onClick={() => handleSelectSession(session)}
