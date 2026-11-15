@@ -92,8 +92,8 @@ public class SessionService {
         return filtrerUtilisateursParSession(utilisateurs, sessionActuelle.saison(), sessionActuelle.annee());
     }
 
-    public List<SessionDTO> getSessionsDisponibles() {
-        return inscriptionRepository.findSessionsDisponibles().stream()
+    public List<SessionDTO> getSessionsDisponibles(String email) {
+        return inscriptionRepository.findSessionsDisponibles(email).stream()
                 .map(row -> new SessionDTO((Saison) row[0], (Integer) row[1]))
                 .toList();
     }

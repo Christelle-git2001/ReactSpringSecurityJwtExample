@@ -35,13 +35,16 @@ public class NotificationService {
     private final UserAppRepository userAppRepository;
     private final EtudiantRepository etudiantRepository;
     private final CandidatureRepository candidatureRepository;
+    private final SessionService sessionService;
 
     public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
-                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository) {
+                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository,
+                               SessionService sessionService) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
+        this.sessionService = sessionService;
     }
 
     @EventListener
@@ -74,7 +77,7 @@ public class NotificationService {
                     ))
                     .build();
         }
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, cv.getUploadDate()));
     }
 
     @EventListener
@@ -92,7 +95,7 @@ public class NotificationService {
                 .destinataire(destinataire)
                 .variables(Map.of(VariableMapKey.STATUT_FICHIER,statut.name()))
                 .build();
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, event.dateDepot()));
     }
 
     @EventListener
@@ -117,7 +120,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, offre.getCreatedAt()));
     }
 
     @EventListener
@@ -140,7 +143,9 @@ public class NotificationService {
             case ETUDIANT, PROFESSEUR, EMPLOYEUR -> notificationRepository.getNotificationByDestinataire(userApp);
             case null -> throw new AucunRoleDefini();
         };
-        return notifications.stream()
+        return sessionService.filtrerParSessionActuelle(notifications,
+                        notification -> notification.getDateReferenceSession() != null
+                                ? notification.getDateReferenceSession() : notification.getDateNotifiee()).stream()
                 .map(NotificationDTO::of)
                 .toList();
     }
@@ -168,7 +173,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, offre.getCreatedAt()));
     }
 
     @EventListener
@@ -186,7 +191,7 @@ public class NotificationService {
                 nouvelleOffre.getEmployeur().getBusinessName()
         ));
         notification.setDateNotifiee(LocalDateTime.now());
-        notificationRepository.save(notification);
+        enregistrerNotification(notification, nouvelleOffre.getCreatedAt());
     }
 
     @EventListener
@@ -219,7 +224,7 @@ public class NotificationService {
                     )
             );
 
-            notificationRepository.save(notification);
+            enregistrerNotification(notification, offre.getCreatedAt());
         }
     }
 
@@ -245,21 +250,8 @@ public class NotificationService {
     }
 
     public Long compterNotifications(Long id) throws AucunRoleDefini, UtilisateurIntrouvableException {
-        UserApp userApp = verifierEtRecupererUtilisateur(id);
-        Role role = userApp.getRole();
-       return switch (role) {
-            case GESTIONNAIRE -> notificationRepository.totalByRole(role);
-            case ETUDIANT, PROFESSEUR, EMPLOYEUR -> notificationRepository.totalByUser(userApp);
-            case null -> throw new AucunRoleDefini();
-        };
+        return (long) recevoirNotifications(id).size();
     }
-
-    private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
-        return userAppRepository.findById(id)
-                .orElseThrow(UtilisateurIntrouvableException::new);
-    }
-
-
 
     @EventListener
     @Transactional
@@ -285,7 +277,7 @@ public class NotificationService {
                     .build();
 
             return NotificationDTO.of(
-                    notificationRepository.save(notification)
+                    enregistrerNotification(notification, candidature.getDateCandidature())
             );
     }
 
@@ -317,7 +309,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, candidature.getDateCandidature()));
     }
 
     @EventListener
@@ -393,7 +385,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, candidature.getDateCandidature()));
     }
 
     @EventListener
@@ -431,7 +423,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, candidature.getDateCandidature()));
     }
 
     @EventListener
@@ -456,7 +448,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, candidature.getDateCandidature()));
     }
 
     @EventListener
@@ -478,7 +470,7 @@ public class NotificationService {
                         VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
                 ))
                 .build();
-        return NotificationDTO.of(notificationRepository.save(notification));
+        return NotificationDTO.of(enregistrerNotification(notification, candidature.getDateCandidature()));
     }
 
     @EventListener
@@ -491,9 +483,12 @@ public class NotificationService {
                 .collect(Collectors.joining(", "));
 
         LocalDateTime lastLogin = professeur.getLastLoginAt();
+        var session = sessionService.getSession(java.time.LocalDate.now());
+        var periode = sessionService.getPeriodeSession(session.saison(), session.annee());
 
         Notification notificationProfesseur = notificationRepository
-                .findByDestinataireAndNotificationTypeAndEstLuFalse(professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT)
+                .findNonLueDansSession(professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT,
+                        periode.debut(), periode.fin())
                 .map(existingNotif -> {
                     String currentIds = existingNotif.getVariables().getOrDefault(VariableMapKey.ETUDIANT_IDS, "");
 
@@ -545,7 +540,7 @@ public class NotificationService {
                                 .variables(Map.of(VariableMapKey.ETUDIANT_IDS, etudiantsIdsAouter))
                                 .build()
                 );
-        notificationRepository.save(notificationProfesseur);
+        enregistrerNotification(notificationProfesseur, LocalDateTime.now());
         for (Etudiant etudiant : etudiants) {
             Notification notificationEtudiant = Notification.builder()
                     .titre("notification.etudiant.assignation.title")
@@ -561,7 +556,7 @@ public class NotificationService {
                     ))
                     .build();
 
-            notificationRepository.save(notificationEtudiant);
+            enregistrerNotification(notificationEtudiant, etudiant.getProfessorAssignedAt());
         }
     }
 
@@ -592,7 +587,7 @@ public class NotificationService {
                         VariableMapKey.OFFRE_TITRE, candidature.getOffreDeStage().getTitle()
                 ))
                 .build();
-        notificationRepository.save(notification);
+        enregistrerNotification(notification, candidature.getDateCandidature());
     }
 
     @EventListener
@@ -625,7 +620,7 @@ public class NotificationService {
                 ))
                 .build();
 
-        notificationRepository.save(notificationEmployeur);
+        enregistrerNotification(notificationEmployeur, candidature.getDateCandidature());
 
         Notification notificationEtudiant = Notification.builder()
                 .titre("notification.nouveau_contrat.title")
@@ -643,7 +638,17 @@ public class NotificationService {
                 ))
                 .build();
 
-        notificationRepository.save(notificationEtudiant);
+        enregistrerNotification(notificationEtudiant, candidature.getDateCandidature());
+    }
+
+    private Notification enregistrerNotification(Notification notification, LocalDateTime dateReference) {
+        notification.setDateReferenceSession(dateReference != null ? dateReference : notification.getDateNotifiee());
+        return notificationRepository.save(notification);
+    }
+
+    private UserApp verifierEtRecupererUtilisateur(Long id) throws UtilisateurIntrouvableException {
+        return userAppRepository.findById(id)
+                .orElseThrow(UtilisateurIntrouvableException::new);
     }
 
 }

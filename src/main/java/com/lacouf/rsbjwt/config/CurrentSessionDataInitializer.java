@@ -93,6 +93,12 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
 
+        gestionnaireRepository.findAll().forEach(gestionnaire -> {
+            if (!inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(gestionnaire, Saison.AUTOMNE, 2026)) {
+                inscriptionRepository.save(new Inscription(gestionnaire, Saison.AUTOMNE, 2026));
+            }
+        });
+
         // Sébastien (Inscrit Automne 2026)
         if (etudiantRepository.findByMatricule("6565656").isEmpty()) {
             try {

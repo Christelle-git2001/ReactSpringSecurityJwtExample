@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +21,8 @@ public class SessionController {
     }
 
     @GetMapping("disponibles")
-    public ResponseEntity<List<SessionDTO>> obtenirSessions() {
-        return ResponseEntity.ok(sessionService.getSessionsDisponibles());
+    public ResponseEntity<List<SessionDTO>> obtenirSessions(Authentication authentication) {
+        return ResponseEntity.ok(sessionService.getSessionsDisponibles(authentication.getName()));
     }
 
     @GetMapping("/actuelle")

@@ -11,13 +11,18 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     List<Notification> getNotificationByRole(Role role);
 
     List<Notification> getNotificationByDestinataire(UserApp destinataire);
 
-    Optional<Notification> findByDestinataireAndNotificationTypeAndEstLuFalse(UserApp userApp, NotificationType notificationType);
+    @Query("SELECT n FROM Notification n WHERE n.destinataire = :userApp " +
+            "AND n.notificationType = :notificationType AND n.estLu = false " +
+            "AND coalesce(n.dateReferenceSession, n.dateNotifiee) BETWEEN :debut AND :fin")
+    Optional<Notification> findNonLueDansSession(UserApp userApp, NotificationType notificationType,
+                                               LocalDateTime debut, LocalDateTime fin);
 
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.role = :role")
     Long totalByRole(Role role);

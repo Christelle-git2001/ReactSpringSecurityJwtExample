@@ -17,6 +17,7 @@ import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.NotificationRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
+import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,6 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import com.lacouf.rsbjwt.context.SessionContext;
+import com.lacouf.rsbjwt.model.Enum.Saison;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -52,6 +56,9 @@ public class NotificationServiceTest {
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Spy
+    private SessionService sessionService = new SessionService(new SessionContext(), null);
 
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
@@ -92,6 +99,62 @@ public class NotificationServiceTest {
                 Map.of(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis",
                         VariableMapKey.OFFRE_TITRE, "Developpeur Java"));
         notificationEmployeur.setId(40L);
+    }
+
+    @ParameterizedTest
+    @EnumSource(Role.class)
+    void filtreLaListeEtLeCompteurSelonLaSessionDuDossier(Role role) throws Exception {
+        UserApp utilisateur = mock(UserApp.class);
+        when(utilisateur.getRole()).thenReturn(role);
+        when(userAppRepository.findById(99L)).thenReturn(Optional.of(utilisateur));
+        doReturn(new SessionDTO(Saison.HIVER, 2026))
+                .when(sessionService).getSessionActuelle();
+        // Envoyée aujourd'hui, mais concernant un dossier de l'hiver.
+        notificationWithUser.setDateReferenceSession(LocalDateTime.of(2026, 2, 10, 10, 0));
+        notificationWithoutUser.setDateReferenceSession(LocalDateTime.of(2026, 10, 10, 10, 0));
+        List<Notification> notifications = List.of(notificationWithUser, notificationWithoutUser);
+        if (role == Role.GESTIONNAIRE) {
+            when(notificationRepository.getNotificationByRole(role)).thenReturn(notifications);
+        } else {
+            when(notificationRepository.getNotificationByDestinataire(utilisateur)).thenReturn(notifications);
+        }
+
+        assertThat(notificationService.recevoirNotifications(99L))
+                .containsExactly(NotificationDTO.of(notificationWithUser));
+        assertThat(notificationService.compterNotifications(99L)).isEqualTo(1L);
+
+        doReturn(new SessionDTO(Saison.AUTOMNE, 2026))
+                .when(sessionService).getSessionActuelle();
+        assertThat(notificationService.recevoirNotifications(99L))
+                .containsExactly(NotificationDTO.of(notificationWithoutUser));
+    }
+
+    @Test
+    void filtreLesAnciennesNotificationsSansDateDeReference() throws Exception {
+        when(userAppRepository.findById(etudiant.getId())).thenReturn(Optional.of(etudiant));
+        when(notificationRepository.getNotificationByDestinataire(etudiant))
+                .thenReturn(List.of(notificationWithUser, notificationWithoutUser));
+        doReturn(new SessionDTO(Saison.AUTOMNE, 2026))
+                .when(sessionService).getSessionActuelle();
+        notificationWithUser.setDateNotifiee(LocalDateTime.of(2026, 9, 10, 10, 0));
+        notificationWithoutUser.setDateNotifiee(LocalDateTime.of(2026, 2, 10, 10, 0));
+
+        assertThat(notificationService.recevoirNotifications(etudiant.getId()))
+                .containsExactly(NotificationDTO.of(notificationWithUser));
+    }
+
+    @Test
+    void conserveLaSessionDuDepotLorsDeLaValidationDuCv() {
+        LocalDateTime dateDepot = LocalDateTime.of(2026, 2, 1, 10, 0);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
+
+        notificationService.handleCvStatutModifieEvent(
+                new CvStatutModifieEvent(etudiant, Statut.ACCEPTEE, dateDepot));
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        assertThat(captor.getValue().getDateReferenceSession()).isEqualTo(dateDepot);
+        assertThat(captor.getValue().getDateNotifiee()).isAfter(dateDepot);
     }
 
     private Notification notificationCandidature(NotificationType type, String candidatureId) {
@@ -237,13 +300,13 @@ public class NotificationServiceTest {
     @Test
     void doitCompterNotificationsParDestinatairePourEmployeur() throws UtilisateurIntrouvableException, AucunRoleDefini {
         when(userAppRepository.findById(employeur.getId())).thenReturn(Optional.of(employeur));
-        when(notificationRepository.totalByUser(employeur)).thenReturn(2L);
+        when(notificationRepository.getNotificationByDestinataire(employeur)).thenReturn(List.of(notificationEmployeur, notificationEmployeur));
 
         Long nombreDeNotification = notificationService.compterNotifications(employeur.getId());
 
         assertThat(nombreDeNotification).isEqualTo(2L);
-        verify(notificationRepository).totalByUser(employeur);
-        verify(notificationRepository, never()).totalByRole(any());
+        verify(notificationRepository).getNotificationByDestinataire(employeur);
+        verify(notificationRepository, never()).getNotificationByRole(any());
     }
 
     @Test
@@ -300,7 +363,7 @@ public class NotificationServiceTest {
         notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
         notificationWithUser.setId(4L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
-        CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
+        CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut(),cvEtudiant.getUploadDate());
         NotificationDTO notificationDTO = notificationService.handleCvStatutModifieEvent(cvStatutModifieEvent);
 
         assertThat(notificationDTO).isNotNull();
@@ -327,7 +390,7 @@ public class NotificationServiceTest {
         notificationWithUser = new Notification("notification.titre","notification.description", NotificationType.CV_ATTENTE_VALIDATION,LocalDateTime.now(),"/cv/1/download",etudiant, Role.ETUDIANT, Map.of(VariableMapKey.STATUT_FICHIER,cvEtudiant.getStatut().name()));
         notificationWithUser.setId(4L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithUser);
-        CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut());
+        CvStatutModifieEvent cvStatutModifieEvent = new CvStatutModifieEvent(notificationWithUser.getDestinataire(),cvEtudiant.getStatut(),cvEtudiant.getUploadDate());
         NotificationDTO notificationDTO = notificationService.handleCvStatutModifieEvent(cvStatutModifieEvent);
 
         assertThat(notificationDTO).isNotNull();
@@ -420,27 +483,27 @@ public class NotificationServiceTest {
     @Test
     void doitRecevoirLeNombreDeNotificationParRoleGestionnaire() throws UtilisateurIntrouvableException, AucunRoleDefini {
         List<Notification> notifications = List.of(notificationWithoutUser);
-        when(notificationRepository.totalByRole(Role.GESTIONNAIRE)).thenReturn((long) notifications.size());
+        when(notificationRepository.getNotificationByRole(Role.GESTIONNAIRE)).thenReturn(notifications);
         when(userAppRepository.findById(gestionnaire.getId())).thenReturn(Optional.of(gestionnaire));
 
         Long nombreDeNotification = notificationService.compterNotifications(gestionnaire.getId());
 
         assertThat(nombreDeNotification).isEqualTo(notifications.size());
-        verify(notificationRepository).totalByRole(Role.GESTIONNAIRE);
-        verify(notificationRepository, never()).totalByUser(etudiant);
+        verify(notificationRepository).getNotificationByRole(Role.GESTIONNAIRE);
+        verify(notificationRepository, never()).getNotificationByDestinataire(etudiant);
     }
 
     @Test
     void doitRecevoirLeNombreDeNotificationParDestinataire() throws UtilisateurIntrouvableException, AucunRoleDefini {
         List<Notification> notifications = List.of(notificationWithoutUser);
-        when(notificationRepository.totalByUser(etudiant)).thenReturn((long) notifications.size());
+        when(notificationRepository.getNotificationByDestinataire(etudiant)).thenReturn(notifications);
         when(userAppRepository.findById(etudiant.getId())).thenReturn(Optional.of(etudiant));
 
         Long nombreDeNotification = notificationService.compterNotifications(etudiant.getId());
 
         assertThat(nombreDeNotification).isEqualTo(notifications.size());
-        verify(notificationRepository, never()).totalByRole(Role.GESTIONNAIRE);
-        verify(notificationRepository).totalByUser(etudiant);
+        verify(notificationRepository, never()).getNotificationByRole(Role.GESTIONNAIRE);
+        verify(notificationRepository).getNotificationByDestinataire(etudiant);
     }
 
     @Test
@@ -700,8 +763,8 @@ public class NotificationServiceTest {
 
         ProfesseurAssigneEvent event = new ProfesseurAssigneEvent(professeur, List.of(nouvelEtudiant));
 
-        when(notificationRepository.findByDestinataireAndNotificationTypeAndEstLuFalse(
-                professeur, NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT))
+        when(notificationRepository.findNonLueDansSession(
+                eq(professeur), eq(NotificationType.PROFESSEUR_ASSIGNE_ETUDIANT), any(), any()))
                 .thenReturn(Optional.of(notificationExistante));
 
         when(notificationRepository.save(any(Notification.class)))

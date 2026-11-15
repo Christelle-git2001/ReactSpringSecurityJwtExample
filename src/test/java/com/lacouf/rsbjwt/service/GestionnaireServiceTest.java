@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.AfterEach;
 
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+import com.lacouf.rsbjwt.model.Enum.Saison;
 
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 
@@ -51,6 +52,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GestionnaireServiceTest {
+
+    @Mock
+    private InscriptionRepository inscriptionRepository;
 
     @Mock
     private OffreDeStageRepository offreDeStageRepository;
@@ -135,8 +139,14 @@ class GestionnaireServiceTest {
     @Test
     void doitCreerCompteGestionnaire() throws EmailExistantException, NumeroTelephoneExistantException {
         when(gestionnaireRepository.save(any(Gestionnaire.class))).thenReturn(gestionnaire);
+        when(sessionService.getSession(any())).thenReturn(new SessionDTO(Saison.AUTOMNE, 2026));
 
         GestionnaireDTO gestionnaireDtoBD = gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+        ArgumentCaptor<Inscription> inscription = ArgumentCaptor.forClass(Inscription.class);
+        verify(inscriptionRepository).save(inscription.capture());
+        assertThat(inscription.getValue().getUtilisateur()).isSameAs(gestionnaire);
+        assertThat(inscription.getValue().getSaison()).isEqualTo(Saison.AUTOMNE);
+        assertThat(inscription.getValue().getAnnee()).isEqualTo(2026);
 
         assertThat(gestionnaireDtoBD).isNotNull().satisfies(dto -> {
                 assertThat(dto.email()).isEqualTo(gestionnaire.getEmail());
@@ -498,7 +508,7 @@ class GestionnaireServiceTest {
 
         verify(cvEtudiantRepository).findById(1L);
         verify(cvEtudiantRepository).save(cvEtudiant);
-        verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.ACCEPTEE));
+        verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.ACCEPTEE, cvEtudiant.getUploadDate()));
         verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1")));
     }
@@ -541,7 +551,7 @@ class GestionnaireServiceTest {
 
         verify(cvEtudiantRepository).findById(1L);
         verify(cvEtudiantRepository).save(cvEtudiant);
-        verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.REFUSEE));
+        verify(applicationEventPublisher).publishEvent(new CvStatutModifieEvent(etudiant, Statut.REFUSEE, cvEtudiant.getUploadDate()));
         verify(applicationEventPublisher).publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build("1")));
     }

@@ -109,6 +109,8 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
 
+        ajouterInscriptionUtilisateurSecurise("Pascal.Belmont@hotmail.com", Saison.HIVER, 2026);
+
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseGet(() -> {
             InscriptionEmployeurDTO empDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "password", "password");
             try {
@@ -271,6 +273,9 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
         try {
             MultipartFile realCv = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiant).getInputStream());
             var cvDto = etudiantService.televerserCv(realCv, email);
+            CvEtudiant cv = cvEtudiantRepository.findById(cvDto.id()).orElseThrow();
+            cv.setUploadDate(LocalDateTime.of(2026, 1, 5, 10, 0));
+            cvEtudiantRepository.save(cv);
             gestionnaireService.approuverCurriculumVitae(cvDto.id());
         } catch (Exception e) {
             System.out.println("Erreur lors de la création/approbation du CV pour " + email + ": " + e.getMessage());

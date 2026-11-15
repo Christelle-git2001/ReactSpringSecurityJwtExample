@@ -47,10 +47,12 @@ public class GestionnaireService {
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
     private final SessionService sessionService;
+    private final InscriptionRepository inscriptionRepository;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService,
+                               InscriptionRepository inscriptionRepository){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -65,6 +67,7 @@ public class GestionnaireService {
         this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
         this.sessionService = sessionService;
+        this.inscriptionRepository = inscriptionRepository;
     }
 
     @Transactional
@@ -77,7 +80,10 @@ public class GestionnaireService {
                 .phoneNumber(gestionnaireDto.phoneNumber())
                 .password(passwordEncoder.encode(gestionnaireDto.password()))
                 .build();
-        return GestionnaireDTO.create(gestionnaireRepository.save(gestionnaire));
+        Gestionnaire gestionnaireSauvegarde = gestionnaireRepository.save(gestionnaire);
+        SessionDTO session = sessionService.getSession(java.time.LocalDate.now());
+        inscriptionRepository.save(new Inscription(gestionnaireSauvegarde, session.saison(), session.annee()));
+        return GestionnaireDTO.create(gestionnaireSauvegarde);
     }
 
     public List<SecteurEmployeurDTO> getAllSecteurs() {
@@ -192,7 +198,7 @@ public class GestionnaireService {
         cvEtudiant.setStatut(Statut.ACCEPTEE);
         cvEtudiant.setRejectionComment(null);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
-        applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut()));
+        applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(), cvEtudiant.getStatut(), cvEtudiant.getUploadDate()));
         applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;
@@ -212,7 +218,7 @@ public class GestionnaireService {
         cvEtudiant.setStatut(Statut.REFUSEE);
         cvEtudiant.setRejectionComment(commentaire);
         CvEtudiantDTO cvEtudiantDTO = CvEtudiantDTO.of(cvEtudiantRepository.save(cvEtudiant));
-        applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut()));
+        applicationEventPublisher.publishEvent(new CvStatutModifieEvent(cvEtudiant.getEtudiant(),cvEtudiant.getStatut(), cvEtudiant.getUploadDate()));
         applicationEventPublisher.publishEvent(new CvSupprimerSoNotificationGestionnaireEvent(
                 ControllerPath.GESTIONNAIRE_CV_ID_DETAIL.build(String.valueOf(cvEtudiant.getId()))));
         return cvEtudiantDTO;

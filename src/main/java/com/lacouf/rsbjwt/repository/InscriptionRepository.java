@@ -12,8 +12,10 @@ import java.util.List;
 
 public interface InscriptionRepository extends JpaRepository< Inscription, Long> {
 
-    @Query("SELECT DISTINCT i.saison, i.annee FROM Inscription i ORDER BY i.annee DESC, i.saison DESC")
-    List<Object[]> findSessionsDisponibles();
+    @Query("SELECT DISTINCT i.saison, i.annee FROM Inscription i " +
+            "WHERE lower(i.utilisateur.credentials.email) = lower(:email) " +
+            "ORDER BY i.annee DESC, i.saison ASC")
+    List<Object[]> findSessionsDisponibles(String email);
 
     boolean existsByUtilisateurAndSaisonAndAnnee(UserApp utilisateur, Saison saison, int annee);
 

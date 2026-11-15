@@ -34,6 +34,8 @@ public class Notification {
     private NotificationType notificationType;
     @Column(nullable = false)
     private LocalDateTime dateNotifiee;
+    // Date du dossier concerné, indépendante de la date d'envoi.
+    private LocalDateTime dateReferenceSession;
     @Column(nullable = false)
     private String urlCible;
     @ManyToOne
