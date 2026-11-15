@@ -150,7 +150,7 @@ class DonneesTemporellesServiceTest {
         OffreDeStage offre = new OffreDeStage();
         offre.setTitle(titre);
         offre.setEmployeur(employeur);
-        Candidature candidature = new Candidature(null, offre);
+        Candidature candidature = new Candidature(null, offre, LocalDateTime.now());
         candidature.setId(id + 10);
         Entrevue entrevue = Entrevue.builder().candidature(candidature).format(FormatEntrevue.EN_LIGNE)
                 .dateHeureEntrevue(LocalDateTime.parse(date)).duree(30).build();
