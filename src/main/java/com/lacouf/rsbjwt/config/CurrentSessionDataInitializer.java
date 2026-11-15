@@ -41,6 +41,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
     private final PDFService pdfService;
     private final InscriptionRepository inscriptionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
+    private final ProfesseurRepository professeurRepository;
 
     public CurrentSessionDataInitializer(
             GestionnaireRepository gestionnaireRepository,
@@ -57,7 +59,9 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             EntrevueRepository entrevueRepository,
             PDFService pdfService,
             InscriptionRepository inscriptionRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            SessionService sessionService,
+            ProfesseurRepository professeurRepository
     ) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
@@ -74,6 +78,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         this.pdfService = pdfService;
         this.inscriptionRepository = inscriptionRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
+        this.professeurRepository = professeurRepository;
     }
 
     @Override
@@ -81,6 +87,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         if (Arrays.asList(environment.getActiveProfiles()).contains("test")) {
             return;
         }
+
+        SessionDTO sessionCourante = sessionService.getSession(LocalDate.now());
 
         String emailAdrien = "Adrien@gmail.com";
         String emailNicolas = "Nicolas.Sarkozy@gmail.com";
@@ -93,20 +101,17 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
 
-        gestionnaireRepository.findAll().forEach(gestionnaire -> {
-            if (!inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(gestionnaire, Saison.AUTOMNE, 2026)) {
-                inscriptionRepository.save(new Inscription(gestionnaire, Saison.AUTOMNE, 2026));
-            }
-        });
+        gestionnaireRepository.findAll().forEach(gestionnaire ->
+                ajouterInscriptionSecurisee(gestionnaire, sessionCourante.saison(), sessionCourante.annee()));
 
-        // Sébastien (Inscrit Automne 2026)
+        // Sébastien (Inscrit dans la session courante)
         if (etudiantRepository.findByMatricule("6565656").isEmpty()) {
             try {
                 InscriptionEtudiantDTO etudiantDTO = new InscriptionEtudiantDTO("Sebastien", "Castonguay", "450-716-1217", "Sebastien.Castonguay@hotmail.com", "6565656", Departement.INFORMATIQUE.name(), "NoNeedButStillNeed", "NoNeedButStillNeed");
                 etudiantService.creerCompteEtudiant(etudiantDTO);
             } catch (Exception ignored) {}
         }
-        ajouterInscriptionSecurisee("6565656", Saison.AUTOMNE, 2026);
+        ajouterInscriptionSecurisee("6565656", sessionCourante.saison(), sessionCourante.annee());
 
         // --- SCÉNARIO DE RÉINSCRIPTION POUR JULIE ---
         // 1. S'assurer que Julie existe et possède son inscription de session passée (Hiver 2026)
@@ -124,7 +129,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         }
         ajouterInscriptionSecurisee("5555555", Saison.HIVER, 2026);
 
-        // 2. Déclencher la réinscription pour la session courante (Automne 2026)
+        // 2. Déclencher la réinscription pour la session courante (calculée selon la date du jour)
         try {
             etudiantService.reinscrireEtudiant("julie.reinscrite@gmail.com");
             System.out.println(">>> Réinscription de Julie effectuée avec succès !");
@@ -133,7 +138,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         }
         // ---------------------------------------------
 
-        // Adrien (Inscrit Automne 2026)
+        // Adrien (Inscrit dans la session courante)
         if (etudiantRepository.findByMatricule("1111111").isEmpty()) {
             try {
                 InscriptionEtudiantDTO etudiantDTO2 = new InscriptionEtudiantDTO("Adrien", "Agreste", "450-716-1216", emailAdrien, "1111111", Departement.INFORMATIQUE.name(), "NoNeedButStillNeed", "NoNeedButStillNeed");
@@ -141,9 +146,9 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
         Etudiant etudiantAdrienObj = etudiantRepository.findByMatricule("1111111").orElseThrow();
-        ajouterInscriptionSecurisee("1111111", Saison.AUTOMNE, 2026);
+        ajouterInscriptionSecurisee("1111111", sessionCourante.saison(), sessionCourante.annee());
 
-        // Marc (Inscrit Automne 2026)
+        // Marc (Inscrit dans la session courante)
         if (etudiantRepository.findByMatricule("9999999").isEmpty()) {
             try {
                 InscriptionEtudiantDTO etudiantBadCvDTO = new InscriptionEtudiantDTO(
@@ -154,16 +159,16 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
         Etudiant etudiantBadCv = etudiantRepository.findByMatricule("9999999").orElseThrow();
-        ajouterInscriptionSecurisee("9999999", Saison.AUTOMNE, 2026);
+        ajouterInscriptionSecurisee("9999999", sessionCourante.saison(), sessionCourante.annee());
 
-        // Christelle (Inscrite Automne 2026)
+        // Christelle (Inscrite dans la session courante)
         if (etudiantRepository.findByMatricule("6565688").isEmpty()) {
             try {
                 InscriptionEtudiantDTO etudiantNotifCvDTO = new InscriptionEtudiantDTO("Christelle", "Nouga", "450-716-1288", "chrisNouga@gmail.com", "6565688", Departement.INFORMATIQUE.name(), "motdepasse", "motdepasse");
                 etudiantService.creerCompteEtudiant(etudiantNotifCvDTO);
             } catch (Exception ignored) {}
         }
-        ajouterInscriptionSecurisee("6565688", Saison.AUTOMNE, 2026);
+        ajouterInscriptionSecurisee("6565688", sessionCourante.saison(), sessionCourante.annee());
 
         if (employeurRepository.findByEmail(employeurEmail).isEmpty()) {
             try {
@@ -181,6 +186,11 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             InscriptionProfesseurDTO inscriptionProfesseurDTO2 = new InscriptionProfesseurDTO("Evie", "Frye", "Evie.Frye@claurendeau.qc.ca", "NoNeed", "NoNeed", "5486598", "698-585-6266", Departement.TRAVAIL_SOCIAL.name());
             professeurService.creerCompteProfesseur(inscriptionProfesseurDTO2);
         } catch (Exception ignored) {}
+
+        professeurRepository.findByMatricule("9325645").ifPresent(professeur ->
+                ajouterInscriptionSecurisee(professeur, sessionCourante.saison(), sessionCourante.annee()));
+        professeurRepository.findByMatricule("5486598").ifPresent(professeur ->
+                ajouterInscriptionSecurisee(professeur, sessionCourante.saison(), sessionCourante.annee()));
 
         CreationOffreDeStageDTO dto1 = new CreationOffreDeStageDTO(
                 "Développeur Web Junior",
@@ -203,6 +213,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         );
 
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseThrow(EmployeurIntrouvable::new);
+        ajouterInscriptionSecurisee(employeur, sessionCourante.saison(), sessionCourante.annee());
 
         MultipartFile realOffre1 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto1, employeur).getInputStream());
         MultipartFile realOffre2 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto2, employeur).getInputStream());
@@ -259,7 +270,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             try { etudiantService.postuler(techSuppInfo.id(), emailAdrien); } catch (Exception ignored) {}
         }
 
-        // Nicolas (Inscrit Automne 2026)
+        // Nicolas (Inscrit dans la session courante)
         if (etudiantRepository.findByMatricule("2222222").isEmpty()) {
             try {
                 InscriptionEtudiantDTO etudiantSarkozyDTO = new InscriptionEtudiantDTO(
@@ -270,7 +281,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
         Etudiant etudiantSarkoObj = etudiantRepository.findByMatricule("2222222").orElseThrow();
-        ajouterInscriptionSecurisee("2222222", Saison.AUTOMNE, 2026);
+        ajouterInscriptionSecurisee("2222222", sessionCourante.saison(), sessionCourante.annee());
 
         try {
             MultipartFile realCvSarko = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantSarkoObj).getInputStream());
@@ -334,7 +345,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             try { preparerStageTrouve(candidatureSarko.getId()); } catch (Exception ignored) {}
         }
 
-        // Juzo (Inscrit Automne 2026)
+        // Juzo (Inscrit dans la session courante)
         String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
         if (etudiantRepository.findByMatricule("3333333").isEmpty()) {
             try {
@@ -345,7 +356,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 etudiantService.creerCompteEtudiant(etudiantJuzoDTO);
             } catch (Exception ignored) {}
         }
-        ajouterInscriptionSecurisee("3333333", Saison.AUTOMNE, 2026);
+        ajouterInscriptionSecurisee("3333333", sessionCourante.saison(), sessionCourante.annee());
         Etudiant etudiantJuzoObj = etudiantRepository.findByMatricule("3333333").orElseThrow();
 
         try {
@@ -408,15 +419,12 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
     }
 
     private void ajouterInscriptionSecurisee(String matricule, Saison saison, int annee) {
-        Etudiant etudiant = etudiantRepository.findByMatricule(matricule).orElseThrow();
-        boolean dejaInscrit = inscriptionRepository.findAll().stream()
-                .anyMatch(i -> i.getUtilisateur().getId().equals(etudiant.getId())
-                        && i.getSaison() == saison
-                        && i.getAnnee() == annee);
+        ajouterInscriptionSecurisee(etudiantRepository.findByMatricule(matricule).orElseThrow(), saison, annee);
+    }
 
-        if (!dejaInscrit) {
-            Inscription nouvelleInscription = new Inscription(etudiant, saison, annee);
-            inscriptionRepository.save(nouvelleInscription);
+    private void ajouterInscriptionSecurisee(UserApp utilisateur, Saison saison, int annee) {
+        if (!inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(utilisateur, saison, annee)) {
+            inscriptionRepository.save(new Inscription(utilisateur, saison, annee));
         }
     }
 }
