@@ -108,7 +108,7 @@ function Header({ sidebarOpen, user }) {
                 <div className="h-8 w-px bg-white/25 hidden sm:block shrink-0" />
 
                 <div className="shrink-0">
-                    <SessionSwitch />
+                    <SessionSwitch key={user?.id} userId={user?.id} />
                 </div>
             </div>
 
