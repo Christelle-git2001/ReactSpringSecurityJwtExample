@@ -38,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -115,13 +116,13 @@ public class EtudiantService {
     }
 
     @Transactional
-    public void reinscrireEtudiant() throws EtudiantIntrouvableException {
+    public EtudiantDTO reinscrireEtudiant() throws EtudiantIntrouvableException{
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Etudiant etudiant = trouverEtudiantParEmail(email);
-        executerReinscription(etudiant);
+        return EtudiantDTO.of(executerReinscription(etudiant).orElseThrow(()-> new EtudiantIntrouvableException()));
     }
 
-    private void executerReinscription(Etudiant etudiant) {
+    private Optional<Etudiant> executerReinscription(Etudiant etudiant) {
         SessionDTO sessionDto = sessionService.getSessionActuelle();
         boolean dejaInscrit = inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(
                 etudiant, sessionDto.saison(), sessionDto.annee()
@@ -147,8 +148,10 @@ public class EtudiantService {
                 cvEtudiantRepository.save(cv);
             });
 
-            etudiantRepository.save(etudiant);
+          return Optional.of(etudiantRepository.save(etudiant));
         }
+
+        return null ;
     }
 
     private void validerInscriptionEtudiant(InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MatriculeExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException, MatriculeNonConforme {

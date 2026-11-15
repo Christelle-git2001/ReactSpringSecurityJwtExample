@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class SessionController {
     }
 
     @GetMapping("disponibles")
-    public ResponseEntity<List<SessionDTO>> obtenirSessions() {
+    public ResponseEntity<List<SessionDTO>> obtenirSessions() throws UtilisateurIntrouvableException {
         return ResponseEntity.ok(sessionService.getSessionsDisponibles());
     }
 

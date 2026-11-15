@@ -28,6 +28,8 @@ public abstract class UserApp  {
     private String lastName;
     @Column(unique = true, nullable = false)
     private String phoneNumber;
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
     @Embedded
     private Credentials credentials;
     private LocalDateTime lastLoginAt;

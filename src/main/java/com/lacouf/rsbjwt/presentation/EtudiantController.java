@@ -36,9 +36,9 @@ public class EtudiantController {
     }
 
     @PostMapping("/reinscription")
-    public ResponseEntity<Void> reinscrireEtudiant() throws EtudiantIntrouvableException {
-            etudiantService.reinscrireEtudiant();
-            return ResponseEntity.ok().build();
+    public ResponseEntity<EtudiantDTO> reinscrireEtudiant() throws EtudiantIntrouvableException {
+           EtudiantDTO etudiantDTO = etudiantService.reinscrireEtudiant();
+            return ResponseEntity.ok().body(etudiantDTO);
     }
 
     @GetMapping("/inscriptions")
