@@ -5,8 +5,10 @@ export async function fetchJson(path, options = {}) {
 
     if (res.status === 204) return null;
 
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
+
 export async function fetchApi(path, options = {}) {
     try {
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -27,8 +29,7 @@ export async function fetchApi(path, options = {}) {
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
-
-        if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
+        if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
             headers["Content-Type"] = "application/json";
         }
 
@@ -49,7 +50,6 @@ export async function fetchApi(path, options = {}) {
         throw error;
     }
 }
-
 async function manageError(res) {
     const errorData = await res.json().catch(() => ({ message: res.statusText }));
 
