@@ -43,6 +43,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -86,7 +87,13 @@ class GestionnaireServiceTest {
     private ContratRepository contratRepository;
 
     @Mock
+    private EntrevueRepository entrevueRepository;
+
+    @Mock
     private SessionService sessionService;
+
+    @Captor
+    private ArgumentCaptor<Function<Candidature, LocalDateTime>> dateCandidature;
 
 
     @InjectMocks
@@ -1331,5 +1338,231 @@ class GestionnaireServiceTest {
             verify(contratRepository).findById(contratId);
             verify(contratRepository, never()).save(any(Contrat.class));
         }
+    }
+
+    @Test
+    void doitRetournerUneOffreParId() throws Exception {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setId(15L);
+        offre.setTitle("Dev junior");
+        when(offreDeStageRepository.findById(15L)).thenReturn(Optional.of(offre));
+
+        OffreDeStageDTO result = gestionnaireService.getOffreParId(15L);
+
+        assertThat(result.id()).isEqualTo(15L);
+        assertThat(result.title()).isEqualTo("Dev junior");
+        verify(offreDeStageRepository).findById(15L);
+    }
+
+    @Test
+    void doitRefuserUneOffreIntrouvableParId() {
+        when(offreDeStageRepository.findById(15L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.getOffreParId(15L))
+                .isInstanceOf(OffreIntrouvableException.class);
+    }
+
+    @Test
+    void doitRetournerSeulementLesEtudiantsDeLaSessionActuelle() {
+        Etudiant ancienEtudiant = new Etudiant();
+        ancienEtudiant.setId(2L);
+        List<Etudiant> tous = List.of(etudiant, ancienEtudiant);
+        when(etudiantRepository.findAll()).thenReturn(tous);
+        when(sessionService.filtrerUtilisateursParSessionActuelle(tous)).thenReturn(List.of(etudiant));
+
+        List<EtudiantDTO> result = gestionnaireService.getAllEtudiants();
+
+        assertThat(result).extracting(EtudiantDTO::id).containsExactly(etudiant.getId());
+        verify(sessionService).filtrerUtilisateursParSessionActuelle(tous);
+    }
+
+    @Test
+    void doitRetournerTousLesEmployeursSousFormeDeDto() {
+        Employeur employeur = creerEmployeurTest();
+        when(employeurRepository.findAll()).thenReturn(List.of(employeur));
+
+        List<EmployeurDTO> result = gestionnaireService.getAllEmployeurs();
+
+        assertThat(result).singleElement().satisfies(dto -> {
+            assertThat(dto.id()).isEqualTo(employeur.getId());
+            assertThat(dto.businessName()).isEqualTo(employeur.getBusinessName());
+        });
+        verify(employeurRepository).findAll();
+    }
+
+    @Test
+    void doitRetournerLeContratDeLaCandidature() throws Exception {
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        Contrat contrat = new Contrat(candidature, gestionnaire);
+        contrat.setId(20L);
+        when(contratRepository.findByCandidatureId(10L)).thenReturn(Optional.of(contrat));
+
+        ContratDTO result = gestionnaireService.getContratParCandidatureId(10L);
+
+        assertThat(result.id()).isEqualTo(20L);
+        assertThat(result.candidatureId()).isEqualTo(10L);
+        assertThat(result.gestionnaireId()).isEqualTo(gestionnaire.getId());
+        verify(contratRepository).findByCandidatureId(10L);
+    }
+
+    @Test
+    void doitRefuserUnContratIntrouvablePourLaCandidature() {
+        when(contratRepository.findByCandidatureId(10L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.getContratParCandidatureId(10L))
+                .isInstanceOf(ContratIntrouvableException.class);
+    }
+
+    @Test
+    void doitRetournerLEntrevueDeLaCandidature() throws Exception {
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        Entrevue entrevue = new Entrevue();
+        entrevue.setId(30L);
+        entrevue.setCandidature(candidature);
+        when(entrevueRepository.findByCandidatureId(10L)).thenReturn(Optional.of(entrevue));
+
+        EntrevueDTO result = gestionnaireService.getEntrevueParCandidatureId(10L);
+
+        assertThat(result.id()).isEqualTo(30L);
+        assertThat(result.candidatureId()).isEqualTo(10L);
+        verify(entrevueRepository).findByCandidatureId(10L);
+    }
+
+    @Test
+    void doitRefuserUneEntrevueIntrouvablePourLaCandidature() {
+        when(entrevueRepository.findByCandidatureId(10L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.getEntrevueParCandidatureId(10L))
+                .isInstanceOf(EntrevueIntrouvableException.class);
+    }
+
+    @Test
+    void doitRefuserLesStatutsInvalides() {
+        String[] statutsInvalides = {null, "", "INCONNU", "   "};
+
+        for (String statut : statutsInvalides) {
+            assertThatThrownBy(() -> gestionnaireService.getCandidaturesByStatus(statut))
+                    .as("Statut invalide : <%s>", statut)
+                    .isInstanceOf(StatutCandidatureInvalideException.class)
+                    .hasMessage("error.invalid_candidature");
+        }
+
+        verifyNoInteractions(candidatureRepository, sessionService);
+    }
+
+    @Test
+    void doitAccepterUnStatutDeCandidatureEnMinuscules() throws Exception {
+        OffreDeStage offre = new OffreDeStage();
+        offre.setCreatedAt(LocalDateTime.of(2026, 11, 12, 10, 0));
+        Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
+        candidature.setId(10L);
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        List<Candidature> candidatures = List.of(candidature);
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE)).thenReturn(candidatures);
+        when(sessionService.filtrerParSessionActuelle(eq(candidatures), any())).thenReturn(candidatures);
+
+        List<CandidatureDTO> result = gestionnaireService.getCandidaturesByStatus("stage_trouve");
+
+        assertThat(result).extracting(CandidatureDTO::id).containsExactly(10L);
+        verify(candidatureRepository).findByStatut(StatutCandidature.STAGE_TROUVE);
+        verify(sessionService).filtrerParSessionActuelle(eq(candidatures), dateCandidature.capture());
+        assertThat(dateCandidature.getValue().apply(candidature)).isEqualTo(offre.getCreatedAt());
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeSiEmployeurIntrouvable() {
+        CreationOffreCibleeDTO dto = creerOffreCibleeDto(
+                LocalDate.now().plusDays(10), LocalDate.now().plusDays(30), LocalDate.now().plusDays(5));
+        when(employeurRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, null))
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+        verifyNoInteractions(etudiantRepository, offreDeStageRepository, applicationEventPublisher);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeSiEtudiantIntrouvable() {
+        CreationOffreCibleeDTO dto = creerOffreCibleeDto(
+                LocalDate.now().plusDays(10), LocalDate.now().plusDays(30), LocalDate.now().plusDays(5));
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(creerEmployeurTest()));
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, null))
+                .isInstanceOf(UtilisateurIntrouvableException.class);
+        verifyNoInteractions(offreDeStageRepository, applicationEventPublisher);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeDontLeDebutEstPasse() {
+        LocalDate aujourdHui = LocalDate.now();
+        verifierRefusDatesOffreCiblee(aujourdHui.minusDays(10), aujourdHui.plusDays(30),
+                aujourdHui.plusDays(5), DateAvantAujourdhuiException.class);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeDontLaFinPrecedeLeDebut() {
+        LocalDate aujourdHui = LocalDate.now();
+        verifierRefusDatesOffreCiblee(aujourdHui.plusDays(10), aujourdHui.plusDays(5),
+                aujourdHui.plusDays(3), DateFinAvantDateDebutException.class);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeDontLaFinEgaleLeDebut() {
+        LocalDate aujourdHui = LocalDate.now();
+        verifierRefusDatesOffreCiblee(aujourdHui.plusDays(10), aujourdHui.plusDays(10),
+                aujourdHui.plusDays(3), DateFinAvantDateDebutException.class);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeDontLAffichageEstExpire() {
+        LocalDate aujourdHui = LocalDate.now();
+        verifierRefusDatesOffreCiblee(aujourdHui.plusDays(10), aujourdHui.plusDays(30),
+                aujourdHui.minusDays(10), DateFinAffichageAvantAujourdhuiException.class);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeDontLAffichageDepasseLeDebut() {
+        LocalDate aujourdHui = LocalDate.now();
+        verifierRefusDatesOffreCiblee(aujourdHui.plusDays(10), aujourdHui.plusDays(30),
+                aujourdHui.plusDays(15), DateFinAffichageApresDateDebutException.class);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeSansFichier() {
+        verifierRefusFichierOffreCiblee(null);
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeAvecFichierVide() {
+        verifierRefusFichierOffreCiblee(new MockMultipartFile("file", new byte[0]));
+    }
+
+    private CreationOffreCibleeDTO creerOffreCibleeDto(LocalDate debut, LocalDate fin, LocalDate finAffichage) {
+        return new CreationOffreCibleeDTO("Stage Java", "Description", 25.0,
+                Departement.INFORMATIQUE, debut, fin, finAffichage, 1L, 1L);
+    }
+
+    private void verifierRefusDatesOffreCiblee(LocalDate debut, LocalDate fin, LocalDate finAffichage,
+                                              Class<? extends Throwable> exception) {
+        CreationOffreCibleeDTO dto = creerOffreCibleeDto(debut, fin, finAffichage);
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(creerEmployeurTest()));
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, null)).isInstanceOf(exception);
+        verifyNoInteractions(offreDeStageRepository, applicationEventPublisher);
+    }
+
+    private void verifierRefusFichierOffreCiblee(MultipartFile file) {
+        LocalDate aujourdHui = LocalDate.now();
+        CreationOffreCibleeDTO dto = creerOffreCibleeDto(
+                aujourdHui.plusDays(10), aujourdHui.plusDays(30), aujourdHui.plusDays(5));
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(creerEmployeurTest()));
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, file))
+                .isInstanceOf(FichierCorrompuException.class);
+        verifyNoInteractions(offreDeStageRepository, applicationEventPublisher);
     }
 }
