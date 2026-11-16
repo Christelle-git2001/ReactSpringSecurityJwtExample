@@ -47,6 +47,15 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
         }
     }, [ouvert]);
 
+    useEffect(() => {
+        setMessages(prev => {
+            if (prev.length === 1 && prev[0].role === "bot") {
+                return [{ role: "bot", texte: initialMessage }];
+            }
+            return prev;
+        });
+    }, [initialMessage]);
+
     const envoyer = async (texteForce) => {
         const question = (texteForce ?? saisie).trim();
         if (!question || chargement) return;
@@ -145,12 +154,12 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
                         <div className="pt-1 space-y-1.5">
                             {suggestions.map((s, i) => (
                                 <button key={i}
-                                        onClick={() => envoyer(s)}
+                                        onClick={() => envoyer(s.query)}
                                         className="w-full text-left text-xs px-3 py-1.5 rounded-xl
                                                    border border-[#043462]/20 text-[#043462] bg-white
                                                    hover:bg-[#043462] hover:text-white
                                                    transition-colors duration-150">
-                                    {s}
+                                    {s.label}
                                 </button>
                             ))}
                         </div>

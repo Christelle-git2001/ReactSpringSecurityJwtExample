@@ -1,6 +1,7 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next"; // <-- Votre hook de traduction
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 import { addEtudiant, addProfesseur, addEmployeur } from "./utils/userService.js";
@@ -10,6 +11,7 @@ import ChatBot from "./component/Chatbot/ChatBot.jsx";
 import { poserQuestionChatbot } from "./api/chatbot.jsx";
 
 function App() {
+    const { t } = useTranslation(); // <-- Initialisation de t
     const { user, setUser, error, setError } = useAuth();
     const [message, setMessage] = useState("");
     const [drawerContent, setDrawerContent] = useState(null);
@@ -39,39 +41,6 @@ function App() {
     const handleEmployeur = (employeur) =>
         addEmployeur(employeur, setMessage, setError, navigate);
 
-    const CONFIGS_CHATBOT = {
-        ETUDIANT: {
-            sousTitre: "Assistant étudiant",
-            initialMessage: "Bonjour ! Je suis votre assistant étudiant. 👋\nPosez-moi une question sur votre CV, vos offres de stage ou vos candidatures.",
-            suggestions: [
-                "Est-ce que mon CV a été approuvé ?",
-                "Quelles offres de stage sont disponibles pour moi ?",
-                "Ai-je reçu de nouvelles offres ?",
-                "Qui est mon professeur assigné ?"
-            ]
-        },
-        EMPLOYEUR: {
-            sousTitre: "Assistant employeur",
-            initialMessage: "Bonjour ! Je suis votre assistant employeur. 👋\nPosez-moi une question sur vos offres de stage, vos candidats ou vos contrats.",
-            suggestions: [
-                "Quelles offres de stage ai-je publiées ?",
-                "Quelles candidatures ai-je reçues ?",
-                "Quelles sont mes prochaines entrevues ?",
-                "Quels contrats attendent ma signature ?"
-            ]
-        },
-        GESTIONNAIRE: {
-            sousTitre: "Gestionnaire de stages",
-            initialMessage: "Bonjour ! Je suis votre assistant de gestion de stages.\nPosez-moi une question ou choisissez une suggestion ci-dessous.",
-            suggestions: [
-                "Combien d'étudiants sont inscrits ?",
-                "Quels CV attendent une validation ?",
-                "Quels contrats attendent ma signature ?",
-                "Combien ont trouvé un stage ?"
-            ]
-        }
-    };
-
     return (
         <div key={sessionKey} className="max-h-screen">
             <AppRoutes
@@ -87,25 +56,28 @@ function App() {
                 openDrawer={setDrawerContent}
             />
             <Drawer id="my-drawer-5" content={drawerContent} />
-                        <Toaster />
-                        {user?.isLoggedIn && (() => {
-                            const roleName = user.role?.name || "GESTIONNAIRE";
-                            const config = CONFIGS_CHATBOT[roleName] || CONFIGS_CHATBOT.GESTIONNAIRE;
+            <Toaster />
+            {user?.isLoggedIn && (() => {
+                const roleName = user.role?.name || "GESTIONNAIRE";
+                const roleKey = roleName.toLowerCase(); // 'etudiant', 'employeur', 'gestionnaire'
 
-                            return (
-                                <ChatBot
-                                    titre="Assistant IKey"
-                                    sousTitre={config.sousTitre}
-                                    initialMessage={config.initialMessage}
-                                    suggestions={config.suggestions}
-                                    onSend={async (question) => {
-                                        const resultat = await poserQuestionChatbot(question);
-                                        return resultat.reponse;
-                                    }}
-                                />
-                            );
-                        })()}
-            </div>
+                // Récupération des suggestions sous forme de tableau d'objets [{label, query}]
+                const suggestionsList = t(`chatbot.suggestions.${roleKey}`, { returnObjects: true });
+
+                return (
+                    <ChatBot
+                        titre={t("chatbot.titre")}
+                        sousTitre={t(`chatbot.sousTitre${roleName.charAt(0) + roleName.slice(1).toLowerCase()}`)}
+                        initialMessage={t(`chatbot.initial${roleName.charAt(0) + roleName.slice(1).toLowerCase()}`)}
+                        suggestions={Array.isArray(suggestionsList) ? suggestionsList : []}
+                        onSend={async (question) => {
+                            const resultat = await poserQuestionChatbot(question);
+                            return resultat.reponse;
+                        }}
+                    />
+                );
+            })()}
+        </div>
     );
 }
 

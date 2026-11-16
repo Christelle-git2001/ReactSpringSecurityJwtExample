@@ -863,5 +863,72 @@
     "preferences": "Preferences",
     "theme": "Theme",
     "language": "Language"
+  },
+  "chatbot": {
+    "titre": "IKey Assistant",
+    "placeholder": "Ask your question...",
+    "thinking": "Assistant is thinking...",
+    "sousTitreEtudiant": "Student Assistant",
+    "sousTitreEmployeur": "Employer Assistant",
+    "sousTitreGestionnaire": "Internship Manager",
+    "initialEtudiant": "Hello! I am your student assistant. 👋\nAsk me a question about your resume, internship offers, or applications.",
+    "initialEmployeur": "Hello! I am your employer assistant. 👋\nAsk me a question about your internship offers, candidates, or contracts.",
+    "initialGestionnaire": "Hello! I am your internship management assistant.\nAsk me a question or choose a suggestion below.",
+    "suggestions": {
+      "etudiant": [
+        {
+          "label": "Has my resume been approved?",
+          "query": "Has my resume been approved?"
+        },
+        {
+          "label": "What internship offers are available for me?",
+          "query": "What internship offers are available for me?"
+        },
+        {
+          "label": "Have I received any new offers?",
+          "query": "Have I received any new offers?"
+        },
+        {
+          "label": "Who is my assigned professor?",
+          "query": "Who is my assigned professor?"
+        }
+      ],
+      "employeur": [
+        {
+          "label": "What internship offers have I published?",
+          "query": "What internship offers have I published?"
+        },
+        {
+          "label": "What applications have I received?",
+          "query": "What applications have I received?"
+        },
+        {
+          "label": "What are my upcoming interviews?",
+          "query": "What are my upcoming interviews?"
+        },
+        {
+          "label": "Which contracts are awaiting my signature?",
+          "query": "Which contracts are awaiting my signature?"
+        }
+      ],
+      "gestionnaire": [
+        {
+          "label": "How many students are enrolled?",
+          "query": "How many students are enrolled?"
+        },
+        {
+          "label": "Which resumes are waiting for validation?",
+          "query": "Which resumes are waiting for validation?"
+        },
+        {
+          "label": "Which contracts are awaiting my signature?",
+          "query": "Which contracts are awaiting my signature?"
+        },
+        {
+          "label": "How many students have found an internship?",
+          "query": "How many students have found an internship?"
+        }
+      ]
+    }
   }
 }

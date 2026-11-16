@@ -864,5 +864,72 @@
     "preferences": "Préférences",
     "theme": "Thème",
     "language": "Langue"
+  },
+  "chatbot": {
+    "titre": "Assistant IKey",
+    "placeholder": "Posez votre question...",
+    "thinking": "L'assistant réfléchit...",
+    "sousTitreEtudiant": "Assistant étudiant",
+    "sousTitreEmployeur": "Assistant employeur",
+    "sousTitreGestionnaire": "Gestionnaire de stages",
+    "initialEtudiant": "Bonjour ! Je suis votre assistant étudiant. 👋\nPosez-moi une question sur votre CV, vos offres de stage ou vos candidatures.",
+    "initialEmployeur": "Bonjour ! Je suis votre assistant employeur. 👋\nPosez-moi une question sur vos offres de stage, vos candidats ou vos contrats.",
+    "initialGestionnaire": "Bonjour ! Je suis votre assistant de gestion de stages.\nPosez-moi une question ou choisissez une suggestion ci-dessous.",
+    "suggestions": {
+      "etudiant": [
+        {
+          "label": "Est-ce que mon CV a été approuvé ?",
+          "query": "Est-ce que mon CV a été approuvé ?"
+        },
+        {
+          "label": "Quelles offres de stage sont disponibles pour moi ?",
+          "query": "Quelles offres de stage sont disponibles pour moi ?"
+        },
+        {
+          "label": "Ai-je reçu de nouvelles offres ?",
+          "query": "Ai-je reçu de nouvelles offres ?"
+        },
+        {
+          "label": "Qui est mon professeur assigné ?",
+          "query": "Qui est mon professeur assigné ?"
+        }
+      ],
+      "employeur": [
+        {
+          "label": "Quelles offres de stage ai-je publiées ?",
+          "query": "Quelles offres de stage ai-je publiées ?"
+        },
+        {
+          "label": "Quelles candidatures ai-je reçues ?",
+          "query": "Quelles candidatures ai-je reçues ?"
+        },
+        {
+          "label": "Quelles sont mes prochaines entrevues ?",
+          "query": "Quelles sont mes prochaines entrevues ?"
+        },
+        {
+          "label": "Quels contrats attendent ma signature ?",
+          "query": "Quels contrats attendent ma signature ?"
+        }
+      ],
+      "gestionnaire": [
+        {
+          "label": "Combien d'étudiants sont inscrits ?",
+          "query": "Combien d'étudiants sont inscrits ?"
+        },
+        {
+          "label": "Quels CV attendent une validation ?",
+          "query": "Quels CV attendent une validation ?"
+        },
+        {
+          "label": "Quels contrats attendent ma signature ?",
+          "query": "Quels contrats attendent ma signature ?"
+        },
+        {
+          "label": "Combien ont trouvé un stage ?",
+          "query": "Combien ont trouvé un stage ?"
+        }
+      ]
+    }
   }
 }
