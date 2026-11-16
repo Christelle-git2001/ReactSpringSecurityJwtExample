@@ -836,5 +836,32 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "session": {
+    "label": "Academic session",
+    "select": "Select session",
+    "saisons": {
+      "AUTOMNE": "Fall",
+      "HIVER": "Winter",
+      "ETE": "Summer"
+    }
+  },
+  "reinscription": {
+    "button": "Re-enroll",
+    "success": "Re-enrollment completed successfully.",
+    "error": "An error occurred during re-enrollment.",
+    "loading": "Re-enrolling..."
+  },
+  "roles": {
+    "gestionnaire": "Manager",
+    "etudiant": "Student",
+    "employeur": "Employer",
+    "professeur": "Professor"
+  },
+  "header": {
+    "actions": "Actions",
+    "preferences": "Preferences",
+    "theme": "Theme",
+    "language": "Language"
   }
 }
