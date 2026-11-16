@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Role } from "../../enum/Role.jsx";
 import { useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
+import MotifRefus from "../Design/MotifRefus.jsx";
 import {
     retenirCandidaturePourEntrevue,
     signerContratEmployeur,
@@ -11,21 +12,22 @@ import {
     accepterCandidat,
     refuserCandidat
 } from "../../api/employeur.jsx";
-import {signerContratEtudiant} from "../../api/etudiant.jsx";
+import { signerContratEtudiant } from "../../api/etudiant.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
 import ActionsDesactivees from "./ActionsDesactivees.jsx";
+import EvaluationStagiaire from "../Evaluation/EvaluationStagiaire.jsx";
 
 function NextAction({
-    candidature,
-    statutEntrevue,
-    contrat,
-    retourPath,
-    onSignatureSuccess,
-    onProcessChange,
-    role,
-    offer
-}) {
+                        candidature,
+                        statutEntrevue,
+                        contrat,
+                        retourPath,
+                        onSignatureSuccess,
+                        onProcessChange,
+                        role,
+                        offer
+                    }) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
@@ -40,6 +42,9 @@ function NextAction({
     const [actionsBloquees, setActionsBloquees] = useState(false);
     const [entrevueFermee, setEntrevueFermee] = useState(false);
     const [entreeStatutLocal, setEntreeStatutLocal] = useState(statutEntrevue || null);
+
+    const [evaluationOuverte, setEvaluationOuverte] = useState(false);
+    const [evaluationSoumise, setEvaluationSoumise] = useState(false);
 
     const activeEntrevueStatut = entreeStatutLocal ?? statutEntrevue;
 
@@ -140,6 +145,8 @@ function NextAction({
 
     const isEmployeurSigned = Boolean(dateSignatureEmployeur);
     const isEtudiantSigned = Boolean(dateSignatureEtudiant);
+
+    // Le stage est terminé quand sa date de fin est passée
     const aujourdhui = new Date().toLocaleDateString("en-CA"); // AAAA-MM-JJ
     const stageTermine = Boolean(offer?.endDate) && offer.endDate < aujourdhui;
 
@@ -318,6 +325,19 @@ function NextAction({
         }
 
         if (role === Role.EMPLOYEUR) {
+
+            // Évaluation du stagiaire : contrat créé et stage terminé
+            if (statutActuel === "CONTRAT_CREE" && stageTermine) {
+                return evaluationSoumise
+                    ? { description: t("evaluation.success"), buttonText: null, onClick: null, disabled: false }
+                    : {
+                        description: t("process.action_evaluate_intern"),
+                        buttonText: t("actions.evaluate_intern"),
+                        onClick: () => setEvaluationOuverte(true),
+                        disabled: false
+                    };
+            }
+
             if (isEmployeurSigned) {
                 return {
                     description: `${t("process.action_contract_signed_msg")} ${formatDateSignature(dateSignatureEmployeur)}.`,
@@ -340,7 +360,7 @@ function NextAction({
                     return {
                         description: t("process.action_plan_interview"),
                         buttonText: t("actions.plan_interview"),
-                        onClick: () => navigate("/employeur/entrevues", {state: {selectedCandidatureId: candidature?.id}}),
+                        onClick: () => navigate("/employeur/entrevues", { state: { selectedCandidatureId: candidature?.id } }),
                         disabled: false
                     };
 
@@ -352,6 +372,7 @@ function NextAction({
                         onClick: null,
                         disabled: false
                     };
+
                 case "ENTREVUE_CONFIRMEE": {
                     const terminee = activeEntrevueStatut === "TERMINEE";
                     return {
@@ -376,6 +397,7 @@ function NextAction({
                         onClick: null,
                         disabled: false
                     };
+
                 case "ACCEPTEE":
                     return {
                         description: t("process.action_wait_student_declaration"),
@@ -383,6 +405,7 @@ function NextAction({
                         onClick: null,
                         disabled: false,
                     };
+
                 case "REFUSEE":
                     return { description: t("process.action_application_refused"), buttonText: null, disabled: false };
 
@@ -419,7 +442,7 @@ function NextAction({
         return <div className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-4">
             <ActionsDesactivees />
             <div className="flex justify-end"><Button variant="secondary" size="small"
-                onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
+                                                      onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
         </div>;
     }
 
@@ -548,6 +571,17 @@ function NextAction({
                         </div>
                     </div>
                 </div>
+            )}
+            {evaluationOuverte && (
+                <EvaluationStagiaire
+                    candidature={candidature}
+                    offer={offer}
+                    onClose={() => setEvaluationOuverte(false)}
+                    onSuccess={() => {
+                        setEvaluationOuverte(false);
+                        setEvaluationSoumise(true);
+                    }}
+                />
             )}
         </div>
     );
