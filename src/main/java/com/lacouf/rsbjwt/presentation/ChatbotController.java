@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.Exception.AccesChatbotRefuseException;
+import com.lacouf.rsbjwt.Exception.QuestionChatbotInvalideException;
 import com.lacouf.rsbjwt.service.chatbot.ChatbotService;
 import com.lacouf.rsbjwt.service.dto.QuestionChatbotDTO;
 import com.lacouf.rsbjwt.service.dto.ReponseChatbotDTO;
@@ -24,7 +26,8 @@ public class ChatbotController {
     }
 
     @PostMapping("/questions")
-    public ResponseEntity<ReponseChatbotDTO> poserQuestion(@Valid @RequestBody QuestionChatbotDTO question) {
+    public ResponseEntity<ReponseChatbotDTO> poserQuestion(@Valid @RequestBody QuestionChatbotDTO question)
+            throws QuestionChatbotInvalideException, AccesChatbotRefuseException {
         String reponse = chatbotService.poserQuestion(question.question());
         return ResponseEntity.ok(new ReponseChatbotDTO(reponse));
     }

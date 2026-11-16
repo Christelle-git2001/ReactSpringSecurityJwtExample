@@ -865,6 +865,10 @@
     "language": "Language"
   },
   "chatbot": {
+    "errors": {
+      "question_required": "The question must not be empty.",
+      "access_denied": "Access to the chatbot is denied."
+    },
     "titre": "IKey Assistant",
     "placeholder": "Ask your question...",
     "thinking": "Assistant is thinking...",

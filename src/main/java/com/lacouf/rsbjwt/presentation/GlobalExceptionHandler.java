@@ -349,4 +349,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErreurDTO("chatbot.errors.technical_error"));
     }
+
+    @ExceptionHandler(QuestionChatbotInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleQuestionChatbotInvalide(QuestionChatbotInvalideException e) {
+        return ResponseEntity.badRequest().body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(AccesChatbotRefuseException.class)
+    public ResponseEntity<ErreurDTO> handleAccesChatbotRefuse(AccesChatbotRefuseException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErreurDTO(e.getMessage()));
+    }
 }
