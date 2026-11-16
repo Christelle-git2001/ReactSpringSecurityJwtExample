@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
+import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
 import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
@@ -12,10 +13,7 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +25,8 @@ import org.mockito.InjectMocks;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -49,6 +49,9 @@ public class NotificationServiceTest {
 
     @Mock
     private EtudiantRepository etudiantRepository;
+
+    @Mock
+    private EmployeurRepository employeurRepository;
 
     @Mock
     private CandidatureRepository candidatureRepository;
@@ -1025,5 +1028,51 @@ public class NotificationServiceTest {
         }
         verify(notificationRepository, never()).delete(contrat);
         verify(notificationRepository, never()).delete(autreEtudiant);
+    }
+
+    @Test
+    void doitRetournerLesNotificationsNonLuesDeLEmployeur() throws EmployeurIntrouvable {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+
+        Notification notificationLue = new Notification();
+        notificationLue.setEstLu(true);
+        notificationLue.setId(41L);
+
+        when(employeurRepository.findByCredentialsEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(notificationEmployeur, notificationLue));
+
+        List<NotificationDTO> resultat = notificationService.getNotificationsNonLuesEmployeur();
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(notificationEmployeur.getId());
+        assertThat(resultat.get(0).estLu()).isFalse();
+
+        verify(employeurRepository).findByCredentialsEmail(employeur.getEmail());
+        verify(notificationRepository).getNotificationByDestinataire(employeur);
+
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void doitLancerExceptionQuandEmployeurIntrouvablePourNotificationsNonLues() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("inconnu@test.com", null)
+        );
+
+        when(employeurRepository.findByCredentialsEmail("inconnu@test.com"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> notificationService.getNotificationsNonLuesEmployeur())
+                .isInstanceOf(EmployeurIntrouvable.class);
+
+        verify(employeurRepository).findByCredentialsEmail("inconnu@test.com");
+        verify(notificationRepository, never()).getNotificationByDestinataire(any());
+
+        SecurityContextHolder.clearContext();
     }
 }
