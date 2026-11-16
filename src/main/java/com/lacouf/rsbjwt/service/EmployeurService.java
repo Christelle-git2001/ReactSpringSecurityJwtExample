@@ -46,6 +46,9 @@ public class EmployeurService {
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
     private final EtudiantService etudiantService;
+    private final SessionService sessionService ;
+    private final InscriptionRepository inscriptionRepository;
+
 
     public EmployeurService(
             EmployeurRepository employeurRepository,
@@ -53,7 +56,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            ContratRepository contratRepository, EtudiantService etudiantService) {
+            ContratRepository contratRepository, EtudiantService etudiantService,SessionService sessionService, InscriptionRepository inscriptionRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -63,15 +66,26 @@ public class EmployeurService {
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
         this.etudiantService = etudiantService;
+        this.sessionService = sessionService;
+        this.inscriptionRepository = inscriptionRepository;
     }
 
     @Transactional
-    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
-       validerInscriptionEmployeur(inscriptionEmployeurDTO);
+    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO)
+            throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+        validerInscriptionEmployeur(inscriptionEmployeurDTO);
         String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
         Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
-        Employeur employeurCreer =  employeurRepository.save(employeur);
-       return EmployeurDTO.of(employeurCreer);
+        Employeur employeurCreer = employeurRepository.save(employeur);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+        Inscription inscription = new Inscription(
+                employeurCreer,
+                sessionDto.saison(),
+                sessionDto.annee()
+        );
+        inscriptionRepository.save(inscription);
+        employeurCreer.getInscriptions().add(inscription);
+        return EmployeurDTO.of(employeurCreer);
     }
 
 
@@ -146,8 +160,12 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UserNotFoundException::new);
 
-        return employeur.getOffres()
-                .stream()
+        List<OffreDeStage> offresSession = sessionService.filtrerParSessionActuelle(
+                employeur.getOffres(),
+                OffreDeStage::getCreatedAt
+        );
+
+        return offresSession.stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -274,12 +292,19 @@ public class EmployeurService {
         List<Candidature> candidatures =
                 candidatureRepository.findByOffreDeStage_Employeur(employeur);
 
-        return candidatures
+        System.out.println("Nombre total de candidatures trouvées en base : " + candidatures.size());
+
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        System.out.println("Nombre de candidatures APRÈS FILTRE SESSION : " + candidaturesFiltrees.size());
+        System.out.println("SESSION ACTIVE EN COURS : " + sessionService.getSessionActuelle());
+
+        return candidaturesFiltrees
                 .stream()
-                .map(candidature -> CandidatureDTO.of(candidature,
-                        candidature.getStatut() == StatutCandidature.CONTRAT_CREE
-                                ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
-                                : null))
+                .map(CandidatureDTO::of)
                 .toList();
     }
 
@@ -293,13 +318,20 @@ public class EmployeurService {
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
-                .orElseThrow(UtilisateurIntrouvableException::new);
+                .orElseThrow(UserNotFoundException::new);
 
-        return candidatureRepository
+        List<Candidature> candidatures = candidatureRepository
                 .findByStatutAndOffreDeStageEmployeurId(
                         StatutCandidature.RETENUE_POUR_ENTREVUE,
                         employeur.getId()
-                )
+                );
+
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        return candidaturesFiltrees
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
@@ -333,8 +365,6 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
-
         if (convocationRepository
                 .findByCandidatureId(dto.candidatureId())
                 .isPresent()) {
@@ -363,7 +393,6 @@ public class EmployeurService {
 
         candidature.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
         candidatureRepository.save(candidature);
-        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
 
         eventPublisher.publishEvent(
                 new EntrevueCreeeEvent(entrevueEnregistree)
@@ -413,7 +442,12 @@ public class EmployeurService {
 
         List<Entrevue> entrevues = convocationRepository.findByEmployeurId(employeur.getId());
 
-        return entrevues
+        List<Entrevue> entrevuesFiltrees = sessionService.filtrerParSessionActuelle(
+                entrevues,
+                entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
+        );
+
+        return entrevuesFiltrees
                 .stream()
                 .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
                 .map(EntrevueDTO::of)
@@ -548,6 +582,7 @@ public class EmployeurService {
         contrat.setDateSignatureEmployeur(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
+
         eventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);

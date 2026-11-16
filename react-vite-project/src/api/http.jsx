@@ -5,7 +5,8 @@ export async function fetchJson(path, options = {}) {
 
     if (res.status === 204) return null;
 
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
 
 export async function fetchApi(path, options = {}) {
@@ -13,9 +14,17 @@ export async function fetchApi(path, options = {}) {
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
         const cleanBaseUrl = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
         const token = localStorage.getItem("token");
+
         const headers = {
             ...(options.headers || {}),
         };
+
+        if (!options.ignoreSession) {
+            const sessionCible = localStorage.getItem("sessionCible");
+            if (sessionCible) {
+                headers["X-Session-Cible"] = sessionCible;
+            }
+        }
 
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
@@ -41,7 +50,6 @@ export async function fetchApi(path, options = {}) {
         throw error;
     }
 }
-
 async function manageError(res) {
     const errorData = await res.json().catch(() => ({ message: res.statusText }));
 

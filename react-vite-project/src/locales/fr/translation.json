@@ -837,5 +837,32 @@
       "title" : "Liste",
       "empty" : "La liste est vide"
     }
+  },
+  "session": {
+    "label": "Session académique",
+    "select": "Choisir une session",
+    "saisons": {
+      "AUTOMNE": "Automne",
+      "HIVER": "Hiver",
+      "ETE": "Été"
+    }
+  },
+  "reinscription": {
+    "button": "Se réinscrire",
+    "success": "Réinscription effectuée avec succès.",
+    "error": "Une erreur est survenue lors de la réinscription.",
+    "loading": "Réinscription en cours..."
+  },
+  "roles": {
+    "gestionnaire": "Gestionnaire",
+    "etudiant": "Étudiant",
+    "employeur": "Employeur",
+    "professeur": "Professeur"
+  },
+  "header": {
+    "actions": "Actions",
+    "preferences": "Préférences",
+    "theme": "Thème",
+    "language": "Langue"
   }
 }

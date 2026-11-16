@@ -4,5 +4,6 @@ public enum StatutEntrevue {
     A_CONFIRMER,
     CONFIRMEE,
     REFUSEE,
-    TERMINEE
+    TERMINEE,
+    EN_ATTENTE_REPONSE
 }
