@@ -1475,4 +1475,409 @@ public class EtudiantServiceTest {
         verify(entrevueRepository, never()).save(any());
         verifyNoInteractions(applicationEventPublisher);
     }
+
+    @Test
+    void doitRetournerMonCvQuandIlExiste() throws Exception {
+        CvEtudiant cv = CvEtudiant.builder()
+                .fileName("mon-cv.pdf")
+                .contentType("application/pdf")
+                .fileSize(1024L)
+                .uploadDate(LocalDateTime.now())
+                .etudiant(etudiant)
+                .build();
+        cv.setId(1L);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        MonCvTeleverseDTO resultat = etudiantService.getMonCv();
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.cvTeleverse()).isTrue();
+        assertThat(resultat.cv()).isNotNull();
+        assertThat(resultat.cv().fileName()).isEqualTo("mon-cv.pdf");
+
+        verify(cvEtudiantRepository).findByEtudiant(etudiant);
+    }
+
+    @Test
+    void doitRetournerAucunCvQuandEtudiantNenPossedePas() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.empty());
+
+        MonCvTeleverseDTO resultat = etudiantService.getMonCv();
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.cvTeleverse()).isFalse();
+        assertThat(resultat.cv()).isNull();
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourMonCv() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.getMonCv())
+                .isInstanceOf(EtudiantIntrouvableException.class);
+
+        verify(cvEtudiantRepository, never()).findByEtudiant(any());
+    }
+
+    @Test
+    void doitRetournerAucunProfesseurQuandEtudiantNenPossedePas() throws Exception {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        etudiant.setProfesseur(null);
+
+        MonProfesseurAssigneDTO resultat =
+                etudiantService.getMonProfesseur();
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.professeurAssigne()).isFalse();
+        assertThat(resultat.professeur()).isNull();
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourMonProfesseur() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.getMonProfesseur())
+                .isInstanceOf(EtudiantIntrouvableException.class);
+    }
+
+    @Test
+    void doitRetournerUniquementLesOffresNonPostulees() throws Exception {
+        inscrireEtudiantSessionActuelle();
+
+        OffreDeStage offre1 = creerOffre(1L, "Développeur Java");
+        OffreDeStage offre2 = creerOffre(2L, "Développeur Web");
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
+                .thenReturn(List.of(offre1, offre2));
+
+        when(offreDeStageRepository.findOffresCibleesPourEtudiant(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class),
+                eq(etudiant)))
+                .thenReturn(List.of());
+
+        Candidature candidature = new Candidature(
+                etudiant, offre1, LocalDateTime.now());
+
+        when(candidatureRepository.findByEtudiant(etudiant))
+                .thenReturn(List.of(candidature));
+
+        List<OffreDeStageDTO> resultat =
+                etudiantService.getOffresNonPostulees();
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(2L);
+        assertThat(resultat.get(0).title()).isEqualTo("Développeur Web");
+
+        verify(candidatureRepository).findByEtudiant(etudiant);
+    }
+
+    @Test
+    void doitRetournerListeVideQuandToutesLesOffresSontDejaPostulees()
+            throws Exception {
+        inscrireEtudiantSessionActuelle();
+
+        OffreDeStage offre = creerOffre(1L, "Développeur Java");
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
+                .thenReturn(List.of(offre));
+
+        when(offreDeStageRepository.findOffresCibleesPourEtudiant(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class),
+                eq(etudiant)))
+                .thenReturn(List.of());
+
+        Candidature candidature = new Candidature(
+                etudiant, offre, LocalDateTime.now());
+
+        when(candidatureRepository.findByEtudiant(etudiant))
+                .thenReturn(List.of(candidature));
+
+        List<OffreDeStageDTO> resultat =
+                etudiantService.getOffresNonPostulees();
+
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneOffreDisponible()
+            throws Exception {
+        inscrireEtudiantSessionActuelle();
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
+                .thenReturn(List.of());
+
+        when(offreDeStageRepository.findOffresCibleesPourEtudiant(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class),
+                eq(etudiant)))
+                .thenReturn(List.of());
+
+        when(candidatureRepository.findByEtudiant(etudiant))
+                .thenReturn(List.of());
+
+        List<OffreDeStageDTO> resultat =
+                etudiantService.getOffresNonPostulees();
+
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
+    void doitLeverExceptionSiCvNonApprouvePourOffresNonPostulees() {
+        inscrireEtudiantSessionActuelle();
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.EN_ATTENTE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        assertThatThrownBy(() -> etudiantService.getOffresNonPostulees())
+                .isInstanceOf(CurriculumVitaeNonApprouveException.class);
+
+        verify(candidatureRepository, never()).findByEtudiant(any());
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourOffresNonPostulees() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> etudiantService.getOffresNonPostulees())
+                .isInstanceOf(EtudiantIntrouvableException.class);
+
+        verify(cvEtudiantRepository, never()).findByEtudiant(any());
+    }
+    @Test
+    void doitRetournerLesOffresApprouveesDepuisDerniereVisite()
+            throws Exception {
+        inscrireEtudiantSessionActuelle();
+
+        LocalDateTime derniereVisite =
+                LocalDateTime.of(2026, 11, 10, 10, 0);
+
+        etudiant.setPreviousLoginAt(derniereVisite);
+
+        OffreDeStage nouvelleOffre =
+                creerOffre(1L, "Nouvelle offre");
+
+        nouvelleOffre.setApprovedAt(derniereVisite.plusDays(1));
+
+        OffreDeStage ancienneOffre =
+                creerOffre(2L, "Ancienne offre");
+
+        ancienneOffre.setApprovedAt(derniereVisite.minusDays(1));
+
+        OffreDeStage sansDateApprobation =
+                creerOffre(3L, "Offre sans date");
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
+                .thenReturn(List.of(
+                        nouvelleOffre,
+                        ancienneOffre,
+                        sansDateApprobation));
+
+        when(offreDeStageRepository.findOffresCibleesPourEtudiant(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class),
+                eq(etudiant)))
+                .thenReturn(List.of());
+
+        List<OffreDeStageDTO> resultat =
+                etudiantService.getNouvellesOffresDepuisDerniereVisite();
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(1L);
+        assertThat(resultat.get(0).title()).isEqualTo("Nouvelle offre");
+    }
+
+    @Test
+    void doitRetournerToutesLesOffresApprouveesSiAucuneVisitePrecedente()
+            throws Exception {
+        inscrireEtudiantSessionActuelle();
+
+        etudiant.setPreviousLoginAt(null);
+
+        OffreDeStage offre1 = creerOffre(1L, "Offre approuvée");
+        offre1.setApprovedAt(LocalDateTime.now());
+
+        OffreDeStage offre2 = creerOffre(2L, "Autre offre approuvée");
+        offre2.setApprovedAt(LocalDateTime.now());
+
+        OffreDeStage offre3 = creerOffre(3L, "Offre sans approbation");
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
+                .thenReturn(List.of(offre1, offre2, offre3));
+
+        when(offreDeStageRepository.findOffresCibleesPourEtudiant(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class),
+                eq(etudiant)))
+                .thenReturn(List.of());
+
+        List<OffreDeStageDTO> resultat =
+                etudiantService.getNouvellesOffresDepuisDerniereVisite();
+
+        assertThat(resultat).hasSize(2);
+        assertThat(resultat)
+                .extracting(OffreDeStageDTO::id)
+                .containsExactly(1L, 2L);
+    }
+
+    @Test
+    void doitRetournerListeVideQuandAucuneNouvelleOffre()
+            throws Exception {
+        inscrireEtudiantSessionActuelle();
+
+        etudiant.setPreviousLoginAt(
+                LocalDateTime.of(2026, 11, 10, 10, 0));
+
+        OffreDeStage offre = creerOffre(1L, "Ancienne offre");
+        offre.setApprovedAt(etudiant.getPreviousLoginAt().minusDays(1));
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.of(etudiant));
+
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(cvEtudiantRepository.findByEtudiant(etudiant))
+                .thenReturn(Optional.of(cv));
+
+        when(offreDeStageRepository.findOffresGeneralesDisponibles(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class)))
+                .thenReturn(List.of(offre));
+
+        when(offreDeStageRepository.findOffresCibleesPourEtudiant(
+                eq(Statut.ACCEPTEE),
+                eq(etudiant.getDepartment()),
+                any(LocalDate.class),
+                eq(etudiant)))
+                .thenReturn(List.of());
+
+        List<OffreDeStageDTO> resultat =
+                etudiantService.getNouvellesOffresDepuisDerniereVisite();
+
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
+    void doitLeverExceptionSiEtudiantIntrouvablePourNouvellesOffres() {
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+                () -> etudiantService.getNouvellesOffresDepuisDerniereVisite())
+                .isInstanceOf(EtudiantIntrouvableException.class);
+    }
+
+    private OffreDeStage creerOffre(Long id, String titre) {
+        OffreDeStage offre = new OffreDeStage();
+
+        offre.setId(id);
+        offre.setTitle(titre);
+        offre.setDescription("Description de l'offre");
+        offre.setSalary(25.0);
+        offre.setDomain(Departement.INFORMATIQUE);
+        offre.setStartDate(LocalDate.now().plusMonths(1));
+        offre.setEndDate(LocalDate.now().plusMonths(4));
+        offre.setDisplayEndDate(LocalDate.now().plusDays(15));
+        offre.setStatut(Statut.ACCEPTEE);
+        offre.setEmployeur(employeur);
+        offre.setCreatedAt(LocalDateTime.now());
+
+        return offre;
+    }
+
 }
