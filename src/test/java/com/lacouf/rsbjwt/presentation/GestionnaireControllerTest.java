@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
@@ -71,6 +73,7 @@ public class GestionnaireControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1L,
                 "Jean",
                 LocalDateTime.now()
@@ -608,6 +611,7 @@ public class GestionnaireControllerTest {
                         "5143333333",
                         "INFORMATIQUE",
                         null,
+                        StatutEtudiant.EN_RECHERCHE,
                         1L,
                         "Jean Dupont",
                         LocalDateTime.now()

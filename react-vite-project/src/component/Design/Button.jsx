@@ -47,7 +47,7 @@ const ROLE_CONFIG = {
         Icon: HiCalendar
     },
     signature: {
-        style: "border-transparent bg-purple-600 text-white enabled:hover:bg-purple-700 focus-visible:outline-purple-600",
+        style: "border-transparent bg-cyan-600 text-white enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600",
         Icon: HiPencil
     },
     retour: {

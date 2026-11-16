@@ -103,7 +103,7 @@ const AjoutCV = ({onCvAjoute}) => {
                 }
                 <div className="flex justify-around  w-full mt-5">
                     <Button role="annulation" type="button" onClick={annulation} className="w-50">{t("actions.cancel")}</Button>
-                    <Button role="televerser" type="button" onClick={ajoutCVCall} className="w-50">{t("actions.upload")}</Button>
+                    <Button role="televerser" type="button" disabled={!cv} onClick={ajoutCVCall} className="w-50">{t("actions.upload")}</Button>
                 </div>
             </div>
             <PdfPreviewDialog dialogRef={dialogRef} pdfUrl={pdfUrl} onClose={fermerModal} />

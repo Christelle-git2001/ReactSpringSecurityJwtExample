@@ -77,7 +77,8 @@ public class EtudiantController {
     public ResponseEntity<CandidatureDTO> postuler(@PathVariable Long offreId,
                                                   Authentication authentication)
             throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException,
-            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException, OffreNonAutoriseeException {
+            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException,
+            OffreNonAutoriseeException, StageDejaTrouveException {
         CandidatureDTO candidatureDTO = etudiantService.postuler(offreId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);
@@ -100,6 +101,12 @@ public class EtudiantController {
         return ResponseEntity.ok(
                 etudiantService.getConvocationsEtudiant()
         );
+    }
+
+    @PutMapping("/candidatures/{id}/stage-trouve")
+    public ResponseEntity<CandidatureDTO> declarerStageTrouve(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
+        return ResponseEntity.ok(etudiantService.declarerStageTrouve(id));
     }
 
     @GetMapping("/convocations/{id}")

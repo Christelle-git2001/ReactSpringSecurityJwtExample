@@ -1,12 +1,15 @@
 import { useLocation } from "react-router-dom";
-import React, {Suspense, useState} from "react";
+import React, {Suspense, useState, useEffect} from "react";
+import { marquerNotificationsContratCommeLues } from "../../api/notification.jsx";
+import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
 import {useTranslation} from "react-i18next";
 import {useContrat} from "../../component/hook/useContrat.jsx";
 import {PDFContent} from "../../component/PDF/PDFVisioneuse.jsx";
 import NextAction from "../../component/Candidature/NextAction.jsx";
 import {Role} from "../../enum/Role.jsx"
 
-const ContratEtudiant = () => {
+const ContratEtudiant = ({ user }) => {
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const { t } = useTranslation();
     const location = useLocation();
     const { candidature } = location.state || {};
@@ -20,6 +23,13 @@ const ContratEtudiant = () => {
         error,
         rechargerContrat
     } = useContrat(candidature?.id);
+
+    useEffect(() => {
+        if (!contrat?.dateSignatureEtudiant || !user?.id || !candidature?.id) return;
+        marquerNotificationsContratCommeLues(user.id, candidature.id)
+            .then(nombre => { if (nombre > 0) triggerNotifications(); })
+            .catch(console.error);
+    }, [contrat?.dateSignatureEtudiant, user?.id, candidature?.id, triggerNotifications]);
 
     const getStudentName = () => {
         if (candidature?.etudiantFirstName || candidature?.etudiantLastName) {

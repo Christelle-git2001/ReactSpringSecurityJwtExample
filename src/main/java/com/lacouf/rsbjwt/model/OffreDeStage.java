@@ -67,6 +67,7 @@ public class OffreDeStage {
     private String rejectionComment;
 
     @OneToMany(mappedBy = "offreDeStage", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Candidature> candidatures = new ArrayList<>();
 
 

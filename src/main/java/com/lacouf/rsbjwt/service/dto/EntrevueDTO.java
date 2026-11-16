@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.service.dto;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 
 import java.time.LocalDateTime;
 
@@ -21,41 +22,9 @@ public record EntrevueDTO(
         StatutEntrevue statut,
         LocalDateTime dateReponse,
         EmployeurDTO employeur,
-        String motifRefus
+        String motifRefus,
+        StatutCandidature statutCandidature
 ) {
-
-        public EntrevueDTO(
-                long id,
-                LocalDateTime dateCreation,
-                FormatEntrevue format,
-                LocalDateTime dateHeureEntrevue,
-                long candidatureId,
-                long employeurId,
-                String etudiantFirstName,
-                String etudiantLastName,
-                String offreTitle
-        ) {
-                this(id, dateCreation, format, dateHeureEntrevue, 0,
-                        candidatureId, employeurId, etudiantFirstName,
-                        etudiantLastName, offreTitle);
-        }
-
-        public EntrevueDTO(
-                long id,
-                LocalDateTime dateCreation,
-                FormatEntrevue format,
-                LocalDateTime dateHeureEntrevue,
-                int duree,
-                long candidatureId,
-                long employeurId,
-                String etudiantFirstName,
-                String etudiantLastName,
-                String offreTitle
-        ) {
-                this(id, dateCreation, format, dateHeureEntrevue, duree,
-                        candidatureId, employeurId, etudiantFirstName,
-                        etudiantLastName, offreTitle, null, StatutEntrevue.A_CONFIRMER, null, null, null);
-        }
 
         public static EntrevueDTO of(Entrevue entrevue) {
                 if (entrevue == null) {
@@ -82,7 +51,8 @@ public record EntrevueDTO(
                         entrevue.getStatut(),
                         entrevue.getDateReponse(),
                         employeur != null ? EmployeurDTO.of(employeur) : null,
-                        entrevue.getMotifRefus()
+                        entrevue.getMotifRefus(),
+                        candidature != null ? candidature.getStatut() : null
                 );
         }
 }

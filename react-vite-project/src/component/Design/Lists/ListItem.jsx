@@ -65,6 +65,7 @@ function ListItem({
     tone = "blue",
     variant = "card",
     actionLabel,
+    actionIcon,
     actionClassName,
     showChevron = true,
     wrapText = false,
@@ -147,7 +148,7 @@ function ListItem({
                 )}
                 {onClick && (
                     <div className="flex justify-end me-2 mt-2">
-                        <Button className="w-full" onClick={onClick} size="small" icon={false} role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
+                        <Button className="w-full" onClick={onClick} size="small" role="details">{t("etudiant.card_professeur.voir_detail")}</Button>
                     </div>
                 )}
             </div>
@@ -208,6 +209,7 @@ function ListItem({
                         className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
                         aria-label={ariaLabel}
                     >
+                        {actionIcon}
                         {actionLabel || <FiChevronRight className="size-4" />}
                     </button>
                 )}

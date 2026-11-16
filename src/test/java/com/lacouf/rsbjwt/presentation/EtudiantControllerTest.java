@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -44,6 +46,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.times;
@@ -81,7 +84,8 @@ public class EtudiantControllerTest {
         convocationDTO = new EntrevueDTO(
                 1L, LocalDateTime.now(), FormatEntrevue.EN_LIGNE,
                 LocalDateTime.now().plusDays(2), 30, 10L, 2L,
-                "Christelle", "Altineus", "Stage Java"
+                "Christelle", "Altineus", "Stage Java",
+                null, StatutEntrevue.A_CONFIRMER, null, null, null, null
         );
 
 
@@ -106,6 +110,7 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean",
                 LocalDateTime.now()
@@ -124,6 +129,7 @@ public class EtudiantControllerTest {
                 "438-297-8191",
                 "INFORMATIQUE",
                 null,
+                StatutEtudiant.EN_RECHERCHE,
                 1l,
                 "Jean",
                 LocalDateTime.now()
@@ -400,7 +406,10 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                StatutEtudiant.EN_RECHERCHE,
+                false
         );
 
         Authentication authentication =
@@ -462,7 +471,10 @@ public class EtudiantControllerTest {
                 "TechCorp",
                 LocalDateTime.now(),
                 1L,
-                StatutCandidature.SOUMISE
+                StatutCandidature.SOUMISE,
+                null,
+                StatutEtudiant.EN_RECHERCHE,
+                false
         );
 
         Authentication authentication =
@@ -615,6 +627,20 @@ public class EtudiantControllerTest {
         verifyNoInteractions(etudiantService);
     }
 
+
+    @Test
+    void doitDeclarerLeStageTrouve() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
+                10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false);
+        when(etudiantService.declarerStageTrouve(20L)).thenReturn(candidature);
+
+        mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
+                .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
+        verify(etudiantService).declarerStageTrouve(20L);
+    }
 
     @Test
     void doitSignerContratEtudiant() throws Exception {

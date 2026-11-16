@@ -43,6 +43,9 @@ function OfferForm({
     const [fileName, setFileName] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
     const isEdit = mode === "edit";
+    const etudiantStageTrouve = targeted && !isEdit && etudiants.some(
+        (etudiant) => String(etudiant.id) === String(selectedEtudiant) && etudiant.statut === "STAGE_TROUVE"
+    );
     const { pdfUrl, pdfFile, error, dialogRef, viewPDF, fermerModal, gererTelechargement } = usePdfDocument({
         file: selectedFile,
         loadPdfResponse: () => obtenirOffrePDF(initialValues.id),
@@ -176,6 +179,7 @@ function OfferForm({
         if (targeted) {
             if (!employeurId) newErrors.employeurId = "add_offer.errors.select_company";
             if (!etudiantId) newErrors.etudiantId = "add_offer.errors.select_student";
+            if (etudiantStageTrouve) newErrors.etudiantId = "error.internship_found_locked";
         }
 
         if (file && file.size <= 0) {
@@ -211,7 +215,8 @@ function OfferForm({
             await onSubmit(dto, file);
         } catch (err) {
             console.error(err);
-            setErrors({ api: "error.generic" });
+            setErrors({ api: err?.message === "error.internship_found_locked"
+                    ? "error.internship_found_locked" : "error.generic" });
         }
     };
 
@@ -278,8 +283,9 @@ function OfferForm({
                                     >
                                         <option value="">{t("add_offer.select_student")}</option>
                                         {etudiants.map((etud) => (
-                                            <option key={etud.id} value={etud.id}>
+                                            <option key={etud.id} value={etud.id} disabled={!isEdit && etud.statut === "STAGE_TROUVE"}>
                                                 {etud.firstName} {etud.lastName} ({etud.matricule})
+                                                {!isEdit && etud.statut === "STAGE_TROUVE" && ` — ${t("candidature.status.stage_trouve")}`}
                                             </option>
                                         ))}
                                     </select>
@@ -504,7 +510,7 @@ function OfferForm({
                     <Button variant="secondary" type="button" onClick={onCancel}>
                         {t("add_offer.cancel")}
                     </Button>
-                    <Button type="submit">
+                    <Button role="soumettre" type="submit" disabled={etudiantStageTrouve}>
                         {t(submitLabelKey)}
                     </Button>
                 </div>

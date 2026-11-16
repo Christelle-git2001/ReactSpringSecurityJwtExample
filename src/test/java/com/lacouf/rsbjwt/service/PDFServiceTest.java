@@ -5,6 +5,10 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.repository.ContratRepository;
+import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +19,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,5 +107,60 @@ class PDFServiceTest {
 
         assertThatThrownBy(() -> pdfService.createContratPdf(99L, "fr"))
                 .isInstanceOf(ContratIntrouvableException.class);
+    }
+
+    @Test
+    void doitInclureLesCoordonneesDeLEtudiantDansLeCvPdf() throws IOException {
+        Resource resultat = pdfService.createCvPdf(contrat.getCandidature().getEtudiant());
+
+        assertThat(textePdf(resultat)).contains("Adrien Agreste", "Adrien@gmail.com", "1111111");
+    }
+
+    @Test
+    void doitInclureLesConditionsEtLEntrepriseDansLOffrePdf() throws IOException {
+        CreationOffreDeStageDTO dto = offrePdf();
+        Resource resultat = pdfService.createOffreDeStagePdf(dto,
+                contrat.getCandidature().getOffreDeStage().getEmployeur());
+
+        assertThat(textePdf(resultat)).contains(dto.title(), dto.description(), "Malinois inc", "22.5");
+    }
+
+    @Test
+    void doitGenererLOffrePdfSansEmployeurEtSansSecteur() throws IOException {
+        assertThat(textePdf(pdfService.createOffreDeStagePdf(offrePdf(), null)))
+                .contains("Organisation partenaire", "technologie");
+
+        Employeur employeur = contrat.getCandidature().getOffreDeStage().getEmployeur();
+        employeur.setBusinessSector(null);
+        assertThat(textePdf(pdfService.createOffreDeStagePdf(offrePdf(), employeur)))
+                .contains("Malinois inc", "technologie");
+    }
+
+    @Test
+    void doitInclureLesTroisSignaturesDansLeContratPdf() throws Exception {
+        LocalDateTime signature = LocalDateTime.of(2026, 11, 12, 10, 30);
+        contrat.setDateSignatureEtudiant(signature);
+        contrat.setDateSignatureEmployeur(signature);
+        contrat.setDateSignatureGestionnaire(signature);
+        when(contratRepository.findById(1L)).thenReturn(Optional.of(contrat));
+
+        assertThat(textePdf(pdfService.createContratPdf(1L, null)))
+                .contains("Adrien Agreste", "Roger Malinois", "Pascal Belmont", "12/11/2026 10:30");
+    }
+
+    private CreationOffreDeStageDTO offrePdf() {
+        return new CreationOffreDeStageDTO("Stage Java", "Developpement logiciel", 22.5,
+                Departement.INFORMATIQUE, LocalDate.of(2027, 1, 10),
+                LocalDate.of(2027, 4, 10), LocalDate.of(2027, 1, 1));
+    }
+
+    private String textePdf(Resource resource) throws IOException {
+        try (PdfDocument document = new PdfDocument(new PdfReader(resource.getInputStream()))) {
+            StringBuilder texte = new StringBuilder();
+            for (int page = 1; page <= document.getNumberOfPages(); page++) {
+                texte.append(PdfTextExtractor.getTextFromPage(document.getPage(page)));
+            }
+            return texte.toString();
+        }
     }
 }
