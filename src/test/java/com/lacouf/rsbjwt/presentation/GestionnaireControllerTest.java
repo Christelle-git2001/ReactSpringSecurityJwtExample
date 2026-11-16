@@ -1,6 +1,9 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Candidature;
+import com.lacouf.rsbjwt.model.Entrevue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.Exception.*;
@@ -749,4 +752,78 @@ public class GestionnaireControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
+    @Test
+    void doitRetournerLesEtudiants() throws Exception {
+        when(gestionnaireService.getAllEtudiants()).thenReturn(List.of(etudiantDTO));
+
+        mockMvc.perform(get("/gestionnaire/etudiants"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(etudiantDTO.id()))
+                .andExpect(jsonPath("$[0].firstName").value(etudiantDTO.firstName()));
+        verify(gestionnaireService).getAllEtudiants();
+    }
+
+    @Test
+    void doitRetournerLesEmployeurs() throws Exception {
+        EmployeurDTO employeur = EmployeurDTO.empty();
+        when(gestionnaireService.getAllEmployeurs()).thenReturn(List.of(employeur));
+
+        mockMvc.perform(get("/gestionnaire/employeurs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(employeur.id()));
+        verify(gestionnaireService).getAllEmployeurs();
+    }
+
+    @Test
+    void doitRetournerLesCandidaturesDuStatutDemande() throws Exception {
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        when(gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE"))
+                .thenReturn(List.of(CandidatureDTO.of(candidature)));
+
+        mockMvc.perform(get("/gestionnaire/candidatures/STAGE_TROUVE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(10L))
+                .andExpect(jsonPath("$[0].statut").value("STAGE_TROUVE"));
+        verify(gestionnaireService).getCandidaturesByStatus("STAGE_TROUVE");
+    }
+
+    @Test
+    void doitRetournerLeContratParCandidature() throws Exception {
+        ContratDTO contrat = new ContratDTO(20L, 10L, 1L, null, null, null);
+        when(gestionnaireService.getContratParCandidatureId(10L)).thenReturn(contrat);
+
+        mockMvc.perform(get("/gestionnaire/candidatures/10/contrat"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(20L))
+                .andExpect(jsonPath("$.candidatureId").value(10L));
+        verify(gestionnaireService).getContratParCandidatureId(10L);
+    }
+
+    @Test
+    void doitRetourner404PourUnContratIntrouvableParCandidature() throws Exception {
+        when(gestionnaireService.getContratParCandidatureId(10L)).thenThrow(new ContratIntrouvableException());
+
+        mockMvc.perform(get("/gestionnaire/candidatures/10/contrat"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("error.contrat_notfound"));
+    }
+
+    @Test
+    void doitRetournerLEntrevueParCandidature() throws Exception {
+        Candidature candidature = new Candidature();
+        candidature.setId(10L);
+        Entrevue entrevue = new Entrevue();
+        entrevue.setId(30L);
+        entrevue.setCandidature(candidature);
+        when(gestionnaireService.getEntrevueParCandidatureId(10L)).thenReturn(EntrevueDTO.of(entrevue));
+
+        mockMvc.perform(get("/gestionnaire/candidatures/10/entrevue"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(30L))
+                .andExpect(jsonPath("$.candidatureId").value(10L));
+        verify(gestionnaireService).getEntrevueParCandidatureId(10L);
+    }
 }

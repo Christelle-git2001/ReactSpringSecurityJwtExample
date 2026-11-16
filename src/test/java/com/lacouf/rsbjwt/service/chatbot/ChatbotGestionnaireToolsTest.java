@@ -4,12 +4,15 @@ import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.model.Enum.ModeResultat;
 import com.lacouf.rsbjwt.model.Enum.SignataireContrat;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
 import com.lacouf.rsbjwt.service.donnees.*;
 import com.lacouf.rsbjwt.service.dto.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.support.ToolCallbacks;
@@ -30,6 +33,9 @@ class ChatbotGestionnaireToolsTest {
     private DonneesEtudiantService donneesEtudiantService;
 
     @Mock
+    private DonneesTemporellesService donneesTemporellesService;
+
+    @Mock
     private DonneesOffreService donneesOffreService;
 
     @Mock
@@ -44,11 +50,19 @@ class ChatbotGestionnaireToolsTest {
     @Mock
     private DonneesContratService donneesContratService;
 
-    @Mock
-    private DonneesTemporellesService donneesTemporellesService;
-
-    @InjectMocks
     private ChatbotGestionnaireTools chatbotGestionnaireTools;
+
+    @BeforeEach
+    void preparer() {
+        chatbotGestionnaireTools = new ChatbotGestionnaireTools(
+                donneesEtudiantService,
+                donneesOffreService,
+                donneesCandidatureService,
+                donneesProfesseurService,
+                donneesEntrevueService,
+                donneesContratService,
+                donneesTemporellesService);
+    }
 
     @Test
     void doitExposerLesOutilsPrincipaux() {
@@ -241,5 +255,107 @@ class ChatbotGestionnaireToolsTest {
 
         assertThat(result).contains("\"nombre\":6");
         verify(donneesTemporellesService).compterContratsSignesEntre(SignataireContrat.GESTIONNAIRE, jour, jour);
+    }
+
+    @Test
+    void doitTransmettreLesComptagesEtudiantsEtLeDepartement() throws Exception {
+        when(donneesEtudiantService.compterEtudiantsSansCv()).thenReturn(3L);
+        when(donneesEtudiantService.compterEtudiantsSansStage()).thenReturn(4L);
+        when(donneesEtudiantService.compterEtudiantsInscrits()).thenReturn(15L);
+        when(donneesEtudiantService.compterEtudiantsAvecStage()).thenReturn(6L);
+        when(donneesEtudiantService.compterEtudiantsParDepartement(Departement.INFORMATIQUE)).thenReturn(8L);
+
+        assertThat(chatbotGestionnaireTools.compterEtudiantsSansCv()).isEqualTo(3L);
+        assertThat(chatbotGestionnaireTools.compterEtudiantsSansStage()).isEqualTo(4L);
+        assertThat(chatbotGestionnaireTools.compterEtudiantsInscrits()).isEqualTo(15L);
+        assertThat(chatbotGestionnaireTools.compterEtudiantsAvecStage()).isEqualTo(6L);
+        assertThat(chatbotGestionnaireTools.compterEtudiantsParDepartement(Departement.INFORMATIQUE)).isEqualTo(8L);
+    }
+
+    @Test
+    void doitRetournerLesListesEtudiants() throws Exception {
+        List<EtudiantDTO> resultat1 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsSansCv()).thenReturn(resultat1);
+        List<EtudiantDTO> resultat2 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsSansStage()).thenReturn(resultat2);
+        List<EtudiantDTO> resultat3 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsAvecStage()).thenReturn(resultat3);
+        List<EtudiantDTO> resultat4 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsSansProfesseur()).thenReturn(resultat4);
+        List<CvEtudiantDTO> resultat5 = List.of(mock(CvEtudiantDTO.class));
+        when(donneesEtudiantService.obtenirCvEnAttente()).thenReturn(resultat5);
+        List<EtudiantDTO> resultat6 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsAvecCvRefuse()).thenReturn(resultat6);
+        List<EtudiantDTO> resultat7 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsSansEntrevue()).thenReturn(resultat7);
+        List<EtudiantDTO> resultat8 = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsParProfesseur(42L)).thenReturn(resultat8);
+
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsSansCv()).isEqualTo(resultat1);
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsSansStage()).isEqualTo(resultat2);
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsAvecStage()).isEqualTo(resultat3);
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsSansProfesseur()).isEqualTo(resultat4);
+        assertThat(chatbotGestionnaireTools.obtenirCvEnAttente()).isEqualTo(resultat5);
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsAvecCvRefuse()).isEqualTo(resultat6);
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsSansEntrevue()).isEqualTo(resultat7);
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsParProfesseur(42L)).isEqualTo(resultat8);
+    }
+
+    @Test
+    void doitRetournerLesListesProfesseurs() throws Exception {
+        List<ProfesseurDTO> resultat1 = List.of(mock(ProfesseurDTO.class));
+        when(donneesProfesseurService.obtenirProfesseurs()).thenReturn(resultat1);
+        List<ProfesseurDTO> resultat2 = List.of(mock(ProfesseurDTO.class));
+        when(donneesProfesseurService.obtenirProfesseursSansEtudiants()).thenReturn(resultat2);
+
+        assertThat(chatbotGestionnaireTools.obtenirProfesseurs()).isEqualTo(resultat1);
+        assertThat(chatbotGestionnaireTools.obtenirProfesseursSansEtudiants()).isEqualTo(resultat2);
+    }
+
+    @Test
+    void doitRetournerLesListesOffres() throws Exception {
+        List<OffreDeStageDTO> resultat1 = List.of(mock(OffreDeStageDTO.class));
+        when(donneesOffreService.obtenirOffresEnAttente()).thenReturn(resultat1);
+        List<OffreDeStageDTO> resultat2 = List.of(mock(OffreDeStageDTO.class));
+        when(donneesOffreService.obtenirOffresApprouvees()).thenReturn(resultat2);
+
+        assertThat(chatbotGestionnaireTools.obtenirOffresEnAttente()).isEqualTo(resultat1);
+        assertThat(chatbotGestionnaireTools.obtenirOffresApprouvees()).isEqualTo(resultat2);
+    }
+
+    @Test
+    void doitRetournerLesListesCandidatures() throws Exception {
+        List<CandidatureDTO> resultat1 = List.of(mock(CandidatureDTO.class));
+        when(donneesCandidatureService.obtenirStagesSansContrat()).thenReturn(resultat1);
+        List<CandidatureDTO> resultat2 = List.of(mock(CandidatureDTO.class));
+        when(donneesCandidatureService.obtenirCandidaturesParStatut(StatutCandidature.CONTRAT_CREE)).thenReturn(resultat2);
+
+        assertThat(chatbotGestionnaireTools.obtenirStagesSansContrat()).isEqualTo(resultat1);
+        assertThat(chatbotGestionnaireTools.obtenirCandidaturesParStatut(StatutCandidature.CONTRAT_CREE)).isEqualTo(resultat2);
+    }
+
+    @Test
+    void doitRetournerLesContratsEnAttenteDeSignature() throws Exception {
+        List<ResumeContratDTO> resultat1 = List.of(mock(ResumeContratDTO.class));
+        when(donneesContratService.obtenirContratsNonSignes()).thenReturn(resultat1);
+        List<ResumeContratDTO> resultat2 = List.of(mock(ResumeContratDTO.class));
+        when(donneesContratService.obtenirContratsASignerGestionnaire()).thenReturn(resultat2);
+
+        assertThat(chatbotGestionnaireTools.obtenirContratsNonSignes()).isEqualTo(resultat1);
+        assertThat(chatbotGestionnaireTools.obtenirContratsASignerGestionnaire()).isEqualTo(resultat2);
+    }
+
+    @Test
+    void doitTransmettreLesStatutsOffreCandidatureEtEntrevue() throws Exception {
+        when(donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE)).thenReturn(2L);
+        when(donneesCandidatureService.compterCandidaturesParStatut(StatutCandidature.SOUMISE)).thenReturn(7L);
+        when(donneesEntrevueService.compterEntrevuesParStatut(StatutEntrevue.CONFIRMEE)).thenReturn(3L);
+        List<EntrevueDTO> mockList = List.of(mock(EntrevueDTO.class));
+        when(donneesEntrevueService.obtenirEntrevuesAVenir()).thenReturn(mockList);
+
+        assertThat(chatbotGestionnaireTools.compterOffresParStatut(Statut.EN_ATTENTE)).isEqualTo(2L);
+        assertThat(chatbotGestionnaireTools.compterCandidaturesParStatut(StatutCandidature.SOUMISE)).isEqualTo(7L);
+        assertThat(chatbotGestionnaireTools.compterEntrevuesParStatut(StatutEntrevue.CONFIRMEE)).isEqualTo(3L);
+        assertThat(chatbotGestionnaireTools.obtenirEntrevuesAVenir()).isEqualTo(mockList);
     }
 }
