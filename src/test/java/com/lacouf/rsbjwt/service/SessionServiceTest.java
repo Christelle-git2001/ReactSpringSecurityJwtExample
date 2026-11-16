@@ -4,6 +4,7 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.context.SessionContext;
 import com.lacouf.rsbjwt.repository.InscriptionRepository;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.service.dto.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,9 +31,12 @@ class SessionServiceTest {
         @Mock
         private InscriptionRepository inscriptionRepository;
 
+        @Mock
+        private UserAppRepository userAppRepository;
+
         @BeforeEach
         void setUp() {
-            sessionService = new SessionService(sessionContext, inscriptionRepository);
+            sessionService = new SessionService(sessionContext, inscriptionRepository, userAppRepository);
         }
 
     @Test

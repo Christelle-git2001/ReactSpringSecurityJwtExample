@@ -14,7 +14,8 @@ export async function reinscrireEtudiant() {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`
-    }
+    },
+    ignoreSession: true
   });
 }
 

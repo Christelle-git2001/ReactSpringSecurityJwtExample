@@ -123,7 +123,8 @@ public class EtudiantService {
         executerReinscription(etudiant);
     }
 
-    private void executerReinscription(Etudiant etudiant) {
+    @Transactional
+    protected void executerReinscription(Etudiant etudiant) {
         SessionDTO sessionDto = sessionService.getSessionActuelle();
         boolean dejaInscrit = inscriptionRepository.existsByUtilisateurAndSaisonAndAnnee(
                 etudiant, sessionDto.saison(), sessionDto.annee()
