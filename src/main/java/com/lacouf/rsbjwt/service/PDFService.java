@@ -512,10 +512,10 @@ public class PDFService {
 
         String[] headerKeys = {
                 "evaluation.stagiaire_capacite",
-                "evaluation.totalement_en_accord",
-                "evaluation.plutot_en_accord",
-                "evaluation.plutot_en_désaccord",
                 "evaluation.totalement_en_désaccord",
+                "evaluation.plutot_en_désaccord",
+                "evaluation.plutot_en_accord",
+                "evaluation.totalement_en_accord",
                 "evaluation.na"
         };
 
