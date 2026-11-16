@@ -15,14 +15,16 @@ public class QualiteTravail {
     private Long checkBoxScore;
     private Long perfectionnementResearchScore;
     private Long analystScore;
+    private String commentaire;
 
     public QualiteTravail(){}
 
-    public QualiteTravail(Long completeTaskScore, Long minutieScore, Long checkBoxScore, Long perfectionnementResearchScore, Long analystScore){
+    public QualiteTravail(Long completeTaskScore, Long minutieScore, Long checkBoxScore, Long perfectionnementResearchScore, Long analystScore, String commentaire){
         this.completeTaskScore = completeTaskScore;
         this.minutieScore = minutieScore;
         this.checkBoxScore = checkBoxScore;
         this.perfectionnementResearchScore = perfectionnementResearchScore;
         this.analystScore = analystScore;
+        this.commentaire = commentaire;
     }
 }

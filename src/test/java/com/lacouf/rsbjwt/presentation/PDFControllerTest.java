@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
+import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +66,39 @@ public class PDFControllerTest {
 
         mockMvc.perform(get("/pdf/contrat/99")
                         .param("langue", "fr"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetournerPdfEvaluationStagiaireAvecSucces() throws Exception {
+        byte[] contenuPdf = "Contenu de l'evaluation du stagiaire PDF".getBytes();
+        Resource pdfResource = new ByteArrayResource(contenuPdf);
+        Long candidatureId = 1L;
+
+        // Mock du service pour la langue par défaut (fr)
+        when(pdfService.createEvaluationStagiaire("fr", candidatureId)).thenReturn(pdfResource);
+
+        MvcResult mvcResult = mockMvc.perform(get("/pdf/evaluation/etudiant/" + candidatureId)
+                        .param("langue", "fr"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PDF))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"evaluation_1.pdf\""))
+                .andReturn();
+
+        byte[] responseBytes = mvcResult.getResponse().getContentAsByteArray();
+        assertThat(responseBytes).isEqualTo(contenuPdf);
+    }
+
+
+    @Test
+    void doitRetournerNotFoundQuandEvaluationStagiaireIntrouvable() throws Exception {
+        Long candidatureId = 99L;
+
+        when(pdfService.createEvaluationStagiaire("en", candidatureId))
+                .thenThrow(new EvaluationStagiaireIntrouvable());
+
+        mockMvc.perform(get("/pdf/evaluation/etudiant/" + candidatureId)
+                        .param("langue", "en"))
                 .andExpect(status().isNotFound());
     }
 }

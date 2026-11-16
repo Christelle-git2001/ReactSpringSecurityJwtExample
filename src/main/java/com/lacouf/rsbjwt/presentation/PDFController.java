@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
+import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.springframework.core.io.Resource;
@@ -34,4 +35,19 @@ public class PDFController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"contrat.pdf\"")
                 .body(pdfResource);
     }
+
+    @GetMapping("/evaluation/etudiant/{candidatureID}")
+    public ResponseEntity<Resource> obtenirEvaluationStagiaire(
+            @PathVariable Long candidatureID,
+            @RequestParam(defaultValue = "fr") String langue) throws IOException, EvaluationStagiaireIntrouvable {
+
+        Resource pdfResource = pdfService.createEvaluationStagiaire(langue,candidatureID);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"evaluation_" + candidatureID+".pdf\"")
+                .body(pdfResource);
+    }
+
+
 }

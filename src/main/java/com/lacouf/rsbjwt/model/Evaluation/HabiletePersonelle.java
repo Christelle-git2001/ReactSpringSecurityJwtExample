@@ -17,15 +17,17 @@ public class HabiletePersonelle {
     private Long securityScore;
     private Long responsabiliteScore;
     private Long ponctuelScore;
+    private String commentaire;
 
     public HabiletePersonelle(){}
 
-    public HabiletePersonelle(Long motivationScore, Long tellIdeaScore, Long initiativeScore, Long securityScore, Long responsabiliteScore, Long ponctuelScore){
+    public HabiletePersonelle(Long motivationScore, Long tellIdeaScore, Long initiativeScore, Long securityScore, Long responsabiliteScore, Long ponctuelScore, String commentaire){
         this.motivationScore = motivationScore;
         this.tellIdeaScore = tellIdeaScore;
         this.initiativeScore = initiativeScore;
         this.securityScore = securityScore;
         this.responsabiliteScore = responsabiliteScore;
         this.ponctuelScore = ponctuelScore;
+        this.commentaire = commentaire;
     }
 }
