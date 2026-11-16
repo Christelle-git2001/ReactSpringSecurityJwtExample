@@ -588,4 +588,41 @@ public class EmployeurService {
 
         return ContratDTO.of(saved);
     }
+
+    @Transactional(readOnly = true)
+    public List<ResumeContratDTO> obtenirContratsEmployeur() throws UtilisateurIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Contrat> contrats = contratRepository.findByCandidatureOffreDeStageEmployeurId(employeur.getId());
+
+        return sessionService.filtrerParSessionActuelle(
+                        contrats,
+                        contrat -> contrat.getCandidature().getOffreDeStage().getCreatedAt()
+                ).stream()
+                .map(ResumeContratDTO::of)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EntrevueDTO> obtenirEntrevuesParStatut(StatutEntrevue statut) throws UtilisateurIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Entrevue> entrevues = convocationRepository.findByEmployeurId(employeur.getId());
+
+        return sessionService.filtrerParSessionActuelle(
+                        entrevues,
+                        entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
+                ).stream()
+                .filter(e -> e.getStatut() == statut)
+                .map(EntrevueDTO::of)
+                .toList();
+    }
 }
