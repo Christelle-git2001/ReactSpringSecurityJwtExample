@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service.dto;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 import java.time.LocalDateTime;
 
@@ -16,9 +17,16 @@ public record CandidatureDTO(
         String employeurBusinessName,
         LocalDateTime dateCandidature,
         Long cvId,
-        StatutCandidature statut
+        StatutCandidature statut,
+        String motifRefus,
+        StatutEtudiant statutEtudiant,
+        boolean contratSigne
 ) {
-    public static CandidatureDTO of(Candidature candidature) {
+   public static CandidatureDTO of(Candidature candidature) {
+        return of(candidature, null);
+   }
+
+   public static CandidatureDTO of(Candidature candidature, Contrat contrat) {
         if (candidature == null) {
             return null;
         }
@@ -44,7 +52,12 @@ public record CandidatureDTO(
                 (offre != null && offre.getEmployeur() != null) ? offre.getEmployeur().getBusinessName() : null,
                 candidature.getDateCandidature(),
                 cvId,
-                candidature.getStatut()
+                candidature.getStatut(),
+                candidature.getMotifRefus(),
+                etudiant != null ? etudiant.getStatut() : null,
+                contrat != null && contrat.getDateSignatureEtudiant() != null
+                        && contrat.getDateSignatureEmployeur() != null
+                        && contrat.getDateSignatureGestionnaire() != null
         );
     }
 }

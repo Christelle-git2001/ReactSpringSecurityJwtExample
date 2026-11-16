@@ -1,14 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit, FiStar, FiUser } from 'react-icons/fi';
+import { FiEdit, FiLock, FiStar, FiUser } from 'react-icons/fi';
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
+import { actionsCandidatureDesactivees } from "../../../utils/candidatureActions.js";
 
-function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = false, showPdfActions = true }) {
+function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandidature, onEdit = false, showPdfActions = true, onRead }) {
     const { t } = useTranslation();
     const {
         pdfUrl,
@@ -58,8 +59,12 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                             </span>
                             {showPdfActions && (
                                 <PdfActionButtons variant="card" ghost
-                                    onView={viewPDF}
-                                    onDownload={() => gererTelechargement(offer?.fileName)}
+                                    onView={async () => {
+                                        if (await viewPDF()) onRead?.(offer?.id);
+                                    }}
+                                    onDownload={async () => {
+                                        if (await gererTelechargement(offer?.fileName)) onRead?.(offer?.id);
+                                    }}
                                 />
                             )}
                         </div>
@@ -92,7 +97,7 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
 
                     {offer?.description && (
                         <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
-                            <summary className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
+                            <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-[#043462]">
                                 {t("offre.description")}
                             </summary>
                             <div className="collapse-content p-0">
@@ -106,22 +111,22 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                     )}
 
                     {currentStatusKey === "REFUSEE" && offer?.rejectionComment && (
-                        <div className="mt-2 text-xs">
-                            <p className="py-1 text-xs font-bold text-red-700">
+                        <details className="collapse collapse-arrow mt-2 rounded-none text-xs">
+                            <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-1 pl-0 text-xs font-bold text-red-700">
                                 {t("offre.rejection_comment")}
-                            </p>
-                            <div className="p-0">
+                            </summary>
+                            <div className="collapse-content p-0">
                                 <div className="mt-1 bg-red-50 border border-red-200 p-3 rounded-lg">
                                     <p className="text-red-600 break-words">
                                         {offer.rejectionComment}
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </details>
                     )}
 
-                    <details className="collapse collapse-arrow mt-4 rounded-none border-t border-gray-200">
-                        <summary className="collapse-title min-h-0 py-3 pl-0 text-xs font-bold text-[#043462]">
+                    <details open className="collapse collapse-arrow mt-4 rounded-none border-t border-gray-200">
+                        <summary onClick={() => onRead?.(offer?.id)} className="collapse-title min-h-0 py-3 pl-0 text-xs font-bold text-[#043462]">
                             {t("candidature.list_title")} ({candidaturesOffre.length})
                         </summary>
                         <div className="collapse-content px-0">
@@ -130,7 +135,25 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                             ) : (
                                 <ul className="max-h-48 space-y-1 overflow-y-auto">
                                     {candidaturesOffre.map(candidature => {
-                                        const statutCandidature = getStatusConfig(candidature.statut, t, "candidature");
+                                        let statutCandidature = getStatusConfig(
+                                            candidature.statut === "CONTRAT_CREE" && candidature.contratSigne
+                                                ? "CONTRAT_SIGNE" : candidature.statut,
+                                            t, "candidature"
+                                        );
+                                        const entrevue = entrevues.find(e => e.candidatureId === candidature.id);
+                                        if (candidature.statut === "ENTREVUE_PLANIFIEE") {
+                                            if (entrevue?.statut === "CONFIRMEE") {
+                                                statutCandidature = {
+                                                    label: t("candidature.status.confirmee"),
+                                                    className: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                                                };
+                                            } else if (entrevue?.statut === "TERMINEE") {
+                                                statutCandidature = {
+                                                    label: t("candidature.interview_completed"),
+                                                    className: "bg-blue-100 text-blue-800 border-blue-200",
+                                                };
+                                            }
+                                        }
                                         return (
                                         <li key={candidature.id}>
                                             <button
@@ -140,11 +163,17 @@ function OffreStageCard({ offer, candidatures = [], onViewCandidature, onEdit = 
                                             >
                                                 <FiUser className="size-4 shrink-0" aria-hidden="true" />
                                                 <span className="min-w-0 flex-1 break-words">{candidature.etudiantFirstName} {candidature.etudiantLastName}</span>
-                                                {candidature.statut && (
-                                                    <span className={`badge badge-xs ml-auto h-auto max-w-[55%] shrink-0 whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
-                                                        {statutCandidature.label}
-                                                    </span>
-                                                )}
+                                                <span className="ml-auto flex max-w-[55%] shrink-0 flex-col items-end gap-1 text-right">
+                                                    {actionsCandidatureDesactivees(candidature) && <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                                                        <FiLock className="size-3.5 shrink-0" aria-hidden="true" />
+                                                        {t("candidature.actions_disabled")}
+                                                    </span>}
+                                                    {candidature.statut && (
+                                                        <span className={`badge badge-xs h-auto max-w-full whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
+                                                            {statutCandidature.label}
+                                                        </span>
+                                                    )}
+                                                </span>
                                             </button>
                                         </li>
                                         );

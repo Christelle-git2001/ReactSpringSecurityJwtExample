@@ -1,16 +1,20 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.model.event.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.junit.jupiter.api.AfterEach;
+
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
-import com.lacouf.rsbjwt.model.event.CvStatutModifieEvent;
-import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
-import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
-import com.lacouf.rsbjwt.model.event.ProfesseurAssigneEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.service.dto.*;
@@ -26,7 +30,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.mockito.MockedStatic;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,6 +85,9 @@ class GestionnaireServiceTest {
     @Mock
     private ContratRepository contratRepository;
 
+    @Mock
+    private SessionService sessionService;
+
 
     @InjectMocks
     private GestionnaireService gestionnaireService;
@@ -119,6 +125,11 @@ class GestionnaireServiceTest {
         employeur.setId(1L);
 
         return employeur;
+    }
+
+    @AfterEach
+    void nettoyerAuthentification() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -181,14 +192,20 @@ class GestionnaireServiceTest {
 
     @Test
     void doitRetournerLesOffresEnAttente() {
-
         OffreDeStage offre = new OffreDeStage();
         offre.setId(1L);
         offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
+        List<OffreDeStage> offres = List.of(offre);
+
         when(offreDeStageRepository.findByStatut(Statut.EN_ATTENTE))
-                .thenReturn(List.of(offre));
+                .thenReturn(offres);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(offres),
+                any()
+        )).thenReturn(offres);
 
         List<OffreDeStageDTO> result =
                 gestionnaireService.getOffresEnAttente();
@@ -200,6 +217,9 @@ class GestionnaireServiceTest {
 
         verify(offreDeStageRepository)
                 .findByStatut(Statut.EN_ATTENTE);
+
+        verify(sessionService)
+                .filtrerParSessionActuelle(eq(offres), any());
     }
 
     @Test
@@ -219,6 +239,7 @@ class GestionnaireServiceTest {
 
         OffreDeStageDTO result =
                 gestionnaireService.approuverOffre(1L);
+        verify(applicationEventPublisher).publishEvent(new OffreStatutModifieEvent(offre.getEmployeur(), Statut.ACCEPTEE, offre));
 
         assertThat(result).isNotNull();
 
@@ -271,6 +292,7 @@ class GestionnaireServiceTest {
                 .save(any());
     }
 
+
     @Test
     void doitRefuserUneOffreEnAttente()
             throws OffreIntrouvableException,
@@ -288,8 +310,7 @@ class GestionnaireServiceTest {
         when(offreDeStageRepository.save(offre))
                 .thenReturn(offre);
 
-        String commentaire =
-                "L'offre ne respecte pas les exigences.";
+        String commentaire = "L'offre ne respecte pas les exigences.";
 
         OffreDeStageDTO result =
                 gestionnaireService.refuserOffre(1L, commentaire);
@@ -302,11 +323,15 @@ class GestionnaireServiceTest {
         assertThat(offre.getRejectionComment())
                 .isEqualTo(commentaire);
 
-        verify(offreDeStageRepository)
-                .findById(1L);
+        verify(offreDeStageRepository).findById(1L);
+        verify(offreDeStageRepository).save(offre);
 
-        verify(offreDeStageRepository)
-                .save(offre);
+        verify(applicationEventPublisher).publishEvent(
+                new OffreSupprimerSoNotificationGestionnaireEvent(
+                        ControllerPath.GESTIONNAIRE_OFFRE_ID_DETAIL
+                                .build("1")
+                )
+        );
     }
 
     @Test
@@ -401,6 +426,10 @@ class GestionnaireServiceTest {
         List<CvEtudiant> listCv = List.of(cvEtudiant);
 
         when(cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE)).thenReturn(listCv);
+        when(sessionService.filtrerParSessionActuelle(
+                eq(listCv),
+                any()
+        )).thenReturn(listCv);
 
         List<CvEtudiantDTO> cvEtudiantDTOs = gestionnaireService.getCurriculumVitaeEnAttente();
 
@@ -431,6 +460,10 @@ class GestionnaireServiceTest {
         listCv.add(cvRefuse);
 
         when(cvEtudiantRepository.findAll()).thenReturn(listCv);
+        when(sessionService.filtrerParSessionActuelle(
+                eq(listCv),
+                any()
+        )).thenReturn(listCv);
 
         List<CvEtudiantDTO> cvEtudiantDTOs = gestionnaireService.getTousLesCvs();
 
@@ -667,10 +700,18 @@ class GestionnaireServiceTest {
         offre.setStatut(Statut.EN_ATTENTE);
         offre.setEmployeur(creerEmployeurTest());
 
-        when(offreDeStageRepository.findAll())
-                .thenReturn(List.of(offre));
+        List<OffreDeStage> offres = List.of(offre);
 
-        List<OffreDeStageDTO> result = gestionnaireService.getToutesLesOffres();
+        when(offreDeStageRepository.findAll())
+                .thenReturn(offres);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(offres),
+                any()
+        )).thenReturn(offres);
+
+        List<OffreDeStageDTO> result =
+                gestionnaireService.getToutesLesOffres();
 
         assertThat(result)
                 .hasSize(1)
@@ -679,6 +720,9 @@ class GestionnaireServiceTest {
                 .containsExactly(1L, "Développeur Java");
 
         verify(offreDeStageRepository).findAll();
+
+        verify(sessionService)
+                .filtrerParSessionActuelle(eq(offres), any());
     }
 
     @Test
@@ -733,6 +777,28 @@ class GestionnaireServiceTest {
             verify(offreDeStageRepository).save(any(OffreCiblee.class));
             verify(applicationEventPublisher).publishEvent(any(NouvelleOffreTeleverseeEvent.class));
         }
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleePourUnEtudiantAvecStageTrouve() {
+        CreationOffreCibleeDTO dto = new CreationOffreCibleeDTO(
+                "Stage Java", "Description", 30.0, Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(2), LocalDate.now().plusDays(30),
+                LocalDate.now().plusDays(1), 1L, 1L);
+        Etudiant etudiant = new Etudiant();
+        etudiant.setId(1L);
+        when(employeurRepository.findById(1L)).thenReturn(Optional.of(creerEmployeurTest()));
+        when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant));
+
+        for (boolean stageRattache : new boolean[]{false, true}) {
+            etudiant.setStatut(stageRattache ? StatutEtudiant.EN_RECHERCHE : StatutEtudiant.STAGE_TROUVE);
+            etudiant.setCandidatureStage(stageRattache ? new Candidature() : null);
+
+            assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, null))
+                    .isInstanceOf(StageDejaTrouveException.class);
+        }
+
+        verifyNoInteractions(offreDeStageRepository, applicationEventPublisher);
     }
 
     @Test
@@ -948,6 +1014,9 @@ class GestionnaireServiceTest {
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
         candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setEtudiant(etudiant);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
 
         Contrat contratSauvegarde = Contrat.builder()
                 .candidature(candidature)
@@ -986,6 +1055,36 @@ class GestionnaireServiceTest {
             verify(contratRepository).existsByCandidatureId(candidatureId);
             verify(contratRepository).save(any(Contrat.class));
         }
+    }
+
+
+    @Test
+    void doitRetournerLesStagesDeclares() throws Exception {
+
+        Candidature stage = new Candidature(etudiant, null, LocalDateTime.now());
+        stage.setId(10L);
+        stage.setStatut(StatutCandidature.STAGE_TROUVE);
+
+        List<Candidature> candidatures = List.of(stage);
+
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
+                .thenReturn(candidatures);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(candidatures),
+                any()
+        )).thenReturn(candidatures);
+
+        List<CandidatureDTO> resultats =
+                gestionnaireService.getCandidaturesByStatus("STAGE_TROUVE");
+
+        assertThat(resultats).hasSize(1);
+        assertThat(resultats.getFirst().id()).isEqualTo(10L);
+        assertThat(resultats.getFirst().statut())
+                .isEqualTo(StatutCandidature.STAGE_TROUVE);
+
+        verify(candidatureRepository)
+                .findByStatut(StatutCandidature.STAGE_TROUVE);
     }
 
     @Test
@@ -1048,7 +1147,7 @@ class GestionnaireServiceTest {
         Candidature candidature = new Candidature();
         candidature.setId(candidatureId);
 
-        candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
 
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -1148,6 +1247,7 @@ class GestionnaireServiceTest {
 
             ContratDTO result =
                     gestionnaireService.signerContrat(contratId, motDePasse);
+            verify(applicationEventPublisher).publishEvent(new ContratSigneEvent(contrat));
 
             assertThat(result).isNotNull();
             assertThat(result.id()).isEqualTo(contratId);

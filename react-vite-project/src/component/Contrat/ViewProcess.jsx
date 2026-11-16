@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import StepProcess from "./StepProcess";
 import Button from "../Design/Button.jsx";
+import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import {
     demarrerProcessusDeSignatureDeContrat,
@@ -39,6 +40,7 @@ const formatTimeOnly = (dateString) => {
 };
 
 function ViewProcess() {
+    const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const { t, i18n } = useTranslation();
     const { candidatureId } = useParams();
     const location = useLocation();
@@ -145,6 +147,7 @@ function ViewProcess() {
     const handleStartProcess = async () => {
         try {
             const nouveauContrat = await demarrerProcessusDeSignatureDeContrat(candidatureId);
+            triggerNotifications();
             setContrat(nouveauContrat);
             if (nouveauContrat?.id) {
                 chargerPdfContrat(nouveauContrat.id);
@@ -167,6 +170,7 @@ function ViewProcess() {
            );
 
            setContrat(contratMisAJour);
+           triggerNotifications();
 
            if (contratMisAJour?.id) {
                chargerPdfContrat(contratMisAJour.id);
@@ -318,29 +322,25 @@ function ViewProcess() {
                                 >
                                     {t("actions.back", "Retour")}
                                 </Button>
-                                <button
+                                <Button
+                                    role="signature"
                                     type="button"
                                     onClick={ouvrirModalSignature}
                                     disabled={isSignButtonDisabled || isSigning}
+                                    loading={isSigning}
                                     title={
                                         !isBothPartiesSigned && !isGestionnaireSigned
                                             ? t("process.waiting_parties_signatures")
                                             : ""
                                     }
-                                    className={`px-4 py-2 rounded-md font-medium text-white transition-colors flex items-center justify-center min-w-[100px] ${
-                                        isSignButtonDisabled || isSigning
-                                            ? "bg-gray-400 cursor-not-allowed opacity-70"
-                                            : "bg-[#043462] hover:bg-[#03284d] cursor-pointer"
-                                    }`}
+                                    className="min-w-[100px]"
                                 >
-                                    {isSigning ? (
-                                        <span className="loading loading-spinner loading-sm text-white" />
-                                    ) : isGestionnaireSigned ? (
+                                    {isGestionnaireSigned ? (
                                         t("process.already_signed")
                                     ) : (
                                         t("process.sign_button")
                                     )}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     ) : (
@@ -387,7 +387,7 @@ function ViewProcess() {
                             </Button>
 
                             <Button
-                                icon={false}
+                                role="soumettre"
                                 type="button"
                                 onClick={handleSignContract}
                                 disabled={isSigning || !motDePasse.trim()}

@@ -6,6 +6,11 @@ import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
+import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
+import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
+import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleOffreTeleverseeEvent;
 import com.lacouf.rsbjwt.model.event.OffreModifierSoNotificationEvent;
 import com.lacouf.rsbjwt.repository.*;
@@ -41,6 +46,10 @@ public class EmployeurService {
     private final ApplicationEventPublisher eventPublisher;
     private final EntrevueRepository convocationRepository;
     private final ContratRepository contratRepository;
+    private final EtudiantService etudiantService;
+    private final SessionService sessionService ;
+    private final InscriptionRepository inscriptionRepository;
+
     private final EvaluationStagiaireRepository evaluationStagiaireRepository;
 
     public EmployeurService(
@@ -49,7 +58,7 @@ public class EmployeurService {
             PasswordEncoder passwordEncoder,
             OffreDeStageRepository offreDeStageRepository, CandidatureRepository candidatureRepository,
             ApplicationEventPublisher eventPublisher, EntrevueRepository convocationRepository,
-            EntrevueRepository entrevueRepository, ContratRepository contratRepository, EvaluationStagiaireRepository evaluationStagiaireRepository) {
+            ContratRepository contratRepository, EtudiantService etudiantService, SessionService sessionService, InscriptionRepository inscriptionRepository, EvaluationStagiaireRepository evaluationStagiaireRepository) {
         this.employeurRepository = employeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -58,16 +67,28 @@ public class EmployeurService {
         this.eventPublisher = eventPublisher;
         this.convocationRepository = convocationRepository;
         this.contratRepository = contratRepository;
+        this.etudiantService = etudiantService;
+        this.sessionService = sessionService;
+        this.inscriptionRepository = inscriptionRepository;
         this.evaluationStagiaireRepository = evaluationStagiaireRepository;
     }
 
     @Transactional
-    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO) throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
-       validerInscriptionEmployeur(inscriptionEmployeurDTO);
+    public EmployeurDTO creeCompteEmployeur(InscriptionEmployeurDTO inscriptionEmployeurDTO)
+            throws EmailExistantException, MotDePasseNonCorrespondantException, NumeroTelephoneExistantException {
+        validerInscriptionEmployeur(inscriptionEmployeurDTO);
         String encodedPassword = passwordEncoder.encode(inscriptionEmployeurDTO.password());
         Employeur employeur = inscriptionEmployeurDTO.toEntity(encodedPassword);
-        Employeur employeurCreer =  employeurRepository.save(employeur);
-       return EmployeurDTO.of(employeurCreer);
+        Employeur employeurCreer = employeurRepository.save(employeur);
+        SessionDTO sessionDto = sessionService.getSessionActuelle();
+        Inscription inscription = new Inscription(
+                employeurCreer,
+                sessionDto.saison(),
+                sessionDto.annee()
+        );
+        inscriptionRepository.save(inscription);
+        employeurCreer.getInscriptions().add(inscription);
+        return EmployeurDTO.of(employeurCreer);
     }
 
 
@@ -142,8 +163,12 @@ public class EmployeurService {
                 .map(Employeur.class::cast)
                 .orElseThrow(UserNotFoundException::new);
 
-        return employeur.getOffres()
-                .stream()
+        List<OffreDeStage> offresSession = sessionService.filtrerParSessionActuelle(
+                employeur.getOffres(),
+                OffreDeStage::getCreatedAt
+        );
+
+        return offresSession.stream()
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -270,7 +295,17 @@ public class EmployeurService {
         List<Candidature> candidatures =
                 candidatureRepository.findByOffreDeStage_Employeur(employeur);
 
-        return candidatures
+        System.out.println("Nombre total de candidatures trouvées en base : " + candidatures.size());
+
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        System.out.println("Nombre de candidatures APRÈS FILTRE SESSION : " + candidaturesFiltrees.size());
+        System.out.println("SESSION ACTIVE EN COURS : " + sessionService.getSessionActuelle());
+
+        return candidaturesFiltrees
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
@@ -286,13 +321,20 @@ public class EmployeurService {
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
-                .orElseThrow(UtilisateurIntrouvableException::new);
+                .orElseThrow(UserNotFoundException::new);
 
-        return candidatureRepository
+        List<Candidature> candidatures = candidatureRepository
                 .findByStatutAndOffreDeStageEmployeurId(
                         StatutCandidature.RETENUE_POUR_ENTREVUE,
                         employeur.getId()
-                )
+                );
+
+        List<Candidature> candidaturesFiltrees = sessionService.filtrerParSessionActuelle(
+                candidatures,
+                candidature -> candidature.getOffreDeStage().getCreatedAt()
+        );
+
+        return candidaturesFiltrees
                 .stream()
                 .map(CandidatureDTO::of)
                 .toList();
@@ -368,9 +410,12 @@ public class EmployeurService {
                 .findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
 
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
         if (candidature.getStatut() == StatutCandidature.SOUMISE) {
             candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
             candidatureRepository.save(candidature);
+            eventPublisher.publishEvent(new CandidatureRetenueEvent(candidature));
         }
         return CandidatureDTO.of(candidature);
     }
@@ -400,11 +445,113 @@ public class EmployeurService {
 
         List<Entrevue> entrevues = convocationRepository.findByEmployeurId(employeur.getId());
 
-        return entrevues
+        List<Entrevue> entrevuesFiltrees = sessionService.filtrerParSessionActuelle(
+                entrevues,
+                entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
+        );
+
+        return entrevuesFiltrees
                 .stream()
                 .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
                 .map(EntrevueDTO::of)
                 .toList();
+    }
+
+    @Transactional
+    public CandidatureDTO cloreEntrevue(Long entrevueId)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Entrevue entrevue = convocationRepository.findById(entrevueId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Candidature candidature = entrevue.getCandidature();
+        Employeur proprietaire = candidature.getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
+        if (entrevue.getStatut() != StatutEntrevue.CONFIRMEE && entrevue.getStatut() != StatutEntrevue.TERMINEE) {
+            throw new DecisionCandidatureInvalideException();
+        }
+
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        convocationRepository.save(entrevue);
+        eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
+        return CandidatureDTO.of(candidature);
+    }
+
+    @Transactional
+    public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        return enregistrerDecision(entrevueId, StatutCandidature.ACCEPTEE, null);
+    }
+
+    @Transactional
+    public CandidatureDTO refuserCandidatApresEntrevue(Long entrevueId, String motifRefus)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+        if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 1000) {
+            throw new MotifRefusInvalideException();
+        }
+        return enregistrerDecision(entrevueId, StatutCandidature.REFUSEE, motifRefus.strip());
+    }
+
+    private CandidatureDTO enregistrerDecision(Long entrevueId, StatutCandidature decision, String motifRefus)
+            throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employeur employeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Employeur.class::isInstance)
+                .map(Employeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        Entrevue entrevue = convocationRepository.findById(entrevueId)
+                .orElseThrow(ConvocationIntrouvableException::new);
+        Candidature candidature = entrevue.getCandidature();
+        Employeur proprietaire = candidature.getOffreDeStage().getEmployeur();
+        if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
+            throw new OffreNonAutoriseeException();
+        }
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+
+        if (candidature.getStatut() == decision) {
+            return CandidatureDTO.of(candidature);
+        }
+        validerDecisionApresEntrevue(entrevue);
+
+        candidature.setStatut(decision);
+        candidature.setMotifRefus(motifRefus);
+        entrevue.setStatut(StatutEntrevue.TERMINEE);
+        entrevue.setMotifRefus(motifRefus);
+        Candidature candidatureEnregistree = candidatureRepository.save(candidature);
+        convocationRepository.save(entrevue);
+        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
+        if (decision == StatutCandidature.ACCEPTEE) {
+            eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
+        } else {
+            eventPublisher.publishEvent(new CandidatureRefuseeEvent(candidatureEnregistree));
+        }
+        return CandidatureDTO.of(candidatureEnregistree);
+    }
+
+    private void validerDecisionApresEntrevue(Entrevue entrevue)
+            throws DecisionCandidatureInvalideException {
+        boolean entrevueTerminee = entrevue.getStatut() == StatutEntrevue.TERMINEE;
+        StatutCandidature statutCandidature = entrevue.getCandidature().getStatut();
+        if (statutCandidature != StatutCandidature.ENTREVUE_PLANIFIEE
+                || !entrevueTerminee) {
+            throw new DecisionCandidatureInvalideException();
+        }
     }
 
     @Transactional
@@ -438,6 +585,8 @@ public class EmployeurService {
         contrat.setDateSignatureEmployeur(LocalDateTime.now());
 
         Contrat saved = contratRepository.save(contrat);
+
+        eventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
     }

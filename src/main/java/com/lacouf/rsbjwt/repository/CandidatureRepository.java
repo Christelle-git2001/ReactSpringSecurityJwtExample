@@ -8,8 +8,11 @@ import com.lacouf.rsbjwt.model.OffreDeStage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CandidatureRepository extends JpaRepository<Candidature, Long> {
+    Optional<Candidature> findByIdAndEtudiantId(Long id, Long etudiantId);
+
     boolean existsByEtudiantAndOffreDeStage(Etudiant etudiant, OffreDeStage offreDeStage);
 
     List<Candidature> findByOffreDeStage(OffreDeStage offreDeStage);

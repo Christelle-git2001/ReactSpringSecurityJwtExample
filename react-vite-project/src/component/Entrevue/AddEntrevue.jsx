@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Button from "../Design/Button.jsx";
 import { validateEntrevueForm } from "../../utils/entrevueValidation.jsx";
+import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
 
 function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
     const { t } = useTranslation();
@@ -14,6 +15,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
     const [mode, setMode] = useState("EN_LIGNE");
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const candidatureBloquee = actionsCandidatureDesactivees(candidatures.find(c => String(c.id) === String(selectedCandidature)));
 
     useEffect(() => {
         if (initialCandidatureId) {
@@ -79,6 +81,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (candidatureBloquee) return;
 
         const newErrors = validateEntrevueForm({
             selectedCandidature,
@@ -145,7 +148,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
                             {t("entrevue.placeholder_candidature")}
                         </option>
                         {candidatures.map((c) => (
-                            <option key={c.id} value={c.id}>
+                            <option key={c.id} value={c.id} disabled={actionsCandidatureDesactivees(c)}>
                                 {c.etudiantFirstName} {c.etudiantLastName} - {c.offreTitle}
                             </option>
                         ))}
@@ -251,6 +254,7 @@ function AddEntrevue({ candidatures = [],initialCandidatureId = "", onSave }) {
                     role={"soumettre"}
                     type="submit"
                     loading={isSubmitting}
+                    disabled={candidatureBloquee}
                 >
                     {isSubmitting ? t("common.loading") : t("common.save")}
                 </Button>

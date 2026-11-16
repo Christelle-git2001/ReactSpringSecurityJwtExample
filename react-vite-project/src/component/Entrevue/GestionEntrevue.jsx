@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import AddEntrevue from "./AddEntrevue.jsx";
 import Agenda from "./Agenda";
 import {
-    getCandidaturesRetenuesPourEntrevue,
+    getCandidaturesEmployeur,
     PlanifierEntrevue,
     getEntrevuesEmployeur
 } from "../../api/employeur.jsx";
@@ -27,13 +27,14 @@ function GestionEntrevue() {
             etudiantLastName: dto.etudiantLastName,
             offreTitle: dto.offreTitle,
             employeurBusinessName: dto.employeur?.businessName || null,
-            statut: "CHOISI_POUR_ENTREVUE",
+            statut: dto.statutCandidature || "RETENUE_POUR_ENTREVUE",
             offreId: null,
             cvId: null
         };
 
         return {
             id: dto.id,
+            statut: dto.statut,
             candidatureId: dto.candidatureId,
             candidatNom: dto.etudiantFirstName || dto.etudiantLastName
                 ? `${dto.etudiantFirstName || ""} ${dto.etudiantLastName || ""}`.trim()
@@ -43,6 +44,7 @@ function GestionEntrevue() {
             heure: timePart ? timePart.substring(0, 5) : "00:00",
             duree: dto.duree || 30,
             mode: dto.format || "EN_LIGNE",
+            decision: dto.statutCandidature ?? null,
             candidatureComplete: candidatureCompleteFinal
         };
     };
@@ -50,12 +52,12 @@ function GestionEntrevue() {
     useEffect(() => {
         setLoading(true);
         Promise.all([
-            getCandidaturesRetenuesPourEntrevue(),
+            getCandidaturesEmployeur(),
             getEntrevuesEmployeur()
         ])
             .then(([candidaturesData, entrevuesData]) => {
                 const candidatures = candidaturesData || [];
-                setCandidaturesList(candidatures);
+                setCandidaturesList(candidatures.filter(c => c.statut === "RETENUE_POUR_ENTREVUE"));
 
                 const formattedEntrevues = (entrevuesData || []).map((dto) => {
                     const candidatureAssociee = candidatures.find(
@@ -101,6 +103,12 @@ function GestionEntrevue() {
         }
     };
 
+    const handleDecision = (entrevueId, decision) => {
+        setEntrevuesList((prev) =>
+            prev.map((e) => (e.id === entrevueId ? { ...e, decision } : e))
+        );
+    };
+
     return (
         <div>
             <div className="flex flex-col gap-1 text-start p-4">
@@ -132,6 +140,7 @@ function GestionEntrevue() {
                                 candidaturesList={candidaturesList}
                                 selectedDate={selectedDate}
                                 onDateSelect={setSelectedDate}
+                                onDecision={handleDecision}
                             />
                         )}
                     </div>

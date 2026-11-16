@@ -12,7 +12,7 @@ import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus } from "..
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import { FaBriefcase, FaFileAlt, FaFileContract, FaPenNib } from "react-icons/fa";
+import { FaBriefcase, FaCheckCircle, FaFileAlt, FaFileContract, FaPenNib } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
@@ -34,6 +34,8 @@ const GestionnaireHome = ({ user }) => {
     const [candidaturesContratCree, setCandidaturesContratCree] = useState([]);
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const nombreContratsSignes = candidaturesContratCree.filter(c => c.contratSigne).length;
+    const nombreContratsASigner = candidaturesContratCree.length - nombreContratsSignes;
 
     const cvFilters = useFilters(cvs, {
         getDomain: (cv) => cv.etudiant?.department,
@@ -187,7 +189,7 @@ const GestionnaireHome = ({ user }) => {
                     availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 w-full">
                     <DashboardSummaryCard
                         icon={<FaFileAlt className="size-5" />}
                         value={cvs.length}
@@ -217,10 +219,17 @@ const GestionnaireHome = ({ user }) => {
 
                     <DashboardSummaryCard
                         icon={<FaPenNib className="size-5" />}
-                        value={candidaturesContratCree.length}
+                        value={nombreContratsASigner}
                         label={t("dashboard.contracts_to_sign_count")}
                         tone="purple"
                         ariaLabel={t("dashboard.view_created_contracts")}
+                        className="w-full"
+                    />
+                    <DashboardSummaryCard
+                        icon={<FaCheckCircle className="size-5" />}
+                        value={nombreContratsSignes}
+                        label={t("dashboard.contracts_signed_count")}
+                        tone="green"
                         className="w-full"
                     />
                 </div>

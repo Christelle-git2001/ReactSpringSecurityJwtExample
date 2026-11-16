@@ -57,7 +57,9 @@ public class OffreDeStage {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 
     @ManyToOne
@@ -67,6 +69,7 @@ public class OffreDeStage {
     private String rejectionComment;
 
     @OneToMany(mappedBy = "offreDeStage", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Candidature> candidatures = new ArrayList<>();
 
 

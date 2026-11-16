@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +33,22 @@ public class EtudiantController {
     public ResponseEntity<EtudiantDTO> creerCompteEtudiant(@Valid @RequestBody InscriptionEtudiantDTO inscriptionEtudiantDto) throws EmailExistantException, MotDePasseNonCorrespondantException, MatriculeExistantException, DepartementInvalideException, NumeroTelephoneExistantException, MatriculeNonConforme {
         EtudiantDTO etudiantDto = etudiantService.creerCompteEtudiant(inscriptionEtudiantDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(etudiantDto);
+    }
+
+    @PostMapping("/reinscription")
+    public ResponseEntity<Void> reinscrireEtudiant() throws EtudiantIntrouvableException {
+            etudiantService.reinscrireEtudiant();
+            return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/inscriptions")
+    public ResponseEntity<List<InscriptionDTO>> getMesInscriptions() {
+        try {
+            List<InscriptionDTO> inscriptions = etudiantService.getInscriptionsEtudiant();
+            return ResponseEntity.ok(inscriptions);
+        } catch (EtudiantIntrouvableException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/cv")
@@ -77,7 +95,8 @@ public class EtudiantController {
     public ResponseEntity<CandidatureDTO> postuler(@PathVariable Long offreId,
                                                   Authentication authentication)
             throws EtudiantIntrouvableException, OffreIntrouvableException, OffreDeStageIndisponibleException,
-            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException, OffreNonAutoriseeException {
+            CandidatureDejaExistanteException, CurriculumVitaeIntrouvable, CurriculumVitaeNonApprouveException,
+            OffreNonAutoriseeException, StageDejaTrouveException {
         CandidatureDTO candidatureDTO = etudiantService.postuler(offreId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(candidatureDTO);
@@ -100,6 +119,12 @@ public class EtudiantController {
         return ResponseEntity.ok(
                 etudiantService.getConvocationsEtudiant()
         );
+    }
+
+    @PutMapping("/candidatures/{id}/stage-trouve")
+    public ResponseEntity<CandidatureDTO> declarerStageTrouve(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
+        return ResponseEntity.ok(etudiantService.declarerStageTrouve(id));
     }
 
     @GetMapping("/convocations/{id}")

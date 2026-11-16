@@ -18,7 +18,9 @@ function CandidatureListItem({ candidature, onClick, variant = "card", actionLab
         ? t(`departement.${departmentKey}`, candidature?.etudiantDepartment)
         : candidature?.etudiantDepartment;
 
-    const status = getStatusConfig(candidature?.statut, t);
+    const status = candidature?.statut === "CONTRAT_CREE" && candidature?.contratSigne
+        ? getStatusConfig("CONTRAT_SIGNE", t, "candidature")
+        : getStatusConfig(candidature?.statut, t);
     const dateCandidature = formaterDate(candidature?.dateCandidature);
 
     const studentFullName = `${candidature?.etudiantFirstName || ""} ${candidature?.etudiantLastName || ""}`.trim();

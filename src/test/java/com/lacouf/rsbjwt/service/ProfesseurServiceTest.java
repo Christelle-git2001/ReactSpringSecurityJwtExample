@@ -30,6 +30,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.lacouf.rsbjwt.model.Enum.Saison;
+import com.lacouf.rsbjwt.service.dto.SessionDTO;
+
 
 import static org.mockito.Mockito.when;
 
@@ -53,6 +56,12 @@ public class ProfesseurServiceTest {
 
     @Mock
     private OffreDeStageRepository offreDeStageRepository;
+
+    @Mock
+    private SessionService sessionService;
+
+    @Mock
+    private InscriptionRepository inscriptionRepository;
 
     @InjectMocks
     private ProfesseurService professeurService ;
@@ -102,17 +111,32 @@ public class ProfesseurServiceTest {
     @Test
     void doitCreerCompteProfesseur() throws Exception {
 
-        when(passwordEncoder.encode("111111")).thenReturn("motDePasseEncode");
-        when(professeurRepository.save(any(Professeur.class))).thenReturn(professeur);
+        when(passwordEncoder.encode("111111"))
+                .thenReturn("motDePasseEncode");
 
-        ProfesseurDTO result = professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
+        when(professeurRepository.save(any(Professeur.class)))
+                .thenReturn(professeur);
 
-        assertThat(result.firstName()).isEqualTo(inscriptionProfesseurDTO.firstName());
-        assertThat(result.email()).isEqualTo(inscriptionProfesseurDTO.email());
-        assertThat(result.matricule()).isEqualTo(inscriptionProfesseurDTO.matricule());
+        when(sessionService.getSessionActuelle())
+                .thenReturn(new SessionDTO(Saison.AUTOMNE, 2026));
+
+        ProfesseurDTO result =
+                professeurService.creerCompteProfesseur(inscriptionProfesseurDTO);
+
+        assertThat(result.firstName())
+                .isEqualTo(inscriptionProfesseurDTO.firstName());
+
+        assertThat(result.email())
+                .isEqualTo(inscriptionProfesseurDTO.email());
+
+        assertThat(result.matricule())
+                .isEqualTo(inscriptionProfesseurDTO.matricule());
 
         verify(passwordEncoder).encode("111111");
 
+        verify(sessionService).getSessionActuelle();
+
+        verify(inscriptionRepository).save(any(Inscription.class));
     }
 
     @Test
@@ -268,28 +292,44 @@ public class ProfesseurServiceTest {
 
     @Test
     void doitRetournerLesCandidaturesDUnEtudiant() throws Exception {
+
         Long etudiantId = 1L;
 
         Candidature candidature = Candidature.builder()
                 .build();
+
         candidature.setId(1L);
 
+        List<Candidature> candidatures = List.of(candidature);
+
         when(etudiantRepository.findById(etudiantId))
-                .thenReturn(Optional.of(mock(
-                        com.lacouf.rsbjwt.model.Etudiant.class
-                )));
+                .thenReturn(Optional.of(
+                        mock(Etudiant.class)
+                ));
 
         when(candidatureRepository.findAllByEtudiantId(etudiantId))
-                .thenReturn(List.of(candidature));
+                .thenReturn(candidatures);
+
+        when(sessionService.filtrerParSessionActuelle(
+                eq(candidatures),
+                any()
+        )).thenReturn(candidatures);
 
         List<CandidatureDTO> resultat =
                 professeurService.getCandidaturesEtudiant(etudiantId);
 
         assertThat(resultat).hasSize(1);
+
         assertThat(resultat.get(0).id()).isEqualTo(1L);
 
         verify(etudiantRepository).findById(etudiantId);
+
         verify(candidatureRepository).findAllByEtudiantId(etudiantId);
+
+        verify(sessionService).filtrerParSessionActuelle(
+                eq(candidatures),
+                any()
+        );
     }
 
     @Test

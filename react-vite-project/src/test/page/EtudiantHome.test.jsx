@@ -1,14 +1,15 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import EtudiantHome from "../../page/Etudiant/EtudiantHome.jsx";
-import { obtenirCandidaturesEtudiant, obtenirOffres, postulerOffre } from "../../api/etudiant.jsx";
+import { obtenirCandidaturesEtudiant, obtenirOffres, obtenirToutesConvocations, postulerOffre } from "../../api/etudiant.jsx";
 import { obtenirOffrePDF } from "../../api/employeur.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 
-jest.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key) => key }) }));
+jest.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key) => key, i18n: { language: "fr" } }) }));
 jest.mock("../../component/CV/CvOnLandingPage.jsx", () => () => null);
+jest.mock("../../component/Entrevue/Agenda.jsx", () => () => null);
 jest.mock("../../api/etudiant.jsx", () => ({
-    obtenirCandidaturesEtudiant: jest.fn(), obtenirOffres: jest.fn(), postulerOffre: jest.fn(),
+    obtenirCandidaturesEtudiant: jest.fn(), obtenirOffres: jest.fn(), obtenirToutesConvocations: jest.fn(), postulerOffre: jest.fn(),
 }));
 jest.mock("../../api/employeur.jsx", () => ({ obtenirOffrePDF: jest.fn() }));
 jest.mock("../../api/notification.jsx", () => ({
@@ -45,6 +46,7 @@ describe("Consultation des nouvelles offres", () => {
         }];
         obtenirOffres.mockResolvedValue(offers);
         obtenirCandidaturesEtudiant.mockResolvedValue([]);
+        obtenirToutesConvocations.mockResolvedValue([]);
         getNotifications.mockImplementation(async () => notifications.map(n => ({ ...n })));
         marquerNotificationLue.mockImplementation(async (id) => {
             notifications.find(n => n.id === id).estLu = true;
@@ -68,7 +70,9 @@ describe("Consultation des nouvelles offres", () => {
             const accueil = afficherAccueil();
             await screen.findByText("offre.new");
             const card = screen.getByText("Nouvelle offre").closest(".card");
-            fireEvent.click(within(card).getByRole("button", { name: action }));
+            await act(async () => {
+                fireEvent.click(within(card).getByRole("button", { name: action }));
+            });
 
             await waitFor(() => expect(screen.queryByText("offre.new")).not.toBeInTheDocument());
             expect(marquerNotificationLue).toHaveBeenCalledWith(100);
@@ -78,7 +82,9 @@ describe("Consultation des nouvelles offres", () => {
                 const dialog = document.querySelector("dialog[open]");
                 expect(card.contains(dialog)).toBe(false);
                 expect(within(dialog).queryByText("Aucun fichier a lire")).not.toBeInTheDocument();
-                fireEvent.click(within(dialog).getByText("Fermer le PDF"));
+                await act(async () => {
+                    fireEvent.click(within(dialog).getByText("Fermer le PDF"));
+                });
                 expect(document.querySelector("dialog[open]")).toBeNull();
             } else {
                 await waitFor(() => expect(HTMLAnchorElement.prototype.click).toHaveBeenCalled());
@@ -112,12 +118,15 @@ describe("Consultation des nouvelles offres", () => {
         expect(screen.getByText("offre.new")).toBeInTheDocument();
     });
 
-    it("ne marque pas la description comme lue au simple clic", async () => {
+    it("marque l'offre comme lue au clic sur la description", async () => {
         afficherAccueil();
         await screen.findByText("offre.new");
         const card = screen.getByText("Nouvelle offre").closest(".card");
-        fireEvent.click(within(card).getByText("offre.description"));
-        expect(marquerNotificationLue).not.toHaveBeenCalled();
+        await act(async () => {
+            fireEvent.click(within(card).getByText("offre.description"));
+        });
+        expect(marquerNotificationLue).toHaveBeenCalledWith(100);
+        expect(screen.queryByText("offre.new")).not.toBeInTheDocument();
     });
 
     it("marque l'offre comme lue au clic sur Postuler avant la fin de la candidature", async () => {
@@ -126,7 +135,9 @@ describe("Consultation des nouvelles offres", () => {
         afficherAccueil();
         await screen.findByText("offre.new");
         const card = screen.getByText("Nouvelle offre").closest(".card");
-        fireEvent.click(within(card).getByRole("button", { name: "offre.apply" }));
+        await act(async () => {
+            fireEvent.click(within(card).getByRole("button", { name: "offre.apply" }));
+        });
 
         await waitFor(() => expect(screen.queryByText("offre.new")).not.toBeInTheDocument());
         expect(postulerOffre).toHaveBeenCalledWith(1);
@@ -139,7 +150,7 @@ describe("Consultation des nouvelles offres", () => {
     });
 
     it("ne classe pas une offre deja postulee parmi les nouvelles offres", async () => {
-        obtenirCandidaturesEtudiant.mockResolvedValue([{ offreId: 1 }]);
+        obtenirCandidaturesEtudiant.mockResolvedValue([{ id: 101, offreId: 1, statut: "SOUMISE" }]);
         afficherAccueil();
         await screen.findByText("offre.application_received");
         await waitFor(() => expect(getNotifications).toHaveBeenCalled());
@@ -151,14 +162,18 @@ describe("Consultation des nouvelles offres", () => {
         afficherAccueil();
         await screen.findByText("offre.new");
         const card = screen.getByText("Nouvelle offre").closest(".card");
-        fireEvent.click(within(card).getByRole("button", { name: "actions.view" }));
+        await act(async () => {
+            fireEvent.click(within(card).getByRole("button", { name: "actions.view" }));
+        });
         await waitFor(() => expect(document.querySelector("dialog[open]")).not.toBeNull());
         const dialog = document.querySelector("dialog");
         await act(async () => {
             dialog.close();
             fireEvent(dialog, new Event("close"));
         });
-        fireEvent.click(within(card).getByRole("button", { name: "actions.view" }));
+        await act(async () => {
+            fireEvent.click(within(card).getByRole("button", { name: "actions.view" }));
+        });
         await waitFor(() => expect(dialog).toHaveAttribute("open"));
         expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(2);
         expect(obtenirOffrePDF).toHaveBeenCalledTimes(1);
