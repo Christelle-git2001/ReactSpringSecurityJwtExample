@@ -1120,6 +1120,65 @@ public class EmployeurServiceTest {
         verifyNoInteractions(eventPublisher);
     }
 
+    @Test
+    void doitRetournerLesContratsDeLEmployeur() throws UtilisateurIntrouvableException {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+        simulerFiltrageSession();
+
+        Gestionnaire gestionnaire = Gestionnaire.builder()
+                .firstName("Laurent")
+                .lastName("Losange")
+                .email("Laurent.Losange@hotmail.com")
+                .build();
+        gestionnaire.setId(1L);
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+        ReflectionTestUtils.setField(contrat, "id", 1L);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(contratRepository.findByCandidatureOffreDeStageEmployeurId(employeur.getId()))
+                .thenReturn(List.of(contrat));
+
+        List<ResumeContratDTO> resultat = employeurService.obtenirContratsEmployeur();
+
+        assertThat(resultat).hasSize(1);
+        verify(contratRepository).findByCandidatureOffreDeStageEmployeurId(employeur.getId());
+    }
+
+    @Test
+    void doitRetournerLesEntrevuesParStatutDeLEmployeur() throws UtilisateurIntrouvableException {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+        simulerFiltrageSession();
+
+        Entrevue entrevue = Entrevue.builder()
+                .candidature(candidature)
+                .build();
+
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        ReflectionTestUtils.setField(entrevue, "id", 1L);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByEmployeurId(employeur.getId()))
+                .thenReturn(List.of(entrevue));
+
+        List<EntrevueDTO> resultat = employeurService.obtenirEntrevuesParStatut(StatutEntrevue.CONFIRMEE);
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).statut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+        verify(convocationRepository).findByEmployeurId(employeur.getId());
+    }
+
     private <T> void simulerFiltrageSession() {
         when(sessionService.filtrerParSessionActuelle(
                 anyList(),
