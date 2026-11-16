@@ -102,6 +102,7 @@
     "save": "Soumettre"
   },
   "actions": {
+    "evaluate_intern": "Evaluer stagiaire",
     "interview": "Retenir pour entrevue",
     "plan_interview": "Planifier une entrevue",
     "manage_status": "Gérer le statut",

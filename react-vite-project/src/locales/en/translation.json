@@ -103,6 +103,7 @@
     "save": "Submit"
   },
   "actions": {
+    "evaluate_intern": "Evaluate intern",
     "create_contract": "Create contract",
     "sign_contract": "Sign contract",
     "signing": "Signing...",
@@ -732,5 +733,77 @@
       "title" : "List",
       "empty" : "The list is empty"
     }
+  },
+  "evaluation": {
+    "title": "Internship site evaluation",
+    "sections": {
+      "company": "1. Company information",
+      "intern": "2. Intern information",
+      "evaluation": "3. Evaluation",
+      "comments": "4. Comments",
+      "observations": "5. General observations"
+    },
+    "fields": {
+      "nomEntreprise": "Company name",
+      "personneContact": "Contact person",
+      "adresse": "Address",
+      "telephone": "Phone",
+      "ville": "City",
+      "telecopieur": "Fax",
+      "codePostal": "Postal code",
+      "nomStagiaire": "Intern's name",
+      "dateDebut": "Internship start",
+      "dateFin": "Internship end",
+      "heuresMois1": "Hours/week – first month",
+      "heuresMois2": "Hours/week – second month",
+      "heuresMois3": "Hours/week – third month",
+      "salaireHoraire": "Wage ($/hour)",
+      "commentaires": "Comments",
+      "de": "From",
+      "a": "To"
+    },
+    "levels": {
+      "TOTALEMENT_EN_ACCORD": "Strongly agree",
+      "PLUTOT_EN_ACCORD": "Somewhat agree",
+      "PLUTOT_EN_DESACCORD": "Somewhat disagree",
+      "TOTALEMENT_EN_DESACCORD": "Strongly disagree",
+      "IMPOSSIBLE_DE_SE_PRONONCER": "Unable to say"
+    },
+    "criteres": {
+      "tachesConformes": "The tasks assigned to the intern match those stated in the internship agreement.",
+      "mesuresAccueil": "Onboarding measures make it easier for the new intern to integrate.",
+      "tempsEncadrement": "The actual time spent supervising the intern is sufficient.",
+      "hygieneSecurite": "The work environment complies with workplace health and safety standards.",
+      "climatTravail": "The work climate is pleasant.",
+      "transportCommun": "The internship site is accessible by public transit.",
+      "salaireInteressant": "The wage offered is attractive for the intern.",
+      "communicationSuperviseur": "Communication with the internship supervisor helps the internship run smoothly.",
+      "equipementAdequat": "The equipment provided is adequate for the assigned tasks.",
+      "volumeTravail": "The workload is acceptable."
+    },
+    "questions": {
+      "numeroStage": "Internship",
+      "milieuPrivilegie": "This site is recommended for the",
+      "nombreStagiaires": "This site is open to hosting",
+      "memeStagiaire": "This site would like to host the same intern for a future internship",
+      "quartsVariables": "This site offers variable work shifts"
+    },
+    "options": {
+      "STAGE_1": "Internship 1",
+      "STAGE_2": "Internship 2",
+      "PREMIER_STAGE": "First internship",
+      "DEUXIEME_STAGE": "Second internship",
+      "UN": "One intern",
+      "DEUX": "Two interns",
+      "TROIS": "Three interns",
+      "PLUS_DE_TROIS": "More than three",
+      "OUI": "Yes",
+      "NON": "No"
+    },
+    "disagree_hint": "* Any disagreement must be explained in the Comments section.",
+    "submit": "Submit evaluation",
+    "required": "Please fill in all required fields and check the dates.",
+    "confirm_description": "Once submitted, the evaluation will be sent to the internship manager and can no longer be edited.",
+    "success": "The evaluation was submitted successfully."
   }
 }
