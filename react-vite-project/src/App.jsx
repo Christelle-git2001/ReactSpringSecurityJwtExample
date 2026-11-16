@@ -70,6 +70,7 @@ function App() {
                         sousTitre={t(`chatbot.sousTitre${roleName.charAt(0) + roleName.slice(1).toLowerCase()}`)}
                         initialMessage={t(`chatbot.initial${roleName.charAt(0) + roleName.slice(1).toLowerCase()}`)}
                         suggestions={Array.isArray(suggestionsList) ? suggestionsList : []}
+                        t={t}
                         onSend={async (question) => {
                             const resultat = await poserQuestionChatbot(question);
                             return resultat.reponse;

@@ -22,7 +22,7 @@ function TexteBot({ texte }) {
     );
 }
 
-export default function ChatBot({ titre, sousTitre, suggestions, initialMessage, onSend }) {
+export default function ChatBot({ titre, sousTitre, suggestions, initialMessage, onSend, t }) {
     const [ouvert, setOuvert] = useState(false);
     const [messages, setMessages] = useState([
         { role: "bot", texte: initialMessage },
@@ -145,7 +145,7 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
                                 <FaRobot size={11} className="text-[#043462]" />
                             </div>
                             <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 text-xs text-gray-500">
-                                L'assistant réfléchit...
+                                {t ? t("chatbot.thinking") : "L'assistant réfléchit..."}
                             </div>
                         </div>
                     )}
@@ -173,7 +173,7 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
                         value={saisie}
                         onChange={e => setSaisie(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Posez votre question..."
+                        placeholder={t ? t("chatbot.placeholder") : "Posez votre question..."}
                         disabled={chargement}
                         className="flex-1 resize-none rounded-xl border border-gray-200 px-3 py-2
                                    text-xs focus:outline-none focus:border-[#043462]
