@@ -32,4 +32,6 @@ public interface ContratRepository extends JpaRepository<Contrat, Long> {
     @Query("SELECT count(c) FROM Contrat c" + SIGNATURE_DANS_PERIODE)
     long countSignesEntre(@Param("signataire") String signataire,
                          @Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
+
+    List<Contrat> findByCandidatureOffreDeStageEmployeurId(Long id);
 }

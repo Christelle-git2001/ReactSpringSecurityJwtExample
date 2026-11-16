@@ -1,9 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
-import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
-import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
@@ -15,10 +12,7 @@ import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,13 +31,15 @@ public class NotificationService {
     private final UserAppRepository userAppRepository;
     private final EtudiantRepository etudiantRepository;
     private final CandidatureRepository candidatureRepository;
+    private final EmployeurRepository employeurRepository;
 
     public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
-                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository) {
+                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, EmployeurRepository employeurRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
+        this.employeurRepository = employeurRepository;
     }
 
     @EventListener
@@ -667,4 +663,21 @@ public class NotificationService {
                 .toList();
     }
 
+    public List<NotificationDTO> getNotificationsNonLuesEmployeur() throws EmployeurIntrouvable {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+       Employeur employeur = employeurRepository
+                .findByCredentialsEmail(email)
+                .orElseThrow(EmployeurIntrouvable::new);
+
+        return notificationRepository
+                .getNotificationByDestinataire(employeur)
+                .stream()
+                .filter(notification -> !notification.isEstLu())
+                .map(NotificationDTO::of)
+                .toList();
+    }
 }
