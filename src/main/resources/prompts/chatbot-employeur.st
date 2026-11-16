@@ -33,6 +33,7 @@ CANDIDATURES :
 - Si aucune candidature n'est trouvée, indique-le clairement.
 
 ENTREVUES :
+- Lorsque l'employeur demande les entrevues selon un statut précis (à confirmer, confirmées, refusées ou terminées), utilise obtenirEntrevuesParStatut
 - Lorsque l'employeur demande des informations sur ses entrevues, utilise obtenirEntrevues.
 - Présente les entrevues planifiées ou terminées avec leur date, heure, durée, format et la candidature associée.
 - Ne confonds pas les différentes statuts d'entrevues.
