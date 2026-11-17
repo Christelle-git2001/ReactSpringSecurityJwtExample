@@ -6,6 +6,10 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.MilieuStageScoresDTO;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.ObservationGeneralDTO;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.QuartTravailDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -303,6 +307,63 @@ public class ProfesseurControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(professeurService).getResumeOffre(offreId);
+    }
+
+    @Test
+    void doitEnregistrerEvaluationMilieuDeStage() throws Exception {
+        SuperviseurStageDTO superviseurDTO = new SuperviseurStageDTO(
+                "Jean", "Dupont", "Gestionnaire TI", "514-555-1234"
+        );
+        ObservationGeneralDTO observationDTO = new ObservationGeneralDTO(
+                1L, 2L, true, List.of(new QuartTravailDTO("08:30", "16:30"))
+        );
+        MilieuStageScoresDTO scoresDTO = new MilieuStageScoresDTO(
+                5L, 5L, 5L, List.of(10L, 12L), 5L, 5L, 5L, 5L, 5L, 5L, "Excellent milieu de stage"
+        );
+
+        EvaluationMillieuStageDTO inputDto = new EvaluationMillieuStageDTO(
+                1L, superviseurDTO, observationDTO, scoresDTO
+        );
+
+        when(professeurService.enregistreEvaluationMilieuDeStage(any(EvaluationMillieuStageDTO.class)))
+                .thenReturn(inputDto);
+
+        mockMvc.perform(post("/professeur/evaluation/stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inputDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.candiatureId").value(1))
+                .andExpect(jsonPath("$.superviseurStageDTO.firstName").value("Jean"))
+                .andExpect(jsonPath("$.millieuStageScoresDTO.commentaire").value("Excellent milieu de stage"));
+
+        verify(professeurService).enregistreEvaluationMilieuDeStage(any(EvaluationMillieuStageDTO.class));
+    }
+
+    @Test
+    void doitRetournerNotFoundSiCandidatureIntrouvablePourEvaluation() throws Exception {
+        SuperviseurStageDTO superviseurDTO = new SuperviseurStageDTO(
+                "Jean", "Dupont", "Gestionnaire TI", "514-555-1234"
+        );
+        ObservationGeneralDTO observationDTO = new ObservationGeneralDTO(
+                1L, 2L, true, List.of(new QuartTravailDTO("08:30", "16:30"))
+        );
+        MilieuStageScoresDTO scoresDTO = new MilieuStageScoresDTO(
+                5L, 5L, 5L, List.of(10L, 12L), 5L, 5L, 5L, 5L, 5L, 5L, "Excellent milieu de stage"
+        );
+
+        EvaluationMillieuStageDTO inputDto = new EvaluationMillieuStageDTO(
+                99L, superviseurDTO, observationDTO, scoresDTO
+        );
+
+        when(professeurService.enregistreEvaluationMilieuDeStage(any(EvaluationMillieuStageDTO.class)))
+                .thenThrow(new CandidatureIntrouvableException());
+
+        mockMvc.perform(post("/professeur/evaluation/stage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inputDto)))
+                .andExpect(status().isNotFound());
+
+        verify(professeurService).enregistreEvaluationMilieuDeStage(any(EvaluationMillieuStageDTO.class));
     }
 
 }

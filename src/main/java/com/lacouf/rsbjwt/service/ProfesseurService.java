@@ -4,7 +4,9 @@ import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,10 +27,11 @@ public class ProfesseurService {
     private final OffreDeStageRepository offreDeStageRepository;
     private final SessionService sessionService;
     private final InscriptionRepository inscriptionRepository;
+    private final EvaluationMillieuStageRepository evaluationMillieuStageRepository;
 
     public ProfesseurService(ProfesseurRepository professeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder,
                              EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, OffreDeStageRepository offreDeStageRepository,
-                             SessionService sessionService, InscriptionRepository inscriptionRepository) {
+                             SessionService sessionService, InscriptionRepository inscriptionRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository) {
         this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -37,6 +40,7 @@ public class ProfesseurService {
         this.offreDeStageRepository = offreDeStageRepository;
         this.sessionService = sessionService;
         this.inscriptionRepository = inscriptionRepository;
+        this.evaluationMillieuStageRepository = evaluationMillieuStageRepository;
     }
 
     @Transactional
@@ -132,5 +136,14 @@ public class ProfesseurService {
     public ResumeStageEtudiantDTO getResumeOffre(Long offreId) throws OffreIntrouvableException {
         OffreDeStage offreDeStage = offreDeStageRepository.findById(offreId).orElseThrow(OffreIntrouvableException::new);
         return ResumeStageEtudiantDTO.of(offreDeStage);
+    }
+
+    public EvaluationMillieuStageDTO enregistreEvaluationMilieuDeStage(EvaluationMillieuStageDTO evaluationMillieuStageDTO) throws CandidatureIntrouvableException {
+        Candidature candidature = candidatureRepository.findById(evaluationMillieuStageDTO.candiatureId()).orElseThrow(CandidatureIntrouvableException::new);
+        return EvaluationMillieuStageDTO.toDTO(
+                evaluationMillieuStageRepository.save(
+                        EvaluationMillieuStageDTO.toEntity(evaluationMillieuStageDTO,candidature)
+                )
+        );
     }
 }

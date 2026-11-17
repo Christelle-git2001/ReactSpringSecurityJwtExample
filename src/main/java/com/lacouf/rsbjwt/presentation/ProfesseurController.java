@@ -3,6 +3,7 @@ package com.lacouf.rsbjwt.presentation;
 import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,12 @@ public class ProfesseurController {
     @GetMapping("/offre/{offreId}")
     public ResponseEntity<ResumeStageEtudiantDTO> getResumeOffre(@PathVariable Long offreId) throws OffreIntrouvableException {
         return ResponseEntity.ok(professeurService.getResumeOffre(offreId));
+    }
+
+    @PostMapping("/evaluation/stage")
+    public ResponseEntity<EvaluationMillieuStageDTO> evaluationEnvironementStage(@Valid @RequestBody EvaluationMillieuStageDTO evaluationMillieuStageDTO) throws CandidatureIntrouvableException {
+        EvaluationMillieuStageDTO evaluationMillieuStageDTOResponse = professeurService.enregistreEvaluationMilieuDeStage(evaluationMillieuStageDTO);
+        return ResponseEntity.ok(evaluationMillieuStageDTOResponse);
     }
 
 
