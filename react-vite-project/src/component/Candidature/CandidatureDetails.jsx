@@ -19,7 +19,8 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
     const candidatureSource = candidatureProp || location.state?.candidature;
     const [decision, setDecision] = useState(null);
     useEffect(() => { setDecision(null); }, [candidatureSource?.id]);
-    const candidature = decision ? { ...candidatureSource, statut: decision.statut } : candidatureSource;
+    const decisionActuelle = decision?.id === candidatureSource?.id ? decision : null;
+    const candidature = decisionActuelle ? { ...candidatureSource, ...decisionActuelle } : candidatureSource;
     const offer = offerProp || location.state?.offer || candidature?.offre;
     const retour = location.state?.from || "/employeur";
 
@@ -121,17 +122,18 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decision?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
+            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decisionActuelle?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
             {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
             <div className="px-6 pb-6 pt-2 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction
+                    key={candidatureSource?.id}
                     role={Role.EMPLOYEUR}
                     candidature={candidature}
-                    statutEntrevue={statutEntrevue}
+                    statutEntrevue={decisionActuelle?.statutEntrevue ?? statutEntrevue}
                     contrat={contrat}
                     retourPath={retour}
-                    onProcessChange={setDecision}
+                    onProcessChange={resultat => setDecision({ ...resultat, id: candidatureSource.id })}
                     onSignatureSuccess={() => {
                         rechargerContrat();
                     }}

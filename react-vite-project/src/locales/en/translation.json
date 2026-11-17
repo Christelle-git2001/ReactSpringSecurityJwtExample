@@ -1,5 +1,19 @@
 {
-  "generic": {"error":"An error occurred."},
+  "stage": {
+    "accept": "Accept internship",
+    "refuse": "Decline internship",
+    "accept_title": "Confirm internship acceptance",
+    "refuse_title": "Decline this internship?",
+    "accept_description": "Your status will change to “Internship found” and the contract will be created automatically for signatures.",
+    "refuse_description": "This offer will be declined and your reserved place will be released. You can continue your internship search.",
+    "lock_warning": "After confirmation, actions on your other applications and interviews will be disabled. You will still be able to view your information and sign the selected internship contract.",
+    "refused_by_student": "Internship declined by the student.",
+    "refused_notification_title": "A student declined the internship",
+    "refused_notification_description": "{{ETUDIANT_NOM}} declined the internship {{OFFRE_TITRE}}. A place is available again."
+  },
+  "generic": {
+    "error": "An error occurred."
+  },
   "language": {
     "label": "Language"
   },
@@ -47,6 +61,8 @@
     "submit": "Create account"
   },
   "add_offer": {
+    "max_candidates": "Maximum number of accepted candidates",
+    "targeted_capacity": "A targeted offer is reserved for one student.",
     "targeted_student": "Targeted student",
     "targeted_company": "Company",
     "select_student": "Choose a student",
@@ -113,11 +129,11 @@
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
     "view_details": "View details",
-    "interview":"Select for interview",
+    "interview": "Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
-    "only_news" : "News Only",
+    "only_news": "News Only",
     "back": "Back",
     "close_interview": "Close interview",
     "backhome": "Back home",
@@ -131,7 +147,7 @@
     "loading": "Loading...",
     "collapse": "Collapse",
     "expand": "Expand",
-    "cancel" : "Cancel",
+    "cancel": "Cancel",
     "postuler": "Postuler",
     "confirm": "Confirm"
   },
@@ -183,6 +199,10 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "contract_manager_missing": "No manager is available to handle the contract. Your decision has not been saved.",
+    "stage_decision_invalid": "This decision is unavailable. Select an application accepted by the employer and make sure you have not already accepted another internship.",
+    "invalid_candidate_capacity": "The maximum number of candidates must be a whole number greater than or equal to 1.",
+    "offer_capacity_reached": "This offer has reached its maximum number of accepted candidates. Other applications can still be viewed, but their actions are disabled.",
     "decision_invalid": "Decision unavailable. Check that the interview is confirmed and completed.",
     "stage_declaration_invalid": "Choose an accepted application. You cannot declare another internship if you have already chosen one.",
     "refusal_reason_invalid": "Please provide a non-blank refusal reason of no more than 1,000 characters.",
@@ -223,7 +243,7 @@
     "history": "History",
     "collapse": "Collapse",
     "expand": "Expand",
-    "assignation" : "Teacher Assignment"
+    "assignation": "Teacher Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -235,14 +255,13 @@
   "dashboard": {
     "view_created_contracts": "View created agreements",
     "view_candidature_details": "View application",
-    "view_contract": "Sign/View Contract",
+    "view_contract": "View contract",
     "contracts_to_create_count": "Contracts to create",
     "contracts_to_sign_count": "Contracts to sign",
     "contracts_signed_count": "Signed contracts",
     "contracts_to_create_title": "Contracts to Create",
-    "contracts_to_sign_title": "Created Contracts / To Sign",
     "no_contracts_to_create": "No contracts to create at the moment.",
-    "no_contracts_to_sign": "No contracts pending signature.",
+    "no_contracts_to_sign": "No contracts yet.",
     "pending_contracts_count": "Contracts pending creation",
     "contracts_pending_title": "Applications ready to start the contract signing process",
     "no_pending_contracts": "No applications pending a contract.",
@@ -272,7 +291,11 @@
     "view_cv": "View resume",
     "view_offer": "View offer",
     "view_more": "View more",
-    "view_less": "View less"
+    "view_less": "View less",
+    "contracts_title": "Contracts",
+    "sign_contract": "Sign",
+    "application_count": "{{count}} application",
+    "application_count_plural": "{{count}} applications"
   },
   "etudiant": {
     "assigned_professor": "Assigned professor",
@@ -304,12 +327,12 @@
       "information_stage": "Internship request",
       "aucune_candidature": "Internship search in progress...",
       "employeur": "Employer",
-      "poste" : "Position",
+      "poste": "Position",
       "voir_detail": "View details",
       "voir_entrevue": "View internship applications",
-      "date_application" : "Applied on",
-      "candidatures_etudiant_titre" : "{{prenom}} {{nom}}'s applications",
-      "voir_etudiants" : "View all students"
+      "date_application": "Applied on",
+      "candidatures_etudiant_titre": "{{prenom}} {{nom}}'s applications",
+      "voir_etudiants": "View all students"
     },
     "contrat_detail": {
       "title": "Contract details"
@@ -333,27 +356,28 @@
       "cvs": "Review student resumes. Approve, reject, or provide guidance."
     },
     "assignation": {
-      "title" : "Teacher Assignment",
-      "description_without_teacher" : "Select a teacher to begin student assignment",
-      "description_with_teacher" : "Select the students to be assigned to this teacher",
-      "professeur" : {
+      "title": "Teacher Assignment",
+      "description_without_teacher": "Select a teacher to begin student assignment",
+      "description_with_teacher": "Select the students to be assigned to this teacher",
+      "professeur": {
         "professeur_without_name": "This teacher has no name",
-        "professeur_without_department" : "This teacher has no department",
-        "professeur_without_email" : "This teacher has no email",
+        "professeur_without_department": "This teacher has no department",
+        "professeur_without_email": "This teacher has no email",
         "nb_student_assign": "Assigned students",
-        "professeur_is_selected" : "Selected",
+        "professeur_is_selected": "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
       "select": {
-        "professor" : "Choose a teacher",
-        "professorSelected" : "You have selected this teacher",
+        "professor": "Choose a teacher",
+        "professorSelected": "You have selected this teacher",
         "anotherProfessor": "Click to choose another teacher",
-        "warningAnotherProfessor" : "Change the professor? This will clear the selected students.",
+        "warningAnotherProfessor": "Change the professor? This will clear the selected students.",
         "student": "Choose the students who will be assigned to: {{prenom}} {{nom}}",
-        "finishToSelect" : "Have you finished selecting the students? Click the \"Assign\" button in the student list.",        "studentList" : {
-          "title" : "Selected Students",
-          "empty" : "No students selected"
+        "finishToSelect": "Have you finished selecting the students? Click the \"Assign\" button in the student list.",
+        "studentList": {
+          "title": "Selected Students",
+          "empty": "No students selected"
         }
       },
       "etudiant": {
@@ -412,6 +436,7 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
+    "accepted_candidates": "Accepted candidates",
     "no_document_attached": "No document attached",
     "default_document_name": "Internship offer",
     "new": "New Offers",
@@ -448,7 +473,8 @@
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
     },
-    "already_applied": "You have already applied"
+    "already_applied": "You have already applied",
+    "remaining_positions": "Positions remaining"
   },
   "status": {
     "tous": "All",
@@ -492,15 +518,15 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
-  "resume_offers" : {
+  "resume_offers": {
     "offers_section": "Offer details",
-    "offers_sous_section" : {
-      "title" : "Title",
+    "offers_sous_section": {
+      "title": "Title",
       "salaire": "Salary",
       "salaire_value": "{{salary}}$/Hour",
-      "description" : "description",
+      "description": "description",
       "start_date": "Internship start date",
-      "format_date" : "(AAAA-MM-JJ)",
+      "format_date": "(AAAA-MM-JJ)",
       "end_date": "Internship end date",
       "pdf": "Offer Preview"
     },
@@ -560,9 +586,9 @@
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
-      "retenue_pour_entrevue" : "Selected for interview",
+      "retenue_pour_entrevue": "Selected for interview",
       "planifiee": "Interview scheduled",
-      "entrevue_planifiee" : "Interview scheduled",
+      "entrevue_planifiee": "Interview scheduled",
       "confirmee": "Interview confirmed",
       "entrevue_refusee": "Interview declined",
       "refusee": "Application rejected",
@@ -668,7 +694,8 @@
       },
       "assignation": {
         "title": "A teacher has been assigned to you",
-        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"
+      }
     },
     "teacher": {
       "assignation": {
@@ -748,7 +775,7 @@
     "format": "Format",
     "date": "Date",
     "time": "Time",
-    "reject" : "Reject",
+    "reject": "Reject",
     "confirm_refusal": "Confirm decline",
     "refusal_confirmation": "Do you want to decline this interview invitation? The employer will be notified of your decision.",
     "refusal_reason": "Reason for declining",
@@ -756,8 +783,8 @@
     "refusal_reason_too_long": "The reason must not exceed 500 characters.",
     "refused_message": "You declined this interview invitation.",
     "refused_by_student": "The student declined this interview invitation.",
-    "accept" : "Accept",
-    "back" : "Back",
+    "accept": "Accept",
+    "back": "Back",
     "scheduled": "Interview scheduled",
     "confirmed": "Confirmed",
     "attendance_confirmed": "Your attendance at this interview is confirmed.",
@@ -772,6 +799,7 @@
     }
   },
   "process": {
+    "action_wait_student_response": "The application is accepted. The student must now accept or decline the internship.",
     "manager_signed": "Signed by the coordinator",
     "title": "Internship and Contract Process Tracking",
     "cv": "Curriculum Vitae",
@@ -791,7 +819,7 @@
     "start_error": "Error while starting the process",
     "sign_error": "Error while signing the contract",
     "no_signature": "No signature",
-    "no_contrat": "No created contract, click on start signature process ",
+    "no_contrat": "The contract will be available automatically after the student accepts the internship.",
     "waiting_parties_signatures": "Employer and student must sign first",
     "contract_signed_title": "Contract signed",
     "action_student_sign_contract": "The agreement is ready. Review it, then sign it to continue the process.",
@@ -809,8 +837,8 @@
     "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
     "action_default": "Application process tracking in progress.",
-    "cv_view_title" : "Student CV",
-    "contract_view_title" : "Internship Agreement"
+    "cv_view_title": "Student CV",
+    "contract_view_title": "Internship Agreement"
   },
   "sort": {
     "by_date": "Sort by date",
@@ -826,15 +854,15 @@
     "nom": "Name",
     "departement": "Department",
     "matricule": "Matricule",
-    "email" : "Email",
-    "phone" : "Phone Number",
-    "town" : "Town",
-    "description" : "Description",
-    "liste" : {
-      "open" : "Open the list",
-      "close" : "Close the list",
-      "title" : "List",
-      "empty" : "The list is empty"
+    "email": "Email",
+    "phone": "Phone Number",
+    "town": "Town",
+    "description": "Description",
+    "liste": {
+      "open": "Open the list",
+      "close": "Close the list",
+      "title": "List",
+      "empty": "The list is empty"
     }
   },
   "session": {

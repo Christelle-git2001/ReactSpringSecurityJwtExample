@@ -13,7 +13,6 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
         { key: "ENTREVUE_PLANIFIEE", label: t(estRefusee ? "candidature.status.entrevue_refusee" : regrouperEntrevue ? "candidature.interview_step" : "candidature.status.planifiee") },
         { key: "CONFIRMEE", label: t("candidature.status.confirmee") },
         { key: "ACCEPTEE", label: t(candidatureRefusee ? "candidature.status.refusee" : "candidature.status.acceptee") },
-        { key: "STAGE_TROUVE", label: t("candidature.status.stage_trouve") },
         ...(afficherSignature ? [{ key: "SIGNATURE_DEMARREE", label: t("candidature.status.signature_started") }] : []),
         { key: "CONTRAT_CREE", label: t(afficherSignature ? "candidature.status.contrat_signe" : "candidature.status.contrat") }
     ];
@@ -23,7 +22,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
         && (!regrouperEntrevue || step.key !== "CONFIRMEE"));
     const statutTimeline = afficherSignature && statut === "CONTRAT_CREE" && !contratSigne ? "SIGNATURE_DEMARREE" : candidatureRefusee ? "ACCEPTEE" : estRefusee ? "ENTREVUE_PLANIFIEE"
         : statut === "ENTREVUE_PLANIFIEE" && ["CONFIRMEE", "TERMINEE"].includes(statutEntrevue)
-            ? "CONFIRMEE" : statut;
+            ? "CONFIRMEE" : statut === "STAGE_TROUVE" ? "ACCEPTEE" : statut;
 
     const isCompleted = (stepKey) => {
         const currentIndex = order.indexOf(statutTimeline);

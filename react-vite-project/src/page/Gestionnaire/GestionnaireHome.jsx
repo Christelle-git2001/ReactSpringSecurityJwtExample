@@ -12,7 +12,7 @@ import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus } from "..
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import { FaBriefcase, FaCheckCircle, FaFileAlt, FaFileContract, FaPenNib } from "react-icons/fa";
+import { FaBriefcase, FaCheckCircle, FaFileAlt, FaPenNib } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 
@@ -30,7 +30,6 @@ const GestionnaireHome = ({ user }) => {
     const navigate = useNavigate();
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
-    const [candidaturesStageTrouve, setCandidaturesStageTrouve] = useState([]);
     const [candidaturesContratCree, setCandidaturesContratCree] = useState([]);
     const [error, setError] = useState(null);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -147,11 +146,7 @@ const GestionnaireHome = ({ user }) => {
 
     const chargerCandidaturesContrat = useCallback(async () => {
         try {
-            const [stageTrouveData, contratCreeData] = await Promise.all([
-                getCandidaturesByStatus("STAGE_TROUVE"),
-                getCandidaturesByStatus("CONTRAT_CREE")
-            ]);
-            setCandidaturesStageTrouve(stageTrouveData || []);
+            const contratCreeData = await getCandidaturesByStatus("CONTRAT_CREE");
             setCandidaturesContratCree(contratCreeData || []);
         } catch (err) {
             console.log(err);
@@ -189,7 +184,7 @@ const GestionnaireHome = ({ user }) => {
                     availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
                     <DashboardSummaryCard
                         icon={<FaFileAlt className="size-5" />}
                         value={cvs.length}
@@ -205,15 +200,6 @@ const GestionnaireHome = ({ user }) => {
                         label={t("dashboard.pending_offers_count")}
                         tone="green"
                         ariaLabel={t("dashboard.view_pending_offers")}
-                        className="w-full"
-                    />
-
-                    <DashboardSummaryCard
-                        icon={<FaFileContract className="size-5" />}
-                        value={candidaturesStageTrouve.length}
-                        label={t("dashboard.contracts_to_create_count")}
-                        tone="cyan"
-                        ariaLabel={t("dashboard.view_pending_contracts")}
                         className="w-full"
                     />
 
@@ -291,40 +277,10 @@ const GestionnaireHome = ({ user }) => {
                         )}
                     </DashboardSection>
                     <DashboardSection
-                        title={t("dashboard.contracts_to_create_title")}
+                        title={t("dashboard.contracts_title")}
                         headerAction={
                             <span className={sectionCountClassName}>
-                                {candidaturesStageTrouve.length} {t("dashboard.applications")}
-                            </span>
-                        }
-                    >
-                        {!isInitialLoading && candidaturesStageTrouve.length === 0 ? (
-                            <EmptyContentMessage
-                                message={t("dashboard.no_contracts_to_create")}
-                            />
-                        ) : (
-                            <ExpandableList
-                                items={candidaturesStageTrouve}
-                                limit={3}
-                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                collapseLabel={t("dashboard.view_less", "Voir moins")}
-                                renderItem={(candidature) => (
-                                    <CandidatureListItem
-                                        key={candidature.id}
-                                        candidature={candidature}
-                                        onClick={() => handleViewCandidature(candidature)}
-                                        actionLabel={t("dashboard.create_contract")}
-                                    />
-                                )}
-                            />
-                        )}
-                    </DashboardSection>
-
-                    <DashboardSection
-                        title={t("dashboard.contracts_to_sign_title")}
-                        headerAction={
-                            <span className={sectionCountClassName}>
-                                {candidaturesContratCree.length} {t("dashboard.applications")}
+                                {t(candidaturesContratCree.length > 1 ? "dashboard.application_count_plural" : "dashboard.application_count", { count: candidaturesContratCree.length })}
                             </span>
                         }
                     >
@@ -343,7 +299,7 @@ const GestionnaireHome = ({ user }) => {
                                         key={candidature.id}
                                         candidature={candidature}
                                         onClick={() => handleViewCandidature(candidature)}
-                                        actionLabel={t("dashboard.view_contract")}
+                                        actionLabel={t(candidature.contratSigne ? "dashboard.view_contract" : "dashboard.sign_contract")}
                                     />
                                 )}
                             />

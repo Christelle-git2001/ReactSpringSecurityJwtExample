@@ -36,9 +36,9 @@ function NextAction({
     const [motifError, setMotifError] = useState(false);
     const [entrevueId, setEntrevueId] = useState(null);
     const [refusOuvert, setRefusOuvert] = useState(false);
-    const [decisionError, setDecisionError] = useState(false);
+    const [decisionError, setDecisionError] = useState(null);
     const [actionsBloquees, setActionsBloquees] = useState(false);
-    const [entrevueFermee, setEntrevueFermee] = useState(false);
+    const [erreurBlocage, setErreurBlocage] = useState(null);
     const [entreeStatutLocal, setEntreeStatutLocal] = useState(statutEntrevue || null);
 
     const activeEntrevueStatut = entreeStatutLocal ?? statutEntrevue;
@@ -46,7 +46,8 @@ function NextAction({
     useEffect(() => {
         setStatutActuel(candidature?.statut);
         setActionsBloquees(actionsCandidatureDesactivees(candidature));
-    }, [candidature?.id, candidature?.statut, candidature?.statutEtudiant]);
+        setErreurBlocage(null);
+    }, [candidature?.id, candidature?.statut, candidature?.statutEtudiant, candidature?.actionsDesactivees]);
 
     const [modalOuverte, setModalOuverte] = useState(false);
     const [motDePasse, setMotDePasse] = useState("");
@@ -84,7 +85,7 @@ function NextAction({
 
     useEffect(() => {
         setEntreeStatutLocal(statutEntrevue || null);
-    }, [statutEntrevue]);
+    }, [candidature?.id, statutEntrevue]);
 
     useEffect(() => {
         if (!["ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE", "ENTREVUE_REFUSEE"].includes(statutActuel) || !candidature?.id) return;
@@ -98,9 +99,9 @@ function NextAction({
                 setEntreeStatutLocal(convocation?.statut ?? statutEntrevue ?? null);
                 setMotifRefus(convocation?.motifRefus || "");
             })
-            .catch(() => {
+            .catch((error) => {
                 if (actif) {
-                    setDecisionError(true);
+                    setDecisionError(error?.message || "error.generic");
                 }
             });
 
@@ -155,7 +156,10 @@ function NextAction({
                 state: { selectedCandidatureId: candidature.id },
             });
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
+            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+                setActionsBloquees(true);
+                setErreurBlocage(error.message);
+            }
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -198,7 +202,10 @@ function NextAction({
             setMotDePasse("");
 
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
+            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+                setActionsBloquees(true);
+                setErreurBlocage(error.message);
+            }
             console.error(error);
 
             setErreurSignature(
@@ -215,19 +222,21 @@ function NextAction({
         if (!entrevueId) return;
 
         setIsSubmitting(true);
-        setDecisionError(false);
+        setDecisionError(null);
         try {
             await cloreEntrevue(entrevueId);
             triggerNotifications();
-            setEntrevueFermee(true);
             setEntreeStatutLocal("TERMINEE");
             setStatutActuel("ENTREVUE_PLANIFIEE");
             setRefusOuvert(false);
             onProcessChange?.({ statut: "ENTREVUE_PLANIFIEE", statutEntrevue: "TERMINEE" });
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
+            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+                setActionsBloquees(true);
+                setErreurBlocage(error.message);
+            }
             console.error("Erreur lors de la clôture de l'entretien:", error);
-            setDecisionError(true);
+            setDecisionError(error?.message || "error.generic");
         } finally {
             setIsSubmitting(false);
         }
@@ -237,18 +246,21 @@ function NextAction({
         if (!entrevueId) return;
 
         setIsSubmitting(true);
-        setDecisionError(false);
+        setDecisionError(null);
         try {
-            await accepterCandidat(entrevueId);
+            const decision = await accepterCandidat(entrevueId);
             triggerNotifications();
             setEntreeStatutLocal("TERMINEE");
-            setStatutActuel("ACCEPTEE");
-            onProcessChange?.({ statut: "ACCEPTEE", statutEntrevue: "TERMINEE" });
+            setStatutActuel(decision.statut);
+            onProcessChange?.({ ...decision, statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
+            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+                setActionsBloquees(true);
+                setErreurBlocage(error.message);
+            }
             console.error("Erreur lors de l'acceptation de la candidature:", error);
-            setDecisionError(true);
+            setDecisionError(error?.message || "error.generic");
         } finally {
             setIsSubmitting(false);
         }
@@ -262,7 +274,7 @@ function NextAction({
         }
 
         setIsSubmitting(true);
-        setDecisionError(false);
+        setDecisionError(null);
         try {
             await refuserCandidat(entrevueId, motifRefus.trim());
             triggerNotifications();
@@ -272,9 +284,12 @@ function NextAction({
             onProcessChange?.({ statut: "REFUSEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") setActionsBloquees(true);
+            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+                setActionsBloquees(true);
+                setErreurBlocage(error.message);
+            }
             console.error("Erreur lors du refus de la candidature:", error);
-            setDecisionError(true);
+            setDecisionError(error?.message || "error.generic");
         } finally {
             setIsSubmitting(false);
         }
@@ -376,7 +391,7 @@ function NextAction({
                     };
                 case "ACCEPTEE":
                     return {
-                        description: t("process.action_wait_student_declaration"),
+                        description: t("process.action_wait_student_response"),
                         buttonText: null,
                         onClick: null,
                         disabled: false,
@@ -415,16 +430,17 @@ function NextAction({
 
     if (actionsBloquees || actionsCandidatureDesactivees(candidature)) {
         return <div className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-4">
-            <ActionsDesactivees />
+            <ActionsDesactivees candidature={candidature} messageKey={erreurBlocage} />
             <div className="flex justify-end"><Button variant="secondary" size="small"
                 onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
         </div>;
     }
 
     const actionData = renderActionContent();
-    const motifAffiche = motifRefus || candidature?.motifRefus || "";
+    const motif = motifRefus || candidature?.motifRefus || "";
+    const motifAffiche = motif === "stage.refused_by_student" ? t(motif) : motif;
     const peutAfficherMotifRefus = ["REFUSEE", "ENTREVUE_REFUSEE"].includes(statutActuel) && motifAffiche;
-    const entrevueCloturee = activeEntrevueStatut === "TERMINEE" || entrevueFermee;
+    const entrevueCloturee = activeEntrevueStatut === "TERMINEE";
     const estEtapeEntrevue = ["ENTREVUE_PLANIFIEE", "ENTREVUE_CONFIRMEE"].includes(statutActuel);
     const peutDeciderApresEntrevue = role === Role.EMPLOYEUR && estEtapeEntrevue && entrevueCloturee;
     const peutCloreEntrevue = role === Role.EMPLOYEUR && estEtapeEntrevue && activeEntrevueStatut === "CONFIRMEE" && !entrevueCloturee;
@@ -446,15 +462,15 @@ function NextAction({
                     )}
                     {peutDeciderApresEntrevue && (
                         <>
-                            <Button variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting || !entrevueId}>
-                                {t("actions.accept_candidate")}
-                            </Button>
                             <Button variant="danger" size="small" onClick={() => {
                                 setRefusOuvert(true);
                                 setMotifError(false);
-                                setDecisionError(false);
+                                setDecisionError(null);
                             }} disabled={isSubmitting || !entrevueId}>
                                 {t("actions.reject_candidate")}
+                            </Button>
+                            <Button variant="success" size="small" onClick={handleAccepterCandidat} disabled={isSubmitting || !entrevueId}>
+                                {t("actions.accept_candidate")}
                             </Button>
                         </>
                     )}
@@ -490,7 +506,7 @@ function NextAction({
                     <span className="whitespace-pre-wrap break-words">{motifAffiche}</span>
                 </div>
             )}
-            {decisionError && <p role="alert" className="px-5 py-3 text-sm text-red-700">{t("error.generic")}</p>}
+            {decisionError && <p role="alert" className="px-5 py-3 text-sm text-red-700">{t(decisionError, { defaultValue: t("error.generic") })}</p>}
             {modalOuverte && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 
