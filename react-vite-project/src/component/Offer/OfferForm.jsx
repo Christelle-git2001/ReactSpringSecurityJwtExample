@@ -160,6 +160,7 @@ function OfferForm({
         const startDate = formData.get("startDate");
         const endDate = formData.get("endDate");
         const displayEndDate = formData.get("displayEndDate");
+        const nombreCandidatsMax = targeted ? 1 : formData.get("nombreCandidatsMax");
 
         const employeurId = targeted ? selectedEmployeur : formData.get("employeurId");
         const etudiantId = targeted ? selectedEtudiant : formData.get("etudiantId");
@@ -172,6 +173,7 @@ function OfferForm({
             startDate,
             endDate,
             displayEndDate,
+            nombreCandidatsMax,
             file,
             requireFile,
         });
@@ -203,6 +205,7 @@ function OfferForm({
             startDate,
             endDate,
             displayEndDate,
+            ...(!targeted && { nombreCandidatsMax: Number(nombreCandidatsMax) }),
             ...(targeted && {
                 employeurId: Number(employeurId),
                 etudiantId: Number(etudiantId),
@@ -215,8 +218,8 @@ function OfferForm({
             await onSubmit(dto, file);
         } catch (err) {
             console.error(err);
-            setErrors({ api: err?.message === "error.internship_found_locked"
-                    ? "error.internship_found_locked" : "error.generic" });
+            setErrors({ api: ["error.internship_found_locked", "error.invalid_candidate_capacity"].includes(err?.message)
+                    ? err.message : "error.generic" });
         }
     };
 
@@ -298,6 +301,29 @@ function OfferForm({
                             </div>
                         </>
                     )}
+
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="nombreCandidatsMax" className="text-sm font-semibold text-[#043462]">
+                            {t("add_offer.max_candidates")}
+                        </label>
+                        <input
+                            id="nombreCandidatsMax"
+                            name="nombreCandidatsMax"
+                            type="number"
+                            min="1"
+                            max="200"
+                            step="1"
+                            required
+                            disabled={targeted}
+                            defaultValue={targeted ? 1 : initialValues.nombreCandidatsMax ?? 1}
+                            aria-invalid={Boolean(errors.nombreCandidatsMax)}
+                            className={inputStyle(errors.nombreCandidatsMax, targeted)}
+                        />
+                        {targeted && <p className="text-xs text-gray-500">{t("add_offer.targeted_capacity")}</p>}
+                        {errors.nombreCandidatsMax && (
+                            <span className="text-xs font-medium text-red-500">{t(errors.nombreCandidatsMax)}</span>
+                        )}
+                    </div>
 
                     <div className="md:col-span-2">
                         <div className="flex flex-col gap-1.5">

@@ -1,4 +1,4 @@
-export const validateOfferForm = ({ title, domain, salary, description, startDate, endDate, displayEndDate, file, requireFile = false }) => {
+export const validateOfferForm = ({ title, domain, salary, description, startDate, endDate, displayEndDate, nombreCandidatsMax = 1, file, requireFile = false }) => {
     const now = new Date();
     const today = [
         now.getFullYear(),
@@ -6,6 +6,11 @@ export const validateOfferForm = ({ title, domain, salary, description, startDat
         String(now.getDate()).padStart(2, "0"),
     ].join("-");
     const errors = {};
+
+    const capacite = Number(nombreCandidatsMax);
+    if (!Number.isInteger(capacite) || capacite < 1 || capacite > 2147483647) {
+        errors.nombreCandidatsMax = "error.invalid_candidate_capacity";
+    }
 
     if (!title) errors.title = "add_offer.errors.title_required";
     if (!domain) errors.domain = "add_offer.errors.domain_required";

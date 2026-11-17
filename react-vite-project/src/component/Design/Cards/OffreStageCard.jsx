@@ -35,6 +35,8 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
 
     const offre = [
         { label: t("offre.domaine"), value: translatedDepartment },
+        { label: t("add_offer.max_candidates"), value: offer?.nombreCandidatsMax ?? 1 },
+        { label: t("offre.accepted_candidates"), value: offer?.nombreCandidatsAcceptes ?? 0 },
         { label: t("offre.date_debut"), value: offer?.startDate },
         { label: t("offre.date_fin"), value: offer?.endDate },
         { label: t("offre.date_fin_affichage"), value: offer?.displayEndDate },

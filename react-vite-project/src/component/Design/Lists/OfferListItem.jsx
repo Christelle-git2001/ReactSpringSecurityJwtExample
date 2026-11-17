@@ -23,6 +23,7 @@ function OfferListItem({ offer, onClick, variant = "card", actionLabel, actionCl
     const detailRows = [
         translatedDepartment && { label: t("offre.domaine"), value: translatedDepartment },
         salary && { label: t("offre.salary"), value: salary },
+        { label: t("add_offer.max_candidates"), value: offer?.nombreCandidatsMax ?? 1 },
         startDate && { label: t("offre.date_debut"), value: startDate },
         endDate && { label: t("offre.date_fin"), value: endDate },
     ].filter(Boolean);

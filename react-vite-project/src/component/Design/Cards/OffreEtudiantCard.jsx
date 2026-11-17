@@ -4,9 +4,11 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
+import { FiUsers } from "react-icons/fi";
 
 function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, user }) {
     const { t } = useTranslation();
+    const postesRestants = Math.max(0, (offer?.nombreCandidatsMax ?? 1) - (offer?.nombreCandidatsAcceptes ?? 0));
 
     const offre = [
         { label: t("offre.employeur"), value: offer?.employeur?.businessName },
@@ -80,6 +82,11 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, us
                         </details>
                     )}
 
+                    <div className="mt-3 flex items-center justify-center gap-3 rounded-full bg-[#043462] px-3 py-1 text-xs font-semibold text-white">
+                        <FiUsers aria-hidden="true" className="size-5 shrink-0 text-[#00CCCB]" />
+                        <span className="h-4 border-l border-[#00CCCB]" aria-hidden="true" />
+                        <span>{t("offre.remaining_positions")} : <span className="ml-1 rounded-full bg-[#00CCCB] px-2 text-[#043462]">{postesRestants}</span></span>
+                    </div>
                     {error && <p role="alert" className="text-sm text-red-700">{t(error)}</p>}
                     <PostulerButton
                         user={user}
