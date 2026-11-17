@@ -1,10 +1,7 @@
 
 package com.lacouf.rsbjwt.service.chatbot;
 
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEmployeurTools;
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTemporelTools;
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
+import com.lacouf.rsbjwt.service.chatbot.tools.*;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -23,31 +20,36 @@ public class ChatbotService {
     private final ChatbotGestionnaireTemporelTools temporels;
     private final ChatbotEtudiantTools etudiantTools;
     private final ChatbotEmployeurTools employeurTools;
+    private final ChatbotProfesseurTools professeurTools;
 
     private final Resource promptGestionnaire;
     private final Resource promptEtudiant;
     private final Resource promptEmployeur;
+    private final Resource promptProfesseur;
 
     public ChatbotService(
             ChatClient chatClient,
             ChatbotGestionnaireTools gestionnaireTools,
-            ChatbotGestionnaireTemporelTools temporels,
-            ChatbotEtudiantTools etudiantTools, ChatbotEmployeurTools employeurTools,
+            ChatbotGestionnaireTemporelTools temporels, ChatbotEtudiantTools etudiantTools,
+            ChatbotEmployeurTools employeurTools, ChatbotProfesseurTools professeurTools,
             @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire,
             @Value("classpath:prompts/chatbot-etudiant.st") Resource promptEtudiant,
-            @Value("classpath:prompts/chatbot-employeur.st") Resource promptEmployeur) {
+            @Value("classpath:prompts/chatbot-employeur.st") Resource promptEmployeur,
+            @Value("classpath:prompts/chatbot-professeur.st") Resource promptProfesseur) {
 
         this.chatClient = chatClient;
         this.gestionnaireTools = gestionnaireTools;
         this.temporels = temporels;
         this.etudiantTools = etudiantTools;
         this.employeurTools = employeurTools;
+        this.professeurTools = professeurTools;
         this.promptGestionnaire = promptGestionnaire;
         this.promptEtudiant = promptEtudiant;
         this.promptEmployeur = promptEmployeur;
+        this.promptProfesseur = promptProfesseur;
     }
 
-    @PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR')")
+    @PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR', 'PROFESSEUR')")
     public String poserQuestion(String question) {
 
         if (question == null || question.isBlank()) {
@@ -63,6 +65,9 @@ public class ChatbotService {
         boolean estEmployeur = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("EMPLOYEUR"));
 
+        boolean estProfesseur = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("PROFESSEUR"));
+
         if (estGestionnaire) {
             return chatClient.prompt()
                     .system(promptGestionnaire)
@@ -77,6 +82,15 @@ public class ChatbotService {
                     .system(promptEmployeur)
                     .user(question.trim())
                     .tools(employeurTools)
+                    .call()
+                    .content();
+        }
+
+        if (estProfesseur) {
+            return chatClient.prompt()
+                    .system(promptProfesseur)
+                    .user(question.trim())
+                    .tools(professeurTools, temporels)
                     .call()
                     .content();
         }

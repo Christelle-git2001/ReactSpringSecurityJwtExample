@@ -25,10 +25,11 @@ public class ProfesseurService {
     private final OffreDeStageRepository offreDeStageRepository;
     private final SessionService sessionService;
     private final InscriptionRepository inscriptionRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public ProfesseurService(ProfesseurRepository professeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder,
                              EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, OffreDeStageRepository offreDeStageRepository,
-                             SessionService sessionService, InscriptionRepository inscriptionRepository) {
+                             SessionService sessionService, InscriptionRepository inscriptionRepository, EntrevueRepository entrevueRepository) {
         this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -37,6 +38,7 @@ public class ProfesseurService {
         this.offreDeStageRepository = offreDeStageRepository;
         this.sessionService = sessionService;
         this.inscriptionRepository = inscriptionRepository;
+        this.entrevueRepository = entrevueRepository;
     }
 
     @Transactional
@@ -133,4 +135,83 @@ public class ProfesseurService {
         OffreDeStage offreDeStage = offreDeStageRepository.findById(offreId).orElseThrow(OffreIntrouvableException::new);
         return ResumeStageEtudiantDTO.of(offreDeStage);
     }
+
+
+    private List<Etudiant> obtenirEntitesEtudiantsAssignes()
+            throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Professeur professeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Professeur.class::isInstance)
+                .map(Professeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Etudiant> etudiants = etudiantRepository
+                .findAllByProfesseurId(professeur.getId());
+
+        List<Etudiant> inscritsSession =
+                sessionService.filtrerUtilisateursParSessionActuelle(etudiants);
+
+        return sessionService.filtrerParSessionActuelle(
+                inscritsSession,
+                Etudiant::getProfessorAssignedAt
+        );
+    }
+
+    public List<CandidatureDTO> getCandidaturesDeMesEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        List<Long> ids = obtenirEntitesEtudiantsAssignes().stream()
+                .map(Etudiant::getId)
+                .toList();
+
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatureRepository.findAllByEtudiantIdIn(ids),
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                ).stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
+    public List<EntrevueDTO> getEntrevuesDeMesEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        List<Long> ids = obtenirEntitesEtudiantsAssignes().stream()
+                .map(Etudiant::getId)
+                .toList();
+
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        return sessionService.filtrerParSessionActuelle(
+                        entrevueRepository.findByCandidatureEtudiantIdInOrderByDateHeureEntrevueAsc(ids),
+                        entrevue -> entrevue.getCandidature()
+                                .getOffreDeStage().getCreatedAt()
+                ).stream()
+                .map(EntrevueDTO::of)
+                .toList();
+    }
+
+    public List<StageEtudiantDTO> getStagesDeMesEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        return obtenirEntitesEtudiantsAssignes().stream()
+                .filter(etudiant -> etudiant.getCandidatureStage() != null)
+                .map(etudiant -> new StageEtudiantDTO(
+                        EtudiantDTO.of(etudiant),
+                        ResumeStageEtudiantDTO.of(
+                                etudiant.getCandidatureStage().getOffreDeStage()
+                        )
+                ))
+                .toList();
+    }
+
 }
