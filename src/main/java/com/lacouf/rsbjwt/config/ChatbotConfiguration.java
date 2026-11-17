@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.config;
 
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.execution.ToolExecutionExceptionProcessor;
 import org.springframework.context.annotation.Bean;

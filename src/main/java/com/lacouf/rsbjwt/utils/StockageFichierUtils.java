@@ -1,6 +1,11 @@
 package com.lacouf.rsbjwt.utils;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.SuppressionFichierEchoueeException;
+import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

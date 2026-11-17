@@ -1,9 +1,33 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
+import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreDeStageIndisponibleException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeNonConforme;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.ReponseConvocationDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -11,13 +35,6 @@ import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
-import com.lacouf.rsbjwt.service.dto.ReponseConvocationDTO;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,7 +63,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.times;
@@ -785,5 +801,34 @@ public class EtudiantControllerTest {
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(etudiantService);
+    }
+
+    @Test
+    void doitRetourner409PourUnCvDejaApprouve() throws Exception {
+        MockMultipartFile cv = new MockMultipartFile("file", "cv.pdf", "application/pdf", new byte[]{1});
+        when(etudiantService.televerserCv(any(), anyString())).thenThrow(new CurriculumVitaeDejaApprouveException());
+        Authentication authentication = new UsernamePasswordAuthenticationToken("etudiant@test.local", null);
+
+        mockMvc.perform(multipart("/etudiant/cv").file(cv).principal(authentication))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("cv.cv_already_approved"));
+    }
+
+    @Test
+    void doitRetourner409PourUneDeclarationDeStageInvalide() throws Exception {
+        when(etudiantService.declarerStageTrouve(20L)).thenThrow(new DeclarationStageInvalideException());
+
+        mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("error.stage_declaration_invalid"));
+    }
+
+    @Test
+    void doitRetourner409QuandLesActionsDeCandidatureSontDesactivees() throws Exception {
+        when(etudiantService.accepterConvocationEtudiant(1L)).thenThrow(new ActionsCandidatureDesactiveesException());
+
+        mockMvc.perform(put("/etudiant/convocations/1/accepter"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("error.internship_found_locked"));
     }
 }

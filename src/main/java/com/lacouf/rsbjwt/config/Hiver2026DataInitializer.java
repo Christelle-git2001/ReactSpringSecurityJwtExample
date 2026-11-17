@@ -1,14 +1,12 @@
 package com.lacouf.rsbjwt.config;
 
+import com.lacouf.rsbjwt.service.dto.utilisateur.GestionnaireDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
-import com.lacouf.rsbjwt.model.auth.Credentials;
-import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.*;
-import com.lacouf.rsbjwt.service.dto.GestionnaireDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;

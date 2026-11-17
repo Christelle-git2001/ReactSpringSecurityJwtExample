@@ -1,16 +1,37 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.StageDejaTrouveException;
+import com.lacouf.rsbjwt.exception.candidature.StatutCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.commun.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonEnAttente;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.DepartementDTO;
+import com.lacouf.rsbjwt.service.dto.commun.RejectionCommentDTO;
+import com.lacouf.rsbjwt.service.dto.commun.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.AssignationProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Entrevue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.service.GestionnaireService;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +50,6 @@ import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -825,5 +845,59 @@ public class GestionnaireControllerTest {
                 .andExpect(jsonPath("$.id").value(30L))
                 .andExpect(jsonPath("$.candidatureId").value(10L));
         verify(gestionnaireService).getEntrevueParCandidatureId(10L);
+    }
+
+    @Test
+    void doitRetourner400QuandLeCvNestPlusEnAttente() throws Exception {
+        when(gestionnaireService.approuverCurriculumVitae(1L)).thenThrow(new CurriculumVitaeNonEnAttente());
+
+        mockMvc.perform(put("/gestionnaire/cv/1/approuver"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("error.curriculum_viate_non_en_attente"));
+    }
+
+    @Test
+    void doitRetourner400QuandLOffreNestPlusEnAttente() throws Exception {
+        when(gestionnaireService.approuverOffre(1L)).thenThrow(new OffreNonEnAttenteException());
+
+        mockMvc.perform(put("/gestionnaire/offres/1/approuver"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("error.offre_not_pending"));
+    }
+
+    @Test
+    void doitRetourner400QuandLeCommentaireDeRefusEstAbsent() throws Exception {
+        when(gestionnaireService.refuserOffre(1L, "")).thenThrow(new CommentaireRefusObligatoireException());
+
+        mockMvc.perform(put("/gestionnaire/offres/1/refuser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"rejectionComment":""}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("error.rejection_comment_required"));
+    }
+
+    @Test
+    void doitRetourner400PourUnStatutDeCandidatureInconnu() throws Exception {
+        when(gestionnaireService.getCandidaturesByStatus("INCONNU")).thenThrow(new StatutCandidatureInvalideException());
+
+        mockMvc.perform(get("/gestionnaire/candidatures/INCONNU"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("error.invalid_candidature"));
+    }
+
+    @Test
+    void doitRetourner409PourUneOffreCibleeAvecStageDejaTrouve() throws Throwable {
+        CreationOffreCibleeDTO dto = new CreationOffreCibleeDTO("Stage Java", "Description", 25.0,
+                Departement.INFORMATIQUE, LocalDate.now().plusDays(10), LocalDate.now().plusDays(30),
+                LocalDate.now().plusDays(5), 1L, 1L);
+        MockMultipartFile offre = new MockMultipartFile("offre", "", MediaType.APPLICATION_JSON_VALUE,
+                jsonMapper.writeValueAsBytes(dto));
+        when(gestionnaireService.creerOffreCiblee(any(), any())).thenThrow(new StageDejaTrouveException());
+
+        mockMvc.perform(multipart("/gestionnaire/offres").file(offre))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("error.internship_found_locked"));
     }
 }

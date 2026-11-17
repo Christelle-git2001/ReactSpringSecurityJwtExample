@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.service.donnees;
 
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Contrat;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;

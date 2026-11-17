@@ -1,6 +1,15 @@
 package com.lacouf.rsbjwt.service.chatbot;
 
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.ReferenceTemporelleDTO;
+import com.lacouf.rsbjwt.service.dto.commun.ResultatDonneesDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.model.Enum.ModeResultat;
 import com.lacouf.rsbjwt.model.Enum.SignataireContrat;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -9,7 +18,6 @@ import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
 import com.lacouf.rsbjwt.service.donnees.*;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

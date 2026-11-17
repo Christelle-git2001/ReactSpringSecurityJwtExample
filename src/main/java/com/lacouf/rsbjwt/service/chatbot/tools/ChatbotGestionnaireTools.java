@@ -1,12 +1,19 @@
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.ReferenceTemporelleDTO;
+import com.lacouf.rsbjwt.service.dto.commun.ResultatDonneesDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException.Code;
 import com.lacouf.rsbjwt.model.Enum.ModeResultat;
 import com.lacouf.rsbjwt.model.Enum.SignataireContrat;
 import com.lacouf.rsbjwt.service.donnees.DonneesTemporellesService;
-import com.lacouf.rsbjwt.service.dto.ReferenceTemporelleDTO;
-import com.lacouf.rsbjwt.service.dto.ResultatDonneesDTO;
 
 import com.lacouf.rsbjwt.service.donnees.DonneesEtudiantService;
 import com.lacouf.rsbjwt.service.donnees.DonneesOffreService;
@@ -18,13 +25,6 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.service.dto.EtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.CvEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
-import com.lacouf.rsbjwt.service.dto.ResumeContratDTO;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.context.annotation.Profile;

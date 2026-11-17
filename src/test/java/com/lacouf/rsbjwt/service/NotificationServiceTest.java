@@ -1,9 +1,10 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
-import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
-import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunRoleDefini;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.exception.notification.NotificationNonTrouvee;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
@@ -14,7 +15,6 @@ import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

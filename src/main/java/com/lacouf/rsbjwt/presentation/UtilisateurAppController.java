@@ -1,12 +1,12 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.service.dto.auth.LoginDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.UserDTO;
 import com.lacouf.rsbjwt.service.UserAppService;
-import com.lacouf.rsbjwt.service.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.lacouf.rsbjwt.service.dto.LoginDTO;
 
 @RestController
 @RequestMapping("/user")

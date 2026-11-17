@@ -1,6 +1,11 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.notification.NotificationNonTrouvee;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunRoleDefini;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
@@ -13,7 +18,6 @@ import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

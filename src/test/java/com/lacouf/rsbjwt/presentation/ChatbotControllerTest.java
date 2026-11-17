@@ -1,7 +1,10 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.AccesChatbotRefuseException;
-import com.lacouf.rsbjwt.Exception.QuestionChatbotInvalideException;
+import org.springframework.ai.tool.definition.ToolDefinition;
+import org.springframework.ai.tool.execution.ToolExecutionException;
+import static org.assertj.core.api.Assertions.assertThat;
+import com.lacouf.rsbjwt.exception.chatbot.AccesChatbotRefuseException;
+import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.security.JwtAuthenticationEntryPoint;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
@@ -146,5 +149,24 @@ class ChatbotControllerTest {
                                 """))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("chatbot.errors.access_denied"));
+    }
+
+    @Test
+    void doitRetourner500SansExposerLesDetailsTechniquesDunOutil() throws Exception {
+        ToolDefinition outil = ToolDefinition.builder().name("outilTest")
+                .description("Outil utilise uniquement dans ce test").inputSchema("{}").build();
+        when(chatbotService.poserQuestion("Mes candidatures ?"))
+                .thenThrow(new ToolExecutionException(outil, new Exception("Erreur SQL sensible de test")));
+
+        mockMvc.perform(post("/chatbot/questions")
+                        .with(user("cindy@example.com").authorities(() -> "ETUDIANT"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"question":"Mes candidatures ?"}
+                                """))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("chatbot.errors.technical_error"))
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString())
+                        .doesNotContain("Erreur SQL sensible de test", "ToolExecutionException", "outilTest"));
     }
 }

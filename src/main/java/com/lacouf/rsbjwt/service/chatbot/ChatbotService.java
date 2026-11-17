@@ -1,8 +1,8 @@
 
 package com.lacouf.rsbjwt.service.chatbot;
 
-import com.lacouf.rsbjwt.Exception.AccesChatbotRefuseException;
-import com.lacouf.rsbjwt.Exception.QuestionChatbotInvalideException;
+import com.lacouf.rsbjwt.exception.chatbot.AccesChatbotRefuseException;
+import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEmployeurTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;

@@ -1,5 +1,39 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.candidature.StageDejaTrouveException;
+import com.lacouf.rsbjwt.exception.candidature.StatutCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.commun.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAvantDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratExistantException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonEnAttente;
+import com.lacouf.rsbjwt.exception.entrevue.EntrevueIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.DepartementDTO;
+import com.lacouf.rsbjwt.service.dto.commun.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.AssignationProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.GestionnaireDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.event.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -9,7 +43,6 @@ import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 
-import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
@@ -17,7 +50,6 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
