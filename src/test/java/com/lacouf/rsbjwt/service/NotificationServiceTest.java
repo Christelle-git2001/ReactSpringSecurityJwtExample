@@ -908,20 +908,20 @@ public class NotificationServiceTest {
     }
 
     @Test
-    void doitInviterLeGestionnaireADemarrerLeContratQuandUnStageEstTrouve() {
+    void doitNotifierLEmployeurQuandLEtudiantRefuseLeStage() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
 
-        notificationService.handleStageTrouveGestionnaire(new StageTrouveEvent(candidature));
+        notificationService.handleStageRefuse(new com.lacouf.rsbjwt.model.event.StageRefuseEvent(candidature));
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(notificationRepository).save(captor.capture());
         Notification notification = captor.getValue();
-        assertThat(notification.getRole()).isEqualTo(Role.GESTIONNAIRE);
-        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CONTRAT_A_CREER);
-        assertThat(notification.getUrlCible()).isEqualTo("/gestionnaire/candidatures/20/contrat");
+        assertThat(notification.getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.STAGE_REFUSE);
+        assertThat(notification.getUrlCible()).isEqualTo("/employeur");
         assertThat(notification.getVariables())
                 .containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
     }

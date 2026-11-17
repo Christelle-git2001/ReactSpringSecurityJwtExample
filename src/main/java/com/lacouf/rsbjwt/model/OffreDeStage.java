@@ -79,7 +79,7 @@ public class OffreDeStage {
     private List<Candidature> candidatures = new ArrayList<>();
 
     public long getNombreCandidatsAcceptes() {
-        return candidatures.stream().filter(Candidature::estAcceptee).count();
+        return candidatures.stream().filter(Candidature::estStageAccepte).count();
     }
 
     public boolean estComplete() {
@@ -102,6 +102,7 @@ public class OffreDeStage {
             String rejectionComment,
             LocalDateTime createdAt
     ) {
+        this();
         this.title = title;
         this.description = description;
         this.salary = salary;

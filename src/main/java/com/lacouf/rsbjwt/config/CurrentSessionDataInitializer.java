@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Order(2)
@@ -206,6 +207,24 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         );
 
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseThrow(EmployeurIntrouvable::new);
+
+        for (CreationOffreDeStageDTO offreDemo : List.of(
+                new CreationOffreDeStageDTO("Développeur Java", "Développement d'API Java et Spring Boot.",
+                        24.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30), 1),
+                new CreationOffreDeStageDTO("Développeur React", "Développement d'interfaces React et intégration d'API.",
+                        23.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30), 2))) {
+            boolean dejaCreee = offreDeStageRepository.findAll().stream().anyMatch(offre ->
+                    offre.getTitle().equals(offreDemo.title()) && offre.getEmployeur() != null
+                            && offre.getEmployeur().getId().equals(employeur.getId()));
+            if (!dejaCreee) {
+                MultipartFile pdf = new MockMultipartFile("file", "offre.pdf", "application/pdf",
+                        pdfService.createOffreDeStagePdf(offreDemo, employeur).getInputStream());
+                OffreDeStageDTO offreCreee = employeurService.creerOffre(offreDemo, pdf, employeurEmail);
+                gestionnaireService.approuverOffre(offreCreee.id());
+            }
+        }
 
         MultipartFile realOffre1 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto1, employeur).getInputStream());
         MultipartFile realOffre2 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto2, employeur).getInputStream());

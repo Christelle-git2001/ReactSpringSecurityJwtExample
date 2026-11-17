@@ -291,7 +291,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandDateFinAvantDateDebut() {
+    void doitLancerExceptionQuandDateFinAvantDateDebut() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
@@ -310,7 +310,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandDateFinEgaleDateDebut() {
+    void doitLancerExceptionQuandDateFinEgaleDateDebut() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
@@ -330,7 +330,7 @@ public class EmployeurServiceTest {
 
 
     @Test
-    void doitLancerExceptionQuandDateFinAffichageApresDateDebut() {
+    void doitLancerExceptionQuandDateFinAffichageApresDateDebut() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
@@ -349,7 +349,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandDateFinAffichageAvantAujourdhui() {
+    void doitLancerExceptionQuandDateFinAffichageAvantAujourdhui() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
@@ -367,7 +367,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandMauvaisTypeDeFichier() {
+    void doitLancerExceptionQuandMauvaisTypeDeFichier() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.exe",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE, "contenu".getBytes());
@@ -379,7 +379,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierTropVolumineux() {
+    void doitLancerExceptionQuandFichierTropVolumineux() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
                 MediaType.APPLICATION_PDF_VALUE, new byte[10 * 1024 * 1024 + 1]);
@@ -391,7 +391,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierCorrompu() {
+    void doitLancerExceptionQuandFichierCorrompu() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
                 MediaType.APPLICATION_PDF_VALUE, new byte[0]);
@@ -403,7 +403,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitRetournerLesOffresDeLEmployeur() {
+    void doitRetournerLesOffresDeLEmployeur() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
         );
@@ -463,7 +463,7 @@ public class EmployeurServiceTest {
 
 
     @Test
-    void doitRetournerListeVideQuandAucuneOffre() {
+    void doitRetournerListeVideQuandAucuneOffre() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
         );
@@ -479,7 +479,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, FichierTropVolumineuxException , com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException {
+    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, FichierTropVolumineuxException , com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException, com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
         when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
@@ -491,7 +491,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandOffreIntrouvable() {
+    void doitLancerExceptionQuandOffreIntrouvable() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -502,7 +502,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandOffreAppartientAUnAutreEmployeur() {
+    void doitLancerExceptionQuandOffreAppartientAUnAutreEmployeur() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         Employeur autreEmployeur = Employeur.builder()
                 .firstName("Autre")
                 .lastName("Personne")
@@ -558,7 +558,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandFichierNullOuVideALaCreation() {
+    void doitLancerExceptionQuandFichierNullOuVideALaCreation() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
@@ -584,7 +584,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandOffreNonEnAttenteLorsDeLaModification() {
+    void doitLancerExceptionQuandOffreNonEnAttenteLorsDeLaModification() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         offreDeStage.setStatut(Statut.ACCEPTEE);
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
@@ -625,7 +625,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandDateDebutAvantAujourdhui() {
+    void doitLancerExceptionQuandDateDebutAvantAujourdhui() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
 
         CreationOffreDeStageDTO dtoInvalide = new CreationOffreDeStageDTO(
@@ -694,7 +694,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandCandidatureIntrouvable() {
+    void doitLancerExceptionQuandCandidatureIntrouvable() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(candidatureRepository.findById(99L))
                 .thenReturn(Optional.empty());
 
@@ -712,7 +712,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitLancerExceptionQuandConvocationExisteDeja() {
+    void doitLancerExceptionQuandConvocationExisteDeja() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         candidature.setStatut(StatutCandidature.ENTREVUE_REFUSEE);
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
@@ -751,7 +751,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void neDoitPasConsulterLaConvocationDUnAutreEmployeur() {
+    void neDoitPasConsulterLaConvocationDUnAutreEmployeur() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         Employeur autreEmployeur = Employeur.builder().build();
         autreEmployeur.setId(99L);
         candidature.getOffreDeStage().setEmployeur(autreEmployeur);
@@ -793,7 +793,7 @@ public class EmployeurServiceTest {
         );
     }
     @Test
-    void doitRefuserEntrevueQuandDateDansLePasse() {
+    void doitRefuserEntrevueQuandDateDansLePasse() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
         when(candidatureRepository.findById(candidature.getId()))
                 .thenReturn(Optional.of(candidature));
@@ -1028,7 +1028,7 @@ public class EmployeurServiceTest {
         employeurService.accepterCandidatApresEntrevue(1L);
         assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
                 .isInstanceOf(DecisionCandidatureInvalideException.class);
-        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
         verify(candidatureRepository, times(1)).save(candidature);
         verify(eventPublisher, times(1)).publishEvent(any(CandidatureAccepteeEvent.class));
     }
@@ -1067,23 +1067,23 @@ public class EmployeurServiceTest {
         verify(candidatureRepository, never()).save(any());
     }
     @Test
-    void doitAttribuerLeStageDesLAcceptationEmployeur() throws Exception {
+    void doitReserverUnePlaceSansAttribuerLeStageAvantLaReponseEtudiant() throws Exception {
         creerEntrevueTerminee();
         when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
 
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
-        assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(resultat.statutEtudiant()).isNotEqualTo(StatutEtudiant.STAGE_TROUVE);
+        assertThat(etudiant.getCandidatureStage()).isNull();
         assertThat(resultat.motifRefus()).isNull();
-        verify(userAppRepository).save(etudiant);
+        verify(userAppRepository, never()).save(any());
         verify(etudiantService, never()).actualiserStatutEtudiant(any());
         verify(candidatureRepository).save(candidature);
         ArgumentCaptor<CandidatureAccepteeEvent> captor = ArgumentCaptor.forClass(CandidatureAccepteeEvent.class);
         var ordre = inOrder(eventPublisher);
-        ordre.verify(eventPublisher).publishEvent(new StageTrouveEvent(candidature));
+
         ordre.verify(eventPublisher).publishEvent(captor.capture());
         assertThat(captor.getValue().candidature()).isSameAs(candidature);
     }
@@ -1097,10 +1097,10 @@ public class EmployeurServiceTest {
         employeurService.accepterCandidatApresEntrevue(1L);
         CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
 
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
         verify(candidatureRepository).save(candidature);
-        verify(userAppRepository).save(etudiant);
-        verify(eventPublisher).publishEvent(new StageTrouveEvent(candidature));
+        verify(userAppRepository, never()).save(any());
+
         verify(eventPublisher).publishEvent(new CandidatureAccepteeEvent(candidature));
         verifyNoMoreInteractions(eventPublisher);
     }
@@ -1120,7 +1120,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitAccepterDeuxCandidatsEtBloquerLeTroisiemeQuandLaCapaciteEstDeux() throws Exception {
+    void doitPermettrePlusDePropositionsQueDePlacesDisponibles() throws Exception {
         creerEntrevueTerminee();
         offreDeStage.setNombreCandidatsMax(2);
         var deuxieme = new Candidature(new Etudiant(), offreDeStage, LocalDateTime.now());
@@ -1139,23 +1139,21 @@ public class EmployeurServiceTest {
         }
         when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.countByOffreDeStageIdAndStatutIn(eq(offreDeStage.getId()), anyList()))
-                .thenReturn(0L, 1L, 2L);
+                .thenReturn(0L);
         when(candidatureRepository.save(any(Candidature.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         employeurService.accepterCandidatApresEntrevue(1L);
         employeurService.accepterCandidatApresEntrevue(22L);
 
-        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isEqualTo(2);
-        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(33L))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
-                .hasMessage("error.offer_capacity_reached");
-        assertThat(CandidatureDTO.of(troisieme).actionsDesactivees()).isTrue();
-        assertThat(CandidatureDTO.of(candidature).actionsDesactivees()).isFalse();
-        assertThat(employeurService.accepterCandidatApresEntrevue(1L).statut())
-                .isEqualTo(StatutCandidature.STAGE_TROUVE);
-        verify(candidatureRepository, times(2)).save(any());
-        verify(offreDeStageRepository, times(3)).findByIdForUpdate(offreDeStage.getId());
-        assertThat(troisieme.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
+        employeurService.accepterCandidatApresEntrevue(33L);
+
+        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isZero();
+        assertThat(offreDeStage.estComplete()).isFalse();
+        assertThat(CandidatureDTO.of(troisieme).actionsDesactivees()).isFalse();
+        verify(candidatureRepository, times(3)).save(any());
+        verify(candidatureRepository, times(3)).countByOffreDeStageIdAndStatutIn(
+                offreDeStage.getId(), List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        assertThat(troisieme.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
     }
 
     @Test
@@ -1182,7 +1180,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitRefuserUneCapaciteNulleOuNegative() {
+    void doitRefuserUneCapaciteNulleOuNegative() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         for (int capacite : new int[]{0, -1}) {
             var dto = new CreationOffreDeStageDTO(creationOffreDeStageDTO.title(), creationOffreDeStageDTO.description(),

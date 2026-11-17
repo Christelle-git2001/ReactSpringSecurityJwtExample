@@ -3,7 +3,11 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
+import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
+import com.lacouf.rsbjwt.model.event.NouveauContratCreeEvent;
+import com.lacouf.rsbjwt.model.event.StageRefuseEvent;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
@@ -88,12 +92,14 @@ public class EtudiantService {
     private final ContratRepository contratRepository;
     private final InscriptionRepository inscriptionRepository;
     private final  SessionService sessionService;
+    private final GestionnaireRepository gestionnaireRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
                            CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository, ContratRepository contratRepository,
-                           InscriptionRepository inscriptionRepository, SessionService sessionService) {
+                           InscriptionRepository inscriptionRepository, SessionService sessionService,
+                           GestionnaireRepository gestionnaireRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -105,6 +111,7 @@ public class EtudiantService {
         this.contratRepository = contratRepository;
         this.inscriptionRepository = inscriptionRepository;
         this.sessionService = sessionService;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
 
     @Transactional
@@ -519,18 +526,67 @@ public class EtudiantService {
     }
 
     @Transactional
-    public CandidatureDTO declarerStageTrouve(Long candidatureId)
-            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
-        Etudiant etudiant = getEtudiantConnecte();
+    public CandidatureDTO accepterStage(Long candidatureId)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException,
+            DecisionStageInvalideException, CreationContratImpossibleException, ActionsCandidatureDesactiveesException {
+        Etudiant etudiant = verrouillerEtudiantConnecte();
         Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
                 .orElseThrow(CandidatureIntrouvableException::new);
         if (etudiant.getCandidatureStage() != null) {
             if (!etudiant.getCandidatureStage().getId().equals(candidatureId)) {
-                throw new DeclarationStageInvalideException();
+                throw new DecisionStageInvalideException();
             }
-            return CandidatureDTO.of(candidature);
+            return CandidatureDTO.of(candidature, contratRepository.findByCandidatureId(candidatureId).orElse(null));
         }
-        throw new DeclarationStageInvalideException();
+        if (candidature.getStatut() != StatutCandidature.ACCEPTEE || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
+            throw new DecisionStageInvalideException();
+        }
+        OffreDeStage offre = offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
+                .orElseThrow(DecisionStageInvalideException::new);
+        long placesOccupees = candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
+                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        if (placesOccupees >= offre.getNombreCandidatsMax()) {
+            throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
+        }
+        Gestionnaire gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(CreationContratImpossibleException::new);
+
+        etudiant.setCandidatureStage(candidature);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiantRepository.save(etudiant);
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
+
+        Contrat contrat = contratRepository.save(Contrat.builder().candidature(candidature).gestionnaire(gestionnaire).build());
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        candidatureRepository.save(candidature);
+        eventPublisher.publishEvent(new NouveauContratCreeEvent(contrat));
+        return CandidatureDTO.of(candidature, contrat);
+    }
+
+    @Transactional
+    public CandidatureDTO refuserStage(Long candidatureId)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DecisionStageInvalideException {
+        Etudiant etudiant = verrouillerEtudiantConnecte();
+        Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
+                .orElseThrow(CandidatureIntrouvableException::new);
+        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
+                || candidature.getStatut() != StatutCandidature.ACCEPTEE) {
+            throw new DecisionStageInvalideException();
+        }
+        offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
+                .orElseThrow(DecisionStageInvalideException::new);
+        candidature.setStatut(StatutCandidature.REFUSEE);
+        candidature.setMotifRefus("stage.refused_by_student");
+        candidatureRepository.save(candidature);
+        actualiserStatutEtudiant(etudiant);
+        eventPublisher.publishEvent(new StageRefuseEvent(candidature));
+        return CandidatureDTO.of(candidature);
+    }
+
+    private Etudiant verrouillerEtudiantConnecte() throws EtudiantIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return etudiantRepository.findByEmailForUpdate(email).orElseThrow(EtudiantIntrouvableException::new);
     }
 
     @Scheduled(fixedDelay = 30000, initialDelay = 30000)
@@ -602,7 +658,7 @@ public class EtudiantService {
     }
 
     static void verifierActionsCandidatureAutorisees(Candidature candidature) throws ActionsCandidatureDesactiveesException {
-        if (candidature.getOffreDeStage() != null && !candidature.estAcceptee()
+        if (candidature.getOffreDeStage() != null && !candidature.estStageAccepte()
                 && candidature.getOffreDeStage().estComplete()) {
             throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
         }

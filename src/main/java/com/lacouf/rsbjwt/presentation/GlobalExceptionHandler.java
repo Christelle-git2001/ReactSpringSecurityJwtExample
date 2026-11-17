@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 import com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
@@ -359,6 +361,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DecisionCandidatureInvalideException.class)
     public ResponseEntity<ErreurDTO> handleDecisionCandidatureInvalideException(DecisionCandidatureInvalideException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(DecisionStageInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleDecisionStageInvalideException(
+            DecisionStageInvalideException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(CreationContratImpossibleException.class)
+    public ResponseEntity<ErreurDTO> handleGestionnaireManquant(
+            CreationContratImpossibleException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
 

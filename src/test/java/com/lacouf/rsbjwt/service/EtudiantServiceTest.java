@@ -3,7 +3,7 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
@@ -102,6 +102,7 @@ public class EtudiantServiceTest {
     private EntrevueRepository entrevueRepository;
 
     @Mock ContratRepository contratRepository;
+    @Mock GestionnaireRepository gestionnaireRepository;
 
     @Mock
     private SessionService sessionService;
@@ -1126,12 +1127,12 @@ public class EtudiantServiceTest {
     @Test
     void doitRefuserUnStageNonAttribueParLEmployeur() throws Exception {
         Candidature candidature = entrevue.getCandidature();
-        candidature.setStatut(StatutCandidature.ACCEPTEE);
-        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        candidature.setStatut(StatutCandidature.SOUMISE);
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
 
-        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(20L))
-                .isInstanceOf(DeclarationStageInvalideException.class);
+        assertThatThrownBy(() -> etudiantService.accepterStage(20L))
+                .isInstanceOf(DecisionStageInvalideException.class);
         assertThat(etudiant.getCandidatureStage()).isNull();
         verify(etudiantRepository, never()).save(any());
         verify(candidatureRepository, never()).save(any());
@@ -1139,54 +1140,150 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void neDoitPasNotifierDeNouveauPourUnStageDejaDeclare() throws Exception {
+    void doitConserverLeContratSurUneAcceptationRepetee() throws Exception {
         Candidature candidature = entrevue.getCandidature();
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
         etudiant.setCandidatureStage(candidature);
         etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
-        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
 
-        CandidatureDTO resultat = etudiantService.declarerStageTrouve(20L);
+        CandidatureDTO resultat = etudiantService.accepterStage(20L);
 
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
         verify(applicationEventPublisher, never()).publishEvent(any(StageTrouveEvent.class));
         verify(candidatureRepository, never()).save(any());
     }
 
     @Test
-    void doitRefuserDeDeclarerUneCandidatureNonAcceptee() {
-        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+    void doitRefuserUneCandidatureNonAccepteeParLEmployeur() {
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId()))
                 .thenReturn(Optional.of(entrevue.getCandidature()));
 
-        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(20L))
-                .isInstanceOf(DeclarationStageInvalideException.class);
+        assertThatThrownBy(() -> etudiantService.accepterStage(20L))
+                .isInstanceOf(DecisionStageInvalideException.class);
         verify(etudiantRepository, never()).save(any());
     }
 
     @Test
-    void doitRefuserDeDeclarerLaCandidatureDUnAutreEtudiant() {
-        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+    void doitRefuserLaDecisionSurLaCandidatureDUnAutreEtudiant() {
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(99L, etudiant.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(99L))
+        assertThatThrownBy(() -> etudiantService.accepterStage(99L))
+                .isInstanceOf(CandidatureIntrouvableException.class);
+        assertThatThrownBy(() -> etudiantService.refuserStage(99L))
                 .isInstanceOf(CandidatureIntrouvableException.class);
         verify(etudiantRepository, never()).save(any());
     }
 
     @Test
-    void doitRefuserDeDeclarerUnDeuxiemeStage() {
+    void doitRefuserUnDeuxiemeStage() {
         Candidature stageChoisi = new Candidature();
         stageChoisi.setId(30L);
         etudiant.setCandidatureStage(stageChoisi);
-        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId()))
                 .thenReturn(Optional.of(entrevue.getCandidature()));
 
-        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(20L))
-                .isInstanceOf(DeclarationStageInvalideException.class);
+        assertThatThrownBy(() -> etudiantService.accepterStage(20L))
+                .isInstanceOf(DecisionStageInvalideException.class);
         assertThat(etudiant.getCandidatureStage()).isSameAs(stageChoisi);
+        assertThatThrownBy(() -> etudiantService.refuserStage(20L))
+                .isInstanceOf(DecisionStageInvalideException.class);
+    }
+
+    @Test
+    void doitRefuserLAcceptationEtudianteQuandLaDernierePlaceEstPrise() {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        var offre = candidature.getOffreDeStage();
+        offre.setNombreCandidatsMax(1);
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
+        when(candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
+                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE))).thenReturn(1L);
+
+        assertThatThrownBy(() -> etudiantService.accepterStage(20L))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_capacity_reached");
+
+        var ordre = inOrder(offreDeStageRepository, candidatureRepository);
+        ordre.verify(offreDeStageRepository).findByIdForUpdate(offre.getId());
+        ordre.verify(candidatureRepository).countByOffreDeStageIdAndStatutIn(offre.getId(),
+                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(etudiant.getCandidatureStage()).isNull();
+        verify(etudiantRepository, never()).save(any());
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(contratRepository, gestionnaireRepository, applicationEventPublisher);
+    }
+
+    @Test
+    void doitCreerLeContratEtAttribuerLeStageDesLAcceptationEtudiante() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        var offre = candidature.getOffreDeStage();
+        offre.setCandidatures(List.of(candidature));
+        assertThat(offre.getNombreCandidatsAcceptes()).isZero();
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
+        Gestionnaire gestionnaire = new Gestionnaire();
+        when(gestionnaireRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(gestionnaire));
+        when(contratRepository.save(any(Contrat.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CandidatureDTO resultat = etudiantService.accepterStage(20L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
+        assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
+        assertThat(offre.getNombreCandidatsAcceptes()).isEqualTo(1);
+        assertThat(offre.estComplete()).isTrue();
+        ArgumentCaptor<Contrat> contratCapture = ArgumentCaptor.forClass(Contrat.class);
+        verify(contratRepository).save(contratCapture.capture());
+        assertThat(contratCapture.getValue().getGestionnaire()).isSameAs(gestionnaire);
+        assertThat(contratCapture.getValue().getCandidature()).isSameAs(candidature);
+        verify(applicationEventPublisher).publishEvent(any(StageTrouveEvent.class));
+        verify(applicationEventPublisher).publishEvent(any(com.lacouf.rsbjwt.model.event.NouveauContratCreeEvent.class));
+    }
+
+    @Test
+    void doitRefuserLeStageSansOccuperDePlaceNiCreerDeContrat() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        var offre = candidature.getOffreDeStage();
+        offre.setCandidatures(List.of(candidature));
+        assertThat(offre.estComplete()).isFalse();
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
+
+        var resultat = etudiantService.refuserStage(20L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
+        assertThat(offre.estComplete()).isFalse();
+        assertThat(etudiant.getCandidatureStage()).isNull();
+        verifyNoInteractions(contratRepository);
+        verify(applicationEventPublisher).publishEvent(any(com.lacouf.rsbjwt.model.event.StageRefuseEvent.class));
+    }
+
+    @Test
+    void doitConserverLaCandidatureSiAucunGestionnaireNePeutPrendreLeContrat() {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.ACCEPTEE);
+        var offre = candidature.getOffreDeStage();
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
+
+        assertThatThrownBy(() -> etudiantService.accepterStage(20L))
+                .isInstanceOf(com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException.class);
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(etudiant.getCandidatureStage()).isNull();
+        verifyNoInteractions(contratRepository, applicationEventPublisher);
     }
     @Test
     void doitAttendreLaFinDeLEntrevue() {
@@ -1403,10 +1500,22 @@ public class EtudiantServiceTest {
     }
 
     @Test
+    void doitInitialiserLaCapaciteEtLesCandidaturesAvecLeConstructeurDesDonneesDemo() {
+        var offre = new OffreDeStage("Technician Reseaux", "Support informatique", 20.0,
+                Departement.INFORMATIQUE, LocalDate.now().plusDays(5), LocalDate.now().plusMonths(2),
+                LocalDate.now().plusDays(2), Statut.ACCEPTEE, "offre.pdf", "uploads/offres",
+                null, "", LocalDateTime.now());
+
+        assertThat(offre.getNombreCandidatsMax()).isEqualTo(1);
+        assertThat(offre.getCandidatures()).isEmpty();
+        assertThat(offre.estComplete()).isFalse();
+    }
+
+    @Test
     void doitCompterLesPlacesOccupeesEtExposerLesActionsDesactivees() {
         var offre = new OffreDeStage();
         offre.setId(10L);
-        offre.setNombreCandidatsMax(3);
+        offre.setNombreCandidatsMax(2);
         var candidatures = new java.util.ArrayList<Candidature>();
         for (var statut : List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE,
                 StatutCandidature.CONTRAT_CREE, StatutCandidature.REFUSEE, StatutCandidature.SOUMISE)) {
@@ -1420,10 +1529,11 @@ public class EtudiantServiceTest {
         offre.setCandidatures(candidatures);
 
         var resultat = OffreDeStageDTO.of(offre);
-        assertThat(resultat.nombreCandidatsMax()).isEqualTo(3);
-        assertThat(resultat.nombreCandidatsAcceptes()).isEqualTo(3);
+        assertThat(resultat.nombreCandidatsMax()).isEqualTo(2);
+        assertThat(resultat.nombreCandidatsAcceptes()).isEqualTo(2);
         assertThat(CandidatureDTO.of(candidatures.get(4)).actionsDesactivees()).isTrue();
-        assertThat(CandidatureDTO.of(candidatures.get(0)).actionsDesactivees()).isFalse();
+        assertThat(CandidatureDTO.of(candidatures.get(0)).actionsDesactivees()).isTrue();
+        assertThat(CandidatureDTO.of(candidatures.get(1)).actionsDesactivees()).isFalse();
     }
 
     @Test

@@ -4,7 +4,8 @@ import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesExce
 
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
+import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
 import com.lacouf.rsbjwt.exception.candidature.StageDejaTrouveException;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
@@ -48,6 +49,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -157,10 +159,20 @@ public class EtudiantController {
         );
     }
 
-    @PutMapping("/candidatures/{id}/stage-trouve")
-    public ResponseEntity<CandidatureDTO> declarerStageTrouve(@PathVariable Long id)
-            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
-        return ResponseEntity.ok(etudiantService.declarerStageTrouve(id));
+    @PutMapping("/candidatures/{id}/stage/accepter")
+    @PreAuthorize("hasAuthority('ETUDIANT')")
+    public ResponseEntity<CandidatureDTO> accepterStage(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException,
+            DecisionStageInvalideException, CreationContratImpossibleException, ActionsCandidatureDesactiveesException {
+        return ResponseEntity.ok(etudiantService.accepterStage(id));
+    }
+
+    @PutMapping("/candidatures/{id}/stage/refuser")
+    @PreAuthorize("hasAuthority('ETUDIANT')")
+    public ResponseEntity<CandidatureDTO> refuserStage(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException,
+            DecisionStageInvalideException {
+        return ResponseEntity.ok(etudiantService.refuserStage(id));
     }
 
     @GetMapping("/convocations/{id}")

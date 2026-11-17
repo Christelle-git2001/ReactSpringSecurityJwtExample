@@ -463,23 +463,28 @@ public class NotificationService {
 
     @EventListener
     @Transactional
-    public NotificationDTO handleStageTrouveGestionnaire(StageTrouveEvent event) {
+    public NotificationDTO handleStageRefuse(StageRefuseEvent event) {
         Candidature candidature = event.candidature();
         Etudiant etudiant = candidature.getEtudiant();
         OffreDeStage offre = candidature.getOffreDeStage();
         Notification notification = Notification.builder()
-                .titre("notification.gestionnaire.stageTrouve.title")
-                .description("notification.gestionnaire.stageTrouve.description")
-                .notificationType(NotificationType.CONTRAT_A_CREER)
-                .role(Role.GESTIONNAIRE)
+                .titre("stage.refused_notification_title")
+                .description("stage.refused_notification_description")
+                .notificationType(NotificationType.STAGE_REFUSE)
+                .role(Role.EMPLOYEUR)
+                .destinataire(offre.getEmployeur())
                 .dateCreaction(LocalDateTime.now())
-                .urlCible(ControllerPath.GESTIONNAIRE_CANDIDATURE_CONTRAT.build(String.valueOf(candidature.getId())))
+                .urlCible(ControllerPath.EMPLOYEUR_CANDIDATURES.build())
                 .variables(Map.of(
                         VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
                         VariableMapKey.OFFRE_TITRE, offre.getTitle(),
                         VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
                 ))
                 .build();
+        notificationRepository.getNotificationByDestinataire(etudiant).stream()
+                .filter(n -> n.getNotificationType() == NotificationType.CANDIDATURE_ACCEPTEE
+                        && String.valueOf(candidature.getId()).equals(n.getVariables().get(VariableMapKey.CANDIDATURE_ID)))
+                .forEach(notificationRepository::delete);
         return NotificationDTO.of(notificationRepository.save(notification));
     }
 

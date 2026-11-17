@@ -39,8 +39,6 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
-import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
@@ -148,7 +146,7 @@ public class EmployeurService {
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException, UserNotFoundException {
         Employeur employeur = getEmployeurByEmail(email);
 
         validerDates(creationOffreDeStageDTO);
@@ -191,7 +189,7 @@ public class EmployeurService {
     }
 
     @Transactional(readOnly = true)
-    public List<OffreDeStageDTO> obtenirOffres() {
+    public List<OffreDeStageDTO> obtenirOffres() throws UserNotFoundException {
 
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -227,7 +225,7 @@ public class EmployeurService {
     }
 
 
-    private Employeur getEmployeurByEmail(String email) {
+    private Employeur getEmployeurByEmail(String email) throws UserNotFoundException {
         return userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
                 .map(Employeur.class::cast)
@@ -264,7 +262,7 @@ public class EmployeurService {
     ) throws DateFinAvantDateDebutException,
             IOException,
             FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
-            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException, UserNotFoundException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
@@ -353,7 +351,7 @@ public class EmployeurService {
     }
 
     public List<CandidatureDTO> obtenirCandidaturesConvoquees()
-            throws UtilisateurIntrouvableException {
+            throws UtilisateurIntrouvableException, UserNotFoundException {
 
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -386,7 +384,7 @@ public class EmployeurService {
             throws OffreNonAutoriseeException,
             CandidatureIntrouvableException,
             ConvocationExistanteException,
-            DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
+            DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException, UserNotFoundException {
 
         Candidature candidature = candidatureRepository
                 .findById(dto.candidatureId())
@@ -465,7 +463,7 @@ public class EmployeurService {
 
     @Transactional(readOnly = true)
     public EntrevueDTO obtenirConvocation(Long candidatureId)
-            throws ConvocationIntrouvableException, OffreNonAutoriseeException {
+            throws ConvocationIntrouvableException, OffreNonAutoriseeException, UserNotFoundException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employeur employeur = getEmployeurByEmail(email);
         Entrevue entrevue = convocationRepository.findByCandidatureId(candidatureId)
@@ -535,7 +533,7 @@ public class EmployeurService {
     public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
             OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
-        return enregistrerDecision(entrevueId, StatutCandidature.STAGE_TROUVE, null);
+        return enregistrerDecision(entrevueId, StatutCandidature.ACCEPTEE, null);
     }
 
     @Transactional
@@ -569,8 +567,9 @@ public class EmployeurService {
             EtudiantService.verifierActionsCandidatureAutorisees(candidature);
             return CandidatureDTO.of(candidature);
         }
-        if (decision == StatutCandidature.STAGE_TROUVE
-                && candidature.getStatut() == StatutCandidature.CONTRAT_CREE) {
+        if (decision == StatutCandidature.ACCEPTEE
+                && (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
+                || candidature.getStatut() == StatutCandidature.CONTRAT_CREE)) {
             EtudiantService.verifierActionsCandidatureAutorisees(candidature);
             return CandidatureDTO.of(candidature);
         }
@@ -578,8 +577,8 @@ public class EmployeurService {
         OffreDeStage offre = offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
                 .orElseThrow(DecisionCandidatureInvalideException::new);
         long candidatsAcceptes = candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        if (!candidature.estAcceptee() && candidatsAcceptes >= offre.getNombreCandidatsMax()) {
+                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        if (!candidature.estStageAccepte() && candidatsAcceptes >= offre.getNombreCandidatsMax()) {
             throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
         }
         EtudiantService.verifierActionsCandidatureAutorisees(candidature);
@@ -590,12 +589,7 @@ public class EmployeurService {
         entrevue.setMotifRefus(motifRefus);
         Candidature candidatureEnregistree = candidatureRepository.save(candidature);
         convocationRepository.save(entrevue);
-        if (decision == StatutCandidature.STAGE_TROUVE) {
-            Etudiant etudiant = candidature.getEtudiant();
-            etudiant.setCandidatureStage(candidatureEnregistree);
-            etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
-            userAppRepository.save(etudiant);
-            eventPublisher.publishEvent(new StageTrouveEvent(candidatureEnregistree));
+        if (decision == StatutCandidature.ACCEPTEE) {
             eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
         } else {
             etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());

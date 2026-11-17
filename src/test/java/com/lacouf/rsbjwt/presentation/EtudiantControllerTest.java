@@ -2,7 +2,7 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
-import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
@@ -643,17 +643,32 @@ public class EtudiantControllerTest {
 
 
     @Test
-    void doitDeclarerLeStageTrouve() throws Exception {
+    @org.springframework.security.test.context.support.WithMockUser(authorities = "ETUDIANT")
+    void doitAccepterLeStage() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
                 10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
                 StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false, false);
-        when(etudiantService.declarerStageTrouve(20L)).thenReturn(candidature);
+        when(etudiantService.accepterStage(20L)).thenReturn(candidature);
 
-        mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
+        mockMvc.perform(put("/etudiant/candidatures/20/stage/accepter"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
                 .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
-        verify(etudiantService).declarerStageTrouve(20L);
+        verify(etudiantService).accepterStage(20L);
+    }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(authorities = "ETUDIANT")
+    void doitRefuserLeStage() throws Exception {
+        CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
+                10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
+                StatutCandidature.REFUSEE, "stage.refused_by_student", StatutEtudiant.EN_RECHERCHE, false, false);
+        when(etudiantService.refuserStage(20L)).thenReturn(candidature);
+
+        mockMvc.perform(put("/etudiant/candidatures/20/stage/refuser"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("REFUSEE"));
+        verify(etudiantService).refuserStage(20L);
     }
 
     @Test
@@ -813,12 +828,13 @@ public class EtudiantControllerTest {
     }
 
     @Test
-    void doitRetourner409PourUneDeclarationDeStageInvalide() throws Exception {
-        when(etudiantService.declarerStageTrouve(20L)).thenThrow(new DeclarationStageInvalideException());
+    @org.springframework.security.test.context.support.WithMockUser(authorities = "ETUDIANT")
+    void doitRetourner409PourUneDecisionDeStageInvalide() throws Exception {
+        when(etudiantService.accepterStage(20L)).thenThrow(new DecisionStageInvalideException());
 
-        mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))
+        mockMvc.perform(put("/etudiant/candidatures/20/stage/accepter"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("error.stage_declaration_invalid"));
+                .andExpect(jsonPath("$.message").value("error.stage_decision_invalid"));
     }
 
     @Test
