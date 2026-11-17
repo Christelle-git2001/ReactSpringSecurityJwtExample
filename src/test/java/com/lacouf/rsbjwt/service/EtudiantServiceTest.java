@@ -1124,22 +1124,18 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitDeclarerLeStagePourLaCandidatureAcceptee() throws Exception {
+    void doitRefuserUnStageNonAttribueParLEmployeur() throws Exception {
         Candidature candidature = entrevue.getCandidature();
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
 
-        CandidatureDTO resultat = etudiantService.declarerStageTrouve(20L);
-
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
-        assertThat(resultat.statutEtudiant()).isEqualTo(com.lacouf.rsbjwt.model.Enum.StatutEtudiant.STAGE_TROUVE);
-        assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
-        verify(etudiantRepository).save(etudiant);
-        verify(candidatureRepository).save(candidature);
-        ArgumentCaptor<StageTrouveEvent> captor = ArgumentCaptor.forClass(StageTrouveEvent.class);
-        verify(applicationEventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue().candidature()).isSameAs(candidature);
+        assertThatThrownBy(() -> etudiantService.declarerStageTrouve(20L))
+                .isInstanceOf(DeclarationStageInvalideException.class);
+        assertThat(etudiant.getCandidatureStage()).isNull();
+        verify(etudiantRepository, never()).save(any());
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(applicationEventPublisher);
     }
 
     @Test

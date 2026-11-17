@@ -37,6 +37,8 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
@@ -521,7 +523,7 @@ public class EmployeurService {
     public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
             OffreNonAutoriseeException, DecisionCandidatureInvalideException {
-        return enregistrerDecision(entrevueId, StatutCandidature.ACCEPTEE, null);
+        return enregistrerDecision(entrevueId, StatutCandidature.STAGE_TROUVE, null);
     }
 
     @Transactional
@@ -556,6 +558,10 @@ public class EmployeurService {
         if (candidature.getStatut() == decision) {
             return CandidatureDTO.of(candidature);
         }
+        if (decision == StatutCandidature.STAGE_TROUVE
+                && candidature.getStatut() == StatutCandidature.CONTRAT_CREE) {
+            return CandidatureDTO.of(candidature);
+        }
         validerDecisionApresEntrevue(entrevue);
 
         candidature.setStatut(decision);
@@ -564,10 +570,15 @@ public class EmployeurService {
         entrevue.setMotifRefus(motifRefus);
         Candidature candidatureEnregistree = candidatureRepository.save(candidature);
         convocationRepository.save(entrevue);
-        etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
-        if (decision == StatutCandidature.ACCEPTEE) {
+        if (decision == StatutCandidature.STAGE_TROUVE) {
+            Etudiant etudiant = candidature.getEtudiant();
+            etudiant.setCandidatureStage(candidatureEnregistree);
+            etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+            userAppRepository.save(etudiant);
+            eventPublisher.publishEvent(new StageTrouveEvent(candidatureEnregistree));
             eventPublisher.publishEvent(new CandidatureAccepteeEvent(candidatureEnregistree));
         } else {
+            etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
             eventPublisher.publishEvent(new CandidatureRefuseeEvent(candidatureEnregistree));
         }
         return CandidatureDTO.of(candidatureEnregistree);

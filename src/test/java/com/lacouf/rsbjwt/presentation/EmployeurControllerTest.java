@@ -59,7 +59,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -599,13 +598,13 @@ public class EmployeurControllerTest {
     void doitAccepterLeCandidatApresEntrevue() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.ACCEPTEE, null, StatutEtudiant.EN_RECHERCHE, false);
+                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false);
         when(employeurService.accepterCandidatApresEntrevue(1L)).thenReturn(decision);
 
         mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.statut").value("ACCEPTEE"))
-                .andExpect(jsonPath("$.statutEtudiant").value("EN_RECHERCHE"));
+                .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
+                .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
         verify(employeurService).accepterCandidatApresEntrevue(1L);
     }
 

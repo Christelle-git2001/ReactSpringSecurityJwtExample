@@ -35,6 +35,7 @@ import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEmployeurDTO;
 import org.junit.jupiter.api.AfterEach;
 
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
 
@@ -1020,7 +1021,7 @@ public class EmployeurServiceTest {
         employeurService.accepterCandidatApresEntrevue(1L);
         assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
                 .isInstanceOf(DecisionCandidatureInvalideException.class);
-        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
         verify(candidatureRepository, times(1)).save(candidature);
         verify(eventPublisher, times(1)).publishEvent(any(CandidatureAccepteeEvent.class));
     }
@@ -1058,20 +1059,54 @@ public class EmployeurServiceTest {
         verify(candidatureRepository, never()).save(any());
     }
     @Test
-    void doitAccepterLeCandidatSansDeclarerSonStage() throws Exception {
+    void doitAttribuerLeStageDesLAcceptationEmployeur() throws Exception {
         creerEntrevueTerminee();
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
 
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
+        assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
         assertThat(resultat.motifRefus()).isNull();
-        verify(etudiantService).actualiserStatutEtudiant(etudiant);
+        verify(userAppRepository).save(etudiant);
+        verify(etudiantService, never()).actualiserStatutEtudiant(any());
         verify(candidatureRepository).save(candidature);
         ArgumentCaptor<CandidatureAccepteeEvent> captor = ArgumentCaptor.forClass(CandidatureAccepteeEvent.class);
-        verify(eventPublisher).publishEvent(captor.capture());
+        var ordre = inOrder(eventPublisher);
+        ordre.verify(eventPublisher).publishEvent(new StageTrouveEvent(candidature));
+        ordre.verify(eventPublisher).publishEvent(captor.capture());
         assertThat(captor.getValue().candidature()).isSameAs(candidature);
+    }
+
+    @Test
+    void neDoitPasDeclencherDeuxFoisLeProcessusPourLaMemeAcceptation() throws Exception {
+        creerEntrevueTerminee();
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        employeurService.accepterCandidatApresEntrevue(1L);
+        CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
+        verify(candidatureRepository).save(candidature);
+        verify(userAppRepository).save(etudiant);
+        verify(eventPublisher).publishEvent(new StageTrouveEvent(candidature));
+        verify(eventPublisher).publishEvent(new CandidatureAccepteeEvent(candidature));
+        verifyNoMoreInteractions(eventPublisher);
+    }
+
+    @Test
+    void neDoitPasReinitialiserUnContratDejaDemarreLorsDuneNouvelleAcceptation() throws Exception {
+        creerEntrevueTerminee();
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        etudiant.setCandidatureStage(candidature);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+
+        CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
+        verify(candidatureRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test

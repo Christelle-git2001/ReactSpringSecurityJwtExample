@@ -49,24 +49,19 @@ import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
-import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -530,17 +525,7 @@ public class EtudiantService {
             }
             return CandidatureDTO.of(candidature);
         }
-        if (candidature.getStatut() != StatutCandidature.ACCEPTEE) {
-            throw new DeclarationStageInvalideException();
-        }
-        actualiserStatutEtudiant(etudiant);
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candidature);
-        etudiant.setCandidatureStage(candidature);
-        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
-        etudiantRepository.save(etudiant);
-        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
-        return CandidatureDTO.of(candidature);
+        throw new DeclarationStageInvalideException();
     }
 
     @Scheduled(fixedDelay = 30000, initialDelay = 30000)
