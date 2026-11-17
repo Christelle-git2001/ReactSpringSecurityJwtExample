@@ -1,8 +1,12 @@
 # Demarrer PostgreSQL et le backend avec les profils dev,chatbot.
 # La cle Azure reste dans application-chatbot-local.properties (ignore par Git).
-# Executer la connexion avant les questions, puis chaque question separement.
+# Executer la connexion du role concerne avant ses questions, puis chaque question separement.
+# Routes /api/auth/login/* reservees au profil dev pour les comptes de demonstration.
 # Chaque question appelle Azure et utilise les credits de la ressource.
 @baseUrl = http://localhost:8080
+
+### ==================== QUESTIONS GESTIONNAIRE ====================
+# Executer sa connexion avant les questions de cette section.
 
 ### 1. Connexion gestionnaire : memorise automatiquement le JWT
 POST {{baseUrl}}/api/auth/login/gestionnaire
@@ -62,4 +66,145 @@ Content-Type: application/json
 
 {
   "question": "Quelles offres ont une date d'affichage apres le 15 novembre ?"
+}
+
+### ==================== QUESTIONS EMPLOYEUR ====================
+# Executer cette connexion ; ces questions utilisent uniquement employeurToken.
+# Comparer les reponses avec les donnees visibles dans le compte employeur.
+
+### Connexion employeur : memorise son JWT (premier employeur en base)
+POST {{baseUrl}}/api/auth/login/employeur
+
+> {%
+    client.test("Connexion employeur reussie", function () {
+        client.assert(response.status === 200, "La connexion doit retourner HTTP 200.");
+    });
+    if (response.status === 200 && typeof response.body === "string") {
+        client.global.set("employeurToken", response.body.trim());
+    } else {
+        client.global.clear("employeurToken");
+        throw new Error("Connexion echouee : verifier le profil dev et le compte employeur de demonstration.");
+    }
+%}
+
+### E1. Mes offres
+# Attendu : lister uniquement les offres de l'employeur connecte.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{employeurToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelles sont mes offres de stage ?"
+}
+
+### E2. Candidatures recues
+# Attendu : lister les candidatures recues pour ses offres avec leur statut.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{employeurToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelles candidatures ai-je recues pour mes offres ?"
+}
+
+### E3. Entrevues confirmees
+# Attendu : retourner uniquement ses entrevues au statut CONFIRMEE, ou signaler aucun resultat.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{employeurToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelles sont mes entrevues confirmees ?"
+}
+
+### E4. Mes contrats
+# Attendu : retourner ses contrats et les signatures enregistrees, sans signer de contrat.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{employeurToken}}
+Content-Type: application/json
+
+{
+  "question": "Quels sont mes contrats de stage et quelles signatures manquent ?"
+}
+
+### ==================== QUESTIONS ETUDIANT ====================
+# Executer cette connexion ; ces questions utilisent uniquement etudiantToken.
+# Comparer les reponses avec le dossier de cet etudiant.
+
+### Connexion etudiant : memorise son JWT (matricule 6565656)
+POST {{baseUrl}}/api/auth/login/etudiant
+
+> {%
+    client.test("Connexion etudiant reussie", function () {
+        client.assert(response.status === 200, "La connexion doit retourner HTTP 200.");
+    });
+    if (response.status === 200 && typeof response.body === "string") {
+        client.global.set("etudiantToken", response.body.trim());
+    } else {
+        client.global.clear("etudiantToken");
+        throw new Error("Connexion echouee : verifier le profil dev et le compte etudiant de demonstration.");
+    }
+%}
+
+### T1. Mon CV
+# Attendu : indiquer le statut de son CV, ou expliquer qu'aucun CV n'est depose.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{etudiantToken}}
+Content-Type: application/json
+
+{
+  "question": "Quel est le statut de mon CV ?"
+}
+
+### T2. Mes candidatures
+# Attendu : lister ses candidatures et leurs statuts.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{etudiantToken}}
+Content-Type: application/json
+
+{
+  "question": "Ou en sont mes candidatures de stage ?"
+}
+
+### T3. Mes entrevues
+# Attendu : presenter ses entrevues avec leurs dates et statuts, sans modifier les invitations.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{etudiantToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelles sont mes entrevues et quels sont leurs statuts ?"
+}
+
+### T4. Mon professeur
+# Attendu : afficher son professeur assigne, ou indiquer qu'aucun professeur n'est assigne.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{etudiantToken}}
+Content-Type: application/json
+
+{
+  "question": "Qui est mon professeur responsable de stage ?"
+}
+
+### ==================== QUESTIONS NON COUVERTES PAR LES TOOLS ====================
+### 7. Recherche indisponible : notes scolaires
+# Attendu : expliquer que les notes ne sont pas accessibles avec les fonctionnalites disponibles,
+# sans inventer de moyenne ni confondre les notes avec le statut du stage.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelle est la moyenne des notes scolaires des etudiants en informatique ?"
+}
+
+### 8. Historique indisponible : anciennes versions de CV supprimees
+# Attendu : expliquer que l'historique des versions supprimees n'est pas disponible,
+# sans presenter les CV actuellement en base comme un historique complet.
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "Donne-moi l'historique complet des anciennes versions de CV supprimees, avec la date de chaque suppression."
 }
