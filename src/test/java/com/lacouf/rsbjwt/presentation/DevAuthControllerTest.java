@@ -1,6 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.AucunGestionnaireTrouver;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunGestionnaireTrouver;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.repository.GestionnaireRepository;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;

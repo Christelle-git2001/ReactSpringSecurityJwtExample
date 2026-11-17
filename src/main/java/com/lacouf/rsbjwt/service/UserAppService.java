@@ -1,8 +1,13 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.service.dto.auth.LoginDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.GestionnaireDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.UserDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,11 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunRoleDefini;
+import com.lacouf.rsbjwt.exception.notification.NotificationNonTrouvee;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.service.NotificationService;
-import com.lacouf.rsbjwt.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,5 +88,23 @@ public class NotificationControllerTest {
         mockMvc.perform(get("/notification/utilisateur/1/compteur"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(notificationDTOList.size()));
+    }
+
+    @Test
+    void doitRetourner400QuandLeRoleNestPasDefini() throws Exception {
+        when(notificationService.recevoirNotifications(1L)).thenThrow(new AucunRoleDefini());
+
+        mockMvc.perform(get("/notification/utilisateur/1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("error.role_unidentified"));
+    }
+
+    @Test
+    void doitRetourner404QuandLaNotificationEstIntrouvable() throws Exception {
+        when(notificationService.setNotificationLue(1L)).thenThrow(new NotificationNonTrouvee());
+
+        mockMvc.perform(put("/notification/1/lu"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("error.notification_not_found"));
     }
 }
