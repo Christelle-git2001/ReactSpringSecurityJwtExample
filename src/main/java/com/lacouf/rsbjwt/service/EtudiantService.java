@@ -342,6 +342,7 @@ public class EtudiantService {
         );
 
         return offresFiltrees.stream()
+                .filter(offre -> !offre.estComplete())
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -372,6 +373,10 @@ public class EtudiantService {
             if (offreCiblee.getEtudiant() == null || !offreCiblee.getEtudiant().getId().equals(etudiant.getId())) {
                 throw new OffreNonAutoriseeException();
             }
+        }
+
+        if (offre.estComplete()) {
+            throw new OffreDeStageIndisponibleException();
         }
 
         if (candidatureRepository.existsByEtudiantAndOffreDeStage(
@@ -423,13 +428,13 @@ public class EtudiantService {
 
     @Transactional
     public ReponseConvocationDTO accepterConvocationEtudiant(Long convocationId)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         return repondreConvocation(convocationId, StatutEntrevue.CONFIRMEE, null);
     }
 
     @Transactional
     public ReponseConvocationDTO refuserConvocationEtudiant(Long convocationId, String motifRefus)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 500) {
             throw new ConvocationInvalideException();
         }
@@ -437,7 +442,7 @@ public class EtudiantService {
     }
 
     private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse, String motifRefus)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
         verifierActionsCandidatureAutorisees(entrevue.getCandidature());
         if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
@@ -593,18 +598,14 @@ public class EtudiantService {
     }
 
     public static boolean actionsCandidatureDesactivees(Candidature candidature) {
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant == null) return false;
-        Candidature stageChoisi = etudiant.getCandidatureStage();
-        if (stageChoisi != null) {
-            return !java.util.Objects.equals(stageChoisi.getId(), candidature.getId());
-        }
-        return etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
-                && candidature.getStatut() != StatutCandidature.STAGE_TROUVE
-                && candidature.getStatut() != StatutCandidature.CONTRAT_CREE;
+        return candidature.actionsDesactivees();
     }
 
-    static void verifierActionsCandidatureAutorisees(Candidature candidature) {
+    static void verifierActionsCandidatureAutorisees(Candidature candidature) throws ActionsCandidatureDesactiveesException {
+        if (candidature.getOffreDeStage() != null && !candidature.estAcceptee()
+                && candidature.getOffreDeStage().estComplete()) {
+            throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
+        }
         if (actionsCandidatureDesactivees(candidature)) {
             throw new ActionsCandidatureDesactiveesException();
         }
@@ -687,7 +688,4 @@ public class EtudiantService {
                 ProfesseurDTO.of(professeur)
         );
     }
-
-
-
 }

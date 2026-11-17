@@ -27,5 +27,12 @@ public record CreationOffreDeStageDTO(
         LocalDate endDate,
 
         @NotNull(message = "validation.displayEndDate.required")
-        LocalDate displayEndDate
-) {}
+        LocalDate displayEndDate,
+
+        @jakarta.validation.constraints.Min(value = 1, message = "error.invalid_candidate_capacity")
+        Integer nombreCandidatsMax
+) {
+    public CreationOffreDeStageDTO {
+        if (nombreCandidatsMax == null) nombreCandidatsMax = 1;
+    }
+}

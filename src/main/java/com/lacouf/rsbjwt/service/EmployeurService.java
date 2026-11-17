@@ -1,6 +1,8 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException;
 import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
 import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
 import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
@@ -132,6 +134,10 @@ public class EmployeurService {
             throw new NumeroTelephoneExistantException();
     }
 
+    private void validerNombreCandidatsMax(int nombreCandidatsMax) throws NombreCandidatsMaxInvalideException {
+        if (nombreCandidatsMax < 1) throw new NombreCandidatsMaxInvalideException();
+    }
+
     private boolean employeurExiste(String email) {
         return userAppRepository.findUserAppByEmail(email.toLowerCase()).isPresent();
     }
@@ -142,10 +148,11 @@ public class EmployeurService {
                                       String email)
             throws DateFinAvantDateDebutException, IOException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
         Employeur employeur = getEmployeurByEmail(email);
 
         validerDates(creationOffreDeStageDTO);
+        validerNombreCandidatsMax(creationOffreDeStageDTO.nombreCandidatsMax());
 
         String fileName = null;
         String storagePath = null ;
@@ -164,6 +171,7 @@ public class EmployeurService {
                 .title(creationOffreDeStageDTO.title())
                 .description(creationOffreDeStageDTO.description())
                 .salary(creationOffreDeStageDTO.salary())
+                .nombreCandidatsMax(creationOffreDeStageDTO.nombreCandidatsMax())
                 .domain(creationOffreDeStageDTO.domain())
                 .startDate(creationOffreDeStageDTO.startDate())
                 .endDate(creationOffreDeStageDTO.endDate())
@@ -256,7 +264,7 @@ public class EmployeurService {
     ) throws DateFinAvantDateDebutException,
             IOException,
             FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException, OffreIntrouvableException,
-            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
+            OffreNonAutoriseeException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
 
 
         Employeur employeur = getEmployeurByEmail(email);
@@ -273,10 +281,12 @@ public class EmployeurService {
         }
 
         validerDates(dto);
+        validerNombreCandidatsMax(dto.nombreCandidatsMax());
 
         ancienneOffre.setTitle(dto.title());
         ancienneOffre.setDescription(dto.description());
         ancienneOffre.setSalary(dto.salary());
+        ancienneOffre.setNombreCandidatsMax(ancienneOffre instanceof OffreCiblee ? 1 : dto.nombreCandidatsMax());
         ancienneOffre.setDomain(dto.domain());
         ancienneOffre.setStartDate(dto.startDate());
         ancienneOffre.setEndDate(dto.endDate());
@@ -376,7 +386,7 @@ public class EmployeurService {
             throws OffreNonAutoriseeException,
             CandidatureIntrouvableException,
             ConvocationExistanteException,
-            DateAvantAujourdhuiException, ConvocationInvalideException {
+            DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
 
         Candidature candidature = candidatureRepository
                 .findById(dto.candidatureId())
@@ -398,6 +408,8 @@ public class EmployeurService {
                 .equals(employeur.getId())) {
             throw new OffreNonAutoriseeException();
         }
+
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
 
         if (convocationRepository
                 .findByCandidatureId(dto.candidatureId())
@@ -436,7 +448,7 @@ public class EmployeurService {
     }
 
     @Transactional
-    public CandidatureDTO retenirCandidaturePourEntrevue(Long candidatureId) throws CandidatureIntrouvableException {
+    public CandidatureDTO retenirCandidaturePourEntrevue(Long candidatureId) throws CandidatureIntrouvableException, ActionsCandidatureDesactiveesException {
         Candidature candidature = candidatureRepository
                 .findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
@@ -491,7 +503,7 @@ public class EmployeurService {
     @Transactional
     public CandidatureDTO cloreEntrevue(Long entrevueId)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
@@ -522,14 +534,14 @@ public class EmployeurService {
     @Transactional
     public CandidatureDTO accepterCandidatApresEntrevue(Long entrevueId)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         return enregistrerDecision(entrevueId, StatutCandidature.STAGE_TROUVE, null);
     }
 
     @Transactional
     public CandidatureDTO refuserCandidatApresEntrevue(Long entrevueId, String motifRefus)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException, ActionsCandidatureDesactiveesException {
         if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 1000) {
             throw new MotifRefusInvalideException();
         }
@@ -538,7 +550,7 @@ public class EmployeurService {
 
     private CandidatureDTO enregistrerDecision(Long entrevueId, StatutCandidature decision, String motifRefus)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employeur employeur = userAppRepository.findUserAppByEmail(email)
                 .filter(Employeur.class::isInstance)
@@ -553,16 +565,24 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
-
         if (candidature.getStatut() == decision) {
+            EtudiantService.verifierActionsCandidatureAutorisees(candidature);
             return CandidatureDTO.of(candidature);
         }
         if (decision == StatutCandidature.STAGE_TROUVE
                 && candidature.getStatut() == StatutCandidature.CONTRAT_CREE) {
+            EtudiantService.verifierActionsCandidatureAutorisees(candidature);
             return CandidatureDTO.of(candidature);
         }
         validerDecisionApresEntrevue(entrevue);
+        OffreDeStage offre = offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
+                .orElseThrow(DecisionCandidatureInvalideException::new);
+        long candidatsAcceptes = candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        if (!candidature.estAcceptee() && candidatsAcceptes >= offre.getNombreCandidatsMax()) {
+            throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
+        }
+        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
 
         candidature.setStatut(decision);
         candidature.setMotifRefus(motifRefus);

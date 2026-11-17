@@ -7,6 +7,9 @@ import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.model.OffreCiblee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
+import java.util.Optional;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
@@ -14,6 +17,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select o from OffreDeStage o where o.id = :id")
+    Optional<OffreDeStage> findByIdForUpdate(@Param("id") Long id);
+
     List<OffreDeStage> findByStatut(Statut statut);
     long countByStatut(Statut statut);
     List<OffreDeStage> findByApprovedAtGreaterThanEqualAndApprovedAtLessThanOrderByApprovedAtAsc(LocalDateTime debut, LocalDateTime fin);

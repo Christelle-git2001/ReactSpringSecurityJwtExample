@@ -36,6 +36,26 @@ public class Candidature {
     @Column(length = 1000)
     private String motifRefus;
 
+    public boolean estAcceptee() {
+        return statut == StatutCandidature.ACCEPTEE
+                || statut == StatutCandidature.STAGE_TROUVE
+                || statut == StatutCandidature.CONTRAT_CREE;
+    }
+
+    public boolean actionsDesactivees() {
+        if (offreDeStage != null && !estAcceptee() && offreDeStage.estComplete()) {
+            return true;
+        }
+        if (etudiant == null) return false;
+        Candidature stageChoisi = etudiant.getCandidatureStage();
+        if (stageChoisi != null) {
+            return !java.util.Objects.equals(stageChoisi.getId(), id);
+        }
+        return etudiant.getStatut() == com.lacouf.rsbjwt.model.Enum.StatutEtudiant.STAGE_TROUVE
+                && statut != StatutCandidature.STAGE_TROUVE
+                && statut != StatutCandidature.CONTRAT_CREE;
+    }
+
     @Builder
     public Candidature(Etudiant etudiant, OffreDeStage offreDeStage, LocalDateTime dateCandidature) {
         this.etudiant = etudiant;

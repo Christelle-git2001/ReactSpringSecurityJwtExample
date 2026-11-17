@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
 import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
@@ -71,7 +73,7 @@ public class EmployeurController {
             Principal principal
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
         OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
@@ -105,7 +107,7 @@ public class EmployeurController {
     ) throws DateFinAvantDateDebutException,
             IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException,
             OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException,
-            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
+            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(offreId, dto, file, principal.getName());
 
@@ -128,7 +130,7 @@ public class EmployeurController {
 
 
     @PutMapping("/candidatures/{candidatureId}")
-    public ResponseEntity<CandidatureDTO> RetenirCandidaturePourEntrevue(@PathVariable Long candidatureId) throws CandidatureIntrouvableException {
+    public ResponseEntity<CandidatureDTO> RetenirCandidaturePourEntrevue(@PathVariable Long candidatureId) throws CandidatureIntrouvableException, ActionsCandidatureDesactiveesException {
         CandidatureDTO candidatureDTO = employeurService.retenirCandidaturePourEntrevue(candidatureId);
         return ResponseEntity.ok(candidatureDTO) ;
     }
@@ -139,7 +141,7 @@ public class EmployeurController {
     ) throws OffreNonAutoriseeException,
     CandidatureIntrouvableException,
     ConvocationExistanteException,
-    DateAvantAujourdhuiException, ConvocationInvalideException {
+    DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
 
         EntrevueDTO entrevue = employeurService.creerConvocation(dto);
 
@@ -164,14 +166,14 @@ public class EmployeurController {
     @PutMapping("/entrevues/{id}/cloture")
     public ResponseEntity<CandidatureDTO> cloreEntrevue(@PathVariable Long id)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(employeurService.cloreEntrevue(id));
     }
 
     @PutMapping("/entrevues/{id}/acceptation")
     public ResponseEntity<CandidatureDTO> accepterCandidat(@PathVariable Long id)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(employeurService.accepterCandidatApresEntrevue(id));
     }
 
@@ -179,7 +181,7 @@ public class EmployeurController {
     public ResponseEntity<CandidatureDTO> refuserCandidat(
             @PathVariable Long id, @Valid @RequestBody RefusCandidatureDTO dto)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(employeurService.refuserCandidatApresEntrevue(id, dto.motifRefus()));
     }
 

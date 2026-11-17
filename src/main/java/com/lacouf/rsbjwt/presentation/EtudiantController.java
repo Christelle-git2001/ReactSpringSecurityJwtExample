@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
@@ -170,7 +172,7 @@ public class EtudiantController {
 
     @PutMapping("/convocations/{id}/accepter")
     public ResponseEntity<ReponseConvocationDTO> accepterConvocation(@PathVariable Long id)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(
                 etudiantService.accepterConvocationEtudiant(id)
         );
@@ -179,7 +181,7 @@ public class EtudiantController {
     @PutMapping("/convocations/{id}/refuser")
     public ResponseEntity<ReponseConvocationDTO> refuserConvocation(@PathVariable Long id,
                                                                  @Valid @RequestBody RefusConvocationDTO dto)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id, dto.motifRefus()));
     }
 

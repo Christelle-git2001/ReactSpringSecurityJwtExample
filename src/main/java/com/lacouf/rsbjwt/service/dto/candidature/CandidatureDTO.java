@@ -20,7 +20,8 @@ public record CandidatureDTO(
         StatutCandidature statut,
         String motifRefus,
         StatutEtudiant statutEtudiant,
-        boolean contratSigne
+        boolean contratSigne,
+        boolean actionsDesactivees
 ) {
    public static CandidatureDTO of(Candidature candidature) {
         return of(candidature, null);
@@ -57,7 +58,8 @@ public record CandidatureDTO(
                 etudiant != null ? etudiant.getStatut() : null,
                 contrat != null && contrat.getDateSignatureEtudiant() != null
                         && contrat.getDateSignatureEmployeur() != null
-                        && contrat.getDateSignatureGestionnaire() != null
+                        && contrat.getDateSignatureGestionnaire() != null,
+                candidature.actionsDesactivees()
         );
     }
 }

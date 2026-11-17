@@ -34,6 +34,11 @@ public class OffreDeStage {
     @Column(nullable = false)
     private Double salary;
 
+    @Column(nullable = false, columnDefinition = "integer default 1")
+    @jakarta.validation.constraints.Min(1)
+    @Builder.Default
+    private int nombreCandidatsMax = 1;
+
     @Column(nullable = false)
     private Departement domain;
 
@@ -72,6 +77,14 @@ public class OffreDeStage {
     @OneToMany(mappedBy = "offreDeStage", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Candidature> candidatures = new ArrayList<>();
+
+    public long getNombreCandidatsAcceptes() {
+        return candidatures.stream().filter(Candidature::estAcceptee).count();
+    }
+
+    public boolean estComplete() {
+        return getNombreCandidatsAcceptes() >= nombreCandidatsMax;
+    }
 
 
     public OffreDeStage(

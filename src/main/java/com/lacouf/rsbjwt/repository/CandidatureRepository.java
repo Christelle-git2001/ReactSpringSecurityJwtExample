@@ -27,6 +27,7 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findByStatut(StatutCandidature statut);
     long countByStatut(StatutCandidature statut);
+    long countByOffreDeStageIdAndStatutIn(Long offreId, List<StatutCandidature> statuts);
     List<Candidature> findByDateCandidatureGreaterThanEqualAndDateCandidatureLessThanOrderByDateCandidatureAsc(LocalDateTime debut, LocalDateTime fin);
     long countByDateCandidatureGreaterThanEqualAndDateCandidatureLessThan(LocalDateTime debut, LocalDateTime fin);
 
