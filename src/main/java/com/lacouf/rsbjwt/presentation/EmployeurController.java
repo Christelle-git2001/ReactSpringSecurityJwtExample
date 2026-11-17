@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 import com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
@@ -73,13 +74,13 @@ public class EmployeurController {
             Principal principal
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException, UserNotFoundException {
         OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
 
     @GetMapping("/offres")
-    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur() {
+    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur() throws UserNotFoundException {
         List<OffreDeStageDTO> offres = employeurService.obtenirOffres();
         return ResponseEntity.ok(offres);
     }
@@ -107,7 +108,7 @@ public class EmployeurController {
     ) throws DateFinAvantDateDebutException,
             IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException,
             OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException,
-            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException {
+            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException, UserNotFoundException {
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(offreId, dto, file, principal.getName());
 
@@ -141,7 +142,7 @@ public class EmployeurController {
     ) throws OffreNonAutoriseeException,
     CandidatureIntrouvableException,
     ConvocationExistanteException,
-    DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
+    DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException, UserNotFoundException {
 
         EntrevueDTO entrevue = employeurService.creerConvocation(dto);
 
@@ -150,7 +151,7 @@ public class EmployeurController {
 
     @GetMapping("/candidatures/convoquees")
     public ResponseEntity<List<CandidatureDTO>> obtenirCandidaturesConvoquees()
-            throws UtilisateurIntrouvableException {
+            throws UtilisateurIntrouvableException, UserNotFoundException {
 
         return ResponseEntity.ok(
                 employeurService.obtenirCandidaturesConvoquees()
@@ -187,7 +188,7 @@ public class EmployeurController {
 
     @GetMapping("/candidatures/{candidatureId}/entrevue")
     public ResponseEntity<EntrevueDTO> obtenirConvocation(@PathVariable Long candidatureId)
-            throws ConvocationIntrouvableException, OffreNonAutoriseeException {
+            throws ConvocationIntrouvableException, OffreNonAutoriseeException, UserNotFoundException {
         return ResponseEntity.ok(employeurService.obtenirConvocation(candidatureId));
     }
 

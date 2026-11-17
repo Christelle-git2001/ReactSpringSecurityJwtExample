@@ -485,7 +485,7 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException{
+    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException, MotDePasseInvalideException {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();

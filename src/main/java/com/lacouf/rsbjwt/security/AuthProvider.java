@@ -4,12 +4,13 @@ import com.lacouf.rsbjwt.repository.UserAppRepository;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
+import com.lacouf.rsbjwt.security.exception.APIException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -21,13 +22,18 @@ public class AuthProvider implements AuthenticationProvider{
 
 	@Override
 	public Authentication authenticate(Authentication authentication) {
-		UserApp user = loadUserByEmail(authentication.getPrincipal().toString());
-		validateAuthentication(authentication, user);
-		return new UsernamePasswordAuthenticationToken(
-			user.getEmail(),
-			user.getPassword(),
-			user.getAuthorities()
-		);
+		try {
+			UserApp user = loadUserByEmail(authentication.getPrincipal().toString());
+			validateAuthentication(authentication, user);
+			return new UsernamePasswordAuthenticationToken(
+				user.getEmail(),
+				user.getPassword(),
+				user.getAuthorities()
+			);
+		} catch (APIException e) {
+			// AuthenticationProvider ne permet pas de propager une exception checked.
+			throw new BadCredentialsException(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -35,12 +41,12 @@ public class AuthProvider implements AuthenticationProvider{
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private UserApp loadUserByEmail(String email) throws UsernameNotFoundException{
+	private UserApp loadUserByEmail(String email) throws UserNotFoundException {
 		return userAppRepository.findUserAppByEmail(email)
 			.orElseThrow(UserNotFoundException::new);
 	}
 
-	private void validateAuthentication(Authentication authentication, UserApp user){
+	private void validateAuthentication(Authentication authentication, UserApp user) throws AuthenticationException {
 		if(!passwordEncoder.matches(authentication.getCredentials().toString(), user.getPassword()))
 			throw new AuthenticationException(HttpStatus.FORBIDDEN, "Incorrect username or password");
 	}
