@@ -1,26 +1,33 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.context.SessionContext;
 import com.lacouf.rsbjwt.model.UserApp;
+import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.repository.InscriptionRepository;
+import com.lacouf.rsbjwt.repository.UserAppRepository;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 @Service
 public class SessionService {
 
     private final SessionContext sessionContext;
     private final InscriptionRepository inscriptionRepository;
+    private final UserAppRepository userAppRepository;
 
-    public SessionService(SessionContext sessionContext, InscriptionRepository inscriptionRepository) {
+    public SessionService(SessionContext sessionContext, InscriptionRepository inscriptionRepository, UserAppRepository userAppRepository) {
         this.sessionContext = sessionContext;
         this.inscriptionRepository = inscriptionRepository;
+        this.userAppRepository = userAppRepository;
     }
 
     public record SessionPeriode(LocalDateTime debut, LocalDateTime fin) {}
@@ -92,9 +99,31 @@ public class SessionService {
         return filtrerUtilisateursParSession(utilisateurs, sessionActuelle.saison(), sessionActuelle.annee());
     }
 
-    public List<SessionDTO> getSessionsDisponibles() {
-        return inscriptionRepository.findSessionsDisponibles().stream()
-                .map(row -> new SessionDTO((Saison) row[0], (Integer) row[1]))
-                .toList();
+    public List<SessionDTO> getSessionsDisponibles() throws UtilisateurIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserApp utilisateur = userAppRepository.findUserAppByEmail(email).orElseThrow(() -> new UtilisateurIntrouvableException());
+        boolean estEtudiant = Role.ETUDIANT.equals(utilisateur.getRole());
+
+        if (estEtudiant) {
+            return utilisateur.getInscriptions().stream()
+                    .map(i -> new SessionDTO(i.getSaison(), i.getAnnee()))
+                    .distinct()
+                    .toList();
+        } else {
+            LocalDate dateCreation = (utilisateur.getCreatedAt() != null)
+                    ? utilisateur.getCreatedAt().toLocalDate()
+                    : LocalDate.now();
+            SessionDTO sessionCreation = getSession(dateCreation);
+
+            ToLongFunction<SessionDTO> sessionToScore = s ->
+                    s.annee() * 2L + (s.saison() == Saison.AUTOMNE ? 1L : 0L);
+
+            long scoreCreation = sessionToScore.applyAsLong(sessionCreation);
+
+            return inscriptionRepository.findSessionsDisponibles().stream()
+                    .map(row -> new SessionDTO((Saison) row[0], (Integer) row[1]))
+                    .filter(s -> sessionToScore.applyAsLong(s) >= scoreCreation)
+                    .toList();
+        }
     }
 }

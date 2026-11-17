@@ -31,11 +31,16 @@ const ReinscriptionButton = ({ user, onReinscriptionSuccess }) => {
 
                 if (!actif) return;
 
+                console.log("Session actuelle récupérée :", sessionActuelle);
+                console.log("Inscriptions de l'étudiant :", inscriptions);
+
                 const dejaInscrit = (inscriptions || []).some(
                     (i) =>
                         i.saison?.toUpperCase() === sessionActuelle.saison?.toUpperCase() &&
                         Number(i.annee) === Number(sessionActuelle.annee)
                 );
+
+                console.log("Est-ce déjà inscrit ? :", dejaInscrit);
 
                 setEstInscritSessionActuelle(dejaInscrit);
             } catch (error) {

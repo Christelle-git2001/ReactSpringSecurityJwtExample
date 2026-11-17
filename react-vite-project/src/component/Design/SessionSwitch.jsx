@@ -23,17 +23,35 @@ const SessionSwitch = () => {
                 setSessions(data || []);
 
                 const cachedSession = localStorage.getItem("sessionCible");
+
                 if (!cachedSession && data?.length > 0) {
+                    let defaut = "";
                     try {
                         const sessionActuelle = await getSessionActuelle();
-                        const defaut = `${sessionActuelle.saison}-${sessionActuelle.annee}`;
-                        setSelectedSession(defaut);
-                        localStorage.setItem("sessionCible", defaut);
-                        window.dispatchEvent(new CustomEvent("sessionChanged", { detail: defaut }));
+                        const sessionActuelleKey = `${sessionActuelle.saison}-${sessionActuelle.annee}`;
+
+                        const estDisponible = data.some(
+                            (s) => `${s.saison}-${s.annee}` === sessionActuelleKey
+                        );
+
+                        if (estDisponible) {
+                            defaut = sessionActuelleKey;
+                        } else {
+                            defaut = `${data[0].saison}-${data[0].annee}`;
+                        }
                     } catch (e) {
-                        const defaut = `${data[0].saison}-${data[0].annee}`;
-                        setSelectedSession(defaut);
-                        localStorage.setItem("sessionCible", defaut);
+                        defaut = `${data[0].saison}-${data[0].annee}`;
+                    }
+
+                    setSelectedSession(defaut);
+                    localStorage.setItem("sessionCible", defaut);
+                    window.dispatchEvent(new CustomEvent("sessionChanged", { detail: defaut }));
+                } else if (cachedSession && data?.length > 0) {
+                    const isValid = data.some((s) => `${s.saison}-${s.annee}` === cachedSession);
+                    if (!isValid) {
+                        const fallback = `${data[0].saison}-${data[0].annee}`;
+                        setSelectedSession(fallback);
+                        localStorage.setItem("sessionCible", fallback);
                     }
                 }
             } catch (err) {

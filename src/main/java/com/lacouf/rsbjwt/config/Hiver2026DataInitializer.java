@@ -102,30 +102,46 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
         // S'assurer qu'un gestionnaire existe en base pour pouvoir lier les contrats
         if (gestionnaireRepository.findAll().isEmpty()) {
             try {
-                GestionnaireDTO gestionnaireDto = new GestionnaireDTO(-8, "Pascal", "Belmont", "Pascal.Belmont@hotmail.com", "565-985-5858", "password", LocalDateTime.now());
-                gestionnaireService.creerCompteGestionnaire(gestionnaireDto);
+                Gestionnaire g = gestionnaireRepository.save(
+                        Gestionnaire.builder()
+                                .firstName("Pascal")
+                                .lastName("Belmont")
+                                .phoneNumber("565-985-5858")
+                                .email("Pascal.Belmont@hotmail.com")
+                                .password(passwordEncoder.encode("password"))
+                                .build()
+                );
+                g.setCreatedAt(LocalDateTime.of(2026, 1, 2, 0, 0));
+                gestionnaireRepository.save(g);
             } catch (Exception ignored) {}
         }
 
+        // Employeur créé avec une date de création en janvier 2026
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseGet(() -> {
             InscriptionEmployeurDTO empDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "password", "password");
             try {
                 employeurService.creeCompteEmployeur(empDTO);
             } catch (Exception ignored) {}
-            return employeurRepository.findByEmail(employeurEmail).orElseThrow();
+
+            Employeur emp = employeurRepository.findByEmail(employeurEmail).orElseThrow();
+            emp.setCreatedAt(LocalDateTime.of(2026, 1, 3, 12, 0)); // Janvier 2026
+            return employeurRepository.save(emp);
         });
 
-        // 0. Création ou récupération du professeur Toru
+        // 0. Création ou récupération du professeur Toru (créé en janvier 2026)
         Professeur toru = professeurRepository.findByMatricule("9325645").orElseGet(() -> {
             InscriptionProfesseurDTO profDTO = new InscriptionProfesseurDTO("Toru", "Shirazu", "Toru.Shirazu@claurendeau.qc.ca", "password", "password", "9325645", "698-585-6666", Departement.INFORMATIQUE.name());
             try {
                 professeurService.creerCompteProfesseur(profDTO);
             } catch (Exception ignored) {}
-            return professeurRepository.findByMatricule("9325645").orElseThrow();
+
+            Professeur p = professeurRepository.findByMatricule("9325645").orElseThrow();
+            p.setCreatedAt(LocalDateTime.of(2026, 1, 4, 9, 0)); // Janvier 2026
+            return professeurRepository.save(p);
         });
         ajouterInscriptionUtilisateurSecurise(toru.getEmail(), Saison.HIVER, 2026);
 
-        // 1. Étudiants et inscriptions directes en repo pour Hiver 2026
+        // 1. Étudiants et inscriptions directes en repo pour Hiver 2026 (créés en janvier 2026)
         Etudiant etudiantCharles = etudiantRepository.findByMatricule("7777777").orElseGet(() -> {
             Etudiant e = Etudiant.builder()
                     .firstName("Charles")
@@ -136,6 +152,7 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                     .department(Departement.INFORMATIQUE)
                     .password(passwordEncoder.encode("password"))
                     .build();
+            e.setCreatedAt(LocalDateTime.of(2026, 1, 5, 8, 0)); // Janvier 2026
             return etudiantRepository.save(e);
         });
         ajouterInscriptionSecurisee("7777777", Saison.HIVER, 2026);
@@ -150,6 +167,7 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                     .department(Departement.INFORMATIQUE)
                     .password(passwordEncoder.encode("password"))
                     .build();
+            e.setCreatedAt(LocalDateTime.of(2026, 1, 5, 9, 0)); // Janvier 2026
             return etudiantRepository.save(e);
         });
         ajouterInscriptionSecurisee("5555555", Saison.HIVER, 2026);

@@ -5,7 +5,8 @@ export async function fetchJson(path, options = {}) {
 
     if (res.status === 204) return null;
 
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
 
 export async function fetchApi(path, options = {}) {

@@ -1,7 +1,8 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import com.lacouf.rsbjwt.service.SessionService;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class SessionController {
     }
 
     @GetMapping("disponibles")
-    public ResponseEntity<List<SessionDTO>> obtenirSessions() {
+    public ResponseEntity<List<SessionDTO>> obtenirSessions() throws UtilisateurIntrouvableException {
         return ResponseEntity.ok(sessionService.getSessionsDisponibles());
     }
 
