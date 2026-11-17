@@ -1383,6 +1383,50 @@ public class EtudiantServiceTest {
     }
 
     @Test
+    void doitBloquerLesReponsesAuxConvocationsQuandLOffreEstComplete() {
+        var offre = entrevue.getCandidature().getOffreDeStage();
+        var acceptee = new Candidature(new Etudiant(), offre, LocalDateTime.now());
+        acceptee.setStatut(StatutCandidature.STAGE_TROUVE);
+        offre.setCandidatures(List.of(acceptee, entrevue.getCandidature()));
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
+                .thenReturn(Optional.of(entrevue));
+
+        assertThatThrownBy(() -> etudiantService.accepterConvocationEtudiant(entrevue.getId()))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_capacity_reached");
+        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId(), "Indisponible"))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+        verify(candidatureRepository, never()).save(any());
+        verify(entrevueRepository, never()).save(any());
+        verifyNoInteractions(applicationEventPublisher);
+    }
+
+    @Test
+    void doitCompterLesPlacesOccupeesEtExposerLesActionsDesactivees() {
+        var offre = new OffreDeStage();
+        offre.setId(10L);
+        offre.setNombreCandidatsMax(3);
+        var candidatures = new java.util.ArrayList<Candidature>();
+        for (var statut : List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE,
+                StatutCandidature.CONTRAT_CREE, StatutCandidature.REFUSEE, StatutCandidature.SOUMISE)) {
+            var candidat = new Etudiant();
+            candidat.setId((long) candidatures.size() + 1);
+            var candidature = new Candidature(candidat, offre, LocalDateTime.now());
+            candidature.setId((long) candidatures.size() + 1);
+            candidature.setStatut(statut);
+            candidatures.add(candidature);
+        }
+        offre.setCandidatures(candidatures);
+
+        var resultat = OffreDeStageDTO.of(offre);
+        assertThat(resultat.nombreCandidatsMax()).isEqualTo(3);
+        assertThat(resultat.nombreCandidatsAcceptes()).isEqualTo(3);
+        assertThat(CandidatureDTO.of(candidatures.get(4)).actionsDesactivees()).isTrue();
+        assertThat(CandidatureDTO.of(candidatures.get(0)).actionsDesactivees()).isFalse();
+    }
+
+    @Test
     void doitConserverLeStageTrouveMalgreUneAutreEntrevue() {
         etudiant.setCandidatureStage(new Candidature());
         when(entrevueRepository.findByCandidatureEtudiantIdOrderByDateHeureEntrevueAsc(etudiant.getId()))

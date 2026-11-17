@@ -120,7 +120,7 @@ public class EmployeurControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
@@ -130,7 +130,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
 
 
@@ -256,7 +256,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -289,7 +289,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -313,7 +313,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -347,7 +347,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -381,7 +381,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -415,7 +415,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 15),
                 LocalDate.of(2029, 10, 1),
-                LocalDate.of(2029, 10, 1).minusDays(15)
+                LocalDate.of(2029, 10, 1).minusDays(15), 1
         );
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
@@ -570,7 +570,7 @@ public class EmployeurControllerTest {
                 StatutCandidature.RETENUE_POUR_ENTREVUE,
                 null,
                 StatutEtudiant.EN_RECHERCHE,
-                false
+                false, false
         );
 
         when(employeurService.obtenirCandidaturesConvoquees())
@@ -595,10 +595,47 @@ public class EmployeurControllerTest {
     }
 
     @Test
+    void doitRefuserUneCapaciteNonPositiveAvantDAppelerLeService() throws Exception {
+        for (int capacite : new int[]{0, -1}) {
+            var dto = new CreationOffreDeStageDTO("Stage", "Description", 20.0, Departement.INFORMATIQUE,
+                    LocalDate.of(2027, 1, 20), LocalDate.of(2027, 5, 20), LocalDate.of(2027, 1, 10), capacite);
+            var offre = new MockMultipartFile("offre", "", "application/json", objectMapper.writeValueAsBytes(dto));
+            mockMvc.perform(multipart("/employeur/offres").file(offre).principal(principal))
+                    .andExpect(status().isBadRequest());
+        }
+        org.mockito.Mockito.verifyNoInteractions(employeurService);
+    }
+
+    @Test
+    void doitGarderLaCapaciteParDefautPourUneRequeteSansCeChamp() throws Exception, DateFinAffichageApresDateDebutException {
+        String json = """
+                {"title":"Stage","description":"Description","salary":20,"domain":"INFORMATIQUE",
+                "startDate":"2027-01-20","endDate":"2027-05-20","displayEndDate":"2027-01-10"}
+                """;
+        var offre = new MockMultipartFile("offre", "", "application/json", json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        when(employeurService.creerOffre(any(), any(), anyString())).thenReturn(offreDeStageDTO);
+
+        mockMvc.perform(multipart("/employeur/offres").file(offre).principal(principal))
+                .andExpect(status().isCreated());
+        var dto = org.mockito.ArgumentCaptor.forClass(CreationOffreDeStageDTO.class);
+        verify(employeurService).creerOffre(dto.capture(), any(), anyString());
+        org.assertj.core.api.Assertions.assertThat(dto.getValue().nombreCandidatsMax()).isEqualTo(1);
+    }
+
+    @Test
+    void doitRetourner409QuandLaCapaciteEstAtteinte() throws Exception {
+        when(employeurService.accepterCandidatApresEntrevue(1L)).thenThrow(
+                new com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException("error.offer_capacity_reached"));
+        mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("error.offer_capacity_reached"));
+    }
+
+    @Test
     void doitAccepterLeCandidatApresEntrevue() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false);
+                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false, false);
         when(employeurService.accepterCandidatApresEntrevue(1L)).thenReturn(decision);
 
         mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
@@ -612,7 +649,7 @@ public class EmployeurControllerTest {
     void doitCloreEntrevue() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.ENTREVUE_PLANIFIEE, null, StatutEtudiant.EN_RECHERCHE, false);
+                StatutCandidature.ENTREVUE_PLANIFIEE, null, StatutEtudiant.EN_RECHERCHE, false, false);
         when(employeurService.cloreEntrevue(1L)).thenReturn(candidature);
 
         mockMvc.perform(put("/employeur/entrevues/1/cloture").principal(principal))
@@ -654,7 +691,7 @@ public class EmployeurControllerTest {
     void doitRefuserLeCandidatApresEntrevueAvecUnMotif() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE, false);
+                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE, false, false);
         when(employeurService.refuserCandidatApresEntrevue(1L, "Autre profil retenu")).thenReturn(decision);
 
         mockMvc.perform(put("/employeur/entrevues/1/refus").principal(principal)
@@ -810,7 +847,7 @@ public class EmployeurControllerTest {
     void doitRetenirLaCandidatureDemandeePourEntrevue() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.RETENUE_POUR_ENTREVUE, null, StatutEtudiant.EN_RECHERCHE, false);
+                StatutCandidature.RETENUE_POUR_ENTREVUE, null, StatutEtudiant.EN_RECHERCHE, false, false);
         when(employeurService.retenirCandidaturePourEntrevue(20L)).thenReturn(candidature);
 
         mockMvc.perform(put("/employeur/candidatures/20"))

@@ -151,7 +151,7 @@ class PDFServiceTest {
     private CreationOffreDeStageDTO offrePdf() {
         return new CreationOffreDeStageDTO("Stage Java", "Developpement logiciel", 22.5,
                 Departement.INFORMATIQUE, LocalDate.of(2027, 1, 10),
-                LocalDate.of(2027, 4, 10), LocalDate.of(2027, 1, 1));
+                LocalDate.of(2027, 4, 10), LocalDate.of(2027, 1, 1), 1);
     }
 
     private String textePdf(Resource resource) throws IOException {

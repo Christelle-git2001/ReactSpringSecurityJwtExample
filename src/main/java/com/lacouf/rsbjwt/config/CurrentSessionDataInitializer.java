@@ -190,7 +190,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
+                LocalDate.now().plusDays(7),
+                1
         );
 
         CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
@@ -200,7 +201,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(5),
                 LocalDate.now().plusMonths(2),
-                LocalDate.now().plusDays(3)
+                LocalDate.now().plusDays(3),
+                1
         );
 
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseThrow(EmployeurIntrouvable::new);

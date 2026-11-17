@@ -30,14 +30,12 @@ import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ByteArrayResource;
@@ -346,7 +344,7 @@ public class EtudiantControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -425,7 +423,7 @@ public class EtudiantControllerTest {
                 StatutCandidature.SOUMISE,
                 null,
                 StatutEtudiant.EN_RECHERCHE,
-                false
+                false, false
         );
 
         Authentication authentication =
@@ -490,7 +488,7 @@ public class EtudiantControllerTest {
                 StatutCandidature.SOUMISE,
                 null,
                 StatutEtudiant.EN_RECHERCHE,
-                false
+                false, false
         );
 
         Authentication authentication =
@@ -648,7 +646,7 @@ public class EtudiantControllerTest {
     void doitDeclarerLeStageTrouve() throws Exception {
         CandidatureDTO candidature = new CandidatureDTO(20L, 1L, "Steve", "Jean", "INFORMATIQUE",
                 10L, "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false);
+                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false, false);
         when(etudiantService.declarerStageTrouve(20L)).thenReturn(candidature);
 
         mockMvc.perform(put("/etudiant/candidatures/20/stage-trouve"))

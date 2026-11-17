@@ -117,7 +117,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
     }
 
@@ -186,7 +186,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         when(gestionnaireService.getOffresEnAttente())
@@ -234,7 +234,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         when(gestionnaireService.approuverOffre(1L))
@@ -271,7 +271,7 @@ public class GestionnaireControllerTest {
                 null,
                 commentaire,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         when(gestionnaireService.refuserOffre(1L, commentaire))
@@ -487,7 +487,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         when(gestionnaireService.getToutesLesOffres()).thenReturn(List.of(offre));
@@ -528,7 +528,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
+                false, null, 1, 0L
         );
 
         when(gestionnaireService.getOffreParId(1L))

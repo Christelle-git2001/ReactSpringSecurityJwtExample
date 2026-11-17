@@ -245,7 +245,7 @@ public class ProfesseurControllerTest {
                 StatutCandidature.SOUMISE,
                 null,
                 null,
-                false
+                false, false
         );
 
         when(professeurService.getCandidaturesEtudiant(etudiantId))

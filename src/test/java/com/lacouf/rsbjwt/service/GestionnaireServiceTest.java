@@ -810,6 +810,8 @@ class GestionnaireServiceTest {
             assertThat(result).isNotNull();
             assertThat(result.title()).isEqualTo("Stage Cible Java");
             assertThat(result.statut()).isEqualTo(Statut.EN_ATTENTE);
+            assertThat(result.nombreCandidatsMax()).isEqualTo(1);
+            assertThat(result.nombreCandidatsAcceptes()).isZero();
 
             verify(employeurRepository).findById(1L);
             verify(etudiantRepository).findById(1L);
