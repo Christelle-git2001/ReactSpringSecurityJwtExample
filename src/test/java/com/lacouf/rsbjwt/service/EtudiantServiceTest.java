@@ -1195,7 +1195,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitRefuserLAcceptationEtudianteQuandLaDernierePlaceEstPrise() {
+    void doitRefuserLaConfirmationSiLesAnciennesReservationsDepassentLaCapacite() {
         Candidature candidature = entrevue.getCandidature();
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         var offre = candidature.getOffreDeStage();
@@ -1204,7 +1204,7 @@ public class EtudiantServiceTest {
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
         when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
         when(candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE))).thenReturn(1L);
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE))).thenReturn(2L);
 
         assertThatThrownBy(() -> etudiantService.accepterStage(20L))
                 .isInstanceOf(ActionsCandidatureDesactiveesException.class)
@@ -1213,7 +1213,7 @@ public class EtudiantServiceTest {
         var ordre = inOrder(offreDeStageRepository, candidatureRepository);
         ordre.verify(offreDeStageRepository).findByIdForUpdate(offre.getId());
         ordre.verify(candidatureRepository).countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
         assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
         assertThat(etudiant.getCandidatureStage()).isNull();
         verify(etudiantRepository, never()).save(any());
@@ -1227,10 +1227,13 @@ public class EtudiantServiceTest {
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         var offre = candidature.getOffreDeStage();
         offre.setCandidatures(List.of(candidature));
-        assertThat(offre.getNombreCandidatsAcceptes()).isZero();
+        assertThat(offre.getNombreCandidatsAcceptes()).isEqualTo(1);
         when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
         when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
+        when(candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE)))
+                .thenReturn(1L);
         Gestionnaire gestionnaire = new Gestionnaire();
         when(gestionnaireRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(gestionnaire));
         when(contratRepository.save(any(Contrat.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -1251,12 +1254,16 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitRefuserLeStageSansOccuperDePlaceNiCreerDeContrat() throws Exception {
+    void doitLibererLaPlaceReserveeQuandLEtudiantRefuseLeStage() throws Exception {
         Candidature candidature = entrevue.getCandidature();
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         var offre = candidature.getOffreDeStage();
-        offre.setCandidatures(List.of(candidature));
-        assertThat(offre.estComplete()).isFalse();
+        var autreCandidature = new Candidature(new Etudiant(), offre, LocalDateTime.now());
+        autreCandidature.setId(30L);
+        offre.setCandidatures(List.of(candidature, autreCandidature));
+        assertThat(offre.estComplete()).isTrue();
+        assertThat(candidature.actionsDesactivees()).isFalse();
+        assertThat(autreCandidature.actionsDesactivees()).isTrue();
         when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
         when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
@@ -1265,6 +1272,7 @@ public class EtudiantServiceTest {
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
         assertThat(offre.estComplete()).isFalse();
+        assertThat(autreCandidature.actionsDesactivees()).isFalse();
         assertThat(etudiant.getCandidatureStage()).isNull();
         verifyNoInteractions(contratRepository);
         verify(applicationEventPublisher).publishEvent(any(com.lacouf.rsbjwt.model.event.StageRefuseEvent.class));
@@ -1515,7 +1523,7 @@ public class EtudiantServiceTest {
     void doitCompterLesPlacesOccupeesEtExposerLesActionsDesactivees() {
         var offre = new OffreDeStage();
         offre.setId(10L);
-        offre.setNombreCandidatsMax(2);
+        offre.setNombreCandidatsMax(3);
         var candidatures = new java.util.ArrayList<Candidature>();
         for (var statut : List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE,
                 StatutCandidature.CONTRAT_CREE, StatutCandidature.REFUSEE, StatutCandidature.SOUMISE)) {
@@ -1529,10 +1537,10 @@ public class EtudiantServiceTest {
         offre.setCandidatures(candidatures);
 
         var resultat = OffreDeStageDTO.of(offre);
-        assertThat(resultat.nombreCandidatsMax()).isEqualTo(2);
-        assertThat(resultat.nombreCandidatsAcceptes()).isEqualTo(2);
+        assertThat(resultat.nombreCandidatsMax()).isEqualTo(3);
+        assertThat(resultat.nombreCandidatsAcceptes()).isEqualTo(3);
         assertThat(CandidatureDTO.of(candidatures.get(4)).actionsDesactivees()).isTrue();
-        assertThat(CandidatureDTO.of(candidatures.get(0)).actionsDesactivees()).isTrue();
+        assertThat(CandidatureDTO.of(candidatures.get(0)).actionsDesactivees()).isFalse();
         assertThat(CandidatureDTO.of(candidatures.get(1)).actionsDesactivees()).isFalse();
     }
 

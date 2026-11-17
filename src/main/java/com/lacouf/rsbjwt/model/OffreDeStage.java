@@ -79,7 +79,7 @@ public class OffreDeStage {
     private List<Candidature> candidatures = new ArrayList<>();
 
     public long getNombreCandidatsAcceptes() {
-        return candidatures.stream().filter(Candidature::estStageAccepte).count();
+        return candidatures.stream().filter(Candidature::occupeUnePlace).count();
     }
 
     public boolean estComplete() {

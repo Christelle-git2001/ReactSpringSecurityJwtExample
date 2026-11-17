@@ -577,8 +577,8 @@ public class EmployeurService {
         OffreDeStage offre = offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
                 .orElseThrow(DecisionCandidatureInvalideException::new);
         long candidatsAcceptes = candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        if (!candidature.estStageAccepte() && candidatsAcceptes >= offre.getNombreCandidatsMax()) {
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        if (!candidature.occupeUnePlace() && candidatsAcceptes >= offre.getNombreCandidatsMax()) {
             throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
         }
         EtudiantService.verifierActionsCandidatureAutorisees(candidature);

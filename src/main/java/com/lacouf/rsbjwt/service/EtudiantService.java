@@ -544,8 +544,8 @@ public class EtudiantService {
         OffreDeStage offre = offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
                 .orElseThrow(DecisionStageInvalideException::new);
         long placesOccupees = candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        if (placesOccupees >= offre.getNombreCandidatsMax()) {
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        if (placesOccupees > offre.getNombreCandidatsMax()) {
             throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
         }
         Gestionnaire gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
@@ -658,7 +658,7 @@ public class EtudiantService {
     }
 
     static void verifierActionsCandidatureAutorisees(Candidature candidature) throws ActionsCandidatureDesactiveesException {
-        if (candidature.getOffreDeStage() != null && !candidature.estStageAccepte()
+        if (candidature.getOffreDeStage() != null && !candidature.occupeUnePlace()
                 && candidature.getOffreDeStage().estComplete()) {
             throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
         }

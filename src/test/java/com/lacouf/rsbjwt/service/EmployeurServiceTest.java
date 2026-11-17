@@ -1120,7 +1120,28 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitPermettrePlusDePropositionsQueDePlacesDisponibles() throws Exception {
+    void doitReserverLUniquePlaceSansAttribuerLeStageALEtudiant() throws Exception {
+        creerEntrevueTerminee();
+        offreDeStage.setNombreCandidatsMax(1);
+        offreDeStage.setCandidatures(List.of(candidature));
+        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
+        when(candidatureRepository.save(candidature)).thenReturn(candidature);
+
+        var resultat = employeurService.accepterCandidatApresEntrevue(1L);
+
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isEqualTo(1);
+        assertThat(offreDeStage.estComplete()).isTrue();
+        assertThat(resultat.actionsDesactivees()).isFalse();
+        assertThat(etudiant.getCandidatureStage()).isNull();
+        assertThat(etudiant.getStatut()).isNotEqualTo(StatutEtudiant.STAGE_TROUVE);
+        verify(candidatureRepository).countByOffreDeStageIdAndStatutIn(offreDeStage.getId(),
+                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        verify(eventPublisher, never()).publishEvent(any(StageTrouveEvent.class));
+    }
+
+    @Test
+    void doitReserverDeuxPlacesEtRefuserUneTroisiemeAcceptation() throws Exception {
         creerEntrevueTerminee();
         offreDeStage.setNombreCandidatsMax(2);
         var deuxieme = new Candidature(new Etudiant(), offreDeStage, LocalDateTime.now());
@@ -1139,21 +1160,23 @@ public class EmployeurServiceTest {
         }
         when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.countByOffreDeStageIdAndStatutIn(eq(offreDeStage.getId()), anyList()))
-                .thenReturn(0L);
+                .thenReturn(0L, 1L, 2L);
         when(candidatureRepository.save(any(Candidature.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         employeurService.accepterCandidatApresEntrevue(1L);
         employeurService.accepterCandidatApresEntrevue(22L);
 
-        employeurService.accepterCandidatApresEntrevue(33L);
-
-        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isZero();
-        assertThat(offreDeStage.estComplete()).isFalse();
-        assertThat(CandidatureDTO.of(troisieme).actionsDesactivees()).isFalse();
-        verify(candidatureRepository, times(3)).save(any());
+        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(33L))
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_capacity_reached");
+        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isEqualTo(2);
+        assertThat(offreDeStage.estComplete()).isTrue();
+        assertThat(CandidatureDTO.of(troisieme).actionsDesactivees()).isTrue();
+        assertThat(CandidatureDTO.of(candidature).actionsDesactivees()).isFalse();
+        verify(candidatureRepository, times(2)).save(any());
         verify(candidatureRepository, times(3)).countByOffreDeStageIdAndStatutIn(
-                offreDeStage.getId(), List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        assertThat(troisieme.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
+                offreDeStage.getId(), List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
+        assertThat(troisieme.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
     }
 
     @Test

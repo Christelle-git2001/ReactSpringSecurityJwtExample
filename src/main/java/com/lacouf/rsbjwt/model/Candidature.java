@@ -36,13 +36,14 @@ public class Candidature {
     @Column(length = 1000)
     private String motifRefus;
 
-    public boolean estStageAccepte() {
-        return statut == StatutCandidature.STAGE_TROUVE
+    public boolean occupeUnePlace() {
+        return statut == StatutCandidature.ACCEPTEE
+                || statut == StatutCandidature.STAGE_TROUVE
                 || statut == StatutCandidature.CONTRAT_CREE;
     }
 
     public boolean actionsDesactivees() {
-        if (offreDeStage != null && !estStageAccepte() && offreDeStage.estComplete()) {
+        if (offreDeStage != null && !occupeUnePlace() && offreDeStage.estComplete()) {
             return true;
         }
         if (etudiant == null) return false;
