@@ -99,11 +99,19 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
         if (!valider()) {
             requestAnimationFrame(() => {
                 const premierChampInvalide = formulaireRef.current?.querySelector('[aria-invalid="true"]');
-                const cible = premierChampInvalide?.matches("input, textarea, select, button")
-                    ? premierChampInvalide
-                    : premierChampInvalide?.querySelector("input, textarea, select, button");
-                (cible ?? premierChampInvalide)?.focus();
-                (cible ?? premierChampInvalide)?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+                if (!premierChampInvalide) return;
+
+                const estChoix = premierChampInvalide.matches("fieldset");
+                const cible = estChoix
+                    ? premierChampInvalide.querySelector("input")
+                    : premierChampInvalide;
+                const zoneDefilement = estChoix
+                    ? premierChampInvalide.closest("li")
+                    : premierChampInvalide.closest("label");
+
+                cible?.focus({ preventScroll: true });
+                (zoneDefilement ?? premierChampInvalide)
+                    .scrollIntoView?.({ behavior: "smooth", block: "center" });
             });
             return;
         }
