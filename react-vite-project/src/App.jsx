@@ -1,7 +1,7 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // <-- Votre hook de traduction
+import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AppRoutes from "./component/route/AppRoute.jsx";
 import useAuth from "./utils/useAuth.js";
 import { addEtudiant, addProfesseur, addEmployeur } from "./utils/userService.js";
@@ -11,7 +11,7 @@ import ChatBot from "./component/Chatbot/ChatBot.jsx";
 import { poserQuestionChatbot } from "./api/chatbot.jsx";
 
 function App() {
-    const { t } = useTranslation(); // <-- Initialisation de t
+    const { t } = useTranslation();
     const { user, setUser, error, setError } = useAuth();
     const [message, setMessage] = useState("");
     const [drawerContent, setDrawerContent] = useState(null);
@@ -20,6 +20,7 @@ function App() {
     );
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         const handleSessionChange = (e) => {
@@ -57,11 +58,11 @@ function App() {
             />
             <Drawer id="my-drawer-5" content={drawerContent} />
             <Toaster />
-            {user?.isLoggedIn && (() => {
+            {user?.isLoggedIn && location.pathname !== "/login" && (() => {
                 const roleName = user.role?.name || "GESTIONNAIRE";
-                const roleKey = roleName.toLowerCase(); // 'etudiant', 'employeur', 'gestionnaire'
+                const roleKey = roleName.toLowerCase();
 
-                // Récupération des suggestions sous forme de tableau d'objets [{label, query}]
+
                 const suggestionsList = t(`chatbot.suggestions.${roleKey}`, { returnObjects: true });
 
                 return (
