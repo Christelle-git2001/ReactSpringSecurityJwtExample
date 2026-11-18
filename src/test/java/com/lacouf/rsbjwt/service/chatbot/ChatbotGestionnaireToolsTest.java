@@ -77,7 +77,7 @@ class ChatbotGestionnaireToolsTest {
         ToolCallback[] result = ToolCallbacks.from(chatbotGestionnaireTools);
 
         assertThat(Arrays.stream(result).map(callback -> callback.getToolDefinition().name()).toList())
-                .contains("compterEtudiantsSansCv", "compterCvParStatut", "consulterOffresAfficheesEntre",
+                .contains("compterEtudiantsSansCv", "obtenirEtudiantsInscrits", "compterCvParStatut", "consulterOffresAfficheesEntre",
                         "consulterContratsSignesEntre", "obtenirDateReference")
                 .doesNotHaveDuplicates();
         for (ToolCallback callback : result) {
@@ -282,6 +282,9 @@ class ChatbotGestionnaireToolsTest {
 
     @Test
     void doitRetournerLesListesEtudiants() throws Exception {
+        List<EtudiantDTO> resultatInscrits = List.of(mock(EtudiantDTO.class));
+        when(donneesEtudiantService.obtenirEtudiantsInscrits()).thenReturn(resultatInscrits);
+
         List<EtudiantDTO> resultat1 = List.of(mock(EtudiantDTO.class));
         when(donneesEtudiantService.obtenirEtudiantsSansCv()).thenReturn(resultat1);
         List<EtudiantDTO> resultat2 = List.of(mock(EtudiantDTO.class));
@@ -299,6 +302,7 @@ class ChatbotGestionnaireToolsTest {
         List<EtudiantDTO> resultat8 = List.of(mock(EtudiantDTO.class));
         when(donneesEtudiantService.obtenirEtudiantsParProfesseur(42L)).thenReturn(resultat8);
 
+        assertThat(chatbotGestionnaireTools.obtenirEtudiantsInscrits()).isEqualTo(resultatInscrits);
         assertThat(chatbotGestionnaireTools.obtenirEtudiantsSansCv()).isEqualTo(resultat1);
         assertThat(chatbotGestionnaireTools.obtenirEtudiantsSansStage()).isEqualTo(resultat2);
         assertThat(chatbotGestionnaireTools.obtenirEtudiantsAvecStage()).isEqualTo(resultat3);

@@ -64,6 +64,20 @@ class DonneesEtudiantServiceTest {
     }
 
     @Test
+    void retourneTousLesEtudiantsInscritsSousFormeDeDto() {
+        when(etudiants.findAll()).thenReturn(List.of(etudiant));
+
+        assertThat(service.obtenirEtudiantsInscrits()).singleElement().satisfies(dto -> {
+            assertThat(dto.id()).isEqualTo(1L);
+            assertThat(dto.firstName()).isEqualTo("Seb");
+            assertThat(dto.lastName()).isEqualTo("Test");
+            assertThat(dto.email()).isEqualTo("seb@test.local");
+        });
+        verify(etudiants).findAll();
+        verifyNoMoreInteractions(etudiants);
+    }
+
+    @Test
     void retourneLesEtudiantsSansCvSousFormeDeDto() {
         when(etudiants.findByCvIsNull()).thenReturn(List.of(etudiant));
 
@@ -196,6 +210,7 @@ class DonneesEtudiantServiceTest {
 
     @Test
     void retourneDesListesVidesQuandAucunEtudiantOuCvNeCorrespond() throws ParametreDonneesInvalideException {
+        assertThat(service.obtenirEtudiantsInscrits()).isEmpty();
         assertThat(service.obtenirEtudiantsSansCv()).isEmpty();
         assertThat(service.obtenirEtudiantsSansStage()).isEmpty();
         assertThat(service.obtenirEtudiantsAvecStage()).isEmpty();

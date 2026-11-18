@@ -76,6 +76,11 @@ public class ChatbotGestionnaireTools {
         return donneesEtudiantService.compterEtudiantsInscrits();
     }
 
+    @Tool(description = "Liste tous les étudiants inscrits sur la plateforme OSE avec leurs informations disponibles.")
+    public List<EtudiantDTO> obtenirEtudiantsInscrits() {
+        return donneesEtudiantService.obtenirEtudiantsInscrits();
+    }
+
     @Tool(description = "Liste les étudiants qui n'ont déposé aucun CV. Un CV refusé ou en attente reste un CV déposé.")
     public List<EtudiantDTO> obtenirEtudiantsSansCv() {
         return donneesEtudiantService.obtenirEtudiantsSansCv();
