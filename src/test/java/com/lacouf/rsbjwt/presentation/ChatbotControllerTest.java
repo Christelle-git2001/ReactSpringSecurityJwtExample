@@ -81,15 +81,15 @@ class ChatbotControllerTest {
 
     @Test
     void doitRetourner403PourLesRolesNonAutorises() throws Exception {
-        String[] rolesInterdits = {"PROFESSEUR", "INCONNU", "ROLE_ETUDIANT"};
+        String[] rolesInterdits = {"INCONNU", "ROLE_ETUDIANT"};
 
         for (String role : rolesInterdits) {
             mockMvc.perform(post("/chatbot/questions")
                             .with(user("cindy@example.com").authorities(() -> role))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {"question":"Mes candidatures ?"}
-                                    """))
+                                {"question":"Mes candidatures ?"}
+                                """))
                     .andExpect(status().isForbidden());
         }
         verifyNoInteractions(chatbotService);

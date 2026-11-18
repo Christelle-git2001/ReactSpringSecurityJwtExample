@@ -1,6 +1,7 @@
-
 package com.lacouf.rsbjwt.service.chatbot;
 
+import com.lacouf.rsbjwt.exception.chatbot.AccesChatbotRefuseException;
+import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
 import com.lacouf.rsbjwt.service.chatbot.tools.*;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ public class ChatbotService {
 
     private final ChatClient chatClient;
     private final ChatbotGestionnaireTools gestionnaireTools;
-    private final ChatbotGestionnaireTemporelTools temporels;
     private final ChatbotEtudiantTools etudiantTools;
     private final ChatbotEmployeurTools employeurTools;
     private final ChatbotProfesseurTools professeurTools;
@@ -30,8 +30,9 @@ public class ChatbotService {
     public ChatbotService(
             ChatClient chatClient,
             ChatbotGestionnaireTools gestionnaireTools,
-            ChatbotGestionnaireTemporelTools temporels, ChatbotEtudiantTools etudiantTools,
-            ChatbotEmployeurTools employeurTools, ChatbotProfesseurTools professeurTools,
+            ChatbotEtudiantTools etudiantTools,
+            ChatbotEmployeurTools employeurTools,
+            ChatbotProfesseurTools professeurTools,
             @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire,
             @Value("classpath:prompts/chatbot-etudiant.st") Resource promptEtudiant,
             @Value("classpath:prompts/chatbot-employeur.st") Resource promptEmployeur,
@@ -39,7 +40,6 @@ public class ChatbotService {
 
         this.chatClient = chatClient;
         this.gestionnaireTools = gestionnaireTools;
-        this.temporels = temporels;
         this.etudiantTools = etudiantTools;
         this.employeurTools = employeurTools;
         this.professeurTools = professeurTools;
@@ -50,14 +50,19 @@ public class ChatbotService {
     }
 
     @PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR', 'PROFESSEUR')")
-    public String poserQuestion(String question) {
+    public String poserQuestion(String question) throws AccesChatbotRefuseException, QuestionChatbotInvalideException {
 
         if (question == null || question.isBlank()) {
-            throw new IllegalArgumentException("La question ne doit pas être vide.");
+            throw new QuestionChatbotInvalideException();
         }
 
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AccesChatbotRefuseException();
+        }
 
         boolean estGestionnaire = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("GESTIONNAIRE"));
@@ -68,16 +73,19 @@ public class ChatbotService {
         boolean estProfesseur = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("PROFESSEUR"));
 
+        boolean estEtudiant = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ETUDIANT"));
+
         if (estGestionnaire) {
             return chatClient.prompt()
                     .system(promptGestionnaire)
                     .user(question.trim())
-                    .tools(gestionnaireTools, temporels)
+                    .tools(gestionnaireTools)
                     .call()
                     .content();
         }
 
-        if(estEmployeur){
+        if (estEmployeur) {
             return chatClient.prompt()
                     .system(promptEmployeur)
                     .user(question.trim())
@@ -90,16 +98,20 @@ public class ChatbotService {
             return chatClient.prompt()
                     .system(promptProfesseur)
                     .user(question.trim())
-                    .tools(professeurTools, temporels)
+                    .tools(professeurTools)
                     .call()
                     .content();
         }
 
-        return chatClient.prompt()
-                .system(promptEtudiant)
-                .user(question.trim())
-                .tools(etudiantTools)
-                .call()
-                .content();
+        if (estEtudiant) {
+            return chatClient.prompt()
+                    .system(promptEtudiant)
+                    .user(question.trim())
+                    .tools(etudiantTools)
+                    .call()
+                    .content();
+        }
+
+        throw new AccesChatbotRefuseException();
     }
 }
