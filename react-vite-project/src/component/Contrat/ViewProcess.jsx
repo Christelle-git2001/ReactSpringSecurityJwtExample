@@ -22,7 +22,7 @@ const formatDateTime = (dateString) => {
 
     if (!heure) return date;
 
-    const heureFormatee = heure.substring(0, 5);
+    const heureFormatee = heure.substring(0, 8);
 
     return `${date} à ${heureFormatee}`;
 };
