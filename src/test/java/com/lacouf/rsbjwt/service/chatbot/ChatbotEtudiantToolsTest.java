@@ -1,13 +1,20 @@
 package com.lacouf.rsbjwt.service.chatbot;
 
-import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
-import com.lacouf.rsbjwt.Exception.CurriculumVitaeIntrouvable;
-import com.lacouf.rsbjwt.Exception.CurriculumVitaeNonApprouveException;
+
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.NotificationService;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
+import  com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable ;
 
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.cv.MonCvTeleverseDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.MonProfesseurAssigneDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -126,7 +133,7 @@ class ChatbotEtudiantToolsTest {
                 .thenThrow(mock(CurriculumVitaeIntrouvable.class));
 
         assertThrows(
-                CurriculumVitaeIntrouvable.class,
+                com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable.class,
                 () -> tools.obtenirMesOffresNonPostulees()
         );
     }

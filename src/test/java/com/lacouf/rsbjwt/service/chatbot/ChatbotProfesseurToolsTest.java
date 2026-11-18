@@ -1,12 +1,16 @@
 package com.lacouf.rsbjwt.service.chatbot;
 
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.service.NotificationService;
 import com.lacouf.rsbjwt.service.ProfesseurService;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotProfesseurTools;
 import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 
 import java.util.List;
 

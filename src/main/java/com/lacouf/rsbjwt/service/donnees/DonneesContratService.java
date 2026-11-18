@@ -1,7 +1,7 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
 import com.lacouf.rsbjwt.repository.ContratRepository;
-import com.lacouf.rsbjwt.service.dto.ResumeContratDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,15 +1,19 @@
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
-import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.cv.MonCvTeleverseDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.MonProfesseurAssigneDTO;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.NotificationService;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import com.lacouf.rsbjwt.Exception.CurriculumVitaeIntrouvable;
-import com.lacouf.rsbjwt.Exception.CurriculumVitaeNonApprouveException;
-import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
 
 import java.util.List;
 

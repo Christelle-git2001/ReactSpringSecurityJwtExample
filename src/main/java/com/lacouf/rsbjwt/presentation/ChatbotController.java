@@ -1,8 +1,10 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.service.dto.chatbot.QuestionChatbotDTO;
+import com.lacouf.rsbjwt.service.dto.chatbot.ReponseChatbotDTO;
+import com.lacouf.rsbjwt.exception.chatbot.AccesChatbotRefuseException;
+import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
 import com.lacouf.rsbjwt.service.chatbot.ChatbotService;
-import com.lacouf.rsbjwt.service.dto.QuestionChatbotDTO;
-import com.lacouf.rsbjwt.service.dto.ReponseChatbotDTO;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,8 @@ public class ChatbotController {
     }
 
     @PostMapping("/questions")
-    public ResponseEntity<ReponseChatbotDTO> poserQuestion(@Valid @RequestBody QuestionChatbotDTO question) {
+    public ResponseEntity<ReponseChatbotDTO> poserQuestion(@Valid @RequestBody QuestionChatbotDTO question)
+            throws QuestionChatbotInvalideException, AccesChatbotRefuseException {
         String reponse = chatbotService.poserQuestion(question.question());
         return ResponseEntity.ok(new ReponseChatbotDTO(reponse));
     }

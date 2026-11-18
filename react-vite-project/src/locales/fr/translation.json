@@ -866,6 +866,10 @@
     "language": "Langue"
   },
   "chatbot": {
+    "errors": {
+      "question_required": "La question ne doit pas être vide.",
+      "access_denied": "Accès au chatbot refusé."
+    },
     "titre": "Assistant IKey",
     "placeholder": "Posez votre question...",
     "thinking": "L'assistant réfléchit...",

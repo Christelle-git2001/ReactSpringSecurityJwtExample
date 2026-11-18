@@ -1,5 +1,34 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAvantDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationExistanteException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.DecisionCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.entrevue.MotifRefusInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.candidature.RefusCandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.CreationEntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.PlageHoraireDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEmployeurDTO;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -11,7 +40,6 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.lacouf.rsbjwt.model.Enum.*;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
@@ -19,7 +47,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
-import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +71,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -799,5 +825,45 @@ public class EmployeurControllerTest {
 
         mockMvc.perform(put("/employeur/candidatures/99"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetourner400PourLesDatesInvalidesDeLOffre() throws Throwable {
+        Throwable[] erreurs = {new DateAvantAujourdhuiException(),
+                new DateFinAffichageAvantAujourdhuiException(), new DateFinAffichageApresDateDebutException()};
+        String[] messages = {"add_offer.errors.start_date_before_today",
+                "add_offer.errors.display_end_date_before_today", "add_offer.errors.display_end_date_after_start_date"};
+        MockMultipartFile offre = new MockMultipartFile("offre", "", MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(creationOffreDeStageDTO));
+        when(employeurService.creerOffre(any(), any(), anyString())).thenThrow(erreurs);
+
+        for (int i = 0; i < erreurs.length; i++) {
+            mockMvc.perform(multipart("/employeur/offres").file(offre).principal(principal))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value(messages[i]));
+        }
+    }
+
+    @Test
+    void doitRetourner409PourUneDecisionApresEntrevueInvalide() throws Exception {
+        when(employeurService.cloreEntrevue(1L)).thenThrow(new DecisionCandidatureInvalideException());
+
+        mockMvc.perform(put("/employeur/entrevues/1/cloture"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("error.decision_invalid"));
+    }
+
+    @Test
+    void doitRetourner400PourUnMotifDeRefusInvalide() throws Exception {
+        when(employeurService.refuserCandidatApresEntrevue(1L, "Motif"))
+                .thenThrow(new MotifRefusInvalideException());
+
+        mockMvc.perform(put("/employeur/entrevues/1/refus")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"motifRefus":"Motif"}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("error.refusal_reason_invalid"));
     }
 }
