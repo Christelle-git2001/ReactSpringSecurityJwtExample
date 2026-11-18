@@ -7,6 +7,9 @@ import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEmployeurTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
@@ -14,6 +17,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Profile("chatbot")
@@ -27,6 +35,7 @@ public class ChatbotService {
     private final Resource promptGestionnaire;
     private final Resource promptEtudiant;
     private final Resource promptEmployeur;
+    private final Map<String, List<Message>> historiques = new ConcurrentHashMap<>();
 
     public ChatbotService(
             ChatClient chatClient,
@@ -70,32 +79,40 @@ public class ChatbotService {
                 .anyMatch(a -> a.getAuthority().equals("ETUDIANT"));
 
         if (estGestionnaire) {
-            return chatClient.prompt()
-                    .system(promptGestionnaire)
-                    .user(question.trim())
-                    .tools(gestionnaireTools)
-                    .call()
-                    .content();
+            return appelerChat(promptGestionnaire, gestionnaireTools, question, authentication.getName());
         }
 
         if(estEmployeur){
-            return chatClient.prompt()
-                    .system(promptEmployeur)
-                    .user(question.trim())
-                    .tools(employeurTools)
-                    .call()
-                    .content();
+            return appelerChat(promptEmployeur, employeurTools, question, authentication.getName());
         }
 
         if (estEtudiant) {
-            return chatClient.prompt()
-                    .system(promptEtudiant)
-                    .user(question.trim())
-                    .tools(etudiantTools)
-                    .call()
-                    .content();
+            return appelerChat(promptEtudiant, etudiantTools, question, authentication.getName());
         }
 
         throw new AccesChatbotRefuseException();
+    }
+
+    private String appelerChat(Resource prompt, Object outils, String question, String conversationId) {
+        List<Message> historique = historiques.computeIfAbsent(conversationId, id -> new ArrayList<>()).stream().toList();
+
+        String reponse = chatClient.prompt()
+                .system(prompt)
+                .messages(historique)
+                .user(question.trim())
+                .tools(outils)
+                .call()
+                .content();
+
+        List<Message> historiqueMisAJour = historiques.computeIfAbsent(conversationId, id -> new ArrayList<>());
+        synchronized (historiqueMisAJour) {
+            historiqueMisAJour.add(new UserMessage(question.trim()));
+            historiqueMisAJour.add(new AssistantMessage(reponse));
+            while (historiqueMisAJour.size() > 20) {
+                historiqueMisAJour.remove(0);
+            }
+        }
+
+        return reponse;
     }
 }

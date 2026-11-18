@@ -36,3 +36,6 @@ build/
 /application-chatbot-local.properties
 
 *.log
+*.pdf
+
+/CHATBOT-WHAT-TO-KNOW.md
