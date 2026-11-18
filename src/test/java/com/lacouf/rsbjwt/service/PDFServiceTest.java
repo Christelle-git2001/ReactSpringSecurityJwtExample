@@ -4,7 +4,6 @@ import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
 import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
-import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
 import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;

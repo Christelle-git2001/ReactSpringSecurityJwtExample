@@ -1,6 +1,4 @@
 package com.lacouf.rsbjwt;
-
-import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
@@ -20,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,8 +34,7 @@ public class PdfTestPreview {
     private PDFService pdfService;
 
     @Test
-    public void generateTestPdf() throws IOException, CandidatureIntrouvableException, EvaluationStagiaireIntrouvable {
-        // 1. Préparation des données de base (Professeur, Étudiant, Employeur, Offre, Candidature)
+    public void generateTestPdf() throws IOException, EvaluationStagiaireIntrouvable {
         Professeur professeur = new Professeur();
         professeur.setFirstName("Jean");
         professeur.setLastName("Dupont");
@@ -46,7 +44,7 @@ public class PdfTestPreview {
         etudiant.setFirstName("Alice");
         etudiant.setLastName("Tremblay");
         etudiant.setCredentials(Credentials.builder().email("alice.tremblay@etu.cegep.qc.ca").password("NoNeed").build());
-        etudiant.setDepartment(Departement.INFORMATIQUE); // À adapter selon vos valeurs d'Enum
+        etudiant.setDepartment(Departement.INFORMATIQUE);
         etudiant.setProfesseur(professeur);
 
         Employeur employeur = new Employeur();
@@ -65,7 +63,6 @@ public class PdfTestPreview {
         candidature.setEtudiant(etudiant);
         candidature.setOffreDeStage(offreDeStage);
 
-        // 2. Préparation des sections @Embedded
         SuperviseurInfo superviseurInfo = SuperviseurInfo.builder()
                 .firstName("Sarah")
                 .lastName("Connor")
@@ -78,7 +75,7 @@ public class PdfTestPreview {
                 .comprehensionScore(4L)
                 .rythmeScore(3L)
                 .prioriteScore(4L)
-                .echeancierScore(0L) // Test du N/A
+                .echeancierScore(0L)
                 .commentaire("Great autonomy and fast understanding of the codebase.")
                 .build();
 
@@ -105,7 +102,7 @@ public class PdfTestPreview {
                 .motivationScore(4L)
                 .tellIdeaScore(3L)
                 .initiativeScore(4L)
-                .securityScore(0L) // Test du N/A
+                .securityScore(0L)
                 .responsabiliteScore(4L)
                 .ponctuelScore(4L)
                 .commentaire("Always punctual, proactive, and eager to learn new frameworks.")
@@ -115,8 +112,8 @@ public class PdfTestPreview {
                 .attenteEmployeurScore(4L)
                 .descriptionAppreciation("Alice exceeded our expectations throughout her internship. She quickly became a key contributor to the backend team.")
                 .discussionAvecStagiaire(true)
-                .supervisionTime(4) // Ou le type exact attendu (int / Long / String)
-                .renewExperience(ChoixAccueil.OUI) // À adapter selon le type (Enum ChoixAccueil ou Boolean)
+                .supervisionTime(4)
+                .renewExperience(ChoixAccueil.OUI)
                 .experienceSuffisante("Nous allons l'engager")
                 .build();
 
@@ -129,19 +126,19 @@ public class PdfTestPreview {
                 .qualiteSociale(qualiteSocial)
                 .habiletePersonelle(habiletePersonelle)
                 .appreciationGlobal(appreciationGlobal)
+                .dateSignature(LocalDateTime.now())
                 .build();
 
-        // 3. Configuration du Mock
-        when(evaluationStagiaireRepository.findById(1L)).thenReturn(Optional.of(evaluationStagiaire));
+        when(evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(1L))
+                .thenReturn(Optional.of(evaluationStagiaire));
 
-        // 4. Exécution de la méthode en anglais ("en")
-        Resource pdfResource = pdfService.createEvaluationStagiaire("en", 1L);
+        Resource pdfResource = pdfService.createEvaluationStagiaire("fr", 1L);
         assertNotNull(pdfResource);
 
-        // 5. Sauvegarde directe sur le Bureau Windows
-        Path desktopPath = Paths.get(System.getProperty("user.home"), "Desktop", "EvaluationStagiaire_Test_EN.pdf");
+
+        Path desktopPath = Paths.get(System.getProperty("user.home"), "Desktop", "EvaluationStagiaire_Test.pdf");
         Files.write(desktopPath, pdfResource.getInputStream().readAllBytes());
 
-        System.out.println("PDF généré avec succès ici : " + desktopPath.toAbsolutePath());
+        System.out.println("PDF généré avec succès sur le bureau : " + desktopPath.toAbsolutePath());
     }
 }
