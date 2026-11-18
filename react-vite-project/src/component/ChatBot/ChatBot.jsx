@@ -106,7 +106,7 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
                 {ouvert ? <FaTimes size={20} /> : <FaCommentDots size={22} />}
             </button>
 
-            <div className={`fixed bottom-24 right-6 z-50 w-[500px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl
+            <div className={`fixed bottom-24 right-6 z-50 w-[500px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl overflow-hidden
                              border border-gray-200 flex flex-col overflow-hidden
                              transition-all duration-300 origin-bottom-right
                              ${ouvert ? "scale-100 opacity-100 pointer-events-auto" : "scale-90 opacity-0 pointer-events-none"}`}
@@ -127,13 +127,13 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
                          window.addEventListener("mouseup", terminer);
                      }}
                      className="h-4 shrink-0 cursor-ns-resize flex items-center justify-center
-                                bg-white hover:bg-gray-100 transition-colors"
+                                 bg-white hover:bg-gray-100 transition-colors rounded-t-2xl"
                      title="Faire glisser pour ajuster la hauteur"
                  >
                      <div className="w-12 h-1 rounded-full bg-gray-300" />
                  </div>
 
-                <div className="bg-[#043462] px-4 py-3.5 flex items-center gap-3 shrink-0">
+                <div className="bg-[#043462] px-4 py-3.5 flex items-center gap-3 shrink-0 rounded-t-2xl">
                     <div className="w-9 h-9 rounded-full bg-[#00CCCB] flex items-center justify-center shrink-0">
                         <FaRobot size={16} className="text-[#043462]" />
                     </div>
