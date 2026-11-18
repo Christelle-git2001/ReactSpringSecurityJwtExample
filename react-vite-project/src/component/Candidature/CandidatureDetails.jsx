@@ -9,6 +9,7 @@ import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
 import {useContrat} from "../hook/useContrat.jsx";
 import {Role} from "../../enum/Role.jsx"
+import { verifierDisponibiliteEvaluation } from "../../utils/evaluationStagiaire.jsx";
 import { marquerNotificationsContratCommeLues } from "../../api/notification.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 
@@ -30,6 +31,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
     const [isEvaluationLoading, setIsEvaluationLoading] = useState(false);
     const [evaluationError, setEvaluationError] = useState(false);
     const [scrollVersEvaluation, setScrollVersEvaluation] = useState(false);
+    const [evaluationDisponiblePourTest, setEvaluationDisponiblePourTest] = useState(false);
     const evaluationRef = useRef(null);
 
 
@@ -80,14 +82,17 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
         }
     }, [candidatureId, i18n.language]);
 
-    const dateFinStage = offer?.endDate;
-    const stageTermine = Boolean(dateFinStage) && dateFinStage < new Date().toLocaleDateString("en-CA");
+    const evaluationEstDisponible = evaluationDisponiblePourTest || verifierDisponibiliteEvaluation(offer?.endDate);
 
     useEffect(() => {
-        if (candidature?.statut === "CONTRAT_CREE" && stageTermine) {
+        setEvaluationDisponiblePourTest(false);
+    }, [candidatureId]);
+
+    useEffect(() => {
+        if (candidature?.statut === "CONTRAT_CREE" && evaluationEstDisponible) {
             chargerEvaluationPdf();
         }
-    }, [candidature?.statut, stageTermine, chargerEvaluationPdf]);
+    }, [candidature?.statut, evaluationEstDisponible, chargerEvaluationPdf]);
 
     useEffect(() => {
         if (!scrollVersEvaluation || !evaluationPdfBlobUrl) return;
@@ -183,6 +188,9 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     onEvaluationSubmitted={() => chargerEvaluationPdf(true)}
                     evaluationDejaSoumise={Boolean(evaluationPdfBlobUrl)}
                     evaluationEnChargement={isEvaluationLoading}
+                    evaluationDisponible={evaluationEstDisponible}
+                    evaluationDisponiblePourTest={evaluationDisponiblePourTest}
+                    onActiverDisponibiliteEvaluationPourTest={() => setEvaluationDisponiblePourTest(true)}
                     onSignatureSuccess={() => {
                         rechargerContrat();
                     }}

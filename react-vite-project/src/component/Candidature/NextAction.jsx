@@ -28,6 +28,9 @@ function NextAction({
                         onEvaluationSubmitted,
                         evaluationDejaSoumise = false,
                         evaluationEnChargement = false,
+                        evaluationDisponible = false,
+                        evaluationDisponiblePourTest = false,
+                        onActiverDisponibiliteEvaluationPourTest,
                         role,
                         offer
                     }) {
@@ -146,10 +149,18 @@ function NextAction({
 
     const isEmployeurSigned = Boolean(dateSignatureEmployeur);
     const isEtudiantSigned = Boolean(dateSignatureEtudiant);
+    const contratEntierementSigne = Boolean(
+        candidature?.contratSigne ||
+        (contrat?.dateSignatureGestionnaire &&
+            contrat?.dateSignatureEmployeur &&
+            contrat?.dateSignatureEtudiant)
+    );
 
-    // Le stage est terminé quand sa date de fin est passée
-    const aujourdhui = new Date().toLocaleDateString("en-CA"); // AAAA-MM-JJ
-    const stageTermine = Boolean(offer?.endDate) && offer.endDate < aujourdhui;
+    const peutActiverDisponibiliteEvaluationPourTest =
+        role === Role.EMPLOYEUR &&
+        contratEntierementSigne &&
+        !evaluationDisponible &&
+        !evaluationDejaSoumise;
 
     const handleConvoquer = async () => {
         if (!candidature?.id) return;
@@ -327,8 +338,7 @@ function NextAction({
 
         if (role === Role.EMPLOYEUR) {
 
-            // Évaluation du stagiaire : contrat créé et stage terminé
-            if (statutActuel === "CONTRAT_CREE" && stageTermine) {
+            if (contratEntierementSigne && evaluationDisponible) {
                 return evaluationSoumise || evaluationDejaSoumise
                     ? { description: t("evaluation.success"), buttonText: null, onClick: null, disabled: false }
                     : {
@@ -489,6 +499,17 @@ function NextAction({
                                 icon={actionData.onClick === ouvrirModalSignature} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
                                 className={actionData.onClick === ouvrirModalSignature ? "" : `text-white ${actionData.disabled ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
                             {actionData.buttonText}
+                        </Button>
+                    )}
+                    {peutActiverDisponibiliteEvaluationPourTest && (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="small"
+                            icon={false}
+                            onClick={onActiverDisponibiliteEvaluationPourTest}
+                        >
+                            {t("process.simulate_evaluation_availability")}
                         </Button>
                     )}
                     <Button type="button" size="small" onClick={() => navigate(retourPath || "/employeur")} variant="secondary">

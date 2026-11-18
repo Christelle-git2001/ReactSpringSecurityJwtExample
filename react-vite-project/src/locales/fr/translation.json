@@ -761,6 +761,7 @@
     "action_student_sign_contract": "Le contrat est prêt. Consultez-le, puis signez-le pour poursuivre le processus.",
     "action_default_student": "Consultez le suivi de votre candidature pour connaître la prochaine étape.",
     "next_action_title": "Prochaine action requise",
+    "simulate_evaluation_availability": "Tester l’ouverture 2 semaines avant la fin",
 
     "action_contract_signed_msg": "Le contrat a été signé le",
     "action_review_cv": "Le candidat a soumis sa candidature. Revoyez son CV et retenez-le pour une entrevue.",
@@ -773,7 +774,7 @@
     "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
     "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
-    "action_evaluate_intern": "Le stage est terminé. Veuillez remplir l’évaluation du stagiaire.",
+    "action_evaluate_intern": "L’évaluation est disponible dans les deux dernières semaines du stage.",
     "action_default": "Suivi du processus de candidature en cours.",
     "cv_view_title": "CV de l'étudiant ",
     "contract_view_title": "Contrat de Stage",
