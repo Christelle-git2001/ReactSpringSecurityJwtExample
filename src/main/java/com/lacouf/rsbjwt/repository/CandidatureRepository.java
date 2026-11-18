@@ -37,5 +37,7 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findAllByEtudiantId(Long etudiantId);
 
+    List<Candidature> findAllByEtudiantIdIn(List<Long> etudiantIds);
+
 
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Profile("chatbot")
 @RequestMapping("/chatbot")
-@PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR')")
+@PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR', 'PROFESSEUR')")
 public class ChatbotController {
     private final ChatbotService chatbotService;
 

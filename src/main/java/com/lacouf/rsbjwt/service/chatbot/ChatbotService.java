@@ -1,11 +1,8 @@
-
 package com.lacouf.rsbjwt.service.chatbot;
 
 import com.lacouf.rsbjwt.exception.chatbot.AccesChatbotRefuseException;
 import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEmployeurTools;
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
-import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
+import com.lacouf.rsbjwt.service.chatbot.tools.*;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
@@ -31,32 +28,39 @@ public class ChatbotService {
     private final ChatbotGestionnaireTools gestionnaireTools;
     private final ChatbotEtudiantTools etudiantTools;
     private final ChatbotEmployeurTools employeurTools;
+    private final ChatbotProfesseurTools professeurTools;
 
     private final Resource promptGestionnaire;
     private final Resource promptEtudiant;
     private final Resource promptEmployeur;
+    private final Resource promptProfesseur;
     private final Map<String, List<Message>> historiques = new ConcurrentHashMap<>();
 
     public ChatbotService(
             ChatClient chatClient,
             ChatbotGestionnaireTools gestionnaireTools,
-            ChatbotEtudiantTools etudiantTools, ChatbotEmployeurTools employeurTools,
+            ChatbotEtudiantTools etudiantTools,
+            ChatbotEmployeurTools employeurTools,
+            ChatbotProfesseurTools professeurTools,
             @Value("classpath:prompts/chatbot-gestionnaire.st") Resource promptGestionnaire,
             @Value("classpath:prompts/chatbot-etudiant.st") Resource promptEtudiant,
-            @Value("classpath:prompts/chatbot-employeur.st") Resource promptEmployeur) {
+            @Value("classpath:prompts/chatbot-employeur.st") Resource promptEmployeur,
+            @Value("classpath:prompts/chatbot-professeur.st") Resource promptProfesseur) {
 
         this.chatClient = chatClient;
         this.gestionnaireTools = gestionnaireTools;
         this.etudiantTools = etudiantTools;
         this.employeurTools = employeurTools;
+        this.professeurTools = professeurTools;
         this.promptGestionnaire = promptGestionnaire;
         this.promptEtudiant = promptEtudiant;
         this.promptEmployeur = promptEmployeur;
+        this.promptProfesseur = promptProfesseur;
     }
 
-    @PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR')")
+    @PreAuthorize("hasAnyAuthority('GESTIONNAIRE', 'ETUDIANT', 'EMPLOYEUR', 'PROFESSEUR')")
     public String poserQuestion(String question)
-            throws QuestionChatbotInvalideException, AccesChatbotRefuseException {
+            throws AccesChatbotRefuseException, QuestionChatbotInvalideException {
 
         if (question == null || question.isBlank()) {
             throw new QuestionChatbotInvalideException();
@@ -65,7 +69,8 @@ public class ChatbotService {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal().equals("anonymousUser")) {
             throw new AccesChatbotRefuseException();
         }
 
@@ -74,6 +79,9 @@ public class ChatbotService {
 
         boolean estEmployeur = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("EMPLOYEUR"));
+
+        boolean estProfesseur = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("PROFESSEUR"));
 
         boolean estEtudiant = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ETUDIANT"));
@@ -88,6 +96,10 @@ public class ChatbotService {
 
         if (estEtudiant) {
             return appelerChat(promptEtudiant, etudiantTools, question, authentication.getName());
+        }
+
+        if (estProfesseur) {
+            return appelerChat(promptProfesseur, professeurTools, question, authentication.getName());
         }
 
         throw new AccesChatbotRefuseException();

@@ -910,6 +910,8 @@
     "initialEtudiant": "Hello! I am your student assistant. 👋\nAsk me a question about your resume, internship offers, or applications.",
     "initialEmployeur": "Hello! I am your employer assistant. 👋\nAsk me a question about your internship offers, candidates, or contracts.",
     "initialGestionnaire": "Hello! I am your internship management assistant.\nAsk me a question or choose a suggestion below.",
+    "sousTitreProfesseur": "Professor Assistant",
+    "initialProfesseur": "Hello! I am your professor assistant. 👋\nAsk me about your assigned students, their applications, interviews or internships.",
     "suggestions": {
       "etudiant": [
         {
@@ -963,6 +965,28 @@
         {
           "label": "How many students have found an internship?",
           "query": "How many students have found an internship?"
+        }
+      ],
+      "professeur": [
+        {
+          "label": "Which students are assigned to me?",
+          "query": "Which students are assigned to me?"
+        },
+        {
+          "label": "Which students are still looking for an internship?",
+          "query": "Which students are still looking for an internship?"
+        },
+        {
+          "label": "Which students have an interview this week?",
+          "query": "Which students have an interview this week?"
+        },
+        {
+          "label": "Which companies should I visit?",
+          "query": "Which companies should I visit?"
+        },
+        {
+          "label": "Do I have unread notifications?",
+          "query": "Do I have unread notifications?"
         }
       ]
     }

@@ -36,14 +36,16 @@ public class NotificationService {
     private final EtudiantRepository etudiantRepository;
     private final CandidatureRepository candidatureRepository;
     private final EmployeurRepository employeurRepository;
+    private final ProfesseurRepository professeurRepository;
 
     public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
-                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, EmployeurRepository employeurRepository) {
+                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, EmployeurRepository employeurRepository, ProfesseurRepository professeurRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
         this.employeurRepository = employeurRepository;
+        this.professeurRepository = professeurRepository;
     }
 
     @EventListener
@@ -684,6 +686,26 @@ public class NotificationService {
 
         return notificationRepository
                 .getNotificationByDestinataire(employeur)
+                .stream()
+                .filter(notification -> !notification.isEstLu())
+                .map(NotificationDTO::of)
+                .toList();
+    }
+
+    public List<NotificationDTO> getNotificationsNonLuesProfesseur()
+            throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Professeur professeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Professeur.class::isInstance)
+                .map(Professeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        return notificationRepository
+                .getNotificationByDestinataire(professeur)
                 .stream()
                 .filter(notification -> !notification.isEstLu())
                 .map(NotificationDTO::of)
