@@ -1,8 +1,8 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.AucunGestionnaireTrouver;
-import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
-import com.lacouf.rsbjwt.Exception.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunGestionnaireTrouver;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Statut;

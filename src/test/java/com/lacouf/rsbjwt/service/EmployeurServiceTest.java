@@ -1,19 +1,48 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAvantDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationExistanteException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.DecisionCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.CreationEntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEmployeurDTO;
 import org.junit.jupiter.api.AfterEach;
 
 import com.lacouf.rsbjwt.model.event.CandidatureAccepteeEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureRefuseeEvent;
-import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
 import com.lacouf.rsbjwt.model.event.CandidatureRetenueEvent;
 
-import com.lacouf.rsbjwt.Exception.*;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.model.event.EntrevueCreeeEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1118,6 +1147,65 @@ public class EmployeurServiceTest {
                 .isInstanceOf(DecisionCandidatureInvalideException.class);
         verify(convocationRepository, never()).save(any());
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void doitRetournerLesContratsDeLEmployeur() throws UtilisateurIntrouvableException {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+        simulerFiltrageSession();
+
+        Gestionnaire gestionnaire = Gestionnaire.builder()
+                .firstName("Laurent")
+                .lastName("Losange")
+                .email("Laurent.Losange@hotmail.com")
+                .build();
+        gestionnaire.setId(1L);
+
+        Contrat contrat = Contrat.builder()
+                .candidature(candidature)
+                .gestionnaire(gestionnaire)
+                .build();
+        ReflectionTestUtils.setField(contrat, "id", 1L);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(contratRepository.findByCandidatureOffreDeStageEmployeurId(employeur.getId()))
+                .thenReturn(List.of(contrat));
+
+        List<ResumeContratDTO> resultat = employeurService.obtenirContratsEmployeur();
+
+        assertThat(resultat).hasSize(1);
+        verify(contratRepository).findByCandidatureOffreDeStageEmployeurId(employeur.getId());
+    }
+
+    @Test
+    void doitRetournerLesEntrevuesParStatutDeLEmployeur() throws UtilisateurIntrouvableException {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+        simulerFiltrageSession();
+
+        Entrevue entrevue = Entrevue.builder()
+                .candidature(candidature)
+                .build();
+
+        entrevue.setStatut(StatutEntrevue.CONFIRMEE);
+        ReflectionTestUtils.setField(entrevue, "id", 1L);
+
+        when(userAppRepository.findUserAppByEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(convocationRepository.findByEmployeurId(employeur.getId()))
+                .thenReturn(List.of(entrevue));
+
+        List<EntrevueDTO> resultat = employeurService.obtenirEntrevuesParStatut(StatutEntrevue.CONFIRMEE);
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).statut()).isEqualTo(StatutEntrevue.CONFIRMEE);
+        verify(convocationRepository).findByEmployeurId(employeur.getId());
     }
 
     private <T> void simulerFiltrageSession() {

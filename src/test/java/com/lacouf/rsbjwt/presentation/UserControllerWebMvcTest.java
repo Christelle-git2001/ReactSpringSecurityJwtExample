@@ -1,9 +1,9 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.service.dto.auth.LoginDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.service.UserAppService;
-import com.lacouf.rsbjwt.service.dto.LoginDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -54,6 +54,7 @@ public class OffreDeStage {
     private String storagePath;
 
     private LocalDateTime createdAt;
+    private LocalDateTime approvedAt;
 
     @PrePersist
     public void prePersist() {

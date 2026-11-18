@@ -2,16 +2,17 @@
 package com.lacouf.rsbjwt.repository;
 
 import com.lacouf.rsbjwt.model.Entrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 public interface EntrevueRepository
         extends JpaRepository<Entrevue, Long> {
-
     Optional<Entrevue> findByCandidatureId(Long candidatureId);
 
     Optional<Entrevue> findByIdAndCandidatureEtudiantId(Long entrevueId, Long etudiantId);
@@ -20,4 +21,14 @@ public interface EntrevueRepository
 
     @Query("SELECT e FROM Entrevue e WHERE e.candidature.offreDeStage.employeur.id = :employeurId")
     List<Entrevue> findByEmployeurId(@Param("employeurId") Long employeurId);
+
+    long countByStatut(StatutEntrevue statut);
+    List<Entrevue> findByDateHeureEntrevueGreaterThanEqualAndDateHeureEntrevueLessThanOrderByDateHeureEntrevueAsc(LocalDateTime debut, LocalDateTime fin);
+    long countByDateHeureEntrevueGreaterThanEqualAndDateHeureEntrevueLessThan(LocalDateTime debut, LocalDateTime fin);
+    List<Entrevue> findByCandidatureOffreDeStageEmployeurBusinessNameContainingIgnoreCaseOrderByDateHeureEntrevueAsc(String entreprise);
+    List<Entrevue> findByDateHeureEntrevueAfterAndStatutInOrderByDateHeureEntrevueAsc(
+            LocalDateTime date, List<StatutEntrevue> statuts);
+
+    List<Entrevue> findByCandidatureEtudiantIdInOrderByDateHeureEntrevueAsc(
+            List<Long> etudiantIds);
 }

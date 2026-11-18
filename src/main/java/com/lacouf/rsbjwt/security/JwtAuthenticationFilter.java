@@ -35,13 +35,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         	token = token.startsWith("Bearer") ? token.substring(7) : token;
             try {
                 tokenProvider.validateToken(token);
+
                 String email = tokenProvider.getEmailFromJWT(token);
-                UserApp user = userRepository.findUserAppByEmail(email).orElseThrow(UserNotFoundException::new);
+
+                boolean utilisateurExiste =
+                        userRepository.findUserAppByEmail(email).isPresent();
+
+                logger.info("UTILISATEUR TROUVÉ : " + utilisateurExiste);
+                UserApp user = userRepository.findUserAppByEmail(email)
+                        .orElseThrow(UserNotFoundException::new);
+
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         user.getEmail(), null, user.getAuthorities()
                 );
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
             } catch (Exception e) {
                 logger.error("Could not set user authentication in security context", e);
             }

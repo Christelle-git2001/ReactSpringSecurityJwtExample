@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface EmployeurRepository extends JpaRepository<Employeur, Long> {
     @Query("SELECT e FROM Employeur e JOIN UserApp u ON e.id = u.id WHERE u.credentials.email = :email")
     Optional<Employeur> findByEmail(String email);
+
+    Optional<Employeur> findByCredentialsEmail(String email);
 }

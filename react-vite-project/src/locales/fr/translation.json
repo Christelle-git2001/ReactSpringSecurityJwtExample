@@ -864,5 +864,100 @@
     "preferences": "Préférences",
     "theme": "Thème",
     "language": "Langue"
+  },
+  "chatbot": {
+    "errors": {
+      "question_required": "La question ne doit pas être vide.",
+      "access_denied": "Accès au chatbot refusé."
+    },
+    "titre": "Assistant IKey",
+    "placeholder": "Posez votre question...",
+    "thinking": "L'assistant réfléchit...",
+    "sousTitreEtudiant": "Assistant étudiant",
+    "sousTitreEmployeur": "Assistant employeur",
+    "sousTitreGestionnaire": "Gestionnaire de stages",
+    "initialEtudiant": "Bonjour ! Je suis votre assistant étudiant. 👋\nPosez-moi une question sur votre CV, vos offres de stage ou vos candidatures.",
+    "initialEmployeur": "Bonjour ! Je suis votre assistant employeur. 👋\nPosez-moi une question sur vos offres de stage, vos candidats ou vos contrats.",
+    "sousTitreProfesseur": "Assistant professeur",
+    "initialProfesseur": "Bonjour ! Je suis votre assistant professeur. 👋\nPosez-moi une question sur vos étudiants, leurs candidatures, leurs entrevues ou leurs stages.",
+    "initialGestionnaire": "Bonjour ! Je suis votre assistant de gestion de stages.\nPosez-moi une question ou choisissez une suggestion ci-dessous.",
+    "suggestions": {
+      "etudiant": [
+        {
+          "label": "Est-ce que mon CV a été approuvé ?",
+          "query": "Est-ce que mon CV a été approuvé ?"
+        },
+        {
+          "label": "Quelles offres de stage sont disponibles pour moi ?",
+          "query": "Quelles offres de stage sont disponibles pour moi ?"
+        },
+        {
+          "label": "Ai-je reçu de nouvelles offres ?",
+          "query": "Ai-je reçu de nouvelles offres ?"
+        },
+        {
+          "label": "Qui est mon professeur assigné ?",
+          "query": "Qui est mon professeur assigné ?"
+        }
+      ],
+      "employeur": [
+        {
+          "label": "Quelles offres de stage ai-je publiées ?",
+          "query": "Quelles offres de stage ai-je publiées ?"
+        },
+        {
+          "label": "Quelles candidatures ai-je reçues ?",
+          "query": "Quelles candidatures ai-je reçues ?"
+        },
+        {
+          "label": "Quelles sont mes prochaines entrevues ?",
+          "query": "Quelles sont mes prochaines entrevues ?"
+        },
+        {
+          "label": "Quels contrats attendent ma signature ?",
+          "query": "Quels contrats attendent ma signature ?"
+        }
+      ],
+      "gestionnaire": [
+        {
+          "label": "Combien d'étudiants sont inscrits ?",
+          "query": "Combien d'étudiants sont inscrits ?"
+        },
+        {
+          "label": "Quels CV attendent une validation ?",
+          "query": "Quels CV attendent une validation ?"
+        },
+        {
+          "label": "Quels contrats attendent ma signature ?",
+          "query": "Quels contrats attendent ma signature ?"
+        },
+        {
+          "label": "Combien ont trouvé un stage ?",
+          "query": "Combien ont trouvé un stage ?"
+        }
+      ],
+      "professeur": [
+        {
+          "label": "Quels étudiants me sont assignés ?",
+          "query": "Quels étudiants me sont assignés ?"
+        },
+        {
+          "label": "Quels étudiants cherchent encore un stage ?",
+          "query": "Quels étudiants cherchent encore un stage ?"
+        },
+        {
+          "label": "Quels étudiants ont une entrevue cette semaine ?",
+          "query": "Quels étudiants ont une entrevue cette semaine ?"
+        },
+        {
+          "label": "Quelles entreprises dois-je visiter ?",
+          "query": "Quelles entreprises dois-je visiter ?"
+        },
+        {
+          "label": "Ai-je des notifications non lues ?",
+          "query": "Quelles sont mes notifications non lues ?"
+        }
+      ]
+    }
   }
 }

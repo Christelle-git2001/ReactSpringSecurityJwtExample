@@ -1,8 +1,11 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
-import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.exception.notification.NotificationNonTrouvee;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunRoleDefini;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
@@ -14,12 +17,9 @@ import com.lacouf.rsbjwt.model.Notification;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.NotificationDTO;
+import com.lacouf.rsbjwt.repository.*;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,13 +35,17 @@ public class NotificationService {
     private final UserAppRepository userAppRepository;
     private final EtudiantRepository etudiantRepository;
     private final CandidatureRepository candidatureRepository;
+    private final EmployeurRepository employeurRepository;
+    private final ProfesseurRepository professeurRepository;
 
     public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
-                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository) {
+                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, EmployeurRepository employeurRepository, ProfesseurRepository professeurRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
+        this.employeurRepository = employeurRepository;
+        this.professeurRepository = professeurRepository;
     }
 
     @EventListener
@@ -646,4 +650,60 @@ public class NotificationService {
         notificationRepository.save(notificationEtudiant);
     }
 
+    public List<NotificationDTO> getNotificationsNonLuesEtudiant()
+            throws EtudiantIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Etudiant etudiant = etudiantRepository
+                .findByCredentialsEmail(email)
+                .orElseThrow(EtudiantIntrouvableException::new);
+
+        return notificationRepository
+                .getNotificationByDestinataire(etudiant)
+                .stream()
+                .filter(notification -> !notification.isEstLu())
+                .map(NotificationDTO::of)
+                .toList();
+    }
+
+    public List<NotificationDTO> getNotificationsNonLuesEmployeur() throws EmployeurIntrouvable {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+       Employeur employeur = employeurRepository
+                .findByCredentialsEmail(email)
+                .orElseThrow(EmployeurIntrouvable::new);
+
+        return notificationRepository
+                .getNotificationByDestinataire(employeur)
+                .stream()
+                .filter(notification -> !notification.isEstLu())
+                .map(NotificationDTO::of)
+                .toList();
+    }
+
+    public List<NotificationDTO> getNotificationsNonLuesProfesseur()
+            throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Professeur professeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Professeur.class::isInstance)
+                .map(Professeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        return notificationRepository
+                .getNotificationByDestinataire(professeur)
+                .stream()
+                .filter(notification -> !notification.isEstLu())
+                .map(NotificationDTO::of)
+                .toList();
+    }
 }

@@ -1,6 +1,44 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.SuppressionFichierEchoueeException;
+import com.lacouf.rsbjwt.exception.offre.OffreDeStageIndisponibleException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeNonConforme;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.cv.MonCvTeleverseDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.ReponseConvocationDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.session.InscriptionDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.MonProfesseurAssigneDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Statut;
@@ -16,7 +54,6 @@ import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.exception.AuthenticationException;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -38,6 +75,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -568,7 +607,7 @@ public class EtudiantService {
         return ContratDTO.of(contratEnregistre);
     }
 
-    static boolean actionsCandidatureDesactivees(Candidature candidature) {
+    public static boolean actionsCandidatureDesactivees(Candidature candidature) {
         Etudiant etudiant = candidature.getEtudiant();
         if (etudiant == null) return false;
         Candidature stageChoisi = etudiant.getCandidatureStage();
@@ -585,5 +624,85 @@ public class EtudiantService {
             throw new ActionsCandidatureDesactiveesException();
         }
     }
+    public MonCvTeleverseDTO getMonCv() throws EtudiantIntrouvableException {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        return cvEtudiantRepository.findByEtudiant(etudiant)
+                .map(cv -> new MonCvTeleverseDTO(true, CvEtudiantDTO.of(cv)))
+                .orElseGet(() -> new MonCvTeleverseDTO(false, null));
+    }
+
+
+    public List<OffreDeStageDTO> getOffresNonPostulees()
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException,
+            CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        List<OffreDeStageDTO> offresDisponibles =
+                getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()
+                );
+
+        Set<Long> offresPostulees = candidatureRepository
+                .findByEtudiant(etudiant)
+                .stream()
+                .map(candidature -> candidature.getOffreDeStage().getId())
+                .collect(Collectors.toSet());
+
+        return offresDisponibles.stream()
+                .filter(offre -> !offresPostulees.contains(offre.id()))
+                .toList();
+    }
+
+
+    public List<OffreDeStageDTO> getNouvellesOffresDepuisDerniereVisite()
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException,
+            CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        LocalDateTime derniereVisite = etudiant.getPreviousLoginAt();
+
+        List<OffreDeStageDTO> offresDisponibles =
+                getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()
+                );
+
+        if (derniereVisite == null) {
+            return offresDisponibles.stream()
+                    .filter(offre -> offre.approvedAt() != null)
+                    .toList();
+        }
+
+        return offresDisponibles.stream()
+                .filter(offre -> offre.approvedAt() != null)
+                .filter(offre -> offre.approvedAt().isAfter(derniereVisite))
+                .toList();
+    }
+
+    public MonProfesseurAssigneDTO getMonProfesseur()
+            throws EtudiantIntrouvableException {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Professeur professeur = etudiant.getProfesseur();
+
+        if (professeur == null) {
+            return new MonProfesseurAssigneDTO(false, null);
+        }
+
+        return new MonProfesseurAssigneDTO(
+                true,
+                ProfesseurDTO.of(professeur)
+        );
+    }
+
+
 
 }
