@@ -602,6 +602,7 @@ public class EmployeurService {
                 .qualiteSociale(QualiteSocialeDTO.toEntity(evaluationStagiaireDTO.qualiteSocialDTO()))
                 .habiletePersonelle(HabiletePersonelleDTO.toEntity(evaluationStagiaireDTO.habiletePersonelleDTO()))
                 .appreciationGlobal(AppreciationGlobaleDTO.toEntity(evaluationStagiaireDTO.appreciationGlobalDTO()))
+                .dateSignature(LocalDateTime.now())
                 .build();
         return EvaluationStagiaireDTO.toDto(
             evaluationStagiaireRepository.save(evaluationStagiaire)

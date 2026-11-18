@@ -398,7 +398,7 @@ public class PDFService {
             document.add(new Paragraph(messages.getString("evaluation.N/A_meaning")).setBold());
             document.add(addEvaluationBoxGlobale("appreciation_globale.titre", String.valueOf(appreciationGlobal.getAttenteEmployeurScore()), appreciationGlobal.getDescriptionAppreciation(), appreciationGlobal.getDiscussionAvecStagiaire(), messages).setMarginBottom(15f));
             document.add(addHeuresEncadrementBox(String.valueOf(appreciationGlobal.getSupervisionTime()), messages).setMarginBottom(15f));
-            document.add(addSectionFinaleBox(appreciationGlobal.getRenewExperience(), appreciationGlobal.getExperienceSuffisante(), superviseurInfo.getFirstName() + " " + superviseurInfo.getLastName(), superviseurInfo.getFonction(), LocalDateTime.now(), messages).setMarginBottom(15f));
+            document.add(addSectionFinaleBox(appreciationGlobal.getRenewExperience(), appreciationGlobal.getExperienceSuffisante(), superviseurInfo.getFirstName() + " " + superviseurInfo.getLastName(), superviseurInfo.getFonction(),evaluationStagiaire.getDateSignature() , messages).setMarginBottom(15f));
             document.add(addReturnFormBox(professeur, messages));
             document.add(addFooterInstitutionnel(messages));
         }
@@ -663,11 +663,11 @@ public class PDFService {
 
 
         Paragraph signaturePara = new Paragraph()
-                .add(messages.getString("contrat.signatures") + " : ____________________");
+                .add(messages.getString("contrat.signatures") + (date == null ? " : ____________________": " : " + nom));
 
         Paragraph datePara = new Paragraph()
                 .add(messages.getString("label.date") + " : ")
-                .add(new Text(dateFormatted).setUnderline());
+                .add(date == null ? new Text("____________________") : new Text(dateFormatted).setUnderline());
 
         sigTable.addCell(createCellSansBordure(signaturePara));
         sigTable.addCell(createCellSansBordure(datePara));

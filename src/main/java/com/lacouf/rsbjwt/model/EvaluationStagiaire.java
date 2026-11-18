@@ -4,6 +4,8 @@ import com.lacouf.rsbjwt.model.Evaluation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Builder
 @Getter
@@ -19,6 +21,8 @@ public class EvaluationStagiaire {
     @OneToOne
     @JoinColumn(name = "candidature_id", nullable = false, unique = true)
     private Candidature candidature;
+
+    private LocalDateTime dateSignature;
 
     @Embedded
     private SuperviseurInfo superviseur;
@@ -46,4 +50,6 @@ public class EvaluationStagiaire {
     public Long getCandidatureId() {
         return candidature.getId();
     }
+
+
 }
