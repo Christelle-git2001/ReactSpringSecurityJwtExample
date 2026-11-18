@@ -103,6 +103,8 @@
     "save": "Soumettre"
   },
   "actions": {
+    "evaluate_site": "Évaluer le milieu de stage",
+    "evaluate_intern": "Évaluer le stagiaire",
     "download": "Télécharger",
     "view": "Voir",
     "delete": "Supprimer",
@@ -864,5 +866,80 @@
     "preferences": "Préférences",
     "theme": "Thème",
     "language": "Langue"
+  },
+  "evaluation": {
+    "title": "Évaluation du milieu de stage",
+    "sections": {
+      "company": "1. Identification de l'entreprise",
+      "intern": "2. Identification du stagiaire",
+      "evaluation": "3. Évaluation",
+      "comments": "4. Commentaires",
+      "observations": "5. Observations générales"
+    },
+    "fields": {
+      "nomEntreprise": "Nom de l'entreprise",
+      "personneContact": "Personne contact",
+      "adresse": "Adresse",
+      "telephone": "Téléphone",
+      "ville": "Ville",
+      "telecopieur": "Télécopieur",
+      "codePostal": "Code postal",
+      "nomStagiaire": "Nom du stagiaire",
+      "dateDebut": "Début du stage",
+      "dateFin": "Fin du stage",
+      "heuresMois1": "Heures/semaine – premier mois",
+      "heuresMois2": "Heures/semaine – deuxième mois",
+      "heuresMois3": "Heures/semaine – troisième mois",
+      "salaireHoraire": "Salaire ($/heure)",
+      "commentaires": "Commentaires",
+      "de": "De",
+      "a": "À"
+    },
+    "levels": {
+      "TOTALEMENT_EN_ACCORD": "Totalement en accord",
+      "PLUTOT_EN_ACCORD": "Plutôt en accord",
+      "PLUTOT_EN_DESACCORD": "Plutôt en désaccord",
+      "TOTALEMENT_EN_DESACCORD": "Totalement en désaccord",
+      "IMPOSSIBLE_DE_SE_PRONONCER": "Impossible de se prononcer"
+    },
+    "criteres": {
+      "tachesConformes": "Les tâches confiées au stagiaire sont conformes aux tâches annoncées dans l'entente de stage.",
+      "mesuresAccueil": "Des mesures d'accueil facilitent l'intégration du nouveau stagiaire.",
+      "tempsEncadrement": "Le temps réel consacré à l'encadrement du stagiaire est suffisant.",
+      "hygieneSecurite": "L'environnement de travail respecte les normes d'hygiène et de sécurité au travail.",
+      "climatTravail": "Le climat de travail est agréable.",
+      "transportCommun": "Le milieu de stage est accessible par transport en commun.",
+      "salaireInteressant": "Le salaire offert est intéressant pour le stagiaire.",
+      "communicationSuperviseur": "La communication avec le superviseur de stage facilite le déroulement du stage.",
+      "equipementAdequat": "L'équipement fourni est adéquat pour réaliser les tâches confiées.",
+      "volumeTravail": "Le volume de travail est acceptable."
+    },
+    "questions": {
+      "numeroStage": "Stage",
+      "milieuPrivilegie": "Ce milieu est à privilégier pour le",
+      "nombreStagiaires": "Ce milieu est ouvert à accueillir",
+      "memeStagiaire": "Ce milieu désire accueillir le même stagiaire pour un prochain stage",
+      "quartsVariables": "Ce milieu offre des quarts de travail variables"
+    },
+    "options": {
+      "STAGE_1": "Stage 1",
+      "STAGE_2": "Stage 2",
+      "PREMIER_STAGE": "Premier stage",
+      "DEUXIEME_STAGE": "Deuxième stage",
+      "UN": "Un stagiaire",
+      "DEUX": "Deux stagiaires",
+      "TROIS": "Trois stagiaires",
+      "PLUS_DE_TROIS": "Plus de trois",
+      "OUI": "Oui",
+      "NON": "Non"
+    },
+    "disagree_hint": "* Tout désaccord doit être expliqué dans la section Commentaires.",
+    "required": "Veuillez remplir tous les champs obligatoires et vérifier les dates.",
+    "confirm_description": "Une fois soumise, l'évaluation sera enregistrée et ne pourra plus être modifiée.",
+    "submit": "Soumettre l'évaluation",
+    "view": "Voir l'évaluation",
+    "close": "Fermer",
+    "success": "L'évaluation a été soumise avec succès.",
+    "submitted_on": "Évaluation soumise le {{date}}."
   }
 }

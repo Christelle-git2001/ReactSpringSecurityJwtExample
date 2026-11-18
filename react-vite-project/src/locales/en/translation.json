@@ -103,6 +103,8 @@
     "save": "Submit"
   },
   "actions": {
+    "evaluate_site": "Evaluate internship site",
+    "evaluate_intern": "Evaluate intern",
     "download": "Download",
     "view": "View",
     "delete": "Delete",
