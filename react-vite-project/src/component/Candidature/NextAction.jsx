@@ -12,20 +12,28 @@ import {
     accepterCandidat,
     refuserCandidat
 } from "../../api/employeur.jsx";
-import {signerContratEtudiant} from "../../api/etudiant.jsx";
+import { signerContratEtudiant } from "../../api/etudiant.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
 import ActionsDesactivees from "./ActionsDesactivees.jsx";
+import EvaluationStagiaire from "../Evaluation/EvaluationStagiaire.jsx";
 
 function NextAction({
-    candidature,
-    statutEntrevue,
-    contrat,
-    retourPath,
-    onSignatureSuccess,
-    onProcessChange,
-    role
-}) {
+                        candidature,
+                        statutEntrevue,
+                        contrat,
+                        retourPath,
+                        onSignatureSuccess,
+                        onProcessChange,
+                        onEvaluationSubmitted,
+                        evaluationDejaSoumise = false,
+                        evaluationEnChargement = false,
+                        evaluationDisponible = false,
+                        evaluationDisponiblePourTest = false,
+                        onActiverDisponibiliteEvaluationPourTest,
+                        role,
+                        offer
+                    }) {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
@@ -40,6 +48,9 @@ function NextAction({
     const [actionsBloquees, setActionsBloquees] = useState(false);
     const [erreurBlocage, setErreurBlocage] = useState(null);
     const [entreeStatutLocal, setEntreeStatutLocal] = useState(statutEntrevue || null);
+
+    const [evaluationOuverte, setEvaluationOuverte] = useState(false);
+    const [evaluationSoumise, setEvaluationSoumise] = useState(false);
 
     const activeEntrevueStatut = entreeStatutLocal ?? statutEntrevue;
 
@@ -139,6 +150,18 @@ function NextAction({
 
     const isEmployeurSigned = Boolean(dateSignatureEmployeur);
     const isEtudiantSigned = Boolean(dateSignatureEtudiant);
+    const contratEntierementSigne = Boolean(
+        candidature?.contratSigne ||
+        (contrat?.dateSignatureGestionnaire &&
+            contrat?.dateSignatureEmployeur &&
+            contrat?.dateSignatureEtudiant)
+    );
+
+    const peutActiverDisponibiliteEvaluationPourTest =
+        role === Role.EMPLOYEUR &&
+        contratEntierementSigne &&
+        !evaluationDisponible &&
+        !evaluationDejaSoumise;
 
     const handleConvoquer = async () => {
         if (!candidature?.id) return;
@@ -329,6 +352,18 @@ function NextAction({
         }
 
         if (role === Role.EMPLOYEUR) {
+
+            if (contratEntierementSigne && evaluationDisponible) {
+                return evaluationSoumise || evaluationDejaSoumise
+                    ? { description: t("evaluation.success"), buttonText: null, onClick: null, disabled: false }
+                    : {
+                        description: t("process.action_evaluate_intern"),
+                        buttonText: t("actions.evaluate_intern"),
+                        onClick: () => setEvaluationOuverte(true),
+                        disabled: evaluationEnChargement
+                    };
+            }
+
             if (isEmployeurSigned) {
                 return {
                     description: `${t("process.action_contract_signed_msg")} ${formatDateSignature(dateSignatureEmployeur)}.`,
@@ -351,7 +386,7 @@ function NextAction({
                     return {
                         description: t("process.action_plan_interview"),
                         buttonText: t("actions.plan_interview"),
-                        onClick: () => navigate("/employeur/entrevues", {state: {selectedCandidatureId: candidature?.id}}),
+                        onClick: () => navigate("/employeur/entrevues", { state: { selectedCandidatureId: candidature?.id } }),
                         disabled: false
                     };
 
@@ -363,6 +398,7 @@ function NextAction({
                         onClick: null,
                         disabled: false
                     };
+
                 case "ENTREVUE_CONFIRMEE": {
                     const terminee = activeEntrevueStatut === "TERMINEE";
                     return {
@@ -387,6 +423,7 @@ function NextAction({
                         onClick: null,
                         disabled: false
                     };
+
                 case "ACCEPTEE":
                     return {
                         description: t("process.action_wait_student_response"),
@@ -394,6 +431,7 @@ function NextAction({
                         onClick: null,
                         disabled: false,
                     };
+
                 case "REFUSEE":
                     return { description: t("process.action_application_refused"), buttonText: null, disabled: false };
 
@@ -431,7 +469,7 @@ function NextAction({
         return <div className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-4">
             <ActionsDesactivees candidature={candidature} messageKey={erreurBlocage} />
             <div className="flex justify-end"><Button variant="secondary" size="small"
-                onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
+                                                      onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
         </div>;
     }
 
@@ -478,6 +516,17 @@ function NextAction({
                                 icon={actionData.onClick === ouvrirModalSignature || actionData.role === "details"} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
                                 className={actionData.onClick === ouvrirModalSignature ? "" : `text-white ${actionData.disabled ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
                             {actionData.buttonText}
+                        </Button>
+                    )}
+                    {peutActiverDisponibiliteEvaluationPourTest && (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="small"
+                            icon={false}
+                            onClick={onActiverDisponibiliteEvaluationPourTest}
+                        >
+                            {t("process.simulate_evaluation_availability")}
                         </Button>
                     )}
                     <Button type="button" size="small" onClick={() => navigate(retourPath || "/employeur")} variant="secondary">
@@ -561,6 +610,18 @@ function NextAction({
                         </div>
                     </div>
                 </div>
+            )}
+            {evaluationOuverte && (
+                <EvaluationStagiaire
+                    candidature={candidature}
+                    offer={offer}
+                    onClose={() => setEvaluationOuverte(false)}
+                    onSuccess={() => {
+                        setEvaluationOuverte(false);
+                        setEvaluationSoumise(true);
+                        onEvaluationSubmitted?.();
+                    }}
+                />
             )}
         </div>
     );

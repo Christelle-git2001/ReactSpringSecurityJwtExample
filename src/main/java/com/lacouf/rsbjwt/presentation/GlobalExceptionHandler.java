@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
 import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
@@ -420,4 +421,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErreurDTO> handleAccesChatbotRefuse(AccesChatbotRefuseException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErreurDTO(e.getMessage()));
     }
+    @ExceptionHandler(EvaluationStagiaireIntrouvable.class)
+    public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
+            EvaluationStagiaireIntrouvable e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErreurDTO(e.getMessage()));
+    }
+
 }

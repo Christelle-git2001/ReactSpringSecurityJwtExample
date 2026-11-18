@@ -26,6 +26,7 @@ import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.EvaluationStagiaireDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.RefusCandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.contrat.ConfirmationSignatureDTO;
@@ -205,5 +206,11 @@ public class EmployeurController {
                 employeurService.signerContrat(contratId, dto.motDePasse());
 
         return ResponseEntity.ok(contratDTO);
+    }
+
+    @PutMapping("/evaluer/candidature")
+    public ResponseEntity<EvaluationStagiaireDTO> evaluerUnStagiaire(@Valid @RequestBody EvaluationStagiaireDTO evaluationStagiaireDTO ) throws CandidatureIntrouvableException {
+        EvaluationStagiaireDTO evaluationStagiaire = employeurService.evaluerStagiaire(evaluationStagiaireDTO);
+        return ResponseEntity.ok(evaluationStagiaire);
     }
 }

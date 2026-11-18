@@ -1,19 +1,5 @@
 {
-  "stage": {
-    "accept": "Accept internship",
-    "refuse": "Decline internship",
-    "accept_title": "Confirm internship acceptance",
-    "refuse_title": "Decline this internship?",
-    "accept_description": "Your status will change to “Internship found” and the contract will be created automatically for signatures.",
-    "refuse_description": "This offer will be declined and your reserved place will be released. You can continue your internship search.",
-    "lock_warning": "After confirmation, actions on your other applications and interviews will be disabled. You will still be able to view your information and sign the selected internship contract.",
-    "refused_by_student": "Internship declined by the student.",
-    "refused_notification_title": "A student declined the internship",
-    "refused_notification_description": "{{ETUDIANT_NOM}} declined the internship {{OFFRE_TITRE}}. A place is available again."
-  },
-  "generic": {
-    "error": "An error occurred."
-  },
+  "generic": {"error":"An error occurred."},
   "language": {
     "label": "Language"
   },
@@ -147,8 +133,9 @@
     "loading": "Loading...",
     "collapse": "Collapse",
     "expand": "Expand",
-    "cancel": "Cancel",
+    "cancel" : "Cancel",
     "postuler": "Postuler",
+    "evaluate_intern": "Evaluate intern",
     "confirm": "Confirm"
   },
   "login": {
@@ -243,7 +230,7 @@
     "history": "History",
     "collapse": "Collapse",
     "expand": "Expand",
-    "assignation": "Teacher Assignment"
+    "assignation" : "Teacher Assignment"
   },
   "sidebar": {
     "collapse": "Collapse menu",
@@ -260,6 +247,7 @@
     "contracts_to_sign_count": "Contracts to sign",
     "contracts_signed_count": "Signed contracts",
     "contracts_to_create_title": "Contracts to Create",
+    "contracts_to_sign_title": "Created Contracts / To Sign",
     "no_contracts_to_create": "No contracts to create at the moment.",
     "no_contracts_to_sign": "No contracts yet.",
     "pending_contracts_count": "Contracts pending creation",
@@ -829,6 +817,7 @@
     "action_student_sign_contract": "The agreement is ready. Review it, then sign it to continue the process.",
     "action_default_student": "Check your application progress for the next step.",
     "next_action_title": "Next required action",
+    "simulate_evaluation_availability": "Test availability 2 weeks before the end",
     "action_contract_signed_msg": "The contract was signed on",
     "action_review_cv": "The candidate has submitted their application. Review their CV and retain them for an interview.",
     "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
@@ -840,9 +829,11 @@
     "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",
     "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
+    "action_evaluate_intern": "The evaluation is available during the final two weeks of the internship.",
     "action_default": "Application process tracking in progress.",
     "cv_view_title": "Student CV",
-    "contract_view_title": "Internship Agreement"
+    "contract_view_title": "Internship Agreement",
+    "evaluation_view_title": "Intern Evaluation"
   },
   "sort": {
     "by_date": "Sort by date",
@@ -895,6 +886,95 @@
     "preferences": "Preferences",
     "theme": "Theme",
     "language": "Language"
+  },
+  "stage": {
+    "accept": "Accept internship",
+    "refuse": "Decline internship",
+    "accept_title": "Confirm internship acceptance",
+    "refuse_title": "Decline this internship?",
+    "accept_description": "Your status will change to “Internship found” and the contract will be created automatically for signatures.",
+    "refuse_description": "This offer will be declined and your reserved place will be released. You can continue your internship search.",
+    "lock_warning": "After confirmation, actions on your other applications and interviews will be disabled. You will still be able to view your information and sign the selected internship contract.",
+    "refused_by_student": "Internship declined by the student.",
+    "refused_notification_title": "A student declined the internship",
+    "refused_notification_description": "{{ETUDIANT_NOM}} declined the internship {{OFFRE_TITRE}}. A place is available again."
+  },
+  "evaluation": {
+    "title": "Intern Evaluation",
+    "success": "The intern evaluation was submitted successfully.",
+    "sections": {
+      "supervisor": "Supervisor Information",
+      "productivite": "Productivity",
+      "qualiteTravail": "Quality of Work",
+      "qualiteSociale": "Interpersonal Relationships",
+      "habiletesPersonnelles": "Personal Skills",
+      "overall": "Overall Evaluation of the Intern"
+    },
+    "subtitles": {
+      "productivite": "Ability to optimize work performance",
+      "qualiteTravail": "Ability to fulfill responsibilities while maintaining high quality standards",
+      "qualiteSociale": "Ability to establish harmonious relationships in the workplace",
+      "habiletesPersonnelles": "Ability to demonstrate mature and responsible attitudes and behaviors"
+    },
+    "fields": {
+      "supervisorFirstName": "Supervisor First Name",
+      "supervisorLastName": "Supervisor Last Name",
+      "supervisorRole": "Job Title",
+      "supervisorPhone": "Phone Number",
+      "comments": "Comments",
+      "overallRating": "Overall Assessment",
+      "overallComments": "Specify your assessment",
+      "discussedWithIntern": "Was this evaluation discussed with the intern?",
+      "supervisionHours": "Actual number of supervision hours per week",
+      "welcomeAgain": "Would the company like to host this intern for their next internship?",
+      "trainingSufficient": "Was the intern’s technical training sufficient to carry out the internship assignment?"
+    },
+    "criteria": {
+      "planificationScore": "Plan and organize work effectively",
+      "comprehensionScore": "Quickly understand instructions related to the work",
+      "rythmeScore": "Maintain a steady work pace",
+      "prioriteScore": "Set priorities",
+      "echeancierScore": "Meet deadlines",
+      "completeTaskScore": "Complete assigned responsibilities",
+      "minutieScore": "Pay attention to detail when performing tasks",
+      "checkBoxScore": "Review work and ensure nothing has been overlooked",
+      "perfectionnementResearchScore": "Seek opportunities for improvement",
+      "analystScore": "Effectively analyze problems encountered",
+      "socialScore": "Easily establish contact with others",
+      "teamWorkScore": "Actively contribute to teamwork",
+      "adaptationScore": "Adapt easily to the company culture",
+      "critiqueAcceptationScore": "Accept constructive criticism",
+      "respectScore": "Show respect for others",
+      "listenScore": "Listen actively and try to understand others’ points of view",
+      "motivationScore": "Show interest and motivation at work",
+      "tellIdeaScore": "Express ideas clearly",
+      "initiativeScore": "Show initiative",
+      "securityScore": "Work safely",
+      "responsabiliteScore": "Show responsibility and require minimal supervision",
+      "ponctuelScore": "Be punctual and conscientious"
+    },
+    "levels": {
+      "1": "Strongly disagree",
+      "2": "Somewhat disagree",
+      "3": "Somewhat agree",
+      "4": "Strongly agree",
+      "NA": "N/A — Not applicable"
+    },
+    "overallLevels": {
+      "5": "Demonstrated skills far exceed expectations",
+      "4": "Demonstrated skills exceed expectations",
+      "3": "Demonstrated skills fully meet expectations",
+      "2": "Demonstrated skills partially meet expectations",
+      "1": "Demonstrated skills do not meet expectations"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "maybe": "Maybe"
+    },
+    "required": "Complete all required fields and answer every question.",
+    "confirm_description": "Review your answers before submitting the evaluation.",
+    "submit": "Submit Evaluation"
   },
   "chatbot": {
     "errors": {

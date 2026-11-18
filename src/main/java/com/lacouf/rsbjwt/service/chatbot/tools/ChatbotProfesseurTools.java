@@ -3,7 +3,7 @@ package com.lacouf.rsbjwt.service.chatbot.tools;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.service.NotificationService;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.*;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.StageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;

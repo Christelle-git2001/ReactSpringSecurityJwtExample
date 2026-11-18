@@ -1,10 +1,14 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
+import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
+import com.lacouf.rsbjwt.model.Evaluation.*;
 import com.lacouf.rsbjwt.repository.ContratRepository;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -32,10 +36,15 @@ class PDFServiceTest {
     @Mock
     private ContratRepository contratRepository;
 
+    @Mock
+    private EvaluationStagiaireRepository evaluationStagiaireRepository;
+
     @InjectMocks
     private PDFService pdfService;
 
+
     private Contrat contrat;
+    private EvaluationStagiaire evaluationStagiaire;
 
     @BeforeEach
     void setUp() {
@@ -89,6 +98,82 @@ class PDFServiceTest {
                 .gestionnaire(gestionnaire)
                 .build();
         contrat.setId(1L);
+
+        Professeur professeur = new Professeur();
+        professeur.setFirstName("Jean");
+        professeur.setLastName("Dupont");
+        professeur.setEmail("jean.dupont@cegep.qc.ca");
+
+
+        OffreDeStage offreDeStage = new OffreDeStage();
+        offreDeStage.setTitle("Full-Stack Developer Intern");
+        offreDeStage.setEmployeur(employeur);
+
+        SuperviseurInfo superviseurInfo = SuperviseurInfo.builder()
+                .firstName("Sarah")
+                .lastName("Connor")
+                .fonction("Senior Software Architect")
+                .phone("514-555-8822")
+                .build();
+
+        EvaluationProductivite evaluationProductivite = EvaluationProductivite.builder()
+                .planificationScore(4L)
+                .comprehensionScore(4L)
+                .rythmeScore(3L)
+                .prioriteScore(4L)
+                .echeancierScore(0L)
+                .commentaire("Great autonomy and fast understanding of the codebase.")
+                .build();
+
+        QualiteTravail qualiteTravail = QualiteTravail.builder()
+                .completeTaskScore(4L)
+                .minutieScore(3L)
+                .checkBoxScore(4L)
+                .perfectionnementResearchScore(4L)
+                .analystScore(3L)
+                .commentaire("Clean code, follows team conventions and writes solid unit tests.")
+                .build();
+
+        QualiteSocial qualiteSocial = QualiteSocial.builder()
+                .socialScore(4L)
+                .teamWorkScore(4L)
+                .adaptationScore(4L)
+                .critiqueAcceptationScore(3L)
+                .respectScore(4L)
+                .listenScore(4L)
+                .commentaire("Integrates very well into the agile team and participates actively in daily standups.")
+                .build();
+
+        HabiletePersonelle habiletePersonelle = HabiletePersonelle.builder()
+                .motivationScore(4L)
+                .tellIdeaScore(3L)
+                .initiativeScore(4L)
+                .securityScore(0L)
+                .responsabiliteScore(4L)
+                .ponctuelScore(4L)
+                .commentaire("Always punctual, proactive, and eager to learn new frameworks.")
+                .build();
+
+        AppreciationGlobal appreciationGlobal = AppreciationGlobal.builder()
+                .attenteEmployeurScore(4L)
+                .descriptionAppreciation("Alice exceeded our expectations throughout her internship. She quickly became a key contributor to the backend team.")
+                .discussionAvecStagiaire(true)
+                .supervisionTime(4)
+                .renewExperience(ChoixAccueil.OUI)
+                .experienceSuffisante("Nous allons l'engager")
+                .build();
+
+        evaluationStagiaire = EvaluationStagiaire.builder()
+                .id(1L)
+                .candidature(candidature)
+                .superviseur(superviseurInfo)
+                .evaluationProductivite(evaluationProductivite)
+                .qualiteTravail(qualiteTravail)
+                .qualiteSociale(qualiteSocial)
+                .habiletePersonelle(habiletePersonelle)
+                .appreciationGlobal(appreciationGlobal)
+                .build();
+
     }
 
     @Test
@@ -162,5 +247,91 @@ class PDFServiceTest {
             }
             return texte.toString();
         }
+    }
+
+    @Test
+    void doitGenererPdfCvAvecSucces() throws IOException {
+        Etudiant etudiant = Etudiant.builder()
+                .firstName("Adrien")
+                .lastName("Agreste")
+                .email("Adrien@gmail.com")
+                .phoneNumber("450-716-1216")
+                .department(Departement.INFORMATIQUE)
+                .matricule("1111111")
+                .password("NoNeedButStillNeed")
+                .build();
+
+        Resource result = pdfService.createCvPdf(etudiant);
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+
+    @Test
+    void doitGenererPdfOffreDeStageAvecSucces() throws IOException {
+        Employeur employeur = Employeur.builder()
+                .firstName("Roger")
+                .lastName("Malinois")
+                .phone("450-874-6586")
+                .email("Roger.Malinois@hotmail.com")
+                .town("Laval")
+                .businessName("Malinois inc")
+                .businessSector(SecteurActivite.INFORMATIQUE)
+                .password("NoNeedButStillNeed")
+                .build();
+
+        CreationOffreDeStageDTO dto = new CreationOffreDeStageDTO(
+                "Développeur Web Junior",
+                "Développement front-end et back-end",
+                22.50,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(10),
+                LocalDate.now().plusMonths(3),
+                LocalDate.now().plusDays(7)
+        );
+
+        Resource result = pdfService.createOffreDeStagePdf(dto, employeur);
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+    @Test
+    void doitGenererPdfOffreDeStageMemeSiEmployeurNull() throws IOException {
+        CreationOffreDeStageDTO dto = new CreationOffreDeStageDTO(
+                "Développeur Web Junior",
+                "Développement front-end et back-end",
+                22.50,
+                Departement.INFORMATIQUE,
+                LocalDate.now().plusDays(10),
+                LocalDate.now().plusMonths(3),
+                LocalDate.now().plusDays(7)
+        );
+
+        Resource result = pdfService.createOffreDeStagePdf(dto, null);
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+    @Test
+    void doitGenererPdfEvaluationStagiaireAvecSucces() throws IOException, EvaluationStagiaireIntrouvable {
+        when(evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(1L))
+                .thenReturn(Optional.of(evaluationStagiaire));
+
+        Resource result = pdfService.createEvaluationStagiaire("fr", 1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+    @Test
+    void doitLeverExceptionSiEvaluationStagiaireIntrouvablePourPdf() {
+        when(evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(99L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> pdfService.createEvaluationStagiaire("en", 99L))
+                .isInstanceOf(EvaluationStagiaireIntrouvable.class);
     }
 }
