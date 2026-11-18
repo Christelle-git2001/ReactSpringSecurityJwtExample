@@ -8,7 +8,6 @@ import {useNavigate} from "react-router-dom";
 import {formaterDate} from "../../utils/cvFormatters.jsx";
 import EvaluationMilieuStage from "../../component/Evaluation/EvaluationMilieuStage.jsx";
 import { HiEye } from "react-icons/hi";
-import { FaClipboardCheck } from "react-icons/fa";
 import { MdRateReview } from "react-icons/md";
 
 
