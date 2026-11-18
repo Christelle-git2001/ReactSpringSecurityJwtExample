@@ -5,7 +5,7 @@ import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.context.SessionContext;
 import com.lacouf.rsbjwt.repository.InscriptionRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,11 +1,19 @@
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.ReferenceTemporelleDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.service.EmployeurService;
 import com.lacouf.rsbjwt.service.NotificationService;
 import com.lacouf.rsbjwt.service.donnees.DonneesTemporellesService;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.context.annotation.Profile;

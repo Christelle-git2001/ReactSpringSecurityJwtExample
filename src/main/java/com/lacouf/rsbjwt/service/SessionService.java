@@ -1,13 +1,13 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.context.SessionContext;
 import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.repository.InscriptionRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

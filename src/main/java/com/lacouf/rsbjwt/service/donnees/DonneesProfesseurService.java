@@ -1,7 +1,7 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.repository.ProfesseurRepository;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

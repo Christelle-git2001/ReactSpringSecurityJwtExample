@@ -1,11 +1,11 @@
 package com.lacouf.rsbjwt.service.donnees;
 
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException.Code;
 
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.repository.EntrevueRepository;
-import com.lacouf.rsbjwt.service.dto.EntrevueDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

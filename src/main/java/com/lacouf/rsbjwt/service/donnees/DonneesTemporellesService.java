@@ -1,14 +1,20 @@
 package com.lacouf.rsbjwt.service.donnees;
 
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException;
-import com.lacouf.rsbjwt.Exception.ParametreDonneesInvalideException.Code;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.ReferenceTemporelleDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.TempsAvantEntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException.Code;
 
 import com.lacouf.rsbjwt.model.Enum.SignataireContrat;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
