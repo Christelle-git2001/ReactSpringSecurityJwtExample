@@ -32,8 +32,10 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
     const [isEvaluationLoading, setIsEvaluationLoading] = useState(false);
     const [evaluationError, setEvaluationError] = useState(false);
     const [scrollVersEvaluation, setScrollVersEvaluation] = useState(false);
+    const [scrollVersContrat, setScrollVersContrat] = useState(false);
     const [evaluationDisponiblePourTest, setEvaluationDisponiblePourTest] = useState(false);
     const evaluationRef = useRef(null);
+    const contratRef = useRef(null);
 
 
     const cvId = candidature?.cvId;
@@ -100,6 +102,12 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
         evaluationRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
         setScrollVersEvaluation(false);
     }, [scrollVersEvaluation, evaluationPdfBlobUrl]);
+
+    useEffect(() => {
+        if (!scrollVersContrat || !contrat?.dateSignatureEmployeur) return;
+        contratRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        setScrollVersContrat(false);
+    }, [scrollVersContrat, contrat?.dateSignatureEmployeur]);
 
     useEffect(() => () => {
         if (evaluationPdfBlobUrl) URL.revokeObjectURL(evaluationPdfBlobUrl);
@@ -193,8 +201,9 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     evaluationDisponible={evaluationEstDisponible}
                     evaluationDisponiblePourTest={evaluationDisponiblePourTest}
                     onActiverDisponibiliteEvaluationPourTest={() => setEvaluationDisponiblePourTest(true)}
-                    onSignatureSuccess={() => {
-                        rechargerContrat();
+                    onSignatureSuccess={async () => {
+                        await rechargerContrat();
+                        setScrollVersContrat(true);
                     }}
                 />
 
@@ -227,7 +236,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                 </div>
 
                 {hasContrat && (
-                    <div className="w-full">
+                    <div className="w-full" ref={contratRef}>
                         <div className="collapse collapse-arrow bg-transparent">
                             <input type="checkbox" className="peer" defaultChecked />
 

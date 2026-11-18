@@ -623,6 +623,10 @@
         "title": "Stage choisi par l'étudiant",
         "description": "{{ETUDIANT_NOM}} a choisi votre offre « {{OFFRE_TITRE}} » comme stage."
       },
+      "evaluationStage": {
+        "title": "Évaluation de stage à compléter",
+        "description": "Le stage de {{ETUDIANT_NOM}} pour l’offre « {{OFFRE_TITRE}} » se termine bientôt. Veuillez évaluer le stage."
+      },
       "convocationAcceptee": {
         "title": "Convocation acceptée",
         "description": "{{ETUDIANT_NOM}} a confirmé sa présence à l'entrevue pour le poste {{OFFRE_TITRE}}."

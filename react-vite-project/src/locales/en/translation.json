@@ -630,6 +630,10 @@
         "title": "Internship chosen by the student",
         "description": "{{ETUDIANT_NOM}} has chosen your offer “{{OFFRE_TITRE}}” for their internship."
       },
+      "evaluationStage": {
+        "title": "Internship evaluation due",
+        "description": "{{ETUDIANT_NOM}}'s internship for “{{OFFRE_TITRE}}” is ending soon. Please evaluate the internship."
+      },
       "convocationAcceptee": {
         "title": "Interview invitation accepted",
         "description": "{{ETUDIANT_NOM}} has confirmed attendance at the interview for the {{OFFRE_TITRE}} position."

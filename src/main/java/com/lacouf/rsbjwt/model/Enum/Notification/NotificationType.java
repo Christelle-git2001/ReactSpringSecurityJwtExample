@@ -18,7 +18,8 @@ public enum NotificationType {
     ETUDIANT_ASSIGNE_PROFESSEUR("Un professeur vous a été assigné"),
     NOUVEAU_CONTRAT("Vous avez un nouveau contrat à signer"),
     CONTRAT_A_SIGNER("Un contrat attend la signature du gestionnaire"),
-    STAGE_REFUSE("Un etudiant a refuse votre offre de stage");
+    STAGE_REFUSE("Un etudiant a refuse votre offre de stage"),
+    EVALUATION_STAGE_A_FAIRE("Un stage doit être évalué");
 
     private final String label;
 

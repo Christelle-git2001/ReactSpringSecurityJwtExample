@@ -45,6 +45,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ProfesseurService professeurService;
     private final CandidatureRepository candidatureRepository;
+    private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
     private final PDFService pdfService;
     private final InscriptionRepository inscriptionRepository;
@@ -62,6 +63,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             CvEtudiantRepository cvEtudiantRepository,
             ProfesseurService professeurService,
             CandidatureRepository candidatureRepository,
+            ContratRepository contratRepository,
             EntrevueRepository entrevueRepository,
             PDFService pdfService,
             InscriptionRepository inscriptionRepository,
@@ -78,6 +80,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.professeurService = professeurService;
         this.candidatureRepository = candidatureRepository;
+        this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
         this.pdfService = pdfService;
         this.inscriptionRepository = inscriptionRepository;
@@ -355,6 +358,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         if (candidatureSarko != null) {
             try { preparerStageTrouve(candidatureSarko.getId()); } catch (Exception ignored) {}
         }
+        preparerCandidaturePourEvaluation(etudiantSarkoObj, employeur);
 
         // Juzo (Inscrit Automne 2026)
         String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
@@ -427,6 +431,65 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             entrevue.setStatut(StatutEntrevue.TERMINEE);
             entrevueRepository.save(entrevue);
         }
+    }
+
+    private void preparerCandidaturePourEvaluation(Etudiant etudiant, Employeur employeur) {
+        LocalDate aujourdHui = LocalDate.now();
+        String titreOffre = "Stage test - notification évaluation";
+        OffreDeStage offre = offreDeStageRepository.findAll().stream()
+                .filter(o -> titreOffre.equals(o.getTitle()))
+                .findFirst()
+                .orElseGet(() -> OffreDeStage.builder()
+                        .title(titreOffre)
+                        .description("Offre de démonstration pour tester la notification d'évaluation à deux semaines de la fin du stage.")
+                        .salary(20.0)
+                        .domain(Departement.INFORMATIQUE)
+                        .startDate(aujourdHui.minusMonths(3))
+                        .endDate(aujourdHui.plusDays(14))
+                        .displayEndDate(aujourdHui.minusDays(1))
+                        .statut(Statut.ACCEPTEE)
+                        .fileName("offre_test_evaluation.pdf")
+                        .storagePath("uploads/offres")
+                        .employeur(employeur)
+                        .rejectionComment("")
+                        .build());
+        offre.setStartDate(aujourdHui.minusMonths(3));
+        offre.setEndDate(aujourdHui.plusDays(14));
+        offre.setDisplayEndDate(aujourdHui.minusDays(1));
+        offre.setStatut(Statut.ACCEPTEE);
+        offre.setEmployeur(employeur);
+        offre = offreDeStageRepository.save(offre);
+
+        OffreDeStage offreFinale = offre;
+        Candidature candidature = candidatureRepository.findByOffreDeStage(offreFinale).stream()
+                .filter(c -> c.getEtudiant().getId().equals(etudiant.getId()))
+                .findFirst()
+                .orElseGet(() -> Candidature.builder()
+                        .etudiant(etudiant)
+                        .offreDeStage(offreFinale)
+                        .dateCandidature(LocalDateTime.now().minusMonths(3))
+                        .build());
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        candidature = candidatureRepository.save(candidature);
+
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
+        etudiantRepository.save(etudiant);
+
+        Gestionnaire gestionnaire = gestionnaireRepository.findAll().stream().findFirst().orElse(null);
+        if (gestionnaire == null) return;
+
+        Candidature candidaturePourContrat = candidature;
+        Contrat contrat = contratRepository.findByCandidatureId(candidaturePourContrat.getId())
+                .orElseGet(() -> Contrat.builder()
+                        .candidature(candidaturePourContrat)
+                        .gestionnaire(gestionnaire)
+                        .build());
+        LocalDateTime dateSignature = LocalDateTime.now().minusDays(2);
+        if (contrat.getDateSignatureEtudiant() == null) contrat.setDateSignatureEtudiant(dateSignature);
+        if (contrat.getDateSignatureEmployeur() == null) contrat.setDateSignatureEmployeur(dateSignature);
+        if (contrat.getDateSignatureGestionnaire() == null) contrat.setDateSignatureGestionnaire(dateSignature);
+        contratRepository.save(contrat);
     }
 
     private void ajouterInscriptionSecurisee(String matricule, Saison saison, int annee) {
