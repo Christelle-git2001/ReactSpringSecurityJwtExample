@@ -25,7 +25,7 @@ const FORMAT_KEYS = {
     PRESENTIEL: "entrevue.mode_onsite_title",
 };
 
-function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange, loading: loadingProp = false, convocations: convocationsProp, onConvocationsChange, filters, offres = [] }) {
+function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange, loading: loadingProp = false, convocations: convocationsProp, onConvocationsChange, filters, offres = [], selectedActions = "TOUS" }) {
     const { t, i18n } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
@@ -65,7 +65,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
 
     const stageDeclare = candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE" || ["STAGE_TROUVE", "CONTRAT_CREE"].includes(c.statut));
 
-    const visibles = candidatures.map((candidature) => {
+    const visibles = candidatures.filter(candidature => selectedActions === "TOUS"
+        || actionsCandidatureDesactivees(candidature) === (selectedActions === "DESACTIVEES")).map((candidature) => {
         const convocation = convocations.find((c) => c.candidatureId === candidature.id);
         return {
             ...convocation,
@@ -83,6 +84,9 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     }, filters);
 
     const candidaturesTriees = [...filtres.itemsFiltres].sort((a, b) => {
+        const actionsDesactiveesA = actionsCandidatureDesactivees(a.candidature);
+        const actionsDesactiveesB = actionsCandidatureDesactivees(b.candidature);
+        if (actionsDesactiveesA !== actionsDesactiveesB) return actionsDesactiveesA ? 1 : -1;
         const stageA = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(a.candidature.statut);
         const stageB = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(b.candidature.statut);
         if (stageA !== stageB) return stageA ? -1 : 1;
@@ -246,7 +250,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                     {actionError && <p role="alert" className="mb-3 text-sm text-red-700">{t(actionError)}</p>}
 
                     {filtres.itemsFiltres.length === 0 ? (
-                        <EmptyContentMessage message={t(visibles.length === 0 ? "candidature.none" : "candidature.no_matching_candidatures")} />
+                        <EmptyContentMessage message={t(candidatures.length === 0 ? "candidature.none" : "candidature.no_matching_candidatures")} />
                     ) : (
                         <ul aria-label={t("candidature.my_applications")} className="flex flex-col gap-3">
                             {candidaturesTriees.map((c) => {
@@ -275,7 +279,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                     <p className="text-base font-bold break-words">{c.offreTitle}</p>
                                                     <p className="mt-1 text-sm font-semibold">{c.employeur?.businessName}</p>
                                                     {candidature.dateCandidature && <p className="mt-1 text-xs text-[#043462]/70">
-                                                        {t("candidature.date")} : {candidature.dateCandidature.split("T")[0]}
+                                                        {t("candidature.date")} : {candidature.dateCandidature.replace("T", " ").slice(0, 16)}
                                                     </p>}
                                                 </div>
 

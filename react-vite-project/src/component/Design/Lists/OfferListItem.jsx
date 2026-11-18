@@ -23,9 +23,9 @@ function OfferListItem({ offer, onClick, variant = "card", actionLabel, actionCl
     const detailRows = [
         translatedDepartment && { label: t("offre.domaine"), value: translatedDepartment },
         salary && { label: t("offre.salary"), value: salary },
-        { label: t("add_offer.max_candidates"), value: offer?.nombreCandidatsMax ?? 1 },
         startDate && { label: t("offre.date_debut"), value: startDate },
         endDate && { label: t("offre.date_fin"), value: endDate },
+        { label: t("offre.positions"), value: offer?.nombreCandidatsMax ?? 1 },
     ].filter(Boolean);
 
     return (
@@ -34,6 +34,7 @@ function OfferListItem({ offer, onClick, variant = "card", actionLabel, actionCl
             title={offer?.title || t("dashboard.offer_without_title")}
             subtitle={offer?.employeur?.businessName || offer?.businessName || translatedDepartment}
             detailRows={detailRows}
+            detailsGridClassName="sm:grid-cols-2 lg:grid-cols-5 gap-x-12 lg:gap-x-16"
             badge={status.label}
             badgeClassName={status.className}
             tone="green"

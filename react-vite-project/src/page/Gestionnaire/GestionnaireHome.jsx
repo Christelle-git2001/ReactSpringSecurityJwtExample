@@ -8,7 +8,7 @@ import CandidatureListItem from "../../component/Design/Lists/CandidatureListIte
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus } from "../../api/gestionnaire.jsx";
+import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus, getContratByCandidatureId } from "../../api/gestionnaire.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
@@ -147,7 +147,17 @@ const GestionnaireHome = ({ user }) => {
     const chargerCandidaturesContrat = useCallback(async () => {
         try {
             const contratCreeData = await getCandidaturesByStatus("CONTRAT_CREE");
-            setCandidaturesContratCree(contratCreeData || []);
+            const candidaturesPretes = await Promise.all((contratCreeData || []).map(async candidature => {
+                try {
+                    const contrat = await getContratByCandidatureId(candidature.id);
+                    if (!contrat.dateSignatureEtudiant || !contrat.dateSignatureEmployeur) return null;
+                    return { ...candidature, contratSigne: Boolean(contrat.dateSignatureGestionnaire) };
+                } catch (err) {
+                    console.error(err);
+                    return null;
+                }
+            }));
+            setCandidaturesContratCree(candidaturesPretes.filter(Boolean));
         } catch (err) {
             console.log(err);
         }

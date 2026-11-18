@@ -181,7 +181,8 @@
       "api_generic": "Une erreur est survenue lors de l'envoi."
     },
     "already_applied": "Vous avez déjà postulé",
-    "remaining_positions": "Postes restants"
+    "remaining_positions": "Postes restants",
+    "positions": "Postes"
   },
   "login": {
     "page_title": "Connexion",
@@ -539,6 +540,9 @@
   "candidature": {
     "view_contract": "Voir le contrat",
     "actions_disabled": "Actions désactivées",
+    "actions_filter": "Actions des candidatures",
+    "actions_all": "Toutes",
+    "actions_enabled": "Actions actives",
     "actions_disabled_description": "Un stage final a déjà été choisi pour cet étudiant. Cette candidature reste consultable, mais ne peut plus être modifiée.",
     "final_stage_selected": "Stage final sélectionné",
     "final_stage_declared": "Stage final déclaré",
@@ -601,8 +605,8 @@
     "open_error": "Impossible d’ouvrir le document. Veuillez réessayer.",
     "read_error": "Impossible de marquer la notification comme lue.",
     "sort_by_date": "Trier par date",
-    "newest_first": "Plus récentes d’abord",
-    "oldest_first": "Plus anciennes d’abord"
+    "newest_first": "Plus récentes",
+    "oldest_first": "Plus anciennes"
   },
   "notification": {
     "nouveau_contrat": {
@@ -829,6 +833,8 @@
   },
   "sort": {
     "by_date": "Trier par date",
+    "newest_first_feminine": "Plus récentes",
+    "oldest_first_feminine": "Plus anciennes",
     "newest_first": "Plus récent",
     "oldest_first": "Plus ancien"
   },

@@ -60,12 +60,14 @@ function ListItem({
     subtitle,
     meta,
     detailRows = [],
+    detailsGridClassName = "sm:grid-cols-2 lg:grid-cols-4",
     badge,
     badgeClassName,
     tone = "blue",
     variant = "card",
     actionLabel,
     actionIcon,
+    actionRole = "details",
     actionClassName,
     showChevron = true,
     wrapText = false,
@@ -190,7 +192,7 @@ function ListItem({
                         )}
 
                         {detailRows.length > 0 && (
-                            <dl className="mt-3 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 lg:grid-cols-4">
+                            <dl className={`mt-3 grid gap-2 text-sm text-gray-700 ${detailsGridClassName}`}>
                                 {detailRows.map(({ label, value },index) => (
                                     <div key={`${label}-${index}`} className="min-w-0">
                                         <dt className="font-bold text-[#043462]">{label}</dt>
@@ -203,15 +205,17 @@ function ListItem({
                 </div>
 
                 {onClick && !isClickableCard && (
-                    <button
+                    <Button
+                        role={actionRole}
+                        icon={actionIcon ?? Boolean(actionLabel)}
+                        size="small"
                         type="button"
                         onClick={onClick}
                         className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
                         aria-label={ariaLabel}
                     >
-                        {actionIcon}
                         {actionLabel || <FiChevronRight className="size-4" />}
-                    </button>
+                    </Button>
                 )}
             </div>
         </div>

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { formaterDate } from "../../../utils/cvFormatters.jsx";
 
 import CandidatureOfferDetails from "../../Offer/CandidatureOfferDetails.jsx";
+import Button from "../Button.jsx";
 
 function CandidatureCard({ candidature, offer, onView, onViewOffer }) {
     const { t } = useTranslation();
@@ -61,13 +62,13 @@ function CandidatureCard({ candidature, offer, onView, onViewOffer }) {
                     </div>
 
                     {onView && (
-                        <button
+                        <Button role="details" icon={true} size="small"
                             type="button"
                             onClick={() => onView(candidature)}
                             className="btn btn-sm shrink-0 border-none rounded-lg px-4 bg-[#043462] text-white hover:bg-[#03284d]"
                         >
                             {t("candidature.read")}
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>

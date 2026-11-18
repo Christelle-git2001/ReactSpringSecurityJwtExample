@@ -10,6 +10,8 @@ import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx"
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
+import Sort from "../../component/Design/Sort.jsx";
+import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
@@ -20,6 +22,8 @@ const EmployeurHome = ({ user }) => {
     const [candidatures, setCandidatures] = useState([]);
     const [entrevues, setEntrevues] = useState([]);
     const [selectedOfferId, setSelectedOfferId] = useState(null);
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [selectedActions, setSelectedActions] = useState("TOUS");
 
     const offreFilters = useFilters(offres, {
         getDomain: (o) => o.domain,
@@ -33,9 +37,15 @@ const EmployeurHome = ({ user }) => {
         ].join(" "),
     });
 
+    const candidaturesFiltrees = candidatures.filter(candidature => selectedActions === "TOUS"
+        || actionsCandidatureDesactivees(candidature) === (selectedActions === "DESACTIVEES"));
+
     const filteredOffres = offreFilters.itemsFiltres.filter((o) => {
-        if (!selectedOfferId || selectedOfferId === "TOUS") return true;
-        return o.id === selectedOfferId;
+        if (selectedOfferId && selectedOfferId !== "TOUS" && o.id !== selectedOfferId) return false;
+        return selectedActions === "TOUS" || candidaturesFiltrees.some(c => c.offreId === o.id);
+    }).sort((a, b) => {
+        const comparaison = (a.createdAt ?? "").localeCompare(b.createdAt ?? "") || Number(a.id) - Number(b.id);
+        return sortOrder === "asc" ? comparaison : -comparaison;
     });
 
     const marquerNotificationOffreCommeLue = async (offreId) => {
@@ -139,6 +149,8 @@ const EmployeurHome = ({ user }) => {
                 />
 
                 <FilterBar
+                    selectedActions={selectedActions}
+                    onActionsChange={setSelectedActions}
                     selectedStatus={offreFilters.selectedStatus}
                     onStatusChange={offreFilters.setSelectedStatus}
                     selectedDomain={offreFilters.selectedDomain}
@@ -159,6 +171,11 @@ const EmployeurHome = ({ user }) => {
 
                     <div className="collapse-content transition-all duration-300 ease-in-out px-0">
                         <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
+                        <div className="flex justify-end">
+                            <Sort sortOrder={sortOrder} onSortChange={setSortOrder}
+                                  newestLabel={t("sort.newest_first", { context: "feminine" })}
+                                  oldestLabel={t("sort.oldest_first", { context: "feminine" })} />
+                        </div>
                         <div className="w-full px-2 sm:px-4 pb-8">
                             {filteredOffres.length === 0 ? (
                                 <EmptyContentMessage
@@ -174,7 +191,7 @@ const EmployeurHome = ({ user }) => {
                                         <OffreStageCard
                                             key={offer.id}
                                             offer={offer}
-                                            candidatures={candidatures}
+                                            candidatures={candidaturesFiltrees}
                                             entrevues={entrevues}
                                             onViewCandidature={handleViewCandidature}
                                             onEdit={handleEdit}

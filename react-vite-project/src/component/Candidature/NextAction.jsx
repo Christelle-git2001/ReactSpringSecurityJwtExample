@@ -421,6 +421,7 @@ function NextAction({
                     return {
                         description: t("process.action_default"),
                         buttonText: t("actions.view_details"),
+                        role: "details",
                         onClick: () => {},
                         disabled: false
                     };
@@ -475,8 +476,8 @@ function NextAction({
                         </>
                     )}
                     {actionData.buttonText && (
-                        <Button role={actionData.onClick === ouvrirModalSignature ? "signature" : "custom"}
-                                icon={actionData.onClick === ouvrirModalSignature} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
+                        <Button role={actionData.onClick === ouvrirModalSignature ? "signature" : actionData.role || "custom"}
+                                icon={actionData.onClick === ouvrirModalSignature || actionData.role === "details"} type="button" onClick={actionData.onClick} disabled={actionData.disabled}
                                 className={actionData.onClick === ouvrirModalSignature ? "" : `text-white ${actionData.disabled ? "bg-gray-400 opacity-70" : "bg-cyan-600 enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600"}`}>
                             {actionData.buttonText}
                         </Button>
