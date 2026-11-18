@@ -133,6 +133,7 @@
     "expand": "Développer",
     "create_contract": "Créer le contrat",
     "postuler": "Postuler",
+    "evaluate_intern": "Évaluer le stagiaire",
     "confirm" : "Confirmer"
   },
   "search": {
@@ -772,9 +773,11 @@
     "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
     "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
+    "action_evaluate_intern": "Le stage est terminé. Veuillez remplir l’évaluation du stagiaire.",
     "action_default": "Suivi du processus de candidature en cours.",
     "cv_view_title": "CV de l'étudiant ",
-    "contract_view_title": "Contrat de Stage"
+    "contract_view_title": "Contrat de Stage",
+    "evaluation_view_title": "Évaluation du stagiaire"
   },
   "convocation": {
     "title": "Détails de l'entrevue",
@@ -864,6 +867,83 @@
     "preferences": "Préférences",
     "theme": "Thème",
     "language": "Langue"
+  },
+  "evaluation": {
+    "title": "Évaluation du stagiaire",
+    "success": "L’évaluation du stagiaire a été soumise avec succès.",
+    "sections": {
+      "supervisor": "Renseignements sur le superviseur",
+      "productivite": "Productivité",
+      "qualiteTravail": "Qualité du travail",
+      "qualiteSociale": "Qualité des relations interpersonnelles",
+      "habiletesPersonnelles": "Habiletés personnelles",
+      "overall": "Appréciation globale du stagiaire"
+    },
+    "subtitles": {
+      "productivite": "Capacité d’optimiser le rendement de son travail",
+      "qualiteTravail": "Capacité d’exécuter ses responsabilités en maintenant des normes de qualité élevées",
+      "qualiteSociale": "Capacité d’établir des relations harmonieuses dans le milieu de travail",
+      "habiletesPersonnelles": "Capacité de démontrer des attitudes et des comportements matures et responsables"
+    },
+    "fields": {
+      "supervisorFirstName": "Prénom du superviseur",
+      "supervisorLastName": "Nom du superviseur",
+      "supervisorRole": "Fonction",
+      "supervisorPhone": "Téléphone",
+      "comments": "Commentaires",
+      "overallRating": "Appréciation générale",
+      "overallComments": "Précisez votre appréciation",
+      "discussedWithIntern": "Cette évaluation a-t-elle été discutée avec le stagiaire ?",
+      "supervisionHours": "Nombre réel d’heures d’encadrement par semaine",
+      "welcomeAgain": "L’entreprise aimerait accueillir ce stagiaire pour son prochain stage",
+      "trainingSufficient": "La formation technique du stagiaire était-elle suffisante pour accomplir le mandat de stage ?"
+    },
+    "criteria": {
+      "planificationScore": "Planifier et organiser son travail efficacement",
+      "comprehensionScore": "Comprendre rapidement les directives relatives à son travail",
+      "rythmeScore": "Maintenir un rythme de travail soutenu",
+      "prioriteScore": "Établir ses priorités",
+      "echeancierScore": "Respecter ses échéanciers",
+      "completeTaskScore": "Accomplir les mandats qui lui ont été confiés",
+      "minutieScore": "Porter attention aux détails dans la réalisation de ses tâches",
+      "checkBoxScore": "Vérifier son travail et s’assurer que rien n’a été oublié",
+      "perfectionnementResearchScore": "Rechercher des occasions de se perfectionner",
+      "analystScore": "Analyser efficacement les problèmes rencontrés",
+      "socialScore": "Établir facilement des contacts avec les gens",
+      "teamWorkScore": "Contribuer activement au travail d’équipe",
+      "adaptationScore": "S’adapter facilement à la culture de l’entreprise",
+      "critiqueAcceptationScore": "Accepter les critiques constructives",
+      "respectScore": "Faire preuve de respect envers les autres",
+      "listenScore": "Faire preuve d’écoute active en cherchant à comprendre le point de vue d’autrui",
+      "motivationScore": "Démontrer de l’intérêt et de la motivation au travail",
+      "tellIdeaScore": "Exprimer clairement ses idées",
+      "initiativeScore": "Faire preuve d’initiative",
+      "securityScore": "Travailler de façon sécuritaire",
+      "responsabiliteScore": "Démontrer un sens des responsabilités nécessitant un minimum de supervision",
+      "ponctuelScore": "Être ponctuel et assidu"
+    },
+    "levels": {
+      "1": "Totalement en désaccord",
+      "2": "Plutôt en désaccord",
+      "3": "Plutôt en accord",
+      "4": "Totalement en accord",
+      "NA": "N/A — Non applicable"
+    },
+    "overallLevels": {
+      "5": "Les habiletés démontrées dépassent de beaucoup les attentes",
+      "4": "Les habiletés démontrées dépassent les attentes",
+      "3": "Les habiletés démontrées répondent pleinement aux attentes",
+      "2": "Les habiletés démontrées répondent partiellement aux attentes",
+      "1": "Les habiletés démontrées ne répondent pas aux attentes"
+    },
+    "options": {
+      "yes": "Oui",
+      "no": "Non",
+      "maybe": "Peut-être"
+    },
+    "required": "Veuillez remplir tous les champs obligatoires et répondre à toutes les questions.",
+    "confirm_description": "Vérifiez vos réponses avant de soumettre l’évaluation.",
+    "submit": "Soumettre l’évaluation"
   },
   "chatbot": {
     "errors": {

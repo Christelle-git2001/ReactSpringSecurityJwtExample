@@ -1,4 +1,4 @@
-package com.lacouf.rsbjwt.exception;
+package com.lacouf.rsbjwt.exception.evaluation;
 
 public class EvaluationStagiaireIntrouvable extends Exception {
     public EvaluationStagiaireIntrouvable() {

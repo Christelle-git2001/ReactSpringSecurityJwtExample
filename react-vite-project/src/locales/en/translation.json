@@ -133,6 +133,7 @@
     "expand": "Expand",
     "cancel" : "Cancel",
     "postuler": "Postuler",
+    "evaluate_intern": "Evaluate intern",
     "confirm": "Confirm"
   },
   "login": {
@@ -808,9 +809,11 @@
     "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",
     "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
+    "action_evaluate_intern": "The internship has ended. Please complete the intern evaluation.",
     "action_default": "Application process tracking in progress.",
     "cv_view_title" : "Student CV",
-    "contract_view_title" : "Internship Agreement"
+    "contract_view_title" : "Internship Agreement",
+    "evaluation_view_title": "Intern Evaluation"
   },
   "sort": {
     "by_date": "Sort by date",
@@ -863,6 +866,83 @@
     "preferences": "Preferences",
     "theme": "Theme",
     "language": "Language"
+  },
+  "evaluation": {
+    "title": "Intern Evaluation",
+    "success": "The intern evaluation was submitted successfully.",
+    "sections": {
+      "supervisor": "Supervisor Information",
+      "productivite": "Productivity",
+      "qualiteTravail": "Quality of Work",
+      "qualiteSociale": "Interpersonal Relationships",
+      "habiletesPersonnelles": "Personal Skills",
+      "overall": "Overall Evaluation of the Intern"
+    },
+    "subtitles": {
+      "productivite": "Ability to optimize work performance",
+      "qualiteTravail": "Ability to fulfill responsibilities while maintaining high quality standards",
+      "qualiteSociale": "Ability to establish harmonious relationships in the workplace",
+      "habiletesPersonnelles": "Ability to demonstrate mature and responsible attitudes and behaviors"
+    },
+    "fields": {
+      "supervisorFirstName": "Supervisor First Name",
+      "supervisorLastName": "Supervisor Last Name",
+      "supervisorRole": "Job Title",
+      "supervisorPhone": "Phone Number",
+      "comments": "Comments",
+      "overallRating": "Overall Assessment",
+      "overallComments": "Specify your assessment",
+      "discussedWithIntern": "Was this evaluation discussed with the intern?",
+      "supervisionHours": "Actual number of supervision hours per week",
+      "welcomeAgain": "Would the company like to host this intern for their next internship?",
+      "trainingSufficient": "Was the intern’s technical training sufficient to carry out the internship assignment?"
+    },
+    "criteria": {
+      "planificationScore": "Plan and organize work effectively",
+      "comprehensionScore": "Quickly understand instructions related to the work",
+      "rythmeScore": "Maintain a steady work pace",
+      "prioriteScore": "Set priorities",
+      "echeancierScore": "Meet deadlines",
+      "completeTaskScore": "Complete assigned responsibilities",
+      "minutieScore": "Pay attention to detail when performing tasks",
+      "checkBoxScore": "Review work and ensure nothing has been overlooked",
+      "perfectionnementResearchScore": "Seek opportunities for improvement",
+      "analystScore": "Effectively analyze problems encountered",
+      "socialScore": "Easily establish contact with others",
+      "teamWorkScore": "Actively contribute to teamwork",
+      "adaptationScore": "Adapt easily to the company culture",
+      "critiqueAcceptationScore": "Accept constructive criticism",
+      "respectScore": "Show respect for others",
+      "listenScore": "Listen actively and try to understand others’ points of view",
+      "motivationScore": "Show interest and motivation at work",
+      "tellIdeaScore": "Express ideas clearly",
+      "initiativeScore": "Show initiative",
+      "securityScore": "Work safely",
+      "responsabiliteScore": "Show responsibility and require minimal supervision",
+      "ponctuelScore": "Be punctual and conscientious"
+    },
+    "levels": {
+      "1": "Strongly disagree",
+      "2": "Somewhat disagree",
+      "3": "Somewhat agree",
+      "4": "Strongly agree",
+      "NA": "N/A — Not applicable"
+    },
+    "overallLevels": {
+      "5": "Demonstrated skills far exceed expectations",
+      "4": "Demonstrated skills exceed expectations",
+      "3": "Demonstrated skills fully meet expectations",
+      "2": "Demonstrated skills partially meet expectations",
+      "1": "Demonstrated skills do not meet expectations"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "maybe": "Maybe"
+    },
+    "required": "Complete all required fields and answer every question.",
+    "confirm_description": "Review your answers before submitting the evaluation.",
+    "submit": "Submit Evaluation"
   },
   "chatbot": {
     "errors": {

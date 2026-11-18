@@ -1,8 +1,9 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { obtenirConvocationEmployeur } from "../../api/employeur.jsx";
+import { obtenirEvaluationStagiairePDF } from "../../api/pdf.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
@@ -14,7 +15,7 @@ import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, user }) {
     const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const location = useLocation();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const candidatureSource = candidatureProp || location.state?.candidature;
     const [decision, setDecision] = useState(null);
@@ -25,6 +26,11 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
 
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(true);
+    const [evaluationPdfBlobUrl, setEvaluationPdfBlobUrl] = useState(null);
+    const [isEvaluationLoading, setIsEvaluationLoading] = useState(false);
+    const [evaluationError, setEvaluationError] = useState(false);
+    const [scrollVersEvaluation, setScrollVersEvaluation] = useState(false);
+    const evaluationRef = useRef(null);
 
 
     const cvId = candidature?.cvId;
@@ -51,6 +57,47 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
         error,
         rechargerContrat
     } = useContrat(candidatureId,candidature.statut);
+
+    const chargerEvaluationPdf = useCallback(async (defilerVersEvaluation = false) => {
+        if (!candidatureId) return;
+
+        setIsEvaluationLoading(true);
+        setEvaluationError(false);
+        try {
+            const response = await obtenirEvaluationStagiairePDF(candidatureId, i18n.language || "fr");
+            const blob = await response.blob();
+            setEvaluationPdfBlobUrl(URL.createObjectURL(blob));
+            if (defilerVersEvaluation) setScrollVersEvaluation(true);
+        } catch (err) {
+            if (err?.status !== 404) {
+                console.error("Erreur lors du chargement du PDF de l'évaluation:", err);
+                setEvaluationError(true);
+            } else {
+                setEvaluationPdfBlobUrl(null);
+            }
+        } finally {
+            setIsEvaluationLoading(false);
+        }
+    }, [candidatureId, i18n.language]);
+
+    const dateFinStage = offer?.endDate;
+    const stageTermine = Boolean(dateFinStage) && dateFinStage < new Date().toLocaleDateString("en-CA");
+
+    useEffect(() => {
+        if (candidature?.statut === "CONTRAT_CREE" && stageTermine) {
+            chargerEvaluationPdf();
+        }
+    }, [candidature?.statut, stageTermine, chargerEvaluationPdf]);
+
+    useEffect(() => {
+        if (!scrollVersEvaluation || !evaluationPdfBlobUrl) return;
+        evaluationRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        setScrollVersEvaluation(false);
+    }, [scrollVersEvaluation, evaluationPdfBlobUrl]);
+
+    useEffect(() => () => {
+        if (evaluationPdfBlobUrl) URL.revokeObjectURL(evaluationPdfBlobUrl);
+    }, [evaluationPdfBlobUrl]);
 
     useEffect(() => {
         if (!contrat?.dateSignatureEmployeur || !user?.id || !candidatureId) return;
@@ -133,6 +180,9 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     offer={offer}
                     retourPath={retour}
                     onProcessChange={setDecision}
+                    onEvaluationSubmitted={() => chargerEvaluationPdf(true)}
+                    evaluationDejaSoumise={Boolean(evaluationPdfBlobUrl)}
+                    evaluationEnChargement={isEvaluationLoading}
                     onSignatureSuccess={() => {
                         rechargerContrat();
                     }}
@@ -190,6 +240,37 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                                             {t("offre.document_error")}
                                         </p>
                                     )}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {(evaluationPdfBlobUrl || isEvaluationLoading || evaluationError) && (
+                    <div className="w-full" ref={evaluationRef}>
+                        <div className="collapse collapse-arrow bg-transparent">
+                            <input type="checkbox" className="peer" defaultChecked />
+
+                            <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                                <span>{t("process.evaluation_view_title")}</span>
+                            </div>
+
+                            <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                                <div className="w-full bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                                    {isEvaluationLoading ? (
+                                        <div className="flex items-center justify-center p-12 bg-gray-50 rounded-xl">
+                                            <span className="loading loading-spinner loading-md text-[#043462]" />
+                                        </div>
+                                    ) : evaluationPdfBlobUrl ? (
+                                        <Suspense fallback={<div className="p-4 text-center">...</div>}>
+                                            <PDFContent cvUrlAAffiche={evaluationPdfBlobUrl} enablePageScroll={true} />
+                                        </Suspense>
+                                    ) : evaluationError ? (
+                                        <p role="alert" className="text-xs text-red-700 p-6 bg-red-50 rounded-xl text-center">
+                                            {t("error.generic")}
+                                        </p>
+                                    ) : null}
                                 </div>
                             </div>
                         </div>

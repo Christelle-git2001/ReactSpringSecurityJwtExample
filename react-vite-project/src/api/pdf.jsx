@@ -7,3 +7,8 @@ export async function obtenirContratPDF(contratId, langue = "fr") {
     });
 }
 
+export async function obtenirEvaluationStagiairePDF(candidatureId, langue = "fr") {
+    return fetchApi(`/pdf/evaluation/etudiant/${candidatureId}?langue=${langue}`, {
+        method: "GET",
+    });
+}

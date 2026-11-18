@@ -25,6 +25,9 @@ function NextAction({
                         retourPath,
                         onSignatureSuccess,
                         onProcessChange,
+                        onEvaluationSubmitted,
+                        evaluationDejaSoumise = false,
+                        evaluationEnChargement = false,
                         role,
                         offer
                     }) {
@@ -326,13 +329,13 @@ function NextAction({
 
             // Évaluation du stagiaire : contrat créé et stage terminé
             if (statutActuel === "CONTRAT_CREE" && stageTermine) {
-                return evaluationSoumise
+                return evaluationSoumise || evaluationDejaSoumise
                     ? { description: t("evaluation.success"), buttonText: null, onClick: null, disabled: false }
                     : {
                         description: t("process.action_evaluate_intern"),
                         buttonText: t("actions.evaluate_intern"),
                         onClick: () => setEvaluationOuverte(true),
-                        disabled: false
+                        disabled: evaluationEnChargement
                     };
             }
 
@@ -578,6 +581,7 @@ function NextAction({
                     onSuccess={() => {
                         setEvaluationOuverte(false);
                         setEvaluationSoumise(true);
+                        onEvaluationSubmitted?.();
                     }}
                 />
             )}
