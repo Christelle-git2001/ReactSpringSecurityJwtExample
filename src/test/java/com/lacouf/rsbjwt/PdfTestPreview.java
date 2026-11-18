@@ -1,5 +1,5 @@
 package com.lacouf.rsbjwt;
-import com.lacouf.rsbjwt.exception.EvaluationStagiaireIntrouvable;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
 import com.lacouf.rsbjwt.model.Enum.Departement;

@@ -1,4 +1,4 @@
-package com.lacouf.rsbjwt.service.dto.EvaluationStagiaire;
+package com.lacouf.rsbjwt.service.dto.evaluation_stagiaire;
 
 import com.lacouf.rsbjwt.model.Evaluation.HabiletePersonelle;
 import lombok.Builder;

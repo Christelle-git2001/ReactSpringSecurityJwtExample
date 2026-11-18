@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
-import com.lacouf.rsbjwt.service.dto.StageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.StageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;

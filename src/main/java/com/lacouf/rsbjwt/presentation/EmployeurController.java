@@ -23,7 +23,7 @@ import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
 import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
-import com.lacouf.rsbjwt.service.dto.EvaluationStagiaireDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.EvaluationStagiaireDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.RefusCandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.contrat.ConfirmationSignatureDTO;

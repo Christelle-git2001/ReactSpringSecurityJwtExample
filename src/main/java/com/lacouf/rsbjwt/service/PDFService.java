@@ -10,7 +10,7 @@ import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.*;
-import com.lacouf.rsbjwt.exception.EvaluationStagiaireIntrouvable;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
