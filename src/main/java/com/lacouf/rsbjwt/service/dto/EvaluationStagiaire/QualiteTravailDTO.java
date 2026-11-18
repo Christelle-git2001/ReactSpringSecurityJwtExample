@@ -21,6 +21,7 @@ public record QualiteTravailDTO(
                 .checkBoxScore(dto.checkBoxScore())
                 .perfectionnementResearchScore(dto.perfectionnementResearchScore())
                 .analystScore(dto.analystScore())
+                .commentaire(dto.commentaire())
                 .build();
     }
 

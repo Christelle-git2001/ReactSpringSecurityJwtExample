@@ -23,6 +23,7 @@ public record HabiletePersonelleDTO(
                 .securityScore(dto.securityScore())
                 .responsabiliteScore(dto.responsabiliteScore())
                 .ponctuelScore(dto.ponctuelScore())
+                .commentaire(dto.commentaire())
                 .commentaire(dto.commentaire)
                 .build();
     }
