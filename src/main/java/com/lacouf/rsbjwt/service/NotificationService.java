@@ -11,6 +11,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
 import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Notification;
@@ -20,9 +21,11 @@ import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,15 +40,21 @@ public class NotificationService {
     private final CandidatureRepository candidatureRepository;
     private final EmployeurRepository employeurRepository;
     private final ProfesseurRepository professeurRepository;
+    private final ContratRepository contratRepository;
+    private final EvaluationStagiaireRepository evaluationStagiaireRepository;
 
     public NotificationService(NotificationRepository notificationRepository, UserAppRepository userAppRepository,
-                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, EmployeurRepository employeurRepository, ProfesseurRepository professeurRepository) {
+                               EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository,
+                               EmployeurRepository employeurRepository, ProfesseurRepository professeurRepository,
+                               ContratRepository contratRepository, EvaluationStagiaireRepository evaluationStagiaireRepository) {
         this.notificationRepository = notificationRepository;
         this.userAppRepository = userAppRepository;
         this.etudiantRepository = etudiantRepository;
         this.candidatureRepository = candidatureRepository;
         this.employeurRepository = employeurRepository;
         this.professeurRepository = professeurRepository;
+        this.contratRepository = contratRepository;
+        this.evaluationStagiaireRepository = evaluationStagiaireRepository;
     }
 
     @EventListener
@@ -705,5 +714,51 @@ public class NotificationService {
                 .filter(notification -> !notification.isEstLu())
                 .map(NotificationDTO::of)
                 .toList();
+    }
+
+    @Scheduled(fixedDelay = 30000, initialDelay = 30000)
+    @Transactional
+    public void notifierEmployeursEvaluationStage() {
+        notifierEmployeursEvaluationStage(LocalDate.now());
+    }
+
+    void notifierEmployeursEvaluationStage(LocalDate aujourdHui) {
+        for (StatutCandidature statut : List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE)) {
+            for (Candidature candidature : candidatureRepository.findByStatut(statut)) {
+                OffreDeStage offre = candidature.getOffreDeStage();
+                if (offre == null || offre.getEndDate() == null) continue;
+
+                LocalDate dateDebutEvaluation = offre.getEndDate().minusDays(14);
+                if (aujourdHui.isBefore(dateDebutEvaluation) || aujourdHui.isAfter(offre.getEndDate())) continue;
+                if (contratRepository.findByCandidatureId(candidature.getId())
+                        .filter(contrat -> contrat.getDateSignatureGestionnaire() != null
+                                && contrat.getDateSignatureEmployeur() != null
+                                && contrat.getDateSignatureEtudiant() != null)
+                        .isEmpty()) continue;
+                if (evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(candidature.getId())
+                        .isPresent()) continue;
+
+                String urlCible = ControllerPath.EMPLOYEUR_CANDIDATURES.build()
+                        + "?candidatureId=" + candidature.getId();
+                if (notificationRepository.findByNotificationTypeAndUrlCible(
+                        NotificationType.EVALUATION_STAGE_A_FAIRE, urlCible).isPresent()) continue;
+
+                notificationRepository.save(Notification.builder()
+                        .titre("notification.employeur.evaluationStage.title")
+                        .description("notification.employeur.evaluationStage.description")
+                        .notificationType(NotificationType.EVALUATION_STAGE_A_FAIRE)
+                        .dateCreaction(LocalDateTime.now())
+                        .role(Role.EMPLOYEUR)
+                        .destinataire(offre.getEmployeur())
+                        .urlCible(urlCible)
+                        .variables(Map.of(
+                                VariableMapKey.ETUDIANT_NOM,
+                                candidature.getEtudiant().getFirstName() + " " + candidature.getEtudiant().getLastName(),
+                                VariableMapKey.OFFRE_TITRE, offre.getTitle(),
+                                VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId())
+                        ))
+                        .build());
+            }
+        }
     }
 }
