@@ -288,7 +288,8 @@ class PDFServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
+                LocalDate.now().plusDays(7),
+                1
         );
 
         Resource result = pdfService.createOffreDeStagePdf(dto, employeur);
@@ -306,7 +307,8 @@ class PDFServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
+                LocalDate.now().plusDays(7),
+                1
         );
 
         Resource result = pdfService.createOffreDeStagePdf(dto, null);
