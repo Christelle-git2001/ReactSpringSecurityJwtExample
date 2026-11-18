@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEmployeurTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotGestionnaireTools;
+import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotProfesseurTools;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,16 +31,18 @@ class ChatbotServiceTest {
     @Mock private ChatbotGestionnaireTools gestionnaireTools;
     @Mock private ChatbotEtudiantTools etudiantTools;
     @Mock private ChatbotEmployeurTools employeurTools;
+    @Mock private ChatbotProfesseurTools professeurTools;
     @Mock private Resource promptGestionnaire;
     @Mock private Resource promptEtudiant;
     @Mock private Resource promptEmployeur;
+    @Mock private Resource promptProfesseur;
     private ChatbotService service;
 
     @BeforeEach
     void preparer() {
         SecurityContextHolder.clearContext();
-        service = new ChatbotService(chatClient, gestionnaireTools, etudiantTools, employeurTools,
-                promptGestionnaire, promptEtudiant, promptEmployeur);
+        service = new ChatbotService(chatClient, gestionnaireTools, etudiantTools, employeurTools,professeurTools,
+                promptGestionnaire, promptEtudiant, promptEmployeur, promptProfesseur);
     }
 
     @AfterEach
@@ -76,7 +79,7 @@ class ChatbotServiceTest {
 
     @Test
     void doitRefuserLesRolesNonAutorisesSansUtiliserLesToolsEtudiant() {
-        String[] rolesInterdits = {"PROFESSEUR", "INCONNU", "ROLE_ETUDIANT", "ROLE_ANONYMOUS"};
+        String[] rolesInterdits = {"INCONNU", "ROLE_ETUDIANT", "ROLE_ANONYMOUS"};
 
         for (String role : rolesInterdits) {
             connecter(role);

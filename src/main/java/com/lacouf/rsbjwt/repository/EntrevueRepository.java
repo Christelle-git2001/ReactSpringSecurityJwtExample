@@ -28,4 +28,7 @@ public interface EntrevueRepository
     List<Entrevue> findByCandidatureOffreDeStageEmployeurBusinessNameContainingIgnoreCaseOrderByDateHeureEntrevueAsc(String entreprise);
     List<Entrevue> findByDateHeureEntrevueAfterAndStatutInOrderByDateHeureEntrevueAsc(
             LocalDateTime date, List<StatutEntrevue> statuts);
+
+    List<Entrevue> findByCandidatureEtudiantIdInOrderByDateHeureEntrevueAsc(
+            List<Long> etudiantIds);
 }

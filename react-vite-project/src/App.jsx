@@ -58,18 +58,24 @@ function App() {
             />
             <Drawer id="my-drawer-5" content={drawerContent} />
             <Toaster />
+
             {user?.isLoggedIn && location.pathname !== "/login" && (() => {
                 const roleName = user.role?.name || "GESTIONNAIRE";
+
                 const roleKey = roleName.toLowerCase();
 
+                const roleLabel = roleName.charAt(0) +
+                    roleName.slice(1).toLowerCase();
 
-                const suggestionsList = t(`chatbot.suggestions.${roleKey}`, { returnObjects: true });
+                const suggestionsList = t(`chatbot.suggestions.${roleKey}`, {
+                    returnObjects: true
+                });
 
                 return (
                     <ChatBot
                         titre={t("chatbot.titre")}
-                        sousTitre={t(`chatbot.sousTitre${roleName.charAt(0) + roleName.slice(1).toLowerCase()}`)}
-                        initialMessage={t(`chatbot.initial${roleName.charAt(0) + roleName.slice(1).toLowerCase()}`)}
+                        sousTitre={t(`chatbot.sousTitre${roleLabel}`)}
+                        initialMessage={t(`chatbot.initial${roleLabel}`)}
                         suggestions={Array.isArray(suggestionsList) ? suggestionsList : []}
                         t={t}
                         onSend={async (question) => {
@@ -79,6 +85,7 @@ function App() {
                     />
                 );
             })()}
+
         </div>
     );
 }

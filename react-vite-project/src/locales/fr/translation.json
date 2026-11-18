@@ -878,6 +878,8 @@
     "sousTitreGestionnaire": "Gestionnaire de stages",
     "initialEtudiant": "Bonjour ! Je suis votre assistant étudiant. 👋\nPosez-moi une question sur votre CV, vos offres de stage ou vos candidatures.",
     "initialEmployeur": "Bonjour ! Je suis votre assistant employeur. 👋\nPosez-moi une question sur vos offres de stage, vos candidats ou vos contrats.",
+    "sousTitreProfesseur": "Assistant professeur",
+    "initialProfesseur": "Bonjour ! Je suis votre assistant professeur. 👋\nPosez-moi une question sur vos étudiants, leurs candidatures, leurs entrevues ou leurs stages.",
     "initialGestionnaire": "Bonjour ! Je suis votre assistant de gestion de stages.\nPosez-moi une question ou choisissez une suggestion ci-dessous.",
     "suggestions": {
       "etudiant": [
@@ -932,6 +934,28 @@
         {
           "label": "Combien ont trouvé un stage ?",
           "query": "Combien ont trouvé un stage ?"
+        }
+      ],
+      "professeur": [
+        {
+          "label": "Quels étudiants me sont assignés ?",
+          "query": "Quels étudiants me sont assignés ?"
+        },
+        {
+          "label": "Quels étudiants cherchent encore un stage ?",
+          "query": "Quels étudiants cherchent encore un stage ?"
+        },
+        {
+          "label": "Quels étudiants ont une entrevue cette semaine ?",
+          "query": "Quels étudiants ont une entrevue cette semaine ?"
+        },
+        {
+          "label": "Quelles entreprises dois-je visiter ?",
+          "query": "Quelles entreprises dois-je visiter ?"
+        },
+        {
+          "label": "Ai-je des notifications non lues ?",
+          "query": "Quelles sont mes notifications non lues ?"
         }
       ]
     }

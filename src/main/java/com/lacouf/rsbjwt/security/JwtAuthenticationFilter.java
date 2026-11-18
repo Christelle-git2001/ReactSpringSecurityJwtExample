@@ -38,9 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 String email = tokenProvider.getEmailFromJWT(token);
 
-// LOGS TEMPORAIRES
-                logger.info("EMAIL EXTRAIT DU JWT : " + email);
-
                 boolean utilisateurExiste =
                         userRepository.findUserAppByEmail(email).isPresent();
 
