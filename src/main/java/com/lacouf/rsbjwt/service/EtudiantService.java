@@ -38,6 +38,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -568,7 +570,7 @@ public class EtudiantService {
         return ContratDTO.of(contratEnregistre);
     }
 
-    static boolean actionsCandidatureDesactivees(Candidature candidature) {
+    public static boolean actionsCandidatureDesactivees(Candidature candidature) {
         Etudiant etudiant = candidature.getEtudiant();
         if (etudiant == null) return false;
         Candidature stageChoisi = etudiant.getCandidatureStage();
@@ -585,5 +587,85 @@ public class EtudiantService {
             throw new ActionsCandidatureDesactiveesException();
         }
     }
+    public MonCvTeleverseDTO getMonCv() throws EtudiantIntrouvableException {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        return cvEtudiantRepository.findByEtudiant(etudiant)
+                .map(cv -> new MonCvTeleverseDTO(true, CvEtudiantDTO.of(cv)))
+                .orElseGet(() -> new MonCvTeleverseDTO(false, null));
+    }
+
+
+    public List<OffreDeStageDTO> getOffresNonPostulees()
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException,
+            CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        List<OffreDeStageDTO> offresDisponibles =
+                getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()
+                );
+
+        Set<Long> offresPostulees = candidatureRepository
+                .findByEtudiant(etudiant)
+                .stream()
+                .map(candidature -> candidature.getOffreDeStage().getId())
+                .collect(Collectors.toSet());
+
+        return offresDisponibles.stream()
+                .filter(offre -> !offresPostulees.contains(offre.id()))
+                .toList();
+    }
+
+
+    public List<OffreDeStageDTO> getNouvellesOffresDepuisDerniereVisite()
+            throws EtudiantIntrouvableException,
+            CurriculumVitaeNonApprouveException,
+            CurriculumVitaeIntrouvable {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        LocalDateTime derniereVisite = etudiant.getPreviousLoginAt();
+
+        List<OffreDeStageDTO> offresDisponibles =
+                getOffresDisponibles(
+                        etudiant.getDepartment(),
+                        etudiant.getEmail()
+                );
+
+        if (derniereVisite == null) {
+            return offresDisponibles.stream()
+                    .filter(offre -> offre.approvedAt() != null)
+                    .toList();
+        }
+
+        return offresDisponibles.stream()
+                .filter(offre -> offre.approvedAt() != null)
+                .filter(offre -> offre.approvedAt().isAfter(derniereVisite))
+                .toList();
+    }
+
+    public MonProfesseurAssigneDTO getMonProfesseur()
+            throws EtudiantIntrouvableException {
+
+        Etudiant etudiant = getEtudiantConnecte();
+
+        Professeur professeur = etudiant.getProfesseur();
+
+        if (professeur == null) {
+            return new MonProfesseurAssigneDTO(false, null);
+        }
+
+        return new MonProfesseurAssigneDTO(
+                true,
+                ProfesseurDTO.of(professeur)
+        );
+    }
+
+
 
 }

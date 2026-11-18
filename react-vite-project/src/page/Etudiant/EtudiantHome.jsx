@@ -21,6 +21,7 @@ import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import { HiAcademicCap } from "react-icons/hi";
 
+
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
 

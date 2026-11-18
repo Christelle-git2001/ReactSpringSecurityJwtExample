@@ -330,7 +330,7 @@ public class EtudiantControllerTest {
                 null,
                 null,
                 null,
-                false
+                false, null
         );
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(

@@ -23,7 +23,8 @@ public record OffreDeStageDTO(
         EtudiantDTO etudiant,
         String rejectionComment,
         LocalDateTime createdAt,
-        Boolean isTarget
+        Boolean isTarget,
+        LocalDateTime approvedAt
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
@@ -48,7 +49,8 @@ public record OffreDeStageDTO(
                 etudiantDTO,
                 offre.getRejectionComment(),
                 offre.getCreatedAt(),
-                offre instanceof OffreCiblee
+                offre instanceof OffreCiblee,
+                offre.getApprovedAt()
         );
     }
 
@@ -68,7 +70,8 @@ public record OffreDeStageDTO(
                 null,
                 null,
                 null,
-                false
+                false,
+                null
         );
     }
 }

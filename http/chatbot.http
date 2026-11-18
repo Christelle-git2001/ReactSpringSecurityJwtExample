@@ -1,0 +1,65 @@
+# Demarrer PostgreSQL et le backend avec les profils dev,chatbot.
+# La cle Azure reste dans application-chatbot-local.properties (ignore par Git).
+# Executer la connexion avant les questions, puis chaque question separement.
+# Chaque question appelle Azure et utilise les credits de la ressource.
+@baseUrl = http://localhost:8080
+
+### 1. Connexion gestionnaire : memorise automatiquement le JWT
+POST {{baseUrl}}/api/auth/login/gestionnaire
+
+> {%
+    client.test("Connexion gestionnaire reussie", function () {
+        client.assert(response.status === 200, "La connexion doit retourner HTTP 200.");
+    });
+    if (response.status === 200 && typeof response.body === "string") {
+        client.global.set("gestionnaireToken", response.body.trim());
+    } else {
+        client.global.clear("gestionnaireToken");
+        throw new Error("Connexion echouee : verifier que le profil dev est actif et qu'un gestionnaire existe.");
+    }
+%}
+
+### 2. Comptage : comparer avec les etudiants sans CV dans OSE
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "Combien d'etudiants n'ont pas depose de CV ?"
+}
+
+### 3. Liste : comparer avec les etudiants sans professeur dans OSE
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "Quels etudiants n'ont pas de professeur assigne ?"
+}
+
+### 4. Dates relatives : seules les offres avec approvedAt sont prises en compte
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelles offres ont ete affichees cette semaine ?"
+}
+
+### 5. Question avec fautes : comparer le nombre avec celui de la question equivalente
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "cmb detudiant on pas encore de stage ?"
+}
+
+### 6. Question ambigue : demander une precision sur l'annee et la date visee
+POST {{baseUrl}}/chatbot/questions
+Authorization: Bearer {{gestionnaireToken}}
+Content-Type: application/json
+
+{
+  "question": "Quelles offres ont une date d'affichage apres le 15 novembre ?"
+}
