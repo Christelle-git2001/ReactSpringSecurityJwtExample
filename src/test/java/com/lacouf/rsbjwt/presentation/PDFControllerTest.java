@@ -1,8 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
-import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
-import com.lacouf.rsbjwt.service.EmployeurService;
+import com.lacouf.rsbjwt.exception.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
