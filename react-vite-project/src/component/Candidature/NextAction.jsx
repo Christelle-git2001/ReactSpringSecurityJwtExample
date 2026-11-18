@@ -70,17 +70,15 @@ function NextAction({
 
         const date = new Date(dateString);
 
-        return date.toLocaleString(
-            i18n.language === "en" ? "en-CA" : "fr-CA",
-            {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false
-            }
-        );
+        const annee = date.getFullYear();
+        const mois = String(date.getMonth() + 1).padStart(2, "0");
+        const jour = String(date.getDate()).padStart(2, "0");
+
+        const heures = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const secondes = String(date.getSeconds()).padStart(2, "0");
+
+        return `${annee}-${mois}-${jour} à ${heures} h ${minutes} min ${secondes} s`;
     };
 
     useEffect(() => {
