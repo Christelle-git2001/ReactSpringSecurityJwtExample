@@ -67,6 +67,7 @@ function ListItem({
     actionLabel,
     actionIcon,
     actionClassName,
+    secondaryAction,
     showChevron = true,
     wrapText = false,
     onClick,
@@ -202,16 +203,32 @@ function ListItem({
                     </div>
                 </div>
 
-                {onClick && !isClickableCard && (
-                    <button
-                        type="button"
-                        onClick={onClick}
-                        className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
-                        aria-label={ariaLabel}
-                    >
-                        {actionIcon}
-                        {actionLabel || <FiChevronRight className="size-4" />}
-                    </button>
+                {(secondaryAction || (onClick && !isClickableCard)) && (
+                    <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                        {secondaryAction && (
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); secondaryAction.onClick(); }}
+                                disabled={secondaryAction.disabled}
+                                className={`btn btn-sm shrink-0 border-none rounded-lg px-4 ${secondaryAction.className || `bg-white/80 ${styles.action}`}`}
+                            >
+                                {secondaryAction.icon}
+                                {secondaryAction.label}
+                            </button>
+                        )}
+
+                        {onClick && !isClickableCard && (
+                            <button
+                                type="button"
+                                onClick={onClick}
+                                className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
+                                aria-label={ariaLabel}
+                            >
+                                {actionIcon}
+                                {actionLabel || <FiChevronRight className="size-4" />}
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
         </div>
