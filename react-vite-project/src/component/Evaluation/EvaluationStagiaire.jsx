@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaTimes } from "react-icons/fa";
 import { evaluerStagiaire } from "../../api/employeur.jsx";
@@ -57,6 +57,7 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
     const [erreurs, setErreurs] = useState({});
     const [envoi, setEnvoi] = useState(false);
     const [erreurApi, setErreurApi] = useState(false);
+    const formulaireRef = useRef(null);
 
     const modifierSuperviseur = (champ, valeur) => {
         setSuperviseur(s => ({ ...s, [champ]: valeur }));
@@ -95,7 +96,17 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
 
     const soumettre = async event => {
         event.preventDefault();
-        if (!valider()) return;
+        if (!valider()) {
+            requestAnimationFrame(() => {
+                const premierChampInvalide = formulaireRef.current?.querySelector('[aria-invalid="true"]');
+                const cible = premierChampInvalide?.matches("input, textarea, select, button")
+                    ? premierChampInvalide
+                    : premierChampInvalide?.querySelector("input, textarea, select, button");
+                (cible ?? premierChampInvalide)?.focus();
+                (cible ?? premierChampInvalide)?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+            });
+            return;
+        }
 
         setEnvoi(true);
         setErreurApi(false);
@@ -148,7 +159,7 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
              role="dialog" aria-modal="true" aria-labelledby="titre-evaluation">
-            <form onSubmit={soumettre} noValidate
+            <form ref={formulaireRef} onSubmit={soumettre} noValidate
                   className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
                 <div className="flex items-start gap-3 border-b border-gray-200 px-6 py-4">
                     <div className="min-w-0">

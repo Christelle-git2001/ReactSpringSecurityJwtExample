@@ -36,6 +36,7 @@ const ROUTES_PAR_TYPE = {
     CONTRAT_A_CREER: "/gestionnaire",
     CONTRAT_A_SIGNER: "/gestionnaire",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
+    EVALUATION_STAGE_A_FAIRE: "/employeur/candidatures/details",
     NOUVEAU_CONTRAT: (pathname) => {
         switch (true) {
             case pathname.startsWith("/employeur"):
@@ -110,6 +111,10 @@ const CONFIG_PAR_TYPE = {
     CONTRAT_A_CREER: {
         icon: <FiFileText className="size-5" />,
         tone: "blue",
+    },
+        EVALUATION_STAGE_A_FAIRE: {
+        icon: <FiFileText className="size-5" />,
+        tone: "purple",
     },
 };
 
@@ -236,7 +241,7 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 });
                 return;
             }
-            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE", "STAGE_TROUVE"]
+            else if (["NOUVELLE_CANDIDATURE", "CONVOCATION_ACCEPTEE", "CONVOCATION_REFUSEE", "STAGE_TROUVE", "EVALUATION_STAGE_A_FAIRE"]
                 .includes(notification.notificationType)
                 || (notification.notificationType === "NOUVEAU_CONTRAT" && role.startsWith("/employeur"))) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
