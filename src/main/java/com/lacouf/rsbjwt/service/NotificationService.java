@@ -782,4 +782,39 @@ public class NotificationService {
             }
         }
     }
+
+    @Transactional
+    public void rappelerSignatureContrat(Contrat contrat) {
+        if (contrat.getDateSignatureGestionnaire() != null) return;
+        Candidature candidature = contrat.getCandidature();
+        if (contrat.getDateSignatureEmployeur() == null) {
+            rappelerSignataire(contrat, candidature.getOffreDeStage().getEmployeur(), Role.EMPLOYEUR, ControllerPath.EMPLOYEUR_CONTRAT);
+        }
+        if (contrat.getDateSignatureEtudiant() == null) {
+            rappelerSignataire(contrat, candidature.getEtudiant(), Role.ETUDIANT, ControllerPath.ETUDIANT_CONTRAT);
+        }
+    }
+
+    private void rappelerSignataire(Contrat contrat, UserApp signataire, Role role, ControllerPath chemin) {
+        Candidature candidature = contrat.getCandidature();
+        String candidatureId = String.valueOf(candidature.getId());
+        Notification notification = notificationRepository.getNotificationByDestinataire(signataire).stream()
+                .filter(n -> n.getNotificationType() == NotificationType.NOUVEAU_CONTRAT
+                        && n.getVariables() != null
+                        && candidatureId.equals(n.getVariables().get(VariableMapKey.CANDIDATURE_ID)))
+                .findFirst().orElseGet(() -> Notification.builder()
+                        .titre("notification.nouveau_contrat.title")
+                        .description("notification.nouveau_contrat.description")
+                        .notificationType(NotificationType.NOUVEAU_CONTRAT)
+                        .role(role).destinataire(signataire).dateCreaction(LocalDateTime.now())
+                        .urlCible(chemin.build(String.valueOf(contrat.getId())))
+                        .variables(Map.of(
+                                VariableMapKey.OFFRE_TITRE, candidature.getOffreDeStage().getTitle(),
+                                VariableMapKey.OFFRE_ID, String.valueOf(candidature.getOffreDeStage().getId()),
+                                VariableMapKey.CANDIDATURE_ID, candidatureId))
+                        .build());
+        notification.setEstLu(false);
+        notification.setDateNotifiee(LocalDateTime.now());
+        notificationRepository.save(notification);
+    }
 }

@@ -1165,4 +1165,46 @@ public class NotificationServiceTest {
                 .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
                 .containsEntry(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis");
     }
+
+    @Test
+    void doitEnvoyerLesDeuxNotificationsExistantesAuxSignatairesEnAttente() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setId(30L); contrat.getCandidature().getOffreDeStage().setId(10L);
+        contrat.setDateSignatureEtudiant(null); contrat.setDateSignatureEmployeur(null);
+        notificationService.rappelerSignatureContrat(contrat);
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(2)).save(captor.capture());
+        assertThat(captor.getAllValues()).extracting(Notification::getNotificationType)
+                .containsOnly(NotificationType.NOUVEAU_CONTRAT);
+        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire).containsExactly(employeur, etudiant);
+        assertThat(captor.getAllValues()).allSatisfy(n -> {
+            assertThat(n.getTitre()).isEqualTo("notification.nouveau_contrat.title");
+            assertThat(n.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+        });
+    }
+
+    @Test
+    void doitRelancerLaNotificationExistanteSansDoublonEtSansRappelerCeluiQuiASigne() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setId(30L); contrat.setDateSignatureEtudiant(null);
+        Notification existante = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "20");
+        existante.setEstLu(true); existante.setDateNotifiee(LocalDateTime.now().minusDays(1));
+        Notification autreContrat = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "99");
+        when(notificationRepository.getNotificationByDestinataire(etudiant)).thenReturn(List.of(autreContrat, existante));
+        LocalDateTime avant = LocalDateTime.now();
+        notificationService.rappelerSignatureContrat(contrat);
+        verify(notificationRepository).save(existante);
+        assertThat(existante.isEstLu()).isFalse();
+        assertThat(existante.getDateNotifiee()).isAfterOrEqualTo(avant);
+        verify(notificationRepository, never()).getNotificationByDestinataire(employeur);
+    }
+
+    @Test
+    void neDoitPasEnvoyerDeRappelSiLesSignaturesSontCompletes() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        notificationService.rappelerSignatureContrat(contrat);
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+        notificationService.rappelerSignatureContrat(contrat);
+        verifyNoInteractions(notificationRepository);
+    }
 }

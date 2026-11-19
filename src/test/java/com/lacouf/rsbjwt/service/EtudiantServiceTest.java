@@ -1150,6 +1150,9 @@ public class EtudiantServiceTest {
         when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
 
+        Contrat existant = new Contrat(candidature, new Gestionnaire());
+        existant.setDateSignatureEtudiant(LocalDateTime.now());
+        when(contratRepository.findByCandidatureId(20L)).thenReturn(Optional.of(existant));
         CandidatureDTO resultat = etudiantService.accepterStage(20L);
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
@@ -2159,4 +2162,48 @@ public class EtudiantServiceTest {
         verifyNoMoreInteractions(entrevueRepository);
     }
 
+    @Test
+    void doitDemarrerLeContratDuStageChoisiDansLesDonneesInitialesSansNouvelleAcceptation() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+        when(gestionnaireRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(new Gestionnaire()));
+        when(contratRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Contrat contrat = etudiantService.demarrerContratStageTrouve(20L);
+        assertThat(contrat.getCandidature()).isSameAs(candidature);
+        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
+        when(contratRepository.findByCandidatureId(20L)).thenReturn(Optional.of(contrat));
+        assertThat(etudiantService.demarrerContratStageTrouve(20L)).isSameAs(contrat);
+        verify(contratRepository).save(any());
+        verify(applicationEventPublisher).publishEvent(any(StageTrouveEvent.class));
+        verify(applicationEventPublisher).publishEvent(any(com.lacouf.rsbjwt.model.event.NouveauContratCreeEvent.class));
+        verifyNoMoreInteractions(applicationEventPublisher);
+    }
+
+    @Test
+    void doitReparerLeContratManquantSurUneAcceptationRepetee() throws Exception {
+        Candidature candidature = entrevue.getCandidature();
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
+        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
+        when(gestionnaireRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(new Gestionnaire()));
+        when(contratRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        assertThat(etudiantService.accepterStage(20L).statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
+        verify(contratRepository).save(any());
+    }
+
+    @Test
+    void neDoitPasContractualiserUneOffreNonChoisie() {
+        Candidature candidature = entrevue.getCandidature();
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        when(candidatureRepository.findById(20L)).thenReturn(Optional.of(candidature));
+        assertThatThrownBy(() -> etudiantService.demarrerContratStageTrouve(20L))
+                .isInstanceOf(DecisionStageInvalideException.class);
+        verifyNoInteractions(contratRepository, gestionnaireRepository);
+    }
 }

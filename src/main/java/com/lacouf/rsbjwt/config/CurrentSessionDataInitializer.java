@@ -384,6 +384,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
 
         Candidature candidatureJuzo = candidatureRepository.findAll().stream()
                 .filter(c -> c.getEtudiant().getEmail().equals(emailJuzoSuzuya))
+                .filter(c -> finalTechSuppInfo != null && c.getOffreDeStage().getId().equals(finalTechSuppInfo.id()))
                 .findFirst()
                 .orElse(null);
 
@@ -409,7 +410,10 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         SecurityContextHolder.clearContext();
 
         if (candidatureJuzo != null) {
-            try { preparerStageTrouve(candidatureJuzo.getId()); } catch (Exception ignored) {}
+            try {
+                preparerStageTrouve(candidatureJuzo.getId());
+                etudiantService.demarrerContratStageTrouve(candidatureJuzo.getId());
+            } catch (Exception ignored) {}
         }
     }
 

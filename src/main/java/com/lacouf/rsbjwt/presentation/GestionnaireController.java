@@ -227,4 +227,10 @@ public class GestionnaireController {
 
         return ResponseEntity.ok(contratDTO);
     }
+
+    @PostMapping("/contrats/{contratId}/rappel-signature")
+    public ResponseEntity<Integer> rappelerSignatureContrat(@PathVariable Long contratId)
+            throws ContratIntrouvableException, UtilisateurIntrouvableException {
+        return ResponseEntity.ok(gestionnaireService.rappelerSignatureContrat(contratId));
+    }
 }

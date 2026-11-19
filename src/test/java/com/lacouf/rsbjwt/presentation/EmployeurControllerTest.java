@@ -702,8 +702,7 @@ public class EmployeurControllerTest {
                 1L,
                 null,
                 LocalDateTime.now(),
-                null
-        );
+                null, null);
 
         when(employeurService.signerContrat(1L, motDePasse))
                 .thenReturn(contratDTO);

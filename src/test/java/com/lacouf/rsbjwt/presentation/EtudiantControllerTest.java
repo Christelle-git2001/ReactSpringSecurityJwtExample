@@ -681,8 +681,7 @@ public class EtudiantControllerTest {
                 1L,
                 null,
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now(), null);
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(

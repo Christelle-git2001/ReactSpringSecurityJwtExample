@@ -531,7 +531,7 @@ public class EtudiantService {
             if (!etudiant.getCandidatureStage().getId().equals(candidatureId)) {
                 throw new DecisionStageInvalideException();
             }
-            return CandidatureDTO.of(candidature, contratRepository.findByCandidatureId(candidatureId).orElse(null));
+            return CandidatureDTO.of(candidature, creerContratSiManquant(candidature, null));
         }
         if (candidature.getStatut() != StatutCandidature.ACCEPTEE || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
             throw new DecisionStageInvalideException();
@@ -543,12 +543,7 @@ public class EtudiantService {
         etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
         etudiantRepository.save(etudiant);
         candidature.setStatut(StatutCandidature.STAGE_TROUVE);
-        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
-
-        Contrat contrat = contratRepository.save(Contrat.builder().candidature(candidature).gestionnaire(gestionnaire).build());
-        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
-        candidatureRepository.save(candidature);
-        eventPublisher.publishEvent(new NouveauContratCreeEvent(contrat));
+        Contrat contrat = creerContratSiManquant(candidature, gestionnaire);
         return CandidatureDTO.of(candidature, contrat);
     }
 
@@ -725,5 +720,41 @@ public class EtudiantService {
                 true,
                 ProfesseurDTO.of(professeur)
         );
+    }
+
+    @Transactional(rollbackFor = CreationContratImpossibleException.class)
+    public Contrat demarrerContratStageTrouve(Long candidatureId)
+            throws CandidatureIntrouvableException, DecisionStageInvalideException, CreationContratImpossibleException {
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant == null || etudiant.getStatut() != StatutEtudiant.STAGE_TROUVE
+                || etudiant.getCandidatureStage() == null
+                || !candidatureId.equals(etudiant.getCandidatureStage().getId())) {
+            throw new DecisionStageInvalideException();
+        }
+        return creerContratSiManquant(candidature, null);
+    }
+
+    private Contrat creerContratSiManquant(Candidature candidature, Gestionnaire gestionnaire)
+            throws CreationContratImpossibleException {
+        Contrat existant = contratRepository.findByCandidatureId(candidature.getId()).orElse(null);
+        if (existant != null) {
+            if (candidature.getStatut() != StatutCandidature.CONTRAT_CREE) {
+                candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+                candidatureRepository.save(candidature);
+            }
+            return existant;
+        }
+        if (gestionnaire == null) {
+            gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
+                    .orElseThrow(CreationContratImpossibleException::new);
+        }
+        Contrat contrat = contratRepository.save(Contrat.builder().candidature(candidature).gestionnaire(gestionnaire).build());
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        candidatureRepository.save(candidature);
+        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
+        eventPublisher.publishEvent(new NouveauContratCreeEvent(contrat));
+        return contrat;
     }
 }
