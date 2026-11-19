@@ -194,9 +194,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7),
-                1
-        );
+                LocalDate.now().plusDays(7));
 
         CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
                 "Technicien Support Informatique",
@@ -205,19 +203,17 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(5),
                 LocalDate.now().plusMonths(2),
-                LocalDate.now().plusDays(3),
-                1
-        );
+                LocalDate.now().plusDays(3));
 
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseThrow(EmployeurIntrouvable::new);
 
         for (CreationOffreDeStageDTO offreDemo : List.of(
                 new CreationOffreDeStageDTO("Développeur Java", "Développement d'API Java et Spring Boot.",
                         24.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
-                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30), 1),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30)),
                 new CreationOffreDeStageDTO("Développeur React", "Développement d'interfaces React et intégration d'API.",
                         23.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
-                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30), 2))) {
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30)))) {
             boolean dejaCreee = offreDeStageRepository.findAll().stream().anyMatch(offre ->
                     offre.getTitle().equals(offreDemo.title()) && offre.getEmployeur() != null
                             && offre.getEmployeur().getId().equals(employeur.getId()));

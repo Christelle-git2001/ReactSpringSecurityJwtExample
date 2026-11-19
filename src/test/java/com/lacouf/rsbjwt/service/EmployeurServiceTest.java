@@ -176,8 +176,7 @@ public class EmployeurServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
 
         offreDeStage = OffreDeStage.builder()
                 .title("Infirmerie")
@@ -300,8 +299,7 @@ public class EmployeurServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 15),
                 LocalDate.of(2029, 10, 1),
-                LocalDate.of(2029, 10, 15).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 15).minusDays(15));
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
                 .isInstanceOf(DateFinAvantDateDebutException.class);
@@ -319,8 +317,7 @@ public class EmployeurServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 1),
-                LocalDate.of(2029, 01, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 01, 1).minusDays(15));
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
                 .isInstanceOf(DateFinAvantDateDebutException.class);
@@ -339,8 +336,7 @@ public class EmployeurServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 02, 1),
                 LocalDate.of(2029, 02, 26),
-                LocalDate.of(2029, 02, 15), 1
-        );
+                LocalDate.of(2029, 02, 15));
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
                 .isInstanceOf(DateFinAffichageApresDateDebutException.class);
@@ -358,8 +354,7 @@ public class EmployeurServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 02, 1),
                 LocalDate.of(2029, 02, 26),
-                LocalDate.now().minusDays(1), 1
-        );
+                LocalDate.now().minusDays(1));
 
         assertThatThrownBy(() -> employeurService.creerOffre(creationOffreDeStageDTO, null, employeur.getEmail()))
                 .isInstanceOf(DateFinAffichageAvantAujourdhuiException.class);
@@ -479,7 +474,7 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, FichierTropVolumineuxException , com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException, com.lacouf.rsbjwt.security.exception.UserNotFoundException {
+    void doitModifierOffreDeStage() throws DateFinAffichageApresDateDebutException, OffreIntrouvableException, FichierTypeInvalideException, FichierCorrompuException, OffreNonEnAttenteException, DateFinAffichageAvantAujourdhuiException, IOException, OffreNonAutoriseeException, DateFinAvantDateDebutException, DateAvantAujourdhuiException, FichierTropVolumineuxException , com.lacouf.rsbjwt.security.exception.UserNotFoundException {
         when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
         when(offreDeStageRepository.findById(1L)).thenReturn(Optional.of(offreDeStage));
         when(offreDeStageRepository.save(any(OffreDeStage.class))).thenReturn(offreDeStage);
@@ -546,11 +541,10 @@ public class EmployeurServiceTest {
 
         var dto = new CreationOffreDeStageDTO(creationOffreDeStageDTO.title(), creationOffreDeStageDTO.description(),
                 creationOffreDeStageDTO.salary(), creationOffreDeStageDTO.domain(), creationOffreDeStageDTO.startDate(),
-                creationOffreDeStageDTO.endDate(), creationOffreDeStageDTO.displayEndDate(), 2);
+                creationOffreDeStageDTO.endDate(), creationOffreDeStageDTO.displayEndDate());
         OffreDeStageDTO result = employeurService.creerOffre(dto, fichier, employeur.getEmail());
         var offreSauvee = ArgumentCaptor.forClass(OffreDeStage.class);
         verify(offreDeStageRepository).save(offreSauvee.capture());
-        assertThat(offreSauvee.getValue().getNombreCandidatsMax()).isEqualTo(2);
 
         verify(offreDeStageRepository, times(1)).save(any(OffreDeStage.class));
         assertThat(result).isNotNull();
@@ -635,8 +629,7 @@ public class EmployeurServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().minusDays(1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.now().minusDays(5), 1
-        );
+                LocalDate.now().minusDays(5));
 
         MockMultipartFile fichier = new MockMultipartFile("file", "offre.pdf",
                 MediaType.APPLICATION_PDF_VALUE, "contenu".getBytes());
@@ -1023,7 +1016,6 @@ public class EmployeurServiceTest {
     @Test
     void neDoitPasRefuserUneCandidatureDejaAcceptee() throws Exception {
         creerEntrevueTerminee();
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
         employeurService.accepterCandidatApresEntrevue(1L);
         assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
@@ -1036,7 +1028,6 @@ public class EmployeurServiceTest {
     @Test
     void doitBloquerLesDecisionsEtLaClotureSiUnAutreStageEstChoisi() {
         Entrevue entrevue = creerEntrevueTerminee();
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         Candidature stage = new Candidature();
         stage.setId(999L);
         etudiant.setCandidatureStage(stage);
@@ -1067,9 +1058,8 @@ public class EmployeurServiceTest {
         verify(candidatureRepository, never()).save(any());
     }
     @Test
-    void doitReserverUnePlaceSansAttribuerLeStageAvantLaReponseEtudiant() throws Exception {
+    void doitAccepterSansAttribuerLeStageAvantLaReponseEtudiant() throws Exception {
         creerEntrevueTerminee();
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
@@ -1091,7 +1081,6 @@ public class EmployeurServiceTest {
     @Test
     void neDoitPasDeclencherDeuxFoisLeProcessusPourLaMemeAcceptation() throws Exception {
         creerEntrevueTerminee();
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         employeurService.accepterCandidatApresEntrevue(1L);
@@ -1120,30 +1109,8 @@ public class EmployeurServiceTest {
     }
 
     @Test
-    void doitReserverLUniquePlaceSansAttribuerLeStageALEtudiant() throws Exception {
+    void doitAccepterPlusieursCandidatsSurLaMemeOffre() throws Exception {
         creerEntrevueTerminee();
-        offreDeStage.setNombreCandidatsMax(1);
-        offreDeStage.setCandidatures(List.of(candidature));
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
-        when(candidatureRepository.save(candidature)).thenReturn(candidature);
-
-        var resultat = employeurService.accepterCandidatApresEntrevue(1L);
-
-        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isEqualTo(1);
-        assertThat(offreDeStage.estComplete()).isTrue();
-        assertThat(resultat.actionsDesactivees()).isFalse();
-        assertThat(etudiant.getCandidatureStage()).isNull();
-        assertThat(etudiant.getStatut()).isNotEqualTo(StatutEtudiant.STAGE_TROUVE);
-        verify(candidatureRepository).countByOffreDeStageIdAndStatutIn(offreDeStage.getId(),
-                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        verify(eventPublisher, never()).publishEvent(any(StageTrouveEvent.class));
-    }
-
-    @Test
-    void doitReserverDeuxPlacesEtRefuserUneTroisiemeAcceptation() throws Exception {
-        creerEntrevueTerminee();
-        offreDeStage.setNombreCandidatsMax(2);
         var deuxieme = new Candidature(new Etudiant(), offreDeStage, LocalDateTime.now());
         deuxieme.setId(22L);
         deuxieme.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
@@ -1158,68 +1125,21 @@ public class EmployeurServiceTest {
             entrevue.setStatut(StatutEntrevue.TERMINEE);
             when(convocationRepository.findById(autre.getId())).thenReturn(Optional.of(entrevue));
         }
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
-        when(candidatureRepository.countByOffreDeStageIdAndStatutIn(eq(offreDeStage.getId()), anyList()))
-                .thenReturn(0L, 1L, 2L);
         when(candidatureRepository.save(any(Candidature.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         employeurService.accepterCandidatApresEntrevue(1L);
         employeurService.accepterCandidatApresEntrevue(22L);
 
-        assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(33L))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
-                .hasMessage("error.offer_capacity_reached");
-        assertThat(offreDeStage.getNombreCandidatsAcceptes()).isEqualTo(2);
-        assertThat(offreDeStage.estComplete()).isTrue();
-        assertThat(CandidatureDTO.of(troisieme).actionsDesactivees()).isTrue();
+        var resultat = employeurService.accepterCandidatApresEntrevue(33L);
+        assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
+        assertThat(CandidatureDTO.of(troisieme).actionsDesactivees()).isFalse();
         assertThat(CandidatureDTO.of(candidature).actionsDesactivees()).isFalse();
-        verify(candidatureRepository, times(2)).save(any());
-        verify(candidatureRepository, times(3)).countByOffreDeStageIdAndStatutIn(
-                offreDeStage.getId(), List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        assertThat(troisieme.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
-    }
-
-    @Test
-    void doitBloquerLesAutresActionsSurUneOffreComplete() throws Exception {
-        creerEntrevueTerminee();
-        var retenue = new Candidature(new Etudiant(), offreDeStage, LocalDateTime.now());
-        retenue.setStatut(StatutCandidature.CONTRAT_CREE);
-        offreDeStage.setCandidatures(List.of(retenue, candidature));
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
-        when(candidatureRepository.countByOffreDeStageIdAndStatutIn(eq(offreDeStage.getId()), anyList()))
-                .thenReturn(1L);
-        when(candidatureRepository.findById(candidature.getId())).thenReturn(Optional.of(candidature));
-
-        assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
-        assertThatThrownBy(() -> employeurService.cloreEntrevue(1L))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
-        assertThatThrownBy(() -> employeurService.retenirCandidaturePourEntrevue(candidature.getId()))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
-        assertThatThrownBy(() -> employeurService.creerConvocation(creerDTOConvocationValide()))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
-        verify(candidatureRepository, never()).save(any());
-        verifyNoInteractions(eventPublisher);
-    }
-
-    @Test
-    void doitRefuserUneCapaciteNulleOuNegative() throws com.lacouf.rsbjwt.security.exception.UserNotFoundException {
-        when(userAppRepository.findUserAppByEmail(employeur.getEmail())).thenReturn(Optional.of(employeur));
-        for (int capacite : new int[]{0, -1}) {
-            var dto = new CreationOffreDeStageDTO(creationOffreDeStageDTO.title(), creationOffreDeStageDTO.description(),
-                    creationOffreDeStageDTO.salary(), creationOffreDeStageDTO.domain(), creationOffreDeStageDTO.startDate(),
-                    creationOffreDeStageDTO.endDate(), creationOffreDeStageDTO.displayEndDate(), capacite);
-            assertThatThrownBy(() -> employeurService.creerOffre(dto, null, employeur.getEmail()))
-                    .isInstanceOf(com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException.class)
-                    .hasMessage("error.invalid_candidate_capacity");
-        }
-        verify(offreDeStageRepository, never()).save(any());
+        verify(candidatureRepository, times(3)).save(any());
     }
 
     @Test
     void doitRefuserLeCandidatAvecUnMotif() throws Exception {
         creerEntrevueTerminee();
-        when(offreDeStageRepository.findByIdForUpdate(offreDeStage.getId())).thenReturn(Optional.of(offreDeStage));
         when(candidatureRepository.save(candidature)).thenReturn(candidature);
 
         CandidatureDTO resultat = employeurService.refuserCandidatApresEntrevue(1L, "  Experience insuffisante  ");

@@ -2,7 +2,6 @@ package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
-import com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
 import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
@@ -75,7 +74,7 @@ public class EmployeurController {
             Principal principal
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException, UserNotFoundException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UserNotFoundException {
         OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
@@ -109,7 +108,7 @@ public class EmployeurController {
     ) throws DateFinAvantDateDebutException,
             IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException,
             OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException,
-            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, NombreCandidatsMaxInvalideException, UserNotFoundException {
+            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UserNotFoundException {
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(offreId, dto, file, principal.getName());
 

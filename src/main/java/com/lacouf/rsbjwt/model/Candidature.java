@@ -36,16 +36,7 @@ public class Candidature {
     @Column(length = 1000)
     private String motifRefus;
 
-    public boolean occupeUnePlace() {
-        return statut == StatutCandidature.ACCEPTEE
-                || statut == StatutCandidature.STAGE_TROUVE
-                || statut == StatutCandidature.CONTRAT_CREE;
-    }
-
     public boolean actionsDesactivees() {
-        if (offreDeStage != null && !occupeUnePlace() && offreDeStage.estComplete()) {
-            return true;
-        }
         if (etudiant == null) return false;
         Candidature stageChoisi = etudiant.getCandidatureStage();
         if (stageChoisi != null) {

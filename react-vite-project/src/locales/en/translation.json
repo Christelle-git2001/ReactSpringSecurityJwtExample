@@ -47,8 +47,6 @@
     "submit": "Create account"
   },
   "add_offer": {
-    "max_candidates": "Maximum number of accepted candidates",
-    "targeted_capacity": "A targeted offer is reserved for one student.",
     "targeted_student": "Targeted student",
     "targeted_company": "Company",
     "select_student": "Choose a student",
@@ -188,8 +186,6 @@
   "error": {
     "contract_manager_missing": "No manager is available to handle the contract. Your decision has not been saved.",
     "stage_decision_invalid": "This decision is unavailable. Select an application accepted by the employer and make sure you have not already accepted another internship.",
-    "invalid_candidate_capacity": "The maximum number of candidates must be a whole number greater than or equal to 1.",
-    "offer_capacity_reached": "This offer has reached its maximum number of accepted candidates. Other applications can still be viewed, but their actions are disabled.",
     "decision_invalid": "Decision unavailable. Check that the interview is confirmed and completed.",
     "stage_declaration_invalid": "Choose an accepted application. You cannot declare another internship if you have already chosen one.",
     "refusal_reason_invalid": "Please provide a non-blank refusal reason of no more than 1,000 characters.",
@@ -424,7 +420,6 @@
     "offer_updated": "Offer updated successfully."
   },
   "offre": {
-    "accepted_candidates": "Accepted candidates",
     "no_document_attached": "No document attached",
     "default_document_name": "Internship offer",
     "new": "New Offers",
@@ -461,9 +456,7 @@
       "rejection_required": "The rejection reason is required.",
       "api_generic": "An error occurred while submitting."
     },
-    "already_applied": "You have already applied",
-    "remaining_positions": "Positions remaining",
-    "positions": "Positions"
+    "already_applied": "You have already applied"
   },
   "status": {
     "tous": "All",

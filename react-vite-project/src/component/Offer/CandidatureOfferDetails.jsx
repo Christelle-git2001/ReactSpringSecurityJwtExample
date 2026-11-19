@@ -19,7 +19,6 @@ function CandidatureOfferDetails({ offer, id, onClose }) {
         { label: t("offre.date_debut"), value: offer.startDate },
         { label: t("offre.date_fin"), value: offer.endDate },
         { label: t("offre.date_fin_affichage"), value: offer.displayEndDate },
-        { label: t("add_offer.max_candidates"), value: offer.nombreCandidatsMax ?? 1 },
     ];
     const { pdfUrl, error, dialogRef, viewPDF, fermerModal, gererTelechargement } = usePdfDocument({
         loadPdfResponse: () => obtenirOffrePDF(offer.id),

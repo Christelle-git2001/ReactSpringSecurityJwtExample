@@ -168,7 +168,6 @@ function OfferDetails({ offre: offreProp }) {
                         />
                     </div>
 
-                    <ReadOnlyField label={t("add_offer.max_candidates")} value={offre?.nombreCandidatsMax ?? 1} />
 
                     <div>
                         <ReadOnlyField

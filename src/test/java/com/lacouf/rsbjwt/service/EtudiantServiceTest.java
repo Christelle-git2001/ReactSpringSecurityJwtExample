@@ -1195,45 +1195,13 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitRefuserLaConfirmationSiLesAnciennesReservationsDepassentLaCapacite() {
-        Candidature candidature = entrevue.getCandidature();
-        candidature.setStatut(StatutCandidature.ACCEPTEE);
-        var offre = candidature.getOffreDeStage();
-        offre.setNombreCandidatsMax(1);
-        when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
-        when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
-        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
-        when(candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE))).thenReturn(2L);
-
-        assertThatThrownBy(() -> etudiantService.accepterStage(20L))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
-                .hasMessage("error.offer_capacity_reached");
-
-        var ordre = inOrder(offreDeStageRepository, candidatureRepository);
-        ordre.verify(offreDeStageRepository).findByIdForUpdate(offre.getId());
-        ordre.verify(candidatureRepository).countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(etudiant.getCandidatureStage()).isNull();
-        verify(etudiantRepository, never()).save(any());
-        verify(candidatureRepository, never()).save(any());
-        verifyNoInteractions(contratRepository, gestionnaireRepository, applicationEventPublisher);
-    }
-
-    @Test
     void doitCreerLeContratEtAttribuerLeStageDesLAcceptationEtudiante() throws Exception {
         Candidature candidature = entrevue.getCandidature();
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         var offre = candidature.getOffreDeStage();
         offre.setCandidatures(List.of(candidature));
-        assertThat(offre.getNombreCandidatsAcceptes()).isEqualTo(1);
         when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
-        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
-        when(candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE)))
-                .thenReturn(1L);
         Gestionnaire gestionnaire = new Gestionnaire();
         when(gestionnaireRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(gestionnaire));
         when(contratRepository.save(any(Contrat.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -1243,8 +1211,6 @@ public class EtudiantServiceTest {
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.CONTRAT_CREE);
         assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.STAGE_TROUVE);
         assertThat(etudiant.getCandidatureStage()).isSameAs(candidature);
-        assertThat(offre.getNombreCandidatsAcceptes()).isEqualTo(1);
-        assertThat(offre.estComplete()).isTrue();
         ArgumentCaptor<Contrat> contratCapture = ArgumentCaptor.forClass(Contrat.class);
         verify(contratRepository).save(contratCapture.capture());
         assertThat(contratCapture.getValue().getGestionnaire()).isSameAs(gestionnaire);
@@ -1254,24 +1220,21 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitLibererLaPlaceReserveeQuandLEtudiantRefuseLeStage() throws Exception {
+    void doitRefuserLeStageSansBloquerLesAutresCandidatures() throws Exception {
         Candidature candidature = entrevue.getCandidature();
         candidature.setStatut(StatutCandidature.ACCEPTEE);
         var offre = candidature.getOffreDeStage();
         var autreCandidature = new Candidature(new Etudiant(), offre, LocalDateTime.now());
         autreCandidature.setId(30L);
         offre.setCandidatures(List.of(candidature, autreCandidature));
-        assertThat(offre.estComplete()).isTrue();
         assertThat(candidature.actionsDesactivees()).isFalse();
-        assertThat(autreCandidature.actionsDesactivees()).isTrue();
+        assertThat(autreCandidature.actionsDesactivees()).isFalse();
         when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
-        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
 
         var resultat = etudiantService.refuserStage(20L);
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
-        assertThat(offre.estComplete()).isFalse();
         assertThat(autreCandidature.actionsDesactivees()).isFalse();
         assertThat(etudiant.getCandidatureStage()).isNull();
         verifyNoInteractions(contratRepository);
@@ -1285,7 +1248,6 @@ public class EtudiantServiceTest {
         var offre = candidature.getOffreDeStage();
         when(etudiantRepository.findByEmailForUpdate(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(candidatureRepository.findByIdAndEtudiantId(20L, etudiant.getId())).thenReturn(Optional.of(candidature));
-        when(offreDeStageRepository.findByIdForUpdate(offre.getId())).thenReturn(Optional.of(offre));
 
         assertThatThrownBy(() -> etudiantService.accepterStage(20L))
                 .isInstanceOf(com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException.class);
@@ -1488,42 +1450,19 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    void doitBloquerLesReponsesAuxConvocationsQuandLOffreEstComplete() {
-        var offre = entrevue.getCandidature().getOffreDeStage();
-        var acceptee = new Candidature(new Etudiant(), offre, LocalDateTime.now());
-        acceptee.setStatut(StatutCandidature.STAGE_TROUVE);
-        offre.setCandidatures(List.of(acceptee, entrevue.getCandidature()));
-        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
-        when(entrevueRepository.findByIdAndCandidatureEtudiantId(entrevue.getId(), etudiant.getId()))
-                .thenReturn(Optional.of(entrevue));
-
-        assertThatThrownBy(() -> etudiantService.accepterConvocationEtudiant(entrevue.getId()))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
-                .hasMessage("error.offer_capacity_reached");
-        assertThatThrownBy(() -> etudiantService.refuserConvocationEtudiant(entrevue.getId(), "Indisponible"))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
-        verify(candidatureRepository, never()).save(any());
-        verify(entrevueRepository, never()).save(any());
-        verifyNoInteractions(applicationEventPublisher);
-    }
-
-    @Test
-    void doitInitialiserLaCapaciteEtLesCandidaturesAvecLeConstructeurDesDonneesDemo() {
+    void doitInitialiserLesCandidaturesAvecLeConstructeurDesDonneesDemo() {
         var offre = new OffreDeStage("Technician Reseaux", "Support informatique", 20.0,
                 Departement.INFORMATIQUE, LocalDate.now().plusDays(5), LocalDate.now().plusMonths(2),
                 LocalDate.now().plusDays(2), Statut.ACCEPTEE, "offre.pdf", "uploads/offres",
                 null, "", LocalDateTime.now());
 
-        assertThat(offre.getNombreCandidatsMax()).isEqualTo(1);
         assertThat(offre.getCandidatures()).isEmpty();
-        assertThat(offre.estComplete()).isFalse();
     }
 
     @Test
-    void doitCompterLesPlacesOccupeesEtExposerLesActionsDesactivees() {
+    void doitGarderLesActionsDisponiblesMalgreLesAutresCandidatsAcceptes() {
         var offre = new OffreDeStage();
         offre.setId(10L);
-        offre.setNombreCandidatsMax(3);
         var candidatures = new java.util.ArrayList<Candidature>();
         for (var statut : List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE,
                 StatutCandidature.CONTRAT_CREE, StatutCandidature.REFUSEE, StatutCandidature.SOUMISE)) {
@@ -1536,10 +1475,7 @@ public class EtudiantServiceTest {
         }
         offre.setCandidatures(candidatures);
 
-        var resultat = OffreDeStageDTO.of(offre);
-        assertThat(resultat.nombreCandidatsMax()).isEqualTo(3);
-        assertThat(resultat.nombreCandidatsAcceptes()).isEqualTo(3);
-        assertThat(CandidatureDTO.of(candidatures.get(4)).actionsDesactivees()).isTrue();
+        assertThat(CandidatureDTO.of(candidatures.get(4)).actionsDesactivees()).isFalse();
         assertThat(CandidatureDTO.of(candidatures.get(0)).actionsDesactivees()).isFalse();
         assertThat(CandidatureDTO.of(candidatures.get(1)).actionsDesactivees()).isFalse();
     }

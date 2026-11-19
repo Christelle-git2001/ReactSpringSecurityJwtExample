@@ -321,7 +321,6 @@ public class GestionnaireService {
                 .title(creationOffreCibleeDTO.title())
                 .description(creationOffreCibleeDTO.description())
                 .salary(creationOffreCibleeDTO.salary())
-                .nombreCandidatsMax(1)
                 .domain(creationOffreCibleeDTO.domain())
                 .startDate(creationOffreCibleeDTO.startDate())
                 .endDate(creationOffreCibleeDTO.endDate())

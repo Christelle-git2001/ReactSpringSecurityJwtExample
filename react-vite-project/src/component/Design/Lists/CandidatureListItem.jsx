@@ -43,7 +43,7 @@ function CandidatureListItem({ candidature, onClick, variant = "card", actionLab
             variant={variant}
             actionLabel={actionLabel}
             actionRole={candidature?.contratSigne ? "details" : "signature"}
-            actionIcon={Boolean(candidature?.contratSigne)}
+            actionIcon
             actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
             onClick={onClick}
             ariaLabel={t("dashboard.view_candidature_details")}

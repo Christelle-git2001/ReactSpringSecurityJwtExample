@@ -120,8 +120,7 @@ public class EmployeurControllerTest {
                 null,
                 null,
                 null,
-                false, null, 1, 0L
-        );
+                false, null);
 
         creationOffreDeStageDTO = new CreationOffreDeStageDTO(
                 "Infirmerie",
@@ -130,8 +129,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
 
 
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
@@ -256,8 +254,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
                 "",
@@ -289,8 +286,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
                 "",
@@ -313,8 +309,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
                 "",
@@ -347,8 +342,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
                 "",
@@ -381,8 +375,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 1),
                 LocalDate.of(2029, 10, 15),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
                 "",
@@ -415,8 +408,7 @@ public class EmployeurControllerTest {
                 Departement.INFORMATIQUE,
                 LocalDate.of(2029, 10, 15),
                 LocalDate.of(2029, 10, 1),
-                LocalDate.of(2029, 10, 1).minusDays(15), 1
-        );
+                LocalDate.of(2029, 10, 1).minusDays(15));
         MockMultipartFile offre = new MockMultipartFile(
                 "offre",
                 "",
@@ -595,19 +587,7 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitRefuserUneCapaciteNonPositiveAvantDAppelerLeService() throws Exception {
-        for (int capacite : new int[]{0, -1}) {
-            var dto = new CreationOffreDeStageDTO("Stage", "Description", 20.0, Departement.INFORMATIQUE,
-                    LocalDate.of(2027, 1, 20), LocalDate.of(2027, 5, 20), LocalDate.of(2027, 1, 10), capacite);
-            var offre = new MockMultipartFile("offre", "", "application/json", objectMapper.writeValueAsBytes(dto));
-            mockMvc.perform(multipart("/employeur/offres").file(offre).principal(principal))
-                    .andExpect(status().isBadRequest());
-        }
-        org.mockito.Mockito.verifyNoInteractions(employeurService);
-    }
-
-    @Test
-    void doitGarderLaCapaciteParDefautPourUneRequeteSansCeChamp() throws Exception, DateFinAffichageApresDateDebutException {
+    void doitCreerUneOffreSansChampDeMaximumCandidats() throws Exception, DateFinAffichageApresDateDebutException {
         String json = """
                 {"title":"Stage","description":"Description","salary":20,"domain":"INFORMATIQUE",
                 "startDate":"2027-01-20","endDate":"2027-05-20","displayEndDate":"2027-01-10"}
@@ -619,16 +599,16 @@ public class EmployeurControllerTest {
                 .andExpect(status().isCreated());
         var dto = org.mockito.ArgumentCaptor.forClass(CreationOffreDeStageDTO.class);
         verify(employeurService).creerOffre(dto.capture(), any(), anyString());
-        org.assertj.core.api.Assertions.assertThat(dto.getValue().nombreCandidatsMax()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(dto.getValue().title()).isEqualTo("Stage");
     }
 
     @Test
-    void doitRetourner409QuandLaCapaciteEstAtteinte() throws Exception {
+    void doitRetourner409QuandLEtudiantADejaChoisiUnStage() throws Exception {
         when(employeurService.accepterCandidatApresEntrevue(1L)).thenThrow(
-                new com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException("error.offer_capacity_reached"));
+                new com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException("error.internship_found_locked"));
         mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("error.offer_capacity_reached"));
+                .andExpect(jsonPath("$.message").value("error.internship_found_locked"));
     }
 
     @Test

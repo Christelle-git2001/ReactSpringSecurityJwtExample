@@ -26,9 +26,7 @@ public record OffreDeStageDTO(
         String rejectionComment,
         LocalDateTime createdAt,
         Boolean isTarget,
-        LocalDateTime approvedAt,
-        int nombreCandidatsMax,
-        long nombreCandidatsAcceptes
+        LocalDateTime approvedAt
 ) {
 
     public static OffreDeStageDTO of(OffreDeStage offre) {
@@ -54,9 +52,7 @@ public record OffreDeStageDTO(
                 offre.getRejectionComment(),
                 offre.getCreatedAt(),
                 offre instanceof OffreCiblee,
-                offre.getApprovedAt(),
-                offre.getNombreCandidatsMax(),
-                offre.getNombreCandidatsAcceptes()
+                offre.getApprovedAt()
         );
     }
 
@@ -77,9 +73,7 @@ public record OffreDeStageDTO(
                 null,
                 null,
                 false,
-                null,
-                1,
-                0L
+                null
         );
     }
 }

@@ -47,8 +47,6 @@
     "submit": "Créer le compte"
   },
   "add_offer": {
-    "max_candidates": "Nombre maximal de candidats acceptés",
-    "targeted_capacity": "Une offre ciblée est réservée à un seul étudiant.",
     "targeted_student": "Étudiant ciblé",
     "targeted_company": "Employeur",
     "select_student": "Sélectionner un étudiant",
@@ -143,7 +141,6 @@
     "clear": "Effacer la recherche"
   },
   "offre": {
-    "accepted_candidates": "Candidats acceptés",
     "no_document_attached": "Aucun document joint",
     "default_document_name": "Offre de stage",
     "new": "Nouvelles Offres",
@@ -179,9 +176,7 @@
       "rejection_required": "Le motif du refus est obligatoire.",
       "api_generic": "Une erreur est survenue lors de l'envoi."
     },
-    "already_applied": "Vous avez déjà postulé",
-    "remaining_positions": "Postes restants",
-    "positions": "Postes"
+    "already_applied": "Vous avez déjà postulé"
   },
   "login": {
     "page_title": "Connexion",
@@ -233,8 +228,6 @@
   "error": {
     "contract_manager_missing": "Aucun gestionnaire ne peut prendre en charge le contrat pour le moment. Votre choix n’a pas été enregistré.",
     "stage_decision_invalid": "Cette décision est impossible : choisissez une candidature acceptée par l’employeur et vérifiez qu’aucun autre stage ne vous est déjà attribué.",
-    "invalid_candidate_capacity": "Le nombre maximal de candidats doit être un entier supérieur ou égal à 1.",
-    "offer_capacity_reached": "Cette offre a atteint son nombre maximal de candidats acceptés. Les autres candidatures restent consultables, mais leurs actions sont désactivées.",
     "decision_invalid": "Décision impossible. Vérifiez que l'entrevue est confirmée et terminée.",
     "stage_declaration_invalid": "Vous devez choisir une candidature acceptée et ne pas avoir déjà déclaré un autre stage.",
     "refusal_reason_invalid": "Veuillez fournir un motif de refus non vide de 1 000 caractères maximum.",

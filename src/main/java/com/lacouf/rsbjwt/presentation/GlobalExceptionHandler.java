@@ -4,7 +4,6 @@ import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
 import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
-import com.lacouf.rsbjwt.exception.offre.NombreCandidatsMaxInvalideException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
@@ -325,11 +324,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErreurDTO(e.getMessage()));
-    }
-
-    @ExceptionHandler(NombreCandidatsMaxInvalideException.class)
-    public ResponseEntity<ErreurDTO> handleNombreCandidatsMaxInvalide(NombreCandidatsMaxInvalideException e) {
-        return ResponseEntity.badRequest().body(new ErreurDTO(e.getMessage()));
     }
 
     @ExceptionHandler(StatutCandidatureInvalideException.class)

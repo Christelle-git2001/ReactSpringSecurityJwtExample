@@ -344,8 +344,7 @@ public class EtudiantControllerTest {
                 null,
                 null,
                 null,
-                false, null, 1, 0L
-        );
+                false, null);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 inscriptionEtudiantDTO.email(),

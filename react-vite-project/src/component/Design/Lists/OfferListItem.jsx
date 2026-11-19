@@ -25,7 +25,6 @@ function OfferListItem({ offer, onClick, variant = "card", actionLabel, actionCl
         salary && { label: t("offre.salary"), value: salary },
         startDate && { label: t("offre.date_debut"), value: startDate },
         endDate && { label: t("offre.date_fin"), value: endDate },
-        { label: t("offre.positions"), value: offer?.nombreCandidatsMax ?? 1 },
     ].filter(Boolean);
 
     return (

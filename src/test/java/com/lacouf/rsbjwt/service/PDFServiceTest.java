@@ -236,7 +236,7 @@ class PDFServiceTest {
     private CreationOffreDeStageDTO offrePdf() {
         return new CreationOffreDeStageDTO("Stage Java", "Developpement logiciel", 22.5,
                 Departement.INFORMATIQUE, LocalDate.of(2027, 1, 10),
-                LocalDate.of(2027, 4, 10), LocalDate.of(2027, 1, 1), 1);
+                LocalDate.of(2027, 4, 10), LocalDate.of(2027, 1, 1));
     }
 
     private String textePdf(Resource resource) throws IOException {
@@ -288,9 +288,7 @@ class PDFServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7),
-                1
-        );
+                LocalDate.now().plusDays(7));
 
         Resource result = pdfService.createOffreDeStagePdf(dto, employeur);
 
@@ -307,9 +305,7 @@ class PDFServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7),
-                1
-        );
+                LocalDate.now().plusDays(7));
 
         Resource result = pdfService.createOffreDeStagePdf(dto, null);
 

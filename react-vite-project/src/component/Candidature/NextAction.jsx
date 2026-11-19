@@ -177,7 +177,7 @@ function NextAction({
                 state: { selectedCandidatureId: candidature.id },
             });
         } catch (error) {
-            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+            if (error?.message === "error.internship_found_locked") {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -223,7 +223,7 @@ function NextAction({
             setMotDePasse("");
 
         } catch (error) {
-            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+            if (error?.message === "error.internship_found_locked") {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -252,7 +252,7 @@ function NextAction({
             setRefusOuvert(false);
             onProcessChange?.({ statut: "ENTREVUE_PLANIFIEE", statutEntrevue: "TERMINEE" });
         } catch (error) {
-            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+            if (error?.message === "error.internship_found_locked") {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -276,7 +276,7 @@ function NextAction({
             onProcessChange?.({ ...decision, statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
-            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+            if (error?.message === "error.internship_found_locked") {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -305,7 +305,7 @@ function NextAction({
             onProcessChange?.({ statut: "REFUSEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
-            if (["error.internship_found_locked", "error.offer_capacity_reached"].includes(error?.message)) {
+            if (error?.message === "error.internship_found_locked") {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }

@@ -349,7 +349,6 @@ public class EtudiantService {
         );
 
         return offresFiltrees.stream()
-                .filter(offre -> !offre.estComplete())
                 .map(OffreDeStageDTO::of)
                 .toList();
     }
@@ -380,10 +379,6 @@ public class EtudiantService {
             if (offreCiblee.getEtudiant() == null || !offreCiblee.getEtudiant().getId().equals(etudiant.getId())) {
                 throw new OffreNonAutoriseeException();
             }
-        }
-
-        if (offre.estComplete()) {
-            throw new OffreDeStageIndisponibleException();
         }
 
         if (candidatureRepository.existsByEtudiantAndOffreDeStage(
@@ -541,13 +536,6 @@ public class EtudiantService {
         if (candidature.getStatut() != StatutCandidature.ACCEPTEE || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
             throw new DecisionStageInvalideException();
         }
-        OffreDeStage offre = offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
-                .orElseThrow(DecisionStageInvalideException::new);
-        long placesOccupees = candidatureRepository.countByOffreDeStageIdAndStatutIn(offre.getId(),
-                List.of(StatutCandidature.ACCEPTEE, StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE));
-        if (placesOccupees > offre.getNombreCandidatsMax()) {
-            throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
-        }
         Gestionnaire gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(CreationContratImpossibleException::new);
 
@@ -574,8 +562,6 @@ public class EtudiantService {
                 || candidature.getStatut() != StatutCandidature.ACCEPTEE) {
             throw new DecisionStageInvalideException();
         }
-        offreDeStageRepository.findByIdForUpdate(candidature.getOffreDeStage().getId())
-                .orElseThrow(DecisionStageInvalideException::new);
         candidature.setStatut(StatutCandidature.REFUSEE);
         candidature.setMotifRefus("stage.refused_by_student");
         candidatureRepository.save(candidature);
@@ -658,10 +644,6 @@ public class EtudiantService {
     }
 
     static void verifierActionsCandidatureAutorisees(Candidature candidature) throws ActionsCandidatureDesactiveesException {
-        if (candidature.getOffreDeStage() != null && !candidature.occupeUnePlace()
-                && candidature.getOffreDeStage().estComplete()) {
-            throw new ActionsCandidatureDesactiveesException("error.offer_capacity_reached");
-        }
         if (actionsCandidatureDesactivees(candidature)) {
             throw new ActionsCandidatureDesactiveesException();
         }
