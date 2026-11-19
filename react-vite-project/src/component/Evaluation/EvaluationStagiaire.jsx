@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FaTimes } from "react-icons/fa";
 import { evaluerStagiaire } from "../../api/employeur.jsx";
 import Button from "../Design/Button.jsx";
+import { COMMON_USER_FIELDS } from "../registration/formFields.jsx";
 import GroupeCriteresEvaluation from "./GroupeCriteresEvaluation.jsx";
 import {
     ChampChoixEvaluation,
@@ -34,6 +35,8 @@ const GROUPES = [
         criteres: ["motivationScore", "tellIdeaScore", "initiativeScore", "securityScore", "responsabiliteScore", "ponctuelScore"],
     },
 ];
+
+const CHAMP_TELEPHONE = COMMON_USER_FIELDS.find(champ => champ.name === "phone");
 
 const NIVEAUX = ["1", "2", "3", "4", "NA"];
 
@@ -79,6 +82,9 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
         ["firstName", "lastName", "fonction", "phone"].forEach(champ => {
             if (!superviseur[champ].trim()) nouvellesErreurs[champ] = true;
         });
+        if (superviseur.phone.trim() && !new RegExp(CHAMP_TELEPHONE.pattern).test(superviseur.phone.trim())) {
+            nouvellesErreurs.phone = true;
+        }
         GROUPES.forEach(groupe => {
             groupe.criteres.forEach(critere => {
                 if (!groupes[groupe.dto][critere]) nouvellesErreurs[`${groupe.dto}.${critere}`] = true;
@@ -121,7 +127,7 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
         try {
             const evaluation = await evaluerStagiaire({
                 candidatureID: candidature.id,
-                supervisueurStageDTO: superviseur,
+                supervisueurStageDTO: { ...superviseur, phone: superviseur.phone.trim() },
                 ...Object.fromEntries(GROUPES.map(groupe => [
                     groupe.dto,
                     {
@@ -192,9 +198,16 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
                             <ChampEvaluation label={t("evaluation.fields.supervisorRole")} value={superviseur.fonction}
                                    erreur={erreurs.fonction} disabled={envoi}
                                    onChange={e => modifierSuperviseur("fonction", e.target.value)} />
-                            <ChampEvaluation label={t("evaluation.fields.supervisorPhone")} type="tel" value={superviseur.phone}
-                                   erreur={erreurs.phone} disabled={envoi}
-                                   onChange={e => modifierSuperviseur("phone", e.target.value)} />
+                            <div>
+                                <ChampEvaluation label={t("evaluation.fields.supervisorPhone")} type="tel" value={superviseur.phone}
+                                       placeholder={t("register.phone_placeholder")} pattern={CHAMP_TELEPHONE.pattern}
+                                       maxLength={CHAMP_TELEPHONE.maxLength}
+                                       erreur={erreurs.phone} disabled={envoi}
+                                       onChange={e => modifierSuperviseur("phone", e.target.value)} />
+                                {erreurs.phone && superviseur.phone.trim() && (
+                                    <p className="mt-1 text-xs text-red-700">{t("error.phone_invalid")}</p>
+                                )}
+                            </div>
                         </div>
                     </SectionEvaluation>
 
@@ -257,7 +270,7 @@ function EvaluationStagiaireModal({ candidature, offer, onClose, onSuccess }) {
                 </div>
 
                 <div className="border-t border-gray-200 px-6 py-4">
-                    {Object.values(erreurs).some(Boolean) &&
+                    {Object.entries(erreurs).some(([champ, invalide]) => invalide && (champ !== "phone" || !superviseur.phone.trim())) &&
                         <p role="alert" className="mb-2 text-sm text-red-700">{t("evaluation.required")}</p>}
                     {erreurApi && <p role="alert" className="mb-2 text-sm text-red-700">{t("error.generic")}</p>}
                     <div className="flex flex-wrap items-center justify-between gap-3">
