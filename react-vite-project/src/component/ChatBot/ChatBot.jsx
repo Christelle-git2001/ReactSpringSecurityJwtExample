@@ -34,7 +34,7 @@ export default function ChatBot({ titre, sousTitre, suggestions, initialMessage,
     const messagesRef = useRef(null);
     const inputRef = useRef(null);
 
-    const [hauteur, setHauteur] = useState(750);
+    const [hauteur, setHauteur] = useState(700);
 
     useEffect(() => {
         if (messagesRef.current) {
