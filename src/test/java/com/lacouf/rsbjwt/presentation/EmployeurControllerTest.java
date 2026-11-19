@@ -603,25 +603,25 @@ public class EmployeurControllerTest {
     }
 
     @Test
-    void doitRetourner409QuandLEtudiantADejaChoisiUnStage() throws Exception {
+    void doitRetourner409QuandLOffreEstDeclinee() throws Exception {
         when(employeurService.accepterCandidatApresEntrevue(1L)).thenThrow(
-                new com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException("error.internship_found_locked"));
+                new com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException("error.offer_declined"));
         mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("error.internship_found_locked"));
+                .andExpect(jsonPath("$.message").value("error.offer_declined"));
     }
 
     @Test
     void doitAccepterLeCandidatApresEntrevue() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.STAGE_TROUVE, null, StatutEtudiant.STAGE_TROUVE, false, false);
+                StatutCandidature.ACCEPTEE, null, null, false, false);
         when(employeurService.accepterCandidatApresEntrevue(1L)).thenReturn(decision);
 
         mockMvc.perform(put("/employeur/entrevues/1/acceptation").principal(principal))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.statut").value("STAGE_TROUVE"))
-                .andExpect(jsonPath("$.statutEtudiant").value("STAGE_TROUVE"));
+                .andExpect(jsonPath("$.statut").value("ACCEPTEE"))
+                .andExpect(jsonPath("$.statutEtudiant").doesNotExist());
         verify(employeurService).accepterCandidatApresEntrevue(1L);
     }
 
@@ -671,7 +671,7 @@ public class EmployeurControllerTest {
     void doitRefuserLeCandidatApresEntrevueAvecUnMotif() throws Exception {
         CandidatureDTO decision = new CandidatureDTO(1L, 1L, "Jean", "Test", "INFORMATIQUE", 1L,
                 "Stage Java", "Entreprise", LocalDateTime.now(), null,
-                StatutCandidature.REFUSEE, "Autre profil retenu", StatutEtudiant.EN_RECHERCHE, false, false);
+                StatutCandidature.REFUSEE, "Autre profil retenu", null, false, false);
         when(employeurService.refuserCandidatApresEntrevue(1L, "Autre profil retenu")).thenReturn(decision);
 
         mockMvc.perform(put("/employeur/entrevues/1/refus").principal(principal)
@@ -680,7 +680,7 @@ public class EmployeurControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statut").value("REFUSEE"))
                 .andExpect(jsonPath("$.motifRefus").value("Autre profil retenu"))
-                .andExpect(jsonPath("$.statutEtudiant").value("EN_RECHERCHE"));
+                .andExpect(jsonPath("$.statutEtudiant").doesNotExist());
     }
 
     @Test

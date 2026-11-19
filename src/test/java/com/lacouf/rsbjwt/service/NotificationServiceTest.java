@@ -844,7 +844,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    void doitNotifierLesDeuxSignatairesQuandLeContratEstCree() {
+    void doitNotifierLesDeuxSignatairesEtInformerLeGestionnaireQuandLeContratEstCree() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         offre.setId(10L);
         Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
@@ -855,10 +855,22 @@ public class NotificationServiceTest {
         notificationService.handleNouveauContratCree(new NouveauContratCreeEvent(contrat));
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(notificationRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire).containsExactly(employeur, etudiant);
+        verify(notificationRepository, times(3)).save(captor.capture());
+        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire)
+                .containsExactly(employeur, etudiant, null);
         assertThat(captor.getAllValues()).extracting(Notification::getNotificationType)
-                .containsOnly(NotificationType.NOUVEAU_CONTRAT);
+                .containsExactly(NotificationType.NOUVEAU_CONTRAT, NotificationType.NOUVEAU_CONTRAT,
+                        NotificationType.SIGNATURE_DEMARREE);
+        Notification informationGestionnaire = captor.getAllValues().get(2);
+        assertThat(informationGestionnaire.getRole()).isEqualTo(Role.GESTIONNAIRE);
+        assertThat(informationGestionnaire.getTitre()).isEqualTo("notification.gestionnaire.signatureDemarree.title");
+        assertThat(informationGestionnaire.getDescription()).isEqualTo("notification.gestionnaire.signatureDemarree.description");
+        assertThat(informationGestionnaire.getUrlCible()).isEqualTo("/gestionnaire/candidatures/20/contrat");
+        assertThat(informationGestionnaire.isEstLu()).isFalse();
+        assertThat(informationGestionnaire.getVariables())
+                .containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage Java");
         verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
     }
 
@@ -907,6 +919,34 @@ public class NotificationServiceTest {
 
         verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
         verify(notificationRepository, never()).save(any(Notification.class));
+    }
+
+    @Test
+    void doitConserverLaNotificationDeDemarrageEtAjouterLaDemandeApresLesDeuxSignatures() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setId(30L);
+        contrat.getCandidature().getOffreDeStage().setId(10L);
+        contrat.setDateSignatureEtudiant(null);
+        contrat.setDateSignatureEmployeur(null);
+        notificationService.handleNouveauContratCree(new NouveauContratCreeEvent(contrat));
+
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+        verify(notificationRepository, times(3)).save(any(Notification.class));
+
+        contrat.setDateSignatureEmployeur(LocalDateTime.now());
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(4)).save(captor.capture());
+        assertThat(captor.getAllValues().stream().filter(n -> n.getRole() == Role.GESTIONNAIRE))
+                .extracting(Notification::getNotificationType)
+                .containsExactly(NotificationType.SIGNATURE_DEMARREE, NotificationType.CONTRAT_A_SIGNER);
+        verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
+
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+        verify(notificationRepository, times(2)).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
+        verify(notificationRepository, times(4)).save(any(Notification.class));
     }
 
     private Contrat contratAvecDeuxSignatures() {

@@ -1034,11 +1034,14 @@ public class EmployeurServiceTest {
         etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
 
         assertThatThrownBy(() -> employeurService.accepterCandidatApresEntrevue(1L))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_declined");
         assertThatThrownBy(() -> employeurService.refuserCandidatApresEntrevue(1L, "Autre profil"))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_declined");
         assertThatThrownBy(() -> employeurService.cloreEntrevue(1L))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_declined");
         assertThat(entrevue.getStatut()).isEqualTo(StatutEntrevue.TERMINEE);
         assertThat(candidature.getStatut()).isEqualTo(StatutCandidature.ENTREVUE_PLANIFIEE);
         verify(candidatureRepository, never()).save(any());
@@ -1054,7 +1057,8 @@ public class EmployeurServiceTest {
         when(candidatureRepository.findById(candidature.getId())).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> employeurService.retenirCandidaturePourEntrevue(candidature.getId()))
-                .isInstanceOf(ActionsCandidatureDesactiveesException.class);
+                .isInstanceOf(ActionsCandidatureDesactiveesException.class)
+                .hasMessage("error.offer_declined");
         verify(candidatureRepository, never()).save(any());
     }
     @Test
@@ -1065,7 +1069,7 @@ public class EmployeurServiceTest {
         CandidatureDTO resultat = employeurService.accepterCandidatApresEntrevue(1L);
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.ACCEPTEE);
-        assertThat(resultat.statutEtudiant()).isNotEqualTo(StatutEtudiant.STAGE_TROUVE);
+        assertThat(resultat.statutEtudiant()).isNull();
         assertThat(etudiant.getCandidatureStage()).isNull();
         assertThat(resultat.motifRefus()).isNull();
         verify(userAppRepository, never()).save(any());
@@ -1146,7 +1150,7 @@ public class EmployeurServiceTest {
 
         assertThat(resultat.statut()).isEqualTo(StatutCandidature.REFUSEE);
         assertThat(resultat.motifRefus()).isEqualTo("Experience insuffisante");
-        assertThat(resultat.statutEtudiant()).isEqualTo(StatutEtudiant.EN_RECHERCHE);
+        assertThat(resultat.statutEtudiant()).isNull();
         verify(etudiantService).actualiserStatutEtudiant(etudiant);
         verify(candidatureRepository).save(candidature);
         verify(eventPublisher).publishEvent(any(CandidatureRefuseeEvent.class));

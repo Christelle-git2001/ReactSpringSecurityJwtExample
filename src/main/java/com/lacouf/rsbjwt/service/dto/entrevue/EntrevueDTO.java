@@ -6,6 +6,8 @@ import com.lacouf.rsbjwt.model.Enum.FormatEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+
 import java.time.LocalDateTime;
 
 public record EntrevueDTO(
@@ -26,6 +28,16 @@ public record EntrevueDTO(
         String motifRefus,
         StatutCandidature statutCandidature
 ) {
+
+        public static EntrevueDTO ofEmployeur(Entrevue entrevue) {
+                EntrevueDTO dto = of(entrevue);
+                if (dto == null) return null;
+                return new EntrevueDTO(dto.id(), dto.dateCreation(), dto.format(), dto.dateHeureEntrevue(),
+                        dto.duree(), dto.candidatureId(), dto.employeurId(), dto.etudiantFirstName(),
+                        dto.etudiantLastName(), dto.offreTitle(), dto.dateConfirmation(), dto.statut(),
+                        dto.dateReponse(), dto.employeur(), dto.motifRefus(),
+                        CandidatureDTO.statutPourEmployeur(entrevue.getCandidature()));
+        }
 
         public static EntrevueDTO of(Entrevue entrevue) {
                 if (entrevue == null) {

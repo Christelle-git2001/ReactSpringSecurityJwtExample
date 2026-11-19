@@ -662,6 +662,22 @@ public class NotificationService {
                 .build();
 
         notificationRepository.save(notificationEtudiant);
+
+        Notification notificationGestionnaire = Notification.builder()
+                .titre("notification.gestionnaire.signatureDemarree.title")
+                .description("notification.gestionnaire.signatureDemarree.description")
+                .notificationType(NotificationType.SIGNATURE_DEMARREE)
+                .role(Role.GESTIONNAIRE)
+                .dateCreaction(LocalDateTime.now())
+                .urlCible(ControllerPath.GESTIONNAIRE_CANDIDATURE_CONTRAT
+                        .build(String.valueOf(candidature.getId())))
+                .variables(Map.of(
+                        VariableMapKey.CANDIDATURE_ID, String.valueOf(candidature.getId()),
+                        VariableMapKey.ETUDIANT_NOM, etudiant.getFirstName() + " " + etudiant.getLastName(),
+                        VariableMapKey.OFFRE_TITRE, offre.getTitle()
+                ))
+                .build();
+        notificationRepository.save(notificationGestionnaire);
     }
 
     public List<NotificationDTO> getNotificationsNonLuesEtudiant()

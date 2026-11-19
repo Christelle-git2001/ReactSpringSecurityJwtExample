@@ -311,7 +311,7 @@ public class EmployeurService {
 
         return candidatureRepository.findByOffreDeStage(offre)
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(CandidatureDTO::ofEmployeur)
                 .toList();
     }
 
@@ -339,7 +339,7 @@ public class EmployeurService {
 
         return candidaturesFiltrees
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(CandidatureDTO::ofEmployeur)
                 .toList();
     }
 
@@ -368,7 +368,7 @@ public class EmployeurService {
 
         return candidaturesFiltrees
                 .stream()
-                .map(CandidatureDTO::of)
+                .map(CandidatureDTO::ofEmployeur)
                 .toList();
     }
 
@@ -400,7 +400,7 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+        verifierActionsCandidatureEmployeur(candidature);
 
         if (convocationRepository
                 .findByCandidatureId(dto.candidatureId())
@@ -435,7 +435,7 @@ public class EmployeurService {
                 new EntrevueCreeeEvent(entrevueEnregistree)
         );
 
-        return EntrevueDTO.of(entrevueEnregistree);
+        return EntrevueDTO.ofEmployeur(entrevueEnregistree);
     }
 
     @Transactional
@@ -444,14 +444,14 @@ public class EmployeurService {
                 .findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
 
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+        verifierActionsCandidatureEmployeur(candidature);
 
         if (candidature.getStatut() == StatutCandidature.SOUMISE) {
             candidature.setStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
             candidatureRepository.save(candidature);
             eventPublisher.publishEvent(new CandidatureRetenueEvent(candidature));
         }
-        return CandidatureDTO.of(candidature);
+        return CandidatureDTO.ofEmployeur(candidature);
     }
 
     @Transactional(readOnly = true)
@@ -465,7 +465,7 @@ public class EmployeurService {
         if (proprietaire == null || !proprietaire.getId().equals(employeur.getId())) {
             throw new OffreNonAutoriseeException();
         }
-        return EntrevueDTO.of(entrevue);
+        return EntrevueDTO.ofEmployeur(entrevue);
     }
 
     public List<EntrevueDTO> obtenirEntrevues() throws UtilisateurIntrouvableException {
@@ -487,7 +487,7 @@ public class EmployeurService {
         return entrevuesFiltrees
                 .stream()
                 .filter(entrevue -> entrevue.getStatut() != StatutEntrevue.REFUSEE)
-                .map(EntrevueDTO::of)
+                .map(EntrevueDTO::ofEmployeur)
                 .toList();
     }
 
@@ -509,7 +509,7 @@ public class EmployeurService {
             throw new OffreNonAutoriseeException();
         }
 
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+        verifierActionsCandidatureEmployeur(candidature);
 
         if (entrevue.getStatut() != StatutEntrevue.CONFIRMEE && entrevue.getStatut() != StatutEntrevue.TERMINEE) {
             throw new DecisionCandidatureInvalideException();
@@ -519,7 +519,7 @@ public class EmployeurService {
         convocationRepository.save(entrevue);
         eventPublisher.publishEvent(new EntrevueTermineeEvent(entrevue));
         etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
-        return CandidatureDTO.of(candidature);
+        return CandidatureDTO.ofEmployeur(candidature);
     }
 
     @Transactional
@@ -557,17 +557,17 @@ public class EmployeurService {
         }
 
         if (candidature.getStatut() == decision) {
-            EtudiantService.verifierActionsCandidatureAutorisees(candidature);
-            return CandidatureDTO.of(candidature);
+            verifierActionsCandidatureEmployeur(candidature);
+            return CandidatureDTO.ofEmployeur(candidature);
         }
         if (decision == StatutCandidature.ACCEPTEE
                 && (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
                 || candidature.getStatut() == StatutCandidature.CONTRAT_CREE)) {
-            EtudiantService.verifierActionsCandidatureAutorisees(candidature);
-            return CandidatureDTO.of(candidature);
+            verifierActionsCandidatureEmployeur(candidature);
+            return CandidatureDTO.ofEmployeur(candidature);
         }
         validerDecisionApresEntrevue(entrevue);
-        EtudiantService.verifierActionsCandidatureAutorisees(candidature);
+        verifierActionsCandidatureEmployeur(candidature);
 
         candidature.setStatut(decision);
         candidature.setMotifRefus(motifRefus);
@@ -581,7 +581,15 @@ public class EmployeurService {
             etudiantService.actualiserStatutEtudiant(candidature.getEtudiant());
             eventPublisher.publishEvent(new CandidatureRefuseeEvent(candidatureEnregistree));
         }
-        return CandidatureDTO.of(candidatureEnregistree);
+        return CandidatureDTO.ofEmployeur(candidatureEnregistree);
+    }
+
+    private void verifierActionsCandidatureEmployeur(Candidature candidature)
+            throws ActionsCandidatureDesactiveesException {
+        if (CandidatureDTO.statutPourEmployeur(candidature) == StatutCandidature.OFFRE_DECLINEE
+                || candidature.actionsDesactivees()) {
+            throw new ActionsCandidatureDesactiveesException("error.offer_declined");
+        }
     }
 
     private void validerDecisionApresEntrevue(Entrevue entrevue)
@@ -664,7 +672,7 @@ public class EmployeurService {
                         entrevue -> entrevue.getCandidature().getOffreDeStage().getCreatedAt()
                 ).stream()
                 .filter(e -> e.getStatut() == statut)
-                .map(EntrevueDTO::of)
+                .map(EntrevueDTO::ofEmployeur)
                 .toList();
     }
 
