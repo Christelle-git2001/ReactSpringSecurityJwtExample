@@ -14,7 +14,7 @@ import {
 } from "../../api/employeur.jsx";
 import { signerContratEtudiant } from "../../api/etudiant.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
-import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
+import { actionsCandidatureDesactivees, statutCandidatureEmployeur } from "../../utils/candidatureActions.js";
 import ActionsDesactivees from "./ActionsDesactivees.jsx";
 import EvaluationStagiaire from "../Evaluation/EvaluationStagiaire.jsx";
 
@@ -177,7 +177,7 @@ function NextAction({
                 state: { selectedCandidatureId: candidature.id },
             });
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") {
+            if (["error.internship_found_locked", "error.offer_declined"].includes(error?.message)) {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -223,7 +223,7 @@ function NextAction({
             setMotDePasse("");
 
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") {
+            if (["error.internship_found_locked", "error.offer_declined"].includes(error?.message)) {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -252,7 +252,7 @@ function NextAction({
             setRefusOuvert(false);
             onProcessChange?.({ statut: "ENTREVUE_PLANIFIEE", statutEntrevue: "TERMINEE" });
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") {
+            if (["error.internship_found_locked", "error.offer_declined"].includes(error?.message)) {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -276,7 +276,7 @@ function NextAction({
             onProcessChange?.({ ...decision, statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") {
+            if (["error.internship_found_locked", "error.offer_declined"].includes(error?.message)) {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -305,7 +305,7 @@ function NextAction({
             onProcessChange?.({ statut: "REFUSEE", statutEntrevue: "TERMINEE" });
             setRefusOuvert(false);
         } catch (error) {
-            if (error?.message === "error.internship_found_locked") {
+            if (["error.internship_found_locked", "error.offer_declined"].includes(error?.message)) {
                 setActionsBloquees(true);
                 setErreurBlocage(error.message);
             }
@@ -465,9 +465,10 @@ function NextAction({
         }
     };
 
-    if (actionsBloquees || actionsCandidatureDesactivees(candidature)) {
+    if (actionsBloquees || actionsCandidatureDesactivees(candidature)
+        || (role === Role.EMPLOYEUR && statutCandidatureEmployeur(candidature) === "OFFRE_DECLINEE")) {
         return <div className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-4">
-            <ActionsDesactivees candidature={candidature} messageKey={erreurBlocage} />
+            <ActionsDesactivees role={role} messageKey={erreurBlocage} />
             <div className="flex justify-end"><Button variant="secondary" size="small"
                                                       onClick={() => navigate(retourPath || "/employeur")}>{t("actions.back")}</Button></div>
         </div>;

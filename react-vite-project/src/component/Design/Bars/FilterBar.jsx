@@ -19,6 +19,7 @@ export default function FilterBar({
                                       onOnlyNewChange,
                                       selectedActions = "TOUS",
                                       onActionsChange,
+                                      actionsLabels = {},
                                       className = "",
                                       statusLabels = {},
                                       statusOptions = ["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"],
@@ -56,7 +57,7 @@ export default function FilterBar({
                 {onActionsChange && (
                     <div className="space-y-2">
                         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
-                            {t("candidature.actions_filter")}
+                            {t(actionsLabels.title || "candidature.actions_filter")}
                         </span>
                         <div className="filter flex flex-wrap gap-2">
                             {["TOUS", "ACTIVES", "DESACTIVEES"].map(value => (
@@ -64,7 +65,7 @@ export default function FilterBar({
                                     <input type="checkbox" className="btn btn-sm"
                                            checked={selectedActions === value}
                                            onChange={() => onActionsChange(value)}
-                                           aria-label={t(value === "TOUS" ? "candidature.actions_all" : value === "ACTIVES" ? "candidature.actions_enabled" : "candidature.actions_disabled")} />
+                                           aria-label={t(actionsLabels[value] || (value === "TOUS" ? "candidature.actions_all" : value === "ACTIVES" ? "candidature.actions_enabled" : "candidature.actions_disabled"))} />
                                 </label>
                             ))}
                             <button type="button" className="btn btn-square btn-sm"

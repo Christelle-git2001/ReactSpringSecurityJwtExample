@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiArrowDown, FiArrowUp, FiEdit, FiLock, FiStar, FiUser } from 'react-icons/fi';
+import { FiArrowDown, FiArrowUp, FiEdit, FiStar, FiUser } from 'react-icons/fi';
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
@@ -8,7 +8,7 @@ import { formaterDate } from "../../../utils/cvFormatters.jsx";
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
-import { actionsCandidatureDesactivees } from "../../../utils/candidatureActions.js";
+import { statutCandidatureEmployeur } from "../../../utils/candidatureActions.js";
 
 function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandidature, onEdit = false, showPdfActions = true, onRead }) {
     const { t } = useTranslation();
@@ -168,12 +168,11 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                                 <ul className="max-h-48 space-y-1 overflow-y-auto">
                                     {candidaturesOffre.map(candidature => {
                                         let statutCandidature = getStatusConfig(
-                                            candidature.statut === "CONTRAT_CREE" && candidature.contratSigne
-                                                ? "CONTRAT_SIGNE" : candidature.statut,
+                                            statutCandidatureEmployeur(candidature),
                                             t, "candidature"
                                         );
                                         const entrevue = entrevues.find(e => e.candidatureId === candidature.id);
-                                        if (candidature.statut === "ENTREVUE_PLANIFIEE") {
+                                        if (statutCandidatureEmployeur(candidature) === "ENTREVUE_PLANIFIEE") {
                                             if (entrevue?.statut === "CONFIRMEE") {
                                                 statutCandidature = {
                                                     label: t("candidature.status.confirmee"),
@@ -210,10 +209,6 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                                                     {dateCandidatureAffichee && <span className="mt-1 block text-xs text-gray-500">{dateCandidatureAffichee}</span>}
                                                 </span>
                                                 <span className="ml-auto flex max-w-[55%] shrink-0 flex-col items-end gap-1 text-right">
-                                                    {actionsCandidatureDesactivees(candidature) && <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-                                                        <FiLock className="size-3.5 shrink-0" aria-hidden="true" />
-                                                        {t("candidature.actions_disabled")}
-                                                    </span>}
                                                     {candidature.statut && (
                                                         <span className={`badge badge-xs h-auto max-w-full whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
                                                             {statutCandidature.label}

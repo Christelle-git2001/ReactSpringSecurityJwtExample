@@ -184,6 +184,7 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "offer_declined": "This application is no longer available for this offer. You can still view it.",
     "contract_manager_missing": "No manager is available to handle the contract. Your decision has not been saved.",
     "stage_decision_invalid": "This decision is unavailable. Select an application accepted by the employer and make sure you have not already accepted another internship.",
     "decision_invalid": "Decision unavailable. Check that the interview is confirmed and completed.",
@@ -236,6 +237,7 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+    "to_sign": "To sign",
     "view_created_contracts": "View created agreements",
     "view_candidature_details": "View application",
     "view_contract": "View contract",
@@ -537,6 +539,9 @@
     }
   },
   "candidature": {
+    "offer_declined_description": "This application is no longer available for this offer. You can still view it.",
+    "application_status": "Application status",
+    "active_applications": "Active applications",
     "view_contract": "View contract",
     "actions_disabled": "Actions disabled",
     "actions_filter": "Application actions",
@@ -566,6 +571,10 @@
     "search_placeholder": "Search applications…",
     "none": "No applications for now.",
     "status": {
+      "evaluation": "Evaluation",
+      "evaluation_a_remplir": "Evaluation to complete",
+      "evaluation_soumise": "Evaluation submitted",
+      "offre_declinee": "Offer declined",
       "contrat": "Agreement",
       "contrat_signe": "Signed agreement",
       "stage_trouve": "Internship found",
@@ -641,6 +650,10 @@
       }
     },
     "gestionnaire": {
+      "signatureDemarree": {
+        "title": "Contract signing process started",
+        "description": "The contract for {{ETUDIANT_NOM}} for “{{OFFRE_TITRE}}” has been created. The student and employer must sign it before your signature is required."
+      },
       "contratASigner": {
         "title": "Contract awaiting your signature",
         "description": "{{ETUDIANT_NOM}} and the employer have signed the contract for “{{OFFRE_TITRE}}”. Your signature is now required."

@@ -5,6 +5,7 @@ import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { obtenirConvocationEmployeur } from "../../api/employeur.jsx";
 import { obtenirEvaluationStagiairePDF } from "../../api/pdf.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
+import { statutCandidatureEmployeur } from "../../utils/candidatureActions.js";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
 import {useContrat} from "../hook/useContrat.jsx";
@@ -31,6 +32,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
     const [evaluationPdfBlobUrl, setEvaluationPdfBlobUrl] = useState(null);
     const [isEvaluationLoading, setIsEvaluationLoading] = useState(false);
     const [evaluationError, setEvaluationError] = useState(false);
+    const [evaluationSoumise, setEvaluationSoumise] = useState(false);
     const [scrollVersEvaluation, setScrollVersEvaluation] = useState(false);
     const [scrollVersContrat, setScrollVersContrat] = useState(false);
     const [evaluationDisponiblePourTest, setEvaluationDisponiblePourTest] = useState(false);
@@ -72,6 +74,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
             const response = await obtenirEvaluationStagiairePDF(candidatureId, i18n.language || "fr");
             const blob = await response.blob();
             setEvaluationPdfBlobUrl(URL.createObjectURL(blob));
+            setEvaluationSoumise(true);
             if (defilerVersEvaluation) setScrollVersEvaluation(true);
         } catch (err) {
             if (err?.status !== 404) {
@@ -89,6 +92,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
 
     useEffect(() => {
         setEvaluationDisponiblePourTest(false);
+        setEvaluationSoumise(false);
     }, [candidatureId]);
 
     useEffect(() => {
@@ -182,7 +186,16 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decisionActuelle?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
+            {candidature && statutCandidatureEmployeur(candidature) !== "OFFRE_DECLINEE" && (
+                <CandidatureTimeline
+                    statut={candidature.statut}
+                    statutEntrevue={decisionActuelle?.statutEntrevue ?? statutEntrevue}
+                    regrouperEntrevue
+                    afficherEvaluation
+                    evaluationSoumise={evaluationSoumise}
+                    evaluationDisponible={candidature.statut === "CONTRAT_CREE" && evaluationEstDisponible}
+                />
+            )}
             {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
             <div className="px-6 pb-6 pt-2 flex flex-col gap-6 max-w-5xl mx-auto w-full">
@@ -195,8 +208,11 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     offer={offer}
                     retourPath={retour}
                     onProcessChange={resultat => setDecision({ ...resultat, id: candidatureSource.id })}
-                    onEvaluationSubmitted={() => chargerEvaluationPdf(true)}
-                    evaluationDejaSoumise={Boolean(evaluationPdfBlobUrl)}
+                    onEvaluationSubmitted={() => {
+                        setEvaluationSoumise(true);
+                        chargerEvaluationPdf(true);
+                    }}
+                    evaluationDejaSoumise={evaluationSoumise}
                     evaluationEnChargement={isEvaluationLoading}
                     evaluationDisponible={evaluationEstDisponible}
                     evaluationDisponiblePourTest={evaluationDisponiblePourTest}

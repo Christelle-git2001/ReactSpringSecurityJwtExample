@@ -11,7 +11,7 @@ import { getNotifications, marquerNotificationLue } from "../../api/notification
 import { useNotificationTrigger } from "../../component/Notification/UtilNotification.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import Sort from "../../component/Design/Sort.jsx";
-import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
+import { statutCandidatureEmployeur } from "../../utils/candidatureActions.js";
 
 const EmployeurHome = ({ user }) => {
     const { t } = useTranslation();
@@ -38,7 +38,7 @@ const EmployeurHome = ({ user }) => {
     });
 
     const candidaturesFiltrees = candidatures.filter(candidature => selectedActions === "TOUS"
-        || actionsCandidatureDesactivees(candidature) === (selectedActions === "DESACTIVEES"));
+        || (statutCandidatureEmployeur(candidature) === "OFFRE_DECLINEE") === (selectedActions === "DESACTIVEES"));
 
     const filteredOffres = offreFilters.itemsFiltres.filter((o) => {
         if (selectedOfferId && selectedOfferId !== "TOUS" && o.id !== selectedOfferId) return false;
@@ -151,6 +151,7 @@ const EmployeurHome = ({ user }) => {
                 <FilterBar
                     selectedActions={selectedActions}
                     onActionsChange={setSelectedActions}
+                    actionsLabels={{ title: "candidature.application_status", ACTIVES: "candidature.active_applications", DESACTIVEES: "candidature.status.offre_declinee" }}
                     selectedStatus={offreFilters.selectedStatus}
                     onStatusChange={offreFilters.setSelectedStatus}
                     selectedDomain={offreFilters.selectedDomain}

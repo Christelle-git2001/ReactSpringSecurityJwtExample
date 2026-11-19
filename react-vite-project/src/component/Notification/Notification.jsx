@@ -36,6 +36,7 @@ const ROUTES_PAR_TYPE = {
     STAGE_REFUSE: "/employeur/candidatures/details",
     CONTRAT_A_CREER: "/gestionnaire",
     CONTRAT_A_SIGNER: "/gestionnaire",
+    SIGNATURE_DEMARREE: "/gestionnaire",
     NOUVELLE_CANDIDATURE: "/employeur/candidatures/details",
     EVALUATION_STAGE_A_FAIRE: "/employeur/candidatures/details",
     NOUVEAU_CONTRAT: (pathname) => {
@@ -51,6 +52,7 @@ const ROUTES_PAR_TYPE = {
 };
 
 const CONFIG_PAR_TYPE = {
+    SIGNATURE_DEMARREE: { icon: <FiFileText className="size-5" />, tone: "purple" },
     CONTRAT_A_SIGNER: { icon: <FiFileText className="size-5" />, tone: "blue" },
     NOUVEAU_CONTRAT: { icon: <FiFileText className="size-5" />, tone: "purple" },
     OFFRE_STATUT_CHANGE_ACCEPTEE: { icon: <FaCheck className="size-4" />, tone: "green" },
@@ -224,14 +226,14 @@ export default function Notification({ notifications = [], onMarkAsRead }) {
                 state.candidatureId = candidatureId;
                 state.from = "/etudiant";
             }
-            else if (["CONTRAT_A_CREER", "CONTRAT_A_SIGNER"].includes(notification.notificationType)) {
+            else if (["CONTRAT_A_CREER", "CONTRAT_A_SIGNER", "SIGNATURE_DEMARREE"].includes(notification.notificationType)) {
                 const candidatureId = notification.variables?.CANDIDATURE_ID;
                 if (!candidatureId) {
                     setError(t("notifications.open_error"));
                     return;
                 }
                 const candidatures = await getCandidaturesByStatus(
-                    notification.notificationType === "CONTRAT_A_SIGNER" ? "CONTRAT_CREE" : "STAGE_TROUVE");
+                    notification.notificationType === "CONTRAT_A_CREER" ? "STAGE_TROUVE" : "CONTRAT_CREE");
                 const candidature = candidatures.find(c => String(c.id) === String(candidatureId));
                 if (!candidature) {
                     setError(t("notifications.not_found"));

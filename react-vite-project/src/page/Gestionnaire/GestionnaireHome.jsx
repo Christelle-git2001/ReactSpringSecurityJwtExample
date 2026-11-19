@@ -309,7 +309,7 @@ const GestionnaireHome = ({ user }) => {
                                         key={candidature.id}
                                         candidature={candidature}
                                         onClick={() => handleViewCandidature(candidature)}
-                                        actionLabel={t(candidature.contratSigne ? "dashboard.view_contract" : "dashboard.sign_contract")}
+                                        actionLabel={t("dashboard.view_contract")}
                                     />
                                 )}
                             />

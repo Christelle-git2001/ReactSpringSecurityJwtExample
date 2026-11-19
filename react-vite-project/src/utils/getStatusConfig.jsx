@@ -18,6 +18,7 @@ export function getStatusConfig(statut, t, type = "offre") {
             EN_ATTENTE_REPONSE: "convocation.awaiting_decision",
             ACCEPTEE: "candidature.status.acceptee",
             REFUSEE: "candidature.status.refusee",
+            OFFRE_DECLINEE: "candidature.status.offre_declinee",
             STAGE_TROUVE: "candidature.status.stage_trouve",
             CONTRAT_CREE: "candidature.status.contrat_cree",
             CONTRAT_SIGNE: "candidature.status.contrat_signe"
@@ -42,6 +43,7 @@ export function getStatusConfig(statut, t, type = "offre") {
         EN_ATTENTE_REPONSE: "bg-gradient-to-r from-amber-200 via-orange-100 to-yellow-50 text-amber-900 border-amber-300 shadow-sm",
         ACCEPTEE: "bg-emerald-100 text-emerald-800 border-emerald-200",
         REFUSEE: "bg-red-100 text-red-800 border-red-200",
+        OFFRE_DECLINEE: "bg-slate-200 text-slate-700 border-slate-300",
         STAGE_TROUVE: "bg-cyan-800 text-white border-cyan-900",
         CONTRAT_CREE: "bg-blue-800 text-white border-blue-900",
         CONTRAT_SIGNE: "bg-emerald-800 text-white border-emerald-900",

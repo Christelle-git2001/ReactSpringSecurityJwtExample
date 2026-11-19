@@ -226,6 +226,7 @@
     "ADMINISTRATION_PUBLIQUE": "Administration publique"
   },
   "error": {
+    "offer_declined": "Cette candidature n’est plus disponible pour cette offre. Elle reste consultable.",
     "contract_manager_missing": "Aucun gestionnaire ne peut prendre en charge le contrat pour le moment. Votre choix n’a pas été enregistré.",
     "stage_decision_invalid": "Cette décision est impossible : choisissez une candidature acceptée par l’employeur et vérifiez qu’aucun autre stage ne vous est déjà attribué.",
     "decision_invalid": "Décision impossible. Vérifiez que l'entrevue est confirmée et terminée.",
@@ -292,6 +293,7 @@
     "welcome": "Bienvenue"
   },
   "dashboard": {
+    "to_sign": "À signer",
     "view_created_contracts": "Voir les contrats créés",
     "view_candidature_details": "Voir la candidature",
     "view_contract": "Voir le contrat",
@@ -530,6 +532,9 @@
     }
   },
   "candidature": {
+    "offer_declined_description": "Cette candidature n’est plus disponible pour cette offre. Elle reste consultable.",
+    "application_status": "Statut des candidatures",
+    "active_applications": "Candidatures actives",
     "view_contract": "Voir le contrat",
     "actions_disabled": "Actions désactivées",
     "actions_filter": "Actions des candidatures",
@@ -559,6 +564,10 @@
     "search_placeholder": "Rechercher une candidature…",
     "none": "Aucune candidature pour le moment.",
     "status": {
+      "evaluation": "Évaluation",
+      "evaluation_a_remplir": "Évaluation à remplir",
+      "evaluation_soumise": "Évaluation soumise",
+      "offre_declinee": "Offre déclinée",
       "contrat": "Contrat",
       "contrat_signe": "Contrat signé",
       "stage_trouve": "Stage trouvé",
@@ -634,6 +643,10 @@
       }
     },
     "gestionnaire": {
+      "signatureDemarree": {
+        "title": "Processus de signature démarré",
+        "description": "Le contrat de {{ETUDIANT_NOM}} pour « {{OFFRE_TITRE}} » a été créé. L’étudiant et l’employeur doivent le signer avant votre intervention."
+      },
       "contratASigner": {
         "title": "Contrat à signer",
         "description": "{{ETUDIANT_NOM}} et l’employeur ont signé le contrat pour « {{OFFRE_TITRE}} ». Votre signature est maintenant attendue."

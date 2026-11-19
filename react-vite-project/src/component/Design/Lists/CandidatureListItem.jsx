@@ -18,9 +18,10 @@ function CandidatureListItem({ candidature, onClick, variant = "card", actionLab
         ? t(`departement.${departmentKey}`, candidature?.etudiantDepartment)
         : candidature?.etudiantDepartment;
 
-    const status = candidature?.statut === "CONTRAT_CREE" && candidature?.contratSigne
-        ? getStatusConfig("CONTRAT_SIGNE", t, "candidature")
-        : getStatusConfig(candidature?.statut, t);
+    const contratASigner = candidature?.statut === "CONTRAT_CREE" && !candidature?.contratSigne;
+    const status = contratASigner
+        ? { label: t("dashboard.to_sign"), className: "bg-amber-100 text-amber-800 border-amber-200" }
+        : getStatusConfig(candidature?.contratSigne ? "CONTRAT_SIGNE" : candidature?.statut, t, "candidature");
     const dateCandidature = formaterDate(candidature?.dateCandidature);
 
     const studentFullName = `${candidature?.etudiantFirstName || ""} ${candidature?.etudiantLastName || ""}`.trim();
@@ -42,11 +43,11 @@ function CandidatureListItem({ candidature, onClick, variant = "card", actionLab
             tone="cyan"
             variant={variant}
             actionLabel={actionLabel}
-            actionRole={candidature?.contratSigne ? "details" : "signature"}
+            actionRole="details"
             actionIcon
             actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
             onClick={onClick}
-            ariaLabel={t("dashboard.view_candidature_details")}
+            ariaLabel={t("dashboard.view_contract")}
         />
     );
 }
