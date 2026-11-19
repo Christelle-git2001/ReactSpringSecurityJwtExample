@@ -52,18 +52,20 @@ class AuthProviderTest {
         when(utilisateurs.findUserAppByEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
         when(passwordEncoder.matches("incorrect", "hash-test")).thenReturn(false);
 
-        assertThatExceptionOfType(AuthenticationException.class)
+        assertThatExceptionOfType(org.springframework.security.authentication.BadCredentialsException.class)
                 .isThrownBy(() -> provider.authenticate(
-                        new UsernamePasswordAuthenticationToken(etudiant.getEmail(), "incorrect")));
+                        new UsernamePasswordAuthenticationToken(etudiant.getEmail(), "incorrect")))
+                .withCauseInstanceOf(AuthenticationException.class);
     }
 
     @Test
     void doitRefuserUnUtilisateurIntrouvable() {
         when(utilisateurs.findUserAppByEmail("cindy@example.com")).thenReturn(Optional.empty());
 
-        assertThatExceptionOfType(UserNotFoundException.class)
+        assertThatExceptionOfType(org.springframework.security.authentication.BadCredentialsException.class)
                 .isThrownBy(() -> provider.authenticate(
-                        new UsernamePasswordAuthenticationToken("cindy@example.com", "test")));
+                        new UsernamePasswordAuthenticationToken("cindy@example.com", "test")))
+                .withCauseInstanceOf(UserNotFoundException.class);
         verifyNoInteractions(passwordEncoder);
     }
 

@@ -168,6 +168,7 @@ function OfferDetails({ offre: offreProp }) {
                         />
                     </div>
 
+
                     <div>
                         <ReadOnlyField
                             label={t("offre.date_debut")}

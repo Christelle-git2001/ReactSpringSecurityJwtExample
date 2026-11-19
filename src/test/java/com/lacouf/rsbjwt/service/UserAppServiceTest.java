@@ -8,7 +8,6 @@ import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Etudiant;
 import com.lacouf.rsbjwt.model.Gestionnaire;
 import com.lacouf.rsbjwt.model.Professeur;
-import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +65,7 @@ class UserAppServiceTest {
     }
 
     @Test
-    void authentificationRetourneToken() {
+    void authentificationRetourneToken() throws Exception {
         LoginDTO loginDTO = new LoginDTO("christelle@gmail.com", "111111");
 
         when(authenticationManager.authenticate(any()))
@@ -81,6 +80,18 @@ class UserAppServiceTest {
         String token = userAppService.authenticateUser(loginDTO);
 
         assertEquals("fake-jwt-token", token);
+    }
+
+    @Test
+    void doitConserverLErreurCheckedRenvoyeeParLeFournisseurAuthentification() {
+        var erreur = new com.lacouf.rsbjwt.security.exception.UserNotFoundException();
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new org.springframework.security.authentication.BadCredentialsException("userNotFound", erreur));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                userAppService.authenticateUser(new LoginDTO("inconnu@example.com", "incorrect")))
+                .isSameAs(erreur);
+        org.mockito.Mockito.verifyNoInteractions(userAppRepository, jwtTokenProvider);
     }
 
     @Test
@@ -109,7 +120,7 @@ class UserAppServiceTest {
 
     }
     @Test
-    void doitRetournerGestionnaireDtoLorsDeGetMe() {
+    void doitRetournerGestionnaireDtoLorsDeGetMe() throws Exception {
         String token = "Bearer fake-token";
         String email = "gestionnaire@test.com";
 
@@ -127,7 +138,7 @@ class UserAppServiceTest {
     }
 
     @Test
-    void doitRetournerEtudiantDtoLorsDeGetMe() {
+    void doitRetournerEtudiantDtoLorsDeGetMe() throws Exception {
         String token = "fake-token"; // Test sans le préfixe Bearer
         String email = "etudiant@test.com";
 
@@ -152,7 +163,7 @@ class UserAppServiceTest {
     }
 
     @Test
-    void doitRetournerEmployeurDtoLorsDeGetMe() {
+    void doitRetournerEmployeurDtoLorsDeGetMe() throws Exception {
         String token = "Bearer fake-token";
         String email = "employeur@test.com";
 
@@ -178,7 +189,7 @@ class UserAppServiceTest {
     }
 
     @Test
-    void doitRetournerProfesseurDtoLorsDeGetMe() {
+    void doitRetournerProfesseurDtoLorsDeGetMe() throws Exception {
         String token = "Bearer fake-token";
         String email = "professeur@test.com";
 

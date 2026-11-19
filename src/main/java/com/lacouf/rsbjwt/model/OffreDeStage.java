@@ -73,7 +73,6 @@ public class OffreDeStage {
     @Builder.Default
     private List<Candidature> candidatures = new ArrayList<>();
 
-
     public OffreDeStage(
             String title,
             String description,
@@ -89,6 +88,7 @@ public class OffreDeStage {
             String rejectionComment,
             LocalDateTime createdAt
     ) {
+        this();
         this.title = title;
         this.description = description;
         this.salary = salary;

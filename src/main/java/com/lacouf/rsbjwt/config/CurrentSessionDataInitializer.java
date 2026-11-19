@@ -193,8 +193,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
-        );
+                LocalDate.now().plusDays(7));
 
         CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
                 "Technicien Support Informatique",
@@ -203,10 +202,27 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(5),
                 LocalDate.now().plusMonths(2),
-                LocalDate.now().plusDays(3)
-        );
+                LocalDate.now().plusDays(3));
 
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseThrow(EmployeurIntrouvable::new);
+
+        for (CreationOffreDeStageDTO offreDemo : List.of(
+                new CreationOffreDeStageDTO("Développeur Java", "Développement d'API Java et Spring Boot.",
+                        24.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30)),
+                new CreationOffreDeStageDTO("Développeur React", "Développement d'interfaces React et intégration d'API.",
+                        23.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30)))) {
+            boolean dejaCreee = offreDeStageRepository.findAll().stream().anyMatch(offre ->
+                    offre.getTitle().equals(offreDemo.title()) && offre.getEmployeur() != null
+                            && offre.getEmployeur().getId().equals(employeur.getId()));
+            if (!dejaCreee) {
+                MultipartFile pdf = new MockMultipartFile("file", "offre.pdf", "application/pdf",
+                        pdfService.createOffreDeStagePdf(offreDemo, employeur).getInputStream());
+                OffreDeStageDTO offreCreee = employeurService.creerOffre(offreDemo, pdf, employeurEmail);
+                gestionnaireService.approuverOffre(offreCreee.id());
+            }
+        }
 
         MultipartFile realOffre1 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto1, employeur).getInputStream());
         MultipartFile realOffre2 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto2, employeur).getInputStream());
@@ -368,6 +384,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
 
         Candidature candidatureJuzo = candidatureRepository.findAll().stream()
                 .filter(c -> c.getEtudiant().getEmail().equals(emailJuzoSuzuya))
+                .filter(c -> finalTechSuppInfo != null && c.getOffreDeStage().getId().equals(finalTechSuppInfo.id()))
                 .findFirst()
                 .orElse(null);
 
@@ -393,7 +410,10 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         SecurityContextHolder.clearContext();
 
         if (candidatureJuzo != null) {
-            try { preparerStageTrouve(candidatureJuzo.getId()); } catch (Exception ignored) {}
+            try {
+                preparerStageTrouve(candidatureJuzo.getId());
+                etudiantService.demarrerContratStageTrouve(candidatureJuzo.getId());
+            } catch (Exception ignored) {}
         }
     }
 

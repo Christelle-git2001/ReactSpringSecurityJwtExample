@@ -12,7 +12,8 @@ public record ContratDTO(
         Long gestionnaireId,
         LocalDateTime dateSignatureGestionnaire,
         LocalDateTime dateSignatureEmployeur,
-        LocalDateTime dateSignatureEtudiant
+        LocalDateTime dateSignatureEtudiant,
+        LocalDateTime createdAt
 ) {
 
     public static ContratDTO of(Contrat contrat){
@@ -24,6 +25,7 @@ public record ContratDTO(
                 gestionnaire.getId(),
         contrat.getDateSignatureGestionnaire(),
         contrat.getDateSignatureEmployeur(),
-        contrat.getDateSignatureEtudiant());
+        contrat.getDateSignatureEtudiant(),
+        contrat.getCreatedAt());
     }
 }

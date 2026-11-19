@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service.chatbot.tools;
 
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
 import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
 import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
 import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
@@ -36,7 +37,7 @@ public class ChatbotEmployeurTools {
     }
 
     @Tool(description = "Consulte la liste de toutes les offres de stage publiées par l'employeur actuellement connecté pour la session active. Retourne les titres, descriptions, salaires, domaines, dates et statuts.")
-    public List<OffreDeStageDTO> obtenirOffres() {
+    public List<OffreDeStageDTO> obtenirOffres() throws UserNotFoundException {
         return employeurService.obtenirOffres();
     }
 
@@ -48,7 +49,7 @@ public class ChatbotEmployeurTools {
 
     @Tool(description = "Consulte les candidatures qui ont été retenues pour une entrevue parmi les offres de l'employeur connecté.")
     public List<CandidatureDTO> obtenirCandidaturesConvoquees()
-            throws UtilisateurIntrouvableException {
+            throws UtilisateurIntrouvableException, UserNotFoundException {
         return employeurService.obtenirCandidaturesConvoquees();
     }
 
@@ -88,5 +89,4 @@ public class ChatbotEmployeurTools {
     public ReferenceTemporelleDTO obtenirDateReference() {
         return donneesTemporellesService.obtenirDateReference();
     }
-
 }

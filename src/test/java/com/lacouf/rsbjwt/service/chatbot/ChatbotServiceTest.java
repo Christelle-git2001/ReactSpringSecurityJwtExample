@@ -111,6 +111,7 @@ class ChatbotServiceTest {
         connecter(role);
         when(chatClient.prompt()).thenReturn(requete);
         when(requete.system(prompt)).thenReturn(requete);
+        when(requete.messages(anyList())).thenReturn(requete);
         when(requete.user("Mes candidatures ?")).thenReturn(requete);
         when(requete.tools(tools)).thenReturn(requete);
         when(requete.call()).thenReturn(reponse);

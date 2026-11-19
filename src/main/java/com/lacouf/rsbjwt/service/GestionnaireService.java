@@ -79,10 +79,11 @@ public class GestionnaireService {
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
     private final SessionService sessionService;
+    private final NotificationService notificationService;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService, NotificationService notificationService){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -97,6 +98,7 @@ public class GestionnaireService {
         this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
         this.sessionService = sessionService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -484,7 +486,7 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException{
+    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException, MotDePasseInvalideException {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -508,5 +510,21 @@ public class GestionnaireService {
         applicationEventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
+    }
+
+    @Transactional
+    public int rappelerSignatureContrat(Long contratId) throws ContratIntrouvableException, UtilisateurIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        userAppRepository.findUserAppByEmail(email)
+                .filter(Gestionnaire.class::isInstance)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+        Contrat contrat = contratRepository.findById(contratId).orElseThrow(ContratIntrouvableException::new);
+        int rappels = (contrat.getDateSignatureEtudiant() == null ? 1 : 0)
+                + (contrat.getDateSignatureEmployeur() == null ? 1 : 0);
+        if (contrat.getDateSignatureGestionnaire() == null && rappels > 0) {
+            notificationService.rappelerSignatureContrat(contrat);
+            return rappels;
+        }
+        return 0;
     }
 }

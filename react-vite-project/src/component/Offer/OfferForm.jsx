@@ -216,7 +216,7 @@ function OfferForm({
         } catch (err) {
             console.error(err);
             setErrors({ api: err?.message === "error.internship_found_locked"
-                    ? "error.internship_found_locked" : "error.generic" });
+                    ? err.message : "error.generic" });
         }
     };
 

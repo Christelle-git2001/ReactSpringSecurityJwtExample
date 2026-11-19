@@ -38,6 +38,10 @@ public class DonneesEtudiantService {
         return etudiantRepository.count();
     }
 
+    public List<EtudiantDTO> obtenirEtudiantsInscrits() {
+        return etudiantRepository.findAll().stream().map(EtudiantDTO::of).toList();
+    }
+
     public List<EtudiantDTO> obtenirEtudiantsSansCv() {
         return etudiantRepository.findByCvIsNull().stream().map(EtudiantDTO::of).toList();
     }

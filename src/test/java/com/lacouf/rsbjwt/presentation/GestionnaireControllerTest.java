@@ -117,8 +117,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
-        );
+                false, null);
     }
 
 
@@ -186,8 +185,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
-        );
+                false, null);
 
         when(gestionnaireService.getOffresEnAttente())
                 .thenReturn(List.of(offre));
@@ -234,8 +232,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
-        );
+                false, null);
 
         when(gestionnaireService.approuverOffre(1L))
                 .thenReturn(offre);
@@ -271,8 +268,7 @@ public class GestionnaireControllerTest {
                 null,
                 commentaire,
                 null,
-                false, null
-        );
+                false, null);
 
         when(gestionnaireService.refuserOffre(1L, commentaire))
                 .thenReturn(offre);
@@ -487,8 +483,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
-        );
+                false, null);
 
         when(gestionnaireService.getToutesLesOffres()).thenReturn(List.of(offre));
 
@@ -528,8 +523,7 @@ public class GestionnaireControllerTest {
                 null,
                 null,
                 null,
-                false, null
-        );
+                false, null);
 
         when(gestionnaireService.getOffreParId(1L))
                 .thenReturn(offre);
@@ -669,8 +663,7 @@ public class GestionnaireControllerTest {
                 1L,
                 null,
                 null,
-                null
-        );
+                null, null);
 
         when(gestionnaireService.creerContrat(1L)).thenReturn(contratDTO);
 
@@ -695,9 +688,7 @@ public class GestionnaireControllerTest {
                 20L,
                 dateSignature,
                 null,
-                null
-
-        );
+                null, null);
 
         when(gestionnaireService.signerContrat(contratId, motDePasse))
                 .thenReturn(contratDTO);
@@ -812,7 +803,7 @@ public class GestionnaireControllerTest {
 
     @Test
     void doitRetournerLeContratParCandidature() throws Exception {
-        ContratDTO contrat = new ContratDTO(20L, 10L, 1L, null, null, null);
+        ContratDTO contrat = new ContratDTO(20L, 10L, 1L, null, null, null, null);
         when(gestionnaireService.getContratParCandidatureId(10L)).thenReturn(contrat);
 
         mockMvc.perform(get("/gestionnaire/candidatures/10/contrat"))
@@ -899,5 +890,14 @@ public class GestionnaireControllerTest {
         mockMvc.perform(multipart("/gestionnaire/offres").file(offre))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("error.internship_found_locked"));
+    }
+
+    @Test
+    void doitEnvoyerUnRappelDeSignatureDepuisLeGestionnaire() throws Exception {
+        when(gestionnaireService.rappelerSignatureContrat(42L)).thenReturn(2);
+        mockMvc.perform(post("/gestionnaire/contrats/42/rappel-signature"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string("2"));
+        verify(gestionnaireService).rappelerSignatureContrat(42L);
     }
 }

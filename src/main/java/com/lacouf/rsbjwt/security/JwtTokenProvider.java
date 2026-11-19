@@ -1,7 +1,6 @@
 package com.lacouf.rsbjwt.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -56,7 +55,7 @@ public class JwtTokenProvider{
 			.getSubject();
 	}
 
-	public void validateToken(String token){
+	public void validateToken(String token) throws InvalidJwtTokenException {
 		try{
 			Jwts.parser()
 				.verifyWith((javax.crypto.SecretKey) getSigningKey())

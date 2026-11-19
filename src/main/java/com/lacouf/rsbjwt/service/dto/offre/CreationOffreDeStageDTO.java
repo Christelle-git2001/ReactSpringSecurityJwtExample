@@ -28,4 +28,5 @@ public record CreationOffreDeStageDTO(
 
         @NotNull(message = "validation.displayEndDate.required")
         LocalDate displayEndDate
-) {}
+) {
+}

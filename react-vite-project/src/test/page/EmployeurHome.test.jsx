@@ -39,7 +39,7 @@ jest.mock('../../api/employeur.jsx', () => ({
 
 jest.mock('react-i18next', () => ({
     useTranslation: () => ({
-        t: (key, fallback) => fallback || key,
+        t: (key, options) => typeof options === "string" ? options : options?.defaultValue || key,
         i18n: { changeLanguage: () => new Promise(() => {}) },
     }),
 }));

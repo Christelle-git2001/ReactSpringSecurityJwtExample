@@ -17,6 +17,9 @@ export default function FilterBar({
                                       availableOffers = [],
                                       onlyNew = false,
                                       onOnlyNewChange,
+                                      selectedActions = "TOUS",
+                                      onActionsChange,
+                                      actionsLabels = {},
                                       className = "",
                                       statusLabels = {},
                                       statusOptions = ["TOUS", "EN_ATTENTE", "ACCEPTEE", "REFUSEE"],
@@ -31,6 +34,7 @@ export default function FilterBar({
     const showNewFilter = onOnlyNewChange !== undefined;
 
     const isFilterActive =
+        (onActionsChange && selectedActions !== "TOUS") ||
         onlyNew ||
         (showStatusFilter && selectedStatus !== "TOUS") ||
         (showDomainFilter && selectedDomain !== "TOUS") ||
@@ -50,6 +54,25 @@ export default function FilterBar({
             </summary>
 
             <div className="collapse-content space-y-4 text-sm">
+                {onActionsChange && (
+                    <div className="space-y-2">
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+                            {t(actionsLabels.title || "candidature.actions_filter")}
+                        </span>
+                        <div className="filter flex flex-wrap gap-2">
+                            {["TOUS", "ACTIVES", "DESACTIVEES"].map(value => (
+                                <label key={value}>
+                                    <input type="checkbox" className="btn btn-sm"
+                                           checked={selectedActions === value}
+                                           onChange={() => onActionsChange(value)}
+                                           aria-label={t(actionsLabels[value] || (value === "TOUS" ? "candidature.actions_all" : value === "ACTIVES" ? "candidature.actions_enabled" : "candidature.actions_disabled"))} />
+                                </label>
+                            ))}
+                            <button type="button" className="btn btn-square btn-sm"
+                                    aria-label={t("candidature.actions_all")} onClick={() => onActionsChange("TOUS")}>×</button>
+                        </div>
+                    </div>
+                )}
                 {showStatusFilter && (
                     <div className="space-y-2">
                         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">

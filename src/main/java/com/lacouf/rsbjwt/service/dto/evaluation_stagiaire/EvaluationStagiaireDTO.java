@@ -2,10 +2,11 @@ package com.lacouf.rsbjwt.service.dto.evaluation_stagiaire;
 
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.EvaluationStagiaire;
+import jakarta.validation.Valid;
 
 public record EvaluationStagiaireDTO(
         long candidatureID,
-        SuperviseurStageDTO supervisueurStageDTO,
+        @Valid SuperviseurStageDTO supervisueurStageDTO,
         EvaluationProductiviteDTO evaluationProductiviteDTO,
         QualiteTravailDTO qualiteTravailDTO,
         QualiteSocialeDTO qualiteSocialDTO,

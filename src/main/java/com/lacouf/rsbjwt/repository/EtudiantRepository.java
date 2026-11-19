@@ -6,11 +6,18 @@ import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.Etudiant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Etudiant e WHERE lower(e.credentials.email) = lower(:email)")
+    Optional<Etudiant> findByEmailForUpdate(@Param("email") String email);
+
     Optional<Etudiant> findByMatricule(String matricule);
     Optional<Etudiant> findByCredentialsEmail(String email);
     List<Etudiant> findAllByDepartmentAndCv_Statut( Departement department, Statut statut );

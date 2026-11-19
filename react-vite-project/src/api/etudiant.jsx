@@ -62,8 +62,15 @@ export async function obtenirCandidaturesEtudiant() {
     })
   }
 
-export async function declarerStageTrouve(id) {
-  return fetchJson(`/etudiant/candidatures/${id}/stage-trouve`, {
+export async function accepterStage(id) {
+  return fetchJson(`/etudiant/candidatures/${id}/stage/accepter`, {
+    method: "PUT",
+    headers: { "Authorization": `Bearer ${getToken()}` },
+  });
+}
+
+export async function refuserStage(id) {
+  return fetchJson(`/etudiant/candidatures/${id}/stage/refuser`, {
     method: "PUT",
     headers: { "Authorization": `Bearer ${getToken()}` },
   });

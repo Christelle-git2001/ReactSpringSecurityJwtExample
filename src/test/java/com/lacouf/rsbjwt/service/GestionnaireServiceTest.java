@@ -128,6 +128,9 @@ class GestionnaireServiceTest {
     private ArgumentCaptor<Function<Candidature, LocalDateTime>> dateCandidature;
 
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private GestionnaireService gestionnaireService;
     private GestionnaireDTO gestionnaireDto;
@@ -1596,5 +1599,51 @@ class GestionnaireServiceTest {
         assertThatThrownBy(() -> gestionnaireService.creerOffreCiblee(dto, file))
                 .isInstanceOf(FichierCorrompuException.class);
         verifyNoInteractions(offreDeStageRepository, applicationEventPublisher);
+    }
+
+    @Test
+    void doitRappelerUniquementLesSignaturesManquantes() throws Exception {
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(gestionnaire.getEmail(), "test"));
+        try {
+            when(userAppRepository.findUserAppByEmail(gestionnaire.getEmail())).thenReturn(Optional.of(gestionnaire));
+            for (int signatures = 0; signatures < 4; signatures++) {
+                Contrat contrat = new Contrat(new Candidature(), gestionnaire);
+                if ((signatures & 1) != 0) contrat.setDateSignatureEtudiant(LocalDateTime.now());
+                if ((signatures & 2) != 0) contrat.setDateSignatureEmployeur(LocalDateTime.now());
+                when(contratRepository.findById(42L)).thenReturn(Optional.of(contrat));
+                int nombre = 2 - Integer.bitCount(signatures);
+                assertThat(gestionnaireService.rappelerSignatureContrat(42L)).isEqualTo(nombre);
+                if (nombre > 0) verify(notificationService).rappelerSignatureContrat(contrat);
+                else verifyNoInteractions(notificationService);
+                clearInvocations(notificationService);
+            }
+        } finally { org.springframework.security.core.context.SecurityContextHolder.clearContext(); }
+    }
+
+    @Test
+    void neDoitPasRappelerUnContratSigneParLeGestionnaire() throws Exception {
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(gestionnaire.getEmail(), "test"));
+        try {
+            when(userAppRepository.findUserAppByEmail(gestionnaire.getEmail())).thenReturn(Optional.of(gestionnaire));
+            Contrat contrat = new Contrat(new Candidature(), gestionnaire);
+            contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+            when(contratRepository.findById(42L)).thenReturn(Optional.of(contrat));
+            assertThat(gestionnaireService.rappelerSignatureContrat(42L)).isZero();
+            verifyNoInteractions(notificationService);
+        } finally { org.springframework.security.core.context.SecurityContextHolder.clearContext(); }
+    }
+
+    @Test
+    void doitConserverLaDateDeCreationDuContratLorsDesSignatures() {
+        Candidature candidature = new Candidature(); candidature.setId(20L);
+        Contrat contrat = new Contrat(candidature, gestionnaire); contrat.setId(42L);
+        contrat.initialiserDateCreation();
+        LocalDateTime creation = contrat.getCreatedAt();
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+        contrat.initialiserDateCreation();
+        assertThat(contrat.getCreatedAt()).isEqualTo(creation);
+        assertThat(ContratDTO.of(contrat).createdAt()).isEqualTo(creation);
     }
 }

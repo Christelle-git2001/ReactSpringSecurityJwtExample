@@ -3,7 +3,11 @@ package com.lacouf.rsbjwt.service;
 import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
 import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
+import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
+import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
+import com.lacouf.rsbjwt.model.event.NouveauContratCreeEvent;
+import com.lacouf.rsbjwt.model.event.StageRefuseEvent;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
@@ -49,24 +53,19 @@ import com.lacouf.rsbjwt.model.event.ConvocationRepondueEvent;
 import com.lacouf.rsbjwt.model.event.CvSupprimerSoNotificationGestionnaireEvent;
 import com.lacouf.rsbjwt.model.event.NouveauCvTeleverserEvent;
 import com.lacouf.rsbjwt.model.event.NouvelleCandidatureEvent;
-import com.lacouf.rsbjwt.model.event.StageTrouveEvent;
 import com.lacouf.rsbjwt.model.event.ContratSigneEvent;
 import com.lacouf.rsbjwt.model.event.EntrevueTermineeEvent;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -93,12 +92,14 @@ public class EtudiantService {
     private final ContratRepository contratRepository;
     private final InscriptionRepository inscriptionRepository;
     private final  SessionService sessionService;
+    private final GestionnaireRepository gestionnaireRepository;
 
     public EtudiantService(EtudiantRepository etudiantRepository, UserAppRepository userAppRepository,
                            CvEtudiantRepository cvEtudiantRepository, PasswordEncoder passwordEncoder,
                            OffreDeStageRepository offreDeStageRepository, ApplicationEventPublisher eventPublisher,
                            CandidatureRepository candidatureRepository, EntrevueRepository entrevueRepository, ContratRepository contratRepository,
-                           InscriptionRepository inscriptionRepository, SessionService sessionService) {
+                           InscriptionRepository inscriptionRepository, SessionService sessionService,
+                           GestionnaireRepository gestionnaireRepository) {
         this.etudiantRepository = etudiantRepository;
         this.userAppRepository = userAppRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
@@ -110,6 +111,7 @@ public class EtudiantService {
         this.contratRepository = contratRepository;
         this.inscriptionRepository = inscriptionRepository;
         this.sessionService = sessionService;
+        this.gestionnaireRepository = gestionnaireRepository;
     }
 
     @Transactional
@@ -428,13 +430,13 @@ public class EtudiantService {
 
     @Transactional
     public ReponseConvocationDTO accepterConvocationEtudiant(Long convocationId)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         return repondreConvocation(convocationId, StatutEntrevue.CONFIRMEE, null);
     }
 
     @Transactional
     public ReponseConvocationDTO refuserConvocationEtudiant(Long convocationId, String motifRefus)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         if (motifRefus == null || motifRefus.isBlank() || motifRefus.length() > 500) {
             throw new ConvocationInvalideException();
         }
@@ -442,7 +444,7 @@ public class EtudiantService {
     }
 
     private ReponseConvocationDTO repondreConvocation(Long convocationId, StatutEntrevue reponse, String motifRefus)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         Entrevue entrevue = getEntrevueEtudiant(convocationId);
         verifierActionsCandidatureAutorisees(entrevue.getCandidature());
         if (entrevue.getStatut() != StatutEntrevue.A_CONFIRMER) {
@@ -519,28 +521,53 @@ public class EtudiantService {
     }
 
     @Transactional
-    public CandidatureDTO declarerStageTrouve(Long candidatureId)
-            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
-        Etudiant etudiant = getEtudiantConnecte();
+    public CandidatureDTO accepterStage(Long candidatureId)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException,
+            DecisionStageInvalideException, CreationContratImpossibleException, ActionsCandidatureDesactiveesException {
+        Etudiant etudiant = verrouillerEtudiantConnecte();
         Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
                 .orElseThrow(CandidatureIntrouvableException::new);
         if (etudiant.getCandidatureStage() != null) {
             if (!etudiant.getCandidatureStage().getId().equals(candidatureId)) {
-                throw new DeclarationStageInvalideException();
+                throw new DecisionStageInvalideException();
             }
-            return CandidatureDTO.of(candidature);
+            return CandidatureDTO.of(candidature, creerContratSiManquant(candidature, null));
         }
-        if (candidature.getStatut() != StatutCandidature.ACCEPTEE) {
-            throw new DeclarationStageInvalideException();
+        if (candidature.getStatut() != StatutCandidature.ACCEPTEE || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
+            throw new DecisionStageInvalideException();
         }
-        actualiserStatutEtudiant(etudiant);
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
-        candidatureRepository.save(candidature);
+        Gestionnaire gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(CreationContratImpossibleException::new);
+
         etudiant.setCandidatureStage(candidature);
         etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
         etudiantRepository.save(etudiant);
-        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
+        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        Contrat contrat = creerContratSiManquant(candidature, gestionnaire);
+        return CandidatureDTO.of(candidature, contrat);
+    }
+
+    @Transactional
+    public CandidatureDTO refuserStage(Long candidatureId)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DecisionStageInvalideException {
+        Etudiant etudiant = verrouillerEtudiantConnecte();
+        Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
+                .orElseThrow(CandidatureIntrouvableException::new);
+        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
+                || candidature.getStatut() != StatutCandidature.ACCEPTEE) {
+            throw new DecisionStageInvalideException();
+        }
+        candidature.setStatut(StatutCandidature.REFUSEE);
+        candidature.setMotifRefus("stage.refused_by_student");
+        candidatureRepository.save(candidature);
+        actualiserStatutEtudiant(etudiant);
+        eventPublisher.publishEvent(new StageRefuseEvent(candidature));
         return CandidatureDTO.of(candidature);
+    }
+
+    private Etudiant verrouillerEtudiantConnecte() throws EtudiantIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return etudiantRepository.findByEmailForUpdate(email).orElseThrow(EtudiantIntrouvableException::new);
     }
 
     @Scheduled(fixedDelay = 30000, initialDelay = 30000)
@@ -608,18 +635,10 @@ public class EtudiantService {
     }
 
     public static boolean actionsCandidatureDesactivees(Candidature candidature) {
-        Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant == null) return false;
-        Candidature stageChoisi = etudiant.getCandidatureStage();
-        if (stageChoisi != null) {
-            return !java.util.Objects.equals(stageChoisi.getId(), candidature.getId());
-        }
-        return etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
-                && candidature.getStatut() != StatutCandidature.STAGE_TROUVE
-                && candidature.getStatut() != StatutCandidature.CONTRAT_CREE;
+        return candidature.actionsDesactivees();
     }
 
-    static void verifierActionsCandidatureAutorisees(Candidature candidature) {
+    static void verifierActionsCandidatureAutorisees(Candidature candidature) throws ActionsCandidatureDesactiveesException {
         if (actionsCandidatureDesactivees(candidature)) {
             throw new ActionsCandidatureDesactiveesException();
         }
@@ -703,6 +722,39 @@ public class EtudiantService {
         );
     }
 
+    @Transactional
+    public Contrat demarrerContratStageTrouve(Long candidatureId)
+            throws CandidatureIntrouvableException, DecisionStageInvalideException, CreationContratImpossibleException {
+        Candidature candidature = candidatureRepository.findById(candidatureId)
+                .orElseThrow(CandidatureIntrouvableException::new);
+        Etudiant etudiant = candidature.getEtudiant();
+        if (etudiant == null || etudiant.getStatut() != StatutEtudiant.STAGE_TROUVE
+                || etudiant.getCandidatureStage() == null
+                || !candidatureId.equals(etudiant.getCandidatureStage().getId())) {
+            throw new DecisionStageInvalideException();
+        }
+        return creerContratSiManquant(candidature, null);
+    }
 
-
+    private Contrat creerContratSiManquant(Candidature candidature, Gestionnaire gestionnaire)
+            throws CreationContratImpossibleException {
+        Contrat existant = contratRepository.findByCandidatureId(candidature.getId()).orElse(null);
+        if (existant != null) {
+            if (candidature.getStatut() != StatutCandidature.CONTRAT_CREE) {
+                candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+                candidatureRepository.save(candidature);
+            }
+            return existant;
+        }
+        if (gestionnaire == null) {
+            gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
+                    .orElseThrow(CreationContratImpossibleException::new);
+        }
+        Contrat contrat = contratRepository.save(Contrat.builder().candidature(candidature).gestionnaire(gestionnaire).build());
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        candidatureRepository.save(candidature);
+        eventPublisher.publishEvent(new StageTrouveEvent(candidature));
+        eventPublisher.publishEvent(new NouveauContratCreeEvent(contrat));
+        return contrat;
+    }
 }

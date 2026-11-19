@@ -77,7 +77,7 @@ function SideBarLayout({ user }) {
                         htmlFor="my-drawer-4"
                         aria-label={t("sidebar.collapse")}
                         data-tip={t("sidebar.collapse")}
-                        className="btn btn-square btn-ghost fixed bottom-6 right-6 z-[60] lg:hidden tooltip tooltip-left bg-[#043462] text-white hover:bg-[#00CCCB] hover:text-white"
+                        className="btn btn-square btn-ghost fixed bottom-6 left-6 z-[60] lg:hidden tooltip tooltip-right bg-[#043462] text-white hover:bg-[#00CCCB] hover:text-white"
                     >
                         <SideBarIcon />
                     </label>
