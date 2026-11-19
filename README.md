@@ -1,3 +1,11 @@
+#### Commandes utiles :
+
+##### Nettoyer les fichiers .class
+./mvnw.cmd clean test-compile
+
+##### Démarrer l'application avec le chatbot
+./mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev,chatbot"
+
 **Sprint 1**
 
 **-- Points d'actions --**
