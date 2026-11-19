@@ -722,7 +722,7 @@ public class EtudiantService {
         );
     }
 
-    @Transactional(rollbackFor = CreationContratImpossibleException.class)
+    @Transactional
     public Contrat demarrerContratStageTrouve(Long candidatureId)
             throws CandidatureIntrouvableException, DecisionStageInvalideException, CreationContratImpossibleException {
         Candidature candidature = candidatureRepository.findById(candidatureId)

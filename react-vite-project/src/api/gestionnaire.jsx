@@ -162,3 +162,6 @@ export async function signerContratGestionnaire(contratId, motDePasse) {
         body: JSON.stringify({ motDePasse })
     });
 }
+export async function rappelerSignatureContrat(contratId) {
+    return fetchJson(`/gestionnaire/contrats/${contratId}/rappel-signature`, { method: "POST" });
+}

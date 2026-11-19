@@ -69,6 +69,8 @@ function ListItem({
     actionIcon,
     actionRole = "details",
     actionClassName,
+    extraActions,
+    footer,
     showChevron = true,
     wrapText = false,
     onClick,
@@ -205,6 +207,7 @@ function ListItem({
                 </div>
 
                 {onClick && !isClickableCard && (
+                    <div className="flex shrink-0 flex-col items-end gap-2">
                     <Button
                         role={actionRole}
                         icon={actionIcon ?? Boolean(actionLabel)}
@@ -216,8 +219,11 @@ function ListItem({
                     >
                         {actionLabel || <FiChevronRight className="size-4" />}
                     </Button>
+                    {extraActions}
+                    </div>
                 )}
             </div>
+            {footer && <div className="mt-3 flex justify-end text-right text-xs italic text-gray-500">{footer}</div>}
         </div>
     );
 }

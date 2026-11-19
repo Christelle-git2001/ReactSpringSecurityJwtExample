@@ -293,6 +293,15 @@
     "welcome": "Bienvenue"
   },
   "dashboard": {
+    "cv_uploaded_on": "Téléversé le",
+    "offer_created_on": "Créée le",
+    "remind_signatures": "Rappeler de signer",
+    "reminder_sent": "Rappel envoyé aux signataires en attente.",
+    "no_signature_to_remind": "Aucune signature à rappeler.",
+    "process_started_since": "Processus démarré depuis le",
+    "started_date_unknown": "Date de démarrage indisponible",
+    "sort_contract_creation": "Trier par date de création du contrat",
+    "signing_started": "Processus démarré",
     "to_sign": "À signer",
     "view_created_contracts": "Voir les contrats créés",
     "view_candidature_details": "Voir la candidature",

@@ -237,6 +237,15 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+    "cv_uploaded_on": "Uploaded on",
+    "offer_created_on": "Created on",
+    "remind_signatures": "Send signing reminder",
+    "reminder_sent": "Reminder sent to the pending signers.",
+    "no_signature_to_remind": "No pending signatures to remind.",
+    "process_started_since": "Process started on",
+    "started_date_unknown": "Start date unavailable",
+    "sort_contract_creation": "Sort by contract creation date",
+    "signing_started": "Process started",
     "to_sign": "To sign",
     "view_created_contracts": "View created agreements",
     "view_candidature_details": "View application",
