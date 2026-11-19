@@ -2,60 +2,13 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import Button from "../Design/Button.jsx";
+import { CRITERES, CHAMPS_SUPERVISEUR, HEURES, formulaireVide } from "../../utils/evaluationMilieuMapper.js";
 
 const NIVEAUX = ["TOTALEMENT_EN_ACCORD", "PLUTOT_EN_ACCORD", "PLUTOT_EN_DESACCORD", "TOTALEMENT_EN_DESACCORD", "IMPOSSIBLE_DE_SE_PRONONCER"];
 const DESACCORDS = ["PLUTOT_EN_DESACCORD", "TOTALEMENT_EN_DESACCORD"];
-const CRITERES = [
-    "tachesConformes", "mesuresAccueil", "tempsEncadrement", "hygieneSecurite", "climatTravail",
-    "transportCommun", "salaireInteressant", "communicationSuperviseur", "equipementAdequat", "volumeTravail",
-];
-const CHAMPS_REQUIS = [
-    "nomEntreprise", "personneContact", "adresse", "telephone", "ville", "codePostal",
-    "nomStagiaire", "dateDebut", "dateFin", "numeroStage", "salaireHoraire",
-    "nombreStagiaires", "memeStagiaire", "quartsVariables",
-];
-const HEURES = ["heuresMois1", "heuresMois2", "heuresMois3"];
-const QUARTS_VIDES = [{ de: "", a: "" }, { de: "", a: "" }, { de: "", a: "" }];
+const SUPERVISEUR_REQUIS = ["nom", "fonction"];
 
 const CHAMP = "mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm font-normal text-gray-800 focus:outline-none focus:border-[#043462] disabled:bg-gray-50 disabled:text-gray-700";
-
-function etatInitial({ etudiant, employeur, offre, evaluationExistante }) {
-    const base = {
-        // 1. Entreprise
-        nomEntreprise: employeur?.businessName ?? "",
-        personneContact: employeur ? `${employeur.firstName ?? ""} ${employeur.lastName ?? ""}`.trim() : "",
-        adresse: "",
-        telephone: employeur?.phone ?? "",
-        ville: employeur?.town ?? "",
-        telecopieur: "",
-        codePostal: "",
-        // 2. Stagiaire
-        nomStagiaire: `${etudiant?.firstName ?? ""} ${etudiant?.lastName ?? ""}`.trim(),
-        dateDebut: offre?.startDate ?? "",
-        dateFin: offre?.endDate ?? "",
-        numeroStage: "",
-        // 3. Évaluation
-        reponses: {},
-        heuresMois1: "", heuresMois2: "", heuresMois3: "",
-        salaireHoraire: offre?.salary ?? "",
-        // 4. Commentaires
-        commentaires: "",
-        // 5. Observations générales
-        milieuPrivilegie: [],
-        nombreStagiaires: "",
-        memeStagiaire: "",
-        quartsVariables: "",
-        quarts: QUARTS_VIDES,
-    };
-    if (!evaluationExistante) return base;
-    return {
-        ...base,
-        ...evaluationExistante,
-        reponses: evaluationExistante.reponses ?? {},
-        milieuPrivilegie: evaluationExistante.milieuPrivilegie ?? [],
-        quarts: [...(evaluationExistante.quarts ?? []), ...QUARTS_VIDES].slice(0, 3),
-    };
-}
 
 function Etoile() {
     return <span className="text-red-600" aria-hidden="true">*</span>;
@@ -72,6 +25,15 @@ function Champ({ label, erreur, requis = true, zoneTexte = false, ...props }) {
     );
 }
 
+function Info({ label, value }) {
+    return (
+        <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+            <p className="mt-0.5 text-sm font-medium text-gray-800 break-words">{value || "—"}</p>
+        </div>
+    );
+}
+
 function Section({ titre, children }) {
     return (
         <section className="rounded-xl border border-gray-200 p-4 bg-[radial-gradient(circle_at_top_left,_#00CCCB33,_transparent_70%)]">
@@ -81,9 +43,7 @@ function Section({ titre, children }) {
     );
 }
 
-// Boutons radio (ou cases à cocher si multiple) présentés en pastilles
-function Choix({ name, legende, options, value, onChange, erreur, disabled, multiple = false }) {
-    const estChoisi = (v) => (multiple ? value.includes(v) : value === v);
+function Choix({ name, legende, options, value, onChange, erreur, disabled }) {
     return (
         <fieldset className="flex flex-wrap gap-2" aria-invalid={erreur}>
             <legend className="sr-only">{legende}</legend>
@@ -91,10 +51,10 @@ function Choix({ name, legende, options, value, onChange, erreur, disabled, mult
                 <label key={o.value}
                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors
                            ${disabled ? "cursor-default" : "cursor-pointer hover:border-[#043462]"}
-                           ${estChoisi(o.value) ? "border-[#043462] bg-[#043462] text-white"
+                           ${value === o.value ? "border-[#043462] bg-[#043462] text-white"
                            : `bg-white text-[#043462] ${erreur ? "border-red-400" : "border-[#043462]/25"} ${disabled ? "opacity-60" : ""}`}`}>
-                    <input type={multiple ? "checkbox" : "radio"} className="sr-only" name={name} value={o.value}
-                           checked={estChoisi(o.value)} disabled={disabled} onChange={() => onChange(o.value)} />
+                    <input type="radio" className="sr-only" name={name} value={o.value}
+                           checked={value === o.value} disabled={disabled} onChange={() => onChange(o.value)} />
                     {o.label}
                 </label>
             ))}
@@ -113,16 +73,12 @@ function Question({ libelle, erreur, requis = true, children }) {
     );
 }
 
-/**
- * Évaluation du milieu de stage remplie par le professeur après sa visite.
- * - onSubmit(payload) : appel API, doit renvoyer l'évaluation enregistrée.
- * - evaluationExistante : si fournie, le formulaire s'ouvre en lecture seule.
- */
+
 function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante, onSubmit, onClose, onSuccess }) {
     const { t } = useTranslation();
     const lectureSeule = Boolean(evaluationExistante);
 
-    const [form, setForm] = useState(() => etatInitial({ etudiant, employeur, offre, evaluationExistante }));
+    const [form, setForm] = useState(() => evaluationExistante ?? formulaireVide());
     const [erreurs, setErreurs] = useState({});
     const [envoi, setEnvoi] = useState(false);
     const [erreurApi, setErreurApi] = useState(false);
@@ -141,33 +97,41 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
         onChange: (e) => modifier(nom, e.target.value),
     });
 
+    const champSuperviseur = (nom) => ({
+        label: t(`evaluation.supervisor.${nom}`),
+        requis: SUPERVISEUR_REQUIS.includes(nom),
+        value: form.superviseur[nom] ?? "",
+        erreur: Boolean(erreurs[`superviseur.${nom}`]),
+        disabled: desactive,
+        onChange: (e) => {
+            const valeur = e.target.value;
+            setForm(f => ({ ...f, superviseur: { ...f.superviseur, [nom]: valeur } }));
+            setErreurs(er => ({ ...er, [`superviseur.${nom}`]: false }));
+        },
+    });
+
     const repondre = (critere, valeur) => {
         setForm(f => ({ ...f, reponses: { ...f.reponses, [critere]: valeur } }));
         setErreurs(e => ({ ...e, [critere]: false }));
     };
-
-    const basculerMilieu = (valeur) => modifier("milieuPrivilegie",
-        form.milieuPrivilegie.includes(valeur)
-            ? form.milieuPrivilegie.filter(v => v !== valeur)
-            : [...form.milieuPrivilegie, valeur]);
 
     const modifierQuart = (index, cle, valeur) => {
         setForm(f => ({ ...f, quarts: f.quarts.map((q, i) => (i === index ? { ...q, [cle]: valeur } : q)) }));
         setErreurs(e => ({ ...e, quarts: false }));
     };
 
-    const options = (valeurs) => valeurs.map(v => ({ value: v, label: t(`evaluation.options.${v}`) }));
+    const options = (paires) => paires.map(([value, cle]) => ({ value, label: t(`evaluation.options.${cle}`) }));
     const niveaux = NIVEAUX.map(n => ({ value: n, label: t(`evaluation.levels.${n}`) }));
-    const aDesaccord = CRITERES.some(c => DESACCORDS.includes(form.reponses[c]));
+    const ouiNon = options([["OUI", "OUI"], ["NON", "NON"]]);
+    const aDesaccord = CRITERES.some(c => DESACCORDS.includes(form.reponses[c.id]));
 
     const valider = () => {
         const e = {};
-        CHAMPS_REQUIS.forEach(n => { if (!String(form[n] ?? "").trim()) e[n] = true; });
-        CRITERES.forEach(c => { if (!form.reponses[c]) e[c] = true; });
+        SUPERVISEUR_REQUIS.forEach(n => { if (!String(form.superviseur[n] ?? "").trim()) e[`superviseur.${n}`] = true; });
+        CRITERES.forEach(c => { if (!form.reponses[c.id]) e[c.id] = true; });
         HEURES.forEach(n => { if (form[n] === "" || Number(form[n]) < 0) e[n] = true; });
-        if (form.dateDebut && form.dateFin && form.dateFin < form.dateDebut) e.dateFin = true;
         if (aDesaccord && !form.commentaires.trim()) e.commentaires = true;
-        if (form.milieuPrivilegie.length === 0) e.milieuPrivilegie = true;
+        ["noStagePrivilegier", "nbStagiaireAccueil", "engagerMemeStagiaire", "quartsVariables"].forEach(n => { if (!form[n]) e[n] = true; });
         if (form.quartsVariables === "OUI" && (!form.quarts[0].de || !form.quarts[0].a)) e.quarts = true;
         setErreurs(e);
         return Object.keys(e).length === 0;
@@ -180,17 +144,8 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
         setEnvoi(true);
         setErreurApi(false);
         try {
-            const payload = {
-                ...form,
-                heuresMois1: Number(form.heuresMois1),
-                heuresMois2: Number(form.heuresMois2),
-                heuresMois3: Number(form.heuresMois3),
-                salaireHoraire: Number(form.salaireHoraire),
-                quarts: form.quartsVariables === "OUI" ? form.quarts.filter(q => q.de && q.a) : [],
-            };
-            const evaluation = await onSubmit(payload);
-            // Si le backend ne renvoie rien, on garde ce qui a été envoyé pour pouvoir le consulter
-            onSuccess?.(evaluation ?? { ...payload, dateEvaluation: new Date().toISOString() });
+            await onSubmit(form);
+            onSuccess?.(form);
         } catch {
             setErreurApi(true);
         } finally {
@@ -199,7 +154,8 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
     };
 
     const aDesErreurs = Object.values(erreurs).some(Boolean);
-    const dateSoumission = evaluationExistante?.dateEvaluation?.split("T")[0];
+    const nomStagiaire = `${etudiant?.firstName ?? ""} ${etudiant?.lastName ?? ""}`.trim();
+    const contact = employeur ? `${employeur.firstName ?? ""} ${employeur.lastName ?? ""}`.trim() : "";
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -211,7 +167,7 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                 <div className="flex items-start gap-3 border-b border-gray-200 px-6 py-4">
                     <div className="min-w-0">
                         <h2 id="titre-evaluation-milieu" className="text-xl font-bold text-[#043462]">{t("evaluation.title")}</h2>
-                        <p className="text-sm text-gray-600">{form.nomStagiaire} — {form.nomEntreprise}</p>
+                        <p className="text-sm text-gray-600">{nomStagiaire} — {employeur?.businessName}</p>
                     </div>
                     <button type="button" onClick={onClose} disabled={envoi} aria-label={t("evaluation.close")}
                             className="ml-auto text-gray-400 hover:text-gray-700">
@@ -225,56 +181,44 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                     {lectureSeule && (
                         <p className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-100 px-4 py-3 text-sm font-semibold text-green-800">
                             <FaCheckCircle aria-hidden="true" />
-                            {dateSoumission ? t("evaluation.submitted_on", { date: dateSoumission }) : t("evaluation.success")}
+                            {t("evaluation.success")}
                         </p>
                     )}
 
-                    {/* 1. Identification de l'entreprise */}
-                    <Section titre={t("evaluation.sections.company")}>
+                    <Section titre={t("evaluation.sections.internship_info")}>
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <Champ type="text" {...champ("nomEntreprise")} />
-                            <Champ type="text" {...champ("personneContact")} />
-                            <Champ type="text" {...champ("adresse")} />
-                            <Champ type="tel" {...champ("telephone")} />
-                            <Champ type="text" {...champ("ville")} />
-                            <Champ type="tel" requis={false} {...champ("telecopieur")} />
-                            <Champ type="text" {...champ("codePostal")} />
+                            <Info label={t("evaluation.fields.nomEntreprise")} value={employeur?.businessName} />
+                            <Info label={t("evaluation.fields.personneContact")} value={contact} />
+                            <Info label={t("evaluation.fields.telephone")} value={employeur?.phone} />
+                            <Info label={t("evaluation.fields.ville")} value={employeur?.town} />
+                            <Info label={t("evaluation.fields.nomStagiaire")} value={nomStagiaire} />
+                            <Info label={t("evaluation.fields.salaireHoraire")} value={offre?.salary} />
+                            <Info label={t("evaluation.fields.dateDebut")} value={offre?.startDate} />
+                            <Info label={t("evaluation.fields.dateFin")} value={offre?.endDate} />
                         </div>
                     </Section>
 
-                    {/* 2. Identification du stagiaire */}
-                    <Section titre={t("evaluation.sections.intern")}>
+                    {/* 2. Superviseur en entreprise */}
+                    <Section titre={t("evaluation.sections.supervisor")}>
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div className="sm:col-span-2">
-                                <Champ type="text" {...champ("nomStagiaire")} />
-                            </div>
-                            <Champ type="date" {...champ("dateDebut")} />
-                            <Champ type="date" {...champ("dateFin")} />
+                            {CHAMPS_SUPERVISEUR.map(n => (
+                                <Champ key={n} type={n === "email" ? "email" : n === "telephone" ? "tel" : "text"} {...champSuperviseur(n)} />
+                            ))}
                         </div>
-                        <Question libelle={t("evaluation.questions.numeroStage")} erreur={erreurs.numeroStage}>
-                            <Choix name="numeroStage" legende={t("evaluation.questions.numeroStage")}
-                                   options={options(["STAGE_1", "STAGE_2"])} value={form.numeroStage}
-                                   onChange={v => modifier("numeroStage", v)} erreur={erreurs.numeroStage} disabled={desactive} />
-                        </Question>
                     </Section>
 
                     {/* 3. Évaluation */}
                     <Section titre={t("evaluation.sections.evaluation")}>
                         <ul className="divide-y divide-[#043462]/10">
                             {CRITERES.map(c => (
-                                <li key={c}>
-                                    <Question libelle={t(`evaluation.criteres.${c}`)} erreur={erreurs[c]}>
-                                        <Choix name={c} legende={t(`evaluation.criteres.${c}`)} options={niveaux}
-                                               value={form.reponses[c]} onChange={v => repondre(c, v)}
-                                               erreur={erreurs[c]} disabled={desactive} />
-                                        {c === "tempsEncadrement" && (
+                                <li key={c.id}>
+                                    <Question libelle={t(`evaluation.criteres.${c.id}`)} erreur={erreurs[c.id]}>
+                                        <Choix name={c.id} legende={t(`evaluation.criteres.${c.id}`)} options={niveaux}
+                                               value={form.reponses[c.id]} onChange={v => repondre(c.id, v)}
+                                               erreur={erreurs[c.id]} disabled={desactive} />
+                                        {c.id === "tempsEncadrement" && (
                                             <div className="mt-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
                                                 {HEURES.map(n => <Champ key={n} type="number" min="0" {...champ(n)} />)}
-                                            </div>
-                                        )}
-                                        {c === "salaireInteressant" && (
-                                            <div className="mt-1 sm:max-w-xs">
-                                                <Champ type="number" min="0" step="0.01" {...champ("salaireHoraire")} />
                                             </div>
                                         )}
                                     </Question>
@@ -292,28 +236,32 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                     {/* 5. Observations générales */}
                     <Section titre={t("evaluation.sections.observations")}>
                         <div className="divide-y divide-[#043462]/10">
-                            <Question libelle={t("evaluation.questions.milieuPrivilegie")} erreur={erreurs.milieuPrivilegie}>
-                                <Choix multiple name="milieuPrivilegie" legende={t("evaluation.questions.milieuPrivilegie")}
-                                       options={options(["PREMIER_STAGE", "DEUXIEME_STAGE"])} value={form.milieuPrivilegie}
-                                       onChange={basculerMilieu} erreur={erreurs.milieuPrivilegie} disabled={desactive} />
+                            <Question libelle={t("evaluation.questions.milieuPrivilegie")} erreur={erreurs.noStagePrivilegier}>
+                                <Choix name="noStagePrivilegier" legende={t("evaluation.questions.milieuPrivilegie")}
+                                       options={options([["1", "PREMIER_STAGE"], ["2", "DEUXIEME_STAGE"]])}
+                                       value={form.noStagePrivilegier} onChange={v => modifier("noStagePrivilegier", v)}
+                                       erreur={erreurs.noStagePrivilegier} disabled={desactive} />
                             </Question>
 
-                            <Question libelle={t("evaluation.questions.nombreStagiaires")} erreur={erreurs.nombreStagiaires}>
-                                <Choix name="nombreStagiaires" legende={t("evaluation.questions.nombreStagiaires")}
-                                       options={options(["UN", "DEUX", "TROIS", "PLUS_DE_TROIS"])} value={form.nombreStagiaires}
-                                       onChange={v => modifier("nombreStagiaires", v)} erreur={erreurs.nombreStagiaires} disabled={desactive} />
+                            <Question libelle={t("evaluation.questions.nombreStagiaires")} erreur={erreurs.nbStagiaireAccueil}>
+                                <Choix name="nbStagiaireAccueil" legende={t("evaluation.questions.nombreStagiaires")}
+                                       options={options([["1", "UN"], ["2", "DEUX"], ["3", "TROIS"], ["4", "PLUS_DE_TROIS"]])}
+                                       value={form.nbStagiaireAccueil} onChange={v => modifier("nbStagiaireAccueil", v)}
+                                       erreur={erreurs.nbStagiaireAccueil} disabled={desactive} />
                             </Question>
 
-                            <Question libelle={t("evaluation.questions.memeStagiaire")} erreur={erreurs.memeStagiaire}>
-                                <Choix name="memeStagiaire" legende={t("evaluation.questions.memeStagiaire")}
-                                       options={options(["OUI", "NON"])} value={form.memeStagiaire}
-                                       onChange={v => modifier("memeStagiaire", v)} erreur={erreurs.memeStagiaire} disabled={desactive} />
+                            <Question libelle={t("evaluation.questions.memeStagiaire")} erreur={erreurs.engagerMemeStagiaire}>
+                                <Choix name="engagerMemeStagiaire" legende={t("evaluation.questions.memeStagiaire")}
+                                       options={ouiNon} value={form.engagerMemeStagiaire}
+                                       onChange={v => modifier("engagerMemeStagiaire", v)}
+                                       erreur={erreurs.engagerMemeStagiaire} disabled={desactive} />
                             </Question>
 
                             <Question libelle={t("evaluation.questions.quartsVariables")} erreur={erreurs.quartsVariables || erreurs.quarts}>
                                 <Choix name="quartsVariables" legende={t("evaluation.questions.quartsVariables")}
-                                       options={options(["OUI", "NON"])} value={form.quartsVariables}
-                                       onChange={v => modifier("quartsVariables", v)} erreur={erreurs.quartsVariables} disabled={desactive} />
+                                       options={ouiNon} value={form.quartsVariables}
+                                       onChange={v => modifier("quartsVariables", v)}
+                                       erreur={erreurs.quartsVariables} disabled={desactive} />
                                 {form.quartsVariables === "OUI" && (
                                     <div className="mt-1 flex flex-col gap-2">
                                         {form.quarts.map((q, i) => (
