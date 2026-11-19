@@ -10,4 +10,6 @@ public interface ProfesseurRepository extends JpaRepository<Professeur, Long> {
 
     Optional<Professeur> findByMatricule(String matricule);
     List<Professeur> findByEtudiantsIsEmpty();
+
+    Professeur getProfesseurByMatricule(String matricule);
 }

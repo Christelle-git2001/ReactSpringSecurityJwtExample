@@ -4,10 +4,7 @@ import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.CreationEntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.utilisateur.GestionnaireDTO;
-import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEmployeurDTO;
-import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEtudiantDTO;
-import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.*;
 import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
 import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
 import com.lacouf.rsbjwt.model.*;
@@ -28,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Order(2)
@@ -48,6 +46,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
     private final PDFService pdfService;
     private final InscriptionRepository inscriptionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfesseurRepository professeurRepository;
 
     public CurrentSessionDataInitializer(
             GestionnaireRepository gestionnaireRepository,
@@ -64,8 +63,8 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             EntrevueRepository entrevueRepository,
             PDFService pdfService,
             InscriptionRepository inscriptionRepository,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder,
+            ProfesseurRepository professeurRepository) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.environment = environment;
@@ -81,6 +80,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         this.pdfService = pdfService;
         this.inscriptionRepository = inscriptionRepository;
         this.passwordEncoder = passwordEncoder;
+        this.professeurRepository = professeurRepository;
     }
 
     @Override
@@ -329,11 +329,14 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
 
+        gestionnaireService.assignerProfesseur(professeurRepository.getProfesseurByMatricule("9325645").getId(), new AssignationProfesseurDTO(List.of(etudiantRepository.findByMatricule("2222222").get().getId())));
+
         SecurityContextHolder.clearContext();
 
         if (candidatureSarko != null) {
             try { preparerStageTrouve(candidatureSarko.getId()); } catch (Exception ignored) {}
         }
+
 
         // Juzo (Inscrit Automne 2026)
         String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
