@@ -4,7 +4,6 @@ package com.lacouf.rsbjwt.service.chatbot;
 import com.lacouf.rsbjwt.service.EtudiantService;
 import com.lacouf.rsbjwt.service.NotificationService;
 import com.lacouf.rsbjwt.service.chatbot.tools.ChatbotEtudiantTools;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
 import  com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable ;
@@ -381,4 +380,3 @@ class ChatbotEtudiantToolsTest {
         );
     }
 }
-

@@ -12,6 +12,7 @@ import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
@@ -29,6 +30,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,15 @@ public class NotificationServiceTest {
 
     @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private ContratRepository contratRepository;
+
+    @Mock
+    private EvaluationStagiaireRepository evaluationStagiaireRepository;
+
+    @Mock
+    private ProfesseurRepository professeurRepository;
 
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
@@ -103,6 +114,7 @@ public class NotificationServiceTest {
         notification.setVariables(Map.of(VariableMapKey.CANDIDATURE_ID, candidatureId));
         return notification;
     }
+
     @Test
     void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
@@ -1074,5 +1086,43 @@ public class NotificationServiceTest {
         verify(notificationRepository, never()).getNotificationByDestinataire(any());
 
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void doitNotifierLEmployeurDeuxSemainesAvantLaFinDuStage() {
+        LocalDate aujourdHui = LocalDate.of(2026, 11, 18);
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Stage informatique")
+                .endDate(aujourdHui.plusDays(14))
+                .employeur(employeur)
+                .build();
+        Candidature candidature = Candidature.builder().offreDeStage(offre).etudiant(etudiant).build();
+        candidature.setId(20L);
+        offre.setCandidatures(List.of(candidature));
+        Contrat contrat = Contrat.builder().candidature(candidature).build();
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+        contrat.setDateSignatureEmployeur(LocalDateTime.now());
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+        String urlCible = "/employeur?candidatureId=20";
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
+                .thenReturn(List.of(candidature));
+        when(contratRepository.findByCandidatureId(candidature.getId())).thenReturn(Optional.of(contrat));
+        when(evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(candidature.getId()))
+                .thenReturn(Optional.empty());
+        when(notificationRepository.findByNotificationTypeAndUrlCible(
+                NotificationType.EVALUATION_STAGE_A_FAIRE, urlCible)).thenReturn(Optional.empty());
+
+        notificationService.notifierEmployeursEvaluationStage(aujourdHui);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.EVALUATION_STAGE_A_FAIRE);
+        assertThat(notification.getDestinataire()).isSameAs(employeur);
+        assertThat(notification.getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(notification.getVariables())
+                .containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis");
     }
 }

@@ -1907,4 +1907,160 @@ public class EtudiantServiceTest {
         return offre;
     }
 
+    @Test
+    void doitPostulerAUneOffreCibleePourLEtudiantAutorise() throws Exception {
+        OffreCiblee offre = OffreCiblee.builder()
+                .title("Offre ciblée")
+                .statut(Statut.ACCEPTEE)
+                .displayEndDate(LocalDate.now().plusDays(10))
+                .employeur(employeur)
+                .etudiant(etudiant)
+                .build();
+        offre.setId(10L);
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(cvEtudiantRepository.findByEtudiant(etudiant)).thenReturn(Optional.of(cv));
+        when(offreDeStageRepository.findById(10L)).thenReturn(Optional.of(offre));
+        when(candidatureRepository.existsByEtudiantAndOffreDeStage(etudiant, offre)).thenReturn(false);
+        when(candidatureRepository.save(any(Candidature.class))).thenAnswer(invocation -> {
+            Candidature candidature = invocation.getArgument(0);
+            candidature.setId(21L);
+            return candidature;
+        });
+
+        CandidatureDTO resultat = etudiantService.postuler(10L, etudiant.getEmail());
+
+        assertThat(resultat.offreId()).isEqualTo(10L);
+        verify(applicationEventPublisher).publishEvent(any(NouvelleCandidatureEvent.class));
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeSansEtudiantAttribue() {
+        OffreCiblee offre = OffreCiblee.builder()
+                .title("Offre ciblée")
+                .statut(Statut.ACCEPTEE)
+                .displayEndDate(LocalDate.now().plusDays(10))
+                .employeur(employeur)
+                .build();
+        offre.setId(10L);
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(cvEtudiantRepository.findByEtudiant(etudiant)).thenReturn(Optional.of(cv));
+        when(offreDeStageRepository.findById(10L)).thenReturn(Optional.of(offre));
+
+        assertThatThrownBy(() -> etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(OffreNonAutoriseeException.class);
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+    }
+
+    @Test
+    void doitRefuserUneOffreCibleeAttribueeAUnAutreEtudiant() {
+        Etudiant autreEtudiant = Etudiant.builder()
+                .firstName("Autre")
+                .lastName("Étudiant")
+                .email("autre.etudiant@example.com")
+                .phoneNumber("514-555-0000")
+                .department(Departement.INFORMATIQUE)
+                .matricule("9999999")
+                .password("motdepasse")
+                .build();
+        autreEtudiant.setId(2L);
+        OffreCiblee offre = OffreCiblee.builder()
+                .title("Offre ciblée")
+                .statut(Statut.ACCEPTEE)
+                .displayEndDate(LocalDate.now().plusDays(10))
+                .employeur(employeur)
+                .etudiant(autreEtudiant)
+                .build();
+        offre.setId(10L);
+        CvEtudiant cv = new CvEtudiant();
+        cv.setEtudiant(etudiant);
+        cv.setStatut(Statut.ACCEPTEE);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(cvEtudiantRepository.findByEtudiant(etudiant)).thenReturn(Optional.of(cv));
+        when(offreDeStageRepository.findById(10L)).thenReturn(Optional.of(offre));
+
+        assertThatThrownBy(() -> etudiantService.postuler(10L, etudiant.getEmail()))
+                .isInstanceOf(OffreNonAutoriseeException.class);
+        verify(candidatureRepository, never()).save(any(Candidature.class));
+    }
+
+    @Test
+    void doitRetournerLesInscriptionsDeLEtudiantConnecte() throws Exception {
+        Inscription inscription = new Inscription(etudiant, Saison.HIVER, 2026);
+        inscription.setId(42L);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+        when(inscriptionRepository.findByUtilisateur(etudiant)).thenReturn(List.of(inscription));
+
+        var resultats = etudiantService.getInscriptionsEtudiant();
+
+        assertThat(resultats).hasSize(1);
+        assertThat(resultats.get(0).id()).isEqualTo(42L);
+        assertThat(resultats.get(0).saison()).isEqualTo(Saison.HIVER);
+        assertThat(resultats.get(0).annee()).isEqualTo(2026);
+    }
+
+    @Test
+    void doitRetournerLeProfesseurAssigne() throws Exception {
+        Professeur professeur = Professeur.builder()
+                .firstName("Marie")
+                .lastName("Tremblay")
+                .email("marie.tremblay@example.com")
+                .password("motdepasse")
+                .matricule("1234567")
+                .phoneNumber("514-555-1212")
+                .department(Departement.INFORMATIQUE)
+                .build();
+        professeur.setId(7L);
+        etudiant.setProfesseur(professeur);
+        when(etudiantRepository.findByCredentialsEmail(etudiant.getEmail())).thenReturn(Optional.of(etudiant));
+
+        MonProfesseurAssigneDTO resultat = etudiantService.getMonProfesseur();
+
+        assertThat(resultat.professeurAssigne()).isTrue();
+        assertThat(resultat.professeur().id()).isEqualTo(7L);
+        assertThat(resultat.professeur().firstName()).isEqualTo("Marie");
+        assertThat(resultat.professeur().department()).isEqualTo(Departement.INFORMATIQUE.getLabel());
+    }
+
+    @Test
+    void doitActualiserLeStatutApresUneEntrevueConfirmeeEtRespecterLesAutresCas() {
+        Entrevue terminee = Entrevue.builder()
+                .dateHeureEntrevue(LocalDateTime.now().minusHours(1))
+                .build();
+        terminee.setDateConfirmation(LocalDateTime.now().minusHours(2));
+        terminee.setStatut(StatutEntrevue.CONFIRMEE);
+
+        Entrevue sansConfirmation = Entrevue.builder()
+                .dateHeureEntrevue(LocalDateTime.now().minusHours(1))
+                .build();
+        sansConfirmation.setStatut(StatutEntrevue.CONFIRMEE);
+
+        Entrevue autreStatut = Entrevue.builder()
+                .dateHeureEntrevue(LocalDateTime.now().minusHours(1))
+                .build();
+        autreStatut.setDateConfirmation(LocalDateTime.now().minusHours(2));
+        autreStatut.setStatut(StatutEntrevue.TERMINEE);
+
+        Entrevue future = Entrevue.builder()
+                .dateHeureEntrevue(LocalDateTime.now().plusHours(1))
+                .build();
+        future.setDateConfirmation(LocalDateTime.now());
+        future.setStatut(StatutEntrevue.CONFIRMEE);
+
+        ReflectionTestUtils.invokeMethod(etudiantService, "actualiserStatutApresEntrevue", terminee);
+        ReflectionTestUtils.invokeMethod(etudiantService, "actualiserStatutApresEntrevue", sansConfirmation);
+        ReflectionTestUtils.invokeMethod(etudiantService, "actualiserStatutApresEntrevue", autreStatut);
+        ReflectionTestUtils.invokeMethod(etudiantService, "actualiserStatutApresEntrevue", future);
+
+        assertThat(terminee.getStatut()).isEqualTo(StatutEntrevue.EN_ATTENTE_REPONSE);
+        verify(entrevueRepository).save(terminee);
+        verifyNoMoreInteractions(entrevueRepository);
+    }
+
 }
