@@ -24,7 +24,6 @@ public record HabiletePersonelleDTO(
                 .responsabiliteScore(dto.responsabiliteScore())
                 .ponctuelScore(dto.ponctuelScore())
                 .commentaire(dto.commentaire())
-                .commentaire(dto.commentaire)
                 .build();
     }
 
