@@ -344,6 +344,8 @@ const LoginForm = ({ user, setError }) => {
                                 <ConnexionRapideStudent/>
                                 <ConnexionRapideStudentAdrien/>
                                 <ConnexionRapideStudentNicolas/>
+                                <ConnexionRapideStudentJacob/>
+                                <ConnexionRapideStudentSephiroth/>
                             </div>
                             <div className="col-span-3">
                                 <ConnexionRapideToru/>

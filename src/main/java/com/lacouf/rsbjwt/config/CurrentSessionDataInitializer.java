@@ -415,6 +415,161 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 etudiantService.demarrerContratStageTrouve(candidatureJuzo.getId());
             } catch (Exception ignored) {}
         }
+
+        //Jacob Frye (Entrevue passée)
+        String emailJacobFrye = "Jacob.Frye@gmail.com";
+        if (etudiantRepository.findByMatricule("4444444").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantJacobDTO = new InscriptionEtudiantDTO(
+                        "Jacob",
+                        "Frye",
+                        "450-555-5525",
+                        emailJacobFrye,
+                        "4444444",
+                        Departement.INFORMATIQUE.name(),
+                        "a",
+                        "a"
+                );
+                etudiantService.creerCompteEtudiant(etudiantJacobDTO);
+            } catch (Exception ignored) {}
+        }
+        ajouterInscriptionSecurisee("4444444", Saison.AUTOMNE, 2026);
+        Etudiant etudiantJacobObj = etudiantRepository.findByMatricule("4444444").orElseThrow();
+
+        try {
+            MultipartFile realCvJacob = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantJacobObj).getInputStream());
+            CvEtudiantDTO jacobFryeCvDTO = etudiantService.televerserCv(realCvJacob, emailJacobFrye);
+            gestionnaireService.approuverCurriculumVitae(jacobFryeCvDTO.id());
+        } catch (Exception ignored) {}
+
+        if (devWebJr != null) {
+            try { etudiantService.postuler(devWebJr.id(), emailJacobFrye); } catch (Exception ignored) {}
+        }
+
+        Candidature candidatureJacob = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailJacobFrye))
+                .findFirst()
+                .orElse(null);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+
+        if (candidatureJacob != null) {
+            try {
+                employeurService.retenirCandidaturePourEntrevue(candidatureJacob.getId());
+            } catch (Exception ignored) {}
+
+            try {
+                candidatureJacob.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+                candidatureRepository.save(candidatureJacob);
+            } catch (Exception ignored) {}
+
+            if (entrevueRepository.findByCandidatureId(candidatureJacob.getId()).isEmpty()) {
+                try {
+                    LocalDateTime dateEntrevueJacob = LocalDate.now().minusDays(2).atTime(14, 0);
+                    Entrevue entrevueJacob = Entrevue.builder()
+                            .candidature(candidatureJacob)
+                            .format(FormatEntrevue.EN_LIGNE)
+                            .dateHeureEntrevue(dateEntrevueJacob)
+                            .duree(30)
+                            .dateCreation(dateEntrevueJacob.minusDays(2))
+                            .build();
+
+                    entrevueJacob.setStatut(StatutEntrevue.CONFIRMEE);
+                    entrevueJacob.setDateConfirmation(dateEntrevueJacob.minusDays(1));
+                    entrevueJacob.setDateReponse(dateEntrevueJacob.minusDays(1));
+
+                    entrevueRepository.save(entrevueJacob);
+                } catch (Exception ignored) {}
+            }
+        }
+
+        SecurityContextHolder.clearContext();
+
+        if (candidatureJacob != null) {
+            try {
+                etudiantService.actualiserStatutEtudiant(candidatureJacob.getEtudiant());
+            } catch (Exception ignored) {}
+        }
+
+        //Sephiroth Frye (Entrevue passée)
+        String emailSephirothCrescent = "Sephiroth.Crescent@gmail.com";
+        String matriculeSephiroth = "1010101";
+        if (etudiantRepository.findByMatricule(matriculeSephiroth).isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantSephirothDTO = new InscriptionEtudiantDTO(
+                        "Sephiroth",
+                        "Crescent",
+                        "450-542-9658",
+                        emailSephirothCrescent,
+                        matriculeSephiroth,
+                        Departement.INFORMATIQUE.name(),
+                        "a",
+                        "a"
+                );
+                etudiantService.creerCompteEtudiant(etudiantSephirothDTO);
+            } catch (Exception ignored) {}
+        }
+        ajouterInscriptionSecurisee(matriculeSephiroth, Saison.AUTOMNE, 2026);
+        Etudiant etudiantSephirothObj = etudiantRepository.findByMatricule(matriculeSephiroth).orElseThrow();
+
+        try {
+            MultipartFile realCvSephiroth = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantSephirothObj).getInputStream());
+            CvEtudiantDTO SephirothCvDTO = etudiantService.televerserCv(realCvSephiroth, emailSephirothCrescent);
+            gestionnaireService.approuverCurriculumVitae(SephirothCvDTO.id());
+        } catch (Exception ignored) {}
+
+        if (devWebJr != null) {
+            try { etudiantService.postuler(devWebJr.id(), emailSephirothCrescent); } catch (Exception ignored) {}
+        }
+
+        Candidature candidatureSephiroth = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailSephirothCrescent))
+                .findFirst()
+                .orElse(null);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+
+        if (candidatureSephiroth != null) {
+            try {
+                employeurService.retenirCandidaturePourEntrevue(candidatureSephiroth.getId());
+            } catch (Exception ignored) {}
+
+            try {
+                candidatureSephiroth.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+                candidatureRepository.save(candidatureSephiroth);
+            } catch (Exception ignored) {}
+
+            if (entrevueRepository.findByCandidatureId(candidatureSephiroth.getId()).isEmpty()) {
+                try {
+                    LocalDateTime dateEntrevueSephiroth = LocalDate.now().minusDays(2).atTime(14, 0);
+                    Entrevue entrevueSephiroth = Entrevue.builder()
+                            .candidature(candidatureSephiroth)
+                            .format(FormatEntrevue.EN_LIGNE)
+                            .dateHeureEntrevue(dateEntrevueSephiroth)
+                            .duree(30)
+                            .dateCreation(dateEntrevueSephiroth.minusDays(2))
+                            .build();
+
+                    entrevueSephiroth.setStatut(StatutEntrevue.CONFIRMEE);
+                    entrevueSephiroth.setDateConfirmation(dateEntrevueSephiroth.minusDays(1));
+                    entrevueSephiroth.setDateReponse(dateEntrevueSephiroth.minusDays(1));
+
+                    entrevueRepository.save(entrevueSephiroth);
+                } catch (Exception ignored) {}
+            }
+        }
+
+        SecurityContextHolder.clearContext();
+
+        if (candidatureSephiroth != null) {
+            try {
+                etudiantService.actualiserStatutEtudiant(candidatureSephiroth.getEtudiant());
+            } catch (Exception ignored) {}
+        }
     }
 
     private void preparerStageTrouve(Long candidatureId) {
