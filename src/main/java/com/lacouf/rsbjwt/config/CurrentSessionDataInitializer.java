@@ -592,7 +592,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
 
     private void preparerCandidaturePourEvaluation(Etudiant etudiant, Employeur employeur) {
         LocalDate aujourdHui = LocalDate.now();
-        String titreOffre = "Stage test - notification évaluation";
+        String titreOffre = "Soutien Informatique";
         OffreDeStage offre = offreDeStageRepository.findAll().stream()
                 .filter(o -> titreOffre.equals(o.getTitle()))
                 .findFirst()
