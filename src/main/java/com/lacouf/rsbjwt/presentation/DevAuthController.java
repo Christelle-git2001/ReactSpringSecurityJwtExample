@@ -153,7 +153,7 @@ public class DevAuthController {
 
     @PostMapping("/login/etudiant5")
     public ResponseEntity<String> devLoginEtudiant5() throws Exception {
-        Etudiant etudiant = etudiantRepository.findByMatricule("5555555")
+        Etudiant etudiant = etudiantRepository.findByMatricule("1010101")
                 .stream()
                 .findFirst()
                 .orElseThrow(EtudiantIntrouvableException::new);
