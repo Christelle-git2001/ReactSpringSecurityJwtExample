@@ -774,6 +774,7 @@
     "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
     "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
+    "action_evaluate_intern": "Le stage est terminé. Vous pouvez maintenant évaluer votre stagiaire.",
     "action_default": "Suivi du processus de candidature en cours.",
     "cv_view_title": "CV de l'étudiant ",
     "contract_view_title": "Contrat de Stage"
@@ -870,8 +871,8 @@
   "evaluation": {
     "title": "Évaluation du milieu de stage",
     "sections": {
-      "company": "1. Identification de l'entreprise",
-      "intern": "2. Identification du stagiaire",
+      "internship_info": "1. Informations sur le stage",
+      "supervisor": "2. Superviseur en entreprise",
       "evaluation": "3. Évaluation",
       "comments": "4. Commentaires",
       "observations": "5. Observations générales"
@@ -879,21 +880,24 @@
     "fields": {
       "nomEntreprise": "Nom de l'entreprise",
       "personneContact": "Personne contact",
-      "adresse": "Adresse",
       "telephone": "Téléphone",
       "ville": "Ville",
-      "telecopieur": "Télécopieur",
-      "codePostal": "Code postal",
       "nomStagiaire": "Nom du stagiaire",
       "dateDebut": "Début du stage",
       "dateFin": "Fin du stage",
+      "salaireHoraire": "Salaire ($/heure)",
       "heuresMois1": "Heures/semaine – premier mois",
       "heuresMois2": "Heures/semaine – deuxième mois",
       "heuresMois3": "Heures/semaine – troisième mois",
-      "salaireHoraire": "Salaire ($/heure)",
       "commentaires": "Commentaires",
       "de": "De",
       "a": "À"
+    },
+    "supervisor": {
+      "nom": "Nom du superviseur",
+      "fonction": "Fonction",
+      "telephone": "Téléphone",
+      "email": "Courriel"
     },
     "levels": {
       "TOTALEMENT_EN_ACCORD": "Totalement en accord",
@@ -908,22 +912,18 @@
       "tempsEncadrement": "Le temps réel consacré à l'encadrement du stagiaire est suffisant.",
       "hygieneSecurite": "L'environnement de travail respecte les normes d'hygiène et de sécurité au travail.",
       "climatTravail": "Le climat de travail est agréable.",
-      "transportCommun": "Le milieu de stage est accessible par transport en commun.",
       "salaireInteressant": "Le salaire offert est intéressant pour le stagiaire.",
       "communicationSuperviseur": "La communication avec le superviseur de stage facilite le déroulement du stage.",
       "equipementAdequat": "L'équipement fourni est adéquat pour réaliser les tâches confiées.",
       "volumeTravail": "Le volume de travail est acceptable."
     },
     "questions": {
-      "numeroStage": "Stage",
       "milieuPrivilegie": "Ce milieu est à privilégier pour le",
       "nombreStagiaires": "Ce milieu est ouvert à accueillir",
       "memeStagiaire": "Ce milieu désire accueillir le même stagiaire pour un prochain stage",
       "quartsVariables": "Ce milieu offre des quarts de travail variables"
     },
     "options": {
-      "STAGE_1": "Stage 1",
-      "STAGE_2": "Stage 2",
       "PREMIER_STAGE": "Premier stage",
       "DEUXIEME_STAGE": "Deuxième stage",
       "UN": "Un stagiaire",
@@ -934,7 +934,7 @@
       "NON": "Non"
     },
     "disagree_hint": "* Tout désaccord doit être expliqué dans la section Commentaires.",
-    "required": "Veuillez remplir tous les champs obligatoires et vérifier les dates.",
+    "required": "Veuillez remplir tous les champs obligatoires.",
     "confirm_description": "Une fois soumise, l'évaluation sera enregistrée et ne pourra plus être modifiée.",
     "submit": "Soumettre l'évaluation",
     "view": "Voir l'évaluation",
