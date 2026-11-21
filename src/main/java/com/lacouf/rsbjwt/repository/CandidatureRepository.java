@@ -38,5 +38,19 @@ public interface CandidatureRepository extends JpaRepository<Candidature, Long> 
 
     List<Candidature> findAllByEtudiantIdIn(List<Long> etudiantIds);
 
+    @Query("""
+        SELECT c
+        FROM Candidature c
+        WHERE c.statut = :statut
+        AND NOT EXISTS (
+            SELECT e
+            FROM EvaluationStagiaire e
+            WHERE e.candidature = c
+        )
+    """)
+        List<Candidature> findCandidaturesSansEvaluation(
+                @Param("statut") StatutCandidature statut
+        );
+
 
 }

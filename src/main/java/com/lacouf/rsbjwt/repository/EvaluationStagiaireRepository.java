@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface EvaluationStagiaireRepository extends JpaRepository<EvaluationStagiaire, Long> {
 
-    Optional<EvaluationStagiaire> findEvaluationStagiaireByCandidature_Id(Long id);}
+    Optional<EvaluationStagiaire> findEvaluationStagiaireByCandidature_Id(Long id);
+}

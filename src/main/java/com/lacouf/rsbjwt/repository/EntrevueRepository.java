@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public interface EntrevueRepository
         extends JpaRepository<Entrevue, Long> {
     Optional<Entrevue> findByCandidatureId(Long candidatureId);
+    List<Entrevue> findByStatut(StatutEntrevue statut);
 
     Optional<Entrevue> findByIdAndCandidatureEtudiantId(Long entrevueId, Long etudiantId);
 

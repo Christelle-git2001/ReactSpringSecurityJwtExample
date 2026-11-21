@@ -36,4 +36,6 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     @Query("SELECT e FROM Etudiant e WHERE NOT EXISTS " +
             "(SELECT entretien.id FROM Entrevue entretien WHERE entretien.candidature.etudiant = e)")
     List<Etudiant> findSansEntrevue();
+
+    List<Etudiant> findByStatut(StatutEtudiant statut);
 }

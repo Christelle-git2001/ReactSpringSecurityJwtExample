@@ -1,5 +1,8 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
@@ -20,10 +23,13 @@ import java.util.List;
 public class DonneesEtudiantService {
     private final EtudiantRepository etudiantRepository;
     private final CvEtudiantRepository cvEtudiantRepository;
+    private final SessionService sessionService;
 
-    public DonneesEtudiantService(EtudiantRepository etudiantRepository, CvEtudiantRepository cvEtudiantRepository) {
+    public DonneesEtudiantService(EtudiantRepository etudiantRepository, CvEtudiantRepository cvEtudiantRepository,
+                                    SessionService sessionService) {
         this.etudiantRepository = etudiantRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
+        this.sessionService = sessionService;
     }
 
     public long compterEtudiantsSansCv() {
@@ -39,11 +45,24 @@ public class DonneesEtudiantService {
     }
 
     public List<EtudiantDTO> obtenirEtudiantsInscrits() {
-        return etudiantRepository.findAll().stream().map(EtudiantDTO::of).toList();
+        List<Etudiant> tousLesEtudiants = etudiantRepository.findAll();
+
+        List<Etudiant> etudiantsInscrits =
+                sessionService.filtrerUtilisateursParSessionActuelle(tousLesEtudiants);
+
+        return etudiantsInscrits.stream()
+                .map(EtudiantDTO::of)
+                .toList();
     }
 
     public List<EtudiantDTO> obtenirEtudiantsSansCv() {
-        return etudiantRepository.findByCvIsNull().stream().map(EtudiantDTO::of).toList();
+        List<Etudiant> etudiantsSansCv =
+                etudiantRepository.findByCvIsNull();
+
+        return sessionService.filtrerUtilisateursParSessionActuelle(etudiantsSansCv)
+                .stream()
+                .map(EtudiantDTO::of)
+                .toList();
     }
 
     public List<EtudiantDTO> obtenirEtudiantsSansStage() {
@@ -65,7 +84,16 @@ public class DonneesEtudiantService {
     }
 
     public List<CvEtudiantDTO> obtenirCvEnAttente() {
-        return cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE).stream().map(CvEtudiantDTO::of).toList();
+        List<CvEtudiant> cvs =
+                cvEtudiantRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(
+                        cvs,
+                        CvEtudiant::getUploadDate
+                )
+                .stream()
+                .map(CvEtudiantDTO::of)
+                .toList();
     }
 
     public long compterCvParStatut(Statut statut) throws ParametreDonneesInvalideException {
@@ -83,7 +111,12 @@ public class DonneesEtudiantService {
     }
 
     public List<EtudiantDTO> obtenirEtudiantsSansEntrevue() {
-        return etudiantRepository.findSansEntrevue().stream().map(EtudiantDTO::of).toList();
+        List<Etudiant> etudiants = etudiantRepository.findSansEntrevue();
+
+        return sessionService.filtrerUtilisateursParSessionActuelle(etudiants)
+                .stream()
+                .map(EtudiantDTO::of)
+                .toList();
     }
 
     public List<EtudiantDTO> obtenirEtudiantsParProfesseur(Long professeurId) throws ParametreDonneesInvalideException {
@@ -91,5 +124,14 @@ public class DonneesEtudiantService {
             throw new ParametreDonneesInvalideException(Code.PROFESSEUR_INVALIDE);
         }
         return etudiantRepository.findAllByProfesseurId(professeurId).stream().map(EtudiantDTO::of).toList();
+    }
+
+    public List<EtudiantDTO> obtenirEtudiantsAyantTrouveStage() {
+        List<Etudiant> etudiants = etudiantRepository.findByStatut(StatutEtudiant.STAGE_TROUVE);
+
+        return sessionService.filtrerUtilisateursParSessionActuelle(etudiants)
+                .stream()
+                .map(EtudiantDTO::of)
+                .toList();
     }
 }
