@@ -1,4 +1,4 @@
-package com.lacouf.rsbjwt.service;
+package com.lacouf.rsbjwt;
 
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Evaluation.*;
@@ -6,6 +6,7 @@ import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.ContratRepository;
 import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
 import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
+import com.lacouf.rsbjwt.service.PDFService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

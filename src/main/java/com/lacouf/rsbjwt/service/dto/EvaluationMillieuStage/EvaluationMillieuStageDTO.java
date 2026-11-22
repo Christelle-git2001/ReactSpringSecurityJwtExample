@@ -3,8 +3,8 @@ package com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage;
 import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.Evaluation.SuperviseurInfo;
 import com.lacouf.rsbjwt.model.EvaluationMillieuStage;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
-import com.lacouf.rsbjwt.service.dto.SuperviseurStageDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
+
 
 public record EvaluationMillieuStageDTO(
         Long candiatureId,

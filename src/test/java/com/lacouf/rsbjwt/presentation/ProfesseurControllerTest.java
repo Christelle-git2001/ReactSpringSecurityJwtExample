@@ -1,13 +1,12 @@
 package com.lacouf.rsbjwt.presentation;
 
+
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
-import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
-import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
-import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
-import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
-import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.*;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.MilieuStageScoresDTO;
 import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.ObservationGeneralDTO;

@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
 import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
@@ -13,7 +14,6 @@ import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.service.ProfesseurService;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
