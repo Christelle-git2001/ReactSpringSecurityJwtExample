@@ -11,6 +11,7 @@ public record MilieuStageScoresDTO(
         List<Long> tempsSupervision,
         Long environmentScore,
         Long climatScore,
+        Long transportCommunScore,
         Long salaireSuffisentScore,
         Long communicationScore,
         Long equipementScore,
@@ -29,6 +30,7 @@ public record MilieuStageScoresDTO(
                 .tempsSupervision(dto.tempsSupervision() != null ? List.copyOf(dto.tempsSupervision()) : List.of())
                 .environmentScore(dto.environmentScore())
                 .climatScore(dto.climatScore())
+                .transportScore(dto.transportCommunScore)
                 .salaireSuffisentScore(dto.salaireSuffisentScore())
                 .communicationScore(dto.communicationScore())
                 .equipementScore(dto.equipementScore())
@@ -49,6 +51,7 @@ public record MilieuStageScoresDTO(
                 entity.getTempsSupervision() != null ? List.copyOf(entity.getTempsSupervision()) : List.of(),
                 entity.getEnvironmentScore(),
                 entity.getClimatScore(),
+                entity.getTransportScore(),
                 entity.getSalaireSuffisentScore(),
                 entity.getCommunicationScore(),
                 entity.getEquipementScore(),

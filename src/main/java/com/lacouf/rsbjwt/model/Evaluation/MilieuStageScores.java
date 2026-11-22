@@ -25,6 +25,7 @@ public class MilieuStageScores {
 
     private Long environmentScore;
     private Long climatScore;
+    private Long transportScore;
     private Long salaireSuffisentScore;
     private Long communicationScore;
     private Long equipementScore;
