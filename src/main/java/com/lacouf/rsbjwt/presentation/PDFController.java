@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.springframework.core.io.Resource;
@@ -44,6 +45,15 @@ public class PDFController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"evaluation_" + candidatureID+".pdf\"")
+                .body(pdfResource);
+    }
+
+    @GetMapping("/evaluation/stage/{candidatureID}")
+    public ResponseEntity<Resource> obtenirEvaluationMilieuStage(@PathVariable Long candidatureID, @RequestParam(defaultValue = "fr") String langue) throws IOException, EvaluationMilieuStageIntrouvableException {
+        Resource pdfResource = pdfService.createEvaluationMilieuStage(langue,candidatureID);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,"inline; filename=\"contrat.pdf\"")
                 .body(pdfResource);
     }
 

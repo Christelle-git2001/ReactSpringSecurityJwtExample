@@ -10,6 +10,7 @@ import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
@@ -69,6 +70,5 @@ public class ProfesseurController {
         EvaluationMillieuStageDTO evaluationMillieuStageDTOResponse = professeurService.enregistreEvaluationMilieuDeStage(evaluationMillieuStageDTO);
         return ResponseEntity.ok(evaluationMillieuStageDTOResponse);
     }
-
 
 }

@@ -12,6 +12,7 @@ import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.StageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
 import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;

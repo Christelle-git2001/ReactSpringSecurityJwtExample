@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -428,10 +429,10 @@ public class PDFService {
         return map;
     }
 
-    public Resource createEvaluationMilieuStage(String langue, Long candidatureId) throws IOException {
+    public Resource createEvaluationMilieuStage(String langue, Long candidatureId) throws IOException, EvaluationMilieuStageIntrouvableException {
         EvaluationMillieuStage evaluation = evaluationMillieuStageRepository
                 .findEvaluationMillieuStageByCandidature_Id(candidatureId)
-                .orElseThrow(() -> new RuntimeException("Évaluation du milieu de stage introuvable"));
+                .orElseThrow(EvaluationMilieuStageIntrouvableException::new);
 
         Candidature candidature = evaluation.getCandidature();
         Etudiant etudiant = candidature.getEtudiant();

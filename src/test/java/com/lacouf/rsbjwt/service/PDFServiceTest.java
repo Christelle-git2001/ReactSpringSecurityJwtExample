@@ -1,6 +1,8 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
+import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
 import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
@@ -38,6 +40,9 @@ class PDFServiceTest {
 
     @Mock
     private EvaluationStagiaireRepository evaluationStagiaireRepository;
+
+    @Mock
+    private EvaluationMillieuStageRepository evaluationMillieuStageRepository;
 
     @InjectMocks
     private PDFService pdfService;
@@ -331,5 +336,86 @@ class PDFServiceTest {
 
         assertThatThrownBy(() -> pdfService.createEvaluationStagiaire("en", 99L))
                 .isInstanceOf(EvaluationStagiaireIntrouvable.class);
+    }
+
+    @Test
+    void doitGenererPdfEvaluationMilieuStageAvecSucces() throws Exception {
+        EvaluationMillieuStage evaluation = creerEvaluationMilieuStageTest();
+        when(evaluationMillieuStageRepository.findEvaluationMillieuStageByCandidature_Id(1L))
+                .thenReturn(Optional.of(evaluation));
+
+        Resource result = pdfService.createEvaluationMilieuStage("fr", 1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+        assertThat(textePdf(result)).contains(
+                "Malinois inc",
+                "Adrien Agreste",
+                "Marie Lavoie",
+                "Bon milieu d'apprentissage"
+        );
+    }
+
+    @Test
+    void doitLeverExceptionSiEvaluationMilieuStageIntrouvablePourPdf() {
+        when(evaluationMillieuStageRepository.findEvaluationMillieuStageByCandidature_Id(99L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> pdfService.createEvaluationMilieuStage("fr", 99L))
+                .isInstanceOf(EvaluationMilieuStageIntrouvableException.class);
+    }
+
+    @Test
+    void doitGenererPdfEvaluationMilieuStageQuandScoresEtObservationsSontNull() throws Exception {
+        EvaluationMillieuStage evaluation = creerEvaluationMilieuStageTest();
+        evaluation.setMillieuStageScores(null);
+        evaluation.setObservationGeneral(null);
+
+        when(evaluationMillieuStageRepository.findEvaluationMillieuStageByCandidature_Id(1L))
+                .thenReturn(Optional.of(evaluation));
+
+        Resource result = pdfService.createEvaluationMilieuStage("en", 1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.exists()).isTrue();
+    }
+
+    private EvaluationMillieuStage creerEvaluationMilieuStageTest() {
+        Employeur employeur = contrat.getCandidature().getOffreDeStage().getEmployeur();
+        OffreDeStage offre = contrat.getCandidature().getOffreDeStage();
+        Candidature candidature = contrat.getCandidature();
+
+        SuperviseurInfo superviseur = SuperviseurInfo.builder()
+                .firstName("Marie")
+                .lastName("Lavoie")
+                .fonction("Cheffe d'équipe développement")
+                .phone("514-555-0199")
+                .build();
+
+        MilieuStageScores scores = MilieuStageScores.builder()
+                .tacheConformeScore(4L)
+                .integrationScore(4L)
+                .tempsSupervisionSuffisantScore(3L)
+                .environmentScore(4L)
+                .climatScore(4L)
+                .transportScore(3L)
+                .salaireSuffisentScore(4L)
+                .communicationScore(4L)
+                .equipementScore(4L)
+                .volumeTravailScore(3L)
+                .commentaire("Bon milieu d'apprentissage")
+                .build();
+
+        ObservationGeneral obs = ObservationGeneral.builder()
+                .nbStagiaireAccueil(2L)
+                .build();
+
+        EvaluationMillieuStage evaluation = new EvaluationMillieuStage();
+        evaluation.setId(1L);
+        evaluation.setCandidature(candidature);
+        evaluation.setSuperviseurInfo(superviseur);
+        evaluation.setMillieuStageScores(scores);
+        evaluation.setObservationGeneral(obs);
+        return evaluation;
     }
 }

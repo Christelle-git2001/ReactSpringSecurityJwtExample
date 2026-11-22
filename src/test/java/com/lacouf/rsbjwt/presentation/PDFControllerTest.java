@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.PDFService;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,6 +98,50 @@ public class PDFControllerTest {
                 .thenThrow(new EvaluationStagiaireIntrouvable());
 
         mockMvc.perform(get("/pdf/evaluation/etudiant/" + candidatureId)
+                        .param("langue", "en"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void doitRetournerPdfEvaluationMilieuStageAvecSucces() throws Exception {
+        byte[] contenuPdf = "Contenu de l'evaluation du milieu de stage PDF".getBytes();
+        Resource pdfResource = new ByteArrayResource(contenuPdf);
+        Long candidatureId = 1L;
+
+        when(pdfService.createEvaluationMilieuStage("fr", candidatureId)).thenReturn(pdfResource);
+
+        MvcResult mvcResult = mockMvc.perform(get("/pdf/evaluation/stage/" + candidatureId)
+                        .param("langue", "fr"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PDF))
+                .andExpect(header().exists(HttpHeaders.CONTENT_DISPOSITION))
+                .andReturn();
+
+        byte[] responseBytes = mvcResult.getResponse().getContentAsByteArray();
+        assertThat(responseBytes).isEqualTo(contenuPdf);
+    }
+
+    @Test
+    void doitUtiliserLangueFrParDefautPourEvaluationMilieuStage() throws Exception {
+        byte[] contenuPdf = "Contenu PDF par defaut".getBytes();
+        Resource pdfResource = new ByteArrayResource(contenuPdf);
+        Long candidatureId = 1L;
+
+        when(pdfService.createEvaluationMilieuStage("fr", candidatureId)).thenReturn(pdfResource);
+
+        mockMvc.perform(get("/pdf/evaluation/stage/" + candidatureId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PDF));
+    }
+
+    @Test
+    void doitRetournerNotFoundQuandEvaluationMilieuStageIntrouvable() throws Exception {
+        Long candidatureId = 99L;
+
+        when(pdfService.createEvaluationMilieuStage("en", candidatureId))
+                .thenThrow(new EvaluationMilieuStageIntrouvableException());
+
+        mockMvc.perform(get("/pdf/evaluation/stage/" + candidatureId)
                         .param("langue", "en"))
                 .andExpect(status().isNotFound());
     }
