@@ -318,7 +318,7 @@ public class ProfesseurControllerTest {
                 1L, 2L, true, List.of(new QuartTravailDTO("08:30", "16:30"))
         );
         MilieuStageScoresDTO scoresDTO = new MilieuStageScoresDTO(
-                5L, 5L, 5L, List.of(10L, 12L), 5L, 5L, 5L, 5L, 5L, 5L, "Excellent milieu de stage"
+                5L, 5L, 5L, List.of(10L, 12L), 5L, 5L, 5L,2L, 5L, 5L, 5L, "Excellent milieu de stage"
         );
 
         EvaluationMillieuStageDTO inputDto = new EvaluationMillieuStageDTO(
@@ -348,7 +348,7 @@ public class ProfesseurControllerTest {
                 1L, 2L, true, List.of(new QuartTravailDTO("08:30", "16:30"))
         );
         MilieuStageScoresDTO scoresDTO = new MilieuStageScoresDTO(
-                5L, 5L, 5L, List.of(10L, 12L), 5L, 5L, 5L, 5L, 5L, 5L, "Excellent milieu de stage"
+                5L, 5L, 5L, List.of(10L, 12L), 5L, 5L,0L, 5L, 5L, 5L, 5L, "Excellent milieu de stage"
         );
 
         EvaluationMillieuStageDTO inputDto = new EvaluationMillieuStageDTO(
