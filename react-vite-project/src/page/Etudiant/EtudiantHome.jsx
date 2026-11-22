@@ -21,6 +21,7 @@ import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import { HiAcademicCap } from "react-icons/hi";
 
+
 const EtudiantHome = ({ user }) => {
     const { t } = useTranslation();
 
@@ -30,6 +31,7 @@ const EtudiantHome = ({ user }) => {
 
     const [offres, setOffres] = useState([]);
     const [sortOrder, setSortOrder] = useState("desc");
+    const [selectedActions, setSelectedActions] = useState("TOUS");
     const [unreadOfferIds, setUnreadOfferIds] = useState([]);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -74,7 +76,10 @@ const EtudiantHome = ({ user }) => {
     }, []);
 
     useEffect(() => {
-        if (location.state?.candidatureId || location.state?.id) offreFilters.resetFilters();
+        if (location.state?.candidatureId || location.state?.id) {
+            offreFilters.resetFilters();
+            setSelectedActions("TOUS");
+        }
     }, [location.key]);
 
     const actualiserCandidatures = useCallback((liste) => {
@@ -228,6 +233,8 @@ const EtudiantHome = ({ user }) => {
                 />
 
                 <FilterBar
+                    selectedActions={selectedActions}
+                    onActionsChange={setSelectedActions}
                     selectedStatus={offreFilters.selectedStatus}
                     onStatusChange={offreFilters.setSelectedStatus}
                     statusOptions={["TOUS", ...OPTIONS_STATUT_CANDIDATURE]}
@@ -252,6 +259,8 @@ const EtudiantHome = ({ user }) => {
                         <div className="my-4 h-px w-full bg-[#043462]" aria-hidden="true" />
                         <div className="flex justify-end mb-4">
                             <Sort sortOrder={sortOrder} onSortChange={setSortOrder}
+                                  newestLabel={t("sort.newest_first", { context: "feminine" })}
+                                  oldestLabel={t("sort.oldest_first", { context: "feminine" })}
                                   className="border border-[#043462]/20 bg-white text-[#043462] shadow-sm" />
                         </div>
                         <div className="w-full px-2 sm:px-4 pb-8 space-y-8">
@@ -312,6 +321,7 @@ const EtudiantHome = ({ user }) => {
                     </div>
                 </details>
                 <MesCandidatures candidatures={candidatures} onCandidaturesChange={actualiserCandidatures}
+                                 selectedActions={selectedActions}
                                  convocations={convocations} onConvocationsChange={setConvocations}
                                  filters={offreFilters} offres={offres} loading={chargementCandidatures} />
             </div>

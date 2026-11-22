@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -9,15 +10,14 @@ import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.*;
-import com.lacouf.rsbjwt.Exception.CandidatureIntrouvableException;
-import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
-import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
+import com.itextpdf.layout.properties.AreaBreakType;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
 import com.lacouf.rsbjwt.model.Evaluation.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
-import com.lacouf.rsbjwt.service.dto.EvaluationStagiaireDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +31,8 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
-import java.time.LocalDate;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -752,7 +751,7 @@ public class PDFService {
 
         Paragraph datePara = new Paragraph()
                 .add(messages.getString("label.date") + " : ")
-                .add(new Text(dateFormatted).setUnderline());
+                .add(date == null ? new Text("____________________") : new Text(dateFormatted).setUnderline());
 
         sigTable.addCell(createCellSansBordure(signaturePara));
         sigTable.addCell(createCellSansBordure(datePara));

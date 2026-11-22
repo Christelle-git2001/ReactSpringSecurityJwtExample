@@ -4,6 +4,7 @@ import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import PostulerButton from "../PostulerButton.jsx";
+import { FiStar } from "react-icons/fi";
 
 function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, user }) {
     const { t } = useTranslation();
@@ -48,6 +49,12 @@ function OffreEtudiantCard({ offer, onRead, hasApplied, onApplied, onPreview, us
                                 }}
                             />
                         </div>
+                        {offer?.isTarget && (
+                            <span className="badge badge-xs bg-amber-200 text-amber-800 border border-amber-300 flex items-center gap-1">
+                                <FiStar className="size-3 text-amber-600" aria-hidden="true" />
+                                {t("offre.targeted")}
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex justify-between items-baseline mt-2">

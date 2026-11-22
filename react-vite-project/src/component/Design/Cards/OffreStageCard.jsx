@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit, FiLock, FiStar, FiUser } from 'react-icons/fi';
+import { FiArrowDown, FiArrowUp, FiEdit, FiStar, FiUser } from 'react-icons/fi';
 import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { obtenirOffrePDF } from "../../../api/employeur.jsx";
 import { usePdfDocument } from "../../../utils/filesUtils.jsx";
+import { formaterDate } from "../../../utils/cvFormatters.jsx";
 import PdfActionButtons from "../../PDF/PdfActionButtons.jsx";
 import PdfPreviewDialog from "../../PDF/PdfPreviewDialog.jsx";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
-import { actionsCandidatureDesactivees } from "../../../utils/candidatureActions.js";
+import { statutCandidatureEmployeur } from "../../../utils/candidatureActions.js";
 
 function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandidature, onEdit = false, showPdfActions = true, onRead }) {
     const { t } = useTranslation();
+    const [sortCandidaturesOrder, setSortCandidaturesOrder] = useState("desc");
     const {
         pdfUrl,
         dialogRef,
@@ -31,7 +33,20 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
         ? t(`departement.${departmentKey}`, offer?.domain)
         : offer?.domain;
 
-    const candidaturesOffre = candidatures.filter(c => c.offreId === offer?.id);
+    const candidaturesOffre = candidatures
+        .filter(c => c.offreId === offer?.id)
+        .sort((a, b) => {
+            const dateA = new Date(a.dateCandidature ?? "").getTime();
+            const dateB = new Date(b.dateCandidature ?? "").getTime();
+            const dateAValide = Number.isFinite(dateA);
+            const dateBValide = Number.isFinite(dateB);
+
+            if (dateAValide !== dateBValide) return dateAValide ? -1 : 1;
+            if (!dateAValide) return 0;
+
+            const comparaison = dateA - dateB;
+            return sortCandidaturesOrder === "asc" ? comparaison : -comparaison;
+        });
 
     const offre = [
         { label: t("offre.domaine"), value: translatedDepartment },
@@ -133,15 +148,31 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                             {candidaturesOffre.length === 0 ? (
                                 <p className="text-xs text-gray-500 italic">{t("candidature.no_candidatures")}</p>
                             ) : (
+                                <>
+                                {candidaturesOffre.length > 1 && (
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSortCandidaturesOrder(order => order === "desc" ? "asc" : "desc")}
+                                            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-gray-500 hover:bg-blue-50 hover:text-[#043462] focus-visible:outline-2 focus-visible:outline-blue-600"
+                                            title={t("sort.by_date")}
+                                            aria-label={t(sortCandidaturesOrder === "desc" ? "sort.oldest_first" : "sort.newest_first")}
+                                        >
+                                            {sortCandidaturesOrder === "desc"
+                                                ? <FiArrowDown className="size-4" aria-hidden="true" />
+                                                : <FiArrowUp className="size-4" aria-hidden="true" />}
+                                            {t(sortCandidaturesOrder === "desc" ? "sort.newest_first" : "sort.oldest_first")}
+                                        </button>
+                                    </div>
+                                )}
                                 <ul className="max-h-48 space-y-1 overflow-y-auto">
                                     {candidaturesOffre.map(candidature => {
                                         let statutCandidature = getStatusConfig(
-                                            candidature.statut === "CONTRAT_CREE" && candidature.contratSigne
-                                                ? "CONTRAT_SIGNE" : candidature.statut,
+                                            statutCandidatureEmployeur(candidature),
                                             t, "candidature"
                                         );
                                         const entrevue = entrevues.find(e => e.candidatureId === candidature.id);
-                                        if (candidature.statut === "ENTREVUE_PLANIFIEE") {
+                                        if (statutCandidatureEmployeur(candidature) === "ENTREVUE_PLANIFIEE") {
                                             if (entrevue?.statut === "CONFIRMEE") {
                                                 statutCandidature = {
                                                     label: t("candidature.status.confirmee"),
@@ -154,6 +185,17 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                                                 };
                                             }
                                         }
+                                        const dateCandidature = candidature.dateCandidature
+                                            ? new Date(candidature.dateCandidature)
+                                            : null;
+                                        const dateCandidatureFormatee = dateCandidature && !Number.isNaN(dateCandidature.getTime())
+                                            ? formaterDate(candidature.dateCandidature)
+                                            : null;
+                                        const dateCandidatureAffichee = dateCandidatureFormatee
+                                            ? dateCandidature.toDateString() === new Date().toDateString()
+                                                ? `${t("agenda.today")} ${dateCandidatureFormatee.slice(11)}`
+                                                : dateCandidatureFormatee
+                                            : null;
                                         return (
                                         <li key={candidature.id}>
                                             <button
@@ -162,12 +204,11 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                                                 className="flex w-full items-center gap-3 rounded p-2 text-left text-sm text-[#043462] hover:bg-blue-50"
                                             >
                                                 <FiUser className="size-4 shrink-0" aria-hidden="true" />
-                                                <span className="min-w-0 flex-1 break-words">{candidature.etudiantFirstName} {candidature.etudiantLastName}</span>
+                                                <span className="min-w-0 flex-1 break-words">
+                                                    <span className="block">{candidature.etudiantFirstName} {candidature.etudiantLastName}</span>
+                                                    {dateCandidatureAffichee && <span className="mt-1 block text-xs text-gray-500">{dateCandidatureAffichee}</span>}
+                                                </span>
                                                 <span className="ml-auto flex max-w-[55%] shrink-0 flex-col items-end gap-1 text-right">
-                                                    {actionsCandidatureDesactivees(candidature) && <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
-                                                        <FiLock className="size-3.5 shrink-0" aria-hidden="true" />
-                                                        {t("candidature.actions_disabled")}
-                                                    </span>}
                                                     {candidature.statut && (
                                                         <span className={`badge badge-xs h-auto max-w-full whitespace-normal rounded-full px-2 py-1 text-center ${statutCandidature.className}`}>
                                                             {statutCandidature.label}
@@ -179,6 +220,7 @@ function OffreStageCard({ offer, candidatures = [], entrevues = [], onViewCandid
                                         );
                                     })}
                                 </ul>
+                                </>
                             )}
                         </div>
                     </details>

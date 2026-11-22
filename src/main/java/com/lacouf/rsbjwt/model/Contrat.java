@@ -26,6 +26,9 @@ public class Contrat {
     @JoinColumn(name = "gestionnaire_id", nullable = false)
     private Gestionnaire gestionnaire;
 
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
     private LocalDateTime dateSignatureEmployeur;
     private LocalDateTime dateSignatureEtudiant;
     private LocalDateTime dateSignatureGestionnaire;
@@ -34,5 +37,10 @@ public class Contrat {
     public Contrat(Candidature candidature, Gestionnaire gestionnaire) {
         this.candidature = candidature;
         this.gestionnaire = gestionnaire;
+    }
+
+    @PrePersist
+    public void initialiserDateCreation() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
     }
 }

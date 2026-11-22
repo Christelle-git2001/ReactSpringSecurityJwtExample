@@ -3,22 +3,27 @@ package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.context.SessionContext;
+import com.lacouf.rsbjwt.model.Inscription;
+import com.lacouf.rsbjwt.model.UserApp;
 import com.lacouf.rsbjwt.repository.InscriptionRepository;
 import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
@@ -236,5 +241,99 @@ class SessionServiceTest {
                 !date.isBefore(periode.debut())
                         && !date.isAfter(periode.fin())
         ));
+    }
+
+    @Test
+    void doitRetournerSessionCibleLorsquElleExiste() {
+        SessionDTO sessionCible = new SessionDTO(Saison.HIVER, 2025);
+
+        when(sessionContext.hasSessionCible()).thenReturn(true);
+        when(sessionContext.getSessionCible()).thenReturn(sessionCible);
+
+        SessionDTO resultat = sessionService.getSessionActuelle();
+
+        assertEquals(sessionCible, resultat);
+
+        verify(sessionContext).getSessionCible();
+    }
+
+    @Test
+    void doitFiltrerUtilisateursSelonLeursInscriptions() {
+        UserApp utilisateur1 = mock(UserApp.class);
+        UserApp utilisateur2 = mock(UserApp.class);
+        UserApp utilisateur3 = mock(UserApp.class);
+
+        Inscription inscriptionAutomne2026 = mock(Inscription.class);
+        Inscription inscriptionHiver2026 = mock(Inscription.class);
+        Inscription inscriptionAutomne2025 = mock(Inscription.class);
+
+        when(inscriptionAutomne2026.getSaison()).thenReturn(Saison.AUTOMNE);
+        when(inscriptionAutomne2026.getAnnee()).thenReturn(2026);
+
+        when(inscriptionHiver2026.getSaison()).thenReturn(Saison.HIVER);
+
+        when(inscriptionAutomne2025.getSaison()).thenReturn(Saison.AUTOMNE);
+        when(inscriptionAutomne2025.getAnnee()).thenReturn(2025);
+
+        when(utilisateur1.getInscriptions()).thenReturn(List.of(inscriptionAutomne2026));
+        when(utilisateur2.getInscriptions()).thenReturn(List.of(inscriptionHiver2026));
+        when(utilisateur3.getInscriptions()).thenReturn(List.of(inscriptionAutomne2025));
+
+        List<UserApp> utilisateurs = List.of(utilisateur1, utilisateur2, utilisateur3);
+
+        List<UserApp> resultat = sessionService.filtrerUtilisateursParSession(
+                utilisateurs,
+                Saison.AUTOMNE,
+                2026
+        );
+
+        assertEquals(1, resultat.size());
+        assertEquals(utilisateur1, resultat.get(0));
+    }
+
+    @Test
+    void doitFiltrerUtilisateursSelonLaSessionCible() {
+        SessionDTO sessionCible = new SessionDTO(Saison.AUTOMNE, 2026);
+
+        when(sessionContext.hasSessionCible()).thenReturn(true);
+        when(sessionContext.getSessionCible()).thenReturn(sessionCible);
+
+        UserApp utilisateur1 = mock(UserApp.class);
+        UserApp utilisateur2 = mock(UserApp.class);
+
+        Inscription inscriptionAutomne2026 = mock(Inscription.class);
+        Inscription inscriptionHiver2026 = mock(Inscription.class);
+
+        when(inscriptionAutomne2026.getSaison()).thenReturn(Saison.AUTOMNE);
+        when(inscriptionAutomne2026.getAnnee()).thenReturn(2026);
+
+        when(inscriptionHiver2026.getSaison()).thenReturn(Saison.HIVER);
+
+        when(utilisateur1.getInscriptions()).thenReturn(List.of(inscriptionAutomne2026));
+        when(utilisateur2.getInscriptions()).thenReturn(List.of(inscriptionHiver2026));
+
+        List<UserApp> resultat = sessionService.filtrerUtilisateursParSessionActuelle(
+                List.of(utilisateur1, utilisateur2)
+        );
+
+        assertEquals(1, resultat.size());
+        assertEquals(utilisateur1, resultat.get(0));
+    }
+
+    @Test
+    void doitLeverExceptionLorsqueUtilisateurIntrouvable() {
+        when(userAppRepository.findUserAppByEmail("test@test.com"))
+                .thenReturn(Optional.empty());
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("test@test.com", null)
+        );
+
+        assertThrows(
+                com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException.class,
+                () -> sessionService.getSessionsDisponibles()
+        );
+
+        SecurityContextHolder.clearContext();
     }
 }

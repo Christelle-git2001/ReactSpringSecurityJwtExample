@@ -1,6 +1,20 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.StageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.repository.*;
@@ -28,10 +42,11 @@ public class ProfesseurService {
     private final SessionService sessionService;
     private final InscriptionRepository inscriptionRepository;
     private final EvaluationMillieuStageRepository evaluationMillieuStageRepository;
+    private final EntrevueRepository entrevueRepository;
 
     public ProfesseurService(ProfesseurRepository professeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder,
                              EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, OffreDeStageRepository offreDeStageRepository,
-                             SessionService sessionService, InscriptionRepository inscriptionRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository) {
+                             SessionService sessionService, InscriptionRepository inscriptionRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository1, EntrevueRepository entrevueRepository) {
         this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -40,7 +55,8 @@ public class ProfesseurService {
         this.offreDeStageRepository = offreDeStageRepository;
         this.sessionService = sessionService;
         this.inscriptionRepository = inscriptionRepository;
-        this.evaluationMillieuStageRepository = evaluationMillieuStageRepository;
+        this.evaluationMillieuStageRepository = evaluationMillieuStageRepository1;
+        this.entrevueRepository = entrevueRepository;
     }
 
     @Transactional
@@ -137,6 +153,85 @@ public class ProfesseurService {
         OffreDeStage offreDeStage = offreDeStageRepository.findById(offreId).orElseThrow(OffreIntrouvableException::new);
         return ResumeStageEtudiantDTO.of(offreDeStage);
     }
+
+
+    private List<Etudiant> obtenirEntitesEtudiantsAssignes()
+            throws UtilisateurIntrouvableException {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Professeur professeur = userAppRepository.findUserAppByEmail(email)
+                .filter(Professeur.class::isInstance)
+                .map(Professeur.class::cast)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+
+        List<Etudiant> etudiants = etudiantRepository
+                .findAllByProfesseurId(professeur.getId());
+
+        List<Etudiant> inscritsSession =
+                sessionService.filtrerUtilisateursParSessionActuelle(etudiants);
+
+        return sessionService.filtrerParSessionActuelle(
+                inscritsSession,
+                Etudiant::getProfessorAssignedAt
+        );
+    }
+
+    public List<CandidatureDTO> getCandidaturesDeMesEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        List<Long> ids = obtenirEntitesEtudiantsAssignes().stream()
+                .map(Etudiant::getId)
+                .toList();
+
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatureRepository.findAllByEtudiantIdIn(ids),
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                ).stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
+    public List<EntrevueDTO> getEntrevuesDeMesEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        List<Long> ids = obtenirEntitesEtudiantsAssignes().stream()
+                .map(Etudiant::getId)
+                .toList();
+
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        return sessionService.filtrerParSessionActuelle(
+                        entrevueRepository.findByCandidatureEtudiantIdInOrderByDateHeureEntrevueAsc(ids),
+                        entrevue -> entrevue.getCandidature()
+                                .getOffreDeStage().getCreatedAt()
+                ).stream()
+                .map(EntrevueDTO::of)
+                .toList();
+    }
+
+    public List<StageEtudiantDTO> getStagesDeMesEtudiants()
+            throws UtilisateurIntrouvableException {
+
+        return obtenirEntitesEtudiantsAssignes().stream()
+                .filter(etudiant -> etudiant.getCandidatureStage() != null)
+                .map(etudiant -> new StageEtudiantDTO(
+                        EtudiantDTO.of(etudiant),
+                        ResumeStageEtudiantDTO.of(
+                                etudiant.getCandidatureStage().getOffreDeStage()
+                        )
+                ))
+                .toList();
+    }
+
 
     public EvaluationMillieuStageDTO enregistreEvaluationMilieuDeStage(EvaluationMillieuStageDTO evaluationMillieuStageDTO) throws CandidatureIntrouvableException {
         Candidature candidature = candidatureRepository.findById(evaluationMillieuStageDTO.candiatureId()).orElseThrow(CandidatureIntrouvableException::new);

@@ -1,10 +1,16 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.service.dto.auth.LoginDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.GestionnaireDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.UserDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.security.JwtTokenProvider;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
+import com.lacouf.rsbjwt.security.exception.APIException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,9 +31,17 @@ public class UserAppService {
     private final EtudiantRepository etudiantRepository;
     private final ProfesseurRepository professeurRepository;
 
-    public String authenticateUser(LoginDTO loginDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password()));
+    public String authenticateUser(LoginDTO loginDto) throws APIException {
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password()));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            if (e.getCause() instanceof APIException erreurApi) {
+                throw erreurApi;
+            }
+            throw e;
+        }
 
         UserApp user = userAppRepository
                 .findUserAppByEmail(loginDto.email())
@@ -42,7 +56,7 @@ public class UserAppService {
         return token;
     }
 
-    public UserDTO getMe(String token) {
+    public UserDTO getMe(String token) throws APIException {
         token = token.startsWith("Bearer") ? token.substring(7) : token;
         String email = jwtTokenProvider.getEmailFromJWT(token);
         UserApp user = userAppRepository.findUserAppByEmail(email).orElseThrow(UserNotFoundException::new);

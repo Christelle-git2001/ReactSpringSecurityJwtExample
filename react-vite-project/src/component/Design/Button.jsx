@@ -1,6 +1,7 @@
 import React from "react";
 import {
     HiCheckCircle,
+    HiBell,
     HiXCircle,
     HiArrowSmLeft,
     HiUpload,
@@ -45,6 +46,10 @@ const ROLE_CONFIG = {
     entrevue: {
         style: "border-transparent bg-[#043462] text-white enabled:hover:bg-[#03284d] focus-visible:outline-[#043462]",
         Icon: HiCalendar
+    },
+    rappel: {
+        style: "border-[#043462] bg-white text-[#043462] enabled:hover:bg-blue-50 focus-visible:outline-[#043462]",
+        Icon: HiBell
     },
     signature: {
         style: "border-transparent bg-cyan-600 text-white enabled:hover:bg-cyan-700 focus-visible:outline-cyan-600",

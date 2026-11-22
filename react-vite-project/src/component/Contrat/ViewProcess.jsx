@@ -6,7 +6,7 @@ import Button from "../Design/Button.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 import { getStatusConfig } from "../../utils/getStatusConfig.jsx";
 import {
-    demarrerProcessusDeSignatureDeContrat,
+
     getContratByCandidatureId,
     getEntrevueByCandidatureId,
     getTousLesCvs,
@@ -22,7 +22,7 @@ const formatDateTime = (dateString) => {
 
     if (!heure) return date;
 
-    const heureFormatee = heure.substring(0, 5);
+    const heureFormatee = heure.substring(0, 8);
 
     return `${date} à ${heureFormatee}`;
 };
@@ -143,19 +143,6 @@ function ViewProcess() {
     const cvDescriptionText = candidature?.cvId
         ? `${nomEtudiant}\n${cvStatusConfig.label}`
         : `${nomEtudiant}\n${t("process.no_cv")}`;
-
-    const handleStartProcess = async () => {
-        try {
-            const nouveauContrat = await demarrerProcessusDeSignatureDeContrat(candidatureId);
-            triggerNotifications();
-            setContrat(nouveauContrat);
-            if (nouveauContrat?.id) {
-                chargerPdfContrat(nouveauContrat.id);
-            }
-        } catch {
-            setError("process.start_error");
-        }
-    };
 
    const handleSignContract = async () => {
        if (!contrat?.id || !motDePasse.trim()) return;
@@ -280,13 +267,7 @@ function ViewProcess() {
                             >
                                 {t("actions.back", "Retour")}
                             </Button>
-                            <button
-                                type="button"
-                                onClick={handleStartProcess}
-                                className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition-colors font-medium cursor-pointer"
-                            >
-                                {t("process.start_button")}
-                            </button>
+
                         </div>
                     )}
                 </div>

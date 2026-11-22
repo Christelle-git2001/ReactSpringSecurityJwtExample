@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public enum Role{
-	// TODO Remplacer les classe biblio par les classe appropriee
 	GESTIONNAIRE("ROLE_GESTIONNAIRE"),
 	ETUDIANT("ROLE_ETUDIANT"),
 	PROFESSEUR("ROLE_PROFESSEUR"),
@@ -14,8 +13,6 @@ public enum Role{
 	private final Set<Role> managedRoles = new HashSet<>();
 
 	static{
-		/*GESTIONNAIRE.managedRoles.add(PREPOSE);
-		GESTIONNAIRE.managedRoles.add(EMPRUNTEUR);*/
 		GESTIONNAIRE.managedRoles.add(GESTIONNAIRE);
 	}
 

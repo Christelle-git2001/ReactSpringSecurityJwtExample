@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation, declarerStageTrouve } from "../../api/etudiant.jsx";
+import { obtenirToutesConvocations, obtenirCandidaturesEtudiant, accepterConvocation, refuserConvocation, accepterStage, refuserStage } from "../../api/etudiant.jsx";
 import { FaBriefcase, FaCalendarAlt, FaCheckCircle, FaClock, FaHourglassHalf, FaMapMarkerAlt, FaVideo, FaUsers } from "react-icons/fa";
 import Button from "../Design/Button.jsx";
-import Modal from "../Modal/Modal.jsx";
+import ConfirmationRefusConvocationModal from "./ConfirmationRefusConvocationModal.jsx";
 import EmptyContentMessage from "../Design/EmptyContentMessage.jsx";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import { FiLock } from "react-icons/fi";
-import { HiBadgeCheck } from "react-icons/hi";
 import ActionsDesactivees from "./ActionsDesactivees.jsx";
 import { actionsCandidatureDesactivees } from "../../utils/candidatureActions.js";
-import DeclarationStageModal from "./DeclarationStageModal.jsx";
+import DecisionStageModal from "./DecisionStageModal.jsx";
 import Agenda from "../Entrevue/Agenda.jsx";
 import Sort from "../Design/Sort.jsx";
 import MotifRefus from "../Design/MotifRefus.jsx";
@@ -26,7 +25,7 @@ const FORMAT_KEYS = {
     PRESENTIEL: "entrevue.mode_onsite_title",
 };
 
-function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange, loading: loadingProp = false, convocations: convocationsProp, onConvocationsChange, filters, offres = [] }) {
+function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange, loading: loadingProp = false, convocations: convocationsProp, onConvocationsChange, filters, offres = [], selectedActions = "TOUS" }) {
     const { t, i18n } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
@@ -61,13 +60,13 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     const [motifRefus, setMotifRefus] = useState("");
     const [motifError, setMotifError] = useState(false);
     const [confirmRefusId, setConfirmRefusId] = useState(null);
-    const [declarationCandidature, setDeclarationCandidature] = useState(null);
-    const [statutDeclare, setStatutDeclare] = useState("");
-    const [declarationErreur, setDeclarationErreur] = useState(false);
+    const [decisionStage, setDecisionStage] = useState(null);
+    const [erreurDecisionStage, setErreurDecisionStage] = useState(null);
 
     const stageDeclare = candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE" || ["STAGE_TROUVE", "CONTRAT_CREE"].includes(c.statut));
 
-    const visibles = candidatures.map((candidature) => {
+    const visibles = candidatures.filter(candidature => selectedActions === "TOUS"
+        || actionsCandidatureDesactivees(candidature) === (selectedActions === "DESACTIVEES")).map((candidature) => {
         const convocation = convocations.find((c) => c.candidatureId === candidature.id);
         return {
             ...convocation,
@@ -85,6 +84,9 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     }, filters);
 
     const candidaturesTriees = [...filtres.itemsFiltres].sort((a, b) => {
+        const actionsDesactiveesA = actionsCandidatureDesactivees(a.candidature);
+        const actionsDesactiveesB = actionsCandidatureDesactivees(b.candidature);
+        if (actionsDesactiveesA !== actionsDesactiveesB) return actionsDesactiveesA ? 1 : -1;
         const stageA = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(a.candidature.statut);
         const stageB = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(b.candidature.statut);
         if (stageA !== stageB) return stageA ? -1 : 1;
@@ -151,21 +153,18 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         }
     };
 
-    const confirmerStage = async () => {
-        if (!declarationCandidature || statutDeclare !== "STAGE_TROUVE" || submittingId !== null) return;
-        setSubmittingId(declarationCandidature.id);
-        setDeclarationErreur(false);
+    const confirmerDecisionStage = async () => {
+        if (!decisionStage || submittingId !== null) return;
+        setSubmittingId(decisionStage.candidature.id);
+        setErreurDecisionStage(null);
         try {
-            const decision = await declarerStageTrouve(declarationCandidature.id);
+            const repondreStage = decisionStage.accepter ? accepterStage : refuserStage;
+            await repondreStage(decisionStage.candidature.id);
             triggerNotifications();
-            setCandidatures(liste => liste.map(c => ({
-                ...(c.id === decision.id ? decision : c),
-                statutEtudiant: decision.statutEtudiant,
-            })));
             await charger();
-            setDeclarationCandidature(null);
-        } catch {
-            setDeclarationErreur(true);
+            setDecisionStage(null);
+        } catch (erreur) {
+            setErreurDecisionStage(erreur.message || "error.generic");
         } finally {
             setSubmittingId(null);
         }
@@ -251,7 +250,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                     {actionError && <p role="alert" className="mb-3 text-sm text-red-700">{t(actionError)}</p>}
 
                     {filtres.itemsFiltres.length === 0 ? (
-                        <EmptyContentMessage message={t(visibles.length === 0 ? "candidature.none" : "candidature.no_matching_candidatures")} />
+                        <EmptyContentMessage message={t(candidatures.length === 0 ? "candidature.none" : "candidature.no_matching_candidatures")} />
                     ) : (
                         <ul aria-label={t("candidature.my_applications")} className="flex flex-col gap-3">
                             {candidaturesTriees.map((c) => {
@@ -280,7 +279,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                     <p className="text-base font-bold break-words">{c.offreTitle}</p>
                                                     <p className="mt-1 text-sm font-semibold">{c.employeur?.businessName}</p>
                                                     {candidature.dateCandidature && <p className="mt-1 text-xs text-[#043462]/70">
-                                                        {t("candidature.date")} : {candidature.dateCandidature.split("T")[0]}
+                                                        {t("candidature.date")} : {candidature.dateCandidature.replace("T", " ").slice(0, 16)}
                                                     </p>}
                                                 </div>
 
@@ -299,14 +298,16 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                                 )}
 
                                                 {candidature.statut === "ACCEPTEE" && (
-                                                    <Button role="soumettre" size="small" type="button" disabled={enCours} icon={<HiBadgeCheck className="size-5 shrink-0" aria-hidden="true" />}
-                                                            onClick={() => {
-                                                                setDeclarationCandidature(candidature);
-                                                                setStatutDeclare(candidature.statutEtudiant ?? "EN_RECHERCHE");
-                                                                setDeclarationErreur(false);
-                                                            }}>
-                                                        {t("candidature.declare_stage_found")}
-                                                    </Button>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Button variant="danger" size="small" disabled={enCours}
+                                                            onClick={() => { setDecisionStage({ candidature, accepter: false }); setErreurDecisionStage(null); }}>
+                                                            {t("stage.refuse")}
+                                                        </Button>
+                                                        <Button variant="success" size="small" disabled={enCours}
+                                                            onClick={() => { setDecisionStage({ candidature, accepter: true }); setErreurDecisionStage(null); }}>
+                                                            {t("stage.accept")}
+                                                        </Button>
+                                                    </div>
                                                 )}
 
 
@@ -365,7 +366,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                             )}
 
                                             </fieldset>
-                                            {actionsDesactivees && <div className="mx-4 mb-3"><ActionsDesactivees /></div>}
+                                            {actionsDesactivees && <div className="mx-4 mb-3"><ActionsDesactivees candidature={candidature} /></div>}
                                             </div>
 
                                             <details ref={element => {
@@ -390,7 +391,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                             {["REFUSEE", "ENTREVUE_REFUSEE"].includes(candidature.statut) && (candidature.motifRefus || c.motifRefus) && (
                                                 <div className="border-t border-gray-100 bg-white px-5 py-3 text-sm text-[#043462]">
                                                     <strong className="text-red-600">{t("convocation.refusal_reason")} : </strong>
-                                                    <span className="whitespace-pre-wrap break-words">{candidature.motifRefus || c.motifRefus}</span>
+                                                    <span className="whitespace-pre-wrap break-words">{candidature.motifRefus === "stage.refused_by_student"
+                                                        ? t(candidature.motifRefus) : candidature.motifRefus || c.motifRefus}</span>
                                                 </div>
                                             )}
 
@@ -425,29 +427,22 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                 </div>
             </details>
 
-            {declarationCandidature && (
-                <DeclarationStageModal
-                    candidature={declarationCandidature}
-                    statut={statutDeclare}
-                    onStatutChange={setStatutDeclare}
+            {decisionStage && (
+                <DecisionStageModal
+                    candidature={decisionStage.candidature}
+                    accepter={decisionStage.accepter}
                     submitting={submittingId !== null}
-                    error={declarationErreur}
-                    onClose={() => { if (submittingId === null) setDeclarationCandidature(null); }}
-                    onConfirm={confirmerStage}
+                    error={erreurDecisionStage}
+                    onClose={() => { if (submittingId === null) setDecisionStage(null); }}
+                    onConfirm={confirmerDecisionStage}
                 />
             )}
 
             {confirmRefusId !== null && (
-                <Modal
-                    title={t("convocation.confirm_refusal")}
-                    description={t("convocation.refusal_confirmation")}
-                    onClickCross={() => setConfirmRefusId(null)}
-                    button={
-                        <>
-                            <Button role="annulation" icon={true} type="button" onClick={() => setConfirmRefusId(null)} className="w-50">{t("actions.cancel")}</Button>
-                            <Button role="refus" icon={false} type="button" onClick={confirmerRefus}  className="w-1/2">{t("convocation.confirm_refusal")}</Button>
-                        </>
-                    }
+                <ConfirmationRefusConvocationModal
+                    submitting={submittingId !== null}
+                    onConfirm={confirmerRefus}
+                    onClose={() => { if (submittingId === null) setConfirmRefusId(null); }}
                 />
             )}
         </div>

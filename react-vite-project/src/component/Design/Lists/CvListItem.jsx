@@ -6,7 +6,7 @@ import { getDepartmentKey } from "../../../utils/departementConverter.js";
 import { getStatusConfig } from "../../../utils/getStatusConfig.jsx";
 import ListItem from "./ListItem.jsx";
 
-function CvListItem({ cv, onClick, variant = "card", actionLabel, actionClassName }) {
+function CvListItem({ cv, onClick, variant = "card", actionLabel, actionClassName, footer }) {
     const { t } = useTranslation();
     const status = getStatusConfig(cv?.statut, t, "cv");
 
@@ -21,9 +21,10 @@ function CvListItem({ cv, onClick, variant = "card", actionLabel, actionClassNam
             icon={<FaFileAlt className="size-5" />}
             title={studentName || t("cv.student_unknown")}
             subtitle={department || cv?.fileName || t("cv.file_without_name")}
-            meta={cv?.uploadDate ? formaterDate(cv.uploadDate) : null}
+            meta={!footer && cv?.uploadDate ? formaterDate(cv.uploadDate) : null}
             badge={status.label}
             badgeClassName={status.className}
+            footer={footer}
             tone="blue"
             variant={variant}
             actionLabel={actionLabel}

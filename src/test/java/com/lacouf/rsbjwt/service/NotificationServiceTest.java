@@ -1,8 +1,10 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.AucunRoleDefini;
-import com.lacouf.rsbjwt.Exception.NotificationNonTrouvee;
-import com.lacouf.rsbjwt.Exception.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.notification.NotificationDTO;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunRoleDefini;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.exception.notification.NotificationNonTrouvee;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
@@ -10,13 +12,10 @@ import com.lacouf.rsbjwt.model.Enum.Notification.NotificationType;
 import com.lacouf.rsbjwt.model.Enum.Notification.VariableMapKey;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.Enum.StatutEntrevue;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.auth.Role;
 import com.lacouf.rsbjwt.model.event.*;
-import com.lacouf.rsbjwt.repository.EtudiantRepository;
-import com.lacouf.rsbjwt.repository.CandidatureRepository;
-import com.lacouf.rsbjwt.repository.NotificationRepository;
-import com.lacouf.rsbjwt.repository.UserAppRepository;
-import com.lacouf.rsbjwt.service.dto.NotificationDTO;
+import com.lacouf.rsbjwt.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,8 +26,11 @@ import org.mockito.InjectMocks;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +53,19 @@ public class NotificationServiceTest {
     private EtudiantRepository etudiantRepository;
 
     @Mock
+    private EmployeurRepository employeurRepository;
+
+    @Mock
     private CandidatureRepository candidatureRepository;
+
+    @Mock
+    private ContratRepository contratRepository;
+
+    @Mock
+    private EvaluationStagiaireRepository evaluationStagiaireRepository;
+
+    @Mock
+    private ProfesseurRepository professeurRepository;
 
     private Etudiant etudiant;
     private CvEtudiant cvEtudiant;
@@ -100,6 +114,7 @@ public class NotificationServiceTest {
         notification.setVariables(Map.of(VariableMapKey.CANDIDATURE_ID, candidatureId));
         return notification;
     }
+
     @Test
     void doitNotifierLEmployeurDeLAcceptationDeLaConvocation() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage informatique").employeur(employeur).build();
@@ -829,7 +844,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    void doitNotifierLesDeuxSignatairesQuandLeContratEstCree() {
+    void doitNotifierLesDeuxSignatairesEtInformerLeGestionnaireQuandLeContratEstCree() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         offre.setId(10L);
         Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
@@ -840,10 +855,22 @@ public class NotificationServiceTest {
         notificationService.handleNouveauContratCree(new NouveauContratCreeEvent(contrat));
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(notificationRepository, times(2)).save(captor.capture());
-        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire).containsExactly(employeur, etudiant);
+        verify(notificationRepository, times(3)).save(captor.capture());
+        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire)
+                .containsExactly(employeur, etudiant, null);
         assertThat(captor.getAllValues()).extracting(Notification::getNotificationType)
-                .containsOnly(NotificationType.NOUVEAU_CONTRAT);
+                .containsExactly(NotificationType.NOUVEAU_CONTRAT, NotificationType.NOUVEAU_CONTRAT,
+                        NotificationType.SIGNATURE_DEMARREE);
+        Notification informationGestionnaire = captor.getAllValues().get(2);
+        assertThat(informationGestionnaire.getRole()).isEqualTo(Role.GESTIONNAIRE);
+        assertThat(informationGestionnaire.getTitre()).isEqualTo("notification.gestionnaire.signatureDemarree.title");
+        assertThat(informationGestionnaire.getDescription()).isEqualTo("notification.gestionnaire.signatureDemarree.description");
+        assertThat(informationGestionnaire.getUrlCible()).isEqualTo("/gestionnaire/candidatures/20/contrat");
+        assertThat(informationGestionnaire.isEstLu()).isFalse();
+        assertThat(informationGestionnaire.getVariables())
+                .containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage Java");
         verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
     }
 
@@ -894,6 +921,34 @@ public class NotificationServiceTest {
         verify(notificationRepository, never()).save(any(Notification.class));
     }
 
+    @Test
+    void doitConserverLaNotificationDeDemarrageEtAjouterLaDemandeApresLesDeuxSignatures() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setId(30L);
+        contrat.getCandidature().getOffreDeStage().setId(10L);
+        contrat.setDateSignatureEtudiant(null);
+        contrat.setDateSignatureEmployeur(null);
+        notificationService.handleNouveauContratCree(new NouveauContratCreeEvent(contrat));
+
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+        verify(notificationRepository, times(3)).save(any(Notification.class));
+
+        contrat.setDateSignatureEmployeur(LocalDateTime.now());
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(4)).save(captor.capture());
+        assertThat(captor.getAllValues().stream().filter(n -> n.getRole() == Role.GESTIONNAIRE))
+                .extracting(Notification::getNotificationType)
+                .containsExactly(NotificationType.SIGNATURE_DEMARREE, NotificationType.CONTRAT_A_SIGNER);
+        verify(notificationRepository).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
+
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+        notificationService.handleContratSigne(new ContratSigneEvent(contrat));
+        verify(notificationRepository, times(2)).deleteByUrlCible("/gestionnaire/candidatures/20/contrat");
+        verify(notificationRepository, times(4)).save(any(Notification.class));
+    }
+
     private Contrat contratAvecDeuxSignatures() {
         Candidature candidature = new Candidature(etudiant,
                 OffreDeStage.builder().title("Stage Java").employeur(employeur).build(), LocalDateTime.now());
@@ -905,20 +960,20 @@ public class NotificationServiceTest {
     }
 
     @Test
-    void doitInviterLeGestionnaireADemarrerLeContratQuandUnStageEstTrouve() {
+    void doitNotifierLEmployeurQuandLEtudiantRefuseLeStage() {
         OffreDeStage offre = OffreDeStage.builder().title("Stage Java").employeur(employeur).build();
         Candidature candidature = new Candidature(etudiant, offre, LocalDateTime.now());
         candidature.setId(20L);
         when(notificationRepository.save(any(Notification.class))).thenReturn(notificationWithoutUser);
 
-        notificationService.handleStageTrouveGestionnaire(new StageTrouveEvent(candidature));
+        notificationService.handleStageRefuse(new com.lacouf.rsbjwt.model.event.StageRefuseEvent(candidature));
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(notificationRepository).save(captor.capture());
         Notification notification = captor.getValue();
-        assertThat(notification.getRole()).isEqualTo(Role.GESTIONNAIRE);
-        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.CONTRAT_A_CREER);
-        assertThat(notification.getUrlCible()).isEqualTo("/gestionnaire/candidatures/20/contrat");
+        assertThat(notification.getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.STAGE_REFUSE);
+        assertThat(notification.getUrlCible()).isEqualTo("/employeur");
         assertThat(notification.getVariables())
                 .containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
     }
@@ -1025,5 +1080,131 @@ public class NotificationServiceTest {
         }
         verify(notificationRepository, never()).delete(contrat);
         verify(notificationRepository, never()).delete(autreEtudiant);
+    }
+
+    @Test
+    void doitRetournerLesNotificationsNonLuesDeLEmployeur() throws EmployeurIntrouvable {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeur.getEmail(), null)
+        );
+
+        Notification notificationLue = new Notification();
+        notificationLue.setEstLu(true);
+        notificationLue.setId(41L);
+
+        when(employeurRepository.findByCredentialsEmail(employeur.getEmail()))
+                .thenReturn(Optional.of(employeur));
+
+        when(notificationRepository.getNotificationByDestinataire(employeur))
+                .thenReturn(List.of(notificationEmployeur, notificationLue));
+
+        List<NotificationDTO> resultat = notificationService.getNotificationsNonLuesEmployeur();
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).id()).isEqualTo(notificationEmployeur.getId());
+        assertThat(resultat.get(0).estLu()).isFalse();
+
+        verify(employeurRepository).findByCredentialsEmail(employeur.getEmail());
+        verify(notificationRepository).getNotificationByDestinataire(employeur);
+
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void doitLancerExceptionQuandEmployeurIntrouvablePourNotificationsNonLues() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("inconnu@test.com", null)
+        );
+
+        when(employeurRepository.findByCredentialsEmail("inconnu@test.com"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> notificationService.getNotificationsNonLuesEmployeur())
+                .isInstanceOf(EmployeurIntrouvable.class);
+
+        verify(employeurRepository).findByCredentialsEmail("inconnu@test.com");
+        verify(notificationRepository, never()).getNotificationByDestinataire(any());
+
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void doitNotifierLEmployeurDeuxSemainesAvantLaFinDuStage() {
+        LocalDate aujourdHui = LocalDate.of(2026, 11, 18);
+        OffreDeStage offre = OffreDeStage.builder()
+                .title("Stage informatique")
+                .endDate(aujourdHui.plusDays(14))
+                .employeur(employeur)
+                .build();
+        Candidature candidature = Candidature.builder().offreDeStage(offre).etudiant(etudiant).build();
+        candidature.setId(20L);
+        offre.setCandidatures(List.of(candidature));
+        Contrat contrat = Contrat.builder().candidature(candidature).build();
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+        contrat.setDateSignatureEmployeur(LocalDateTime.now());
+        contrat.setDateSignatureEtudiant(LocalDateTime.now());
+        String urlCible = "/employeur?candidatureId=20";
+        when(candidatureRepository.findByStatut(StatutCandidature.STAGE_TROUVE))
+                .thenReturn(List.of(candidature));
+        when(contratRepository.findByCandidatureId(candidature.getId())).thenReturn(Optional.of(contrat));
+        when(evaluationStagiaireRepository.findEvaluationStagiaireByCandidature_Id(candidature.getId()))
+                .thenReturn(Optional.empty());
+        when(notificationRepository.findByNotificationTypeAndUrlCible(
+                NotificationType.EVALUATION_STAGE_A_FAIRE, urlCible)).thenReturn(Optional.empty());
+
+        notificationService.notifierEmployeursEvaluationStage(aujourdHui);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+        Notification notification = captor.getValue();
+        assertThat(notification.getNotificationType()).isEqualTo(NotificationType.EVALUATION_STAGE_A_FAIRE);
+        assertThat(notification.getDestinataire()).isSameAs(employeur);
+        assertThat(notification.getRole()).isEqualTo(Role.EMPLOYEUR);
+        assertThat(notification.getVariables())
+                .containsEntry(VariableMapKey.CANDIDATURE_ID, "20")
+                .containsEntry(VariableMapKey.OFFRE_TITRE, "Stage informatique")
+                .containsEntry(VariableMapKey.ETUDIANT_NOM, "Jean Dupuis");
+    }
+
+    @Test
+    void doitEnvoyerLesDeuxNotificationsExistantesAuxSignatairesEnAttente() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setId(30L); contrat.getCandidature().getOffreDeStage().setId(10L);
+        contrat.setDateSignatureEtudiant(null); contrat.setDateSignatureEmployeur(null);
+        notificationService.rappelerSignatureContrat(contrat);
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, times(2)).save(captor.capture());
+        assertThat(captor.getAllValues()).extracting(Notification::getNotificationType)
+                .containsOnly(NotificationType.NOUVEAU_CONTRAT);
+        assertThat(captor.getAllValues()).extracting(Notification::getDestinataire).containsExactly(employeur, etudiant);
+        assertThat(captor.getAllValues()).allSatisfy(n -> {
+            assertThat(n.getTitre()).isEqualTo("notification.nouveau_contrat.title");
+            assertThat(n.getVariables()).containsEntry(VariableMapKey.CANDIDATURE_ID, "20");
+        });
+    }
+
+    @Test
+    void doitRelancerLaNotificationExistanteSansDoublonEtSansRappelerCeluiQuiASigne() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        contrat.setId(30L); contrat.setDateSignatureEtudiant(null);
+        Notification existante = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "20");
+        existante.setEstLu(true); existante.setDateNotifiee(LocalDateTime.now().minusDays(1));
+        Notification autreContrat = notificationCandidature(NotificationType.NOUVEAU_CONTRAT, "99");
+        when(notificationRepository.getNotificationByDestinataire(etudiant)).thenReturn(List.of(autreContrat, existante));
+        LocalDateTime avant = LocalDateTime.now();
+        notificationService.rappelerSignatureContrat(contrat);
+        verify(notificationRepository).save(existante);
+        assertThat(existante.isEstLu()).isFalse();
+        assertThat(existante.getDateNotifiee()).isAfterOrEqualTo(avant);
+        verify(notificationRepository, never()).getNotificationByDestinataire(employeur);
+    }
+
+    @Test
+    void neDoitPasEnvoyerDeRappelSiLesSignaturesSontCompletes() {
+        Contrat contrat = contratAvecDeuxSignatures();
+        notificationService.rappelerSignatureContrat(contrat);
+        contrat.setDateSignatureGestionnaire(LocalDateTime.now());
+        notificationService.rappelerSignatureContrat(contrat);
+        verifyNoInteractions(notificationRepository);
     }
 }

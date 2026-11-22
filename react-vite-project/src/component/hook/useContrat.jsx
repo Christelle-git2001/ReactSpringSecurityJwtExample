@@ -43,7 +43,7 @@ export const useContrat = (candidatureId, status) => {
         } finally {
             setIsContratLoading(false);
         }
-    }, [candidatureId, i18n.language, t]);
+    }, [candidatureId, status, i18n.language, t]);
 
     useEffect(() => {
         chargerContratSiExiste();

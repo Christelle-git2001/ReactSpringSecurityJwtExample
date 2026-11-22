@@ -1,30 +1,43 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { obtenirCvPDFGestionnaire } from "../../api/gestionnaire.jsx";
 import { obtenirConvocationEmployeur } from "../../api/employeur.jsx";
+import { obtenirEvaluationStagiairePDF } from "../../api/pdf.jsx";
 import { PDFContent } from "../PDF/PDFVisioneuse.jsx";
+import { statutCandidatureEmployeur } from "../../utils/candidatureActions.js";
 import CandidatureTimeline from "./CandidatureTimeline.jsx";
 import NextAction from "./NextAction.jsx";
 import {useContrat} from "../hook/useContrat.jsx";
 import {Role} from "../../enum/Role.jsx"
+import { verifierDisponibiliteEvaluation } from "../../utils/evaluationStagiaire.jsx";
 import { marquerNotificationsContratCommeLues } from "../../api/notification.jsx";
 import { useNotificationTrigger } from "../Notification/UtilNotification.jsx";
 
 function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, user }) {
     const triggerNotifications = useNotificationTrigger(state => state.triggerRefresh);
     const location = useLocation();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const candidatureSource = candidatureProp || location.state?.candidature;
     const [decision, setDecision] = useState(null);
     useEffect(() => { setDecision(null); }, [candidatureSource?.id]);
-    const candidature = decision ? { ...candidatureSource, statut: decision.statut } : candidatureSource;
+    const decisionActuelle = decision?.id === candidatureSource?.id ? decision : null;
+    const candidature = decisionActuelle ? { ...candidatureSource, ...decisionActuelle } : candidatureSource;
     const offer = offerProp || location.state?.offer || candidature?.offre;
     const retour = location.state?.from || "/employeur";
 
     const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
     const [isPdfLoading, setIsPdfLoading] = useState(true);
+    const [evaluationPdfBlobUrl, setEvaluationPdfBlobUrl] = useState(null);
+    const [isEvaluationLoading, setIsEvaluationLoading] = useState(false);
+    const [evaluationError, setEvaluationError] = useState(false);
+    const [evaluationSoumise, setEvaluationSoumise] = useState(false);
+    const [scrollVersEvaluation, setScrollVersEvaluation] = useState(false);
+    const [scrollVersContrat, setScrollVersContrat] = useState(false);
+    const [evaluationDisponiblePourTest, setEvaluationDisponiblePourTest] = useState(false);
+    const evaluationRef = useRef(null);
+    const contratRef = useRef(null);
 
 
     const cvId = candidature?.cvId;
@@ -51,6 +64,58 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
         error,
         rechargerContrat
     } = useContrat(candidatureId,candidature.statut);
+
+    const chargerEvaluationPdf = useCallback(async (defilerVersEvaluation = false) => {
+        if (!candidatureId) return;
+
+        setIsEvaluationLoading(true);
+        setEvaluationError(false);
+        try {
+            const response = await obtenirEvaluationStagiairePDF(candidatureId, i18n.language || "fr");
+            const blob = await response.blob();
+            setEvaluationPdfBlobUrl(URL.createObjectURL(blob));
+            setEvaluationSoumise(true);
+            if (defilerVersEvaluation) setScrollVersEvaluation(true);
+        } catch (err) {
+            if (err?.status !== 404) {
+                console.error("Erreur lors du chargement du PDF de l'évaluation:", err);
+                setEvaluationError(true);
+            } else {
+                setEvaluationPdfBlobUrl(null);
+            }
+        } finally {
+            setIsEvaluationLoading(false);
+        }
+    }, [candidatureId, i18n.language]);
+
+    const evaluationEstDisponible = evaluationDisponiblePourTest || verifierDisponibiliteEvaluation(offer?.endDate);
+
+    useEffect(() => {
+        setEvaluationDisponiblePourTest(false);
+        setEvaluationSoumise(false);
+    }, [candidatureId]);
+
+    useEffect(() => {
+        if (candidature?.statut === "CONTRAT_CREE" && evaluationEstDisponible) {
+            chargerEvaluationPdf();
+        }
+    }, [candidature?.statut, evaluationEstDisponible, chargerEvaluationPdf]);
+
+    useEffect(() => {
+        if (!scrollVersEvaluation || !evaluationPdfBlobUrl) return;
+        evaluationRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        setScrollVersEvaluation(false);
+    }, [scrollVersEvaluation, evaluationPdfBlobUrl]);
+
+    useEffect(() => {
+        if (!scrollVersContrat || !contrat?.dateSignatureEmployeur) return;
+        contratRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        setScrollVersContrat(false);
+    }, [scrollVersContrat, contrat?.dateSignatureEmployeur]);
+
+    useEffect(() => () => {
+        if (evaluationPdfBlobUrl) URL.revokeObjectURL(evaluationPdfBlobUrl);
+    }, [evaluationPdfBlobUrl]);
 
     useEffect(() => {
         if (!contrat?.dateSignatureEmployeur || !user?.id || !candidatureId) return;
@@ -121,20 +186,40 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                     </div>
                 )}
             </div>
-            {candidature && <CandidatureTimeline statut={candidature.statut} statutEntrevue={decision?.statutEntrevue ?? statutEntrevue} regrouperEntrevue />}
+            {candidature && statutCandidatureEmployeur(candidature) !== "OFFRE_DECLINEE" && (
+                <CandidatureTimeline
+                    statut={candidature.statut}
+                    statutEntrevue={decisionActuelle?.statutEntrevue ?? statutEntrevue}
+                    regrouperEntrevue
+                    afficherEvaluation
+                    evaluationSoumise={evaluationSoumise}
+                    evaluationDisponible={candidature.statut === "CONTRAT_CREE" && evaluationEstDisponible}
+                />
+            )}
             {erreurEntrevue && <p role="alert" className="mx-6 text-sm text-red-700">{t("error.generic")}</p>}
 
             <div className="px-6 pb-6 pt-2 flex flex-col gap-6 max-w-5xl mx-auto w-full">
                 <NextAction
+                    key={candidatureSource?.id}
                     role={Role.EMPLOYEUR}
                     candidature={candidature}
-                    statutEntrevue={statutEntrevue}
+                    statutEntrevue={decisionActuelle?.statutEntrevue ?? statutEntrevue}
                     contrat={contrat}
                     offer={offer}
                     retourPath={retour}
-                    onProcessChange={setDecision}
-                    onSignatureSuccess={() => {
-                        rechargerContrat();
+                    onProcessChange={resultat => setDecision({ ...resultat, id: candidatureSource.id })}
+                    onEvaluationSubmitted={() => {
+                        setEvaluationSoumise(true);
+                        chargerEvaluationPdf(true);
+                    }}
+                    evaluationDejaSoumise={evaluationSoumise}
+                    evaluationEnChargement={isEvaluationLoading}
+                    evaluationDisponible={evaluationEstDisponible}
+                    evaluationDisponiblePourTest={evaluationDisponiblePourTest}
+                    onActiverDisponibiliteEvaluationPourTest={() => setEvaluationDisponiblePourTest(true)}
+                    onSignatureSuccess={async () => {
+                        await rechargerContrat();
+                        setScrollVersContrat(true);
                     }}
                 />
 
@@ -167,7 +252,7 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                 </div>
 
                 {hasContrat && (
-                    <div className="w-full">
+                    <div className="w-full" ref={contratRef}>
                         <div className="collapse collapse-arrow bg-transparent">
                             <input type="checkbox" className="peer" defaultChecked />
 
@@ -190,6 +275,37 @@ function CandidatureDetails({ candidature: candidatureProp, offer: offerProp, us
                                             {t("offre.document_error")}
                                         </p>
                                     )}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {(evaluationPdfBlobUrl || isEvaluationLoading || evaluationError) && (
+                    <div className="w-full" ref={evaluationRef}>
+                        <div className="collapse collapse-arrow bg-transparent">
+                            <input type="checkbox" className="peer" defaultChecked />
+
+                            <div className="collapse-title text-xl font-bold text-[#043462] px-0">
+                                <span>{t("process.evaluation_view_title")}</span>
+                            </div>
+
+                            <div className="collapse-content transition-all duration-300 ease-in-out px-0">
+                                <div className="w-full bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                                    {isEvaluationLoading ? (
+                                        <div className="flex items-center justify-center p-12 bg-gray-50 rounded-xl">
+                                            <span className="loading loading-spinner loading-md text-[#043462]" />
+                                        </div>
+                                    ) : evaluationPdfBlobUrl ? (
+                                        <Suspense fallback={<div className="p-4 text-center">...</div>}>
+                                            <PDFContent cvUrlAAffiche={evaluationPdfBlobUrl} enablePageScroll={true} />
+                                        </Suspense>
+                                    ) : evaluationError ? (
+                                        <p role="alert" className="text-xs text-red-700 p-6 bg-red-50 rounded-xl text-center">
+                                            {t("error.generic")}
+                                        </p>
+                                    ) : null}
                                 </div>
                             </div>
                         </div>

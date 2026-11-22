@@ -104,7 +104,6 @@
   },
   "actions": {
     "evaluate_site": "Evaluate internship site",
-    "evaluate_intern": "Evaluate intern",
     "download": "Download",
     "view": "View",
     "delete": "Delete",
@@ -115,11 +114,11 @@
     "manage_status": "Manage status",
     "waiting": "Waiting for contract",
     "view_details": "View details",
-    "interview":"Select for interview",
+    "interview": "Select for interview",
     "active": "Active",
     "filter_by": "Filter by ",
     "reset_filters": "Reset filters",
-    "only_news" : "News Only",
+    "only_news": "News Only",
     "back": "Back",
     "close_interview": "Close interview",
     "backhome": "Back home",
@@ -135,6 +134,7 @@
     "expand": "Expand",
     "cancel" : "Cancel",
     "postuler": "Postuler",
+    "evaluate_intern": "Evaluate intern",
     "confirm": "Confirm"
   },
   "login": {
@@ -185,6 +185,9 @@
     "ADMINISTRATION_PUBLIQUE": "Public administration"
   },
   "error": {
+    "offer_declined": "This application is no longer available for this offer. You can still view it.",
+    "contract_manager_missing": "No manager is available to handle the contract. Your decision has not been saved.",
+    "stage_decision_invalid": "This decision is unavailable. Select an application accepted by the employer and make sure you have not already accepted another internship.",
     "decision_invalid": "Decision unavailable. Check that the interview is confirmed and completed.",
     "stage_declaration_invalid": "Choose an accepted application. You cannot declare another internship if you have already chosen one.",
     "refusal_reason_invalid": "Please provide a non-blank refusal reason of no more than 1,000 characters.",
@@ -235,16 +238,26 @@
     "welcome": "Welcome"
   },
   "dashboard": {
+    "cv_uploaded_on": "Uploaded on",
+    "offer_created_on": "Created on",
+    "remind_signatures": "Send signing reminder",
+    "reminder_sent": "Reminder sent to the pending signers.",
+    "no_signature_to_remind": "No pending signatures to remind.",
+    "process_started_since": "Process started on",
+    "started_date_unknown": "Start date unavailable",
+    "sort_contract_creation": "Sort by contract creation date",
+    "signing_started": "Process started",
+    "to_sign": "To sign",
     "view_created_contracts": "View created agreements",
     "view_candidature_details": "View application",
-    "view_contract": "Sign/View Contract",
+    "view_contract": "View contract",
     "contracts_to_create_count": "Contracts to create",
     "contracts_to_sign_count": "Contracts to sign",
     "contracts_signed_count": "Signed contracts",
     "contracts_to_create_title": "Contracts to Create",
     "contracts_to_sign_title": "Created Contracts / To Sign",
     "no_contracts_to_create": "No contracts to create at the moment.",
-    "no_contracts_to_sign": "No contracts pending signature.",
+    "no_contracts_to_sign": "No contracts yet.",
     "pending_contracts_count": "Contracts pending creation",
     "contracts_pending_title": "Applications ready to start the contract signing process",
     "no_pending_contracts": "No applications pending a contract.",
@@ -274,7 +287,11 @@
     "view_cv": "View resume",
     "view_offer": "View offer",
     "view_more": "View more",
-    "view_less": "View less"
+    "view_less": "View less",
+    "contracts_title": "Contracts",
+    "sign_contract": "Sign",
+    "application_count": "{{count}} application",
+    "application_count_plural": "{{count}} applications"
   },
   "etudiant": {
     "assigned_professor": "Assigned professor",
@@ -306,12 +323,12 @@
       "information_stage": "Internship request",
       "aucune_candidature": "Internship search in progress...",
       "employeur": "Employer",
-      "poste" : "Position",
+      "poste": "Position",
       "voir_detail": "View details",
       "voir_entrevue": "View internship applications",
-      "date_application" : "Applied on",
-      "candidatures_etudiant_titre" : "{{prenom}} {{nom}}'s applications",
-      "voir_etudiants" : "View all students"
+      "date_application": "Applied on",
+      "candidatures_etudiant_titre": "{{prenom}} {{nom}}'s applications",
+      "voir_etudiants": "View all students"
     },
     "contrat_detail": {
       "title": "Contract details"
@@ -335,27 +352,28 @@
       "cvs": "Review student resumes. Approve, reject, or provide guidance."
     },
     "assignation": {
-      "title" : "Teacher Assignment",
-      "description_without_teacher" : "Select a teacher to begin student assignment",
-      "description_with_teacher" : "Select the students to be assigned to this teacher",
-      "professeur" : {
+      "title": "Teacher Assignment",
+      "description_without_teacher": "Select a teacher to begin student assignment",
+      "description_with_teacher": "Select the students to be assigned to this teacher",
+      "professeur": {
         "professeur_without_name": "This teacher has no name",
-        "professeur_without_department" : "This teacher has no department",
-        "professeur_without_email" : "This teacher has no email",
+        "professeur_without_department": "This teacher has no department",
+        "professeur_without_email": "This teacher has no email",
         "nb_student_assign": "Assigned students",
-        "professeur_is_selected" : "Selected",
+        "professeur_is_selected": "Selected",
         "professeur_modal_title": "Would you really like to change the teacher ?",
         "professeur_modal_description": "All selected students will be removed. Do you want to continue?"
       },
       "select": {
-        "professor" : "Choose a teacher",
-        "professorSelected" : "You have selected this teacher",
+        "professor": "Choose a teacher",
+        "professorSelected": "You have selected this teacher",
         "anotherProfessor": "Click to choose another teacher",
-        "warningAnotherProfessor" : "Change the professor? This will clear the selected students.",
+        "warningAnotherProfessor": "Change the professor? This will clear the selected students.",
         "student": "Choose the students who will be assigned to: {{prenom}} {{nom}}",
-        "finishToSelect" : "Have you finished selecting the students? Click the \"Assign\" button in the student list.",        "studentList" : {
-          "title" : "Selected Students",
-          "empty" : "No students selected"
+        "finishToSelect": "Have you finished selecting the students? Click the \"Assign\" button in the student list.",
+        "studentList": {
+          "title": "Selected Students",
+          "empty": "No students selected"
         }
       },
       "etudiant": {
@@ -494,15 +512,15 @@
       "dont_forget_CV": "Please, don't forget to upload your CV !"
     }
   },
-  "resume_offers" : {
+  "resume_offers": {
     "offers_section": "Offer details",
-    "offers_sous_section" : {
-      "title" : "Title",
+    "offers_sous_section": {
+      "title": "Title",
       "salaire": "Salary",
       "salaire_value": "{{salary}}$/Hour",
-      "description" : "description",
+      "description": "description",
       "start_date": "Internship start date",
-      "format_date" : "(AAAA-MM-JJ)",
+      "format_date": "(AAAA-MM-JJ)",
       "end_date": "Internship end date",
       "pdf": "Offer Preview"
     },
@@ -531,8 +549,14 @@
     }
   },
   "candidature": {
+    "offer_declined_description": "This application is no longer available for this offer. You can still view it.",
+    "application_status": "Application status",
+    "active_applications": "Active applications",
     "view_contract": "View contract",
     "actions_disabled": "Actions disabled",
+    "actions_filter": "Application actions",
+    "actions_all": "All",
+    "actions_enabled": "Actions enabled",
     "actions_disabled_description": "A final internship has already been selected for this student. You can still view this application, but it can no longer be changed.",
     "final_stage_selected": "Final internship selected",
     "final_stage_declared": "Final internship declared",
@@ -557,14 +581,18 @@
     "search_placeholder": "Search applications…",
     "none": "No applications for now.",
     "status": {
+      "evaluation": "Evaluation",
+      "evaluation_a_remplir": "Evaluation to complete",
+      "evaluation_soumise": "Evaluation submitted",
+      "offre_declinee": "Offer declined",
       "contrat": "Agreement",
       "contrat_signe": "Signed agreement",
       "stage_trouve": "Internship found",
       "soumise": "Application submitted",
       "retenue": "Selected for interview",
-      "retenue_pour_entrevue" : "Selected for interview",
+      "retenue_pour_entrevue": "Selected for interview",
       "planifiee": "Interview scheduled",
-      "entrevue_planifiee" : "Interview scheduled",
+      "entrevue_planifiee": "Interview scheduled",
       "confirmee": "Interview confirmed",
       "entrevue_refusee": "Interview declined",
       "refusee": "Application rejected",
@@ -614,6 +642,10 @@
         "title": "Internship chosen by the student",
         "description": "{{ETUDIANT_NOM}} has chosen your offer “{{OFFRE_TITRE}}” for their internship."
       },
+      "evaluationStage": {
+        "title": "Internship evaluation due",
+        "description": "{{ETUDIANT_NOM}}'s internship for “{{OFFRE_TITRE}}” is ending soon. Please evaluate the internship."
+      },
       "convocationAcceptee": {
         "title": "Interview invitation accepted",
         "description": "{{ETUDIANT_NOM}} has confirmed attendance at the interview for the {{OFFRE_TITRE}} position."
@@ -628,6 +660,10 @@
       }
     },
     "gestionnaire": {
+      "signatureDemarree": {
+        "title": "Contract signing process started",
+        "description": "The contract for {{ETUDIANT_NOM}} for “{{OFFRE_TITRE}}” has been created. The student and employer must sign it before your signature is required."
+      },
       "contratASigner": {
         "title": "Contract awaiting your signature",
         "description": "{{ETUDIANT_NOM}} and the employer have signed the contract for “{{OFFRE_TITRE}}”. Your signature is now required."
@@ -670,7 +706,8 @@
       },
       "assignation": {
         "title": "A teacher has been assigned to you",
-        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"      }
+        "description": "{{PROFESSEUR_NOM}} has been assigned to you as your tutor teacher"
+      }
     },
     "teacher": {
       "assignation": {
@@ -750,7 +787,7 @@
     "format": "Format",
     "date": "Date",
     "time": "Time",
-    "reject" : "Reject",
+    "reject": "Reject",
     "confirm_refusal": "Confirm decline",
     "refusal_confirmation": "Do you want to decline this interview invitation? The employer will be notified of your decision.",
     "refusal_reason": "Reason for declining",
@@ -758,8 +795,8 @@
     "refusal_reason_too_long": "The reason must not exceed 500 characters.",
     "refused_message": "You declined this interview invitation.",
     "refused_by_student": "The student declined this interview invitation.",
-    "accept" : "Accept",
-    "back" : "Back",
+    "accept": "Accept",
+    "back": "Back",
     "scheduled": "Interview scheduled",
     "confirmed": "Confirmed",
     "attendance_confirmed": "Your attendance at this interview is confirmed.",
@@ -774,6 +811,7 @@
     }
   },
   "process": {
+    "action_wait_student_response": "The application is accepted. The student must now accept or decline the internship.",
     "manager_signed": "Signed by the coordinator",
     "title": "Internship and Contract Process Tracking",
     "cv": "Curriculum Vitae",
@@ -783,8 +821,8 @@
     "no_interview": "No interview scheduled",
     "stage_found": "Application status",
     "contract_signatures": "Contract Process",
-    "employer_signed": "Employer",
-    "student_signed": "Student",
+    "employer_signed": "Signed by the employer",
+    "student_signed": "Signed by the student",
     "not_started": "Process not started",
     "start_button": "Start the signature process",
     "sign_button": "Sign the contract",
@@ -793,12 +831,13 @@
     "start_error": "Error while starting the process",
     "sign_error": "Error while signing the contract",
     "no_signature": "No signature",
-    "no_contrat": "No created contract, click on start signature process ",
+    "no_contrat": "The contract will be available automatically after the student accepts the internship.",
     "waiting_parties_signatures": "Employer and student must sign first",
     "contract_signed_title": "Contract signed",
     "action_student_sign_contract": "The agreement is ready. Review it, then sign it to continue the process.",
     "action_default_student": "Check your application progress for the next step.",
     "next_action_title": "Next required action",
+    "simulate_evaluation_availability": "Test availability 2 weeks before the end",
     "action_contract_signed_msg": "The contract was signed on",
     "action_review_cv": "The candidate has submitted their application. Review their CV and retain them for an interview.",
     "action_plan_interview": "The candidate has been retained. Schedule the interview now.",
@@ -810,9 +849,11 @@
     "action_wait_contract": "The internship has been found. Waiting for the internship contract to be created.",
     "action_wait_student_declaration": "The application is accepted. The student must declare their internship found before the contract can be created.",
     "action_sign_contract": "The internship contract has been created. Please proceed with the signature.",
+    "action_evaluate_intern": "The evaluation is available during the final two weeks of the internship.",
     "action_default": "Application process tracking in progress.",
-    "cv_view_title" : "Student CV",
-    "contract_view_title" : "Internship Agreement"
+    "cv_view_title": "Student CV",
+    "contract_view_title": "Internship Agreement",
+    "evaluation_view_title": "Intern Evaluation"
   },
   "sort": {
     "by_date": "Sort by date",
@@ -828,15 +869,15 @@
     "nom": "Name",
     "departement": "Department",
     "matricule": "Matricule",
-    "email" : "Email",
-    "phone" : "Phone Number",
-    "town" : "Town",
-    "description" : "Description",
-    "liste" : {
-      "open" : "Open the list",
-      "close" : "Close the list",
-      "title" : "List",
-      "empty" : "The list is empty"
+    "email": "Email",
+    "phone": "Phone Number",
+    "town": "Town",
+    "description": "Description",
+    "liste": {
+      "open": "Open the list",
+      "close": "Close the list",
+      "title": "List",
+      "empty": "The list is empty"
     }
   },
   "session": {
@@ -865,6 +906,190 @@
     "preferences": "Preferences",
     "theme": "Theme",
     "language": "Language"
+  },
+  "stage": {
+    "accept": "Accept internship",
+    "refuse": "Decline internship",
+    "accept_title": "Confirm internship acceptance",
+    "refuse_title": "Decline this internship?",
+    "accept_description": "Your status will change to “Internship found” and the contract will be created automatically for signatures.",
+    "refuse_description": "This offer will be declined and your reserved place will be released. You can continue your internship search.",
+    "lock_warning": "After confirmation, actions on your other applications and interviews will be disabled. You will still be able to view your information and sign the selected internship contract.",
+    "refused_by_student": "Internship declined by the student.",
+    "refused_notification_title": "A student declined the internship",
+    "refused_notification_description": "{{ETUDIANT_NOM}} declined the internship {{OFFRE_TITRE}}. A place is available again."
+  },
+  "evaluation": {
+    "title": "Intern Evaluation",
+    "success": "The intern evaluation was submitted successfully.",
+    "sections": {
+      "supervisor": "Supervisor Information",
+      "productivite": "Productivity",
+      "qualiteTravail": "Quality of Work",
+      "qualiteSociale": "Interpersonal Relationships",
+      "habiletesPersonnelles": "Personal Skills",
+      "overall": "Overall Evaluation of the Intern"
+    },
+    "subtitles": {
+      "productivite": "Ability to optimize work performance",
+      "qualiteTravail": "Ability to fulfill responsibilities while maintaining high quality standards",
+      "qualiteSociale": "Ability to establish harmonious relationships in the workplace",
+      "habiletesPersonnelles": "Ability to demonstrate mature and responsible attitudes and behaviors"
+    },
+    "fields": {
+      "supervisorFirstName": "Supervisor First Name",
+      "supervisorLastName": "Supervisor Last Name",
+      "supervisorRole": "Job Title",
+      "supervisorPhone": "Phone Number",
+      "comments": "Comments",
+      "overallRating": "Overall Assessment",
+      "overallComments": "Specify your assessment",
+      "discussedWithIntern": "Was this evaluation discussed with the intern?",
+      "supervisionHours": "Actual number of supervision hours per week",
+      "welcomeAgain": "Would the company like to host this intern for their next internship?",
+      "trainingSufficient": "Was the intern’s technical training sufficient to carry out the internship assignment?"
+    },
+    "criteria": {
+      "planificationScore": "Plan and organize work effectively",
+      "comprehensionScore": "Quickly understand instructions related to the work",
+      "rythmeScore": "Maintain a steady work pace",
+      "prioriteScore": "Set priorities",
+      "echeancierScore": "Meet deadlines",
+      "completeTaskScore": "Complete assigned responsibilities",
+      "minutieScore": "Pay attention to detail when performing tasks",
+      "checkBoxScore": "Review work and ensure nothing has been overlooked",
+      "perfectionnementResearchScore": "Seek opportunities for improvement",
+      "analystScore": "Effectively analyze problems encountered",
+      "socialScore": "Easily establish contact with others",
+      "teamWorkScore": "Actively contribute to teamwork",
+      "adaptationScore": "Adapt easily to the company culture",
+      "critiqueAcceptationScore": "Accept constructive criticism",
+      "respectScore": "Show respect for others",
+      "listenScore": "Listen actively and try to understand others’ points of view",
+      "motivationScore": "Show interest and motivation at work",
+      "tellIdeaScore": "Express ideas clearly",
+      "initiativeScore": "Show initiative",
+      "securityScore": "Work safely",
+      "responsabiliteScore": "Show responsibility and require minimal supervision",
+      "ponctuelScore": "Be punctual and conscientious"
+    },
+    "levels": {
+      "1": "Strongly disagree",
+      "2": "Somewhat disagree",
+      "3": "Somewhat agree",
+      "4": "Strongly agree",
+      "NA": "N/A — Not applicable"
+    },
+    "overallLevels": {
+      "5": "Demonstrated skills far exceed expectations",
+      "4": "Demonstrated skills exceed expectations",
+      "3": "Demonstrated skills fully meet expectations",
+      "2": "Demonstrated skills partially meet expectations",
+      "1": "Demonstrated skills do not meet expectations"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "maybe": "Maybe"
+    },
+    "required": "Complete all required fields and answer every question.",
+    "confirm_description": "Review your answers before submitting the evaluation.",
+    "submit": "Submit Evaluation"
+  },
+  "chatbot": {
+    "errors": {
+      "question_required": "The question must not be empty.",
+      "access_denied": "Access to the chatbot is denied."
+    },
+    "titre": "IKey Assistant",
+    "placeholder": "Ask your question...",
+    "thinking": "Assistant is thinking...",
+    "sousTitreEtudiant": "Student Assistant",
+    "sousTitreEmployeur": "Employer Assistant",
+    "sousTitreGestionnaire": "Internship Manager",
+    "initialEtudiant": "Hello! I am your student assistant. 👋\nAsk me a question about your resume, internship offers, or applications.",
+    "initialEmployeur": "Hello! I am your employer assistant. 👋\nAsk me a question about your internship offers, candidates, or contracts.",
+    "initialGestionnaire": "Hello! I am your internship management assistant.\nAsk me a question or choose a suggestion below.",
+    "sousTitreProfesseur": "Professor Assistant",
+    "initialProfesseur": "Hello! I am your professor assistant. 👋\nAsk me about your assigned students, their applications, interviews or internships.",
+    "suggestions": {
+      "etudiant": [
+        {
+          "label": "Has my resume been approved?",
+          "query": "Has my resume been approved?"
+        },
+        {
+          "label": "What internship offers are available for me?",
+          "query": "What internship offers are available for me?"
+        },
+        {
+          "label": "Have I received any new offers?",
+          "query": "Have I received any new offers?"
+        },
+        {
+          "label": "Who is my assigned professor?",
+          "query": "Who is my assigned professor?"
+        }
+      ],
+      "employeur": [
+        {
+          "label": "What internship offers have I published?",
+          "query": "What internship offers have I published?"
+        },
+        {
+          "label": "What applications have I received?",
+          "query": "What applications have I received?"
+        },
+        {
+          "label": "What are my upcoming interviews?",
+          "query": "What are my upcoming interviews?"
+        },
+        {
+          "label": "Which contracts are awaiting my signature?",
+          "query": "Which contracts are awaiting my signature?"
+        }
+      ],
+      "gestionnaire": [
+        {
+          "label": "How many students are enrolled?",
+          "query": "How many students are enrolled?"
+        },
+        {
+          "label": "Which resumes are waiting for validation?",
+          "query": "Which resumes are waiting for validation?"
+        },
+        {
+          "label": "Which contracts are awaiting my signature?",
+          "query": "Which contracts are awaiting my signature?"
+        },
+        {
+          "label": "How many students have found an internship?",
+          "query": "How many students have found an internship?"
+        }
+      ],
+      "professeur": [
+        {
+          "label": "Which students are assigned to me?",
+          "query": "Which students are assigned to me?"
+        },
+        {
+          "label": "Which students are still looking for an internship?",
+          "query": "Which students are still looking for an internship?"
+        },
+        {
+          "label": "Which students have an interview this week?",
+          "query": "Which students have an interview this week?"
+        },
+        {
+          "label": "Which companies should I visit?",
+          "query": "Which companies should I visit?"
+        },
+        {
+          "label": "Do I have unread notifications?",
+          "query": "Do I have unread notifications?"
+        }
+      ]
+    }
   },
   "evaluation": {
     "title": "Internship site evaluation",

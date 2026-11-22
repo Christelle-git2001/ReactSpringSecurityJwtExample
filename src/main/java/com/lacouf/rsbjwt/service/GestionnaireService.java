@@ -1,6 +1,41 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.candidature.StageDejaTrouveException;
+import com.lacouf.rsbjwt.exception.candidature.StatutCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.commun.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAvantDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratExistantException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonEnAttente;
+import com.lacouf.rsbjwt.exception.entrevue.EntrevueIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.commun.DepartementDTO;
+import com.lacouf.rsbjwt.service.dto.commun.SecteurEmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.AssignationProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.GestionnaireDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
@@ -10,10 +45,7 @@ import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 import com.lacouf.rsbjwt.model.event.*;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
-import com.lacouf.rsbjwt.service.dto.*;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
-import io.jsonwebtoken.impl.security.EdwardsCurve;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,10 +79,11 @@ public class GestionnaireService {
     private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
     private final SessionService sessionService;
+    private final NotificationService notificationService;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService, NotificationService notificationService){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -65,6 +98,7 @@ public class GestionnaireService {
         this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
         this.sessionService = sessionService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -127,6 +161,7 @@ public class GestionnaireService {
         }
 
         offre.setStatut(Statut.ACCEPTEE);
+        offre.setApprovedAt(LocalDateTime.now());
         offre.setRejectionComment(null);
 
         OffreDeStage offreEnregistree = offreDeStageRepository.save(offre);
@@ -451,7 +486,7 @@ public class GestionnaireService {
     }
 
     @Transactional
-    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException{
+    public ContratDTO signerContrat(Long contratId, String motDePasse) throws ContratIntrouvableException, UtilisateurIntrouvableException, MotDePasseInvalideException {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -475,5 +510,21 @@ public class GestionnaireService {
         applicationEventPublisher.publishEvent(new ContratSigneEvent(saved));
 
         return ContratDTO.of(saved);
+    }
+
+    @Transactional
+    public int rappelerSignatureContrat(Long contratId) throws ContratIntrouvableException, UtilisateurIntrouvableException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        userAppRepository.findUserAppByEmail(email)
+                .filter(Gestionnaire.class::isInstance)
+                .orElseThrow(UtilisateurIntrouvableException::new);
+        Contrat contrat = contratRepository.findById(contratId).orElseThrow(ContratIntrouvableException::new);
+        int rappels = (contrat.getDateSignatureEtudiant() == null ? 1 : 0)
+                + (contrat.getDateSignatureEmployeur() == null ? 1 : 0);
+        if (contrat.getDateSignatureGestionnaire() == null && rappels > 0) {
+            notificationService.rappelerSignatureContrat(contrat);
+            return rappels;
+        }
+        return 0;
     }
 }

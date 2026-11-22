@@ -1,16 +1,15 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.ContratIntrouvableException;
-import com.lacouf.rsbjwt.Exception.EvaluationStagiaireIntrouvable;
-import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
+import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
+import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Evaluation.*;
-import com.lacouf.rsbjwt.model.auth.Credentials;
 import com.lacouf.rsbjwt.repository.ContratRepository;
-import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
-import com.lacouf.rsbjwt.service.dto.CreationOffreDeStageDTO;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
@@ -289,8 +288,7 @@ class PDFServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
-        );
+                LocalDate.now().plusDays(7));
 
         Resource result = pdfService.createOffreDeStagePdf(dto, employeur);
 
@@ -307,8 +305,7 @@ class PDFServiceTest {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
-        );
+                LocalDate.now().plusDays(7));
 
         Resource result = pdfService.createOffreDeStagePdf(dto, null);
 

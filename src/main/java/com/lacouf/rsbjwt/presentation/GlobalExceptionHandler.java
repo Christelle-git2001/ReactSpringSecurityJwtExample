@@ -1,12 +1,57 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
+import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.candidature.DeclarationStageInvalideException;
+import com.lacouf.rsbjwt.exception.candidature.StageDejaTrouveException;
+import com.lacouf.rsbjwt.exception.candidature.StatutCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.chatbot.AccesChatbotRefuseException;
+import com.lacouf.rsbjwt.exception.chatbot.QuestionChatbotInvalideException;
+import com.lacouf.rsbjwt.exception.commun.CommentaireRefusObligatoireException;
+import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAvantDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonEnAttente;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationExistanteException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationInvalideException;
+import com.lacouf.rsbjwt.exception.entrevue.DecisionCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.entrevue.MotifRefusInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.notification.NotificationNonTrouvee;
+import com.lacouf.rsbjwt.exception.offre.OffreDeStageIndisponibleException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.exception.utilisateur.AucunRoleDefini;
+import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeNonConforme;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.commun.ErreurDTO;
 import com.lacouf.rsbjwt.security.exception.APIException;
 import com.lacouf.rsbjwt.security.exception.AuthenticationException;
 import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
-import com.lacouf.rsbjwt.service.dto.ErreurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.tool.execution.ToolExecutionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -314,6 +359,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(DecisionStageInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleDecisionStageInvalideException(
+            DecisionStageInvalideException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(CreationContratImpossibleException.class)
+    public ResponseEntity<ErreurDTO> handleGestionnaireManquant(
+            CreationContratImpossibleException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
+    }
+
     @ExceptionHandler(DeclarationStageInvalideException.class)
     public ResponseEntity<ErreurDTO> handleDeclarationStageInvalideException(DeclarationStageInvalideException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
@@ -328,6 +385,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErreurDTO> handleStageDejaTrouveException(Exception e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErreurDTO(e.getMessage()));
     }
+
     @ExceptionHandler(MotDePasseInvalideException.class)
     public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
             MotDePasseInvalideException e) {
@@ -336,6 +394,27 @@ public class GlobalExceptionHandler {
                 .body(new ErreurDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(ParametreDonneesInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleParametreDonneesInvalide(ParametreDonneesInvalideException e) {
+        return ResponseEntity.badRequest().body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(ToolExecutionException.class)
+    public ResponseEntity<ErreurDTO> handleErreurExecutionOutil(ToolExecutionException e) {
+        logger.error("Erreur interne pendant un appel d'outil du chatbot", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErreurDTO("chatbot.errors.technical_error"));
+    }
+
+    @ExceptionHandler(QuestionChatbotInvalideException.class)
+    public ResponseEntity<ErreurDTO> handleQuestionChatbotInvalide(QuestionChatbotInvalideException e) {
+        return ResponseEntity.badRequest().body(new ErreurDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(AccesChatbotRefuseException.class)
+    public ResponseEntity<ErreurDTO> handleAccesChatbotRefuse(AccesChatbotRefuseException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErreurDTO(e.getMessage()));
+    }
     @ExceptionHandler(EvaluationStagiaireIntrouvable.class)
     public ResponseEntity<ErreurDTO> handleMotDePasseInvalideException(
             EvaluationStagiaireIntrouvable e) {

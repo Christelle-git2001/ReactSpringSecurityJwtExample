@@ -1,17 +1,24 @@
 package com.lacouf.rsbjwt.service;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
-import com.lacouf.rsbjwt.service.dto.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
-import com.lacouf.rsbjwt.service.dto.InscriptionProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.ProfesseurDTO;
-import com.lacouf.rsbjwt.service.dto.ResumeStageEtudiantDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +39,6 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lacouf.rsbjwt.model.Enum.Saison;
-import com.lacouf.rsbjwt.service.dto.SessionDTO;
 
 
 import static org.mockito.Mockito.when;

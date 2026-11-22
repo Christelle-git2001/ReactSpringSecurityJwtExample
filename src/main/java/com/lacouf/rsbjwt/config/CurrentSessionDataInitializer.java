@@ -1,12 +1,16 @@
 package com.lacouf.rsbjwt.config;
 
-import com.lacouf.rsbjwt.Exception.DateFinAffichageApresDateDebutException;
-import com.lacouf.rsbjwt.Exception.EmployeurIntrouvable;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.CreationEntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.*;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmployeurIntrouvable;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.*;
-import com.lacouf.rsbjwt.service.dto.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
@@ -21,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Order(2)
@@ -37,10 +42,12 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
     private final CvEtudiantRepository cvEtudiantRepository;
     private final ProfesseurService professeurService;
     private final CandidatureRepository candidatureRepository;
+    private final ContratRepository contratRepository;
     private final EntrevueRepository entrevueRepository;
     private final PDFService pdfService;
     private final InscriptionRepository inscriptionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfesseurRepository professeurRepository;
 
     public CurrentSessionDataInitializer(
             GestionnaireRepository gestionnaireRepository,
@@ -54,11 +61,12 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             CvEtudiantRepository cvEtudiantRepository,
             ProfesseurService professeurService,
             CandidatureRepository candidatureRepository,
+            ContratRepository contratRepository,
             EntrevueRepository entrevueRepository,
             PDFService pdfService,
             InscriptionRepository inscriptionRepository,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder,
+            ProfesseurRepository professeurRepository) {
         this.gestionnaireRepository = gestionnaireRepository;
         this.etudiantRepository = etudiantRepository;
         this.environment = environment;
@@ -70,10 +78,12 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.professeurService = professeurService;
         this.candidatureRepository = candidatureRepository;
+        this.contratRepository = contratRepository;
         this.entrevueRepository = entrevueRepository;
         this.pdfService = pdfService;
         this.inscriptionRepository = inscriptionRepository;
         this.passwordEncoder = passwordEncoder;
+        this.professeurRepository = professeurRepository;
     }
 
     @Override
@@ -183,8 +193,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(10),
                 LocalDate.now().plusMonths(3),
-                LocalDate.now().plusDays(7)
-        );
+                LocalDate.now().plusDays(7));
 
         CreationOffreDeStageDTO dto2 = new CreationOffreDeStageDTO(
                 "Technicien Support Informatique",
@@ -193,10 +202,27 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
                 Departement.INFORMATIQUE,
                 LocalDate.now().plusDays(5),
                 LocalDate.now().plusMonths(2),
-                LocalDate.now().plusDays(3)
-        );
+                LocalDate.now().plusDays(3));
 
         Employeur employeur = employeurRepository.findByEmail(employeurEmail).orElseThrow(EmployeurIntrouvable::new);
+
+        for (CreationOffreDeStageDTO offreDemo : List.of(
+                new CreationOffreDeStageDTO("Développeur Java", "Développement d'API Java et Spring Boot.",
+                        24.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30)),
+                new CreationOffreDeStageDTO("Développeur React", "Développement d'interfaces React et intégration d'API.",
+                        23.0, Departement.INFORMATIQUE, LocalDate.now().plusDays(45),
+                        LocalDate.now().plusMonths(4), LocalDate.now().plusDays(30)))) {
+            boolean dejaCreee = offreDeStageRepository.findAll().stream().anyMatch(offre ->
+                    offre.getTitle().equals(offreDemo.title()) && offre.getEmployeur() != null
+                            && offre.getEmployeur().getId().equals(employeur.getId()));
+            if (!dejaCreee) {
+                MultipartFile pdf = new MockMultipartFile("file", "offre.pdf", "application/pdf",
+                        pdfService.createOffreDeStagePdf(offreDemo, employeur).getInputStream());
+                OffreDeStageDTO offreCreee = employeurService.creerOffre(offreDemo, pdf, employeurEmail);
+                gestionnaireService.approuverOffre(offreCreee.id());
+            }
+        }
 
         MultipartFile realOffre1 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto1, employeur).getInputStream());
         MultipartFile realOffre2 = new MockMultipartFile("file", "offre.pdf", "application/pdf", pdfService.createOffreDeStagePdf(dto2, employeur).getInputStream());
@@ -322,11 +348,15 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             } catch (Exception ignored) {}
         }
 
+        gestionnaireService.assignerProfesseur(professeurRepository.getProfesseurByMatricule("9325645").getId(), new AssignationProfesseurDTO(List.of(etudiantRepository.findByMatricule("2222222").get().getId())));
+
         SecurityContextHolder.clearContext();
 
         if (candidatureSarko != null) {
             try { preparerStageTrouve(candidatureSarko.getId()); } catch (Exception ignored) {}
         }
+        preparerCandidaturePourEvaluation(etudiantSarkoObj, employeur);
+
 
         // Juzo (Inscrit Automne 2026)
         String emailJuzoSuzuya = "Juzo.Suzuya@gmail.com";
@@ -354,6 +384,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
 
         Candidature candidatureJuzo = candidatureRepository.findAll().stream()
                 .filter(c -> c.getEtudiant().getEmail().equals(emailJuzoSuzuya))
+                .filter(c -> finalTechSuppInfo != null && c.getOffreDeStage().getId().equals(finalTechSuppInfo.id()))
                 .findFirst()
                 .orElse(null);
 
@@ -379,7 +410,165 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         SecurityContextHolder.clearContext();
 
         if (candidatureJuzo != null) {
-            try { preparerStageTrouve(candidatureJuzo.getId()); } catch (Exception ignored) {}
+            try {
+                preparerStageTrouve(candidatureJuzo.getId());
+                etudiantService.demarrerContratStageTrouve(candidatureJuzo.getId());
+            } catch (Exception ignored) {}
+        }
+
+        //Jacob Frye (Entrevue passée)
+        String emailJacobFrye = "Jacob.Frye@gmail.com";
+        if (etudiantRepository.findByMatricule("4444444").isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantJacobDTO = new InscriptionEtudiantDTO(
+                        "Jacob",
+                        "Frye",
+                        "450-555-5525",
+                        emailJacobFrye,
+                        "4444444",
+                        Departement.INFORMATIQUE.name(),
+                        "a",
+                        "a"
+                );
+                etudiantService.creerCompteEtudiant(etudiantJacobDTO);
+            } catch (Exception ignored) {}
+        }
+        ajouterInscriptionSecurisee("4444444", Saison.AUTOMNE, 2026);
+        Etudiant etudiantJacobObj = etudiantRepository.findByMatricule("4444444").orElseThrow();
+
+        try {
+            MultipartFile realCvJacob = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantJacobObj).getInputStream());
+            CvEtudiantDTO jacobFryeCvDTO = etudiantService.televerserCv(realCvJacob, emailJacobFrye);
+            gestionnaireService.approuverCurriculumVitae(jacobFryeCvDTO.id());
+        } catch (Exception ignored) {}
+
+        if (devWebJr != null) {
+            try { etudiantService.postuler(devWebJr.id(), emailJacobFrye); } catch (Exception ignored) {}
+        }
+
+        Candidature candidatureJacob = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailJacobFrye))
+                .findFirst()
+                .orElse(null);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+
+        if (candidatureJacob != null) {
+            try {
+                employeurService.retenirCandidaturePourEntrevue(candidatureJacob.getId());
+            } catch (Exception ignored) {}
+
+            try {
+                candidatureJacob.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+                candidatureRepository.save(candidatureJacob);
+            } catch (Exception ignored) {}
+
+            if (entrevueRepository.findByCandidatureId(candidatureJacob.getId()).isEmpty()) {
+                try {
+                    LocalDateTime dateEntrevueJacob = LocalDate.now().minusDays(2).atTime(14, 0);
+                    Entrevue entrevueJacob = Entrevue.builder()
+                            .candidature(candidatureJacob)
+                            .format(FormatEntrevue.EN_LIGNE)
+                            .dateHeureEntrevue(dateEntrevueJacob)
+                            .duree(30)
+                            .dateCreation(dateEntrevueJacob.minusDays(2))
+                            .build();
+
+                    entrevueJacob.setStatut(StatutEntrevue.CONFIRMEE);
+                    entrevueJacob.setDateConfirmation(dateEntrevueJacob.minusDays(1));
+                    entrevueJacob.setDateReponse(dateEntrevueJacob.minusDays(1));
+
+                    entrevueRepository.save(entrevueJacob);
+                } catch (Exception ignored) {}
+            }
+        }
+
+        SecurityContextHolder.clearContext();
+
+        if (candidatureJacob != null) {
+            try {
+                etudiantService.actualiserStatutEtudiant(candidatureJacob.getEtudiant());
+            } catch (Exception ignored) {}
+        }
+
+        //Sephiroth Frye (Entrevue passée)
+        String emailSephirothCrescent = "Sephiroth.Crescent@gmail.com";
+        String matriculeSephiroth = "1010101";
+        if (etudiantRepository.findByMatricule(matriculeSephiroth).isEmpty()) {
+            try {
+                InscriptionEtudiantDTO etudiantSephirothDTO = new InscriptionEtudiantDTO(
+                        "Sephiroth",
+                        "Crescent",
+                        "450-542-9658",
+                        emailSephirothCrescent,
+                        matriculeSephiroth,
+                        Departement.INFORMATIQUE.name(),
+                        "a",
+                        "a"
+                );
+                etudiantService.creerCompteEtudiant(etudiantSephirothDTO);
+            } catch (Exception ignored) {}
+        }
+        ajouterInscriptionSecurisee(matriculeSephiroth, Saison.AUTOMNE, 2026);
+        Etudiant etudiantSephirothObj = etudiantRepository.findByMatricule(matriculeSephiroth).orElseThrow();
+
+        try {
+            MultipartFile realCvSephiroth = new MockMultipartFile("file", "cv.pdf", "application/pdf", pdfService.createCvPdf(etudiantSephirothObj).getInputStream());
+            CvEtudiantDTO SephirothCvDTO = etudiantService.televerserCv(realCvSephiroth, emailSephirothCrescent);
+            gestionnaireService.approuverCurriculumVitae(SephirothCvDTO.id());
+        } catch (Exception ignored) {}
+
+        if (devWebJr != null) {
+            try { etudiantService.postuler(devWebJr.id(), emailSephirothCrescent); } catch (Exception ignored) {}
+        }
+
+        Candidature candidatureSephiroth = candidatureRepository.findAll().stream()
+                .filter(c -> c.getEtudiant().getEmail().equals(emailSephirothCrescent))
+                .findFirst()
+                .orElse(null);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(employeurEmail, "password", Collections.emptyList())
+        );
+
+        if (candidatureSephiroth != null) {
+            try {
+                employeurService.retenirCandidaturePourEntrevue(candidatureSephiroth.getId());
+            } catch (Exception ignored) {}
+
+            try {
+                candidatureSephiroth.setStatut(StatutCandidature.ENTREVUE_PLANIFIEE);
+                candidatureRepository.save(candidatureSephiroth);
+            } catch (Exception ignored) {}
+
+            if (entrevueRepository.findByCandidatureId(candidatureSephiroth.getId()).isEmpty()) {
+                try {
+                    LocalDateTime dateEntrevueSephiroth = LocalDate.now().minusDays(2).atTime(14, 0);
+                    Entrevue entrevueSephiroth = Entrevue.builder()
+                            .candidature(candidatureSephiroth)
+                            .format(FormatEntrevue.EN_LIGNE)
+                            .dateHeureEntrevue(dateEntrevueSephiroth)
+                            .duree(30)
+                            .dateCreation(dateEntrevueSephiroth.minusDays(2))
+                            .build();
+
+                    entrevueSephiroth.setStatut(StatutEntrevue.CONFIRMEE);
+                    entrevueSephiroth.setDateConfirmation(dateEntrevueSephiroth.minusDays(1));
+                    entrevueSephiroth.setDateReponse(dateEntrevueSephiroth.minusDays(1));
+
+                    entrevueRepository.save(entrevueSephiroth);
+                } catch (Exception ignored) {}
+            }
+        }
+
+        SecurityContextHolder.clearContext();
+
+        if (candidatureSephiroth != null) {
+            try {
+                etudiantService.actualiserStatutEtudiant(candidatureSephiroth.getEtudiant());
+            } catch (Exception ignored) {}
         }
     }
 
@@ -399,6 +588,65 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
             entrevue.setStatut(StatutEntrevue.TERMINEE);
             entrevueRepository.save(entrevue);
         }
+    }
+
+    private void preparerCandidaturePourEvaluation(Etudiant etudiant, Employeur employeur) {
+        LocalDate aujourdHui = LocalDate.now();
+        String titreOffre = "Soutien Informatique";
+        OffreDeStage offre = offreDeStageRepository.findAll().stream()
+                .filter(o -> titreOffre.equals(o.getTitle()))
+                .findFirst()
+                .orElseGet(() -> OffreDeStage.builder()
+                        .title(titreOffre)
+                        .description("Offre de démonstration pour tester la notification d'évaluation à deux semaines de la fin du stage.")
+                        .salary(20.0)
+                        .domain(Departement.INFORMATIQUE)
+                        .startDate(aujourdHui.minusMonths(3))
+                        .endDate(aujourdHui.plusDays(14))
+                        .displayEndDate(aujourdHui.minusDays(1))
+                        .statut(Statut.ACCEPTEE)
+                        .fileName("offre_test_evaluation.pdf")
+                        .storagePath("uploads/offres")
+                        .employeur(employeur)
+                        .rejectionComment("")
+                        .build());
+        offre.setStartDate(aujourdHui.minusMonths(3));
+        offre.setEndDate(aujourdHui.plusDays(14));
+        offre.setDisplayEndDate(aujourdHui.minusDays(1));
+        offre.setStatut(Statut.ACCEPTEE);
+        offre.setEmployeur(employeur);
+        offre = offreDeStageRepository.save(offre);
+
+        OffreDeStage offreFinale = offre;
+        Candidature candidature = candidatureRepository.findByOffreDeStage(offreFinale).stream()
+                .filter(c -> c.getEtudiant().getId().equals(etudiant.getId()))
+                .findFirst()
+                .orElseGet(() -> Candidature.builder()
+                        .etudiant(etudiant)
+                        .offreDeStage(offreFinale)
+                        .dateCandidature(LocalDateTime.now().minusMonths(3))
+                        .build());
+        candidature.setStatut(StatutCandidature.CONTRAT_CREE);
+        candidature = candidatureRepository.save(candidature);
+
+        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setCandidatureStage(candidature);
+        etudiantRepository.save(etudiant);
+
+        Gestionnaire gestionnaire = gestionnaireRepository.findAll().stream().findFirst().orElse(null);
+        if (gestionnaire == null) return;
+
+        Candidature candidaturePourContrat = candidature;
+        Contrat contrat = contratRepository.findByCandidatureId(candidaturePourContrat.getId())
+                .orElseGet(() -> Contrat.builder()
+                        .candidature(candidaturePourContrat)
+                        .gestionnaire(gestionnaire)
+                        .build());
+        LocalDateTime dateSignature = LocalDateTime.now().minusDays(2);
+        if (contrat.getDateSignatureEtudiant() == null) contrat.setDateSignatureEtudiant(dateSignature);
+        if (contrat.getDateSignatureEmployeur() == null) contrat.setDateSignatureEmployeur(dateSignature);
+        if (contrat.getDateSignatureGestionnaire() == null) contrat.setDateSignatureGestionnaire(dateSignature);
+        contratRepository.save(contrat);
     }
 
     private void ajouterInscriptionSecurisee(String matricule, Saison saison, int annee) {

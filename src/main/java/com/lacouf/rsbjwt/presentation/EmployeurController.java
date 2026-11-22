@@ -1,8 +1,42 @@
 package com.lacouf.rsbjwt.presentation;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.dates.DateAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageApresDateDebutException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAffichageAvantAujourdhuiException;
+import com.lacouf.rsbjwt.exception.dates.DateFinAvantDateDebutException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationExistanteException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationInvalideException;
+import com.lacouf.rsbjwt.exception.entrevue.DecisionCandidatureInvalideException;
+import com.lacouf.rsbjwt.exception.entrevue.MotifRefusInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonEnAttenteException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.EvaluationStagiaireDTO;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.candidature.RefusCandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ConfirmationSignatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.CreationEntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEmployeurDTO;
 import com.lacouf.rsbjwt.service.EmployeurService;
-import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,13 +74,13 @@ public class EmployeurController {
             Principal principal
     ) throws IOException, DateFinAvantDateDebutException, FichierTypeInvalideException,
             FichierCorrompuException, FichierTropVolumineuxException, DateFinAffichageAvantAujourdhuiException,
-            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
+            DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UserNotFoundException {
         OffreDeStageDTO offreDTO = employeurService.creerOffre(dto, file, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(offreDTO);
     }
 
     @GetMapping("/offres")
-    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur() {
+    public ResponseEntity<List<OffreDeStageDTO>> obtenirOffresEmployeur() throws UserNotFoundException {
         List<OffreDeStageDTO> offres = employeurService.obtenirOffres();
         return ResponseEntity.ok(offres);
     }
@@ -74,7 +108,7 @@ public class EmployeurController {
     ) throws DateFinAvantDateDebutException,
             IOException, FichierTypeInvalideException, FichierCorrompuException, FichierTropVolumineuxException,
             OffreIntrouvableException, OffreNonAutoriseeException, OffreNonEnAttenteException,
-            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException {
+            DateFinAffichageAvantAujourdhuiException, DateFinAffichageApresDateDebutException, DateAvantAujourdhuiException, UserNotFoundException {
         OffreDeStageDTO offreDTO =
                 employeurService.modifierOffre(offreId, dto, file, principal.getName());
 
@@ -97,7 +131,7 @@ public class EmployeurController {
 
 
     @PutMapping("/candidatures/{candidatureId}")
-    public ResponseEntity<CandidatureDTO> RetenirCandidaturePourEntrevue(@PathVariable Long candidatureId) throws CandidatureIntrouvableException {
+    public ResponseEntity<CandidatureDTO> RetenirCandidaturePourEntrevue(@PathVariable Long candidatureId) throws CandidatureIntrouvableException, ActionsCandidatureDesactiveesException {
         CandidatureDTO candidatureDTO = employeurService.retenirCandidaturePourEntrevue(candidatureId);
         return ResponseEntity.ok(candidatureDTO) ;
     }
@@ -108,7 +142,7 @@ public class EmployeurController {
     ) throws OffreNonAutoriseeException,
     CandidatureIntrouvableException,
     ConvocationExistanteException,
-    DateAvantAujourdhuiException, ConvocationInvalideException {
+    DateAvantAujourdhuiException, ConvocationInvalideException, ActionsCandidatureDesactiveesException, UserNotFoundException {
 
         EntrevueDTO entrevue = employeurService.creerConvocation(dto);
 
@@ -117,7 +151,7 @@ public class EmployeurController {
 
     @GetMapping("/candidatures/convoquees")
     public ResponseEntity<List<CandidatureDTO>> obtenirCandidaturesConvoquees()
-            throws UtilisateurIntrouvableException {
+            throws UtilisateurIntrouvableException, UserNotFoundException {
 
         return ResponseEntity.ok(
                 employeurService.obtenirCandidaturesConvoquees()
@@ -133,14 +167,14 @@ public class EmployeurController {
     @PutMapping("/entrevues/{id}/cloture")
     public ResponseEntity<CandidatureDTO> cloreEntrevue(@PathVariable Long id)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(employeurService.cloreEntrevue(id));
     }
 
     @PutMapping("/entrevues/{id}/acceptation")
     public ResponseEntity<CandidatureDTO> accepterCandidat(@PathVariable Long id)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(employeurService.accepterCandidatApresEntrevue(id));
     }
 
@@ -148,13 +182,13 @@ public class EmployeurController {
     public ResponseEntity<CandidatureDTO> refuserCandidat(
             @PathVariable Long id, @Valid @RequestBody RefusCandidatureDTO dto)
             throws ConvocationIntrouvableException, UtilisateurIntrouvableException,
-            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException {
+            OffreNonAutoriseeException, DecisionCandidatureInvalideException, MotifRefusInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(employeurService.refuserCandidatApresEntrevue(id, dto.motifRefus()));
     }
 
     @GetMapping("/candidatures/{candidatureId}/entrevue")
     public ResponseEntity<EntrevueDTO> obtenirConvocation(@PathVariable Long candidatureId)
-            throws ConvocationIntrouvableException, OffreNonAutoriseeException {
+            throws ConvocationIntrouvableException, OffreNonAutoriseeException, UserNotFoundException {
         return ResponseEntity.ok(employeurService.obtenirConvocation(candidatureId));
     }
 

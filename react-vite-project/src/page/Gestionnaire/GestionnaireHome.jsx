@@ -8,34 +8,46 @@ import CandidatureListItem from "../../component/Design/Lists/CandidatureListIte
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus } from "../../api/gestionnaire.jsx";
+import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus, getContratByCandidatureId, rappelerSignatureContrat } from "../../api/gestionnaire.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import { FaBriefcase, FaCheckCircle, FaFileAlt, FaFileContract, FaPenNib } from "react-icons/fa";
+import { FaBriefcase, FaCheckCircle, FaFileAlt, FaPenNib } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
+import Sort from "../../component/Design/Sort.jsx";
+import toast from "react-hot-toast";
 
-const trierParDateDesc = (items, getDate) => {
+const trierParDate = (items, getDate, ordre) => {
     return [...items].sort((itemA, itemB) => {
         const dateA = new Date(getDate(itemA) || 0).getTime();
         const dateB = new Date(getDate(itemB) || 0).getTime();
 
-        return dateB - dateA;
+        return ordre === "asc" ? dateA - dateB : dateB - dateA;
     });
 };
 
 const GestionnaireHome = ({ user }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [cvs, setCvs] = useState([]);
     const [offres, setOffres] = useState([]);
-    const [candidaturesStageTrouve, setCandidaturesStageTrouve] = useState([]);
     const [candidaturesContratCree, setCandidaturesContratCree] = useState([]);
     const [error, setError] = useState(null);
+    const [sortContratsOrder, setSortContratsOrder] = useState("desc");
+    const [sortCvsOrder, setSortCvsOrder] = useState("desc");
+    const [sortOffresOrder, setSortOffresOrder] = useState("desc");
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const nombreContratsSignes = candidaturesContratCree.filter(c => c.contratSigne).length;
-    const nombreContratsASigner = candidaturesContratCree.length - nombreContratsSignes;
+    const nombreContratsASigner = candidaturesContratCree.filter(c => c.contratASigner).length;
+
+    const contratsTries = useMemo(() => [...candidaturesContratCree].sort((a, b) => {
+        const dateA = Date.parse(a.dateCreationContrat || "");
+        const dateB = Date.parse(b.dateCreationContrat || "");
+        if (Number.isNaN(dateA) !== Number.isNaN(dateB)) return Number.isNaN(dateA) ? 1 : -1;
+        const comparaison = (Number.isNaN(dateA) ? 0 : dateA - dateB) || (a.contratId || 0) - (b.contratId || 0);
+        return sortContratsOrder === "asc" ? comparaison : -comparaison;
+    }), [candidaturesContratCree, sortContratsOrder]);
 
     const cvFilters = useFilters(cvs, {
         getDomain: (cv) => cv.etudiant?.department,
@@ -65,13 +77,13 @@ const GestionnaireHome = ({ user }) => {
     }, [cvFilters.availableDomains, offreFilters.availableDomains]);
 
     const cvsFiltresRecents = useMemo(
-        () => trierParDateDesc(cvFilters.itemsFiltres, (cv) => cv.uploadDate),
-        [cvFilters.itemsFiltres]
+        () => trierParDate(cvFilters.itemsFiltres, (cv) => cv.uploadDate, sortCvsOrder),
+        [cvFilters.itemsFiltres, sortCvsOrder]
     );
 
     const offresFiltreesRecentes = useMemo(
-        () => trierParDateDesc(offreFilters.itemsFiltres, (offer) => offer.createdAt),
-        [offreFilters.itemsFiltres]
+        () => trierParDate(offreFilters.itemsFiltres, (offer) => offer.createdAt, sortOffresOrder),
+        [offreFilters.itemsFiltres, sortOffresOrder]
     );
 
     const hasActiveFilters = cvFilters.searchTerm.trim() !== "" || cvFilters.selectedDomain !== "TOUS";
@@ -147,12 +159,25 @@ const GestionnaireHome = ({ user }) => {
 
     const chargerCandidaturesContrat = useCallback(async () => {
         try {
-            const [stageTrouveData, contratCreeData] = await Promise.all([
-                getCandidaturesByStatus("STAGE_TROUVE"),
-                getCandidaturesByStatus("CONTRAT_CREE")
-            ]);
-            setCandidaturesStageTrouve(stageTrouveData || []);
-            setCandidaturesContratCree(contratCreeData || []);
+            const contratCreeData = await getCandidaturesByStatus("CONTRAT_CREE");
+            const candidaturesAvecContrat = await Promise.all((contratCreeData || []).map(async candidature => {
+                try {
+                    const contrat = await getContratByCandidatureId(candidature.id);
+                    if (!contrat) return null;
+                    const premieresSignaturesCompletes = Boolean(contrat.dateSignatureEtudiant && contrat.dateSignatureEmployeur);
+                    return {
+                        ...candidature,
+                        contratId: contrat.id,
+                        dateCreationContrat: contrat.createdAt,
+                        contratASigner: premieresSignaturesCompletes && !contrat.dateSignatureGestionnaire,
+                        contratSigne: premieresSignaturesCompletes && Boolean(contrat.dateSignatureGestionnaire),
+                    };
+                } catch (err) {
+                    console.error(err);
+                    return null;
+                }
+            }));
+            setCandidaturesContratCree(candidaturesAvecContrat.filter(Boolean));
         } catch (err) {
             console.log(err);
         }
@@ -169,6 +194,25 @@ const GestionnaireHome = ({ user }) => {
     useEffect(() => {
         chargerDonnees().finally(() => setIsInitialLoading(false));
     }, [chargerDonnees]);
+
+    const handleRappelerSignature = async (candidature) => {
+        try {
+            const nombre = await rappelerSignatureContrat(candidature.contratId);
+            toast.success(t(nombre > 0 ? "dashboard.reminder_sent" : "dashboard.no_signature_to_remind"));
+        } catch {
+            toast.error(t("error.generic"));
+        }
+    };
+
+    const formaterDateFooter = (value, labelKey) => {
+        const date = value ? new Date(value) : null;
+        if (!date || Number.isNaN(date.getTime())) return null;
+        return (
+            <span>{t(labelKey)} <time dateTime={value}>
+                {date.toLocaleString(i18n.language || "fr", { dateStyle: "short", timeStyle: "short" })}
+            </time></span>
+        );
+    };
 
     return (
         <div className="pt-5 h-full">
@@ -189,7 +233,7 @@ const GestionnaireHome = ({ user }) => {
                     availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
                     <DashboardSummaryCard
                         icon={<FaFileAlt className="size-5" />}
                         value={cvs.length}
@@ -205,15 +249,6 @@ const GestionnaireHome = ({ user }) => {
                         label={t("dashboard.pending_offers_count")}
                         tone="green"
                         ariaLabel={t("dashboard.view_pending_offers")}
-                        className="w-full"
-                    />
-
-                    <DashboardSummaryCard
-                        icon={<FaFileContract className="size-5" />}
-                        value={candidaturesStageTrouve.length}
-                        label={t("dashboard.contracts_to_create_count")}
-                        tone="cyan"
-                        ariaLabel={t("dashboard.view_pending_contracts")}
                         className="w-full"
                     />
 
@@ -250,10 +285,14 @@ const GestionnaireHome = ({ user }) => {
                             />
                         ) : (
                             <div className="space-y-3">
+                                <div className="flex justify-end">
+                                    <Sort sortOrder={sortCvsOrder} onSortChange={setSortCvsOrder} />
+                                </div>
                                 {cvsFiltresRecents.map((cv) => (
                                     <CvListItem
                                         key={cv.id}
                                         cv={cv}
+                                        footer={formaterDateFooter(cv.uploadDate, "dashboard.cv_uploaded_on")}
                                         onClick={() => handleViewCv(cv)}
                                         actionLabel={t("dashboard.view_cv")}
                                         actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
@@ -278,10 +317,14 @@ const GestionnaireHome = ({ user }) => {
                             />
                         ) : (
                             <div className="space-y-3">
+                                <div className="flex justify-end">
+                                    <Sort sortOrder={sortOffresOrder} onSortChange={setSortOffresOrder} />
+                                </div>
                                 {offresFiltreesRecentes.map((offer) => (
                                     <OfferListItem
                                         key={offer.id}
                                         offer={offer}
+                                        footer={formaterDateFooter(offer.createdAt, "dashboard.offer_created_on")}
                                         onClick={() => handleViewOffer(offer)}
                                         actionLabel={t("dashboard.view_offer")}
                                         actionClassName="bg-[#043462] text-white hover:bg-[#03284d]"
@@ -291,40 +334,10 @@ const GestionnaireHome = ({ user }) => {
                         )}
                     </DashboardSection>
                     <DashboardSection
-                        title={t("dashboard.contracts_to_create_title")}
+                        title={t("dashboard.contracts_title")}
                         headerAction={
                             <span className={sectionCountClassName}>
-                                {candidaturesStageTrouve.length} {t("dashboard.applications")}
-                            </span>
-                        }
-                    >
-                        {!isInitialLoading && candidaturesStageTrouve.length === 0 ? (
-                            <EmptyContentMessage
-                                message={t("dashboard.no_contracts_to_create")}
-                            />
-                        ) : (
-                            <ExpandableList
-                                items={candidaturesStageTrouve}
-                                limit={3}
-                                expandLabel={t("dashboard.view_more", "Voir plus")}
-                                collapseLabel={t("dashboard.view_less", "Voir moins")}
-                                renderItem={(candidature) => (
-                                    <CandidatureListItem
-                                        key={candidature.id}
-                                        candidature={candidature}
-                                        onClick={() => handleViewCandidature(candidature)}
-                                        actionLabel={t("dashboard.create_contract")}
-                                    />
-                                )}
-                            />
-                        )}
-                    </DashboardSection>
-
-                    <DashboardSection
-                        title={t("dashboard.contracts_to_sign_title")}
-                        headerAction={
-                            <span className={sectionCountClassName}>
-                                {candidaturesContratCree.length} {t("dashboard.applications")}
+                                {t(candidaturesContratCree.length > 1 ? "dashboard.application_count_plural" : "dashboard.application_count", { count: candidaturesContratCree.length })}
                             </span>
                         }
                     >
@@ -333,8 +346,13 @@ const GestionnaireHome = ({ user }) => {
                                 message={t("dashboard.no_contracts_to_sign")}
                             />
                         ) : (
+                            <div>
+                                <div className="mb-3 flex justify-end">
+                                    <Sort sortOrder={sortContratsOrder} onSortChange={setSortContratsOrder}
+                                          title={t("dashboard.sort_contract_creation")} />
+                                </div>
                             <ExpandableList
-                                items={candidaturesContratCree}
+                                items={contratsTries}
                                 limit={3}
                                 expandLabel={t("dashboard.view_more", "Voir plus")}
                                 collapseLabel={t("dashboard.view_less", "Voir moins")}
@@ -344,9 +362,11 @@ const GestionnaireHome = ({ user }) => {
                                         candidature={candidature}
                                         onClick={() => handleViewCandidature(candidature)}
                                         actionLabel={t("dashboard.view_contract")}
+                                        onRappel={handleRappelerSignature}
                                     />
                                 )}
                             />
+                            </div>
                         )}
                     </DashboardSection>
                 </div>

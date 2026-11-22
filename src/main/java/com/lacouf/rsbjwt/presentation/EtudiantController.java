@@ -1,10 +1,47 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.ActionsCandidatureDesactiveesException;
 
-import com.lacouf.rsbjwt.Exception.*;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureDejaExistanteException;
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
+import com.lacouf.rsbjwt.exception.candidature.DecisionStageInvalideException;
+import com.lacouf.rsbjwt.exception.contrat.CreationContratImpossibleException;
+import com.lacouf.rsbjwt.exception.candidature.StageDejaTrouveException;
+import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeDejaApprouveException;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
+import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonApprouveException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationIntrouvableException;
+import com.lacouf.rsbjwt.exception.entrevue.ConvocationInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
+import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTropVolumineuxException;
+import com.lacouf.rsbjwt.exception.fichier.FichierTypeInvalideException;
+import com.lacouf.rsbjwt.exception.fichier.SuppressionFichierEchoueeException;
+import com.lacouf.rsbjwt.exception.offre.OffreDeStageIndisponibleException;
+import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
+import com.lacouf.rsbjwt.exception.offre.OffreNonAutoriseeException;
+import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.EtudiantIntrouvableException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeExistantException;
+import com.lacouf.rsbjwt.exception.utilisateur.MatriculeNonConforme;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
+import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseNonCorrespondantException;
+import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ConfirmationSignatureDTO;
+import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.RefusConvocationDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.ReponseConvocationDTO;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.session.InscriptionDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionEtudiantDTO;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.service.EtudiantService;
-import com.lacouf.rsbjwt.service.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +49,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -121,10 +159,20 @@ public class EtudiantController {
         );
     }
 
-    @PutMapping("/candidatures/{id}/stage-trouve")
-    public ResponseEntity<CandidatureDTO> declarerStageTrouve(@PathVariable Long id)
-            throws EtudiantIntrouvableException, CandidatureIntrouvableException, DeclarationStageInvalideException {
-        return ResponseEntity.ok(etudiantService.declarerStageTrouve(id));
+    @PutMapping("/candidatures/{id}/stage/accepter")
+    @PreAuthorize("hasAuthority('ETUDIANT')")
+    public ResponseEntity<CandidatureDTO> accepterStage(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException,
+            DecisionStageInvalideException, CreationContratImpossibleException, ActionsCandidatureDesactiveesException {
+        return ResponseEntity.ok(etudiantService.accepterStage(id));
+    }
+
+    @PutMapping("/candidatures/{id}/stage/refuser")
+    @PreAuthorize("hasAuthority('ETUDIANT')")
+    public ResponseEntity<CandidatureDTO> refuserStage(@PathVariable Long id)
+            throws EtudiantIntrouvableException, CandidatureIntrouvableException,
+            DecisionStageInvalideException {
+        return ResponseEntity.ok(etudiantService.refuserStage(id));
     }
 
     @GetMapping("/convocations/{id}")
@@ -136,7 +184,7 @@ public class EtudiantController {
 
     @PutMapping("/convocations/{id}/accepter")
     public ResponseEntity<ReponseConvocationDTO> accepterConvocation(@PathVariable Long id)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(
                 etudiantService.accepterConvocationEtudiant(id)
         );
@@ -145,7 +193,7 @@ public class EtudiantController {
     @PutMapping("/convocations/{id}/refuser")
     public ResponseEntity<ReponseConvocationDTO> refuserConvocation(@PathVariable Long id,
                                                                  @Valid @RequestBody RefusConvocationDTO dto)
-            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException {
+            throws EtudiantIntrouvableException, ConvocationIntrouvableException, ConvocationInvalideException, ActionsCandidatureDesactiveesException {
         return ResponseEntity.ok(etudiantService.refuserConvocationEtudiant(id, dto.motifRefus()));
     }
 
