@@ -345,7 +345,16 @@
     "contracts_title": "Contrats",
     "sign_contract": "Signer",
     "application_count": "{{count}} candidature",
-    "application_count_plural": "{{count}} candidatures"
+    "application_count_plural": "{{count}} candidatures",
+    "gestionnaire" : {
+      "etudiants_inscrits" : "Étudiants Inscrits",
+      "aucun_stage_trouve": "n'ayant pas de stage",
+      "stage_trouve" : "ayant trouvé un stage",
+      "taux_placement" : "taux de placement",
+      "professeur_eleves" : "professeur avec des étudiants",
+      "professeur_sans_eleves" : "professeur sans étudiants",
+      "professeur_moyenne" : "élèves par professeur en moyenne"
+    }
   },
   "etudiant": {
     "assigned_professor": "Professeur assigné",

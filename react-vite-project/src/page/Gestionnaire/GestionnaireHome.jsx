@@ -17,6 +17,9 @@ import { useFilters } from "../../utils/useFilters.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import Sort from "../../component/Design/Sort.jsx";
 import toast from "react-hot-toast";
+import DashboardMetricSection from "../../component/Design/Dashboard/DashboardMetricSection.jsx";
+import {gestionnaireStatsMock, metricConfig} from "../../config/metricConfig.jsx";
+import DashboardMetricCategorie from "../../component/Design/Dashboard/DashboardMetricCategorie.jsx";
 
 const trierParDate = (items, getDate, ordre) => {
     return [...items].sort((itemA, itemB) => {
@@ -38,6 +41,16 @@ const GestionnaireHome = ({ user }) => {
     const [sortCvsOrder, setSortCvsOrder] = useState("desc");
     const [sortOffresOrder, setSortOffresOrder] = useState("desc");
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const allowedSections = metricConfig.filter(
+        (section) => !section.roles || section.roles.includes(user.role)
+    );
+    const [activeTabId, setActiveTabId] = useState(allowedSections[0]?.id ?? "");
+    const activeCategory =
+        allowedSections.find((cat) => cat.id === activeTabId) ?? allowedSections[0];
+    const sectionTabs = allowedSections.map((category) => ({
+        id: category.id,
+        label: t(category.title),
+    }));
     const nombreContratsSignes = candidaturesContratCree.filter(c => c.contratSigne).length;
     const nombreContratsASigner = candidaturesContratCree.filter(c => c.contratASigner).length;
 
@@ -214,6 +227,12 @@ const GestionnaireHome = ({ user }) => {
         );
     };
 
+    useEffect(() => {
+        if (!allowedSections.some((cat) => cat.id === activeTabId)) {
+            setActiveTabId(allowedSections[0]?.id ?? "");
+        }
+    }, [allowedSections, activeTabId]);
+
     return (
         <div className="pt-5 h-full">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
@@ -233,41 +252,22 @@ const GestionnaireHome = ({ user }) => {
                     availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
-                    <DashboardSummaryCard
-                        icon={<FaFileAlt className="size-5" />}
-                        value={cvs.length}
-                        label={t("dashboard.pending_cvs_count")}
-                        tone="blue"
-                        ariaLabel={t("dashboard.view_pending_cvs")}
-                        className="w-full"
-                    />
 
-                    <DashboardSummaryCard
-                        icon={<FaBriefcase className="size-5" />}
-                        value={offres.length}
-                        label={t("dashboard.pending_offers_count")}
-                        tone="green"
-                        ariaLabel={t("dashboard.view_pending_offers")}
-                        className="w-full"
-                    />
-
-                    <DashboardSummaryCard
-                        icon={<FaPenNib className="size-5" />}
-                        value={nombreContratsASigner}
-                        label={t("dashboard.contracts_to_sign_count")}
-                        tone="purple"
-                        ariaLabel={t("dashboard.view_created_contracts")}
-                        className="w-full"
-                    />
-                    <DashboardSummaryCard
-                        icon={<FaCheckCircle className="size-5" />}
-                        value={nombreContratsSignes}
-                        label={t("dashboard.contracts_signed_count")}
-                        tone="green"
-                        className="w-full"
-                    />
-                </div>
+                <DashboardMetricSection
+                    tabs={sectionTabs}
+                    activeTabId={activeTabId}
+                    onTabChange={setActiveTabId}
+                >
+                    {activeCategory.cards.map((card) => (
+                        <DashboardSummaryCard
+                            key={card.id}
+                            icon={card.icon}
+                            tone={activeCategory.tone}
+                            label={t(card.label)}
+                            value={gestionnaireStatsMock?.[card.key] ?? 0}
+                        />
+                    ))}
+                </DashboardMetricSection>
 
                 <div className="flex flex-col gap-5 pb-4">
                     <DashboardSection

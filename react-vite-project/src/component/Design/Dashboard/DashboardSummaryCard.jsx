@@ -29,8 +29,8 @@ function DashboardSummaryCard({ icon, value, label, tone = "blue", onClick, aria
     return (
         <div className={`rounded-xl border ${styles.border} bg-white shadow-sm p-4 flex items-center justify-between ${className}`}>
             <div className="flex items-center gap-3">
-                <div className={`size-11 rounded-xl flex items-center justify-center ${styles.icon}`}>
-                    {icon}
+                <div className={`shrink-0 size-11 rounded-xl flex items-center justify-center ${styles.icon}`}>
+                    {typeof icon === "function" ? icon({ className: "size-5" }) : icon}
                 </div>
 
                 <div>
