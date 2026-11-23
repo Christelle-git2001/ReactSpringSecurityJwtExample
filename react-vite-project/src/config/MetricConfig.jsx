@@ -1,8 +1,10 @@
 import {Role} from "../enum/Role.jsx";
 import {FiFileText, FiTrendingUp, FiUser, FiUserCheck, FiUsers, FiUserX} from "react-icons/fi";
-import {FaBriefcase, FaPercent, FaUsers, FaUsersSlash} from "react-icons/fa";
+import {FaBriefcase, FaFileContract, FaPercent, FaRegFilePdf, FaUsers, FaUsersSlash} from "react-icons/fa";
 import {IoIdCard} from "react-icons/io5";
 import {MdFactCheck} from "react-icons/md";
+import {TbContract} from "react-icons/tb";
+import {FaFileCircleCheck, FaFileCircleQuestion} from "react-icons/fa6";
 
 export const metricConfig = [
     {
@@ -34,7 +36,7 @@ export const metricConfig = [
 
     },
     {
-        id: "employeur",
+        id: "employeur_gestionnaire",
         dataKey: "employeurs",
         title: "inscription.employeur",
         role: [Role.GESTIONNAIRE],
@@ -48,17 +50,17 @@ export const metricConfig = [
         ]
     },
     {
-        id: "contrat",
+        id: "contrat_gestionnaire",
         dataKey: "contrats",
         title: "dashboard.contracts_title",
         role: [Role.GESTIONNAIRE],
         tone: "cyan_background",
         cards: [
-            { id: "nombreContratASigner", label: "dashboard.gestionnaire.nombre_contrat_a_signer", key: "nombreContratASigner", icon: FaBriefcase },
-            { id: "contratSigne", label: "dashboard.gestionnaire.contrat_signe", key: "contratSigne", icon: IoIdCard },
-            { id: "nombreContratGenerer", label: "dashboard.gestionnaire.nombre_contrat_generer", key: "nombreContratGenerer", icon: MdFactCheck  },
-            { id: "contratBloque", label: "dashboard.gestionnaire.contrat_bloque", key: "contratBloque", icon: FaUsersSlash },
-            { id: "tauxFinalisation", label: "dashboard.gestionnaire.taux_finalisation", key: "tauxFinalisation", icon: FaPercent  },
+            { id: "nombreContratASigner", label: "dashboard.gestionnaire.nombre_contrat_a_signer", key: "nombreContratASigner", icon: TbContract  },
+            { id: "contratSigne", label: "dashboard.gestionnaire.contrat_signe", key: "contratSigne", icon: FaFileContract  },
+            { id: "nombreContratGenerer", label: "dashboard.gestionnaire.nombre_contrat_generer", key: "nombreContratGenerer", icon: FaRegFilePdf   },
+            { id: "contratBloque", label: "dashboard.gestionnaire.contrat_bloque", key: "contratBloque", icon: FaFileCircleQuestion  },
+            { id: "tauxFinalisation", label: "dashboard.gestionnaire.taux_finalisation", key: "tauxFinalisation", icon: FaFileCircleCheck   },
         ]
     }
 ]
