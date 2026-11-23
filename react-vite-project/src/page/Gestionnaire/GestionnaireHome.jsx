@@ -12,14 +12,12 @@ import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus, getContra
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
-import { FaBriefcase, FaCheckCircle, FaFileAlt, FaPenNib } from "react-icons/fa";
 import { useFilters } from "../../utils/useFilters.jsx";
 import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import Sort from "../../component/Design/Sort.jsx";
 import toast from "react-hot-toast";
 import DashboardMetricSection from "../../component/Design/Dashboard/DashboardMetricSection.jsx";
-import {gestionnaireStatsMock, metricConfig} from "../../config/metricConfig.jsx";
-import DashboardMetricCategorie from "../../component/Design/Dashboard/DashboardMetricCategorie.jsx";
+import {gestionnaireStatsMock, metricConfig} from "../../config/MetricConfig.jsx";
 
 const trierParDate = (items, getDate, ordre) => {
     return [...items].sort((itemA, itemB) => {
@@ -232,7 +230,7 @@ const GestionnaireHome = ({ user }) => {
             setActiveTabId(allowedSections[0]?.id ?? "");
         }
     }, [allowedSections, activeTabId]);
-
+    console.log("activeCategory:", activeCategory);
     return (
         <div className="pt-5 h-full">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
@@ -256,6 +254,7 @@ const GestionnaireHome = ({ user }) => {
                 <DashboardMetricSection
                     tabs={sectionTabs}
                     activeTabId={activeTabId}
+                    tone={activeCategory.tone}
                     onTabChange={setActiveTabId}
                 >
                     {activeCategory.cards.map((card) => (
@@ -264,7 +263,7 @@ const GestionnaireHome = ({ user }) => {
                             icon={card.icon}
                             tone={activeCategory.tone}
                             label={t(card.label)}
-                            value={gestionnaireStatsMock?.[card.key] ?? 0}
+                            value={gestionnaireStatsMock?.[activeCategory.dataKey]?.[card.key] ?? 0}
                         />
                     ))}
                 </DashboardMetricSection>

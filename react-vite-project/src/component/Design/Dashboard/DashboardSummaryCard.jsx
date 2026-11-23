@@ -1,27 +1,6 @@
 import React from "react";
+import {toneClasses} from "../../../utils/tones.jsx";
 
-const toneClasses = {
-    blue: {
-        border: "border-blue-100",
-        icon: "bg-blue-100 text-blue-600",
-        action: "bg-blue-50 text-blue-600",
-    },
-    green: {
-        border: "border-green-100",
-        icon: "bg-green-100 text-green-600",
-        action: "bg-green-50 text-green-600",
-    },
-    purple: {
-        border: "border-purple-100",
-        icon: "bg-purple-100 text-purple-600",
-        action: "bg-purple-50 text-purple-600",
-    },
-    cyan: {
-        border: "border-cyan-100",
-        icon: "bg-cyan-100 text-cyan-600",
-        action: "bg-cyan-50 text-cyan-600",
-    },
-};
 
 function DashboardSummaryCard({ icon, value, label, tone = "blue", onClick, ariaLabel, actionLabel, className = "" }) {
     const styles = toneClasses[tone] || toneClasses.blue;

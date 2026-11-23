@@ -353,7 +353,17 @@
       "taux_placement" : "taux de placement",
       "professeur_eleves" : "professeur avec des étudiants",
       "professeur_sans_eleves" : "professeur sans étudiants",
-      "professeur_moyenne" : "élèves par professeur en moyenne"
+      "professeur_moyenne" : "élèves par professeur en moyenne",
+      "offreVerification" : "offres en attente de vérification",
+      "employeur_inscrit" : "employeurs inscrits",
+      "offre_active" : "offres actives",
+      "offre_sans_stagiaire" : "offres sans candidatures",
+      "taux_offres" : "offres comblées",
+      "nombre_contrat_a_signer" : "contrats attendant votre signature",
+      "contrat_signe" : "contrats signés",
+      "nombre_contrat_generer" : "contrats générés",
+      "contrat_bloque" : "contrats bloqués",
+      "taux_finalisation" : "taux de finalisation"
     }
   },
   "etudiant": {

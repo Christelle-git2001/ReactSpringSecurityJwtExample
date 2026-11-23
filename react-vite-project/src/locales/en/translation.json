@@ -290,7 +290,26 @@
     "contracts_title": "Contracts",
     "sign_contract": "Sign",
     "application_count": "{{count}} application",
-    "application_count_plural": "{{count}} applications"
+    "application_count_plural": "{{count}} applications",
+    "gestionnaire": {
+      "etudiants_inscrits": "Enrolled Students",
+      "aucun_stage_trouve": "without an internship",
+      "stage_trouve": "with an internship",
+      "taux_placement": "placement rate",
+      "professeur_eleves": "teachers with students",
+      "professeur_sans_eleves": "teachers without students",
+      "professeur_moyenne": "average students per teacher",
+      "offreVerification": "offers pending verification",
+      "employeur_inscrit": "registered employers",
+      "offre_active": "active offers",
+      "offre_sans_stagiaire": "offers without applications",
+      "taux_offres": "filled offers",
+      "nombre_contrat_a_signer": "contracts awaiting your signature",
+      "contrat_signe": "signed contracts",
+      "nombre_contrat_generer": "generated contracts",
+      "contrat_bloque": "blocked contracts",
+      "taux_finalisation": "completion rate"
+    }
   },
   "etudiant": {
     "assigned_professor": "Assigned professor",

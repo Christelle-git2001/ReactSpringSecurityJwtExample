@@ -1,12 +1,14 @@
 import {useTranslation} from "react-i18next";
+import {toneClasses} from "../../../utils/tones.jsx";
 
-const DashboardMetricSection = ({title,tabs = [], activeTabId, onTabChange,children, className= "", tones = "blue"}) => {
+const DashboardMetricSection = ({title,tabs = [], activeTabId, onTabChange,children, className= "", tone}) => {
     const { t, i18n } = useTranslation();
+    const styles = toneClasses[tone] || toneClasses.purple;
 
     const hasTabs = Boolean(onTabChange) && tabs.length > 0;
 
     return (
-        <section className={`flex flex-col gap-4 rounded-xl border p-4 ${className}`}>
+        <section className={`flex flex-col gap-4 rounded-xl border p-4 ${styles.border} ${styles.gradient} ${className} `}>
             {hasTabs ? (
                 <div role="tablist" className="tabs tabs-lift">
                     {tabs.map((tab) => {
@@ -16,7 +18,7 @@ const DashboardMetricSection = ({title,tabs = [], activeTabId, onTabChange,child
                                 key={tab.id}
                                 role="tab"
                                 onClick={() => onTabChange(tab.id)}
-                                className={`tab cursor-pointer ${isActive ? "tab-active" : ""}`}
+                                className={`tab cursor-pointer ${isActive ? "tab-active" : ""} font-bold`}
                             >
                                 {tab.label}
                             </a>
