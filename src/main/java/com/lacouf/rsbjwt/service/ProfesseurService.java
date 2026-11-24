@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
 import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
@@ -11,6 +12,7 @@ import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.StageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
 import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
@@ -18,6 +20,8 @@ import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,11 +42,12 @@ public class ProfesseurService {
     private final OffreDeStageRepository offreDeStageRepository;
     private final SessionService sessionService;
     private final InscriptionRepository inscriptionRepository;
+    private final EvaluationMillieuStageRepository evaluationMillieuStageRepository;
     private final EntrevueRepository entrevueRepository;
 
     public ProfesseurService(ProfesseurRepository professeurRepository, UserAppRepository userAppRepository, PasswordEncoder passwordEncoder,
                              EtudiantRepository etudiantRepository, CandidatureRepository candidatureRepository, OffreDeStageRepository offreDeStageRepository,
-                             SessionService sessionService, InscriptionRepository inscriptionRepository, EntrevueRepository entrevueRepository) {
+                             SessionService sessionService, InscriptionRepository inscriptionRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository1, EntrevueRepository entrevueRepository) {
         this.professeurRepository = professeurRepository;
         this.userAppRepository = userAppRepository;
         this.passwordEncoder = passwordEncoder;
@@ -51,6 +56,7 @@ public class ProfesseurService {
         this.offreDeStageRepository = offreDeStageRepository;
         this.sessionService = sessionService;
         this.inscriptionRepository = inscriptionRepository;
+        this.evaluationMillieuStageRepository = evaluationMillieuStageRepository1;
         this.entrevueRepository = entrevueRepository;
     }
 
@@ -227,4 +233,13 @@ public class ProfesseurService {
                 .toList();
     }
 
+
+    public EvaluationMillieuStageDTO enregistreEvaluationMilieuDeStage(EvaluationMillieuStageDTO evaluationMillieuStageDTO) throws CandidatureIntrouvableException {
+        Candidature candidature = candidatureRepository.findById(evaluationMillieuStageDTO.candiatureId()).orElseThrow(CandidatureIntrouvableException::new);
+        return EvaluationMillieuStageDTO.toDTO(
+                evaluationMillieuStageRepository.save(
+                        EvaluationMillieuStageDTO.toEntity(evaluationMillieuStageDTO,candidature)
+                )
+        );
+    }
 }
