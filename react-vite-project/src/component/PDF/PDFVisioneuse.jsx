@@ -13,21 +13,20 @@ export const PDFContent = ({ cvUrlAAffiche, enablePageScroll = false }) => {
     const containerRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(null);
 
+    // Mesure la largeur dès que le conteneur existe, et à chaque redimensionnement
     useEffect(() => {
-        const updateWidth = () => {
-            if (containerRef.current) {
-                // On enlève moins de padding (ex: 16px au lieu de 32px) pour laisser le document plus large
-                setContainerWidth(containerRef.current.clientWidth - 16);
-            }
-        };
-
-        updateWidth();
-        window.addEventListener('resize', updateWidth);
-        return () => window.removeEventListener('resize', updateWidth);
-    }, []);
+        const el = containerRef.current;
+        if (!el) return;
+        const observer = new ResizeObserver(([entree]) => {
+            setContainerWidth(Math.floor(entree.contentRect.width));
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [cvUrlAAffiche]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages);
+        setPageNumber(1);
     };
 
     if (!cvUrlAAffiche) {
@@ -38,19 +37,43 @@ export const PDFContent = ({ cvUrlAAffiche, enablePageScroll = false }) => {
         );
     }
 
+    const largeurPage = containerWidth ? Math.min(containerWidth, 900) : 800;
+
     return (
         <div ref={containerRef} className="flex flex-col items-center border p-4 rounded-xl shadow-xs bg-base-100 w-full overflow-hidden">
-            <div className={`w-full flex justify-center max-w-full ${enablePageScroll ? 'overflow-hidden' : 'overflow-auto max-h-[70vh]'}`}>
-                <Document file={cvUrlAAffiche} onLoadSuccess={onDocumentLoadSuccess}>
-                    <Page
-                        pageNumber={pageNumber}
-                        renderTextLayer={false}
-                        renderAnnotationLayer={false}
-                        width={containerWidth ? Math.min(containerWidth, 900) : 800}
-                    />
+            <div className={`w-full flex justify-center max-w-full ${enablePageScroll ? '' : 'overflow-auto max-h-[70vh]'}`}>
+                <Document
+                    key={cvUrlAAffiche}
+                    file={cvUrlAAffiche}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={(err) => console.error("Erreur de chargement du PDF :", err)}
+                    loading={<span className="loading loading-spinner loading-md text-[#043462]" />}
+                    error={<p className="text-xs text-gray-500 italic p-6">{t("offre.document_error")}</p>}
+                    className={enablePageScroll ? "flex flex-col items-center gap-4" : ""}
+                >
+                    {enablePageScroll && numPages ? (
+                        Array.from({ length: numPages }, (_, i) => (
+                            <Page
+                                key={i + 1}
+                                pageNumber={i + 1}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                width={largeurPage}
+                                className="border border-gray-200 shadow-sm"
+                            />
+                        ))
+                    ) : (
+                        <Page
+                            pageNumber={pageNumber}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            width={largeurPage}
+                        />
+                    )}
                 </Document>
             </div>
-            {numPages && (
+
+            {!enablePageScroll && numPages > 1 && (
                 <div className="flex items-center gap-4 mt-4 shrink-0">
                     <button
                         type="button"
