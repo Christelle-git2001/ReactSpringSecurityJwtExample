@@ -19,8 +19,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class RapportControllerTest {
 
@@ -211,5 +210,18 @@ class RapportControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void doitRetournerCandidaturesSansEvaluationMilieuStageAvecSucces() throws Exception {
+        when(rapportService.obtenirCandidaturesSansEvaluationMilieuStage())
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("[]"));
+
+        verify(rapportService).obtenirCandidaturesSansEvaluationMilieuStage();
     }
 }

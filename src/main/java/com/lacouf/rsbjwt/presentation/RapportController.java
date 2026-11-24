@@ -79,5 +79,10 @@ public class RapportController {
                 rapportService.obtenirCandidaturesSansEvaluation()
         );
     }
-
+    @GetMapping("/candidatures/sans-evaluation-milieu-stage")
+    public ResponseEntity<List<CandidatureDTO>> obtenirCandidaturesSansEvaluationMilieuStage() {
+        return ResponseEntity.ok(
+                rapportService.obtenirCandidaturesSansEvaluationMilieuStage()
+        );
+    }
 }

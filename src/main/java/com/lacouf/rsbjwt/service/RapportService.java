@@ -71,6 +71,8 @@ public class RapportService {
         return donneesCandidatureService.obtenirCandidaturesSansEvaluation();
     }
 
-    ///TODO :
+    public List<CandidatureDTO> obtenirCandidaturesSansEvaluationMilieuStage() {
+        return donneesCandidatureService.obtenirCandidaturesSansEvaluationMilieuStage();
+    }
 
 }

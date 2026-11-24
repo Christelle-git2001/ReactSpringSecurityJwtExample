@@ -71,4 +71,19 @@ public class DonneesCandidatureService {
                 .map(candidature -> CandidatureDTO.of(candidature, null))
                 .toList();
     }
+
+    public List<CandidatureDTO> obtenirCandidaturesSansEvaluationMilieuStage() {
+        List<Candidature> candidatures =
+                candidatureRepository.findCandidaturesSansEvaluationMilieuStage(
+                        StatutCandidature.STAGE_TROUVE
+                );
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                )
+                .stream()
+                .map(candidature -> CandidatureDTO.of(candidature, null))
+                .toList();
+    }
 }

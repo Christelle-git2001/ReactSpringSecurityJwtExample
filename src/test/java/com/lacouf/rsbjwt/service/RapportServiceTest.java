@@ -198,4 +198,21 @@ class RapportServiceTest {
         verify(donneesEntrevueService)
                 .obtenirEntrevuesEnAttenteReponse();
     }
+
+    @Test
+    void obtenirCandidaturesSansEvaluationMilieuStage_retourneCandidaturesDuService() {
+        List<CandidatureDTO> candidatures =
+                List.of(mock(CandidatureDTO.class));
+
+        when(donneesCandidatureService.obtenirCandidaturesSansEvaluationMilieuStage())
+                .thenReturn(candidatures);
+
+        List<CandidatureDTO> resultat =
+                rapportService.obtenirCandidaturesSansEvaluationMilieuStage();
+
+        assertEquals(candidatures, resultat);
+
+        verify(donneesCandidatureService)
+                .obtenirCandidaturesSansEvaluationMilieuStage();
+    }
 }

@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.PDFService;
+import com.lacouf.rsbjwt.service.RapportService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,11 @@ import java.io.IOException;
 public class PDFController {
 
     private final PDFService pdfService ;
+    private RapportService rapportService;
 
-    public PDFController(PDFService pdfService) {
+    public PDFController(PDFService pdfService, RapportService rapportService) {
         this.pdfService = pdfService;
+        this.rapportService = rapportService;
     }
 
     @GetMapping("/contrat/{contratId}")
@@ -211,4 +214,17 @@ public class PDFController {
     }
 
 
+    @GetMapping("/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage")
+    public ResponseEntity<Resource> obtenirRapportCandidaturesSansEvaluationMilieuStage(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportCandidaturesSansEvaluationMilieuStagePdf(
+                        rapportService.obtenirCandidaturesSansEvaluationMilieuStage(),
+                        langue
+                ),
+                "candidatures-sans-evaluation-milieu-stage.pdf"
+        );
+    }
 }

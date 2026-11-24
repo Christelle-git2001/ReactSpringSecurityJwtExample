@@ -1859,4 +1859,73 @@ public class PDFService {
         return new ByteArrayResource(outputStream.toByteArray());
     }
 
+
+    public Resource createRapportCandidaturesSansEvaluationMilieuStagePdf(
+            List<CandidatureDTO> candidatures,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.candidatures.sansEvaluationMilieuStage.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, candidatures.size(), messages);
+
+            if (candidatures.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(15, 20, 25, 25, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.nomComplet",
+                        "rapport.candidature.offre",
+                        "rapport.candidature.employeur",
+                        "rapport.candidature.date",
+                        "rapport.candidature.statut"
+                );
+
+                for (CandidatureDTO candidature : candidatures) {
+
+                    String nomComplet =
+                            valeurOuInconnu(candidature.etudiantFirstName(), messages)
+                                    + " "
+                                    + valeurOuInconnu(candidature.etudiantLastName(), messages);
+
+                    table.addCell(creerCellule(nomComplet));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.offreTitle(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.employeurBusinessName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            formaterDate(candidature.dateCandidature())
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
 }

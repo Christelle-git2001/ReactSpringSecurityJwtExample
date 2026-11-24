@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableEx
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
 import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
 import com.lacouf.rsbjwt.repository.EvaluationStagiaireRepository;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
@@ -26,6 +27,7 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +99,8 @@ class PDFServiceTest {
                 .etudiant(etudiant)
                 .offreDeStage(offre)
                 .build();
+
+        candidature.setId(1L);
 
         contrat = Contrat.builder()
                 .candidature(candidature)
@@ -380,6 +384,54 @@ class PDFServiceTest {
         assertThat(result.exists()).isTrue();
     }
 
+
+    @Test
+    void doitGenererPdfCandidaturesSansEvaluationMilieuStageAvecSucces() throws IOException {
+        CandidatureDTO candidature = CandidatureDTO.of(contrat.getCandidature());
+
+        Resource resultat = pdfService.createRapportCandidaturesSansEvaluationMilieuStagePdf(
+                List.of(candidature),
+                "fr"
+        );
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.exists()).isTrue();
+        assertThat(resultat.contentLength()).isPositive();
+    }
+
+    @Test
+    void doitGenererPdfCandidaturesSansEvaluationMilieuStageQuandListeVide() throws IOException {
+        Resource resultat = pdfService.createRapportCandidaturesSansEvaluationMilieuStagePdf(
+                List.of(),
+                "fr"
+        );
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.exists()).isTrue();
+        assertThat(textePdf(resultat))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitInclureInformationsCandidatureDansRapportSansEvaluationMilieuStage() throws IOException {
+        CandidatureDTO candidature = CandidatureDTO.of(contrat.getCandidature());
+
+        Resource resultat = pdfService.createRapportCandidaturesSansEvaluationMilieuStagePdf(
+                List.of(candidature),
+                "fr"
+        );
+
+        assertThat(textePdf(resultat))
+                .contains(
+                        "Adrien",
+                        "Agreste",
+                        "Développeur Web",
+                        "Junior",
+                        "Malinois inc"
+                );
+    }
+
+
     private EvaluationMillieuStage creerEvaluationMilieuStageTest() {
         Employeur employeur = contrat.getCandidature().getOffreDeStage().getEmployeur();
         OffreDeStage offre = contrat.getCandidature().getOffreDeStage();
@@ -417,5 +469,65 @@ class PDFServiceTest {
         evaluation.setMillieuStageScores(scores);
         evaluation.setObservationGeneral(obs);
         return evaluation;
+    }
+
+    @Test
+    void doitGenererRapportOffresEnAttenteQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportOffresEnAttentePdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportOffresApprouveesQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportOffresApprouveesPdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportEtudiantsInscritsQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportEtudiantsInscritsPdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportEtudiantsSansCvQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportEtudiantsSansCvPdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportEtudiantsSansEntrevueQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportEtudiantsSansEntrevuePdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportEtudiantsAyantTrouveStageQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportEtudiantsAyantTrouveStagePdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportCvEnAttenteQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportCvEnAttentePdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportCandidaturesEnAttenteEntrevueQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportCandidaturesEnAttenteEntrevuePdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportCandidaturesSansEvaluationQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportCandidaturesSansEvaluationPdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
+    }
+
+    @Test
+    void doitGenererRapportEntrevuesEnAttenteReponseQuandListeVide() throws IOException {
+        assertThat(textePdf(pdfService.createRapportEntrevuesEnAttenteReponsePdf(List.of(), "fr")))
+                .contains("Aucun résultat trouvé.");
     }
 }
