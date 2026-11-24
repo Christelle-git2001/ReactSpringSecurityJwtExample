@@ -21,7 +21,6 @@ public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long
     long countByApprovedAtGreaterThanEqualAndApprovedAtLessThan(LocalDateTime debut, LocalDateTime fin);
     List<OffreDeStage> findByDisplayEndDateAfterOrderByDisplayEndDateAsc(LocalDate date);
     long countByDisplayEndDateAfter(LocalDate date);
-    long countByDisplayEndDateAfterAndStatutAcceptee(LocalDate fin);
     List<OffreDeStage> findByDisplayEndDateBetweenOrderByDisplayEndDateAsc(LocalDate debut, LocalDate fin);
     List<OffreDeStage> findByStartDateBetweenOrderByStartDateAsc(LocalDate debut, LocalDate fin);
     long findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(LocalDate fin);
@@ -49,4 +48,11 @@ public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long
             @Param("today") LocalDate today,
             @Param("etudiant") Etudiant etudiant
     );
+
+    @Query("""
+    SELECT COUNT(o) FROM OffreDeStage o
+    WHERE o.displayEndDate > :date
+      AND o.statut = com.lacouf.rsbjwt.model.Enum.Statut.ACCEPTEE
+""")
+    long countByDisplayEndDateAfterAndStatutAcceptee(@Param("date") LocalDate date);
 }
