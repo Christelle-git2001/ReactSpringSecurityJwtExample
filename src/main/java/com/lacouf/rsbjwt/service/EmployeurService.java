@@ -561,7 +561,7 @@ public class EmployeurService {
             return CandidatureDTO.ofEmployeur(candidature);
         }
         if (decision == StatutCandidature.ACCEPTEE
-                && (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
+                && (candidature.getStatut() == StatutCandidature.EN_ATTENTE_DE_SIGNATURE
                 || candidature.getStatut() == StatutCandidature.CONTRAT_CREE)) {
             verifierActionsCandidatureEmployeur(candidature);
             return CandidatureDTO.ofEmployeur(candidature);

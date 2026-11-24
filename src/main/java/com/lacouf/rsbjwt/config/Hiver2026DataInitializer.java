@@ -210,10 +210,10 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                 .offreDeStage(offreHiverSaved)
                 .dateCandidature(LocalDateTime.of(2026, 1, 12, 14, 0))
                 .build();
-        candCharles.setStatut(StatutCandidature.STAGE_TROUVE);
+        candCharles.setStatut(StatutCandidature.EN_ATTENTE_DE_SIGNATURE);
         candCharles = candidatureRepository.save(candCharles);
 
-        etudiantCharles.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiantCharles.setStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
         etudiantCharles.setCandidatureStage(candCharles);
         etudiantRepository.save(etudiantCharles);
 
@@ -222,10 +222,10 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                 .offreDeStage(offreHiverSaved)
                 .dateCandidature(LocalDateTime.of(2026, 1, 13, 9, 30))
                 .build();
-        candJulie.setStatut(StatutCandidature.STAGE_TROUVE);
+        candJulie.setStatut(StatutCandidature.EN_ATTENTE_DE_SIGNATURE);
         candJulie = candidatureRepository.save(candJulie);
 
-        etudiantJulie.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiantJulie.setStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
         etudiantJulie.setCandidatureStage(candJulie);
         etudiantRepository.save(etudiantJulie);
 

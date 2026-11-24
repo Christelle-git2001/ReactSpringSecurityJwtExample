@@ -35,7 +35,7 @@ const EtudiantInfoCard = ({ etudiant, isNew, entrevueEtudiantSelectedSetter }) =
     const [error, setError] = useState("");
 
     const candidaturesAffichees = (() => {
-        const stageTrouve = candidatures.find(c => c.statut === "STAGE_TROUVE");
+        const stageTrouve = candidatures.find(c => c.statut === "EN_ATTENTE_DE_SIGNATURE");
         return stageTrouve ? [stageTrouve] : candidatures;
     })();
 

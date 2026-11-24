@@ -34,7 +34,7 @@ public record CandidatureDTO(
                     && statut != StatutCandidature.ENTREVUE_REFUSEE)) {
             return StatutCandidature.OFFRE_DECLINEE;
         }
-        return statut == StatutCandidature.STAGE_TROUVE ? StatutCandidature.ACCEPTEE : statut;
+        return statut == StatutCandidature.EN_ATTENTE_DE_SIGNATURE ? StatutCandidature.ACCEPTEE : statut;
    }
 
    public static CandidatureDTO ofEmployeur(Candidature candidature) {

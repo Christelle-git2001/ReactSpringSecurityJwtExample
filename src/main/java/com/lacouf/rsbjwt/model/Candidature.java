@@ -42,8 +42,8 @@ public class Candidature {
         if (stageChoisi != null) {
             return !java.util.Objects.equals(stageChoisi.getId(), id);
         }
-        return etudiant.getStatut() == com.lacouf.rsbjwt.model.Enum.StatutEtudiant.STAGE_TROUVE
-                && statut != StatutCandidature.STAGE_TROUVE
+        return etudiant.getStatut() == com.lacouf.rsbjwt.model.Enum.StatutEtudiant.EN_ATTENTE_DE_SIGNATURE
+                && statut != StatutCandidature.EN_ATTENTE_DE_SIGNATURE
                 && statut != StatutCandidature.CONTRAT_CREE;
     }
 

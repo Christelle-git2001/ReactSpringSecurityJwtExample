@@ -744,7 +744,7 @@ public class NotificationService {
     }
 
     void notifierEmployeursEvaluationStage(LocalDate aujourdHui) {
-        for (StatutCandidature statut : List.of(StatutCandidature.STAGE_TROUVE, StatutCandidature.CONTRAT_CREE)) {
+        for (StatutCandidature statut : List.of(StatutCandidature.EN_ATTENTE_DE_SIGNATURE, StatutCandidature.CONTRAT_CREE)) {
             for (Candidature candidature : candidatureRepository.findByStatut(statut)) {
                 OffreDeStage offre = candidature.getOffreDeStage();
                 if (offre == null || offre.getEndDate() == null) continue;

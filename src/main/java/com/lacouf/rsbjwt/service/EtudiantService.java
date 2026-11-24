@@ -533,16 +533,16 @@ public class EtudiantService {
             }
             return CandidatureDTO.of(candidature, creerContratSiManquant(candidature, null));
         }
-        if (candidature.getStatut() != StatutCandidature.ACCEPTEE || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
+        if (candidature.getStatut() != StatutCandidature.ACCEPTEE || etudiant.getStatut() == StatutEtudiant.EN_ATTENTE_DE_SIGNATURE) {
             throw new DecisionStageInvalideException();
         }
         Gestionnaire gestionnaire = gestionnaireRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(CreationContratImpossibleException::new);
 
         etudiant.setCandidatureStage(candidature);
-        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
         etudiantRepository.save(etudiant);
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setStatut(StatutCandidature.EN_ATTENTE_DE_SIGNATURE);
         Contrat contrat = creerContratSiManquant(candidature, gestionnaire);
         return CandidatureDTO.of(candidature, contrat);
     }
@@ -553,7 +553,7 @@ public class EtudiantService {
         Etudiant etudiant = verrouillerEtudiantConnecte();
         Candidature candidature = candidatureRepository.findByIdAndEtudiantId(candidatureId, etudiant.getId())
                 .orElseThrow(CandidatureIntrouvableException::new);
-        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE
+        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.EN_ATTENTE_DE_SIGNATURE
                 || candidature.getStatut() != StatutCandidature.ACCEPTEE) {
             throw new DecisionStageInvalideException();
         }
@@ -594,7 +594,7 @@ public class EtudiantService {
             if (entrevue.getCandidature().getStatut() != StatutCandidature.ENTREVUE_PLANIFIEE) continue;
             enAttenteReponse |= entrevue.getStatut() == StatutEntrevue.TERMINEE;
         }
-        StatutEtudiant statut = etudiant.getCandidatureStage() != null ? StatutEtudiant.STAGE_TROUVE
+        StatutEtudiant statut = etudiant.getCandidatureStage() != null ? StatutEtudiant.EN_ATTENTE_DE_SIGNATURE
                 : enAttenteReponse ? StatutEtudiant.EN_ATTENTE_REPONSE : StatutEtudiant.EN_RECHERCHE;
         if (etudiant.getStatut() != statut) {
             etudiant.setStatut(statut);
@@ -728,7 +728,7 @@ public class EtudiantService {
         Candidature candidature = candidatureRepository.findById(candidatureId)
                 .orElseThrow(CandidatureIntrouvableException::new);
         Etudiant etudiant = candidature.getEtudiant();
-        if (etudiant == null || etudiant.getStatut() != StatutEtudiant.STAGE_TROUVE
+        if (etudiant == null || etudiant.getStatut() != StatutEtudiant.EN_ATTENTE_DE_SIGNATURE
                 || etudiant.getCandidatureStage() == null
                 || !candidatureId.equals(etudiant.getCandidatureStage().getId())) {
             throw new DecisionStageInvalideException();

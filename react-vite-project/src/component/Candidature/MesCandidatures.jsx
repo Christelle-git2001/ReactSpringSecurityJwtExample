@@ -63,7 +63,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
     const [decisionStage, setDecisionStage] = useState(null);
     const [erreurDecisionStage, setErreurDecisionStage] = useState(null);
 
-    const stageDeclare = candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE" || ["STAGE_TROUVE", "CONTRAT_CREE"].includes(c.statut));
+    const stageDeclare = candidatures.some(c => c.statutEtudiant === "EN_ATTENTE_DE_SIGNATURE" || ["EN_ATTENTE_DE_SIGNATURE", "CONTRAT_CREE"].includes(c.statut));
 
     const visibles = candidatures.filter(candidature => selectedActions === "TOUS"
         || actionsCandidatureDesactivees(candidature) === (selectedActions === "DESACTIVEES")).map((candidature) => {
@@ -87,8 +87,8 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
         const actionsDesactiveesA = actionsCandidatureDesactivees(a.candidature);
         const actionsDesactiveesB = actionsCandidatureDesactivees(b.candidature);
         if (actionsDesactiveesA !== actionsDesactiveesB) return actionsDesactiveesA ? 1 : -1;
-        const stageA = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(a.candidature.statut);
-        const stageB = ["STAGE_TROUVE", "CONTRAT_CREE"].includes(b.candidature.statut);
+        const stageA = ["EN_ATTENTE_DE_SIGNATURE", "CONTRAT_CREE"].includes(a.candidature.statut);
+        const stageB = ["EN_ATTENTE_DE_SIGNATURE", "CONTRAT_CREE"].includes(b.candidature.statut);
         if (stageA !== stageB) return stageA ? -1 : 1;
         const comparaison = (a.candidature.dateCandidature ?? "").localeCompare(b.candidature.dateCandidature ?? "");
         return sortOrder === "asc" ? comparaison : -comparaison;
@@ -260,7 +260,7 @@ function MesCandidatures({ candidatures: candidaturesProp, onCandidaturesChange,
                                 const isFocused = (focusedCardId !== null && focusedCardId === c.id) || focusedCandidatureId === c.candidatureId;
                                 const candidature = c.candidature;
                                 const actionsDesactivees = actionsCandidatureDesactivees(candidature);
-                                const stageChoisi = stageDeclare && !actionsDesactivees && ["STAGE_TROUVE", "CONTRAT_CREE"].includes(candidature.statut);
+                                const stageChoisi = stageDeclare && !actionsDesactivees && ["EN_ATTENTE_DE_SIGNATURE", "CONTRAT_CREE"].includes(candidature.statut);
                                 const statutConfig = getStatusConfig(c.statutFiltre, t, "candidatureEtudiant");
                                 return (
                                     <li key={c.candidatureId} data-candidature-id={c.candidatureId} id={c.id ? `entrevue-${c.id}` : `candidature-${c.candidatureId}`} className="scroll-mt-6">

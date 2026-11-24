@@ -248,7 +248,7 @@
     "convocation_not_found": "Convocation d’entrevue introuvable.",
     "password_invalid": "Le mot de passe est incorrect.",
     "password_required": "Veuillez saisir votre mot de passe.",
-    "internship_found_locked": "L'étudiant a déjà déclaré un stage trouvé."
+    "internship_found_locked": "L'étudiant a déjà déclaré un stage : En attente de signature."
   },
   "success": {
     "student_added": "Étudiant ajouté avec succès.",
@@ -369,7 +369,7 @@
       "details_button": "Détails",
       "apply_button": "Postuler",
       "fromTo": "à",
-      "internship_found_locked": "Stage trouvé : impossible de postuler à d'autres offres."
+      "internship_found_locked": "En attente de signature : impossible de postuler à d'autres offres."
     },
     "card_professeur": {
       "information_communication": "Information de communication",
@@ -524,7 +524,7 @@
   "student_status": {
     "title": "Mon statut",
     "declaration_title": "Compléter la déclaration",
-    "declaration_description": "Pour déclarer cette candidature comme votre stage, sélectionnez « Stage trouvé » et confirmez votre choix.",
+    "declaration_description": "Pour déclarer cette candidature comme votre stage, sélectionnez « En attente de signature » et confirmez votre choix.",
     "confirm": "Confirmer",
     "loading": "Chargement…",
     "EN_RECHERCHE": {
@@ -535,8 +535,8 @@
       "label": "En attente de réponse",
       "description": "J'attends une réponse d'un employeur."
     },
-    "STAGE_TROUVE": {
-      "label": "Stage trouvé",
+    "EN_ATTENTE_DE_SIGNATURE": {
+      "label": "En attente de signature",
       "description": "J'ai choisi mon stage et je vais signer le contrat."
     }
   },
@@ -567,7 +567,7 @@
       "TERMINEE": "Terminée"
     },
     "my_applications": "Mes candidatures",
-    "declare_stage_found": "Déclarer mon stage trouvé",
+    "declare_stage_found": "Déclarer mon stage : En attente de signature",
     "newest_first": "Plus récentes",
     "oldest_first": "Plus anciennes",
     "search_placeholder": "Rechercher une candidature…",
@@ -579,7 +579,7 @@
       "offre_declinee": "Offre déclinée",
       "contrat": "Contrat",
       "contrat_signe": "Contrat signé",
-      "stage_trouve": "Stage trouvé",
+      "en_attente_de_signature": "En attente de signature",
       "soumise": "Candidature soumise",
       "retenue_pour_entrevue": "Retenue pour entrevue",
       "retenue": "Retenue pour entrevue",
@@ -660,9 +660,9 @@
         "title": "Contrat à signer",
         "description": "{{ETUDIANT_NOM}} et l’employeur ont signé le contrat pour « {{OFFRE_TITRE}} ». Votre signature est maintenant attendue."
       },
-      "stageTrouve": {
+      "enAttenteDeSignature": {
         "title": "Processus de contrat à démarrer",
-        "description": "{{ETUDIANT_NOM}} a déclaré un stage trouvé pour l’offre « {{OFFRE_TITRE}} ». Vous pouvez démarrer le processus de contrat."
+        "description": "{{ETUDIANT_NOM}} a déclaré un stage : En attente de signature,  pour l’offre « {{OFFRE_TITRE}} ». Vous pouvez démarrer le processus de contrat."
       },
       "offre": {
         "title": "Nouvelle offre à valider",
@@ -750,7 +750,7 @@
     }
   },
   "agenda": {
-    "interview_cancelled": "Entrevue annulée — stage trouvé",
+    "interview_cancelled": "Entrevue annulée — En attente de signature",
     "interview_completed": "Entrevue terminée",
     "clear_filter": "Afficher toutes les entrevues",
     "interviews_list": "Entrevues",
@@ -808,7 +808,7 @@
     "action_wait_interview": "L'entrevue est planifiée. En attente de la tenue de l'entrevue.",
     "action_accept_refuse": "L'entrevue est terminée. Vous pouvez accepter ou refuser la candidature.",
     "action_wait_contract": "Le stage a été trouvé. En attente de la création du contrat de stage.",
-    "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage trouvé avant la création du contrat.",
+    "action_wait_student_declaration": "La candidature est acceptée. L'étudiant doit déclarer son stage : En attente de signature, avant la création du contrat.",
     "action_sign_contract": "Le contrat de stage a été créé. Veuillez procéder à la signature.",
     "action_evaluate_intern": "L’évaluation est disponible dans les deux dernières semaines du stage.",
     "action_default": "Suivi du processus de candidature en cours.",
@@ -1084,7 +1084,7 @@
     "refuse": "Refuser le stage",
     "accept_title": "Confirmer l’acceptation du stage",
     "refuse_title": "Refuser ce stage ?",
-    "accept_description": "Votre statut passera à « Stage trouvé » et le contrat sera créé automatiquement pour signature.",
+    "accept_description": "Votre statut passera à « En attente de signature » et le contrat sera créé automatiquement pour signature.",
     "refuse_description": "Cette offre sera refusée et la place réservée sera libérée. Vous pourrez poursuivre votre recherche de stage.",
     "lock_warning": "Après confirmation, les actions sur vos autres candidatures et entrevues seront désactivées. Vous pourrez toujours consulter vos informations et signer le contrat du stage choisi.",
     "refused_by_student": "Stage refusé par l’étudiant.",

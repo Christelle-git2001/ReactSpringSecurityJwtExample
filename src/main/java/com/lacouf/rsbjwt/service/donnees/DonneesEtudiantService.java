@@ -31,7 +31,7 @@ public class DonneesEtudiantService {
     }
 
     public long compterEtudiantsSansStage() {
-        return etudiantRepository.countByCandidatureStageIsNullAndStatutNot(StatutEtudiant.STAGE_TROUVE);
+        return etudiantRepository.countByCandidatureStageIsNullAndStatutNot(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
     }
 
     public long compterEtudiantsInscrits() {
@@ -47,16 +47,16 @@ public class DonneesEtudiantService {
     }
 
     public List<EtudiantDTO> obtenirEtudiantsSansStage() {
-        return etudiantRepository.findByCandidatureStageIsNullAndStatutNot(StatutEtudiant.STAGE_TROUVE)
+        return etudiantRepository.findByCandidatureStageIsNullAndStatutNot(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE)
                 .stream().map(EtudiantDTO::of).toList();
     }
 
     public long compterEtudiantsAvecStage() {
-        return etudiantRepository.countByCandidatureStageIsNotNullOrStatut(StatutEtudiant.STAGE_TROUVE);
+        return etudiantRepository.countByCandidatureStageIsNotNullOrStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
     }
 
     public List<EtudiantDTO> obtenirEtudiantsAvecStage() {
-        return etudiantRepository.findByCandidatureStageIsNotNullOrStatut(StatutEtudiant.STAGE_TROUVE)
+        return etudiantRepository.findByCandidatureStageIsNotNullOrStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE)
                 .stream().map(EtudiantDTO::of).toList();
     }
 

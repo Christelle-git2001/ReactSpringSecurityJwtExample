@@ -24,7 +24,7 @@ public class DonneesCandidatureService {
     }
 
     public List<CandidatureDTO> obtenirStagesSansContrat() {
-        return candidatureRepository.findByStatutSansContrat(StatutCandidature.STAGE_TROUVE)
+        return candidatureRepository.findByStatutSansContrat(StatutCandidature.EN_ATTENTE_DE_SIGNATURE)
                 .stream().map(CandidatureDTO::of).toList();
     }
 

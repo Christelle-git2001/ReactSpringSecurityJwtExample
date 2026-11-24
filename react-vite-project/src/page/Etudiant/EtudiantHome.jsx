@@ -298,7 +298,7 @@ const EtudiantHome = ({ user }) => {
                                                         <PageSeparator />
                                                     )}
                                                     <OffreEtudiantCard
-                                                        user={{ ...user, statut: candidatures.some(c => c.statutEtudiant === "STAGE_TROUVE") ? "STAGE_TROUVE" : user?.statut }}
+                                                        user={{ ...user, statut: candidatures.some(c => c.statutEtudiant === "EN_ATTENTE_DE_SIGNATURE") ? "EN_ATTENTE_DE_SIGNATURE" : user?.statut }}
                                                         key={offer.id}
                                                         offer={offer}
                                                         onPreview={setPreviewUrl}

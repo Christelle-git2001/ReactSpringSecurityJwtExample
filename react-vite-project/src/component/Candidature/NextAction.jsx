@@ -435,7 +435,7 @@ function NextAction({
                 case "REFUSEE":
                     return { description: t("process.action_application_refused"), buttonText: null, disabled: false };
 
-                case "STAGE_TROUVE":
+                case "EN_ATTENTE_DE_SIGNATURE":
                     return {
                         description: t("process.action_wait_contract"),
                         buttonText: t("actions.waiting"),

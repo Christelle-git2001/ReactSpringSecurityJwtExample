@@ -305,7 +305,7 @@ public class GestionnaireService {
         Etudiant etudiant = etudiantRepository.findById(creationOffreCibleeDTO.etudiantId())
                 .orElseThrow(() -> new UtilisateurIntrouvableException());
 
-        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.STAGE_TROUVE) {
+        if (etudiant.getCandidatureStage() != null || etudiant.getStatut() == StatutEtudiant.EN_ATTENTE_DE_SIGNATURE) {
             throw new StageDejaTrouveException();
         }
 
@@ -431,7 +431,7 @@ public class GestionnaireService {
 
         Contrat contrat;
 
-        if (candidature.getStatut() == StatutCandidature.STAGE_TROUVE
+        if (candidature.getStatut() == StatutCandidature.EN_ATTENTE_DE_SIGNATURE
                 && candidature.getEtudiant() != null
                 && candidature.getEtudiant().getCandidatureStage() != null
                 && candidatureId.equals(candidature.getEtudiant().getCandidatureStage().getId())) {

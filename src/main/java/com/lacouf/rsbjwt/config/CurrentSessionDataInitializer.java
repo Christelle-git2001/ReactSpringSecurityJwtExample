@@ -576,9 +576,9 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         Candidature candidature = candidatureRepository.findById(candidatureId).orElseThrow();
         Etudiant etudiant = etudiantRepository.findById(candidature.getEtudiant().getId()).orElseThrow();
 
-        candidature.setStatut(StatutCandidature.STAGE_TROUVE);
+        candidature.setStatut(StatutCandidature.EN_ATTENTE_DE_SIGNATURE);
         candidatureRepository.save(candidature);
-        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
         etudiant.setCandidatureStage(candidature);
         etudiantRepository.save(etudiant);
 
@@ -629,7 +629,7 @@ public class CurrentSessionDataInitializer implements CommandLineRunner {
         candidature.setStatut(StatutCandidature.CONTRAT_CREE);
         candidature = candidatureRepository.save(candidature);
 
-        etudiant.setStatut(StatutEtudiant.STAGE_TROUVE);
+        etudiant.setStatut(StatutEtudiant.EN_ATTENTE_DE_SIGNATURE);
         etudiant.setCandidatureStage(candidature);
         etudiantRepository.save(etudiant);
 

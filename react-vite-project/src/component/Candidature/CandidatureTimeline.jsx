@@ -25,7 +25,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
         && (!regrouperEntrevue || step.key !== "CONFIRMEE"));
     const statutTimeline = afficherEvaluation && evaluationSoumise ? "EVALUATION" : afficherSignature && statut === "CONTRAT_CREE" && !contratSigne ? "SIGNATURE_DEMARREE" : candidatureRefusee ? "ACCEPTEE" : estRefusee ? "ENTREVUE_PLANIFIEE"
         : statut === "ENTREVUE_PLANIFIEE" && ["CONFIRMEE", "TERMINEE"].includes(statutEntrevue)
-            ? "CONFIRMEE" : statut === "STAGE_TROUVE" ? "ACCEPTEE" : statut;
+            ? "CONFIRMEE" : statut === "EN_ATTENTE_DE_SIGNATURE" ? "ACCEPTEE" : statut;
 
     const isCompleted = (stepKey) => {
         const currentIndex = order.indexOf(statutTimeline);
@@ -33,7 +33,7 @@ function CandidatureTimeline({ statut, statutEntrevue, afficherRetenue = true, r
         return stepIndex <= currentIndex;
     };
 
-    const etatEntrevue = statutEntrevue === "TERMINEE" || ["ACCEPTEE", "REFUSEE", "STAGE_TROUVE", "CONTRAT_CREE"].includes(statut) ? "TERMINEE"
+    const etatEntrevue = statutEntrevue === "TERMINEE" || ["ACCEPTEE", "REFUSEE", "EN_ATTENTE_DE_SIGNATURE", "CONTRAT_CREE"].includes(statut) ? "TERMINEE"
         : statutEntrevue === "CONFIRMEE" ? "CONFIRMEE" : "ENTREVUE_PLANIFIEE";
     const contenuEtape = (step) => (
         <>
