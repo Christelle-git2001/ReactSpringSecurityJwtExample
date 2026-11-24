@@ -1093,7 +1093,7 @@
     "refused_notification_title": "Un étudiant a refusé le stage",
     "refused_notification_description": "{{ETUDIANT_NOM}} a refusé le stage {{OFFRE_TITRE}}. Une place est de nouveau disponible."
   },
-  "evaluation": {
+  "evaluation_milieu": {
     "title": "Évaluation du milieu de stage",
     "sections": {
       "internship_info": "1. Informations sur le stage",
