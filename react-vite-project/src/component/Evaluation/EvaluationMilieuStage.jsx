@@ -90,7 +90,7 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
     };
 
     const champ = (nom) => ({
-        label: t(`evaluation.fields.${nom}`),
+        label: t(`evaluation_milieu.fields.${nom}`),
         value: form[nom] ?? "",
         erreur: Boolean(erreurs[nom]),
         disabled: desactive,
@@ -98,7 +98,7 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
     });
 
     const champSuperviseur = (nom) => ({
-        label: t(`evaluation.supervisor.${nom}`),
+        label: t(`evaluation_milieu.supervisor.${nom}`),
         requis: SUPERVISEUR_REQUIS.includes(nom),
         value: form.superviseur[nom] ?? "",
         erreur: Boolean(erreurs[`superviseur.${nom}`]),
@@ -120,8 +120,8 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
         setErreurs(e => ({ ...e, quarts: false }));
     };
 
-    const options = (paires) => paires.map(([value, cle]) => ({ value, label: t(`evaluation.options.${cle}`) }));
-    const niveaux = NIVEAUX.map(n => ({ value: n, label: t(`evaluation.levels.${n}`) }));
+    const options = (paires) => paires.map(([value, cle]) => ({ value, label: t(`evaluation_milieu.options.${cle}`) }));
+    const niveaux = NIVEAUX.map(n => ({ value: n, label: t(`evaluation_milieu.levels.${n}`) }));
     const ouiNon = options([["OUI", "OUI"], ["NON", "NON"]]);
     const aDesaccord = CRITERES.some(c => DESACCORDS.includes(form.reponses[c.id]));
 
@@ -166,10 +166,10 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                 {/* En-tête */}
                 <div className="flex items-start gap-3 border-b border-gray-200 px-6 py-4">
                     <div className="min-w-0">
-                        <h2 id="titre-evaluation-milieu" className="text-xl font-bold text-[#043462]">{t("evaluation.title")}</h2>
+                        <h2 id="titre-evaluation-milieu" className="text-xl font-bold text-[#043462]">{t("evaluation_milieu.title")}</h2>
                         <p className="text-sm text-gray-600">{nomStagiaire} — {employeur?.businessName}</p>
                     </div>
-                    <button type="button" onClick={onClose} disabled={envoi} aria-label={t("evaluation.close")}
+                    <button type="button" onClick={onClose} disabled={envoi} aria-label={t("evaluation_milieu.close")}
                             className="ml-auto text-gray-400 hover:text-gray-700">
                         <FaTimes size={16} />
                     </button>
@@ -181,25 +181,25 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                     {lectureSeule && (
                         <p className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-100 px-4 py-3 text-sm font-semibold text-green-800">
                             <FaCheckCircle aria-hidden="true" />
-                            {t("evaluation.success")}
+                            {t("evaluation_milieu.success")}
                         </p>
                     )}
 
-                    <Section titre={t("evaluation.sections.internship_info")}>
+                    <Section titre={t("evaluation_milieu.sections.internship_info")}>
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <Info label={t("evaluation.fields.nomEntreprise")} value={employeur?.businessName} />
-                            <Info label={t("evaluation.fields.personneContact")} value={contact} />
-                            <Info label={t("evaluation.fields.telephone")} value={employeur?.phone} />
-                            <Info label={t("evaluation.fields.ville")} value={employeur?.town} />
-                            <Info label={t("evaluation.fields.nomStagiaire")} value={nomStagiaire} />
-                            <Info label={t("evaluation.fields.salaireHoraire")} value={offre?.salary} />
-                            <Info label={t("evaluation.fields.dateDebut")} value={offre?.startDate} />
-                            <Info label={t("evaluation.fields.dateFin")} value={offre?.endDate} />
+                            <Info label={t("evaluation_milieu.fields.nomEntreprise")} value={employeur?.businessName} />
+                            <Info label={t("evaluation_milieu.fields.personneContact")} value={contact} />
+                            <Info label={t("evaluation_milieu.fields.telephone")} value={employeur?.phone} />
+                            <Info label={t("evaluation_milieu.fields.ville")} value={employeur?.town} />
+                            <Info label={t("evaluation_milieu.fields.nomStagiaire")} value={nomStagiaire} />
+                            <Info label={t("evaluation_milieu.fields.salaireHoraire")} value={offre?.salary} />
+                            <Info label={t("evaluation_milieu.fields.dateDebut")} value={offre?.startDate} />
+                            <Info label={t("evaluation_milieu.fields.dateFin")} value={offre?.endDate} />
                         </div>
                     </Section>
 
                     {/* 2. Superviseur en entreprise */}
-                    <Section titre={t("evaluation.sections.supervisor")}>
+                    <Section titre={t("evaluation_milieu.sections.supervisor")}>
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             {CHAMPS_SUPERVISEUR.map(n => (
                                 <Champ key={n} type={n === "email" ? "email" : n === "telephone" ? "tel" : "text"} {...champSuperviseur(n)} />
@@ -208,12 +208,12 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                     </Section>
 
                     {/* 3. Évaluation */}
-                    <Section titre={t("evaluation.sections.evaluation")}>
+                    <Section titre={t("evaluation_milieu.sections.evaluation")}>
                         <ul className="divide-y divide-[#043462]/10">
                             {CRITERES.map(c => (
                                 <li key={c.id}>
-                                    <Question libelle={t(`evaluation.criteres.${c.id}`)} erreur={erreurs[c.id]}>
-                                        <Choix name={c.id} legende={t(`evaluation.criteres.${c.id}`)} options={niveaux}
+                                    <Question libelle={t(`evaluation_milieu.criteres.${c.id}`)} erreur={erreurs[c.id]}>
+                                        <Choix name={c.id} legende={t(`evaluation_milieu.criteres.${c.id}`)} options={niveaux}
                                                value={form.reponses[c.id]} onChange={v => repondre(c.id, v)}
                                                erreur={erreurs[c.id]} disabled={desactive} />
                                         {c.id === "tempsEncadrement" && (
@@ -225,40 +225,40 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                                 </li>
                             ))}
                         </ul>
-                        <p className="mt-2 text-xs text-gray-500">{t("evaluation.disagree_hint")}</p>
+                        <p className="mt-2 text-xs text-gray-500">{t("evaluation_milieu.disagree_hint")}</p>
                     </Section>
 
                     {/* 4. Commentaires */}
-                    <Section titre={t("evaluation.sections.comments")}>
+                    <Section titre={t("evaluation_milieu.sections.comments")}>
                         <Champ zoneTexte requis={aDesaccord} {...champ("commentaires")} />
                     </Section>
 
                     {/* 5. Observations générales */}
-                    <Section titre={t("evaluation.sections.observations")}>
+                    <Section titre={t("evaluation_milieu.sections.observations")}>
                         <div className="divide-y divide-[#043462]/10">
-                            <Question libelle={t("evaluation.questions.milieuPrivilegie")} erreur={erreurs.noStagePrivilegier}>
-                                <Choix name="noStagePrivilegier" legende={t("evaluation.questions.milieuPrivilegie")}
+                            <Question libelle={t("evaluation_milieu.questions.milieuPrivilegie")} erreur={erreurs.noStagePrivilegier}>
+                                <Choix name="noStagePrivilegier" legende={t("evaluation_milieu.questions.milieuPrivilegie")}
                                        options={options([["1", "PREMIER_STAGE"], ["2", "DEUXIEME_STAGE"]])}
                                        value={form.noStagePrivilegier} onChange={v => modifier("noStagePrivilegier", v)}
                                        erreur={erreurs.noStagePrivilegier} disabled={desactive} />
                             </Question>
 
-                            <Question libelle={t("evaluation.questions.nombreStagiaires")} erreur={erreurs.nbStagiaireAccueil}>
-                                <Choix name="nbStagiaireAccueil" legende={t("evaluation.questions.nombreStagiaires")}
+                            <Question libelle={t("evaluation_milieu.questions.nombreStagiaires")} erreur={erreurs.nbStagiaireAccueil}>
+                                <Choix name="nbStagiaireAccueil" legende={t("evaluation_milieu.questions.nombreStagiaires")}
                                        options={options([["1", "UN"], ["2", "DEUX"], ["3", "TROIS"], ["4", "PLUS_DE_TROIS"]])}
                                        value={form.nbStagiaireAccueil} onChange={v => modifier("nbStagiaireAccueil", v)}
                                        erreur={erreurs.nbStagiaireAccueil} disabled={desactive} />
                             </Question>
 
-                            <Question libelle={t("evaluation.questions.memeStagiaire")} erreur={erreurs.engagerMemeStagiaire}>
-                                <Choix name="engagerMemeStagiaire" legende={t("evaluation.questions.memeStagiaire")}
+                            <Question libelle={t("evaluation_milieu.questions.memeStagiaire")} erreur={erreurs.engagerMemeStagiaire}>
+                                <Choix name="engagerMemeStagiaire" legende={t("evaluation_milieu.questions.memeStagiaire")}
                                        options={ouiNon} value={form.engagerMemeStagiaire}
                                        onChange={v => modifier("engagerMemeStagiaire", v)}
                                        erreur={erreurs.engagerMemeStagiaire} disabled={desactive} />
                             </Question>
 
-                            <Question libelle={t("evaluation.questions.quartsVariables")} erreur={erreurs.quartsVariables || erreurs.quarts}>
-                                <Choix name="quartsVariables" legende={t("evaluation.questions.quartsVariables")}
+                            <Question libelle={t("evaluation_milieu.questions.quartsVariables")} erreur={erreurs.quartsVariables || erreurs.quarts}>
+                                <Choix name="quartsVariables" legende={t("evaluation_milieu.questions.quartsVariables")}
                                        options={ouiNon} value={form.quartsVariables}
                                        onChange={v => modifier("quartsVariables", v)}
                                        erreur={erreurs.quartsVariables} disabled={desactive} />
@@ -266,14 +266,14 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
                                     <div className="mt-1 flex flex-col gap-2">
                                         {form.quarts.map((q, i) => (
                                             <div key={i} className="flex flex-wrap items-center gap-2 text-sm text-[#043462]">
-                                                <span className="w-6 font-semibold">{t("evaluation.fields.de")}</span>
+                                                <span className="w-6 font-semibold">{t("evaluation_milieu.fields.de")}</span>
                                                 <input type="time" value={q.de} disabled={desactive}
-                                                       aria-label={`${t("evaluation.fields.de")} ${i + 1}`}
+                                                       aria-label={`${t("evaluation_milieu.fields.de")} ${i + 1}`}
                                                        onChange={e => modifierQuart(i, "de", e.target.value)}
                                                        className={`${CHAMP} mt-0 w-auto ${i === 0 && erreurs.quarts ? "border-red-400" : "border-gray-200"}`} />
-                                                <span className="w-6 text-center font-semibold">{t("evaluation.fields.a")}</span>
+                                                <span className="w-6 text-center font-semibold">{t("evaluation_milieu.fields.a")}</span>
                                                 <input type="time" value={q.a} disabled={desactive}
-                                                       aria-label={`${t("evaluation.fields.a")} ${i + 1}`}
+                                                       aria-label={`${t("evaluation_milieu.fields.a")} ${i + 1}`}
                                                        onChange={e => modifierQuart(i, "a", e.target.value)}
                                                        className={`${CHAMP} mt-0 w-auto ${i === 0 && erreurs.quarts ? "border-red-400" : "border-gray-200"}`} />
                                             </div>
@@ -287,17 +287,17 @@ function EvaluationMilieuStage({ etudiant, employeur, offre, evaluationExistante
 
                 {/* Pied */}
                 <div className="border-t border-gray-200 px-6 py-4">
-                    {aDesErreurs && <p role="alert" className="mb-2 text-sm text-red-700">{t("evaluation.required")}</p>}
+                    {aDesErreurs && <p role="alert" className="mb-2 text-sm text-red-700">{t("evaluation_milieu.required")}</p>}
                     {erreurApi && <p role="alert" className="mb-2 text-sm text-red-700">{t("error.generic")}</p>}
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        {!lectureSeule && <p className="text-xs text-gray-500">{t("evaluation.confirm_description")}</p>}
+                        {!lectureSeule && <p className="text-xs text-gray-500">{t("evaluation_milieu.confirm_description")}</p>}
                         <div className="ml-auto flex gap-3">
                             <Button variant="secondary" type="button" onClick={onClose} disabled={envoi}>
-                                {lectureSeule ? t("evaluation.close") : t("actions.cancel")}
+                                {lectureSeule ? t("evaluation_milieu.close") : t("actions.cancel")}
                             </Button>
                             {!lectureSeule && (
                                 <Button variant="success" type="submit" disabled={envoi}>
-                                    {t("evaluation.submit")}
+                                    {t("evaluation_milieu.submit")}
                                 </Button>
                             )}
                         </div>
