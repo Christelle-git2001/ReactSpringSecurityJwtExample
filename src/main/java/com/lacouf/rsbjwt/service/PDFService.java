@@ -1,6 +1,8 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -22,9 +24,6 @@ import com.lacouf.rsbjwt.model.Evaluation.*;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
-
-import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +39,7 @@ import java.text.MessageFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,13 +47,13 @@ public class PDFService {
     private final String FRANCAIS = "fr";
     private final ContratRepository contratRepository;
     private final int NB_COLUMN_EVALUATION = 5;
-    private final CandidatureRepository candidatureRepository;
     private final EvaluationStagiaireRepository evaluationStagiaireRepository;
+    private final EvaluationMillieuStageRepository evaluationMillieuStageRepository;
 
-    public PDFService(ContratRepository contratRepository, CandidatureRepository candidatureRepository, EvaluationStagiaireRepository evaluationStagiaireRepository) {
+    public PDFService(ContratRepository contratRepository, EvaluationStagiaireRepository evaluationStagiaireRepository, EvaluationMillieuStageRepository evaluationMillieuStageRepository) {
         this.contratRepository = contratRepository;
-        this.candidatureRepository = candidatureRepository;
         this.evaluationStagiaireRepository = evaluationStagiaireRepository;
+        this.evaluationMillieuStageRepository = evaluationMillieuStageRepository;
     }
 
     private Paragraph addTitre(String cleDeTraduction, int fontSize, ResourceBundle messages) {
@@ -124,8 +124,8 @@ public class PDFService {
         Employeur employeur = offre.getEmployeur();
         Gestionnaire gestionnaire = contrat.getGestionnaire();
 
-        Locale locale = new Locale(langue != null ? langue : FRANCAIS);
-        ResourceBundle messages = ResourceBundle.getBundle("i18n.messages", locale);
+        ResourceBundle messages = getMessages(langue);
+
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -202,7 +202,7 @@ public class PDFService {
             ajouterBlocSignature(
                     elements,
                     "signature.etudiant",
-                    etudiant.getFirstName() + " " + etudiant.getLastName(),
+                    formatName(etudiant.getFirstName(),etudiant.getLastName()),
                     contrat.getDateSignatureEtudiant(),
                     messages
             );
@@ -210,7 +210,7 @@ public class PDFService {
             ajouterBlocSignature(
                     elements,
                     "signature.employeur",
-                    employeur.getFirstName() + " " + employeur.getLastName(),
+                    formatName(employeur.getFirstName(), employeur.getLastName()),
                     contrat.getDateSignatureEmployeur(),
                     messages
             );
@@ -218,7 +218,7 @@ public class PDFService {
             ajouterBlocSignature(
                     elements,
                     "signature.gestionnaire",
-                    gestionnaire.getFirstName() + " " + gestionnaire.getLastName(),
+                    formatName(gestionnaire.getFirstName(), gestionnaire.getLastName()),
                     contrat.getDateSignatureGestionnaire(),
                     messages
             );
@@ -241,7 +241,7 @@ public class PDFService {
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
 
-            document.add(new Paragraph(etudiant.getFirstName() + " " + etudiant.getLastName())
+            document.add(new Paragraph(formatName(etudiant.getFirstName(),etudiant.getLastName()))
                     .setFontSize(18).setBold().setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("Montréal, QC | " + etudiant.getPhoneNumber() + " | " + etudiant.getEmail())
                     .setFontSize(10).setTextAlignment(TextAlignment.CENTER).setMarginBottom(15));
@@ -330,8 +330,8 @@ public class PDFService {
 
 
 
-        Locale locale = new Locale(langue != null ? langue : FRANCAIS);
-        ResourceBundle messages = ResourceBundle.getBundle("i18n.messages", locale);
+        ResourceBundle messages = getMessages(langue);
+
 
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -404,7 +404,7 @@ public class PDFService {
             document.add(new Paragraph(messages.getString("evaluation.N/A_meaning")).setBold());
             document.add(addEvaluationBoxGlobale("appreciation_globale.titre", String.valueOf(appreciationGlobal.getAttenteEmployeurScore()), appreciationGlobal.getDescriptionAppreciation(), appreciationGlobal.getDiscussionAvecStagiaire(), messages).setMarginBottom(15f));
             document.add(addHeuresEncadrementBox(String.valueOf(appreciationGlobal.getSupervisionTime()), messages).setMarginBottom(15f));
-            document.add(addSectionFinaleBox(appreciationGlobal.getRenewExperience(), appreciationGlobal.getExperienceSuffisante(), superviseurInfo.getFirstName() + " " + superviseurInfo.getLastName(), superviseurInfo.getFonction(),evaluationStagiaire.getDateSignature() , messages).setMarginBottom(15f));
+            document.add(addSectionFinaleBox(appreciationGlobal.getRenewExperience(), appreciationGlobal.getExperienceSuffisante(), formatName(superviseurInfo.getFirstName(), superviseurInfo.getLastName()), superviseurInfo.getFonction(), LocalDateTime.now(), messages).setMarginBottom(15f));
             document.add(addReturnFormBox(professeur, messages));
             document.add(addFooterInstitutionnel(messages));
         }
@@ -425,7 +425,7 @@ public class PDFService {
 
     private LinkedHashMap<String, String> buildInformationMap(Etudiant etudiant, Employeur employeur, SuperviseurInfo superviseur) {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put("etudiant_nom", etudiant.getFirstName() + " " + etudiant.getLastName());
+        map.put("etudiant_nom", formatName(etudiant.getFirstName(), etudiant.getLastName()));
         map.put("etudiant_programme", etudiant.getDepartment().getLabel());
         map.put("entreprise_nom", employeur.getBusinessName());
         map.put("superviseur_nom", superviseur.getFirstName() + " " + superviseur.getLastName());
@@ -434,7 +434,83 @@ public class PDFService {
         return map;
     }
 
+    public Resource createEvaluationMilieuStage(String langue, Long candidatureId) throws IOException, EvaluationMilieuStageIntrouvableException {
+        EvaluationMillieuStage evaluation = evaluationMillieuStageRepository
+                .findEvaluationMillieuStageByCandidature_Id(candidatureId)
+                .orElseThrow(EvaluationMilieuStageIntrouvableException::new);
 
+        Candidature candidature = evaluation.getCandidature();
+        Etudiant etudiant = candidature.getEtudiant();
+        OffreDeStage offre = candidature.getOffreDeStage();
+        Employeur employeur = offre.getEmployeur();
+        SuperviseurInfo superviseur = evaluation.getSuperviseurInfo();
+        MilieuStageScores scores = evaluation.getMillieuStageScores();
+        ObservationGeneral obs = evaluation.getObservationGeneral();
+
+        ResourceBundle messages = getMessages(langue);
+
+        String commentaireGlobal = scores != null ? scores.getCommentaire() : "";
+
+        LinkedHashMap<String, String> criteriaBloc1 = mapToCriteriaMap(
+                "milieu_stage.critere",
+                getScore(scores, MilieuStageScores::getTacheConformeScore),
+                getScore(scores, MilieuStageScores::getIntegrationScore),
+                getScore(scores, MilieuStageScores::getTempsSupervisionSuffisantScore),
+                getScore(scores, MilieuStageScores::getEnvironmentScore),
+                getScore(scores, MilieuStageScores::getClimatScore),
+                getScore(scores, MilieuStageScores::getTransportScore),
+                getScore(scores, MilieuStageScores::getSalaireSuffisentScore),
+                getScore(scores, MilieuStageScores::getCommunicationScore),
+                getScore(scores, MilieuStageScores::getEquipementScore),
+                getScore(scores, MilieuStageScores::getVolumeTravailScore)
+        );
+
+        String salaireFormate = (offre != null && offre.getSalary() != null)
+                ? offre.getSalary() + " $/" + messages.getString("milieu_stage.heure")
+                : "N/A";
+
+        String nomSuperviseur = superviseur != null
+                ? formatName(superviseur.getFirstName(), superviseur.getLastName())
+                : "";
+        String fonctionSuperviseur = superviseur != null ? superviseur.getFonction() : "";
+
+        return genererPdf(document -> {
+            int sectionNumber = 1;
+
+            document.add(addDoubleTextTable("application.titre", "employeur_evaluation.ATE", messages).setMarginBottom(10));
+            document.add(addTitre("milieu_stage.titre", 18, messages).setMarginBottom(15));
+
+            document.add(addSectionTitle("milieu_stage.section_entreprise", messages));
+            document.add(addInformationBox(buildEntrepriseMilieuMap(employeur, superviseur), messages).setMarginBottom(10));
+
+            document.add(addSectionTitle("milieu_stage.section_stagiaire", messages));
+            document.add(addInformationBox(buildStagiaireMilieuMap(etudiant, offre, obs), messages).setMarginBottom(15));
+
+            document.add(addEvaluationBoxFiveChecks(
+                    sectionNumber++,
+                    "milieu_stage.section_evaluation",
+                    "milieu_stage.sous_titre_bloc_1",
+                    criteriaBloc1,
+                    commentaireGlobal,
+                    messages,
+                    salaireFormate
+            ).setMarginBottom(10f));
+
+            document.add(addHeuresEncadrementMensuellesBox(scores, messages).setMarginBottom(15f));
+
+            document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+            document.add(addSectionTitle("milieu_stage.section_observations", messages));
+            document.add(addObservationsGeneralesBox(obs, nomSuperviseur, fonctionSuperviseur, LocalDateTime.now(), messages).setMarginBottom(10));
+
+            document.add(addSignatureSection(nomSuperviseur, fonctionSuperviseur, LocalDateTime.now(), messages));
+
+            document.add(addFooterInstitutionnel(messages));
+        });
+    }
+
+    private Long getScore(MilieuStageScores scores, Function<MilieuStageScores, Long> getter) {
+        return scores != null ? getter.apply(scores) : null;
+    }
 
     private Table addDoubleTextTable(String cleDeTraductionText1, String cleDeTraductionText2, ResourceBundle messages){
         Table table = new Table(UnitValue.createPercentArray(new float[]{50, 50}));
@@ -478,7 +554,7 @@ public class PDFService {
         return table;
     }
 
-    private Table addEvaluationBoxFiveChecks(Integer sectionNumber, String titleKey, String subtitleKey, Map<String,String> evaluationCriteriaKey, String commentaire, ResourceBundle messages){
+    private Table addEvaluationBoxFiveChecks(Integer sectionNumber, String titleKey, String subtitleKey, Map<String,String> evaluationCriteriaKey, String commentaire, ResourceBundle messages,Object... args){
         Table table = new Table(1)
                 .setBorder(new SolidBorder(1))
                 .setWidth(UnitValue.createPercentValue(100))
@@ -506,12 +582,17 @@ public class PDFService {
             cellSubTitle.setBorderBottom(new SolidBorder(1));
             table.addCell(cellSubTitle);
         }
-        table.addCell(createCellSansBordure(new Paragraph()).add(addSousTableEvaluationBox(evaluationCriteriaKey, commentaire, messages)));
+        table.addCell(createCellSansBordure(new Paragraph()).add(addSousTableEvaluationBox(evaluationCriteriaKey, commentaire, messages,args)));
 
         return table;
     }
 
-    private Table addSousTableEvaluationBox(Map<String, String> evaluationCriteriaKey, String commentaire, ResourceBundle messages) {
+    private Table addSousTableEvaluationBox(
+            Map<String, String> evaluationCriteriaKey,
+            String commentaire,
+            ResourceBundle messages,
+            Object... args) {
+
         float[] columnWidths = {40f, 12f, 12f, 12f, 12f, 12f};
         Table gridTable = new Table(UnitValue.createPercentArray(columnWidths))
                 .setWidth(UnitValue.createPercentValue(100));
@@ -535,7 +616,12 @@ public class PDFService {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            gridTable.addCell(createCellSansBordure(new Paragraph(letter + ") " + messages.getString(key))));
+            String critereTexte = messages.getString(key);
+            if ("milieu_stage.critere_g".equals(key) && args != null && args.length > 0) {
+                critereTexte = MessageFormat.format(critereTexte, args);
+            }
+
+            gridTable.addCell(createCellSansBordure(new Paragraph(letter + ") " + critereTexte)));
             letter++;
 
             for (int i = 0; i < NB_COLUMN_EVALUATION; i++) {
@@ -545,9 +631,7 @@ public class PDFService {
             }
         }
 
-
-        gridTable.addCell(createCommentaryLine(commentaire,"evaluation.commentaire",messages));
-
+        gridTable.addCell(createCommentaryLine(commentaire, "evaluation.commentaire", messages));
 
         return gridTable;
     }
@@ -737,9 +821,7 @@ public class PDFService {
 
         String nomComplet = "";
         if (professeur != null) {
-            String prenom = professeur.getFirstName() != null ? professeur.getFirstName() : "";
-            String nom = professeur.getLastName() != null ? professeur.getLastName() : "";
-            nomComplet = (prenom + " " + nom).trim();
+           nomComplet = formatName(professeur.getFirstName(), professeur.getLastName());
         }
         String email = (professeur != null && professeur.getEmail() != null) ? professeur.getEmail() : "";
 
@@ -821,17 +903,144 @@ public class PDFService {
         ligneSupplementaire.addTabStops(new TabStop(480f, TabAlignment.RIGHT, new SolidLine(1f)));
         ligneSupplementaire.add(new Tab());
 
-        return new Cell()
+        return new Cell(1, 6)
                 .setBorder(Border.NO_BORDER)
                 .add(paragraphCommentaireTitle)
                 .add(paragraphCommentaire)
                 .add(ligneSupplementaire);
     }
 
+    private LinkedHashMap<String, String> buildEntrepriseMilieuMap(Employeur employeur, SuperviseurInfo superviseur) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("entreprise_nom", employeur != null && employeur.getBusinessName() != null ? employeur.getBusinessName() : "");
+        String contact = superviseur != null
+                ? formatName(superviseur.getFirstName(), superviseur.getLastName()) : "";
+        map.put("milieu_stage.personne_contact", contact);
+        map.put("milieu_stage.ville", employeur != null && employeur.getTown() != null ? employeur.getTown() : "");
+        map.put("superviseur_telephone", superviseur != null && superviseur.getPhone() != null ? superviseur.getPhone() : "");
+        return map;
+    }
 
-    // =====================================================
-    // HELPERS COMMUNS POUR LES RAPPORTS PDF
-    // =====================================================
+    private LinkedHashMap<String, String> buildStagiaireMilieuMap(Etudiant etudiant, OffreDeStage offre, ObservationGeneral obs) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        String nomStagiaire = etudiant != null
+                ? formatName(etudiant.getFirstName(),etudiant.getLastName()):"";
+
+        map.put("etudiant_nom", nomStagiaire);
+
+        String dates = "";
+        if (offre != null && offre.getStartDate() != null && offre.getEndDate() != null) {
+            dates = offre.getStartDate() + " - " + offre.getEndDate();
+        }
+        map.put("milieu_stage.date_stage", dates);
+
+        Long stageNum = obs != null ? obs.getNoStagePrivilegier() : null;
+        String stage1 = (stageNum != null && stageNum == 1L) ? "[ X ]" : "[    ]";
+        String stage2 = (stageNum != null && stageNum == 2L) ? "[ X ]" : "[    ]";
+        map.put("milieu_stage.stage_numero", "1 " + stage1 + "      2 " + stage2);
+        return map;
+    }
+
+
+    private Table addHeuresEncadrementMensuellesBox(MilieuStageScores scores, ResourceBundle messages) {
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        List<Long> heures = (scores != null && scores.getTempsSupervision() != null) ? scores.getTempsSupervision() : List.of();
+        String m1 = heures.size() > 0 && heures.get(0) != null ? String.valueOf(heures.get(0)) : "____";
+        String m2 = heures.size() > 1 && heures.get(1) != null ? String.valueOf(heures.get(1)) : "____";
+        String m3 = heures.size() > 2 && heures.get(2) != null ? String.valueOf(heures.get(2)) : "____";
+
+        Paragraph para = new Paragraph()
+                .add(new Text(messages.getString("milieu_stage.preciser_heures") + "\n").setBold())
+                .add(messages.getString("milieu_stage.mois_1") + " : " + m1 + " h    ")
+                .add(messages.getString("milieu_stage.mois_2") + " : " + m2 + " h    ")
+                .add(messages.getString("milieu_stage.mois_3") + " : " + m3 + " h");
+
+        table.addCell(createCellSansBordure(para));
+        return table;
+    }
+
+    private Table addObservationsGeneralesBox(
+            ObservationGeneral obs,
+            String nomSignataire,
+            String fonctionSignataire,
+            LocalDateTime dateSignature,
+            ResourceBundle messages) {
+
+        Table table = new Table(1)
+                .setBorder(new SolidBorder(1))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setKeepTogether(true);
+
+        Long noStage = obs != null ? obs.getNoStagePrivilegier() : null;
+        String p1 = (noStage != null && noStage == 1L) ? "[ X ]" : "[    ]";
+        String p2 = (noStage != null && noStage == 2L) ? "[ X ]" : "[    ]";
+        table.addCell(createCellSansBordure(new Paragraph()
+                .add(new Text(messages.getString("milieu_stage.privilegier_pour") + " : ").setBold())
+                .add(messages.getString("milieu_stage.premier_stage") + " " + p1 + "     ")
+                .add(messages.getString("milieu_stage.deuxieme_stage") + " " + p2)));
+
+        Long nbStagiaires = obs != null ? obs.getNbStagiaireAccueil() : null;
+        String s1 = (nbStagiaires != null && nbStagiaires == 1L) ? "[ X ]" : "[    ]";
+        String s2 = (nbStagiaires != null && nbStagiaires == 2L) ? "[ X ]" : "[    ]";
+        String s3 = (nbStagiaires != null && nbStagiaires == 3L) ? "[ X ]" : "[    ]";
+        String sPlus = (nbStagiaires != null && nbStagiaires > 3L) ? "[ X ]" : "[    ]";
+        table.addCell(createCellSansBordure(new Paragraph().add(new Text(messages.getString("milieu_stage.ouvert_accueillir") + " : ").setBold())));
+        table.addCell(createCellSansBordure(new Paragraph()
+                .add(messages.getString("milieu_stage.un_stagiaire") + " " + s1 + "   ")
+                .add(messages.getString("milieu_stage.deux_stagiaires") + " " + s2 + "   ")
+                .add(messages.getString("milieu_stage.trois_stagiaires") + " " + s3 + "   ")
+                .add(messages.getString("milieu_stage.plus_de_trois") + " " + sPlus)));
+
+        Boolean memeStagiaire = obs != null ? obs.getEngagerMemeStagiaire() : null;
+        String oui = Boolean.TRUE.equals(memeStagiaire) ? "[ X ]" : "[    ]";
+        String non = Boolean.FALSE.equals(memeStagiaire) ? "[ X ]" : "[    ]";
+        table.addCell(createCellSansBordure(new Paragraph()
+                .add(new Text(messages.getString("milieu_stage.meme_stagiaire") + " : ").setBold())
+                .add(messages.getString("oui").toUpperCase() + " " + oui + "     ")
+                .add(messages.getString("non").toUpperCase() + " " + non)));
+
+        List<QuartTravail> quarts = (obs != null && obs.getQuartsTravail() != null) ? obs.getQuartsTravail() : List.of();
+        boolean hasQuarts = !quarts.isEmpty();
+        table.addCell(createCellSansBordure(new Paragraph()
+                .add(new Text(messages.getString("milieu_stage.quarts_variables") + " : ").setBold())
+                .add(messages.getString("oui").toUpperCase() + " " + (hasQuarts ? "[ X ]" : "[    ]") + "     ")
+                .add(messages.getString("non").toUpperCase() + " " + (!hasQuarts ? "[ X ]" : "[    ]"))));
+
+        for (int i = 0; i < quarts.size(); i++) {
+            String debut = quarts.get(i).getHeureDebut() != null ? quarts.get(i).getHeureDebut() : "________";
+            String fin = quarts.get(i).getHeureFin() != null ? quarts.get(i).getHeureFin() : "________";
+            table.addCell(createCellSansBordure(new Paragraph(
+                    messages.getString("milieu_stage.de") + " " + debut + "   " +
+                            messages.getString("milieu_stage.a") + " " + fin
+            ).setPaddingLeft(20f)));
+        }
+
+        return table;
+    }
+
+    private String formatName(String firstName, String lastName){
+        return firstName.trim() + " " + lastName.trim();
+    }
+
+    private ResourceBundle getMessages(String langue) {
+        Locale locale = new Locale(langue != null ? langue : FRANCAIS);
+        return ResourceBundle.getBundle("i18n.messages", locale);
+    }
+
+    private Resource genererPdf(java.util.function.Consumer<Document> contenuPdf) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            contenuPdf.accept(document);
+        }
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
 
     private ResourceBundle obtenirMessages(String langue) {
         Locale locale = new Locale(langue != null ? langue : FRANCAIS);
@@ -1649,7 +1858,5 @@ public class PDFService {
 
         return new ByteArrayResource(outputStream.toByteArray());
     }
-
-
 
 }

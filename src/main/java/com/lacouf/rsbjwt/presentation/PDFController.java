@@ -1,10 +1,9 @@
 package com.lacouf.rsbjwt.presentation;
 
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
+import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.PDFService;
-import com.lacouf.rsbjwt.service.RapportService;
-import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,18 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/pdf")
 public class PDFController {
 
     private final PDFService pdfService ;
-    private final RapportService rapportService;
 
-    public PDFController(PDFService pdfService, RapportService rapportService) {
+    public PDFController(PDFService pdfService) {
         this.pdfService = pdfService;
-        this.rapportService = rapportService;
     }
 
     @GetMapping("/contrat/{contratId}")
@@ -49,6 +45,15 @@ public class PDFController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"evaluation_" + candidatureID+".pdf\"")
+                .body(pdfResource);
+    }
+
+    @GetMapping("/evaluation/stage/{candidatureID}")
+    public ResponseEntity<Resource> obtenirEvaluationMilieuStage(@PathVariable Long candidatureID, @RequestParam(defaultValue = "fr") String langue) throws IOException, EvaluationMilieuStageIntrouvableException {
+        Resource pdfResource = pdfService.createEvaluationMilieuStage(langue,candidatureID);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,"inline; filename=\"contrat.pdf\"")
                 .body(pdfResource);
     }
 
@@ -204,4 +209,6 @@ public class PDFController {
                 "entrevues-en-attente-reponse.pdf"
         );
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.service;
 
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
 import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
@@ -17,7 +18,8 @@ import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.repository.*;
-import com.lacouf.rsbjwt.security.exception.UserNotFoundException;
+import com.lacouf.rsbjwt.repository.EvaluationMillieuStageRepository;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +49,9 @@ public class ProfesseurServiceTest {
 
     @Mock
     private ProfesseurRepository professeurRepository ;
+
+    @Mock
+    private EvaluationMillieuStageRepository evaluationMillieuStageRepository;
 
     @Mock
     private UserAppRepository userAppRepository;
@@ -419,6 +424,52 @@ public class ProfesseurServiceTest {
         ).isInstanceOf(OffreIntrouvableException.class);
 
         verify(offreDeStageRepository).findById(offreId);
+    }
+
+    @Test
+    void doitEnregistrerEvaluationMilieuDeStageAvecSucces() throws Exception {
+        Long candidatureId = 1L;
+
+        EvaluationMillieuStageDTO inputDto = mock(EvaluationMillieuStageDTO.class);
+        when(inputDto.candiatureId()).thenReturn(candidatureId);
+
+        Candidature candidature = Candidature.builder().build();
+        candidature.setId(candidatureId);
+
+        EvaluationMillieuStage evaluationEntity = EvaluationMillieuStage.builder()
+                .id(10L)
+                .candidature(candidature)
+                .build();
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.of(candidature));
+
+        when(evaluationMillieuStageRepository.save(any(EvaluationMillieuStage.class)))
+                .thenReturn(evaluationEntity);
+
+        EvaluationMillieuStageDTO resultat = professeurService.enregistreEvaluationMilieuDeStage(inputDto);
+
+        assertThat(resultat).isNotNull();
+
+        verify(candidatureRepository).findById(candidatureId);
+        verify(evaluationMillieuStageRepository).save(any(EvaluationMillieuStage.class));
+    }
+
+    @Test
+    void doitLeverExceptionSiCandidatureIntrouvablePourEvaluation() {
+        Long candidatureId = 99L;
+        EvaluationMillieuStageDTO inputDto = mock(EvaluationMillieuStageDTO.class);
+        when(inputDto.candiatureId()).thenReturn(candidatureId);
+
+        when(candidatureRepository.findById(candidatureId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                professeurService.enregistreEvaluationMilieuDeStage(inputDto)
+        ).isInstanceOf(CandidatureIntrouvableException.class);
+
+        verify(candidatureRepository).findById(candidatureId);
+        verify(evaluationMillieuStageRepository, never()).save(any(EvaluationMillieuStage.class));
     }
 
 }

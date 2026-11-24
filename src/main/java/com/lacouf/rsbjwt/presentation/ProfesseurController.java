@@ -1,5 +1,6 @@
 package com.lacouf.rsbjwt.presentation;
 
+import com.lacouf.rsbjwt.exception.candidature.CandidatureIntrouvableException;
 import com.lacouf.rsbjwt.exception.offre.OffreIntrouvableException;
 import com.lacouf.rsbjwt.exception.utilisateur.DepartementInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
@@ -9,10 +10,12 @@ import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.candidature.ResumeStageEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.InscriptionProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.ProfesseurDTO;
 import com.lacouf.rsbjwt.service.ProfesseurService;
+import com.lacouf.rsbjwt.service.dto.EvaluationMillieuStage.EvaluationMillieuStageDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,5 +65,10 @@ public class ProfesseurController {
         return ResponseEntity.ok(professeurService.getResumeOffre(offreId));
     }
 
+    @PostMapping("/evaluation/stage")
+    public ResponseEntity<EvaluationMillieuStageDTO> evaluationEnvironementStage(@Valid @RequestBody EvaluationMillieuStageDTO evaluationMillieuStageDTO) throws CandidatureIntrouvableException {
+        EvaluationMillieuStageDTO evaluationMillieuStageDTOResponse = professeurService.enregistreEvaluationMilieuDeStage(evaluationMillieuStageDTO);
+        return ResponseEntity.ok(evaluationMillieuStageDTOResponse);
+    }
 
 }
