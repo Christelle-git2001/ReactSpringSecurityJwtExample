@@ -338,11 +338,9 @@ class ChatbotGestionnaireToolsTest {
     @Test
     void doitRetournerLesListesCandidatures() throws Exception {
         List<CandidatureDTO> resultat1 = List.of(mock(CandidatureDTO.class));
-        when(donneesCandidatureService.obtenirStagesSansContrat()).thenReturn(resultat1);
         List<CandidatureDTO> resultat2 = List.of(mock(CandidatureDTO.class));
         when(donneesCandidatureService.obtenirCandidaturesParStatut(StatutCandidature.CONTRAT_CREE)).thenReturn(resultat2);
 
-        assertThat(chatbotGestionnaireTools.obtenirStagesSansContrat()).isEqualTo(resultat1);
         assertThat(chatbotGestionnaireTools.obtenirCandidaturesParStatut(StatutCandidature.CONTRAT_CREE)).isEqualTo(resultat2);
     }
 

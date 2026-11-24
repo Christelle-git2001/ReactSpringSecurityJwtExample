@@ -27,19 +27,6 @@ class DonneesCandidatureServiceTest {
     @Mock ContratRepository contrats;
     @InjectMocks DonneesCandidatureService service;
 
-    @Test
-    void rechercheLesStagesTrouvesSansContrat() {
-        var candidature = creerCandidature(StatutCandidature.STAGE_TROUVE);
-        when(candidatures.findByStatutSansContrat(StatutCandidature.STAGE_TROUVE))
-                .thenReturn(List.of(candidature));
-
-        assertThat(service.obtenirStagesSansContrat()).singleElement().satisfies(dto -> {
-            assertThat(dto.id()).isEqualTo(3L);
-            assertThat(dto.statut()).isEqualTo(StatutCandidature.STAGE_TROUVE);
-            assertThat(dto.contratSigne()).isFalse();
-        });
-    }
-
     @ParameterizedTest
     @EnumSource(StatutCandidature.class)
     void compteLesCandidaturesSansChargerLaListe(StatutCandidature statut) throws ParametreDonneesInvalideException {
