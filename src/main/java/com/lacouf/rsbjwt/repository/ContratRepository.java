@@ -34,4 +34,17 @@ public interface ContratRepository extends JpaRepository<Contrat, Long> {
                          @Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
 
     List<Contrat> findByCandidatureOffreDeStageEmployeurId(Long id);
-}
+
+    Long countByDateSignatureGestionnaireIsNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+
+    Long countByDateSignatureGestionnaireIsNotNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+
+    @Query("SELECT count(c) FROM Contrat c")
+    Long countAll();
+
+    @Query("""
+    SELECT COUNT(c) FROM Contrat c
+    WHERE (c.dateSignatureEtudiant IS NULL OR c.dateSignatureEmployeur IS NULL)
+      AND c.createdAt < :dateLimite
+    """)
+    long countContratsBloquesOuEnRetard(@Param("dateLimite") LocalDateTime dateLimite);}

@@ -12,6 +12,7 @@ import com.lacouf.rsbjwt.exception.contrat.ContratExistantException;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonEnAttente;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.exception.entrevue.EntrevueIntrouvableException;
 import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
 import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
@@ -28,6 +29,7 @@ import com.lacouf.rsbjwt.service.dto.commun.SecteurEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.contrat.ConfirmationSignatureDTO;
 import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.donnee.MetricGestionnaireDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
@@ -232,5 +234,10 @@ public class GestionnaireController {
     public ResponseEntity<Integer> rappelerSignatureContrat(@PathVariable Long contratId)
             throws ContratIntrouvableException, UtilisateurIntrouvableException {
         return ResponseEntity.ok(gestionnaireService.rappelerSignatureContrat(contratId));
+    }
+
+    @GetMapping("/metric")
+    public ResponseEntity<MetricGestionnaireDTO> getMetricGestionnaire() throws ParametreDonneesInvalideException {
+        return ResponseEntity.ok(gestionnaireService.getMetric());
     }
 }

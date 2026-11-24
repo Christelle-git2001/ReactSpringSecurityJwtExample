@@ -21,11 +21,13 @@ import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.donnees.*;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.commun.DepartementDTO;
 import com.lacouf.rsbjwt.service.dto.commun.SecteurEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.donnee.MetricGestionnaireDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
@@ -130,6 +132,21 @@ class GestionnaireServiceTest {
 
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private DonneesEtudiantService donneesEtudiantService;
+
+    @Mock
+    private DonneesProfesseurService donneesProfesseurService;
+
+    @Mock
+    private DonneesEmployeurService donneesEmployeurService;
+
+    @Mock
+    private DonneesContratService donneesContratService;
+
+    @Mock
+    private DonneesOffreService donneesOffreService;
 
     @InjectMocks
     private GestionnaireService gestionnaireService;
@@ -1645,5 +1662,87 @@ class GestionnaireServiceTest {
         contrat.initialiserDateCreation();
         assertThat(contrat.getCreatedAt()).isEqualTo(creation);
         assertThat(ContratDTO.of(contrat).createdAt()).isEqualTo(creation);
+    }
+
+    @Test
+    void construitLeDtoMetricGestionnaireAvecLesValeursCalculees() throws Exception {
+        when(donneesEtudiantService.compterEtudiantsInscrits()).thenReturn(20L);
+        when(donneesEtudiantService.compterEtudiantsSansStage()).thenReturn(8L);
+        when(donneesEtudiantService.compterEtudiantsAvecStage()).thenReturn(12L);
+        when(donneesEtudiantService.compterCvParStatut(Statut.EN_ATTENTE)).thenReturn(3L);
+
+        when(donneesProfesseurService.compterProfesseurAvecEtudiant()).thenReturn(4L);
+        when(donneesProfesseurService.compterProfesseurSansEtudiant()).thenReturn(1L);
+        when(donneesProfesseurService.compterMoyenneEtudiantParProfesseur()).thenReturn(2L);
+
+        when(donneesEmployeurService.compterEmployeur()).thenReturn(10L);
+        when(donneesOffreService.compterOffreActive()).thenReturn(6L);
+        when(donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE)).thenReturn(2L);
+        when(donneesOffreService.compterOffreSansStagiaire()).thenReturn(5L);
+        when(donneesOffreService.compterOffreAvecAtLeastUnStagiaire()).thenReturn(3L);
+        when(donneesOffreService.getOffres()).thenReturn(12L); // 3 * 100.0 / 12 = 25L
+
+        when(donneesContratService.countContratsASignerGestionnaire()).thenReturn(2L);
+        when(donneesContratService.countContratSignerGestionnaire()).thenReturn(6L);
+        when(donneesContratService.countAll()).thenReturn(8L); // 6 * 100.0 / 8 = 75L
+        when(donneesContratService.contratBloque()).thenReturn(1L);
+
+        MetricGestionnaireDTO resultat = gestionnaireService.getMetric();
+
+        assertThat(resultat).isNotNull();
+        assertThat(resultat.etudiants()).satisfies(stats -> {
+            assertThat(stats.etudiantInscrits()).isEqualTo(20L);
+            assertThat(stats.aucunStageTrouve()).isEqualTo(8L);
+            assertThat(stats.stageTrouve()).isEqualTo(12L);
+            assertThat(stats.cvVerification()).isEqualTo(3L);
+        });
+        assertThat(resultat.professeurs()).satisfies(stats -> {
+            assertThat(stats.professeurEleve()).isEqualTo(4L);
+            assertThat(stats.professeurSansEleve()).isEqualTo(1L);
+            assertThat(stats.moyenneEleve()).isEqualTo(2L);
+        });
+        assertThat(resultat.employeurs()).satisfies(stats -> {
+            assertThat(stats.employeursInscrits()).isEqualTo(10L);
+            assertThat(stats.offresActives()).isEqualTo(6L);
+            assertThat(stats.offreVerification()).isEqualTo(2L);
+            assertThat(stats.offreSansStagiaire()).isEqualTo(5L);
+            assertThat(stats.tauxOffres()).isEqualTo(25L);
+        });
+        assertThat(resultat.contrats()).satisfies(stats -> {
+            assertThat(stats.nombreContratASigner()).isEqualTo(2L);
+            assertThat(stats.contratSigne()).isEqualTo(6L);
+            assertThat(stats.nombreContratGenerer()).isEqualTo(8L);
+            assertThat(stats.contratBloque()).isEqualTo(1L);
+            assertThat(stats.tauxFinalisation()).isEqualTo(75L);
+        });
+    }
+
+    @Test
+    void retourneZeroPourLesTauxQuandTotalOffresEtTotalContratsSontZero() throws Exception {
+        when(donneesEtudiantService.compterEtudiantsInscrits()).thenReturn(0L);
+        when(donneesEtudiantService.compterEtudiantsSansStage()).thenReturn(0L);
+        when(donneesEtudiantService.compterEtudiantsAvecStage()).thenReturn(0L);
+        when(donneesEtudiantService.compterCvParStatut(Statut.EN_ATTENTE)).thenReturn(0L);
+
+        when(donneesProfesseurService.compterProfesseurAvecEtudiant()).thenReturn(0L);
+        when(donneesProfesseurService.compterProfesseurSansEtudiant()).thenReturn(0L);
+        when(donneesProfesseurService.compterMoyenneEtudiantParProfesseur()).thenReturn(0L);
+
+        when(donneesEmployeurService.compterEmployeur()).thenReturn(0L);
+        when(donneesOffreService.compterOffreActive()).thenReturn(0L);
+        when(donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE)).thenReturn(0L);
+        when(donneesOffreService.compterOffreSansStagiaire()).thenReturn(0L);
+        when(donneesOffreService.compterOffreAvecAtLeastUnStagiaire()).thenReturn(0L);
+        when(donneesOffreService.getOffres()).thenReturn(0L);
+
+        when(donneesContratService.countContratsASignerGestionnaire()).thenReturn(0L);
+        when(donneesContratService.countContratSignerGestionnaire()).thenReturn(0L);
+        when(donneesContratService.countAll()).thenReturn(0L);
+        when(donneesContratService.contratBloque()).thenReturn(0L);
+
+        MetricGestionnaireDTO resultat = gestionnaireService.getMetric();
+
+        assertThat(resultat.employeurs().tauxOffres()).isZero();
+        assertThat(resultat.contrats().tauxFinalisation()).isZero();
     }
 }

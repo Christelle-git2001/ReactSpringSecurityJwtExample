@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,5 +59,43 @@ class DonneesContratServiceTest {
         var contrat = new Contrat(candidature, gestionnaire);
         contrat.setId(9L);
         return contrat;
+    }
+
+    @Test
+    void countContratsASignerGestionnaireRetourneLeNombreAttendu() {
+        when(contrats.countByDateSignatureGestionnaireIsNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull())
+                .thenReturn(4L);
+
+        assertThat(service.countContratsASignerGestionnaire()).isEqualTo(4L);
+    }
+
+    @Test
+    void countContratSignerGestionnaireRetourneLeNombreAttendu() {
+        when(contrats.countByDateSignatureGestionnaireIsNotNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull())
+                .thenReturn(7L);
+
+        assertThat(service.countContratSignerGestionnaire()).isEqualTo(7L);
+    }
+
+    @Test
+    void countAllRetourneLeNombreTotalDeContrats() {
+        when(contrats.countAll()).thenReturn(15L);
+
+        assertThat(service.countAll()).isEqualTo(15L);
+    }
+
+    @Test
+    void contratBloqueRasseUneDateLimiteEnvironDixJoursAvantMaintenant() {
+        var avantAppel = LocalDateTime.now().minusDays(10).minusSeconds(1);
+        when(contrats.countContratsBloquesOuEnRetard(any(LocalDateTime.class))).thenReturn(2L);
+
+        long resultat = service.contratBloque();
+
+        var apresAppel = LocalDateTime.now().minusDays(10).plusSeconds(1);
+        assertThat(resultat).isEqualTo(2L);
+
+        var captor = org.mockito.ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(contrats).countContratsBloquesOuEnRetard(captor.capture());
+        assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
     }
 }

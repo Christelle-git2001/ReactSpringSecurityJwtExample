@@ -12,6 +12,7 @@ import com.lacouf.rsbjwt.exception.contrat.ContratExistantException;
 import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeIntrouvable;
 import com.lacouf.rsbjwt.exception.cv.CurriculumVitaeNonEnAttente;
+import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.exception.entrevue.EntrevueIntrouvableException;
 import com.lacouf.rsbjwt.exception.fichier.FichierCorrompuException;
 import com.lacouf.rsbjwt.exception.fichier.FichierIntrouvableException;
@@ -23,11 +24,13 @@ import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.service.donnees.*;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.commun.DepartementDTO;
 import com.lacouf.rsbjwt.service.dto.commun.SecteurEmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.contrat.ContratDTO;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.donnee.MetricGestionnaireDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
@@ -80,10 +83,15 @@ public class GestionnaireService {
     private final EntrevueRepository entrevueRepository;
     private final SessionService sessionService;
     private final NotificationService notificationService;
+    private final DonneesEtudiantService donneesEtudiantService;
+    private final DonneesProfesseurService donneesProfesseurService;
+    private final DonneesEmployeurService donneesEmployeurService;
+    private final DonneesOffreService donneesOffreService;
+    private final DonneesContratService donneesContratService;
 
     public GestionnaireService(PasswordEncoder passwordEncoder, OffreDeStageRepository offreDeStageRepository, UserAppRepository userAppRepository, GestionnaireRepository gestionnaireRepository, CvEtudiantRepository cvEtudiantRepository,
                                ApplicationEventPublisher applicationEventPublisher, EmployeurRepository employeurRepository, EtudiantRepository etudiantRepository,
-                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService, NotificationService notificationService){
+                               CandidatureRepository candidatureRepository, ProfesseurRepository professeurRepository, ContratRepository contratRepository, EntrevueRepository entrevueRepository, SessionService sessionService, NotificationService notificationService, DonneesEtudiantService donneesEtudiantService, DonneesProfesseurService donneesProfesseurService, DonneesEmployeurService donneesEmployeurService, DonneesOffreService donneesOffreService, DonneesContratService donneesContratService){
         this.passwordEncoder = passwordEncoder;
         this.offreDeStageRepository = offreDeStageRepository;
 
@@ -99,6 +107,11 @@ public class GestionnaireService {
         this.entrevueRepository = entrevueRepository;
         this.sessionService = sessionService;
         this.notificationService = notificationService;
+        this.donneesEtudiantService = donneesEtudiantService;
+        this.donneesProfesseurService = donneesProfesseurService;
+        this.donneesEmployeurService = donneesEmployeurService;
+        this.donneesOffreService = donneesOffreService;
+        this.donneesContratService = donneesContratService;
     }
 
     @Transactional
@@ -526,5 +539,76 @@ public class GestionnaireService {
             return rappels;
         }
         return 0;
+    }
+
+    public MetricGestionnaireDTO getMetric() throws ParametreDonneesInvalideException {
+        return MetricGestionnaireDTO.builder()
+                .etudiants(getMetricEtudiant())
+                .professeurs(getMetricProfesseur())
+                .employeurs(getMetricEmployeur())
+                .contrats(getMetricContrat())
+                .build();
+    }
+
+    private MetricGestionnaireDTO.EtudiantsStats getMetricEtudiant() throws ParametreDonneesInvalideException {
+        Long etudiantInscrit = donneesEtudiantService.compterEtudiantsInscrits();
+        Long etudiantSansStage = donneesEtudiantService.compterEtudiantsSansStage();
+        Long etudiantAvecStage = donneesEtudiantService.compterEtudiantsAvecStage();
+        Long etudiantCvNonValide = donneesEtudiantService.compterCvParStatut(Statut.EN_ATTENTE);
+
+        return MetricGestionnaireDTO.EtudiantsStats.builder()
+                .etudiantInscrits(etudiantInscrit)
+                .aucunStageTrouve(etudiantSansStage)
+                .stageTrouve(etudiantAvecStage)
+                .cvVerification(etudiantCvNonValide)
+                .build();
+    }
+
+    private MetricGestionnaireDTO.ProfesseursStats getMetricProfesseur(){
+        Long professeurAvecEleve = donneesProfesseurService.compterProfesseurAvecEtudiant();
+        Long professeurSansEleve = donneesProfesseurService.compterProfesseurSansEtudiant();
+        Long moyenneEleveParProf = donneesProfesseurService.compterMoyenneEtudiantParProfesseur();
+
+        return MetricGestionnaireDTO.ProfesseursStats.builder()
+                .professeurEleve(professeurAvecEleve)
+                .professeurSansEleve(professeurSansEleve)
+                .moyenneEleve(moyenneEleveParProf)
+                .build();
+    }
+
+    private MetricGestionnaireDTO.EmployeursStats getMetricEmployeur() throws ParametreDonneesInvalideException {
+        Long employeurInscrit = donneesEmployeurService.compterEmployeur();
+        Long offreActives = donneesOffreService.compterOffreActive();
+        Long offreAVerifier = donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE);
+        Long offreSansStagiaire = donneesOffreService.compterOffreSansStagiaire();
+        Long offreAvecStagiaire = donneesOffreService.compterOffreAvecAtLeastUnStagiaire();
+        Long totalOffres = donneesOffreService.getOffres();
+        Long tauxOffres = totalOffres == 0
+                ? 0L
+                : Math.round((offreAvecStagiaire * 100.0) / totalOffres);
+
+        return MetricGestionnaireDTO.EmployeursStats.builder()
+                .employeursInscrits(employeurInscrit)
+                .offresActives(offreActives)
+                .offreVerification(offreAVerifier)
+                .offreSansStagiaire(offreSansStagiaire)
+                .tauxOffres(tauxOffres)
+                .build();
+    }
+
+    private MetricGestionnaireDTO.ContratsStats getMetricContrat(){
+        Long nombreContratASginer = donneesContratService.countContratsASignerGestionnaire();
+        Long contratSigne = donneesContratService.countContratSignerGestionnaire();
+        Long nombreContratGenerer = donneesContratService.countAll();
+        Long contratBloque = donneesContratService.contratBloque();
+        Long tauxFinalaisation = nombreContratGenerer == 0 ? 0L : Math.round((contratSigne * 100.0)/nombreContratGenerer);
+
+        return MetricGestionnaireDTO.ContratsStats.builder()
+                .nombreContratASigner(nombreContratASginer)
+                .contratSigne(contratSigne)
+                .nombreContratGenerer(nombreContratGenerer)
+                .contratBloque(contratBloque)
+                .tauxFinalisation(tauxFinalaisation)
+                .build();
     }
 }

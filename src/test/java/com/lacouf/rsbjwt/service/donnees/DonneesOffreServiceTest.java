@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -57,5 +59,59 @@ class DonneesOffreServiceTest {
                 .isThrownBy(() -> service.compterOffresParStatut(null))
                 .withMessage("chatbot.errors.offer_status_required");
         verifyNoInteractions(offres);
+    }
+
+    @Test
+    void compterOffreActivePasseLaDateDuJourEtRetourneLeNombreAttendu() {
+        var avantAppel = LocalDate.now();
+        when(offres.countByDisplayEndDateAfterAndStatutAcceptee(any(LocalDate.class))).thenReturn(6L);
+
+        Long resultat = service.compterOffreActive();
+
+        var apresAppel = LocalDate.now();
+        assertThat(resultat).isEqualTo(6L);
+
+        var captor = ArgumentCaptor.forClass(LocalDate.class);
+        verify(offres).countByDisplayEndDateAfterAndStatutAcceptee(captor.capture());
+        assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
+        verifyNoMoreInteractions(offres);
+    }
+
+    @Test
+    void compterOffreSansStagiairePasseLaDateDuJourEtRetourneLeNombreAttendu() {
+        var avantAppel = LocalDate.now();
+        when(offres.findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(any(LocalDate.class))).thenReturn(3L);
+
+        Long resultat = service.compterOffreSansStagiaire();
+
+        var apresAppel = LocalDate.now();
+        assertThat(resultat).isEqualTo(3L);
+
+        var captor = ArgumentCaptor.forClass(LocalDate.class);
+        verify(offres).findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(captor.capture());
+        assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
+        verifyNoMoreInteractions(offres);
+    }
+
+    @Test
+    void compterOffreAvecAtLeastUnStagiaireRetourneLeNombreAttendu() {
+        when(offres.countOffresComblees()).thenReturn(5L);
+
+        Long resultat = service.compterOffreAvecAtLeastUnStagiaire();
+
+        assertThat(resultat).isEqualTo(5L);
+        verify(offres).countOffresComblees();
+        verifyNoMoreInteractions(offres);
+    }
+
+    @Test
+    void getOffresRetourneLeNombreTotalDOffres() {
+        when(offres.findAll()).thenReturn(List.of(new OffreDeStage(), new OffreDeStage()));
+
+        Long resultat = service.getOffres();
+
+        assertThat(resultat).isEqualTo(2L);
+        verify(offres).findAll();
+        verifyNoMoreInteractions(offres);
     }
 }

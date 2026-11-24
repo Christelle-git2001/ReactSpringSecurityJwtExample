@@ -5,6 +5,7 @@ import com.lacouf.rsbjwt.repository.ContratRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -24,5 +25,24 @@ public class DonneesContratService {
         return contratRepository
                 .findByDateSignatureGestionnaireIsNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull()
                 .stream().map(ResumeContratDTO::of).toList();
+    }
+
+    public Long countContratsASignerGestionnaire() {
+        return contratRepository
+                .countByDateSignatureGestionnaireIsNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+    }
+
+    public Long countContratSignerGestionnaire() {
+        return contratRepository
+                .countByDateSignatureGestionnaireIsNotNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+    }
+
+    public Long countAll() {
+        return contratRepository.countAll();
+    }
+
+    public Long contratBloque() {
+        LocalDateTime limiteDixJours = LocalDateTime.now().minusDays(10);
+        return contratRepository.countContratsBloquesOuEnRetard(limiteDixJours);
     }
 }
