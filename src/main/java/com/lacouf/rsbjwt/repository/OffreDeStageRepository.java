@@ -23,7 +23,7 @@ public interface OffreDeStageRepository extends JpaRepository<OffreDeStage, Long
     long countByDisplayEndDateAfter(LocalDate date);
     List<OffreDeStage> findByDisplayEndDateBetweenOrderByDisplayEndDateAsc(LocalDate debut, LocalDate fin);
     List<OffreDeStage> findByStartDateBetweenOrderByStartDateAsc(LocalDate debut, LocalDate fin);
-    long findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(LocalDate fin);
+    long countByCandidaturesIsEmptyAndDisplayEndDateIsAfter(LocalDate fin);
 
     @Query("SELECT COUNT(DISTINCT o) FROM OffreDeStage o JOIN o.candidatures c WHERE c.statut = com.lacouf.rsbjwt.model.Enum.StatutCandidature.STAGE_TROUVE")
     long countOffresComblees();

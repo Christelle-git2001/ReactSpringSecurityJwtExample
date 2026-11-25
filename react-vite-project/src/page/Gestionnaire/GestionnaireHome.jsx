@@ -8,7 +8,10 @@ import CandidatureListItem from "../../component/Design/Lists/CandidatureListIte
 import ExpandableList from "../../component/Design/Lists/ExpandableList.jsx";
 import SearchBar from "../../component/Design/Bars/SearchBar.jsx";
 import FilterBar from "../../component/Design/Bars/FilterBar.jsx";
-import { getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus, getContratByCandidatureId, rappelerSignatureContrat } from "../../api/gestionnaire.jsx";
+import {
+    getOffresEnAttente, getCvsEnAttente, getCandidaturesByStatus, getContratByCandidatureId, rappelerSignatureContrat,
+    getMetric
+} from "../../api/gestionnaire.jsx";
 import { getNotifications, marquerNotificationLue } from "../../api/notification.jsx";
 import { useNavigate } from "react-router-dom";
 import EmptyContentMessage from "../../component/Design/EmptyContentMessage.jsx";
@@ -17,7 +20,7 @@ import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import Sort from "../../component/Design/Sort.jsx";
 import toast from "react-hot-toast";
 import DashboardMetricSection from "../../component/Design/Dashboard/DashboardMetricSection.jsx";
-import {gestionnaireStatsMock, metricConfig} from "../../config/MetricConfig.jsx";
+import {metricConfig} from "../../config/MetricConfig.jsx";
 
 const trierParDate = (items, getDate, ordre) => {
     return [...items].sort((itemA, itemB) => {
@@ -39,6 +42,34 @@ const GestionnaireHome = ({ user }) => {
     const [sortCvsOrder, setSortCvsOrder] = useState("desc");
     const [sortOffresOrder, setSortOffresOrder] = useState("desc");
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [statsMetrique, setStatsMetrique] = useState({
+        "etudiants": {
+            "etudiantInscrits": '-',
+            "aucunStageTrouve": '-',
+            "stageTrouve": '-',
+            "tauxPlacement": '-',
+            "cvVerification": '-'
+        },
+        "professeurs": {
+            "professeurEleve": '-',
+            "professeurSansEleve": '-',
+            "moyenneEleve": '-'
+        },
+        "employeurs": {
+            "employeursInscrits": '-',
+            "offresActives": '-',
+            "offreVerification": '-',
+            "offreSansStagiaire" : '-',
+            "tauxOffres" : "-"
+        },
+        "contrats": {
+            "nombreContratASigner" : '-',
+            "contratSigne" : '-',
+            "nombreContratGenerer" : '-',
+            "contratBloque" : '-',
+            "tauxFinalisation" : "-"
+        }
+    })
     const allowedSections = metricConfig.filter(
         (section) => !section.roles || section.roles.includes(user.role)
     );
@@ -49,8 +80,6 @@ const GestionnaireHome = ({ user }) => {
         id: category.id,
         label: t(category.title),
     }));
-    const nombreContratsSignes = candidaturesContratCree.filter(c => c.contratSigne).length;
-    const nombreContratsASigner = candidaturesContratCree.filter(c => c.contratASigner).length;
 
     const contratsTries = useMemo(() => [...candidaturesContratCree].sort((a, b) => {
         const dateA = Date.parse(a.dateCreationContrat || "");
@@ -206,6 +235,8 @@ const GestionnaireHome = ({ user }) => {
         chargerDonnees().finally(() => setIsInitialLoading(false));
     }, [chargerDonnees]);
 
+
+
     const handleRappelerSignature = async (candidature) => {
         try {
             const nombre = await rappelerSignatureContrat(candidature.contratId);
@@ -230,7 +261,16 @@ const GestionnaireHome = ({ user }) => {
             setActiveTabId(allowedSections[0]?.id ?? "");
         }
     }, [allowedSections, activeTabId]);
-    console.log("activeCategory:", activeCategory);
+
+    useEffect(() => {
+        const getMetrique = async () => {
+            setStatsMetrique(await getMetric());
+        };
+
+        getMetrique();
+    }, []);
+
+
     return (
         <div className="pt-5 h-full">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4">
@@ -263,7 +303,7 @@ const GestionnaireHome = ({ user }) => {
                             icon={card.icon}
                             tone={activeCategory.tone}
                             label={t(card.label)}
-                            value={gestionnaireStatsMock?.[activeCategory.dataKey]?.[card.key] ?? 0}
+                            value={statsMetrique?.[activeCategory.dataKey]?.[card.key] ?? 0}
                         />
                     ))}
                 </DashboardMetricSection>

@@ -41,7 +41,7 @@ public class DonneesOffreService {
     }
 
     public Long compterOffreSansStagiaire(){
-        return offreDeStageRepository.findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(LocalDate.now());
+        return offreDeStageRepository.countByCandidaturesIsEmptyAndDisplayEndDateIsAfter(LocalDate.now());
     }
 
     public Long compterOffreAvecAtLeastUnStagiaire(){

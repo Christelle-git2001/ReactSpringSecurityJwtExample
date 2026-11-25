@@ -64,32 +64,3 @@ export const metricConfig = [
         ]
     }
 ]
-
-export const gestionnaireStatsMock = {
-    "etudiants": {
-        "etudiantInscrits": 120,
-        "aucunStageTrouve": 30,
-        "stageTrouve": 90,
-        "tauxPlacement": "75%",
-        "cvVerification": 14
-    },
-    "professeurs": {
-        "professeurEleve": 15,
-        "professeurSansEleve": 2,
-        "moyenneEleve": 20
-    },
-    "employeurs": {
-        "employeursInscrits": 45,
-        "offresActives": 62,
-        "offreVerification": 8,
-        "offreSansStagiaire" : 1,
-        "tauxOffres" : "30%"
-    },
-    "contrats": {
-        "nombreContratASigner" : 10,
-        "contratSigne" : 80,
-        "nombreContratGenerer" : 90,
-        "contratBloque" : 5,
-        "tauxFinalisation" : "89%"
-    }
-}

@@ -14,7 +14,7 @@ public record MetricGestionnaireDTO(
             Long etudiantInscrits,
             Long aucunStageTrouve,
             Long stageTrouve,
-            double tauxPlacement,
+            Long tauxPlacement,
             Long cvVerification
     ) {}
 

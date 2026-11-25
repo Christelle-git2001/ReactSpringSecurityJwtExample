@@ -29,7 +29,7 @@ const DashboardMetricSection = ({title,tabs = [], activeTabId, onTabChange,child
                 title && <h2 className="text-lg font-bold">{title}</h2>
             )}
 
-            <div className="grid grid-cols-12 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {children}
             </div>
         </section>
