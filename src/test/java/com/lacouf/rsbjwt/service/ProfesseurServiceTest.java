@@ -431,7 +431,7 @@ public class ProfesseurServiceTest {
         Long candidatureId = 1L;
 
         EvaluationMillieuStageDTO inputDto = mock(EvaluationMillieuStageDTO.class);
-        when(inputDto.candiatureId()).thenReturn(candidatureId);
+        when(inputDto.candidatureId()).thenReturn(candidatureId);
 
         Candidature candidature = Candidature.builder().build();
         candidature.setId(candidatureId);
@@ -459,7 +459,7 @@ public class ProfesseurServiceTest {
     void doitLeverExceptionSiCandidatureIntrouvablePourEvaluation() {
         Long candidatureId = 99L;
         EvaluationMillieuStageDTO inputDto = mock(EvaluationMillieuStageDTO.class);
-        when(inputDto.candiatureId()).thenReturn(candidatureId);
+        when(inputDto.candidatureId()).thenReturn(candidatureId);
 
         when(candidatureRepository.findById(candidatureId))
                 .thenReturn(Optional.empty());
