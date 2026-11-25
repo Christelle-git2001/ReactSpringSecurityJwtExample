@@ -7,7 +7,7 @@ import com.lacouf.rsbjwt.service.dto.evaluation_stagiaire.SuperviseurStageDTO;
 
 
 public record EvaluationMillieuStageDTO(
-        Long candiatureId,
+        Long candidatureId,
         SuperviseurStageDTO superviseurStageDTO,
         ObservationGeneralDTO obersvationGeneralDTO,
         MilieuStageScoresDTO millieuStageScoresDTO
