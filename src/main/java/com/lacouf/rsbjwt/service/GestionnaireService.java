@@ -551,16 +551,18 @@ public class GestionnaireService {
     }
 
     private MetricGestionnaireDTO.EtudiantsStats getMetricEtudiant() throws ParametreDonneesInvalideException {
-        Long etudiantInscrit = donneesEtudiantService.compterEtudiantsInscrits();
-        Long etudiantSansStage = donneesEtudiantService.compterEtudiantsSansStage();
-        Long etudiantAvecStage = donneesEtudiantService.compterEtudiantsAvecStage();
-        Long etudiantCvNonValide = donneesEtudiantService.compterCvParStatut(Statut.EN_ATTENTE);
+        Long etudiantInscrit = donneesEtudiantService.countEtudiantsInscritsSessionActuelle();
+        Long etudiantSansStage = donneesEtudiantService.countEtudiantSansStageSessionActuelle();
+        Long etudiantAvecStage = donneesEtudiantService.countEtudiantAvecStageSessionActuelle();
+        Long etudiantCvNonValide = donneesEtudiantService.countEtudiantsCvEnAttenteSessionActuelle();
+        Long tauxDePlacement = etudiantInscrit == 0 ? 0L : Math.round((etudiantAvecStage * 100.0) / etudiantInscrit);
 
         return MetricGestionnaireDTO.EtudiantsStats.builder()
                 .etudiantInscrits(etudiantInscrit)
                 .aucunStageTrouve(etudiantSansStage)
                 .stageTrouve(etudiantAvecStage)
                 .cvVerification(etudiantCvNonValide)
+                .tauxPlacement(tauxDePlacement)
                 .build();
     }
 

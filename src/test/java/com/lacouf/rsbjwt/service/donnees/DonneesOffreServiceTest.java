@@ -21,8 +21,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DonneesOffreServiceTest {
-    @Mock OffreDeStageRepository offres;
-    @InjectMocks DonneesOffreService service;
+    @Mock OffreDeStageRepository offreDeStageRepository;
+    @InjectMocks DonneesOffreService donneesOffreService;
 
     @ParameterizedTest
     @EnumSource(value = Statut.class, names = {"EN_ATTENTE", "ACCEPTEE"})
@@ -31,10 +31,10 @@ class DonneesOffreServiceTest {
         offre.setId(5L);
         offre.setTitle("Dev junior");
         offre.setStatut(statut);
-        when(offres.findByStatut(statut)).thenReturn(List.of(offre));
+        when(offreDeStageRepository.findByStatut(statut)).thenReturn(List.of(offre));
 
         var resultat = statut == Statut.EN_ATTENTE
-                ? service.obtenirOffresEnAttente() : service.obtenirOffresApprouvees();
+                ? donneesOffreService.obtenirOffresEnAttente() : donneesOffreService.obtenirOffresApprouvees();
 
         assertThat(resultat).singleElement().satisfies(dto -> {
             assertThat(dto.id()).isEqualTo(5L);
@@ -46,72 +46,72 @@ class DonneesOffreServiceTest {
     @ParameterizedTest
     @EnumSource(Statut.class)
     void compteLesOffresSansChargerLaListe(Statut statut) throws ParametreDonneesInvalideException {
-        when(offres.countByStatut(statut)).thenReturn(4L);
+        when(offreDeStageRepository.countByStatut(statut)).thenReturn(4L);
 
-        assertThat(service.compterOffresParStatut(statut)).isEqualTo(4L);
-        verify(offres).countByStatut(statut);
-        verifyNoMoreInteractions(offres);
+        assertThat(donneesOffreService.compterOffresParStatut(statut)).isEqualTo(4L);
+        verify(offreDeStageRepository).countByStatut(statut);
+        verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
     void refuseUnStatutAbsent() {
         assertThatExceptionOfType(ParametreDonneesInvalideException.class)
-                .isThrownBy(() -> service.compterOffresParStatut(null))
+                .isThrownBy(() -> donneesOffreService.compterOffresParStatut(null))
                 .withMessage("chatbot.errors.offer_status_required");
-        verifyNoInteractions(offres);
+        verifyNoInteractions(offreDeStageRepository);
     }
 
     @Test
     void compterOffreActivePasseLaDateDuJourEtRetourneLeNombreAttendu() {
         var avantAppel = LocalDate.now();
-        when(offres.countByDisplayEndDateAfterAndStatutAcceptee(any(LocalDate.class))).thenReturn(6L);
+        when(offreDeStageRepository.countByDisplayEndDateAfterAndStatutAcceptee(any(LocalDate.class))).thenReturn(6L);
 
-        Long resultat = service.compterOffreActive();
+        Long resultat = donneesOffreService.compterOffreActive();
 
         var apresAppel = LocalDate.now();
         assertThat(resultat).isEqualTo(6L);
 
         var captor = ArgumentCaptor.forClass(LocalDate.class);
-        verify(offres).countByDisplayEndDateAfterAndStatutAcceptee(captor.capture());
+        verify(offreDeStageRepository).countByDisplayEndDateAfterAndStatutAcceptee(captor.capture());
         assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
-        verifyNoMoreInteractions(offres);
+        verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
     void compterOffreSansStagiairePasseLaDateDuJourEtRetourneLeNombreAttendu() {
         var avantAppel = LocalDate.now();
-        when(offres.findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(any(LocalDate.class))).thenReturn(3L);
+        when(offreDeStageRepository.countByCandidaturesIsEmptyAndDisplayEndDateIsAfter(any(LocalDate.class))).thenReturn(3L);
 
-        Long resultat = service.compterOffreSansStagiaire();
+        Long resultat = donneesOffreService.compterOffreSansStagiaire();
 
         var apresAppel = LocalDate.now();
         assertThat(resultat).isEqualTo(3L);
 
         var captor = ArgumentCaptor.forClass(LocalDate.class);
-        verify(offres).findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(captor.capture());
+        verify(offreDeStageRepository).countByCandidaturesIsEmptyAndDisplayEndDateIsAfter(captor.capture());
         assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
-        verifyNoMoreInteractions(offres);
+        verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
     void compterOffreAvecAtLeastUnStagiaireRetourneLeNombreAttendu() {
-        when(offres.countOffresComblees()).thenReturn(5L);
+        when(offreDeStageRepository.countOffresComblees()).thenReturn(5L);
 
-        Long resultat = service.compterOffreAvecAtLeastUnStagiaire();
+        Long resultat = donneesOffreService.compterOffreAvecAtLeastUnStagiaire();
 
         assertThat(resultat).isEqualTo(5L);
-        verify(offres).countOffresComblees();
-        verifyNoMoreInteractions(offres);
+        verify(offreDeStageRepository).countOffresComblees();
+        verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
     void getOffresRetourneLeNombreTotalDOffres() {
-        when(offres.findAll()).thenReturn(List.of(new OffreDeStage(), new OffreDeStage()));
+        when(offreDeStageRepository.findAll()).thenReturn(List.of(new OffreDeStage(), new OffreDeStage()));
 
-        Long resultat = service.getOffres();
+        Long resultat = donneesOffreService.getOffres();
 
         assertThat(resultat).isEqualTo(2L);
-        verify(offres).findAll();
-        verifyNoMoreInteractions(offres);
+        verify(offreDeStageRepository).findAll();
+        verifyNoMoreInteractions(offreDeStageRepository);
     }
 }
