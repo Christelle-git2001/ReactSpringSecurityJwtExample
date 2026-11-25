@@ -583,11 +583,11 @@ public class GestionnaireService {
     }
 
     private MetricGestionnaireDTO.EmployeursStats getMetricEmployeur() throws ParametreDonneesInvalideException {
-        Long employeurInscrit = donneesEmployeurService.compterEmployeur();
-        Long offreActives = donneesOffreService.compterOffreActive();
+        Long employeurInscrit = donneesEmployeurService.compterEmployeurSessionActuelle();
+        Long offreActives = donneesOffreService.compterOffreActiveSessionActuelle();
         Long offreAVerifier = donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE);
-        Long offreSansStagiaire = donneesOffreService.compterOffreSansStagiaire();
-        Long offreAvecStagiaire = donneesOffreService.compterOffreAvecAtLeastUnStagiaire();
+        Long offreSansStagiaire = donneesOffreService.compterOffreSansStagiaireSessionActuelle();
+        Long offreAvecStagiaire = donneesOffreService.compterOffreAvecAuMoinsUnStagiaireSessionActuelle();
         Long totalOffres = donneesOffreService.getOffres();
         Long tauxOffres = totalOffres == 0
                 ? 0L

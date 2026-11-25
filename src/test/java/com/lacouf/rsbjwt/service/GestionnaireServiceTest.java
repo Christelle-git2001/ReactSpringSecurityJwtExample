@@ -21,6 +21,7 @@ import com.lacouf.rsbjwt.exception.utilisateur.EmailExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.MotDePasseInvalideException;
 import com.lacouf.rsbjwt.exception.utilisateur.NumeroTelephoneExistantException;
 import com.lacouf.rsbjwt.exception.utilisateur.UtilisateurIntrouvableException;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.service.donnees.*;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.commun.DepartementDTO;
@@ -31,6 +32,7 @@ import com.lacouf.rsbjwt.service.dto.donnee.MetricGestionnaireDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.AssignationProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
@@ -41,15 +43,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.junit.jupiter.api.AfterEach;
 
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
-
-import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
-
 import com.lacouf.rsbjwt.model.*;
-import com.lacouf.rsbjwt.model.Enum.Departement;
 import com.lacouf.rsbjwt.model.Enum.Notification.ControllerPath;
-import com.lacouf.rsbjwt.model.Enum.SecteurActivite;
-import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.repository.*;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.utils.StockageFichierUtils;
@@ -884,8 +879,11 @@ class GestionnaireServiceTest {
                 .build();
         professeur2.setId(2L);
 
-        when(professeurRepository.findAll())
-                .thenReturn(List.of(professeur1, professeur2));
+        List<Professeur> professeurs = List.of(professeur1, professeur2);
+        when(professeurRepository.findAll()).thenReturn(professeurs);
+        when(sessionService.getSessionActuelle()).thenReturn(new SessionDTO(Saison.AUTOMNE, 2026));
+        when(sessionService.filtrerUtilisateursParSession(professeurs, Saison.AUTOMNE, 2026))
+                .thenReturn(professeurs);
 
         List<ProfesseurDTO> result = gestionnaireService.getAllProfesseurs();
 
@@ -1666,25 +1664,26 @@ class GestionnaireServiceTest {
 
     @Test
     void construitLeDtoMetricGestionnaireAvecLesValeursCalculees() throws Exception {
-        when(donneesEtudiantService.compterEtudiantsInscrits()).thenReturn(20L);
-        when(donneesEtudiantService.compterEtudiantsSansStage()).thenReturn(8L);
-        when(donneesEtudiantService.compterEtudiantsAvecStage()).thenReturn(12L);
-        when(donneesEtudiantService.compterCvParStatut(Statut.EN_ATTENTE)).thenReturn(3L);
+        when(donneesEtudiantService.countEtudiantsInscritsSessionActuelle()).thenReturn(20L);
+        when(donneesEtudiantService.countEtudiantSansStageSessionActuelle()).thenReturn(8L);
+        when(donneesEtudiantService.countEtudiantAvecStageSessionActuelle()).thenReturn(12L);
+        when(donneesEtudiantService.countEtudiantsCvEnAttenteSessionActuelle()).thenReturn(3L);
 
-        when(donneesProfesseurService.compterProfesseurAvecEtudiant()).thenReturn(4L);
-        when(donneesProfesseurService.compterProfesseurSansEtudiant()).thenReturn(1L);
+        when(donneesProfesseurService.countProfesseurInscritSessionActuelle()).thenReturn(1L);
+        when(donneesProfesseurService.countProfesseurAvecEtudiantSessionActuelle()).thenReturn(4L);
+        when(donneesProfesseurService.countProfesseurSansEtudiantSessionActuelle()).thenReturn(1L);
         when(donneesProfesseurService.compterMoyenneEtudiantParProfesseur()).thenReturn(2L);
 
-        when(donneesEmployeurService.compterEmployeur()).thenReturn(10L);
-        when(donneesOffreService.compterOffreActive()).thenReturn(6L);
+        when(donneesEmployeurService.compterEmployeurSessionActuelle()).thenReturn(10L);
+        when(donneesOffreService.compterOffreActiveSessionActuelle()).thenReturn(6L);
         when(donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE)).thenReturn(2L);
-        when(donneesOffreService.compterOffreSansStagiaire()).thenReturn(5L);
-        when(donneesOffreService.compterOffreAvecAtLeastUnStagiaire()).thenReturn(3L);
-        when(donneesOffreService.getOffres()).thenReturn(12L); // 3 * 100.0 / 12 = 25L
+        when(donneesOffreService.compterOffreSansStagiaireSessionActuelle()).thenReturn(5L);
+        when(donneesOffreService.compterOffreAvecAuMoinsUnStagiaireSessionActuelle()).thenReturn(3L);
+        when(donneesOffreService.getOffres()).thenReturn(12L);
 
         when(donneesContratService.countContratsASignerGestionnaire()).thenReturn(2L);
         when(donneesContratService.countContratSignerGestionnaire()).thenReturn(6L);
-        when(donneesContratService.countAll()).thenReturn(8L); // 6 * 100.0 / 8 = 75L
+        when(donneesContratService.countAll()).thenReturn(8L);
         when(donneesContratService.contratBloque()).thenReturn(1L);
 
         MetricGestionnaireDTO resultat = gestionnaireService.getMetric();
@@ -1719,20 +1718,21 @@ class GestionnaireServiceTest {
 
     @Test
     void retourneZeroPourLesTauxQuandTotalOffresEtTotalContratsSontZero() throws Exception {
-        when(donneesEtudiantService.compterEtudiantsInscrits()).thenReturn(0L);
-        when(donneesEtudiantService.compterEtudiantsSansStage()).thenReturn(0L);
-        when(donneesEtudiantService.compterEtudiantsAvecStage()).thenReturn(0L);
-        when(donneesEtudiantService.compterCvParStatut(Statut.EN_ATTENTE)).thenReturn(0L);
+        when(donneesEtudiantService.countEtudiantsInscritsSessionActuelle()).thenReturn(0L);
+        when(donneesEtudiantService.countEtudiantSansStageSessionActuelle()).thenReturn(0L);
+        when(donneesEtudiantService.countEtudiantAvecStageSessionActuelle()).thenReturn(0L);
+        when(donneesEtudiantService.countEtudiantsCvEnAttenteSessionActuelle()).thenReturn(0L);
 
-        when(donneesProfesseurService.compterProfesseurAvecEtudiant()).thenReturn(0L);
-        when(donneesProfesseurService.compterProfesseurSansEtudiant()).thenReturn(0L);
+        when(donneesProfesseurService.countProfesseurInscritSessionActuelle()).thenReturn(0L);
+        when(donneesProfesseurService.countProfesseurAvecEtudiantSessionActuelle()).thenReturn(0L);
+        when(donneesProfesseurService.countProfesseurAvecEtudiantSessionActuelle()).thenReturn(0L);
         when(donneesProfesseurService.compterMoyenneEtudiantParProfesseur()).thenReturn(0L);
 
-        when(donneesEmployeurService.compterEmployeur()).thenReturn(0L);
-        when(donneesOffreService.compterOffreActive()).thenReturn(0L);
+        when(donneesEmployeurService.compterEmployeurSessionActuelle()).thenReturn(0L);
+        when(donneesOffreService.compterOffreActiveSessionActuelle()).thenReturn(0L);
         when(donneesOffreService.compterOffresParStatut(Statut.EN_ATTENTE)).thenReturn(0L);
-        when(donneesOffreService.compterOffreSansStagiaire()).thenReturn(0L);
-        when(donneesOffreService.compterOffreAvecAtLeastUnStagiaire()).thenReturn(0L);
+        when(donneesOffreService.compterOffreSansStagiaireSessionActuelle()).thenReturn(0L);
+        when(donneesOffreService.compterOffreAvecAuMoinsUnStagiaireSessionActuelle()).thenReturn(0L);
         when(donneesOffreService.getOffres()).thenReturn(0L);
 
         when(donneesContratService.countContratsASignerGestionnaire()).thenReturn(0L);

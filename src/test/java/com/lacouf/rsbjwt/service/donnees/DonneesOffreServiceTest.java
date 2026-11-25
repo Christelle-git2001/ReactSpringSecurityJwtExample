@@ -1,9 +1,12 @@
 package com.lacouf.rsbjwt.service.donnees;
 
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
+import com.lacouf.rsbjwt.model.Enum.Saison;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
+import com.lacouf.rsbjwt.service.SessionService;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,6 +25,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class DonneesOffreServiceTest {
     @Mock OffreDeStageRepository offreDeStageRepository;
+    @Mock
+    SessionService sessionService;
     @InjectMocks DonneesOffreService donneesOffreService;
 
     @ParameterizedTest
@@ -62,51 +67,93 @@ class DonneesOffreServiceTest {
     }
 
     @Test
-    void compterOffreActivePasseLaDateDuJourEtRetourneLeNombreAttendu() {
+    void compterOffreActiveSessionActuellePasseLaDateDuJourEtRetourneLeNombreAttendu() {
         var avantAppel = LocalDate.now();
-        when(offreDeStageRepository.countByDisplayEndDateAfterAndStatutAcceptee(any(LocalDate.class))).thenReturn(6L);
+        SessionDTO session = new SessionDTO(Saison.AUTOMNE, 2026);
+        OffreDeStage offre1 = new OffreDeStage();
+        offre1.setId(1L);
+        OffreDeStage offre2 = new OffreDeStage();
+        offre2.setId(2L);
+        List<OffreDeStage> offresActives = List.of(offre1, offre2);
 
-        Long resultat = donneesOffreService.compterOffreActive();
+        when(offreDeStageRepository.findByDisplayEndDateAfterAndStatutAcceptee(any(LocalDate.class)))
+                .thenReturn(offresActives);
+        when(sessionService.getSessionActuelle()).thenReturn(session);
+        when(sessionService.filtrerParSession(eq(offresActives), eq(Saison.AUTOMNE), eq(2026), any()))
+                .thenReturn(List.of(offre1));
+
+        Long resultat = donneesOffreService.compterOffreActiveSessionActuelle();
 
         var apresAppel = LocalDate.now();
-        assertThat(resultat).isEqualTo(6L);
+        assertThat(resultat).isEqualTo(1L);
 
         var captor = ArgumentCaptor.forClass(LocalDate.class);
-        verify(offreDeStageRepository).countByDisplayEndDateAfterAndStatutAcceptee(captor.capture());
+        verify(offreDeStageRepository).findByDisplayEndDateAfterAndStatutAcceptee(captor.capture());
         assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
         verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
-    void compterOffreSansStagiairePasseLaDateDuJourEtRetourneLeNombreAttendu() {
+    void compterOffreSansStagiaireSessionActuellePasseLaDateDuJourEtRetourneLeNombreAttendu() {
         var avantAppel = LocalDate.now();
-        when(offreDeStageRepository.countByCandidaturesIsEmptyAndDisplayEndDateIsAfter(any(LocalDate.class))).thenReturn(3L);
+        SessionDTO session = new SessionDTO(Saison.AUTOMNE, 2026);
+        OffreDeStage offre1 = new OffreDeStage();
+        offre1.setId(1L);
+        OffreDeStage offre2 = new OffreDeStage();
+        offre2.setId(2L);
+        List<OffreDeStage> offresSansStagiaire = List.of(offre1, offre2);
 
-        Long resultat = donneesOffreService.compterOffreSansStagiaire();
+        when(offreDeStageRepository.findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(any(LocalDate.class)))
+                .thenReturn(offresSansStagiaire);
+        when(sessionService.getSessionActuelle()).thenReturn(session);
+        when(sessionService.filtrerParSession(eq(offresSansStagiaire), eq(Saison.AUTOMNE), eq(2026), any()))
+                .thenReturn(List.of(offre1));
+
+        Long resultat = donneesOffreService.compterOffreSansStagiaireSessionActuelle();
 
         var apresAppel = LocalDate.now();
-        assertThat(resultat).isEqualTo(3L);
+        assertThat(resultat).isEqualTo(1L);
 
         var captor = ArgumentCaptor.forClass(LocalDate.class);
-        verify(offreDeStageRepository).countByCandidaturesIsEmptyAndDisplayEndDateIsAfter(captor.capture());
+        verify(offreDeStageRepository).findByCandidaturesIsEmptyAndDisplayEndDateIsAfter(captor.capture());
         assertThat(captor.getValue()).isBetween(avantAppel, apresAppel);
         verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
-    void compterOffreAvecAtLeastUnStagiaireRetourneLeNombreAttendu() {
-        when(offreDeStageRepository.countOffresComblees()).thenReturn(5L);
+    void compterOffreAvecAuMoinsUnStagiaireSessionActuelleRetourneLeNombreAttendu() {
+        SessionDTO session = new SessionDTO(Saison.AUTOMNE, 2026);
+        OffreDeStage offre1 = new OffreDeStage();
+        offre1.setId(1L);
+        OffreDeStage offre2 = new OffreDeStage();
+        offre2.setId(2L);
+        List<OffreDeStage> offresComblees = List.of(offre1, offre2);
 
-        Long resultat = donneesOffreService.compterOffreAvecAtLeastUnStagiaire();
+        when(offreDeStageRepository.countOffresComblees()).thenReturn(offresComblees);
+        when(sessionService.getSessionActuelle()).thenReturn(session);
+        when(sessionService.filtrerParSession(eq(offresComblees), eq(Saison.AUTOMNE), eq(2026), any()))
+                .thenReturn(List.of(offre1));
 
-        assertThat(resultat).isEqualTo(5L);
+        Long resultat = donneesOffreService.compterOffreAvecAuMoinsUnStagiaireSessionActuelle();
+
+        assertThat(resultat).isEqualTo(1L);
         verify(offreDeStageRepository).countOffresComblees();
         verifyNoMoreInteractions(offreDeStageRepository);
     }
 
     @Test
     void getOffresRetourneLeNombreTotalDOffres() {
-        when(offreDeStageRepository.findAll()).thenReturn(List.of(new OffreDeStage(), new OffreDeStage()));
+        SessionDTO session = new SessionDTO(Saison.AUTOMNE, 2026);
+        OffreDeStage offre1 = new OffreDeStage();
+        offre1.setId(1L);
+        OffreDeStage offre2 = new OffreDeStage();
+        offre2.setId(2L);
+        List<OffreDeStage> offres = List.of(offre1, offre2);
+
+        when(sessionService.getSessionActuelle()).thenReturn(session);
+        when(offreDeStageRepository.findAll()).thenReturn(offres);
+        when(sessionService.filtrerParSession(eq(offres), eq(Saison.AUTOMNE), eq(2026), any()))
+                .thenReturn(offres);
 
         Long resultat = donneesOffreService.getOffres();
 
