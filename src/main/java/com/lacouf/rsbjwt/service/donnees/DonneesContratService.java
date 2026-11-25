@@ -1,7 +1,10 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.model.Contrat;
+import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.contrat.ResumeContratDTO;
 import com.lacouf.rsbjwt.repository.ContratRepository;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,9 +15,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class DonneesContratService {
     private final ContratRepository contratRepository;
+    private final SessionService sessionService;
 
-    public DonneesContratService(ContratRepository contratRepository) {
+    public DonneesContratService(ContratRepository contratRepository, SessionService sessionService) {
         this.contratRepository = contratRepository;
+        this.sessionService = sessionService;
     }
 
     public List<ResumeContratDTO> obtenirContratsNonSignes() {
@@ -27,22 +32,29 @@ public class DonneesContratService {
                 .stream().map(ResumeContratDTO::of).toList();
     }
 
-    public Long countContratsASignerGestionnaire() {
-        return contratRepository
-                .countByDateSignatureGestionnaireIsNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+    public Long countContratsASignerGestionnaireSessionActuelle() {
+        List<Contrat> contrats = contratRepository.findByDateSignatureGestionnaireIsNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+        return (long) filtrerListeParSessionActuelle(contrats).size();
     }
 
-    public Long countContratSignerGestionnaire() {
-        return contratRepository
-                .countByDateSignatureGestionnaireIsNotNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+    public Long countContratSignerGestionnaireSessionActuelle() {
+        List<Contrat> contrats = contratRepository.findByDateSignatureGestionnaireIsNotNullAndDateSignatureEtudiantIsNotNullAndDateSignatureEmployeurIsNotNull();
+        return (long) filtrerListeParSessionActuelle(contrats).size();
     }
 
-    public Long countAll() {
-        return contratRepository.countAll();
+    public Long countAllSessionActuelle() {
+        List<Contrat> contrats = contratRepository.findAll();
+        return (long) filtrerListeParSessionActuelle(contrats).size();
     }
 
     public Long contratBloque() {
         LocalDateTime limiteDixJours = LocalDateTime.now().minusDays(10);
-        return contratRepository.countContratsBloquesOuEnRetard(limiteDixJours);
+        List<Contrat> contrats = contratRepository.findContratsBloquesOuEnRetard(limiteDixJours);
+        return (long) filtrerListeParSessionActuelle(contrats).size();
+    }
+
+    private List<Contrat> filtrerListeParSessionActuelle(List<Contrat> contrats){
+        SessionDTO sessionDTO = sessionService.getSessionActuelle();
+        return sessionService.filtrerParSession(contrats,sessionDTO.saison(),sessionDTO.annee(), Contrat::getCreatedAt);
     }
 }

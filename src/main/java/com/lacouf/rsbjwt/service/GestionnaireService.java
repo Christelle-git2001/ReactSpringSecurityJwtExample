@@ -603,9 +603,9 @@ public class GestionnaireService {
     }
 
     private MetricGestionnaireDTO.ContratsStats getMetricContrat(){
-        Long nombreContratASginer = donneesContratService.countContratsASignerGestionnaire();
-        Long contratSigne = donneesContratService.countContratSignerGestionnaire();
-        Long nombreContratGenerer = donneesContratService.countAll();
+        Long nombreContratASginer = donneesContratService.countContratsASignerGestionnaireSessionActuelle();
+        Long contratSigne = donneesContratService.countContratSignerGestionnaireSessionActuelle();
+        Long nombreContratGenerer = donneesContratService.countAllSessionActuelle();
         Long contratBloque = donneesContratService.contratBloque();
         Long tauxFinalaisation = nombreContratGenerer == 0 ? 0L : Math.round((contratSigne * 100.0)/nombreContratGenerer);
 

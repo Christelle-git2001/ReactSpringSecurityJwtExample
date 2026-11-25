@@ -1681,9 +1681,9 @@ class GestionnaireServiceTest {
         when(donneesOffreService.compterOffreAvecAuMoinsUnStagiaireSessionActuelle()).thenReturn(3L);
         when(donneesOffreService.getOffres()).thenReturn(12L);
 
-        when(donneesContratService.countContratsASignerGestionnaire()).thenReturn(2L);
-        when(donneesContratService.countContratSignerGestionnaire()).thenReturn(6L);
-        when(donneesContratService.countAll()).thenReturn(8L);
+        when(donneesContratService.countContratsASignerGestionnaireSessionActuelle()).thenReturn(2L);
+        when(donneesContratService.countContratSignerGestionnaireSessionActuelle()).thenReturn(6L);
+        when(donneesContratService.countAllSessionActuelle()).thenReturn(8L);
         when(donneesContratService.contratBloque()).thenReturn(1L);
 
         MetricGestionnaireDTO resultat = gestionnaireService.getMetric();
@@ -1735,9 +1735,9 @@ class GestionnaireServiceTest {
         when(donneesOffreService.compterOffreAvecAuMoinsUnStagiaireSessionActuelle()).thenReturn(0L);
         when(donneesOffreService.getOffres()).thenReturn(0L);
 
-        when(donneesContratService.countContratsASignerGestionnaire()).thenReturn(0L);
-        when(donneesContratService.countContratSignerGestionnaire()).thenReturn(0L);
-        when(donneesContratService.countAll()).thenReturn(0L);
+        when(donneesContratService.countContratsASignerGestionnaireSessionActuelle()).thenReturn(0L);
+        when(donneesContratService.countContratSignerGestionnaireSessionActuelle()).thenReturn(0L);
+        when(donneesContratService.countAllSessionActuelle()).thenReturn(0L);
         when(donneesContratService.contratBloque()).thenReturn(0L);
 
         MetricGestionnaireDTO resultat = gestionnaireService.getMetric();
