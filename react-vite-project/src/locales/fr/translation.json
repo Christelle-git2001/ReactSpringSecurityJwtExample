@@ -363,7 +363,8 @@
       "contrat_signe" : "contrats signés",
       "nombre_contrat_generer" : "contrats générés",
       "contrat_bloque" : "contrats bloqués",
-      "taux_finalisation" : "taux de finalisation"
+      "taux_finalisation" : "taux de finalisation",
+      "professeur_inscrit" : "professeur inscrit"
     }
   },
   "etudiant": {

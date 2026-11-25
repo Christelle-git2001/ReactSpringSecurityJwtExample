@@ -34,6 +34,7 @@ import com.lacouf.rsbjwt.service.dto.donnee.MetricGestionnaireDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreCibleeDTO;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.AssignationProfesseurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EmployeurDTO;
 import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
@@ -393,10 +394,11 @@ public class GestionnaireService {
 
 
     public List<ProfesseurDTO> getAllProfesseurs() {
-        return professeurRepository.findAll()
-                .stream()
-                .map(ProfesseurDTO::of)
-                .toList();
+        List<Professeur> professeurs = professeurRepository.findAll();
+
+        SessionDTO sessionDTO = sessionService.getSessionActuelle();
+        List<Professeur> professeursFiltre = sessionService.filtrerUtilisateursParSession(professeurs,sessionDTO.saison(),sessionDTO.annee());
+        return professeursFiltre.stream().map(ProfesseurDTO::of).toList();
     }
 
     @Transactional
@@ -567,11 +569,13 @@ public class GestionnaireService {
     }
 
     private MetricGestionnaireDTO.ProfesseursStats getMetricProfesseur(){
-        Long professeurAvecEleve = donneesProfesseurService.compterProfesseurAvecEtudiant();
-        Long professeurSansEleve = donneesProfesseurService.compterProfesseurSansEtudiant();
+        Long professeurInscrit = donneesProfesseurService.countProfesseurInscritSessionActuelle();
+        Long professeurAvecEleve = donneesProfesseurService.countProfesseurAvecEtudiantSessionActuelle();
+        Long professeurSansEleve = donneesProfesseurService.countProfesseurSansEtudiantSessionActuelle();
         Long moyenneEleveParProf = donneesProfesseurService.compterMoyenneEtudiantParProfesseur();
 
         return MetricGestionnaireDTO.ProfesseursStats.builder()
+                .professeurInscrit(professeurInscrit)
                 .professeurEleve(professeurAvecEleve)
                 .professeurSansEleve(professeurSansEleve)
                 .moyenneEleve(moyenneEleveParProf)

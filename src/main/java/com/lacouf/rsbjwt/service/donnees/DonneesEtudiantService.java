@@ -2,6 +2,7 @@ package com.lacouf.rsbjwt.service.donnees;
 
 import com.lacouf.rsbjwt.model.CvEtudiant;
 import com.lacouf.rsbjwt.model.Etudiant;
+import com.lacouf.rsbjwt.model.Professeur;
 import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
@@ -101,10 +102,7 @@ public class DonneesEtudiantService {
 
     public Long countEtudiantsInscritsSessionActuelle() {
         List<Etudiant> etudiants = etudiantRepository.findAll();
-
-        SessionDTO sessionDTO = sessionService.getSessionActuelle();
-        List<Etudiant> etudiantsFiltre = sessionService.filtrerUtilisateursParSession(etudiants,sessionDTO.saison(),sessionDTO.annee());
-        return (long) etudiantsFiltre.size();
+        return (long) filtrerListeParSessionActuelle(etudiants).size();
     }
 
     public Long countEtudiantsCvEnAttenteSessionActuelle() {
@@ -117,17 +115,16 @@ public class DonneesEtudiantService {
 
     public Long countEtudiantSansStageSessionActuelle() {
         List<Etudiant> etudiants = etudiantRepository.findByCandidatureStageIsNullAndStatutNot(StatutEtudiant.STAGE_TROUVE);
-
-        SessionDTO sessionDTO = sessionService.getSessionActuelle();
-        List<Etudiant> etudiantsFiltre = sessionService.filtrerUtilisateursParSession(etudiants,sessionDTO.saison(),sessionDTO.annee());
-        return (long) etudiantsFiltre.size();
+        return (long) filtrerListeParSessionActuelle(etudiants).size();
     }
 
     public Long countEtudiantAvecStageSessionActuelle() {
         List<Etudiant> etudiants = etudiantRepository.findByCandidatureStageIsNotNullOrStatut(StatutEtudiant.STAGE_TROUVE);
+        return (long) filtrerListeParSessionActuelle(etudiants).size();
+    }
 
+    private List<Etudiant> filtrerListeParSessionActuelle(List<Etudiant> etudiants){
         SessionDTO sessionDTO = sessionService.getSessionActuelle();
-        List<Etudiant> etudiantsFiltre = sessionService.filtrerUtilisateursParSession(etudiants,sessionDTO.saison(),sessionDTO.annee());
-        return (long) etudiantsFiltre.size();
+        return sessionService.filtrerUtilisateursParSession(etudiants,sessionDTO.saison(),sessionDTO.annee());
     }
 }

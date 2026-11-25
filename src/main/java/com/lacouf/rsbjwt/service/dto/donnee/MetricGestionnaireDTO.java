@@ -20,6 +20,7 @@ public record MetricGestionnaireDTO(
 
     @Builder
     public record ProfesseursStats(
+            Long professeurInscrit,
             Long professeurEleve,
             Long professeurSansEleve,
             Long moyenneEleve

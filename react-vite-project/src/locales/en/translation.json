@@ -308,7 +308,8 @@
       "contrat_signe": "signed contracts",
       "nombre_contrat_generer": "generated contracts",
       "contrat_bloque": "blocked contracts",
-      "taux_finalisation": "completion rate"
+      "taux_finalisation": "completion rate",
+      "professeur_inscrit" : "Enrolled Teacher"
     }
   },
   "etudiant": {

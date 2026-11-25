@@ -1,6 +1,14 @@
 import {Role} from "../enum/Role.jsx";
 import {FiFileText, FiTrendingUp, FiUser, FiUserCheck, FiUsers, FiUserX} from "react-icons/fi";
-import {FaBriefcase, FaFileContract, FaPercent, FaRegFilePdf, FaUsers, FaUsersSlash} from "react-icons/fa";
+import {
+    FaBriefcase,
+    FaChalkboardTeacher,
+    FaFileContract,
+    FaPercent,
+    FaRegFilePdf,
+    FaUsers,
+    FaUsersSlash
+} from "react-icons/fa";
 import {IoIdCard} from "react-icons/io5";
 import {MdFactCheck} from "react-icons/md";
 import {TbContract} from "react-icons/tb";
@@ -29,6 +37,7 @@ export const metricConfig = [
         role: [Role.GESTIONNAIRE],
         tone: "purple",
         cards: [
+            { id: "professeurInscrit", label : "dashboard.gestionnaire.professeur_inscrit", key:"professeurInscrit", icon: FaChalkboardTeacher },
             { id: "professeurEleve", label: "dashboard.gestionnaire.professeur_eleves", key: "professeurEleve", icon: FaUsers },
             { id: "professeurSansEleve", label: "dashboard.gestionnaire.professeur_sans_eleves", key: "professeurSansEleve", icon: FaUsersSlash },
             { id: "moyenneEleve", label: "dashboard.gestionnaire.professeur_moyenne", key: "moyenneEleve", icon: FiUsers },
