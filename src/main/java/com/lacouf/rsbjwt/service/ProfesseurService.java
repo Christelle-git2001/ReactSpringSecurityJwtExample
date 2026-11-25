@@ -234,7 +234,6 @@ public class ProfesseurService {
 
     @Transactional
     public EvaluationMillieuStageDTO enregistreEvaluationMilieuDeStage(EvaluationMillieuStageDTO evaluationMillieuStageDTO) throws CandidatureIntrouvableException {
-        System.out.println(evaluationMillieuStageDTO.candidatureId());
         Candidature candidature = candidatureRepository.findById(evaluationMillieuStageDTO.candidatureId()).orElseThrow(CandidatureIntrouvableException::new);
         return EvaluationMillieuStageDTO.toDTO(
                 evaluationMillieuStageRepository.save(
