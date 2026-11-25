@@ -24,6 +24,8 @@ import GestionnaireAttribution from "../../page/Gestionnaire/GestionnaireAttribu
 import ViewProcess from "../Contrat/ViewProcess.jsx";
 import OffreResumePage from "../../page/Offre/OffreResumePage.jsx";
 import ContratEtudiant from "../../page/Etudiant/ContratEtudiant.jsx";
+import Rapport from "../../component/Rapport/Rapport.jsx";
+import ConsultationRapport from "../../page/Gestionnaire/ConsultationRapport.jsx";
 
 export default function AppRoutes({
                                       user,
@@ -87,6 +89,8 @@ export default function AppRoutes({
                 <Route path="/gestionnaire/offres/nouvelle-ciblee" element={<AddTargetedOffer />} />
                 <Route path="/gestionnaire/attribution" element={<GestionnaireAttribution/>} />
                 <Route path="/gestionnaire/candidatures/:candidatureId/contrat" element={<ViewProcess user={user} />} />
+                <Route path="/gestionnaire/rapports" element={<Rapport />}/>
+                <Route path="/gestionnaire/rapports/:id" element={<ConsultationRapport />}/>
 
                 <Route path="/error" element={<ErrorPage error={error} />} />
             </Route>
