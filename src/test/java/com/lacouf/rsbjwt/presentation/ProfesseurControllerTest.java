@@ -341,7 +341,7 @@ public class ProfesseurControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.candiatureId").value(1))
+                .andExpect(jsonPath("$.candidatureId").value(1))
                 .andExpect(jsonPath("$.superviseurStageDTO.firstName").value("Jean"))
                 .andExpect(jsonPath("$.millieuStageScoresDTO.commentaire").value("Excellent milieu de stage"));
 
