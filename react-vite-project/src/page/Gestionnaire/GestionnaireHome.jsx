@@ -20,7 +20,7 @@ import WelcomeMessage from "../../component/Design/WelcomeMessage.jsx";
 import Sort from "../../component/Design/Sort.jsx";
 import toast from "react-hot-toast";
 import DashboardMetricSection from "../../component/Design/Dashboard/DashboardMetricSection.jsx";
-import {metricConfig} from "../../config/MetricConfig.jsx";
+import {formatCardValue, metricConfig} from "../../config/MetricConfig.jsx";
 
 const trierParDate = (items, getDate, ordre) => {
     return [...items].sort((itemA, itemB) => {
@@ -303,7 +303,9 @@ const GestionnaireHome = ({ user }) => {
                             icon={card.icon}
                             tone={activeCategory.tone}
                             label={t(card.label)}
-                            value={statsMetrique?.[activeCategory.dataKey]?.[card.key] ?? 0}
+                            value={formatCardValue(
+                                statsMetrique?.[activeCategory.dataKey]?.[card.key],
+                                card.suffix)}
                         />
                     ))}
                 </DashboardMetricSection>

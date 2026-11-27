@@ -26,7 +26,7 @@ export const metricConfig = [
             { id: "etudiantInscrits", label: "dashboard.gestionnaire.etudiants_inscrits", key: "etudiantInscrits", icon: FiUser },
             { id: "aucunStageTrouve", label: "dashboard.gestionnaire.aucun_stage_trouve", key: "aucunStageTrouve", icon: FiUserX },
             { id: "stageTrouve", label: "dashboard.gestionnaire.stage_trouve", key: "stageTrouve", icon: FiUserCheck },
-            { id: "tauxPlacement", label: "dashboard.gestionnaire.taux_placement", key: "tauxPlacement", icon: FiTrendingUp },
+            { id: "tauxPlacement", label: "dashboard.gestionnaire.taux_placement", key: "tauxPlacement", icon: FiTrendingUp, suffix: "%" },
         ]
 
     },
@@ -55,7 +55,7 @@ export const metricConfig = [
             { id: "employeursInscrits", label: "dashboard.gestionnaire.employeur_inscrit", key: "employeursInscrits", icon: IoIdCard },
             { id: "offresActives", label: "dashboard.gestionnaire.offre_active", key: "offresActives", icon: MdFactCheck  },
             { id: "offreSansStagiaire", label: "dashboard.gestionnaire.offre_sans_stagiaire", key: "offreSansStagiaire", icon: FaUsersSlash },
-            { id: "tauxOffres", label: "dashboard.gestionnaire.taux_offres", key: "tauxOffres", icon: FaPercent  },
+            { id: "tauxOffres", label: "dashboard.gestionnaire.taux_offres", key: "tauxOffres", icon: FaPercent, suffix: "%"  },
         ]
     },
     {
@@ -69,7 +69,15 @@ export const metricConfig = [
             { id: "contratSigne", label: "dashboard.gestionnaire.contrat_signe", key: "contratSigne", icon: FaFileContract  },
             { id: "nombreContratGenerer", label: "dashboard.gestionnaire.nombre_contrat_generer", key: "nombreContratGenerer", icon: FaRegFilePdf   },
             { id: "contratBloque", label: "dashboard.gestionnaire.contrat_bloque", key: "contratBloque", icon: FaFileCircleQuestion  },
-            { id: "tauxFinalisation", label: "dashboard.gestionnaire.taux_finalisation", key: "tauxFinalisation", icon: FaFileCircleCheck   },
+            { id: "tauxFinalisation", label: "dashboard.gestionnaire.taux_finalisation", key: "tauxFinalisation", icon: FaFileCircleCheck, suffix: "%"   },
         ]
     }
 ]
+
+export const formatCardValue = (value, suffix) => {
+    if (value === null || value === undefined || value === "-") return "-";
+    if (!suffix) return value;
+
+    const text = String(value).trim();
+    return text.endsWith(suffix) ? text : `${text}${suffix}`;
+};
