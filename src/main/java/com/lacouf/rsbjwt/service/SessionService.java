@@ -101,7 +101,7 @@ public class SessionService {
 
     public List<SessionDTO> getSessionsDisponibles() throws UtilisateurIntrouvableException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserApp utilisateur = userAppRepository.findUserAppByEmail(email).orElseThrow(() -> new UtilisateurIntrouvableException());
+        UserApp utilisateur = userAppRepository.findUserAppByEmail(email).orElseThrow(UtilisateurIntrouvableException::new);
         boolean estEtudiant = Role.ETUDIANT.equals(utilisateur.getRole());
 
         if (estEtudiant) {

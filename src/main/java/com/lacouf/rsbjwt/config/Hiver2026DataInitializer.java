@@ -172,6 +172,18 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
         });
         ajouterInscriptionSecurisee("5555555", Saison.HIVER, 2026);
 
+        employeur = employeurRepository.findByEmail(employeurEmail).orElseGet(() -> {
+            InscriptionEmployeurDTO empDTO = new InscriptionEmployeurDTO("Roger", "Malinois", "450-874-6586", employeurEmail, "Laval", "Malinois inc", SecteurActivite.INFORMATIQUE, "password", "password");
+            try {
+                employeurService.creeCompteEmployeur(empDTO);
+            } catch (Exception ignored) {}
+
+            Employeur emp = employeurRepository.findByEmail(employeurEmail).orElseThrow();
+            emp.setCreatedAt(LocalDateTime.of(2026, 1, 3, 12, 0)); // Janvier 2026
+            return employeurRepository.save(emp);
+        });
+        ajouterInscriptionUtilisateurSecurise(employeur.getEmail(), Saison.HIVER, 2026);
+
         LocalDateTime dateAssignationHiver = LocalDateTime.of(2026, 2, 5, 10, 0);
 
         etudiantCharles.setProfesseur(toru);
