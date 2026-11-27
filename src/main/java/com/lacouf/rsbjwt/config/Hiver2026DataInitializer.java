@@ -274,6 +274,7 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                 contratCharles.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 15, 10, 0));
                 contratCharles.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 15, 11, 0));
                 contratCharles.setDateSignatureGestionnaire(LocalDateTime.of(2026, 2, 15, 12, 0));
+                contratCharles.setCreatedAt(LocalDateTime.of(2026, 2, 15, 12, 0));
                 contratRepository.save(contratCharles);
                 candCharles.setStatut(StatutCandidature.CONTRAT_CREE);
                 candidatureRepository.save(candCharles);
@@ -286,6 +287,7 @@ public class Hiver2026DataInitializer implements CommandLineRunner {
                         .build();
                 contratJulie.setDateSignatureEtudiant(LocalDateTime.of(2026, 2, 16, 14, 0));
                 contratJulie.setDateSignatureEmployeur(LocalDateTime.of(2026, 2, 16, 15, 0));
+                contratJulie.setCreatedAt(LocalDateTime.of(2026, 2, 16, 15, 0));
                 contratRepository.save(contratJulie);
                 candJulie.setStatut(StatutCandidature.CONTRAT_CREE);
                 candidatureRepository.save(candJulie);
