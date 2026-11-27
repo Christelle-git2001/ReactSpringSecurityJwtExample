@@ -1,8 +1,10 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.CvEtudiant;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.Professeur;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.session.SessionDTO;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,11 +30,13 @@ public class DonneesEtudiantService {
     private final EtudiantRepository etudiantRepository;
     private final CvEtudiantRepository cvEtudiantRepository;
     private final SessionService sessionService;
+    private final CandidatureRepository candidatureRepository;
 
-    public DonneesEtudiantService(EtudiantRepository etudiantRepository, CvEtudiantRepository cvEtudiantRepository, SessionService sessionService) {
+    public DonneesEtudiantService(EtudiantRepository etudiantRepository, CvEtudiantRepository cvEtudiantRepository, SessionService sessionService, CandidatureRepository candidatureRepository) {
         this.etudiantRepository = etudiantRepository;
         this.cvEtudiantRepository = cvEtudiantRepository;
         this.sessionService = sessionService;
+        this.candidatureRepository = candidatureRepository;
     }
 
     public long compterEtudiantsSansCv() {
@@ -102,7 +108,7 @@ public class DonneesEtudiantService {
 
     public Long countEtudiantsInscritsSessionActuelle() {
         List<Etudiant> etudiants = etudiantRepository.findAll();
-        return (long) filtrerListeParSessionActuelle(etudiants).size();
+        return (long) filtrerUtilisateurParSessionActuelle(etudiants).size();
     }
 
     public Long countEtudiantsCvEnAttenteSessionActuelle() {
@@ -114,17 +120,41 @@ public class DonneesEtudiantService {
     }
 
     public Long countEtudiantSansStageSessionActuelle() {
-        List<Etudiant> etudiants = etudiantRepository.findByCandidatureStageIsNullAndStatutNot(StatutEtudiant.STAGE_TROUVE);
-        return (long) filtrerListeParSessionActuelle(etudiants).size();
+        Set<Long> idsEtudiantsSession = getIdsEtudiantsSessionActuelle();
+        Set<Long> idsAvecStage = getIdsEtudiantsAvecStageSessionActuelle(idsEtudiantsSession);
+        return idsEtudiantsSession.stream()
+                .filter(id -> !idsAvecStage.contains(id))
+                .count();
     }
 
     public Long countEtudiantAvecStageSessionActuelle() {
-        List<Etudiant> etudiants = etudiantRepository.findByCandidatureStageIsNotNullOrStatut(StatutEtudiant.STAGE_TROUVE);
-        return (long) filtrerListeParSessionActuelle(etudiants).size();
+        Set<Long> idsEtudiantsSession = getIdsEtudiantsSessionActuelle();
+        Set<Long> idsAvecStage = getIdsEtudiantsAvecStageSessionActuelle(idsEtudiantsSession);
+        return (long) idsAvecStage.size();
     }
 
-    private List<Etudiant> filtrerListeParSessionActuelle(List<Etudiant> etudiants){
+    private List<Etudiant> filtrerUtilisateurParSessionActuelle(List<Etudiant> etudiants){
         SessionDTO sessionDTO = sessionService.getSessionActuelle();
         return sessionService.filtrerUtilisateursParSession(etudiants,sessionDTO.saison(),sessionDTO.annee());
+    }
+
+    private List<Candidature> filtrerCandidaturesParSessionActuelle(List<Candidature> candidatures){
+        SessionDTO sessionDTO = sessionService.getSessionActuelle();
+        return sessionService.filtrerParSession(candidatures,sessionDTO.saison(),sessionDTO.annee(),Candidature::getDateCandidature);
+    }
+
+    private Set<Long> getIdsEtudiantsSessionActuelle() {
+        return filtrerUtilisateurParSessionActuelle(etudiantRepository.findAll()).stream()
+                .map(Etudiant::getId)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Long> getIdsEtudiantsAvecStageSessionActuelle(Set<Long> idsEtudiantsSession) {
+        return filtrerCandidaturesParSessionActuelle(candidatureRepository.findAll()).stream()
+                .filter(c -> c.getEtudiant() != null && idsEtudiantsSession.contains(c.getEtudiant().getId()))
+                .filter(c -> c.getStatut() == StatutCandidature.STAGE_TROUVE
+                        || c.getStatut() == StatutCandidature.CONTRAT_CREE)
+                .map(c -> c.getEtudiant().getId())
+                .collect(Collectors.toSet());
     }
 }

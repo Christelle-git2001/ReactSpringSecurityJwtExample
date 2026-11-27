@@ -2,12 +2,11 @@ package com.lacouf.rsbjwt.service.donnees;
 
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 
+import com.lacouf.rsbjwt.model.Candidature;
 import com.lacouf.rsbjwt.model.CvEtudiant;
-import com.lacouf.rsbjwt.model.Enum.Saison;
+import com.lacouf.rsbjwt.model.Enum.*;
 import com.lacouf.rsbjwt.model.Etudiant;
-import com.lacouf.rsbjwt.model.Enum.Departement;
-import com.lacouf.rsbjwt.model.Enum.Statut;
-import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
+import com.lacouf.rsbjwt.repository.CandidatureRepository;
 import com.lacouf.rsbjwt.repository.CvEtudiantRepository;
 import com.lacouf.rsbjwt.repository.EtudiantRepository;
 import com.lacouf.rsbjwt.service.SessionService;
@@ -31,6 +30,8 @@ class DonneesEtudiantServiceTest {
     @Mock CvEtudiantRepository cvEtudiantRepository;
     @Mock
     SessionService sessionService;
+    @Mock
+    CandidatureRepository candidatureRepository;
     Etudiant etudiant;
 
     @InjectMocks
@@ -291,34 +292,75 @@ class DonneesEtudiantServiceTest {
     @Test
     void compteLesEtudiantsSansStageDansLaSessionActuelle() {
         SessionDTO session = new SessionDTO(Saison.AUTOMNE, 2026);
-        List<Etudiant> sansStage = List.of(etudiant);
 
-        when(etudiantRepository.findByCandidatureStageIsNullAndStatutNot(StatutEtudiant.STAGE_TROUVE))
-                .thenReturn(sansStage);
+        Etudiant etudiantAvecStage = Etudiant.builder().build();
+        etudiantAvecStage.setId(1L);
+
+        Etudiant etudiantSansStage = Etudiant.builder().build();
+        etudiantSansStage.setId(2L);
+
+        List<Etudiant> tousEtudiants = List.of(etudiantAvecStage, etudiantSansStage);
+
+        Candidature candStageTrouve = Candidature.builder()
+                .etudiant(etudiantAvecStage)
+                .dateCandidature(LocalDateTime.of(2026, 9, 15, 10, 0))
+                .build();
+        candStageTrouve.setId(10L);
+        candStageTrouve.setStatut(StatutCandidature.STAGE_TROUVE);
+
+        List<Candidature> toutesCandidatures = List.of(candStageTrouve);
+
+        when(etudiantRepository.findAll()).thenReturn(tousEtudiants);
+        when(candidatureRepository.findAll()).thenReturn(toutesCandidatures);
         when(sessionService.getSessionActuelle()).thenReturn(session);
-        when(sessionService.filtrerUtilisateursParSession(sansStage, Saison.AUTOMNE, 2026))
-                .thenReturn(sansStage);
+        when(sessionService.filtrerUtilisateursParSession(tousEtudiants, Saison.AUTOMNE, 2026))
+                .thenReturn(tousEtudiants);
+        when(sessionService.filtrerParSession(eq(toutesCandidatures), eq(Saison.AUTOMNE), eq(2026), any()))
+                .thenReturn(toutesCandidatures);
 
-        assertThat(donneesEtudiantService.countEtudiantSansStageSessionActuelle()).isEqualTo(1L);
-        verify(etudiantRepository).findByCandidatureStageIsNullAndStatutNot(StatutEtudiant.STAGE_TROUVE);
-        verify(sessionService).filtrerUtilisateursParSession(sansStage, Saison.AUTOMNE, 2026);
-        verifyNoMoreInteractions(etudiantRepository);
+        Long resultat = donneesEtudiantService.countEtudiantSansStageSessionActuelle();
+
+        assertThat(resultat).isEqualTo(1L);
+        verify(etudiantRepository).findAll();
+        verify(candidatureRepository).findAll();
     }
 
     @Test
     void compteLesEtudiantsAvecStageDansLaSessionActuelle() {
-        SessionDTO session = new SessionDTO(Saison.AUTOMNE, 2026);
-        List<Etudiant> avecStage = List.of(etudiant);
+        Etudiant etudiantAvecStage = Etudiant.builder().build();
+        Etudiant etudiantSansStage = Etudiant.builder().build();
+        etudiantSansStage.setId(2L);
+        etudiantAvecStage.setId(1L);
 
-        when(etudiantRepository.findByCandidatureStageIsNotNullOrStatut(StatutEtudiant.STAGE_TROUVE))
-                .thenReturn(avecStage);
-        when(sessionService.getSessionActuelle()).thenReturn(session);
-        when(sessionService.filtrerUtilisateursParSession(avecStage, Saison.AUTOMNE, 2026))
-                .thenReturn(avecStage);
+        List<Etudiant> tousEtudiants = List.of(etudiantAvecStage, etudiantSansStage);
 
-        assertThat(donneesEtudiantService.countEtudiantAvecStageSessionActuelle()).isEqualTo(1L);
-        verify(etudiantRepository).findByCandidatureStageIsNotNullOrStatut(StatutEtudiant.STAGE_TROUVE);
-        verify(sessionService).filtrerUtilisateursParSession(avecStage, Saison.AUTOMNE, 2026);
-        verifyNoMoreInteractions(etudiantRepository);
+        Candidature cand1 = Candidature.builder()
+                .etudiant(etudiantAvecStage)
+                .dateCandidature(LocalDateTime.of(2026, 9, 15, 10, 0))
+                .build();
+        Candidature cand2 = Candidature.builder()
+                .etudiant(etudiantAvecStage)
+                .dateCandidature(LocalDateTime.of(2026, 9, 20, 14, 0))
+                .build();
+        cand1.setStatut(StatutCandidature.STAGE_TROUVE);
+        cand1.setId(10L);
+        cand2.setStatut(StatutCandidature.CONTRAT_CREE);
+        cand2.setId(11L);
+
+        List<Candidature> toutesCandidatures = List.of(cand1, cand2);
+
+        when(etudiantRepository.findAll()).thenReturn(tousEtudiants);
+        when(candidatureRepository.findAll()).thenReturn(toutesCandidatures);
+        when(sessionService.getSessionActuelle()).thenReturn(new SessionDTO(Saison.AUTOMNE, 2026));
+        when(sessionService.filtrerUtilisateursParSession(any(), any(), anyInt()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(sessionService.filtrerParSession(eq(toutesCandidatures), eq(Saison.AUTOMNE), eq(2026), any()))
+                .thenReturn(toutesCandidatures);
+
+        Long resultat = donneesEtudiantService.countEtudiantAvecStageSessionActuelle();
+
+        assertThat(resultat).isEqualTo(1L);
+        verify(etudiantRepository).findAll();
+        verify(candidatureRepository).findAll();
     }
 }
