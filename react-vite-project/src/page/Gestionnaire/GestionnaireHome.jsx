@@ -21,6 +21,7 @@ import Sort from "../../component/Design/Sort.jsx";
 import toast from "react-hot-toast";
 import DashboardMetricSection from "../../component/Design/Dashboard/DashboardMetricSection.jsx";
 import {formatCardValue, metricConfig} from "../../config/MetricConfig.jsx";
+import {removeSuffixRole} from "../../enum/Role.jsx";
 
 const trierParDate = (items, getDate, ordre) => {
     return [...items].sort((itemA, itemB) => {
@@ -51,6 +52,7 @@ const GestionnaireHome = ({ user }) => {
             "cvVerification": '-'
         },
         "professeurs": {
+            "professeurInscrit" : '-',
             "professeurEleve": '-',
             "professeurSansEleve": '-',
             "moyenneEleve": '-'
@@ -70,9 +72,11 @@ const GestionnaireHome = ({ user }) => {
             "tauxFinalisation" : "-"
         }
     })
-    const allowedSections = metricConfig.filter(
-        (section) => !section.roles || section.roles.includes(user.role)
-    );
+
+    const allowedSections = metricConfig.filter((section) => {
+        const allowed = section.roles ?? section.role;
+        return !allowed || (Array.isArray(allowed) && allowed.includes(removeSuffixRole(user?.role)));
+    });
     const [activeTabId, setActiveTabId] = useState(allowedSections[0]?.id ?? "");
     const activeCategory =
         allowedSections.find((cat) => cat.id === activeTabId) ?? allowedSections[0];
@@ -290,25 +294,26 @@ const GestionnaireHome = ({ user }) => {
                     availableDomains={combinedDomains}
                     className="mx-auto max-w-4xl"
                 />
-
-                <DashboardMetricSection
-                    tabs={sectionTabs}
-                    activeTabId={activeTabId}
-                    tone={activeCategory.tone}
-                    onTabChange={setActiveTabId}
-                >
-                    {activeCategory.cards.map((card) => (
-                        <DashboardSummaryCard
-                            key={card.id}
-                            icon={card.icon}
-                            tone={activeCategory.tone}
-                            label={t(card.label)}
-                            value={formatCardValue(
-                                statsMetrique?.[activeCategory.dataKey]?.[card.key],
-                                card.suffix)}
-                        />
-                    ))}
-                </DashboardMetricSection>
+                {activeCategory && (
+                    <DashboardMetricSection
+                        tabs={sectionTabs}
+                        activeTabId={activeTabId}
+                        tone={activeCategory.tone}
+                        onTabChange={setActiveTabId}
+                    >
+                        {activeCategory.cards.map((card) => (
+                            <DashboardSummaryCard
+                                key={card.id}
+                                icon={card.icon}
+                                tone={activeCategory.tone}
+                                label={t(card.label)}
+                                value={formatCardValue(
+                                    statsMetrique?.[activeCategory.dataKey]?.[card.key],
+                                    card.suffix)}
+                            />
+                        ))}
+                    </DashboardMetricSection>
+                )}
 
                 <div className="flex flex-col gap-5 pb-4">
                     <DashboardSection

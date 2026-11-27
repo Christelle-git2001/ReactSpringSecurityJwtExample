@@ -2,7 +2,6 @@ import {useTranslation} from "react-i18next";
 import {toneClasses} from "../../../utils/tones.jsx";
 
 const DashboardMetricSection = ({title,tabs = [], activeTabId, onTabChange,children, className= "", tone}) => {
-    const { t, i18n } = useTranslation();
     const styles = toneClasses[tone] || toneClasses.purple;
 
     const hasTabs = Boolean(onTabChange) && tabs.length > 0;
