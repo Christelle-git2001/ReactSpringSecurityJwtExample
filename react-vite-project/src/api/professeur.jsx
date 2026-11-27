@@ -27,3 +27,11 @@ export function getResumeOffre(offreId){
             method:"GET"
         })
 }
+
+export async function soumettreEvaluationMilieuStage(candidatureId, evaluation) {
+    return fetchJson("/professeur/evaluation/stage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...evaluation, candidatureId }),
+    });
+}

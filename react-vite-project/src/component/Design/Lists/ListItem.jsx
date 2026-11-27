@@ -20,6 +20,7 @@ function ListItem({
     actionIcon,
     actionRole = "details",
     actionClassName,
+    secondaryAction,
     extraActions,
     footer,
     showChevron = true,
@@ -157,20 +158,36 @@ function ListItem({
                     </div>
                 </div>
 
-                {onClick && !isClickableCard && (
-                    <div className="flex shrink-0 flex-col items-end gap-2">
-                    <Button
-                        role={actionRole}
-                        icon={actionIcon ?? Boolean(actionLabel)}
-                        size="small"
-                        type="button"
-                        onClick={onClick}
-                        className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
-                        aria-label={ariaLabel}
-                    >
-                        {actionLabel || <FiChevronRight className="size-4" />}
-                    </Button>
-                    {extraActions}
+                {(secondaryAction || (onClick && !isClickableCard)) && (
+                    <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                        {secondaryAction && (
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); secondaryAction.onClick(); }}
+                                disabled={secondaryAction.disabled}
+                                className={`btn btn-sm shrink-0 border-none rounded-lg px-4 ${secondaryAction.className || `bg-white/80 ${styles.action}`}`}
+                            >
+                                {secondaryAction.icon}
+                                {secondaryAction.label}
+                            </button>
+                        )}
+
+                        {onClick && !isClickableCard && (
+                            <div className="flex shrink-0 flex-col items-end gap-2">
+                                <Button
+                                    role={actionRole}
+                                    icon={actionIcon ?? Boolean(actionLabel)}
+                                    size="small"
+                                    type="button"
+                                    onClick={onClick}
+                                    className={`btn btn-sm shrink-0 border-none ${actionLabel ? "rounded-lg px-4" : "btn-circle"} ${actionClassName || `bg-white/80 ${styles.action}`}`}
+                                    aria-label={ariaLabel}
+                                >
+                                    {actionLabel || <FiChevronRight className="size-4" />}
+                                </Button>
+                                {extraActions}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
