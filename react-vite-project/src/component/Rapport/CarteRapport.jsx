@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { FiFileText, FiEye, FiDownload } from "react-icons/fi";
 
 function CarteRapport({
@@ -8,6 +9,8 @@ function CarteRapport({
     onView,
     onDownload
 }) {
+    const { t } = useTranslation();
+
     return (
         <div className="rapport-card flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm hover:shadow-md transition-all">
 
@@ -30,10 +33,12 @@ function CarteRapport({
 
                     <span className="rapport-count">
                         {nombreResultats === undefined
-                            ? "Chargement..."
+                            ? t("rapport.loading")
                             : nombreResultats === null
-                                ? "Indisponible"
-                                : `${nombreResultats} résultat${nombreResultats > 1 ? "s" : ""}`}
+                                ? t("rapport.unavailable")
+                                : t("rapport.results", {
+                                    count: nombreResultats
+                                })}
                     </span>
                 </div>
             </div>
@@ -45,7 +50,7 @@ function CarteRapport({
                     className="rapport-button"
                 >
                     <FiEye />
-                    <span>Voir</span>
+                    <span>{t("rapport.actions.view")}</span>
                 </button>
 
                 <button
@@ -54,7 +59,7 @@ function CarteRapport({
                     className="rapport-button rapport-button-pdf"
                 >
                     <FiDownload />
-                    <span>PDF</span>
+                    <span>{t("rapport.actions.download_short")}</span>
                 </button>
             </div>
         </div>

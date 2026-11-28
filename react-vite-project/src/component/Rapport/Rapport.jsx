@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
     FiBriefcase,
     FiUsers,
@@ -21,44 +22,34 @@ import "../../css/Rapport.css";
 const categories = [
     {
         id: "etudiants",
-        titre: "Étudiants",
-        description: "Rapports liés aux étudiants.",
+        titreKey: "rapport.categories.students",
+        descriptionKey: "rapport.category_descriptions.students",
         Icon: FiUsers,
         couleur: "bg-emerald-50/80",
         iconeCouleur: "bg-emerald-100 text-emerald-600",
         rapports: [
             {
                 id: "etudiants-inscrits",
-                titre: "Étudiants inscrits",
-                description: "Liste de tous les étudiants inscrits.",
                 dataEndpoint: "/gestionnaire/rapports/etudiants",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants"
             },
             {
                 id: "etudiants-sans-cv",
-                titre: "Étudiants sans CV",
-                description: "Liste des étudiants n'ayant pas de CV.",
                 dataEndpoint: "/gestionnaire/rapports/etudiants/sans-cv",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants/sans-cv"
             },
             {
                 id: "cv-en-attente",
-                titre: "CV en attente de validation",
-                description: "Liste des CV à valider.",
                 dataEndpoint: "/gestionnaire/rapports/cvs/en-attente",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/cv/en-attente"
             },
             {
                 id: "etudiants-sans-entrevue",
-                titre: "Étudiants sans entrevue",
-                description: "Liste des étudiants n'ayant pas eu d'entrevue.",
                 dataEndpoint: "/gestionnaire/rapports/etudiants/sans-entrevue",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants/sans-entrevue"
             },
             {
                 id: "etudiants-stage-trouve",
-                titre: "Étudiants ayant trouvé un stage",
-                description: "Liste des étudiants avec un stage confirmé.",
                 dataEndpoint: "/gestionnaire/rapports/etudiants/stage-trouve",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants/stage-trouve"
             }
@@ -66,23 +57,19 @@ const categories = [
     },
     {
         id: "offres",
-        titre: "Offres",
-        description: "Rapports liés aux offres de stage.",
+        titreKey: "rapport.categories.offers",
+        descriptionKey: "rapport.category_descriptions.offers",
         Icon: FiBriefcase,
         couleur: "bg-blue-50/80",
         iconeCouleur: "bg-blue-100 text-blue-600",
         rapports: [
             {
                 id: "offres-en-attente",
-                titre: "Offres en attente de validation",
-                description: "Liste des offres à valider.",
                 dataEndpoint: "/gestionnaire/rapports/offres/en-attente",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/offres/en-attente"
             },
             {
                 id: "offres-approuvees",
-                titre: "Offres validées",
-                description: "Liste des offres approuvées.",
                 dataEndpoint: "/gestionnaire/rapports/offres/validees",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/offres/approuvees"
             }
@@ -90,30 +77,24 @@ const categories = [
     },
     {
         id: "candidatures",
-        titre: "Candidatures",
-        description: "Rapports liés aux candidatures.",
+        titreKey: "rapport.categories.applications",
+        descriptionKey: "rapport.category_descriptions.applications",
         Icon: FiClipboard,
         couleur: "bg-amber-50/80",
         iconeCouleur: "bg-amber-100 text-amber-600",
         rapports: [
             {
                 id: "candidatures-en-attente-entrevue",
-                titre: "Candidatures en attente d'entrevue",
-                description: "Liste des candidatures à planifier en entrevue.",
                 dataEndpoint: "/gestionnaire/rapports/candidatures/en-attente-entrevue",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/candidatures/en-attente-entrevue"
             },
             {
                 id: "candidatures-sans-evaluation",
-                titre: "Candidatures sans évaluation du superviseur",
-                description: "Liste des candidatures sans évaluation.",
                 dataEndpoint: "/gestionnaire/rapports/candidatures/sans-evaluation",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/candidatures/sans-evaluation"
             },
             {
                 id: "candidatures-sans-evaluation-milieu-stage",
-                titre: "Candidatures sans évaluation du milieu de stage",
-                description: "Liste des candidatures sans évaluation du milieu.",
                 dataEndpoint: "/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage"
             }
@@ -121,16 +102,14 @@ const categories = [
     },
     {
         id: "entrevues",
-        titre: "Entrevues",
-        description: "Rapports liés aux entrevues.",
+        titreKey: "rapport.categories.interviews",
+        descriptionKey: "rapport.category_descriptions.interviews",
         Icon: FiCalendar,
         couleur: "bg-rose-50/80",
         iconeCouleur: "bg-rose-100 text-rose-600",
         rapports: [
             {
                 id: "entrevues-en-attente-reponse",
-                titre: "Entrevues en attente de réponse",
-                description: "Liste des entrevues dont la réponse est attendue.",
                 dataEndpoint: "/gestionnaire/rapports/entrevues/en-attente-reponse",
                 pdfEndpoint: "/pdf/gestionnaire/rapports/entrevues/en-attente-reponse"
             }
@@ -140,6 +119,8 @@ const categories = [
 
 function Rapport() {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
+
     const [compteurs, setCompteurs] = useState({});
 
     useEffect(() => {
@@ -179,17 +160,32 @@ function Rapport() {
         };
     }, []);
 
+    const traduireRapport = (rapport) => ({
+        ...rapport,
+        titre: t(`rapport.items.${rapport.id}.title`),
+        description: t(`rapport.items.${rapport.id}.description`)
+    });
+
     const consulterRapport = (rapport) => {
         navigate(`/gestionnaire/rapports/${rapport.id}`);
     };
 
     const telechargerPdf = async (rapport) => {
         try {
-            toast.loading("Préparation du PDF...", {
+            toast.loading(t("rapport.pdf_loading"), {
                 id: "rapport-pdf"
             });
 
-            const response = await genererRapportPdf(rapport.pdfEndpoint);
+            const langue = i18n.language.startsWith("en") ? "en" : "fr";
+
+            const response = await genererRapportPdf(
+                `${rapport.pdfEndpoint}?langue=${langue}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Impossible de générer le PDF.");
+            }
+
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
 
@@ -205,41 +201,15 @@ function Rapport() {
                 window.URL.revokeObjectURL(url);
             }, 1000);
 
-            toast.success("PDF téléchargé avec succès.", {
+            toast.success(t("rapport.pdf_success"), {
                 id: "rapport-pdf"
             });
         } catch (error) {
             console.error("Erreur de téléchargement PDF :", error);
 
-            toast.error("Impossible de télécharger le PDF.", {
+            toast.error(t("rapport.pdf_error"), {
                 id: "rapport-pdf"
             });
-        }
-    };
-
-    const apercuPdf = async (rapport) => {
-        const fenetre = window.open("", "_blank");
-
-        if (!fenetre) {
-            toast.error("Autorise les fenêtres pop-up pour afficher le PDF.");
-            return;
-        }
-
-        try {
-            fenetre.document.title = "Préparation du rapport";
-
-            const response = await genererRapportPdf(rapport.pdfEndpoint);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-
-            fenetre.location.href = url;
-
-            toast.success("Aperçu PDF prêt.");
-        } catch (error) {
-            fenetre.close();
-            console.error("Erreur d'aperçu PDF :", error);
-
-            toast.error("Impossible de prévisualiser le PDF.");
         }
     };
 
@@ -253,12 +223,11 @@ function Rapport() {
 
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">
-                        Rapports
+                        {t("rapport.title")}
                     </h1>
 
                     <p className="text-sm text-slate-500">
-                        Générez et consultez les rapports sur les offres,
-                        les étudiants, les candidatures et les entrevues.
+                        {t("rapport.description")}
                     </p>
                 </div>
             </div>
@@ -267,7 +236,12 @@ function Rapport() {
                 {categories.map((categorie) => (
                     <CategorieRapport
                         key={categorie.id}
-                        categorie={categorie}
+                        categorie={{
+                            ...categorie,
+                            titre: t(categorie.titreKey),
+                            description: t(categorie.descriptionKey),
+                            rapports: categorie.rapports.map(traduireRapport)
+                        }}
                         compteurs={compteurs}
                         onView={consulterRapport}
                         onDownload={telechargerPdf}

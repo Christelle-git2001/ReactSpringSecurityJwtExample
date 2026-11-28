@@ -38,7 +38,7 @@ function SideBarLayout({ user }) {
         { path: "/gestionnaire", label: t("nav.home"), roles: ["GESTIONNAIRE"], icon: <FiHome className="size-4 my-1.5" /> },
         { path: "/gestionnaire/offres/nouvelle-ciblee", label: t("nav.add_offer"), roles: ["GESTIONNAIRE"], icon: <FiPlusCircle className="size-4 my-1.5" /> },
         { path: "/gestionnaire/attribution",label: t("nav.assignation"), roles: ["GESTIONNAIRE"], icon: <PiStudentBold />},
-        {path: "/gestionnaire/rapports",label: "Rapports",roles: ["GESTIONNAIRE"],icon: <FiBarChart2 className="size-4 my-1.5" />},
+        {path: "/gestionnaire/rapports",label: t("sidebar.reports"), roles: ["GESTIONNAIRE"],icon: <FiBarChart2 className="size-4 my-1.5" />},
         { path: "/professeur", label: t("nav.home"), roles: ["PROFESSEUR"], icon: <FiHome className="size-4 my-1.5" /> },
         {
             path: user?.isLoggedIn ? "/logout" : "/login",

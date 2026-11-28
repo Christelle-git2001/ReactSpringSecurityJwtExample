@@ -1,6 +1,7 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
 import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
@@ -40,6 +41,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.*;
 import java.util.function.Function;
+import com.itextpdf.kernel.geom.PageSize;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 @Service
 @Transactional(readOnly = true)
@@ -1089,43 +1092,61 @@ public class PDFService {
                 DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
         );
 
-        document.add(
-                new Paragraph(
-                        messages.getString("rapport.dateGeneration")
-                                + " : " + dateGeneration
-                )
-                        .setTextAlignment(TextAlignment.RIGHT)
-                        .setFontSize(10)
-        );
+        Table informations = new Table(UnitValue.createPercentArray(new float[]{50, 50}))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setMarginBottom(15);
 
-        document.add(
-                new Paragraph(
+        informations.addCell(new Cell()
+                .add(new Paragraph(
                         messages.getString("rapport.nombreResultats")
-                                + " : " + nombreResultats
-                )
-                        .setBold()
-                        .setMarginBottom(15)
-        );
+                                + " " + nombreResultats
+                ).setBold().setFontSize(10))
+                .setBorder(Border.NO_BORDER)
+                .setPadding(0));
+
+        informations.addCell(new Cell()
+                .add(new Paragraph(
+                        messages.getString("rapport.dateGeneration")
+                                + " " + dateGeneration
+                ).setFontSize(10))
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setBorder(Border.NO_BORDER)
+                .setPadding(0));
+
+        document.add(informations);
     }
 
+
     private Table creerTableauRapport(float... largeurColonnes) {
-        Table table = new Table(
-                UnitValue.createPercentArray(largeurColonnes)
-        );
+        Table table = new Table(UnitValue.createPercentArray(largeurColonnes));
 
         table.setWidth(UnitValue.createPercentValue(100));
+        table.setFixedLayout();
 
         return table;
     }
 
     private Cell creerCelluleEntete(String texte) {
         return new Cell()
-                .add(new Paragraph(texte).setBold())
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY);
+                .add(new Paragraph(texte)
+                        .setBold()
+                        .setFontSize(9)
+                        .setMargin(0))
+                .setTextAlignment(TextAlignment.LEFT)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setPadding(6)
+                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                .setBorder(new SolidBorder(0.7f));
     }
 
     private Cell creerCellule(String texte) {
-        return new Cell().add(new Paragraph(texte != null ? texte : ""));
+        return new Cell()
+                .add(new Paragraph(texte != null ? texte : "")
+                        .setFontSize(9)
+                        .setMargin(0))
+                .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setPadding(6)
+                .setBorder(new SolidBorder(0.5f));
     }
 
     private void ajouterEntetes(
@@ -1169,7 +1190,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.offres.enAttente.titre"),
@@ -1241,7 +1264,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.offres.approuvees.titre"),
@@ -1313,7 +1338,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.etudiants.inscrits.titre"),
@@ -1362,7 +1389,7 @@ public class PDFService {
                     ));
 
                     table.addCell(creerCellule(
-                            valeurOuInconnu(etudiant.statut(), messages)
+                            traduireStatutEtudiant(etudiant.statut(), messages)
                     ));
                 }
 
@@ -1383,7 +1410,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.etudiants.sansCv.titre"),
@@ -1448,7 +1477,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.cv.enAttente.titre"),
@@ -1525,7 +1556,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.etudiants.sansEntrevue.titre"),
@@ -1590,7 +1623,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.etudiants.stageTrouve.titre"),
@@ -1655,7 +1690,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.candidatures.enAttenteEntrevue.titre"),
@@ -1723,7 +1760,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.entrevues.enAttenteReponse.titre"),
@@ -1801,7 +1840,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.candidatures.sansEvaluation.titre"),
@@ -1848,7 +1889,7 @@ public class PDFService {
                     ));
 
                     table.addCell(creerCellule(
-                            valeurOuInconnu(candidature.statut(), messages)
+                            traduireStatutCandidature(candidature.statut(), messages)
                     ));
                 }
 
@@ -1859,7 +1900,6 @@ public class PDFService {
         return new ByteArrayResource(outputStream.toByteArray());
     }
 
-
     public Resource createRapportCandidaturesSansEvaluationMilieuStagePdf(
             List<CandidatureDTO> candidatures,
             String langue) throws IOException {
@@ -1869,7 +1909,9 @@ public class PDFService {
 
         try (PdfWriter writer = new PdfWriter(outputStream);
              PdfDocument pdf = new PdfDocument(writer);
-             Document document = new Document(pdf)) {
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
 
             document.add(creerTitreRapport(
                     messages.getString("rapport.candidatures.sansEvaluationMilieuStage.titre"),
@@ -1882,7 +1924,7 @@ public class PDFService {
                 ajouterMessageAucunResultat(document, messages);
             } else {
 
-                Table table = creerTableauRapport(15, 20, 25, 25, 15);
+                Table table = creerTableauRapport(14, 14, 13, 28, 16, 15);
 
                 ajouterEntetes(
                         table,
@@ -1916,7 +1958,7 @@ public class PDFService {
                     ));
 
                     table.addCell(creerCellule(
-                            valeurOuInconnu(candidature.statut(), messages)
+                            traduireStatutCandidature(candidature.statut(), messages)
                     ));
                 }
 
@@ -1927,5 +1969,37 @@ public class PDFService {
         return new ByteArrayResource(outputStream.toByteArray());
     }
 
+    private String traduireStatutEtudiant(
+            StatutEtudiant statut,
+            ResourceBundle messages) {
 
+        if (statut == null) {
+            return messages.getString("rapport.nonRenseigne");
+        }
+
+        String cleTraduction = "student_status." + statut.name() + ".label";
+
+        if (messages.containsKey(cleTraduction)) {
+            return messages.getString(cleTraduction);
+        }
+
+        return statut.name();
+    }
+
+    private String traduireStatutCandidature(
+            StatutCandidature statut,
+            ResourceBundle messages) {
+
+        if (statut == null) {
+            return messages.getString("rapport.nonRenseigne");
+        }
+
+        String cle = "statut_candidature." + statut.name();
+
+        if (messages.containsKey(cle)) {
+            return messages.getString(cle);
+        }
+
+        return statut.name();
+    }
 }

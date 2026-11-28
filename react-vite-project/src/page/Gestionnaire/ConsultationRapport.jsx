@@ -1,10 +1,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
     FiArrowLeft,
     FiSearch,
-    FiEye,
     FiDownload,
     FiFileText
 } from "react-icons/fi";
@@ -15,152 +15,175 @@ import {
     genererRapportPdf
 } from "../../api/rapport.jsx";
 
+import { getDepartmentKey } from "../../utils/departementConverter.js";
+
 import "../../css/ConsultationRapport.css";
 
 const rapports = {
     "etudiants-inscrits": {
-        titre: "Étudiants inscrits",
         dataEndpoint: "/gestionnaire/rapports/etudiants",
         pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants",
         colonnes: [
-            { label: "Prénom", champ: "firstName" },
-            { label: "Nom", champ: "lastName" },
-            { label: "Matricule", champ: "matricule" },
-            { label: "Courriel", champ: "email" },
-            { label: "Département", champ: "department" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "firstName", champ: "firstName" },
+            { labelKey: "lastName", champ: "lastName" },
+            { labelKey: "matricule", champ: "matricule" },
+            { labelKey: "email", champ: "email" },
+            { labelKey: "department", champ: "department" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "etudiants-sans-cv": {
-        titre: "Étudiants sans CV",
         dataEndpoint: "/gestionnaire/rapports/etudiants/sans-cv",
         pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants/sans-cv",
         colonnes: [
-            { label: "Prénom", champ: "firstName" },
-            { label: "Nom", champ: "lastName" },
-            { label: "Matricule", champ: "matricule" },
-            { label: "Courriel", champ: "email" },
-            { label: "Département", champ: "department" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "firstName", champ: "firstName" },
+            { labelKey: "lastName", champ: "lastName" },
+            { labelKey: "matricule", champ: "matricule" },
+            { labelKey: "email", champ: "email" },
+            { labelKey: "department", champ: "department" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "cv-en-attente": {
-        titre: "CV en attente de validation",
         dataEndpoint: "/gestionnaire/rapports/cvs/en-attente",
         pdfEndpoint: "/pdf/gestionnaire/rapports/cv/en-attente",
         colonnes: [
-            { label: "Étudiant", champ: "etudiant", type: "etudiant" },
-            { label: "Nom du fichier", champ: "fileName" },
-            { label: "Date de dépôt", champ: "uploadDate", type: "date" },
-            { label: "Taille", champ: "fileSize", type: "taille" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "student", champ: "etudiant", type: "etudiant" },
+            { labelKey: "fileName", champ: "fileName" },
+            { labelKey: "uploadDate", champ: "uploadDate", type: "date" },
+            { labelKey: "size", champ: "fileSize", type: "taille" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "etudiants-sans-entrevue": {
-        titre: "Étudiants sans entrevue",
         dataEndpoint: "/gestionnaire/rapports/etudiants/sans-entrevue",
         pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants/sans-entrevue",
         colonnes: [
-            { label: "Prénom", champ: "firstName" },
-            { label: "Nom", champ: "lastName" },
-            { label: "Matricule", champ: "matricule" },
-            { label: "Courriel", champ: "email" },
-            { label: "Département", champ: "department" }
+            { labelKey: "firstName", champ: "firstName" },
+            { labelKey: "lastName", champ: "lastName" },
+            { labelKey: "matricule", champ: "matricule" },
+            { labelKey: "email", champ: "email" },
+            { labelKey: "department", champ: "department" }
         ]
     },
+
     "etudiants-stage-trouve": {
-        titre: "Étudiants ayant trouvé un stage",
         dataEndpoint: "/gestionnaire/rapports/etudiants/stage-trouve",
         pdfEndpoint: "/pdf/gestionnaire/rapports/etudiants/stage-trouve",
         colonnes: [
-            { label: "Prénom", champ: "firstName" },
-            { label: "Nom", champ: "lastName" },
-            { label: "Matricule", champ: "matricule" },
-            { label: "Courriel", champ: "email" },
-            { label: "Département", champ: "department" }
+            { labelKey: "firstName", champ: "firstName" },
+            { labelKey: "lastName", champ: "lastName" },
+            { labelKey: "matricule", champ: "matricule" },
+            { labelKey: "email", champ: "email" },
+            { labelKey: "department", champ: "department" }
         ]
     },
+
     "offres-en-attente": {
-        titre: "Offres en attente de validation",
         dataEndpoint: "/gestionnaire/rapports/offres/en-attente",
         pdfEndpoint: "/pdf/gestionnaire/rapports/offres/en-attente",
         colonnes: [
-            { label: "Titre", champ: "title" },
-            { label: "Département", champ: "domain" },
-            { label: "Salaire", champ: "salary", type: "salaire" },
-            { label: "Date de début", champ: "startDate", type: "date" },
-            { label: "Date de fin", champ: "endDate", type: "date" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "title", champ: "title" },
+            { labelKey: "department", champ: "domain" },
+            { labelKey: "salary", champ: "salary", type: "salaire" },
+            { labelKey: "startDate", champ: "startDate", type: "date" },
+            { labelKey: "endDate", champ: "endDate", type: "date" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "offres-approuvees": {
-        titre: "Offres validées",
         dataEndpoint: "/gestionnaire/rapports/offres/validees",
         pdfEndpoint: "/pdf/gestionnaire/rapports/offres/approuvees",
         colonnes: [
-            { label: "Titre", champ: "title" },
-            { label: "Département", champ: "domain" },
-            { label: "Salaire", champ: "salary", type: "salaire" },
-            { label: "Date de début", champ: "startDate", type: "date" },
-            { label: "Date de fin", champ: "endDate", type: "date" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "title", champ: "title" },
+            { labelKey: "department", champ: "domain" },
+            { labelKey: "salary", champ: "salary", type: "salaire" },
+            { labelKey: "startDate", champ: "startDate", type: "date" },
+            { labelKey: "endDate", champ: "endDate", type: "date" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "candidatures-en-attente-entrevue": {
-        titre: "Candidatures en attente d'entrevue",
         dataEndpoint: "/gestionnaire/rapports/candidatures/en-attente-entrevue",
         pdfEndpoint: "/pdf/gestionnaire/rapports/candidatures/en-attente-entrevue",
         colonnes: [
-            { label: "Étudiant", champ: "etudiant", type: "nomCandidature" },
-            { label: "Département", champ: "etudiantDepartment" },
-            { label: "Offre", champ: "offreTitle" },
-            { label: "Entreprise", champ: "employeurBusinessName" },
-            { label: "Date de candidature", champ: "dateCandidature", type: "date" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "student", champ: "etudiant", type: "nomCandidature" },
+            { labelKey: "department", champ: "etudiantDepartment" },
+            { labelKey: "offer", champ: "offreTitle" },
+            { labelKey: "company", champ: "employeurBusinessName" },
+            { labelKey: "applicationDate", champ: "dateCandidature", type: "date" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "candidatures-sans-evaluation": {
-        titre: "Candidatures sans évaluation du superviseur",
         dataEndpoint: "/gestionnaire/rapports/candidatures/sans-evaluation",
         pdfEndpoint: "/pdf/gestionnaire/rapports/candidatures/sans-evaluation",
         colonnes: [
-            { label: "Étudiant", champ: "etudiant", type: "nomCandidature" },
-            { label: "Département", champ: "etudiantDepartment" },
-            { label: "Offre", champ: "offreTitle" },
-            { label: "Entreprise", champ: "employeurBusinessName" },
-            { label: "Date de candidature", champ: "dateCandidature", type: "date" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "student", champ: "etudiant", type: "nomCandidature" },
+            { labelKey: "department", champ: "etudiantDepartment" },
+            { labelKey: "offer", champ: "offreTitle" },
+            { labelKey: "company", champ: "employeurBusinessName" },
+            { labelKey: "applicationDate", champ: "dateCandidature", type: "date" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "candidatures-sans-evaluation-milieu-stage": {
-        titre: "Candidatures sans évaluation du milieu de stage",
         dataEndpoint: "/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage",
         pdfEndpoint: "/pdf/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage",
         colonnes: [
-            { label: "Étudiant", champ: "etudiant", type: "nomCandidature" },
-            { label: "Département", champ: "etudiantDepartment" },
-            { label: "Offre", champ: "offreTitle" },
-            { label: "Entreprise", champ: "employeurBusinessName" },
-            { label: "Date de candidature", champ: "dateCandidature", type: "date" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "student", champ: "etudiant", type: "nomCandidature" },
+            { labelKey: "department", champ: "etudiantDepartment" },
+            { labelKey: "offer", champ: "offreTitle" },
+            { labelKey: "company", champ: "employeurBusinessName" },
+            { labelKey: "applicationDate", champ: "dateCandidature", type: "date" },
+            { labelKey: "status", champ: "statut" }
         ]
     },
+
     "entrevues-en-attente-reponse": {
-        titre: "Entrevues en attente de réponse",
         dataEndpoint: "/gestionnaire/rapports/entrevues/en-attente-reponse",
         pdfEndpoint: "/pdf/gestionnaire/rapports/entrevues/en-attente-reponse",
         colonnes: [
-            { label: "Étudiant", champ: "etudiant", type: "nomEntrevue" },
-            { label: "Offre", champ: "offreTitle" },
-            { label: "Date de l'entrevue", champ: "dateHeureEntrevue", type: "date" },
-            { label: "Format", champ: "format" },
-            { label: "Durée", champ: "duree", type: "duree" },
-            { label: "Statut", champ: "statut" }
+            { labelKey: "student", champ: "etudiant", type: "nomEntrevue" },
+            { labelKey: "offer", champ: "offreTitle" },
+            { labelKey: "interviewDate", champ: "dateHeureEntrevue", type: "date" },
+            { labelKey: "format", champ: "format" },
+            { labelKey: "duration", champ: "duree", type: "duree" },
+            { labelKey: "status", champ: "statut" }
         ]
     }
 };
 
-function afficherValeur(ligne, colonne) {
+function traduireStatut(valeur, t, i18n) {
+    if (!valeur) return "—";
+
+    const cleEtudiant = `student_status.${valeur}.label`;
+
+    if (i18n.exists(cleEtudiant)) {
+        return t(cleEtudiant, {
+            defaultValue: valeur
+        });
+    }
+
+    const cleStatut = `status.${valeur.toLowerCase()}`;
+
+    if (i18n.exists(cleStatut)) {
+        return t(cleStatut, {
+            defaultValue: valeur
+        });
+    }
+
+    return valeur;
+}
+
+function afficherValeur(ligne, colonne, t, i18n, locale) {
     const valeur = ligne[colonne.champ];
 
     if (colonne.type === "etudiant") {
@@ -169,37 +192,64 @@ function afficherValeur(ligne, colonne) {
             : "—";
     }
 
-    if (colonne.type === "nomCandidature") {
-        return `${ligne.etudiantFirstName ?? ""} ${ligne.etudiantLastName ?? ""}`.trim() || "—";
-    }
-
-    if (colonne.type === "nomEntrevue") {
+    if (
+        colonne.type === "nomCandidature" ||
+        colonne.type === "nomEntrevue"
+    ) {
         return `${ligne.etudiantFirstName ?? ""} ${ligne.etudiantLastName ?? ""}`.trim() || "—";
     }
 
     if (colonne.type === "date") {
         return valeur
-            ? new Date(valeur).toLocaleString("fr-CA")
+            ? new Date(valeur).toLocaleString(locale)
             : "—";
     }
 
     if (colonne.type === "salaire") {
-        return valeur != null ? `${valeur} $` : "—";
+        return valeur != null
+            ? `${valeur} $`
+            : "—";
     }
 
     if (colonne.type === "taille") {
         if (valeur == null) return "—";
+
         return valeur < 1024 * 1024
-            ? `${(valeur / 1024).toFixed(1)} Ko`
-            : `${(valeur / (1024 * 1024)).toFixed(1)} Mo`;
+            ? `${(valeur / 1024).toFixed(1)} ${t("rapport.consultation.units.kb")}`
+            : `${(valeur / (1024 * 1024)).toFixed(1)} ${t("rapport.consultation.units.mb")}`;
     }
 
     if (colonne.type === "duree") {
-        return valeur != null ? `${valeur} min` : "—";
+        return valeur != null
+            ? `${valeur} ${t("rapport.consultation.units.minutes")}`
+            : "—";
     }
 
     if (valeur === null || valeur === undefined || valeur === "") {
         return "—";
+    }
+
+    if (
+        colonne.champ === "department" ||
+        colonne.champ === "etudiantDepartment"
+    ) {
+        const departmentKey = getDepartmentKey(valeur);
+
+        return departmentKey
+            ? t(`departement.${departmentKey}`, {
+                defaultValue: valeur
+            })
+            : valeur;
+    }
+
+    if (colonne.champ === "domain") {
+        return t(`secteur.${valeur}`, {
+            defaultValue: valeur
+        });
+    }
+
+    if (colonne.champ === "statut") {
+        return traduireStatut(valeur, t, i18n);
     }
 
     return typeof valeur === "object" ? "—" : String(valeur);
@@ -208,14 +258,19 @@ function afficherValeur(ligne, colonne) {
 function ConsultationRapport() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
 
     const rapport = rapports[id];
+
+    const locale = i18n.language?.startsWith("en") ? "en-CA" : "fr-CA";
 
     const [donnees, setDonnees] = useState([]);
     const [recherche, setRecherche] = useState("");
     const [statutFiltre, setStatutFiltre] = useState("TOUS");
     const [chargement, setChargement] = useState(true);
     const [erreur, setErreur] = useState(false);
+
+    const titreRapport = t(`rapport.items.${id}.title`);
 
     useEffect(() => {
         let actif = true;
@@ -281,48 +336,44 @@ function ConsultationRapport() {
         });
     }, [donnees, recherche, statutFiltre]);
 
-    const traiterPdf = async (telecharger) => {
+    const traiterPdf = async () => {
         try {
-            toast.loading(
-                telecharger ? "Préparation du téléchargement..." : "Préparation de l'aperçu...",
-                { id: "consultation-pdf" }
+            toast.loading(t("rapport.consultation.pdf_loading"), {
+                id: "consultation-pdf"
+            });
+
+            const langue = i18n.language.startsWith("en") ? "en" : "fr";
+
+            const response = await genererRapportPdf(
+                `${rapport.pdfEndpoint}?langue=${langue}`
             );
 
-            const fenetre = telecharger ? null : window.open("", "_blank");
-
-            if (!telecharger && !fenetre) {
-                toast.error("Autorise les fenêtres pop-up.", {
-                    id: "consultation-pdf"
-                });
-                return;
+            if (!response.ok) {
+                throw new Error("Impossible de générer le PDF.");
             }
 
-            const response = await genererRapportPdf(rapport.pdfEndpoint);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
 
-            if (telecharger) {
-                const lien = document.createElement("a");
-                lien.href = url;
-                lien.download = `${id}.pdf`;
-                document.body.appendChild(lien);
-                lien.click();
-                lien.remove();
+            const lien = document.createElement("a");
+            lien.href = url;
+            lien.download = `${id}.pdf`;
 
-                window.setTimeout(() => {
-                    window.URL.revokeObjectURL(url);
-                }, 1000);
-            } else {
-                fenetre.location.href = url;
-            }
+            document.body.appendChild(lien);
+            lien.click();
+            lien.remove();
 
-            toast.success(
-                telecharger ? "PDF téléchargé." : "Aperçu PDF prêt.",
-                { id: "consultation-pdf" }
-            );
+            window.setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 1000);
+
+            toast.success(t("rapport.consultation.pdf_success"), {
+                id: "consultation-pdf"
+            });
         } catch (error) {
             console.error("Erreur PDF :", error);
-            toast.error("Impossible de traiter le PDF.", {
+
+            toast.error(t("rapport.consultation.pdf_error"), {
                 id: "consultation-pdf"
             });
         }
@@ -332,13 +383,14 @@ function ConsultationRapport() {
         return (
             <div className="p-8 text-center">
                 <h1 className="text-xl font-bold text-slate-800">
-                    Rapport introuvable
+                    {t("rapport.consultation.not_found")}
                 </h1>
+
                 <button
                     onClick={() => navigate("/gestionnaire/rapports")}
                     className="mt-4 rounded-lg bg-[#60DEDE] px-4 py-2 font-semibold text-[#043462]"
                 >
-                    Retour aux rapports
+                    {t("rapport.consultation.back")}
                 </button>
             </div>
         );
@@ -352,7 +404,7 @@ function ConsultationRapport() {
                 className="flex items-center gap-2 text-sm font-semibold text-[#043462] hover:text-blue-600"
             >
                 <FiArrowLeft />
-                Retour aux rapports
+                {t("rapport.consultation.back")}
             </button>
 
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 pb-5">
@@ -363,48 +415,47 @@ function ConsultationRapport() {
 
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800">
-                            {rapport.titre}
+                            {titreRapport}
                         </h1>
+
                         <p className="text-sm text-slate-500">
-                            Consultation des données du rapport
+                            {t("rapport.consultation.subtitle")}
                         </p>
                     </div>
                 </div>
 
                 <div className="flex gap-2">
                     <button
-                        onClick={() => traiterPdf(false)}
-                        className="rapport-consultation-button"
-                    >
-                        <FiEye />
-                        Aperçu PDF
-                    </button>
-
-                    <button
-                        onClick={() => traiterPdf(true)}
+                        onClick={traiterPdf}
                         className="rapport-consultation-button rapport-consultation-pdf"
                     >
                         <FiDownload />
-                        Télécharger PDF
+                        {t("rapport.actions.download")}
                     </button>
                 </div>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="rapport-total">
-                    {donneesFiltrees.length} résultat(s)
+                    {t("rapport.consultation.result_count", {
+                        count: donneesFiltrees.length
+                    })}
+
                     {donneesFiltrees.length !== donnees.length &&
-                        ` sur ${donnees.length}`}
+                        ` ${t("rapport.consultation.out_of", {
+                            count: donnees.length
+                        })}`}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="relative">
                         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+
                         <input
                             type="text"
                             value={recherche}
                             onChange={(event) => setRecherche(event.target.value)}
-                            placeholder="Rechercher..."
+                            placeholder={t("rapport.consultation.search")}
                             className="rapport-search"
                         />
                     </div>
@@ -415,10 +466,13 @@ function ConsultationRapport() {
                             onChange={(event) => setStatutFiltre(event.target.value)}
                             className="rapport-search"
                         >
-                            <option value="TOUS">Tous les statuts</option>
+                            <option value="TOUS">
+                                {t("rapport.consultation.all_statuses")}
+                            </option>
+
                             {statuts.map((statut) => (
                                 <option key={statut} value={statut}>
-                                    {statut}
+                                    {traduireStatut(statut, t, i18n)}
                                 </option>
                             ))}
                         </select>
@@ -429,15 +483,15 @@ function ConsultationRapport() {
             <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
                 {chargement ? (
                     <div className="p-10 text-center text-slate-500">
-                        Chargement du rapport...
+                        {t("rapport.consultation.loading")}
                     </div>
                 ) : erreur ? (
                     <div className="p-10 text-center text-red-600">
-                        Impossible de charger les données du rapport.
+                        {t("rapport.consultation.error")}
                     </div>
                 ) : donneesFiltrees.length === 0 ? (
                     <div className="p-10 text-center text-slate-500">
-                        Aucun résultat à afficher.
+                        {t("rapport.consultation.empty")}
                     </div>
                 ) : (
                     <table className="w-full text-sm text-left">
@@ -448,7 +502,7 @@ function ConsultationRapport() {
                                         key={colonne.champ}
                                         className="px-5 py-4 font-semibold whitespace-nowrap"
                                     >
-                                        {colonne.label}
+                                        {t(`rapport.consultation.columns.${colonne.labelKey}`)}
                                     </th>
                                 ))}
                             </tr>
@@ -465,7 +519,13 @@ function ConsultationRapport() {
                                             key={colonne.champ}
                                             className="px-5 py-4 text-slate-700 whitespace-nowrap"
                                         >
-                                            {afficherValeur(ligne, colonne)}
+                                            {afficherValeur(
+                                                ligne,
+                                                colonne,
+                                                t,
+                                                i18n,
+                                                locale
+                                            )}
                                         </td>
                                     ))}
                                 </tr>

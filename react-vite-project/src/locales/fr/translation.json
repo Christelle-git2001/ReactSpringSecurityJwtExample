@@ -278,7 +278,8 @@
   },
   "sidebar": {
     "collapse": "Réduire le menu",
-    "expand": "Développer le menu"
+    "expand": "Développer le menu",
+    "reports": "Rapports"
   },
   "status": {
     "tous": "Tous",
@@ -1166,5 +1167,123 @@
     "close": "Fermer",
     "success": "L'évaluation a été soumise avec succès.",
     "submitted_on": "Évaluation soumise le {{date}}."
+  },
+
+  "rapport": {
+    "title": "Rapports",
+    "description": "Générez et consultez les rapports sur les offres, les étudiants, les candidatures et les entrevues.",
+    "categories": {
+      "students": "Étudiants",
+      "offers": "Offres",
+      "applications": "Candidatures",
+      "interviews": "Entrevues"
+    },
+    "category_descriptions": {
+      "students": "Rapports liés aux étudiants.",
+      "offers": "Rapports liés aux offres de stage.",
+      "applications": "Rapports liés aux candidatures.",
+      "interviews": "Rapports liés aux entrevues."
+    },
+    "actions": {
+      "view": "Voir",
+      "download": "Télécharger PDF",
+      "download_short": "PDF"
+    },
+    "results": "{{count}} résultat",
+    "loading": "Chargement...",
+    "unavailable": "Indisponible",
+    "pdf_loading": "Préparation du PDF...",
+    "pdf_success": "PDF téléchargé avec succès.",
+    "pdf_error": "Impossible de télécharger le PDF.",
+
+    "items": {
+      "etudiants-inscrits": {
+        "title": "Étudiants inscrits",
+        "description": "Liste de tous les étudiants inscrits."
+      },
+      "etudiants-sans-cv": {
+        "title": "Étudiants sans CV",
+        "description": "Liste des étudiants n'ayant pas de CV."
+      },
+      "cv-en-attente": {
+        "title": "CV en attente de validation",
+        "description": "Liste des CV à valider."
+      },
+      "etudiants-sans-entrevue": {
+        "title": "Étudiants sans entrevue",
+        "description": "Liste des étudiants n'ayant pas eu d'entrevue."
+      },
+      "etudiants-stage-trouve": {
+        "title": "Étudiants ayant trouvé un stage",
+        "description": "Liste des étudiants avec un stage confirmé."
+      },
+      "offres-en-attente": {
+        "title": "Offres en attente de validation",
+        "description": "Liste des offres à valider."
+      },
+      "offres-approuvees": {
+        "title": "Offres validées",
+        "description": "Liste des offres approuvées."
+      },
+      "candidatures-en-attente-entrevue": {
+        "title": "Candidatures en attente d'entrevue",
+        "description": "Liste des candidatures à planifier en entrevue."
+      },
+      "candidatures-sans-evaluation": {
+        "title": "Candidatures sans évaluation du superviseur",
+        "description": "Liste des candidatures sans évaluation."
+      },
+      "candidatures-sans-evaluation-milieu-stage": {
+        "title": "Candidatures sans évaluation du milieu de stage",
+        "description": "Liste des candidatures sans évaluation du milieu."
+      },
+      "entrevues-en-attente-reponse": {
+        "title": "Entrevues en attente de réponse",
+        "description": "Liste des entrevues dont la réponse est attendue."
+      }
+    },
+
+    "consultation": {
+      "back": "Retour aux rapports",
+      "subtitle": "Consultation des données du rapport",
+      "search": "Rechercher...",
+      "all_statuses": "Tous les statuts",
+      "loading": "Chargement du rapport...",
+      "error": "Impossible de charger les données du rapport.",
+      "empty": "Aucun résultat à afficher.",
+      "not_found": "Rapport introuvable",
+      "result_count": "{{count}} résultat(s)",
+      "out_of": "sur {{count}}",
+      "pdf_loading": "Préparation du téléchargement...",
+      "pdf_success": "PDF téléchargé.",
+      "pdf_error": "Impossible de traiter le PDF.",
+      "columns": {
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "matricule": "Matricule",
+        "email": "Courriel",
+        "department": "Département",
+        "status": "Statut",
+        "student": "Étudiant",
+        "fileName": "Nom du fichier",
+        "uploadDate": "Date de dépôt",
+        "size": "Taille",
+        "title": "Titre",
+        "salary": "Salaire",
+        "startDate": "Date de début",
+        "endDate": "Date de fin",
+        "offer": "Offre",
+        "company": "Entreprise",
+        "applicationDate": "Date de candidature",
+        "interviewDate": "Date de l'entrevue",
+        "format": "Format",
+        "duration": "Durée"
+      },
+      "units": {
+        "kb": "Ko",
+        "mb": "Mo",
+        "minutes": "min"
+      }
+    }
   }
 }
