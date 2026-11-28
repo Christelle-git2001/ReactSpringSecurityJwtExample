@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.exception.contrat.ContratIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationStagiaireIntrouvable;
 import com.lacouf.rsbjwt.service.PDFService;
+import com.lacouf.rsbjwt.service.RapportService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,11 @@ import java.io.IOException;
 public class PDFController {
 
     private final PDFService pdfService ;
+    private RapportService rapportService;
 
-    public PDFController(PDFService pdfService) {
+    public PDFController(PDFService pdfService, RapportService rapportService) {
         this.pdfService = pdfService;
+        this.rapportService = rapportService;
     }
 
     @GetMapping("/contrat/{contratId}")
@@ -57,5 +60,171 @@ public class PDFController {
                 .body(pdfResource);
     }
 
+    private ResponseEntity<Resource> retournerPdf(
+            Resource pdfResource,
+            String nomFichier) {
 
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + nomFichier + "\""
+                )
+                .body(pdfResource);
+    }
+
+    @GetMapping("/gestionnaire/rapports/offres/en-attente")
+    public ResponseEntity<Resource> obtenirRapportOffresEnAttente(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportOffresEnAttentePdf(
+                        rapportService.obtenirOffresEnAttente(),
+                        langue
+                ),
+                "offres-en-attente.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/offres/approuvees")
+    public ResponseEntity<Resource> obtenirRapportOffresApprouvees(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportOffresApprouveesPdf(
+                        rapportService.obtenirOffresApprouvees(),
+                        langue
+                ),
+                "offres-approuvees.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/etudiants")
+    public ResponseEntity<Resource> obtenirRapportEtudiantsInscrits(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportEtudiantsInscritsPdf(
+                        rapportService.obtenirEtudiantsInscrits(),
+                        langue
+                ),
+                "etudiants-inscrits.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/etudiants/sans-cv")
+    public ResponseEntity<Resource> obtenirRapportEtudiantsSansCv(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportEtudiantsSansCvPdf(
+                        rapportService.obtenirEtudiantsSansCv(),
+                        langue
+                ),
+                "etudiants-sans-cv.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/etudiants/sans-entrevue")
+    public ResponseEntity<Resource> obtenirRapportEtudiantsSansEntrevue(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportEtudiantsSansEntrevuePdf(
+                        rapportService.obtenirEtudiantsSansEntrevue(),
+                        langue
+                ),
+                "etudiants-sans-entrevue.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/etudiants/stage-trouve")
+    public ResponseEntity<Resource> obtenirRapportEtudiantsAyantTrouveStage(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportEtudiantsAyantTrouveStagePdf(
+                        rapportService.obtenirEtudiantsAyantTrouveStage(),
+                        langue
+                ),
+                "etudiants-stage-trouve.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/cv/en-attente")
+    public ResponseEntity<Resource> obtenirRapportCvEnAttente(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportCvEnAttentePdf(
+                        rapportService.obtenirCvEnAttente(),
+                        langue
+                ),
+                "cv-en-attente.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/candidatures/en-attente-entrevue")
+    public ResponseEntity<Resource> obtenirRapportCandidaturesEnAttenteEntrevue(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportCandidaturesEnAttenteEntrevuePdf(
+                        rapportService.obtenirCandidaturesEnAttenteEntrevue(),
+                        langue
+                ),
+                "candidatures-en-attente-entrevue.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/candidatures/sans-evaluation")
+    public ResponseEntity<Resource> obtenirRapportCandidaturesSansEvaluation(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportCandidaturesSansEvaluationPdf(
+                        rapportService.obtenirCandidaturesSansEvaluation(),
+                        langue
+                ),
+                "candidatures-sans-evaluation.pdf"
+        );
+    }
+
+    @GetMapping("/gestionnaire/rapports/entrevues/en-attente-reponse")
+    public ResponseEntity<Resource> obtenirRapportEntrevuesEnAttenteReponse(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportEntrevuesEnAttenteReponsePdf(
+                        rapportService.obtenirEntrevuesEnAttenteReponse(),
+                        langue
+                ),
+                "entrevues-en-attente-reponse.pdf"
+        );
+    }
+
+
+    @GetMapping("/gestionnaire/rapports/candidatures/sans-evaluation-milieu-stage")
+    public ResponseEntity<Resource> obtenirRapportCandidaturesSansEvaluationMilieuStage(
+            @RequestParam(defaultValue = "fr") String langue)
+            throws IOException {
+
+        return retournerPdf(
+                pdfService.createRapportCandidaturesSansEvaluationMilieuStagePdf(
+                        rapportService.obtenirCandidaturesSansEvaluationMilieuStage(),
+                        langue
+                ),
+                "candidatures-sans-evaluation-milieu-stage.pdf"
+        );
+    }
 }

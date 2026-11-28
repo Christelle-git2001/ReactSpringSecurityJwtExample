@@ -232,7 +232,8 @@
   },
   "sidebar": {
     "collapse": "Collapse menu",
-    "expand": "Expand menu"
+    "expand": "Expand menu",
+    "reports": "Reports"
   },
   "home": {
     "welcome": "Welcome"
@@ -1164,5 +1165,122 @@
     "close": "Close",
     "success": "The evaluation was submitted successfully.",
     "submitted_on": "Evaluation submitted on {{date}}."
+  },
+  "rapport": {
+    "title": "Reports",
+    "description": "Generate and view reports on offers, students, applications, and interviews.",
+    "categories": {
+      "students": "Students",
+      "offers": "Offers",
+      "applications": "Applications",
+      "interviews": "Interviews"
+    },
+    "category_descriptions": {
+      "students": "Reports related to students.",
+      "offers": "Reports related to internship offers.",
+      "applications": "Reports related to applications.",
+      "interviews": "Reports related to interviews."
+    },
+    "actions": {
+      "view": "View",
+      "download": "Download PDF",
+      "download_short": "PDF"
+    },
+    "results": "{{count}} result",
+    "loading": "Loading...",
+    "unavailable": "Unavailable",
+    "pdf_loading": "Preparing PDF...",
+    "pdf_success": "PDF downloaded successfully.",
+    "pdf_error": "Unable to download the PDF.",
+
+    "items": {
+      "etudiants-inscrits": {
+        "title": "Enrolled Students",
+        "description": "List of all enrolled students."
+      },
+      "etudiants-sans-cv": {
+        "title": "Students Without a CV",
+        "description": "List of students who have not uploaded a CV."
+      },
+      "cv-en-attente": {
+        "title": "CVs Awaiting Validation",
+        "description": "List of CVs awaiting validation."
+      },
+      "etudiants-sans-entrevue": {
+        "title": "Students Without an Interview",
+        "description": "List of students who have not had an interview."
+      },
+      "etudiants-stage-trouve": {
+        "title": "Students Who Found an Internship",
+        "description": "List of students with a confirmed internship."
+      },
+      "offres-en-attente": {
+        "title": "Offers Awaiting Validation",
+        "description": "List of offers awaiting validation."
+      },
+      "offres-approuvees": {
+        "title": "Approved Offers",
+        "description": "List of approved offers."
+      },
+      "candidatures-en-attente-entrevue": {
+        "title": "Applications Awaiting an Interview",
+        "description": "List of applications to be scheduled for an interview."
+      },
+      "candidatures-sans-evaluation": {
+        "title": "Applications Without Supervisor Evaluation",
+        "description": "List of applications without a supervisor evaluation."
+      },
+      "candidatures-sans-evaluation-milieu-stage": {
+        "title": "Applications Without Internship Site Evaluation",
+        "description": "List of applications without an internship site evaluation."
+      },
+      "entrevues-en-attente-reponse": {
+        "title": "Interviews Awaiting a Response",
+        "description": "List of interviews awaiting a response."
+      }
+    },
+
+    "consultation": {
+      "back": "Back to reports",
+      "subtitle": "Report data overview",
+      "search": "Search...",
+      "all_statuses": "All statuses",
+      "loading": "Loading report...",
+      "error": "Unable to load report data.",
+      "empty": "No results to display.",
+      "not_found": "Report not found",
+      "result_count": "{{count}} result(s)",
+      "out_of": "out of {{count}}",
+      "pdf_loading": "Preparing download...",
+      "pdf_success": "PDF downloaded.",
+      "pdf_error": "Unable to process the PDF.",
+      "columns": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "matricule": "Student ID",
+        "email": "Email",
+        "department": "Department",
+        "status": "Status",
+        "student": "Student",
+        "fileName": "File Name",
+        "uploadDate": "Upload Date",
+        "size": "Size",
+        "title": "Title",
+        "salary": "Salary",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "offer": "Offer",
+        "company": "Company",
+        "applicationDate": "Application Date",
+        "interviewDate": "Interview Date",
+        "format": "Format",
+        "duration": "Duration"
+      },
+      "units": {
+        "kb": "KB",
+        "mb": "MB",
+        "minutes": "min"
+      }
+    }
   }
 }

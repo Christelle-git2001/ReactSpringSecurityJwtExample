@@ -1,0 +1,75 @@
+
+.rapport-consultation-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 1px solid #60DEDE;
+    border-radius: 8px;
+    color: #043462;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rapport-consultation-button:hover {
+    background-color: #043462;
+    border-color: #043462;
+    color: white;
+}
+
+.rapport-consultation-pdf {
+    background-color: #60DEDE;
+    border-color: #60DEDE;
+    color: #043462;
+}
+
+.rapport-consultation-pdf:hover {
+    background-color: #043462;
+    border-color: #043462;
+    color: white;
+}
+
+.rapport-total {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 7px 13px;
+    border-radius: 8px;
+    background-color: #E9D2FF;
+    color: #043462;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rapport-search {
+    width: 100%;
+    min-width: 190px;
+    padding: 10px 12px 10px 36px;
+    border: 1px solid #dbe3ed;
+    border-radius: 8px;
+    background-color: white;
+    color: #334155;
+    font-size: 13px;
+    outline: none;
+}
+
+.rapport-search:focus {
+    border-color: #60DEDE;
+    box-shadow: 0 0 0 3px rgba(96, 222, 222, 0.15);
+}
+
+select.rapport-search {
+    padding-left: 12px;
+}
+
+@media (max-width: 600px) {
+    .rapport-consultation-button {
+        flex: 1;
+        padding: 9px;
+        font-size: 12px;
+    }
+}

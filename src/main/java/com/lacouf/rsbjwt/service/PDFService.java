@@ -1,6 +1,10 @@
 package com.lacouf.rsbjwt.service;
 
 import com.lacouf.rsbjwt.exception.evaluation.EvaluationMilieuStageIntrouvableException;
+import com.lacouf.rsbjwt.model.Enum.StatutCandidature;
+import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
+import com.lacouf.rsbjwt.service.dto.cv.CvEtudiantDTO;
+import com.lacouf.rsbjwt.service.dto.entrevue.EntrevueDTO;
 import com.lacouf.rsbjwt.service.dto.offre.CreationOffreDeStageDTO;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -19,6 +23,8 @@ import com.lacouf.rsbjwt.model.*;
 import com.lacouf.rsbjwt.model.Enum.ChoixAccueil;
 import com.lacouf.rsbjwt.model.Evaluation.*;
 import com.lacouf.rsbjwt.repository.*;
+import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
+import com.lacouf.rsbjwt.service.dto.utilisateur.EtudiantDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +41,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.*;
 import java.util.function.Function;
+import com.itextpdf.kernel.geom.PageSize;
+import com.lacouf.rsbjwt.model.Enum.StatutEtudiant;
 
 @Service
 @Transactional(readOnly = true)
@@ -1035,5 +1043,963 @@ public class PDFService {
             contenuPdf.accept(document);
         }
         return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+    private ResourceBundle obtenirMessages(String langue) {
+        Locale locale = new Locale(langue != null ? langue : FRANCAIS);
+        return ResourceBundle.getBundle("i18n.messages", locale);
+    }
+
+    private String valeurOuInconnu(Object valeur, ResourceBundle messages) {
+        if (valeur == null) {
+            return messages.getString("rapport.nonRenseigne");
+        }
+
+        String texte = valeur.toString().trim();
+
+        if (texte.isEmpty()) {
+            return messages.getString("rapport.nonRenseigne");
+        }
+
+        return texte;
+    }
+
+    private String formaterDate(Object date) {
+        if (date == null) {
+            return "";
+        }
+
+        return date.toString();
+    }
+
+    private Paragraph creerTitreRapport(
+            String titre,
+            ResourceBundle messages) {
+
+        return new Paragraph(titre)
+                .setFontSize(20)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginBottom(15);
+    }
+
+    private void ajouterInformationsRapport(
+            Document document,
+            int nombreResultats,
+            ResourceBundle messages) {
+
+        String dateGeneration = LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        );
+
+        Table informations = new Table(UnitValue.createPercentArray(new float[]{50, 50}))
+                .setWidth(UnitValue.createPercentValue(100))
+                .setMarginBottom(15);
+
+        informations.addCell(new Cell()
+                .add(new Paragraph(
+                        messages.getString("rapport.nombreResultats")
+                                + " " + nombreResultats
+                ).setBold().setFontSize(10))
+                .setBorder(Border.NO_BORDER)
+                .setPadding(0));
+
+        informations.addCell(new Cell()
+                .add(new Paragraph(
+                        messages.getString("rapport.dateGeneration")
+                                + " " + dateGeneration
+                ).setFontSize(10))
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setBorder(Border.NO_BORDER)
+                .setPadding(0));
+
+        document.add(informations);
+    }
+
+
+    private Table creerTableauRapport(float... largeurColonnes) {
+        Table table = new Table(UnitValue.createPercentArray(largeurColonnes));
+
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.setFixedLayout();
+
+        return table;
+    }
+
+    private Cell creerCelluleEntete(String texte) {
+        return new Cell()
+                .add(new Paragraph(texte)
+                        .setBold()
+                        .setFontSize(9)
+                        .setMargin(0))
+                .setTextAlignment(TextAlignment.LEFT)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setPadding(6)
+                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                .setBorder(new SolidBorder(0.7f));
+    }
+
+    private Cell creerCellule(String texte) {
+        return new Cell()
+                .add(new Paragraph(texte != null ? texte : "")
+                        .setFontSize(9)
+                        .setMargin(0))
+                .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setPadding(6)
+                .setBorder(new SolidBorder(0.5f));
+    }
+
+    private void ajouterEntetes(
+            Table table,
+            ResourceBundle messages,
+            String... cles) {
+
+        for (String cle : cles) {
+            table.addHeaderCell(
+                    creerCelluleEntete(messages.getString(cle))
+            );
+        }
+    }
+
+    private void ajouterMessageAucunResultat(
+            Document document,
+            ResourceBundle messages) {
+
+        document.add(
+                new Paragraph(messages.getString("rapport.aucunResultat"))
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setMarginTop(20)
+        );
+    }
+
+    private Resource creerPdf(
+            Document document,
+            ByteArrayOutputStream outputStream) {
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+
+    public Resource createRapportOffresEnAttentePdf(
+            List<OffreDeStageDTO> offres,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.offres.enAttente.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, offres.size(), messages);
+
+            if (offres.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(30, 15, 15, 20, 20);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.offre.titre",
+                        "rapport.offre.domaine",
+                        "rapport.offre.salaire",
+                        "rapport.offre.dates",
+                        "rapport.offre.type"
+                );
+
+                for (OffreDeStageDTO offre : offres) {
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(offre.title(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(offre.domain(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            offre.salary() != null
+                                    ? offre.salary() + " $/h"
+                                    : messages.getString("rapport.nonRenseigne")
+                    ));
+
+                    String dates =
+                            formaterDate(offre.startDate())
+                                    + " - "
+                                    + formaterDate(offre.endDate());
+
+                    table.addCell(creerCellule(dates));
+
+                    table.addCell(creerCellule(
+                            Boolean.TRUE.equals(offre.isTarget())
+                                    ? messages.getString("rapport.offre.ciblee")
+                                    : messages.getString("rapport.offre.generale")
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportOffresApprouveesPdf(
+            List<OffreDeStageDTO> offres,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.offres.approuvees.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, offres.size(), messages);
+
+            if (offres.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(30, 15, 15, 20, 20);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.offre.titre",
+                        "rapport.offre.domaine",
+                        "rapport.offre.salaire",
+                        "rapport.offre.dates",
+                        "rapport.offre.type"
+                );
+
+                for (OffreDeStageDTO offre : offres) {
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(offre.title(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(offre.domain(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            offre.salary() != null
+                                    ? offre.salary() + " $/h"
+                                    : messages.getString("rapport.nonRenseigne")
+                    ));
+
+                    String dates =
+                            formaterDate(offre.startDate())
+                                    + " - "
+                                    + formaterDate(offre.endDate());
+
+                    table.addCell(creerCellule(dates));
+
+                    table.addCell(creerCellule(
+                            Boolean.TRUE.equals(offre.isTarget())
+                                    ? messages.getString("rapport.offre.ciblee")
+                                    : messages.getString("rapport.offre.generale")
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportEtudiantsInscritsPdf(
+            List<EtudiantDTO> etudiants,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.etudiants.inscrits.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, etudiants.size(), messages);
+
+            if (etudiants.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(15, 15, 20, 25, 15, 10);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.prenom",
+                        "rapport.etudiant.nom",
+                        "rapport.etudiant.matricule",
+                        "rapport.etudiant.email",
+                        "rapport.etudiant.telephone",
+                        "rapport.etudiant.statut"
+                );
+
+                for (EtudiantDTO etudiant : etudiants) {
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.firstName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.lastName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.matricule(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.email(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.phoneNumber(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            traduireStatutEtudiant(etudiant.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportEtudiantsSansCvPdf(
+            List<EtudiantDTO> etudiants,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.etudiants.sansCv.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, etudiants.size(), messages);
+
+            if (etudiants.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(20, 20, 15, 30, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.prenom",
+                        "rapport.etudiant.nom",
+                        "rapport.etudiant.matricule",
+                        "rapport.etudiant.email",
+                        "rapport.etudiant.telephone"
+                );
+
+                for (EtudiantDTO etudiant : etudiants) {
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.firstName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.lastName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.matricule(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.email(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.phoneNumber(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportCvEnAttentePdf(
+            List<CvEtudiantDTO> cvs,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.cv.enAttente.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, cvs.size(), messages);
+
+            if (cvs.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(15, 15, 20, 25, 15, 10);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.prenom",
+                        "rapport.etudiant.nom",
+                        "rapport.etudiant.matricule",
+                        "rapport.cv.fichier",
+                        "rapport.cv.dateUpload",
+                        "rapport.cv.statut"
+                );
+
+                for (CvEtudiantDTO cv : cvs) {
+
+                    EtudiantDTO etudiant = cv.etudiant();
+
+                    table.addCell(creerCellule(
+                            etudiant != null
+                                    ? valeurOuInconnu(etudiant.firstName(), messages)
+                                    : messages.getString("rapport.nonRenseigne")
+                    ));
+
+                    table.addCell(creerCellule(
+                            etudiant != null
+                                    ? valeurOuInconnu(etudiant.lastName(), messages)
+                                    : messages.getString("rapport.nonRenseigne")
+                    ));
+
+                    table.addCell(creerCellule(
+                            etudiant != null
+                                    ? valeurOuInconnu(etudiant.matricule(), messages)
+                                    : messages.getString("rapport.nonRenseigne")
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(cv.fileName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            formaterDate(cv.uploadDate())
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(cv.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+    public Resource createRapportEtudiantsSansEntrevuePdf(
+            List<EtudiantDTO> etudiants,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.etudiants.sansEntrevue.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, etudiants.size(), messages);
+
+            if (etudiants.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(20, 20, 15, 30, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.prenom",
+                        "rapport.etudiant.nom",
+                        "rapport.etudiant.matricule",
+                        "rapport.etudiant.email",
+                        "rapport.etudiant.telephone"
+                );
+
+                for (EtudiantDTO etudiant : etudiants) {
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.firstName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.lastName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.matricule(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.email(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.phoneNumber(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportEtudiantsAyantTrouveStagePdf(
+            List<EtudiantDTO> etudiants,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.etudiants.stageTrouve.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, etudiants.size(), messages);
+
+            if (etudiants.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(20, 20, 15, 30, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.prenom",
+                        "rapport.etudiant.nom",
+                        "rapport.etudiant.matricule",
+                        "rapport.etudiant.email",
+                        "rapport.etudiant.telephone"
+                );
+
+                for (EtudiantDTO etudiant : etudiants) {
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.firstName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.lastName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.matricule(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.email(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(etudiant.phoneNumber(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportCandidaturesEnAttenteEntrevuePdf(
+            List<CandidatureDTO> candidatures,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.candidatures.enAttenteEntrevue.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, candidatures.size(), messages);
+
+            if (candidatures.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(15, 20, 25, 25, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.nomComplet",
+                        "rapport.candidature.offre",
+                        "rapport.candidature.employeur",
+                        "rapport.candidature.date",
+                        "rapport.candidature.statut"
+                );
+
+                for (CandidatureDTO candidature : candidatures) {
+
+                    String nomComplet =
+                            valeurOuInconnu(candidature.etudiantFirstName(), messages)
+                                    + " "
+                                    + valeurOuInconnu(candidature.etudiantLastName(), messages);
+
+                    table.addCell(creerCellule(nomComplet));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.offreTitle(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.employeurBusinessName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            formaterDate(candidature.dateCandidature())
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportEntrevuesEnAttenteReponsePdf(
+            List<EntrevueDTO> entrevues,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.entrevues.enAttenteReponse.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, entrevues.size(), messages);
+
+            if (entrevues.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(20, 20, 20, 15, 15, 10);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.nomComplet",
+                        "rapport.entrevue.offre",
+                        "rapport.entrevue.employeur",
+                        "rapport.entrevue.date",
+                        "rapport.entrevue.format",
+                        "rapport.entrevue.statut"
+                );
+
+                for (EntrevueDTO entrevue : entrevues) {
+
+                    String nomComplet =
+                            valeurOuInconnu(entrevue.etudiantFirstName(), messages)
+                                    + " "
+                                    + valeurOuInconnu(entrevue.etudiantLastName(), messages);
+
+                    table.addCell(creerCellule(nomComplet));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(entrevue.offreTitle(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            entrevue.employeur() != null
+                                    ? valeurOuInconnu(
+                                    entrevue.employeur().businessName(),
+                                    messages
+                            )
+                                    : messages.getString("rapport.nonRenseigne")
+                    ));
+
+                    table.addCell(creerCellule(
+                            formaterDate(entrevue.dateHeureEntrevue())
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(entrevue.format(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(entrevue.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+
+    public Resource createRapportCandidaturesSansEvaluationPdf(
+            List<CandidatureDTO> candidatures,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.candidatures.sansEvaluation.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, candidatures.size(), messages);
+
+            if (candidatures.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(15, 20, 25, 25, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.nomComplet",
+                        "rapport.candidature.offre",
+                        "rapport.candidature.employeur",
+                        "rapport.candidature.date",
+                        "rapport.candidature.statut"
+                );
+
+                for (CandidatureDTO candidature : candidatures) {
+
+                    String nomComplet =
+                            valeurOuInconnu(candidature.etudiantFirstName(), messages)
+                                    + " "
+                                    + valeurOuInconnu(candidature.etudiantLastName(), messages);
+
+                    table.addCell(creerCellule(nomComplet));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.offreTitle(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.employeurBusinessName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            formaterDate(candidature.dateCandidature())
+                    ));
+
+                    table.addCell(creerCellule(
+                            traduireStatutCandidature(candidature.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+    public Resource createRapportCandidaturesSansEvaluationMilieuStagePdf(
+            List<CandidatureDTO> candidatures,
+            String langue) throws IOException {
+
+        ResourceBundle messages = obtenirMessages(langue);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf, PageSize.A4.rotate())) {
+
+            document.setMargins(35, 30, 35, 30);
+
+            document.add(creerTitreRapport(
+                    messages.getString("rapport.candidatures.sansEvaluationMilieuStage.titre"),
+                    messages
+            ));
+
+            ajouterInformationsRapport(document, candidatures.size(), messages);
+
+            if (candidatures.isEmpty()) {
+                ajouterMessageAucunResultat(document, messages);
+            } else {
+
+                Table table = creerTableauRapport(14, 14, 13, 28, 16, 15);
+
+                ajouterEntetes(
+                        table,
+                        messages,
+                        "rapport.etudiant.nomComplet",
+                        "rapport.candidature.offre",
+                        "rapport.candidature.employeur",
+                        "rapport.candidature.date",
+                        "rapport.candidature.statut"
+                );
+
+                for (CandidatureDTO candidature : candidatures) {
+
+                    String nomComplet =
+                            valeurOuInconnu(candidature.etudiantFirstName(), messages)
+                                    + " "
+                                    + valeurOuInconnu(candidature.etudiantLastName(), messages);
+
+                    table.addCell(creerCellule(nomComplet));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.offreTitle(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            valeurOuInconnu(candidature.employeurBusinessName(), messages)
+                    ));
+
+                    table.addCell(creerCellule(
+                            formaterDate(candidature.dateCandidature())
+                    ));
+
+                    table.addCell(creerCellule(
+                            traduireStatutCandidature(candidature.statut(), messages)
+                    ));
+                }
+
+                document.add(table);
+            }
+        }
+
+        return new ByteArrayResource(outputStream.toByteArray());
+    }
+
+    private String traduireStatutEtudiant(
+            StatutEtudiant statut,
+            ResourceBundle messages) {
+
+        if (statut == null) {
+            return messages.getString("rapport.nonRenseigne");
+        }
+
+        String cleTraduction = "student_status." + statut.name() + ".label";
+
+        if (messages.containsKey(cleTraduction)) {
+            return messages.getString(cleTraduction);
+        }
+
+        return statut.name();
+    }
+
+    private String traduireStatutCandidature(
+            StatutCandidature statut,
+            ResourceBundle messages) {
+
+        if (statut == null) {
+            return messages.getString("rapport.nonRenseigne");
+        }
+
+        String cle = "statut_candidature." + statut.name();
+
+        if (messages.containsKey(cle)) {
+            return messages.getString(cle);
+        }
+
+        return statut.name();
     }
 }

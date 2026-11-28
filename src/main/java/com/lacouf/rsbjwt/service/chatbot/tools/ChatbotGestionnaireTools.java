@@ -116,11 +116,6 @@ public class ChatbotGestionnaireTools {
         return donneesOffreService.obtenirOffresEnAttente();
     }
 
-    @Tool(description = "Liste les candidatures au statut STAGE_TROUVE sans contrat créé. Le gestionnaire doit démarrer leur processus de contrat.")
-    public List<CandidatureDTO> obtenirStagesSansContrat() {
-        return donneesCandidatureService.obtenirStagesSansContrat();
-    }
-
     @Tool(description = "Compte les CV déposés selon leur statut : EN_ATTENTE, ACCEPTEE (approuvés) ou REFUSEE.")
     public long compterCvParStatut(@ToolParam(description = "Statut des CV à compter") Statut statut) throws ParametreDonneesInvalideException {
         return donneesEtudiantService.compterCvParStatut(statut);

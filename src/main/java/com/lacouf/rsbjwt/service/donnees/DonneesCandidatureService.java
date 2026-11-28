@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.model.Candidature;
+import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.candidature.CandidatureDTO;
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException.Code;
@@ -17,16 +19,15 @@ import java.util.List;
 public class DonneesCandidatureService {
     private final CandidatureRepository candidatureRepository;
     private final ContratRepository contratRepository;
+    private final SessionService sessionService;
 
-    public DonneesCandidatureService(CandidatureRepository candidatureRepository, ContratRepository contratRepository) {
+    public DonneesCandidatureService(CandidatureRepository candidatureRepository, ContratRepository contratRepository,
+                                        SessionService sessionService) {
         this.candidatureRepository = candidatureRepository;
         this.contratRepository = contratRepository;
+        this.sessionService = sessionService;
     }
 
-    public List<CandidatureDTO> obtenirStagesSansContrat() {
-        return candidatureRepository.findByStatutSansContrat(StatutCandidature.STAGE_TROUVE)
-                .stream().map(CandidatureDTO::of).toList();
-    }
 
     public long compterCandidaturesParStatut(StatutCandidature statut) throws ParametreDonneesInvalideException {
         if (statut == null) throw new ParametreDonneesInvalideException(Code.STATUT_CANDIDATURE_OBLIGATOIRE);
@@ -40,6 +41,49 @@ public class DonneesCandidatureService {
                         statut == StatutCandidature.CONTRAT_CREE
                                 ? contratRepository.findByCandidatureId(candidature.getId()).orElse(null)
                                 : null))
+                .toList();
+    }
+
+    public List<CandidatureDTO> obtenirCandidaturesEnAttenteEntrevue() {
+        List<Candidature> candidatures =
+                candidatureRepository.findByStatut(StatutCandidature.RETENUE_POUR_ENTREVUE);
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                )
+                .stream()
+                .map(CandidatureDTO::of)
+                .toList();
+    }
+
+    public List<CandidatureDTO> obtenirCandidaturesSansEvaluation() {
+        List<Candidature> candidatures =
+                candidatureRepository.findCandidaturesSansEvaluation(
+                        StatutCandidature.STAGE_TROUVE
+                );
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                )
+                .stream()
+                .map(candidature -> CandidatureDTO.of(candidature, null))
+                .toList();
+    }
+
+    public List<CandidatureDTO> obtenirCandidaturesSansEvaluationMilieuStage() {
+        List<Candidature> candidatures =
+                candidatureRepository.findCandidaturesSansEvaluationMilieuStage(
+                        StatutCandidature.STAGE_TROUVE
+                );
+
+        return sessionService.filtrerParSessionActuelle(
+                        candidatures,
+                        candidature -> candidature.getOffreDeStage().getCreatedAt()
+                )
+                .stream()
+                .map(candidature -> CandidatureDTO.of(candidature, null))
                 .toList();
     }
 }

@@ -1,5 +1,7 @@
 package com.lacouf.rsbjwt.service.donnees;
 
+import com.lacouf.rsbjwt.model.OffreDeStage;
+import com.lacouf.rsbjwt.service.SessionService;
 import com.lacouf.rsbjwt.service.dto.offre.OffreDeStageDTO;
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException.Code;
@@ -15,14 +17,24 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class DonneesOffreService {
     private final OffreDeStageRepository offreDeStageRepository;
+    private final SessionService sessionService;
 
-    public DonneesOffreService(OffreDeStageRepository offreDeStageRepository) {
+    public DonneesOffreService(OffreDeStageRepository offreDeStageRepository, SessionService sessionService) {
         this.offreDeStageRepository = offreDeStageRepository;
+        this.sessionService = sessionService;
     }
 
     public List<OffreDeStageDTO> obtenirOffresEnAttente() {
-        return offreDeStageRepository.findByStatut(Statut.EN_ATTENTE)
-                .stream().map(OffreDeStageDTO::of).toList();
+        List<OffreDeStage> offres =
+                offreDeStageRepository.findByStatut(Statut.EN_ATTENTE);
+
+        return sessionService.filtrerParSessionActuelle(
+                        offres,
+                        OffreDeStage::getCreatedAt
+                )
+                .stream()
+                .map(OffreDeStageDTO::of)
+                .toList();
     }
 
     public long compterOffresParStatut(Statut statut) throws ParametreDonneesInvalideException {
@@ -31,7 +43,15 @@ public class DonneesOffreService {
     }
 
     public List<OffreDeStageDTO> obtenirOffresApprouvees() {
-        return offreDeStageRepository.findByStatut(Statut.ACCEPTEE)
-                .stream().map(OffreDeStageDTO::of).toList();
+        List<OffreDeStage> offres =
+                offreDeStageRepository.findByStatut(Statut.ACCEPTEE);
+
+        return sessionService.filtrerParSessionActuelle(
+                        offres,
+                        OffreDeStage::getCreatedAt
+                )
+                .stream()
+                .map(OffreDeStageDTO::of)
+                .toList();
     }
 }

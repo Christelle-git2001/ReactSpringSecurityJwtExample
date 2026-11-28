@@ -1,0 +1,136 @@
+
+.rapport-category {
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    transition: box-shadow 0.2s ease;
+}
+
+.rapport-category:hover {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+/* Structure commune à toutes les catégories */
+.rapport-category-layout {
+    display: grid;
+    grid-template-columns: 225px minmax(0, 1fr);
+    align-items: center;
+    gap: 28px;
+}
+
+.rapport-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    min-width: 0;
+}
+
+/* En-tête de catégorie */
+.rapport-category-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.rapport-card {
+    min-height: 90px;
+    min-width: 0;
+}
+
+/* Compteur */
+.rapport-count {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border-radius: 7px;
+    background-color: #E9D2FF;
+    color: #043462;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Boutons */
+.rapport-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #60DEDE;
+    border-radius: 8px;
+    color: #043462;
+    background-color: white;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.rapport-button:hover {
+    background-color: #043462;
+    border-color: #043462;
+    color: white;
+}
+
+.rapport-button-pdf {
+    background-color: #60DEDE;
+    color: #043462;
+    border-color: #60DEDE;
+}
+
+.rapport-button-pdf:hover {
+    background-color: #043462;
+    border-color: #043462;
+    color: white;
+}
+
+/* Écrans intermédiaires */
+@media (max-width: 1100px) {
+    .rapport-category-layout {
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .rapport-card {
+        flex-wrap: wrap;
+    }
+
+    .rapport-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Tablettes et téléphones */
+@media (max-width: 760px) {
+    .rapport-category-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .rapport-category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rapport-card {
+        flex-wrap: nowrap;
+    }
+
+    .rapport-actions {
+        width: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .rapport-button {
+        padding: 8px;
+    }
+
+    .rapport-button span {
+        display: none;
+    }
+}
+
+.rapport-card {
+    min-width: 0;
+}

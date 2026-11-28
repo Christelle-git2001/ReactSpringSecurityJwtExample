@@ -4,6 +4,7 @@ import com.lacouf.rsbjwt.exception.donnees.ParametreDonneesInvalideException;
 import com.lacouf.rsbjwt.model.Enum.Statut;
 import com.lacouf.rsbjwt.model.OffreDeStage;
 import com.lacouf.rsbjwt.repository.OffreDeStageRepository;
+import com.lacouf.rsbjwt.service.SessionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,8 +20,14 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DonneesOffreServiceTest {
-    @Mock OffreDeStageRepository offres;
-    @InjectMocks DonneesOffreService service;
+    @Mock
+    OffreDeStageRepository offres;
+
+    @InjectMocks
+    DonneesOffreService service;
+
+    @Mock
+    private SessionService sessionService;
 
     @ParameterizedTest
     @EnumSource(value = Statut.class, names = {"EN_ATTENTE", "ACCEPTEE"})
@@ -30,6 +37,10 @@ class DonneesOffreServiceTest {
         offre.setTitle("Dev junior");
         offre.setStatut(statut);
         when(offres.findByStatut(statut)).thenReturn(List.of(offre));
+        when(sessionService.filtrerParSessionActuelle(
+                anyList(),
+                any()
+        )).thenAnswer(invocation -> invocation.getArgument(0));
 
         var resultat = statut == Statut.EN_ATTENTE
                 ? service.obtenirOffresEnAttente() : service.obtenirOffresApprouvees();
